@@ -435,7 +435,7 @@ R_refsub = |∫ S_z(E_med - E_ref) dt| / ∫_{inc} S_z dt 场相减后的坡印�
 
 ```bash
 conda activate warpx-cpu-mpich-dev
-cd /home/douliangduo/WarpX_fluid
+cd /path/to/WarpX_fluid
 cmake --build build_2d -j 8
 ```
 
@@ -452,7 +452,7 @@ python3 benchmarks/cases/c03_medium/preflight.py benchmarks/cases/c03_medium/<ca
 
 ```bash
 cd benchmarks/cases/c03_medium/<case>
-OMP_NUM_THREADS=8 /home/douliangduo/WarpX_fluid/build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB \
+OMP_NUM_THREADS=8 "$WARPX_BIN" \
     inputs_2d max_step=<N> <overrides>
 ```
 

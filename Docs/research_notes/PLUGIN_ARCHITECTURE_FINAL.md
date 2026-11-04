@@ -1,5 +1,7 @@
 # WarpX 插件化最终架构（源码核对版）
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > 状态：V1，已被 `PLUGIN_RUNTIME_ARCHITECTURE_V2.md` 修正（V2 把内核改为 Runtime、接口改为通用数据键、协作改为数据依赖调度）。本文保留作为“WarpX 内开孔”路线的细节。
 
 > 本文取代 `PLUGIN_ARCHITECTURE_DESIGN.md` 作为架构准绳；`PLUGIN_P1_IMPLEMENTATION_PLAN.md` 降级为“第一个里程碑的施工细节”。

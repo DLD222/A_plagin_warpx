@@ -1,4 +1,4 @@
-# a_changed_simulation_project
+# A_plagin_warpx
 
 **An unofficial fork of [WarpX](https://github.com/BLAST-WarpX/warpX), distributed
 under the BSD-3-Clause license.**
@@ -17,6 +17,26 @@ copyright notices; they are not used to promote this fork.
   kept unmodified in this repository)
 - License of this fork: **BSD-3-Clause** (see `LICENSE`)
 
+## Project status (2026-11)
+
+This repository currently contains two workstreams:
+
+1. **Tensor-medium solver** (implemented, validated): the Yee path with 3x3
+   permittivity/permeability/conductivity tensors, anisotropic subpixel
+   smoothing, and the matrix-exponential conductivity integrator. See
+   `benchmarks/cases/c03_medium/` and `Docs/research_notes/技术路径.md`.
+2. **Plugin runtime architecture** (design + audit, no stable API yet): replacing
+   the `WarpX` god class with a physics-agnostic `SimulationRuntime` that loads
+   physics packages/plugins. The route is frozen in
+   [`Docs/research_notes/最终的技术路线.md`](Docs/research_notes/最终的技术路线.md);
+   the source audit is in
+   [`Docs/research_notes/SOURCE_AUDIT.md`](Docs/research_notes/SOURCE_AUDIT.md)
+   and [`Docs/research_notes/A0/`](Docs/research_notes/A0/).
+
+> The plugin runtime is **not** released and does not yet change the build or
+> the public input format. Existing WarpX inputs and the medium solver remain
+> the stable, usable path.
+
 ## Differences from upstream WarpX
 
 **Project level.** This is an **unofficial fork** of
@@ -34,7 +54,7 @@ this fork's additions are released under BSD-3-Clause (`LICENSE`).
 | Tensor input | -- | `epsilon_tensor_xx..yz`, `epsilon2_tensor_*` (6 components each); **bulk mode** for uniform anisotropic media (no interface) |
 | Dielectric interface | scalar subpixel (Kottke, isotropic) | **anisotropic subpixel**: Kottke tau transform for anisotropic materials, interface-frame inverse, general 3D frame (`n_y != 0`), f/n from the interface parser |
 | Conductivity | local backward-Euler / Lax-Wendroff update | **matrix-exponential integrator** `E = M1 E + M2 (curlH - J)` with `M1 = exp(-A dt)`, `M2 = (1-exp(-A dt)) A^-1 eps^-1`; `sigma = 0` cells keep the original Yee path bit-for-bit |
-| Validation | upstream test suite | added quantitative suite: Fresnel (normal/oblique, s/p), lossy-wave attenuation, disk resonances, tensor unit tests (`benchmarks/cases/c02_0_pec/`), and 41 research notes (`Docs/research_notes/`) |
+| Validation | upstream test suite | added quantitative suite: Fresnel (normal/oblique, s/p), lossy-wave attenuation, disk resonances, tensor unit tests (`benchmarks/cases/c02_0_pec/`), and 60 research notes (`Docs/research_notes/`) |
 
 **What is not changed.** The EB/cut-cell (`ect`) solver keeps its scalar
 `inv_epsr` path; the particle/PIC side, PSATD, and the upstream test suite are

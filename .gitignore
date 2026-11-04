@@ -94,3 +94,9 @@ warpx_used_inputs
 # local backups / agent tooling
 .git.old/
 .claude/
+
+# Generated run logs (not source; regenerate with the case scripts)
+benchmarks/**/*.log
+
+# Third-party papers are not redistributed; see Docs/refs/README.md
+Docs/refs/*.pdf

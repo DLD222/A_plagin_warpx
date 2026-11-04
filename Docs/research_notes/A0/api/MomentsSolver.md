@@ -1,5 +1,7 @@
 # A0 API catalog — MomentsSolver
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > Generated from headers; 15 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
 
 ## `FrictionParams`

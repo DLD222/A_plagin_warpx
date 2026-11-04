@@ -1,5 +1,7 @@
 # A0：头文件覆盖表
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 - 头文件总数：**371**
 - 解析出至少一个 class/struct 的头文件：**235**
 - 未解析出 class/struct 的头文件：**136**

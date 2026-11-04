@@ -1,5 +1,7 @@
 # 插件化 P1 实施方案：Plugin 骨架 + 官方 Yee 插件 + 内核调用点
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > **注意：本文已被 `PLUGIN_ARCHITECTURE_FINAL.md` 取代。** 最终架构把角色扩展到场/物质/材料/边界/诊断/AMR，并把“内核开孔”定义为 13 个聚合 seam；本文仅作为 M1 中“Yee 场插件”这一块的施工细节保留。
 
 > 依据：`Docs/research_notes/PLUGIN_ARCHITECTURE_DESIGN.md`（c6661b7）§6/§8。
@@ -561,7 +563,7 @@ cmake --fresh -S . -B build \
   -DWarpX_DIMS=2 -DWarpX_EB=ON -DWarpX_MPI=ON -DWarpX_COMPUTE=OMP \
   -DWarpX_PYTHON=OFF -DWarpX_OPENPMD=OFF -DWarpX_FFT=OFF \
   -DCMAKE_BUILD_TYPE=Release \
-  -DFETCHCONTENT_SOURCE_DIR_FETCHEDAMREX=/home/douliangduo/WarpX_fluid/build_2d/_deps/fetchedamrex-src
+  -DFETCHCONTENT_SOURCE_DIR_FETCHEDAMREX=/path/to/amrex-src
 cmake --build build -j 24
 ```
 

@@ -1,5 +1,7 @@
 # A0：头文件类目录与公共接口
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > 范围：`Source/**/*.H`，自动解析 + 人工抽检。签名来自源码启发式抽取；默认参数/模板/宏可能被简化，精确签名以头文件为准。
 > 机器可读表：`classes.csv`；逐子系统签名：`api/<Subsystem>.md`。
 

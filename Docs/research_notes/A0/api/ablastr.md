@@ -1,5 +1,7 @@
 # A0 API catalog — ablastr
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > Generated from headers; 17 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
 
 ## `PoissonInterpCPtoFP`

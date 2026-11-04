@@ -1,5 +1,7 @@
 # A0 API catalog — EmbeddedBoundary
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > Generated from headers; 4 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
 
 ## `Absorb`

@@ -1,8 +1,10 @@
 # 插件化架构设计：稳定内核 + 官方内置插件 + 外挂模块（建议稿）
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > 状态：历史设计稿，已被 `PLUGIN_ARCHITECTURE_FINAL.md`（源码核对版）取代。本文保留作为讨论记录，不再作为实现依据。
 
-> 工作区：`/home/douliangduo/WarpX_plugin`（`WarpX_fluid` 源码拷贝，HEAD `0de0e26`）
+> 工作区：本仓库（`WarpX_fluid` 源码拷贝，HEAD `0de0e26`）
 > 本文只写设计（按用户要求“现在只是写 .md”），不改代码；后续实现以此为准绳讨论。
 > 用户确认的要点：
 > 1. **原有内置功能全部下沉为「官方内置插件」**；内核只依赖抽象接口。

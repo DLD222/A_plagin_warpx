@@ -1,5 +1,7 @@
 # 插件化运行时架构 V2：通用内核、数据总线与协作调度
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > 状态：支撑材料。实施以 [`最终的技术路线.md`](最终的技术路线.md) 为准。
 
 > 本文是对 `PLUGIN_ARCHITECTURE_FINAL.md` 的修正版。修正的原因：上一版仍把 `WarpX` 这个“物理类”当内核，把 E/B/J/rho 写进接口；这违反“内核不绑定任何具体物理”。

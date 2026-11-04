@@ -1,5 +1,7 @@
 # A0 API catalog — Root
 
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+
 > Generated from headers; 1 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
 
 ## `WarpX`
