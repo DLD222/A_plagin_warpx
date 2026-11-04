@@ -14,7 +14,7 @@ algo.particle_shape = 1
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
 
-warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce
+warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce field_probe
 step_info.type = Timestep
 step_info.intervals = 1
 field_energy.type = FieldEnergy
@@ -28,6 +28,11 @@ field_poynting.intervals = 1
 field_reduce.type = FieldReduction
 field_reduce.reduction_type = Maximum
 field_reduce.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz) = "Ex"
+field_probe.type = FieldProbe
+field_probe.intervals = 1
+field_probe.probe_geometry = Point
+field_probe.x_probe = 0.0
+field_probe.z_probe = 0.0
 
 warpx.E_ext_grid_init_style = parse_E_ext_grid_function
 warpx.Ex_external_grid_function(x,y,z) = "1.0"

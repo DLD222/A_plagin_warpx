@@ -9,6 +9,7 @@
 #include "WarpX.H"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -126,7 +127,9 @@ int main (int argc, char* argv[])
         std::ifstream in(path);
         std::string line, last;
         while (std::getline(in, line)) {
-            if (!line.empty() && line[0] != '#') { last = line; }
+            if (!line.empty() && (std::isdigit(static_cast<unsigned char>(line[0])) || line[0] == '-')) {
+                last = line;
+            }
         }
         return last;
     };
@@ -221,12 +224,35 @@ int main (int argc, char* argv[])
             check(std::abs(absmax - expected) <= 1.0e-12 * expected, "rho_max |rho|");
         }
         {
+            std::istringstream is(last_line("diags/reducedfiles/extrema.txt"));
+            double step = 0, time = 0;
+            double xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0;
+            is >> step >> time >> xmin >> xmax >> ymin >> ymax >> zmin >> zmax;
+            check_eq(static_cast<int>(step), 1, "extrema step");
+            check(std::abs(xmin + 0.9375) <= 1.0e-9, "extrema xmin");
+            check(std::abs(xmax - 0.9375) <= 1.0e-9, "extrema xmax");
+            check(std::abs(zmin + 0.9375) <= 1.0e-9, "extrema zmin");
+            check(std::abs(zmax - 0.9375) <= 1.0e-9, "extrema zmax");
+        }
+        {
             std::istringstream is(last_line("diags/reducedfiles/part_mom.txt"));
             double step = 0, time = 0, px = 0, py = 0, pz = 0;
             is >> step >> time >> px >> py >> pz;
             check_eq(static_cast<int>(step), 1, "part_mom step");
             check(std::abs(pz) > 0.0, "part_mom pz is nonzero after acceleration");
         }
+    }
+
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_probe.txt"));
+        double step = 0, time = 0, x = 0, y = 0, z = 0;
+        double ex = 0, ey = 0, ez = 0, bx = 0, by = 0, bz = 0, s = 0;
+        is >> step >> time >> x >> y >> z >> ex >> ey >> ez >> bx >> by >> bz >> s;
+        constexpr double mu0 = 1.2566370612685e-6;
+        check_eq(static_cast<int>(step), 1, "field_probe step");
+        check(std::abs(ex - 1.0) <= 1.0e-14, "field_probe Ex");
+        check(std::abs(by - 1.0) <= 1.0e-14, "field_probe By");
+        check(std::abs(s - 1.0 / mu0) <= 1.0e-12 / mu0, "field_probe Poynting S");
     }
 
     if (failures == 0) {

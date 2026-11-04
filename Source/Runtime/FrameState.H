@@ -25,6 +25,9 @@ struct FrameState
     amrex::Real moving_window_v = 0.0;
     int start_moving_window_step = -1;
     int end_moving_window_step = -1;
+
+    //! Snapshot from the legacy WarpX statics (transitional).
+    [[nodiscard]] static FrameState FromLegacy ();
 };
 
 } // namespace warpx::runtime

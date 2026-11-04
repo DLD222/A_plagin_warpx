@@ -15,6 +15,9 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/FrameState.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -53,7 +56,7 @@ using warpx::fields::FieldType;
 // constructor
 
 FieldProbe::FieldProbe (const std::string& rd_name)
-: ReducedDiags{rd_name}, m_probe(&WarpX::GetInstance())
+: ReducedDiags{rd_name}, m_probe(&data().amrCore())
 {
 
     // read number of levels
@@ -153,7 +156,7 @@ FieldProbe::FieldProbe (const std::string& rd_name)
         WARPX_ABORT_WITH_MESSAGE("The field probe raw_fields options is obsolete. To get the equivalent, set interp_order = 0");
     }
 
-    if (WarpX::gamma_boost > 1.0_rt)
+    if (frame().gamma_boost > 1.0_rt)
     {
         ablastr::warn_manager::WMRecordWarning(
             "Boosted Frame Invalid",
@@ -350,10 +353,8 @@ void FieldProbe::LoadBalance ()
 
 bool FieldProbe::ProbeInDomain () const
 {
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
     int const lev = 0;
-    const amrex::Geometry& gm = warpx.Geom(lev);
+    const amrex::Geometry& gm = data().geom(lev);
     const auto *const prob_lo = gm.ProbLo();
     const auto *const prob_hi = gm.ProbHi();
 
@@ -384,28 +385,25 @@ void FieldProbe::ComputeDiags (int step)
     {
         if (!m_intervals.contains(step+1)) { return; }
     }
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get number of mesh-refinement levels
-    const auto nLevel = warpx.finestLevel() + 1;
+    const auto nLevel = data().finestLevel() + 1;
 
     using ablastr::fields::Direction;
 
     // loop over refinement levels
     for (int lev = 0; lev < nLevel; ++lev)
     {
-        amrex::Real const dt = WarpX::GetInstance().getdt(lev);
+        amrex::Real const dt = data().dt(lev);
         // Calculates particle movement in moving window sims
         amrex::Real move_dist = 0.0;
         bool const update_particles_moving_window =
             do_moving_window_FP &&
-            step > WarpX::start_moving_window_step &&
-            step <= WarpX::end_moving_window_step;
+            step > config().start_moving_window_step &&
+            step <= config().end_moving_window_step;
         if (update_particles_moving_window)
         {
             const int step_diff = step - m_last_compute_step;
-            move_dist = dt*WarpX::moving_window_v*step_diff;
+            move_dist = dt*frame().moving_window_v*step_diff;
         }
 
         // get MultiFab data at lev
@@ -415,14 +413,14 @@ void FieldProbe::ComputeDiags (int step)
         // SemiImplicitDarwin::ComputeInductiveEfromdA() leaves filled (see also
         // DarwinEfieldFunctor).
         std::array<std::unique_ptr<amrex::MultiFab>, 3> E_total;
-        if (warpx.evolve_scheme == EvolveScheme::Semi_Implicit_Darwin)
+        if (data().evolveScheme() == EvolveScheme::Semi_Implicit_Darwin)
         {
             for (int idir = 0; idir < 3; ++idir)
             {
                 const amrex::MultiFab &E_aux =
-                    *warpx.m_fields.get(FieldType::Efield_aux, Direction{idir}, lev);
+                    *data().fields().get(FieldType::Efield_aux, Direction{idir}, lev);
                 const amrex::MultiFab &dA =
-                    *warpx.m_fields.get(FieldType::dA_fp, Direction{idir}, lev);
+                    *data().fields().get(FieldType::dA_fp, Direction{idir}, lev);
                 const amrex::IntVect ngrow = amrex::elemwiseMin(E_aux.nGrowVect(), dA.nGrowVect());
                 E_total[idir] = std::make_unique<amrex::MultiFab>(
                     E_aux.boxArray(), E_aux.DistributionMap(), E_aux.nComp(), ngrow);
@@ -431,14 +429,14 @@ void FieldProbe::ComputeDiags (int step)
             }
         }
         const amrex::MultiFab &Ex = E_total[0] ?
-            *E_total[0] : *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
+            *E_total[0] : *data().fields().get(FieldType::Efield_aux, Direction{0}, lev);
         const amrex::MultiFab &Ey = E_total[1] ?
-            *E_total[1] : *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
+            *E_total[1] : *data().fields().get(FieldType::Efield_aux, Direction{1}, lev);
         const amrex::MultiFab &Ez = E_total[2] ?
-            *E_total[2] : *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-        const amrex::MultiFab &Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-        const amrex::MultiFab &By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-        const amrex::MultiFab &Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+            *E_total[2] : *data().fields().get(FieldType::Efield_aux, Direction{2}, lev);
+        const amrex::MultiFab &Bx = *data().fields().get(FieldType::Bfield_aux, Direction{0}, lev);
+        const amrex::MultiFab &By = *data().fields().get(FieldType::Bfield_aux, Direction{1}, lev);
+        const amrex::MultiFab &Bz = *data().fields().get(FieldType::Bfield_aux, Direction{2}, lev);
 
         /*
          * Prepare interpolation of field components to probe_position
@@ -477,7 +475,7 @@ void FieldProbe::ComputeDiags (int step)
             auto const np = pti.numParticles();
             if (update_particles_moving_window)
             {
-                const auto temp_warpx_moving_window = WarpX::moving_window_dir;
+                const auto temp_warpx_moving_window = frame().moving_window_dir;
                 amrex::ParallelFor( np, [=] AMREX_GPU_DEVICE (long ip)
                 {
                     amrex::ParticleReal xp, yp, zp;
@@ -526,12 +524,12 @@ void FieldProbe::ComputeDiags (int step)
 
                 auto * const AMREX_RESTRICT idcpu = pti.GetStructOfArrays().GetIdCPUData().data();
 
-                const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
-                const amrex::XDim3 dinv = WarpX::InvCellSize(lev);
+                const amrex::XDim3 xyzmin = data().lowerCorner(box, lev);
+                const amrex::XDim3 dinv = data().invCellSize(lev);
                 const Dim3 lo = lbound(box);
 
                 // Temporarily defining modes and interp outside ParallelFor to avoid GPU compilation errors.
-                const int temp_modes = WarpX::n_rz_azimuthal_modes;
+                const int temp_modes = config().n_rz_azimuthal_modes;
                 const int temp_interp_order = interp_order;
                 const bool temp_field_probe_integrate = m_field_probe_integrate;
 
@@ -707,7 +705,7 @@ void FieldProbe::WriteToFile (int step) const
         ofs << m_sep;
         ofs << std::fixed << std::setprecision(14) << std::scientific;
         // write time
-        ofs << WarpX::GetInstance().gett_new(0);
+        ofs << data().t_new(0);
 
         // start at k = 1 since the particle id is not written to file
         for (int k = 1; k < noutputs; k++)

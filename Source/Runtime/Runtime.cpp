@@ -34,20 +34,6 @@ TimeState make_time ()
     return t;
 }
 
-FrameState make_frame ()
-{
-    FrameState f;
-    f.gamma_boost = WarpX::gamma_boost;
-    f.beta_boost = WarpX::beta_boost;
-    f.boost_direction = WarpX::boost_direction;
-    f.do_moving_window = (WarpX::do_moving_window != 0);
-    f.moving_window_dir = WarpX::moving_window_dir;
-    f.moving_window_v = WarpX::moving_window_v;
-    f.start_moving_window_step = WarpX::start_moving_window_step;
-    f.end_moving_window_step = WarpX::end_moving_window_step;
-    return f;
-}
-
 } // namespace
 
 Runtime::Runtime (int argc, char* argv[])
@@ -140,7 +126,7 @@ void
 Runtime::sync_time ()
 {
     m_time = make_time();
-    m_frame = make_frame();
+    m_frame = FrameState::FromLegacy();
 }
 
 void

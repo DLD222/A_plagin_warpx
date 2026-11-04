@@ -52,6 +52,7 @@ RuntimeConfig::FromLegacy ()
     c.sort_intervals = WarpX::sort_intervals;
     c.filter_npass_each_dir = WarpX::filter_npass_each_dir;
     c.n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
+    c.nox = WarpX::nox;
     c.load_balance_costs_update_algo = WarpX::load_balance_costs_update_algo;
     c.start_moving_window_step = WarpX::start_moving_window_step;
     c.end_moving_window_step = WarpX::end_moving_window_step;

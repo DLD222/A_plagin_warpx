@@ -4,6 +4,7 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         Runtime.cpp
         RuntimeConfig.cpp
+        FrameState.cpp
         WarpXRuntimeData.cpp
     )
 endforeach()

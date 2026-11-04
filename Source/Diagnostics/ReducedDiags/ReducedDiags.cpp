@@ -8,6 +8,7 @@
 #include "ReducedDiags.H"
 
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -178,5 +179,16 @@ ReducedDiags::config () const
     }
     static const warpx::runtime::RuntimeConfig legacy =
         warpx::runtime::RuntimeConfig::FromLegacy();
+    return legacy;
+}
+
+const warpx::runtime::FrameState&
+ReducedDiags::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
+        return *m_runtime_context->frame;
+    }
+    static const warpx::runtime::FrameState legacy =
+        warpx::runtime::FrameState::FromLegacy();
     return legacy;
 }

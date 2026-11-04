@@ -26,6 +26,7 @@ public:
 
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override;
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
+    [[nodiscard]] amrex::AmrCore& amrCore () const override;
     [[nodiscard]] MultiParticleContainer& particles () override;
     [[nodiscard]] const MultiParticleContainer& particles () const override;
     [[nodiscard]] MultiFluidContainer* fluids () override;
@@ -35,6 +36,9 @@ public:
     [[nodiscard]] const amrex::BoxArray& boxArray (int lev) const override;
     [[nodiscard]] const amrex::DistributionMapping& distributionMap (int lev) const override;
     [[nodiscard]] amrex::Array<amrex::Real, 3> cellSize (int lev) const override;
+    [[nodiscard]] amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const override;
+    [[nodiscard]] amrex::XDim3 invCellSize (int lev) const override;
+    [[nodiscard]] amrex::IntVect ngEB () const override;
     [[nodiscard]] amrex::Real t_new (int lev) const override;
     [[nodiscard]] amrex::Real dt (int lev) const override;
     [[nodiscard]] int istep (int lev) const override;

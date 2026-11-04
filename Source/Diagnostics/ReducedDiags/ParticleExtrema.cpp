@@ -19,6 +19,9 @@
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"
+#include "Particles/MultiParticleContainer.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -64,11 +67,8 @@ ParticleExtrema::ParticleExtrema (const std::string& rd_name)
     const amrex::ParmParse pp_rd_name(rd_name);
     pp_rd_name.get("species",m_species_name);
 
-    // get WarpX class object
-    auto & warpx = WarpX::GetInstance();
-
     // get MultiParticleContainer class object
-    auto & mypc = warpx.GetPartContainer();
+    auto & mypc = data().particles();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -158,7 +158,7 @@ void ParticleExtrema::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    auto & mypc = WarpX::GetInstance().GetPartContainer();
+    auto const & mypc = data().particles();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -242,7 +242,7 @@ void ParticleExtrema::ComputeDiags (int step)
 
 #if (defined WARPX_QED)
         // get number of level (int)
-        const auto level_number = WarpX::GetInstance().finestLevel();
+        const auto level_number = data().finestLevel();
 
         // compute chimin and chimax
         amrex::Real chimin_f = 0.0_rt;
@@ -256,11 +256,10 @@ void ParticleExtrema::ComputeDiags (int step)
             chimax.resize(level_number+1,0.0_rt);
 
             // define variables in preparation for field gathering
-            auto & warpx = WarpX::GetInstance();
-            const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
-            const int nox = WarpX::nox;
-            const bool galerkin_interpolation = WarpX::galerkin_interpolation;
-            const amrex::IntVect ngEB = warpx.getngEB();
+            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes;
+            const int nox = config().nox;
+            const bool galerkin_interpolation = config().galerkin_interpolation;
+            const amrex::IntVect ngEB = data().ngEB();
 
             using ablastr::fields::Direction;
 
@@ -268,14 +267,14 @@ void ParticleExtrema::ComputeDiags (int step)
             for (int lev = 0; lev <= level_number; ++lev)
             {
                 // define variables in preparation for field gathering
-                const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(lev, 0));
+                const amrex::XDim3 dinv = data().invCellSize(std::max(lev, 0));
 
-                const amrex::MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
-                const amrex::MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
-                const amrex::MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-                const amrex::MultiFab & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-                const amrex::MultiFab & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-                const amrex::MultiFab & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+                const amrex::MultiFab & Ex = *data().fields().get(FieldType::Efield_aux, Direction{0}, lev);
+                const amrex::MultiFab & Ey = *data().fields().get(FieldType::Efield_aux, Direction{1}, lev);
+                const amrex::MultiFab & Ez = *data().fields().get(FieldType::Efield_aux, Direction{2}, lev);
+                const amrex::MultiFab & Bx = *data().fields().get(FieldType::Bfield_aux, Direction{0}, lev);
+                const amrex::MultiFab & By = *data().fields().get(FieldType::Bfield_aux, Direction{1}, lev);
+                const amrex::MultiFab & Bz = *data().fields().get(FieldType::Bfield_aux, Direction{2}, lev);
 
                 // declare reduce_op
                 amrex::ReduceOps<amrex::ReduceOpMin, amrex::ReduceOpMax> reduce_op;
@@ -304,7 +303,7 @@ void ParticleExtrema::ComputeDiags (int step)
                     amrex::Box box = pti.tilebox();
                     box.grow(ngEB);
                     const amrex::Dim3 lo = amrex::lbound(box);
-                    const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+                    const amrex::XDim3 xyzmin = data().lowerCorner(box, lev);
                     const auto& ex_arr = Ex[pti].array();
                     const auto& ey_arr = Ey[pti].array();
                     const auto& ez_arr = Ez[pti].array();

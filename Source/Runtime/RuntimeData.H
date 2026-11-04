@@ -19,6 +19,8 @@
 #include <AMReX_LayoutData.H>
 #include <AMReX_REAL.H>
 
+namespace amrex { class AmrCore; }
+
 class MultiParticleContainer;
 class MultiFluidContainer;
 
@@ -40,6 +42,7 @@ public:
     [[nodiscard]] virtual ablastr::fields::MultiFabRegister& fields () = 0;
     [[nodiscard]] virtual const ablastr::fields::MultiFabRegister& fields () const = 0;
 
+    [[nodiscard]] virtual amrex::AmrCore& amrCore () const = 0;
     [[nodiscard]] virtual MultiParticleContainer& particles () = 0;
     [[nodiscard]] virtual const MultiParticleContainer& particles () const = 0;
     [[nodiscard]] virtual MultiFluidContainer* fluids () = 0;
@@ -51,6 +54,9 @@ public:
     [[nodiscard]] virtual const amrex::BoxArray& boxArray (int lev) const = 0;
     [[nodiscard]] virtual const amrex::DistributionMapping& distributionMap (int lev) const = 0;
     [[nodiscard]] virtual amrex::Array<amrex::Real, 3> cellSize (int lev) const = 0;
+    [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
+    [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
+    [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
 
     [[nodiscard]] virtual amrex::Real t_new (int lev) const = 0;
     [[nodiscard]] virtual amrex::Real dt (int lev) const = 0;

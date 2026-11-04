@@ -80,6 +80,7 @@ struct RuntimeConfig
 
     // low-level numerics (read by diagnostics)
     int n_rz_azimuthal_modes = 0;
+    int nox = 3;
 
     // load balance
     LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo = LoadBalanceCostsUpdateAlgo::Default;

@@ -297,12 +297,34 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
   },
   {
-   "id": "A1.4",
+   "id": "A1.4e",
    "phase": "A1",
-   "title": "Batch C5：FieldProbe + 剩余诊断（Extrema/Histogram/ChargeOnEB/Collider/DifferentialLuminosity/LoadBalanceCosts）",
+   "title": "Batch C4：FieldProbe + ParticleExtrema + 直方图",
    "kind": "refactor",
    "depends": [
     "A1.4d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ReducedDiags/FieldProbe.cpp",
+    "Source/Diagnostics/ReducedDiags/ParticleExtrema.cpp",
+    "Source/Diagnostics/ReducedDiags/ParticleHistogram.cpp",
+    "Source/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "probe 的 E/B/S 与解析值一致；extrema 的 x/z 极值与均匀分布一致；直方图可运行",
+   "note": "FieldProbeParticleContainer 通过 data().amrCore() 构造，已去 WarpX::GetInstance",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts）",
+   "kind": "refactor",
+   "depends": [
+    "A1.4e"
    ],
    "status": "pending",
    "outputs": [],
