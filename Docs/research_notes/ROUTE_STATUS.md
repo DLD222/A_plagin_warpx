@@ -12,9 +12,9 @@
 | A0.4 | A0 | done | A0.1,A0.2 | 第二遍核验：PSATD restart / RemakeLevel / 诊断时序 / callback / EB |
 | A0.5 | A0 | done | A0.1,A0.2,A0.3,A0.4 | A0 收口报告 |
 | A1.0 | A1 | done | A0.5 | Runtime facade + main.cpp 切换 |
-| A1.1 | A1 | pending | A1.0 | RuntimeConfig（只读配置）类型 |
-| A1.2 | A1 | pending | A1.0 | TimeState / FrameState 类型 |
-| A1.3 | A1 | pending | A1.0 | Services 接口（FillBoundary/Reduce/Parser/RNG/Log） |
+| A1.1 | A1 | done | A1.0 | RuntimeConfig（只读配置）类型 |
+| A1.2 | A1 | done | A1.0 | TimeState / FrameState 类型 |
+| A1.3 | A1 | done | A1.0 | Services 接口（FillBoundary/Reduce/Parser/RNG/Log） |
 | A1.4 | A1 | pending | A1.1,A1.2,A1.3 | Batch C：ReducedDiags 去 GetInstance |
 | A1.5 | A1 | pending | A1.4 | Batch D：FullDiagnostics/FlushFormat 去 GetInstance |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
@@ -46,5 +46,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.1` — RuntimeConfig（只读配置）类型
+**Next:** `A1.4` — Batch C：ReducedDiags 去 GetInstance
 

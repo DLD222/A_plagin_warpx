@@ -8,6 +8,11 @@
 #ifndef WARPX_RUNTIME_RUNTIME_H_
 #define WARPX_RUNTIME_RUNTIME_H_
 
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/Services.H"
+#include "Runtime/TimeState.H"
+
 namespace warpx::runtime
 {
 
@@ -41,9 +46,23 @@ public:
 
     [[nodiscard]] bool verbose () const;
 
+    //! Read-only configuration snapshot (populated after initialize()).
+    [[nodiscard]] const RuntimeConfig& config () const;
+
+    //! Read-only clock/level snapshot.
+    [[nodiscard]] const TimeState& time () const;
+
+    //! Read-only frame/moving-window snapshot.
+    [[nodiscard]] const FrameState& frame () const;
+
 private:
     bool m_initialized = false;
     bool m_finalized = false;
+    RuntimeConfig m_config{};
+    TimeState m_time{};
+    FrameState m_frame{};
+
+    void sync_state ();
 };
 
 } // namespace warpx::runtime

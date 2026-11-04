@@ -16,6 +16,10 @@
 | [`VERIFICATION.md`](VERIFICATION.md) | 第二遍核验：PSATD restart、RemakeLevel 缺口、诊断时序、Python callback、EB per-level；构建/冒烟基线 |
 | [`STATIC_INVENTORY.md`](STATIC_INVENTORY.md) | 66 个数据 static 的引用清单与 A1 迁移批次（Config/State/Cache） |
 
+## 时点说明
+
+`HEADER_CATALOG.md` / `classes.csv` 是 **A0 收口时点**（2026-11-04）的快照，尚未包含 A1 新增的 `Source/Runtime/*` 类；A1 结束后统一刷新，避免每个提交都改计数。
+
 ## 解析方法与限制
 
 - 解析器：`Tools/A0/parse_headers.py` → `/tmp/header_catalog.json`；生成器：`Tools/A0/build_catalog.py`（重建 CSV/API/索引/覆盖表）。

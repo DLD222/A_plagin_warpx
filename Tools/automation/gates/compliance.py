@@ -61,8 +61,10 @@ def main() -> int:
             errors.append(f"tracked third-party/generated artifact: {f}")
         if not p.exists() or not is_text(p):
             continue
+        if f.startswith("Tools/automation/gates/"):
+            continue  # the gate itself contains the patterns it searches for
         text = p.read_text(errors="ignore")
-        if "/home/douliangduo" in text or "\\wsl.localhost" in text:
+        if ("/home/" + "douliangduo") in text or "\\wsl.localhost" in text:
             errors.append(f"personal absolute path in {f}")
         if SECRET.search(text):
             errors.append(f"possible credential in {f}")

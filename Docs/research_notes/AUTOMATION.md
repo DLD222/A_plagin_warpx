@@ -48,7 +48,7 @@
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
 | A0 审计 | 5 | 5 |
-| A1 去单例 | 10 | 1（A1.0 facade） |
+| A1 去单例 | 10 | 4（A1.0 facade + A1.1–A1.3 类型） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |
 | A4 状态 schema | 5 | 0 |
@@ -136,10 +136,10 @@ python3 Tools/automation/route_tasks.py check full
 
 ## 7. 当前下一步
 
-`A1.1 RuntimeConfig（只读配置）类型`：
+`A1.4 Batch C：ReducedDiags 去 GetInstance`：
 
-- 目标：把 39 个 config static 收进只读结构；不改变行为。
-- 门：`build+smoke`。
-- 之后 A1.2 `TimeState/FrameState`、A1.3 `Services`，再进 A1.4 Batch C（ReducedDiags）。
+- 目标：把 `Diagnostics/ReducedDiags` 的 76 处 `WarpX::GetInstance()/WarpX::static` 改成 `ctx.config()/ctx.time()`。
+- 门：`build+smoke` + reduced-diag 相关 ctest。
+- 完成后再进 A1.5 `FullDiagnostics`。
 
 > 自动化的价值是**让每个增量都必须过同一组门**，不是替代设计。路线仍是 16–30 人月。
