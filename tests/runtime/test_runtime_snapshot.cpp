@@ -10,7 +10,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -117,6 +119,43 @@ int main (int argc, char* argv[])
     runtime.evolve(1);
     check_eq(runtime.time().step, 1, "time.step after evolve");
     check_eq(runtime.time().istep, WarpX::GetInstance().getistep(), "time.istep after evolve");
+
+    // Numeric verification of the migrated reduced diagnostics:
+    // E = 1 V/m uniform in [-1,1]^2 -> U = 0.5*eps0*E^2*volume = 1.7708...e-11 J.
+    auto last_line = [](const std::string& path) {
+        std::ifstream in(path);
+        std::string line, last;
+        while (std::getline(in, line)) {
+            if (!line.empty() && line[0] != '#') { last = line; }
+        }
+        return last;
+    };
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_energy.txt"));
+        double step = 0, time = 0, total = 0, e = 0, b = 0;
+        is >> step >> time >> total >> e >> b;
+        constexpr double expected = 0.5 * 8.8541878188e-12 * 4.0;
+        check_eq(static_cast<int>(step), 1, "field_energy step");
+        check(std::abs(total - expected) <= 1.0e-12 * expected, "field_energy total");
+        check(std::abs(e - expected) <= 1.0e-12 * expected, "field_energy E component");
+        check(std::abs(b) <= 1.0e-30, "field_energy B component is zero");
+    }
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_max.txt"));
+        double step = 0, time = 0, ex = 0, ey = 0, ez = 0, emag = 0;
+        is >> step >> time >> ex >> ey >> ez >> emag;
+        check_eq(static_cast<int>(step), 1, "field_max step");
+        check(std::abs(ex - 1.0) <= 1.0e-14, "field_max max_Ex");
+        check(std::abs(emag - 1.0) <= 1.0e-14, "field_max max_|E|");
+    }
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_mom.txt"));
+        double step = 0, time = 0, px = 0, py = 0, pz = 0;
+        is >> step >> time >> px >> py >> pz;
+        check_eq(static_cast<int>(step), 1, "field_mom step");
+        check(std::abs(px) <= 1.0e-30 && std::abs(py) <= 1.0e-30 && std::abs(pz) <= 1.0e-30,
+              "field_mom is zero for B=0");
+    }
 
     if (failures == 0) {
         std::cout << "PASS: runtime snapshots match legacy WarpX state\n";

@@ -8,6 +8,7 @@
 #include "Runtime/Runtime.H"
 
 #include "Initialization/WarpXInit.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <stdexcept>
@@ -100,9 +101,11 @@ Runtime::Runtime (int argc, char* argv[])
     // Construct WarpX (reads parameters) before InitData, so diagnostics and
     // other setup-time consumers can see a config snapshot.
     auto& warpx = WarpX::GetInstance();
+    m_data = std::make_unique<WarpXRuntimeData>(warpx);
     sync_config();
     sync_time();
-    m_context = RuntimeContext{&m_config, &m_time, &m_frame, nullptr, [this] { sync_time(); }};
+    m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), nullptr,
+                               [this] { sync_time(); }};
     warpx.SetRuntimeContext(&m_context);
 }
 

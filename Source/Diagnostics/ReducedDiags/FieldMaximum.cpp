@@ -9,6 +9,7 @@
 
 #include "Fields.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -116,10 +117,8 @@ void FieldMaximum::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get number of level
-    const auto nLevel = warpx.finestLevel() + 1;
+    const auto nLevel = data().finestLevel() + 1;
 
     using ablastr::fields::Direction;
 
@@ -127,12 +126,13 @@ void FieldMaximum::ComputeDiags (int step)
     for (int lev = 0; lev < nLevel; ++lev)
     {
         // get MultiFab data at lev
-        const MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
-        const MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
-        const MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-        const MultiFab & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-        const MultiFab & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-        const MultiFab & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+        auto const& fields = data().fields();
+        const MultiFab & Ex = *fields.get(FieldType::Efield_aux, Direction{0}, lev);
+        const MultiFab & Ey = *fields.get(FieldType::Efield_aux, Direction{1}, lev);
+        const MultiFab & Ez = *fields.get(FieldType::Efield_aux, Direction{2}, lev);
+        const MultiFab & Bx = *fields.get(FieldType::Bfield_aux, Direction{0}, lev);
+        const MultiFab & By = *fields.get(FieldType::Bfield_aux, Direction{1}, lev);
+        const MultiFab & Bz = *fields.get(FieldType::Bfield_aux, Direction{2}, lev);
 
         constexpr int noutputs = 8; // max of Ex,Ey,Ez,|E|,Bx,By,Bz and |B|
         constexpr int index_Ex = 0;

@@ -7,6 +7,10 @@
 
 #include "ReducedDiags.H"
 
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
+
 #include "WarpX.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
@@ -155,3 +159,12 @@ void ReducedDiags::WriteToFile (int step) const
     ofs.close();
 }
 // end ReducedDiags::WriteToFile
+
+const warpx::runtime::RuntimeData&
+ReducedDiags::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
+    return warpx::runtime::WarpXRuntimeData::Legacy();
+}

@@ -8,6 +8,7 @@
 #include "FieldEnergy.H"
 
 #include "Fields.H"
+#include "Runtime/RuntimeData.H"
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
@@ -49,7 +50,7 @@ FieldEnergy::FieldEnergy (const std::string& rd_name)
     // resize data array
     m_data.resize(noutputs*nLevel, 0.0_rt);
 
-    if (WarpX::GetInstance().evolve_scheme == EvolveScheme::Semi_Implicit_Darwin)
+    if (data().evolveScheme() == EvolveScheme::Semi_Implicit_Darwin)
     {
         ablastr::warn_manager::WMRecordWarning(
             "Diagnostics",
@@ -94,11 +95,8 @@ void FieldEnergy::ComputeDiags (int step)
     // Judge if the diags should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    // get a reference to WarpX instance
-    auto const & warpx = WarpX::GetInstance();
-
     // get number of level
-    int const nLevel = warpx.finestLevel() + 1;
+    int const nLevel = data().finestLevel() + 1;
 
     using ablastr::fields::Direction;
 
@@ -106,15 +104,16 @@ void FieldEnergy::ComputeDiags (int step)
     for (int lev = 0; lev < nLevel; ++lev)
     {
         // get MultiFab data at lev
-        amrex::MultiFab const & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
-        amrex::MultiFab const & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
-        amrex::MultiFab const & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-        amrex::MultiFab const & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-        amrex::MultiFab const & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-        amrex::MultiFab const & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+        auto const& fields = data().fields();
+        amrex::MultiFab const & Ex = *fields.get(FieldType::Efield_aux, Direction{0}, lev);
+        amrex::MultiFab const & Ey = *fields.get(FieldType::Efield_aux, Direction{1}, lev);
+        amrex::MultiFab const & Ez = *fields.get(FieldType::Efield_aux, Direction{2}, lev);
+        amrex::MultiFab const & Bx = *fields.get(FieldType::Bfield_aux, Direction{0}, lev);
+        amrex::MultiFab const & By = *fields.get(FieldType::Bfield_aux, Direction{1}, lev);
+        amrex::MultiFab const & Bz = *fields.get(FieldType::Bfield_aux, Direction{2}, lev);
 
         // get cell volume
-        std::array<amrex::Real, 3> const &dx = WarpX::CellSize(lev);
+        std::array<amrex::Real, 3> const dx = data().cellSize(lev);
         amrex::Real const dV = dx[0]*dx[1]*dx[2];
 
         // compute E squared

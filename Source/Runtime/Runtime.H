@@ -14,8 +14,12 @@
 #include "Runtime/Services.H"
 #include "Runtime/TimeState.H"
 
+#include <memory>
+
 namespace warpx::runtime
 {
+
+class WarpXRuntimeData;
 
 /**
  * \brief Process-level owner of the simulation lifetime.
@@ -66,6 +70,7 @@ private:
     TimeState m_time{};
     FrameState m_frame{};
     RuntimeContext m_context{};
+    std::unique_ptr<WarpXRuntimeData> m_data;
 
     void sync_config ();
     void sync_time ();

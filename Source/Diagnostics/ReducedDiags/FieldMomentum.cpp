@@ -10,6 +10,7 @@
 #include "Fields.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -99,11 +100,8 @@ void FieldMomentum::ComputeDiags (int step)
     // Check if the diags should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    // Get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // Get number of refinement levels
-    const auto nLevel = warpx.finestLevel() + 1;
+    const auto nLevel = data().finestLevel() + 1;
 
     using ablastr::fields::Direction;
 
@@ -111,12 +109,13 @@ void FieldMomentum::ComputeDiags (int step)
     for (int lev = 0; lev < nLevel; ++lev)
     {
         // Get MultiFab data at given refinement level
-        const amrex::MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
-        const amrex::MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
-        const amrex::MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-        const amrex::MultiFab & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-        const amrex::MultiFab & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-        const amrex::MultiFab & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+        auto const& fields = data().fields();
+        const amrex::MultiFab & Ex = *fields.get(FieldType::Efield_aux, Direction{0}, lev);
+        const amrex::MultiFab & Ey = *fields.get(FieldType::Efield_aux, Direction{1}, lev);
+        const amrex::MultiFab & Ez = *fields.get(FieldType::Efield_aux, Direction{2}, lev);
+        const amrex::MultiFab & Bx = *fields.get(FieldType::Bfield_aux, Direction{0}, lev);
+        const amrex::MultiFab & By = *fields.get(FieldType::Bfield_aux, Direction{1}, lev);
+        const amrex::MultiFab & Bz = *fields.get(FieldType::Bfield_aux, Direction{2}, lev);
 
         // Cell-centered index type
         const amrex::GpuArray<int,3> cc{0,0,0};
@@ -187,7 +186,7 @@ void FieldMomentum::ComputeDiags (int step)
         amrex::ParallelDescriptor::ReduceRealSum({ExB_x,ExB_y,ExB_z});
 
         // Get cell volume
-        const std::array<Real, 3> &dx = WarpX::CellSize(lev);
+        const std::array<Real, 3> dx = data().cellSize(lev);
         const amrex::Real dV = dx[0]*dx[1]*dx[2];
 
         // Save data (offset: 3 values for each refinement level)

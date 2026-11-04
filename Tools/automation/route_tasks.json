@@ -233,12 +233,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
-   "id": "A1.4",
+   "id": "A1.4b",
    "phase": "A1",
-   "title": "Batch C2：字段/粒子型 ReducedDiags 去 GetInstance",
+   "title": "Batch C1.5：FieldEnergy/FieldMaximum/FieldMomentum 去 GetInstance",
    "kind": "refactor",
    "depends": [
     "A1.4a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ReducedDiags/FieldEnergy.cpp",
+    "Source/Diagnostics/ReducedDiags/FieldMaximum.cpp",
+    "Source/Diagnostics/ReducedDiags/FieldMomentum.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "三个 diag 的 per-step 代码用 data()；能量/最大值/动量输出与解析值一致",
+   "note": "RuntimeData 接口 + WarpX 适配器已加",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C3：FieldPoyntingFlux/FieldProbe/FieldReduction + 粒子型 ReducedDiags",
+   "kind": "refactor",
+   "depends": [
+    "A1.4b"
    ],
    "status": "pending",
    "outputs": [],

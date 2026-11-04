@@ -5,5 +5,7 @@ foreach(D IN LISTS WarpX_DIMS)
         target_link_libraries(test_runtime_snapshot_${SD} PRIVATE lib_${SD})
         add_test(NAME runtime_snapshot_${D}
                  COMMAND test_runtime_snapshot_${SD} ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d)
+        set_tests_properties(runtime_snapshot_${D} PROPERTIES
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     endif()
 endforeach()
