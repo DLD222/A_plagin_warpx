@@ -10,6 +10,7 @@ geometry.prob_hi =  1.0  1.0
 
 warpx.cfl = 0.4
 algo.maxwell_solver = yee
+algo.particle_shape = 1
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
 
@@ -35,3 +36,4 @@ warpx.Ez_external_grid_function(x,y,z) = "0.0"
 
 warpx.B_ext_grid_init_style = constant
 warpx.B_external_grid = 0.0 1.0 0.0
+

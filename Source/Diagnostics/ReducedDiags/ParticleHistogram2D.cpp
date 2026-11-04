@@ -15,6 +15,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -92,7 +93,7 @@ ParticleHistogram2D::ParticleHistogram2D (const std::string& rd_name)
             utils::parser::makeParser(function_string_ord,{"t","x","y","z","ux","uy","uz","w"}));
 
     // get MultiParticleContainer class object
-    const auto & mypc = WarpX::GetInstance().GetPartContainer();
+    const auto & mypc = data().particles();
     // get species names (std::vector<std::string>)
     auto const species_names = mypc.GetSpeciesNames();
     // select species
@@ -153,14 +154,11 @@ void ParticleHistogram2D::ComputeDiags (int step)
 
     auto d_table = d_data_2D.table();
 
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get time at level 0
-    auto const t = warpx.gett_new(0);
+    auto const t = data().t_new(0);
 
     // get MultiParticleContainer class object
-    const auto & mypc = warpx.GetPartContainer();
+    const auto & mypc = data().particles();
 
     // get WarpXParticleContainer class object
     auto & myspc = mypc.GetParticleContainer(m_selected_species_id);
@@ -316,8 +314,7 @@ void ParticleHistogram2D::WriteToFile (int step) const
     // UNIT DIMENSION IS NOT SET ON THE VALUES
 
     // Get time at level 0
-    auto & warpx = WarpX::GetInstance();
-    auto const time = warpx.gett_new(0);
+    auto const time = data().t_new(0);
     i.setTime(time);
 
     auto const& h_table_data = m_h_data_2D.table();

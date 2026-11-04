@@ -274,12 +274,35 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
-   "id": "A1.4",
+   "id": "A1.4d",
    "phase": "A1",
-   "title": "Batch C4：FieldProbe + 粒子型 ReducedDiags",
+   "title": "Batch C3：粒子统计诊断（Number/Energy/Momentum/RhoMaximum/LB efficiency）",
    "kind": "refactor",
    "depends": [
     "A1.4c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ReducedDiags/ParticleNumber.cpp",
+    "Source/Diagnostics/ReducedDiags/ParticleEnergy.cpp",
+    "Source/Diagnostics/ReducedDiags/ParticleMomentum.cpp",
+    "Source/Diagnostics/ReducedDiags/RhoMaximum.cpp",
+    "Source/Diagnostics/ReducedDiags/LoadBalanceEfficiency.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "粒子数/能量/动量/rho 极值/效率用 data()；数值与注入参数一致",
+   "note": "新增 runtime_snapshot_particles_2 测试",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C5：FieldProbe + 剩余诊断（Extrema/Histogram/ChargeOnEB/Collider/DifferentialLuminosity/LoadBalanceCosts）",
+   "kind": "refactor",
+   "depends": [
+    "A1.4d"
    ],
    "status": "pending",
    "outputs": [],

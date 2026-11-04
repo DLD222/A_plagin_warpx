@@ -44,7 +44,9 @@ void check_real (amrex::Real a, amrex::Real b, const std::string& what)
 
 int main (int argc, char* argv[])
 {
-    warpx::runtime::Runtime runtime(argc, argv);
+    const bool particles_mode = (argc > 2 && std::string(argv[2]) == "--particles");
+    char* rt_argv[3] = {argv[0], argv[1], nullptr};
+    warpx::runtime::Runtime runtime(2, rt_argv);
 
     // The context must be installed before InitData (diagnostics are built there).
     auto* installed = WarpX::GetInstance().GetRuntimeContext();
@@ -120,8 +122,6 @@ int main (int argc, char* argv[])
     check_eq(runtime.time().step, 1, "time.step after evolve");
     check_eq(runtime.time().istep, WarpX::GetInstance().getistep(), "time.istep after evolve");
 
-    // Numeric verification of the migrated reduced diagnostics:
-    // E = 1 V/m uniform in [-1,1]^2 -> U = 0.5*eps0*E^2*volume = 1.7708...e-11 J.
     auto last_line = [](const std::string& path) {
         std::ifstream in(path);
         std::string line, last;
@@ -130,6 +130,10 @@ int main (int argc, char* argv[])
         }
         return last;
     };
+
+    if (!particles_mode) {
+    // Numeric verification of the migrated reduced diagnostics:
+    // E = 1 V/m uniform in [-1,1]^2 -> U = 0.5*eps0*E^2*volume = 1.7708...e-11 J.
     {
         std::istringstream is(last_line("diags/reducedfiles/field_energy.txt"));
         double step = 0, time = 0, total = 0, e = 0, b = 0;
@@ -186,6 +190,43 @@ int main (int argc, char* argv[])
         is >> step >> time >> value;
         check_eq(static_cast<int>(step), 1, "field_reduce step");
         check(std::abs(value - 1.0) <= 1.0e-14, "field_reduce Maximum(Ex)");
+    }
+
+    }
+
+    if (particles_mode) {
+        {
+            std::istringstream is(last_line("diags/reducedfiles/part_num.txt"));
+            double step = 0, time = 0, total = 0, electrons = 0, weight = 0;
+            is >> step >> time >> total >> electrons >> weight;
+            check_eq(static_cast<int>(step), 1, "part_num step");
+            check(std::abs(total - 256.0) <= 1.0e-12, "part_num macroparticles");
+            check(std::abs(weight - 4.0e18) <= 1.0e-12 * 4.0e18, "part_num weight");
+        }
+        {
+            std::istringstream is(last_line("diags/reducedfiles/part_energy.txt"));
+            double step = 0, time = 0, total = 0;
+            is >> step >> time >> total;
+            check_eq(static_cast<int>(step), 1, "part_energy step");
+            check(total > 0.0, "part_energy is positive after acceleration");
+        }
+        {
+            std::istringstream is(last_line("diags/reducedfiles/rho_max.txt"));
+            double step = 0, time = 0, rmax = 0, rmin = 0, absmax = 0;
+            is >> step >> time >> rmax >> rmin >> absmax;
+            const double expected = 1.602176634e-19 * 1.0e18;
+            check_eq(static_cast<int>(step), 1, "rho_max step");
+            check(std::abs(rmax + expected) <= 1.0e-12 * expected, "rho_max max");
+            check(std::abs(rmin + expected) <= 1.0e-12 * expected, "rho_max min");
+            check(std::abs(absmax - expected) <= 1.0e-12 * expected, "rho_max |rho|");
+        }
+        {
+            std::istringstream is(last_line("diags/reducedfiles/part_mom.txt"));
+            double step = 0, time = 0, px = 0, py = 0, pz = 0;
+            is >> step >> time >> px >> py >> pz;
+            check_eq(static_cast<int>(step), 1, "part_mom step");
+            check(std::abs(pz) > 0.0, "part_mom pz is nonzero after acceleration");
+        }
     }
 
     if (failures == 0) {

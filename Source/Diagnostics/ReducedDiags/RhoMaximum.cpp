@@ -12,6 +12,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_BoxArray.H>
@@ -55,7 +56,7 @@ RhoMaximum::RhoMaximum (const std::string& rd_name)
     }
 
     // get MultiParticleContainer class object
-    const auto & mypc = WarpX::GetInstance().GetPartContainer();
+    const auto & mypc = data().particles();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -127,11 +128,8 @@ void RhoMaximum::ComputeDiags (int step)
     // Judge if the diags should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get number of levels
-    const auto nLevel = warpx.finestLevel() + 1;
+    const auto nLevel = data().finestLevel() + 1;
 
     const auto n_charged_species = static_cast<int>(m_rho_functors[0].size() - 1);
     // Min and max of total rho + max of |rho| for each species
@@ -141,8 +139,8 @@ void RhoMaximum::ComputeDiags (int step)
     for (int lev = 0; lev < nLevel; ++lev)
     {
         // Declare a temporary MultiFAB to store the charge densities.
-        const amrex::BoxArray ba = warpx.boxArray(lev);
-        const amrex::DistributionMapping dmap = warpx.DistributionMap(lev);
+        const amrex::BoxArray ba = data().boxArray(lev);
+        const amrex::DistributionMapping dmap = data().distributionMap(lev);
         constexpr int ncomp = 1;
         constexpr int ngrow = 0;
         amrex::MultiFab mf_temp(ba, dmap, ncomp, ngrow);

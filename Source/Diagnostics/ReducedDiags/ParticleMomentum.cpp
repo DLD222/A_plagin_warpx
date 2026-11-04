@@ -11,6 +11,8 @@
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"
+#include "Particles/MultiParticleContainer.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_GpuQualifiers.H>
@@ -35,11 +37,8 @@ using namespace amrex;
 ParticleMomentum::ParticleMomentum (const std::string& rd_name)
     : ReducedDiags{rd_name}
 {
-    // Get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // Get MultiParticleContainer class object
-    const auto & mypc = warpx.GetPartContainer();
+    const auto & mypc = data().particles();
 
     // Get number of species
     const int nSpecies = mypc.nSpecies();
@@ -119,7 +118,7 @@ void ParticleMomentum::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // Get MultiParticleContainer class object
-    const auto & mypc = WarpX::GetInstance().GetPartContainer();
+    const auto & mypc = data().particles();
 
     // Get number of species
     const int nSpecies = mypc.nSpecies();

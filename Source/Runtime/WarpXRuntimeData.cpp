@@ -24,6 +24,7 @@ WarpXRuntimeData::Legacy ()
 ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () { return m_warpx.GetMultiFabRegister(); }
 const ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () const { return m_warpx.GetMultiFabRegister(); }
 MultiParticleContainer& WarpXRuntimeData::particles () { return m_warpx.GetPartContainer(); }
+const MultiParticleContainer& WarpXRuntimeData::particles () const { return m_warpx.GetPartContainer(); }
 MultiFluidContainer* WarpXRuntimeData::fluids () { return m_warpx.DoFluidSpecies() ? &m_warpx.GetFluidContainer() : nullptr; }
 int WarpXRuntimeData::finestLevel () const { return m_warpx.finestLevel(); }
 int WarpXRuntimeData::maxLevel () const { return m_warpx.maxLevel(); }

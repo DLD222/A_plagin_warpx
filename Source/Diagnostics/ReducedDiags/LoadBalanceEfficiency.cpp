@@ -7,6 +7,7 @@
 #include "LoadBalanceEfficiency.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_ParallelDescriptor.H>
@@ -64,17 +65,14 @@ void LoadBalanceEfficiency::ComputeDiags (int step)
     // Judge if the diags should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get number of level
-    const auto nLevel = warpx.finestLevel() + 1;
+    const auto nLevel = data().finestLevel() + 1;
 
     // loop over refinement levels
     for (int lev = 0; lev < nLevel; ++lev)
     {
         // save data
-        m_data[lev] = warpx.getLoadBalanceEfficiency(lev);
+        m_data[lev] = data().loadBalanceEfficiency(lev);
     }
     // end loop over refinement levels
 

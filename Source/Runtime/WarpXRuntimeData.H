@@ -27,6 +27,7 @@ public:
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override;
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
     [[nodiscard]] MultiParticleContainer& particles () override;
+    [[nodiscard]] const MultiParticleContainer& particles () const override;
     [[nodiscard]] MultiFluidContainer* fluids () override;
     [[nodiscard]] int finestLevel () const override;
     [[nodiscard]] int maxLevel () const override;

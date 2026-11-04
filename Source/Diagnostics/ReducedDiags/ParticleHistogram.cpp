@@ -14,6 +14,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -96,7 +97,7 @@ ParticleHistogram::ParticleHistogram (const std::string& rd_name)
     }
 
     // get MultiParticleContainer class object
-    const auto & mypc = WarpX::GetInstance().GetPartContainer();
+    const auto & mypc = data().particles();
     // get species names (std::vector<std::string>)
     auto const species_names = mypc.GetSpeciesNames();
     // select species
@@ -160,14 +161,11 @@ void ParticleHistogram::ComputeDiags (int step)
     // Judge if the diags should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // get time at level 0
-    auto const t = warpx.gett_new(0);
+    auto const t = data().t_new(0);
 
     // get MultiParticleContainer class object
-    const auto & mypc = warpx.GetPartContainer();
+    const auto & mypc = data().particles();
 
     // get WarpXParticleContainer class object
     auto & myspc = mypc.GetParticleContainer(m_selected_species_id);
