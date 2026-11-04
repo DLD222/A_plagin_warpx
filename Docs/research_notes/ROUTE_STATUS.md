@@ -15,7 +15,8 @@
 | A1.1 | A1 | done | A1.0 | RuntimeConfig（只读配置）类型 |
 | A1.2 | A1 | done | A1.0 | TimeState / FrameState 类型 |
 | A1.3 | A1 | done | A1.0 | Services 接口（FillBoundary/Reduce/Parser/RNG/Log） |
-| A1.4 | A1 | pending | A1.1,A1.2,A1.3 | Batch C：ReducedDiags 去 GetInstance |
+| A1.3a | A1 | pending | A1.3 | RuntimeContext 注入 WarpX（配置/时钟/服务），使 ReducedDiags 可拿到 ctx |
+| A1.4 | A1 | pending | A1.3a | Batch C：ReducedDiags 去 GetInstance |
 | A1.5 | A1 | pending | A1.4 | Batch D：FullDiagnostics/FlushFormat 去 GetInstance |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
@@ -46,5 +47,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.4` — Batch C：ReducedDiags 去 GetInstance
+**Next:** `A1.3a` — RuntimeContext 注入 WarpX（配置/时钟/服务），使 ReducedDiags 可拿到 ctx
 

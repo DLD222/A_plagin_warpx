@@ -856,6 +856,7 @@ if(BUILD_TESTING)
     if(WarpX_PYTHON)
         add_subdirectory(tests/unit)
     endif()
+    add_subdirectory(tests/runtime)
 endif()
 
 

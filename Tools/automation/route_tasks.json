@@ -151,7 +151,8 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "不改变行为；所有配置项只读",
-   "note": ""
+   "note": "",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
    "id": "A1.2",
@@ -170,7 +171,8 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "step/time/dt/substep；boost/moving-window",
-   "note": ""
+   "note": "",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
    "id": "A1.3",
@@ -188,7 +190,27 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "host 侧粗粒度；kernel 内零虚调用",
-   "note": ""
+   "note": "",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
+  },
+  {
+   "id": "A1.3a",
+   "phase": "A1",
+   "title": "RuntimeContext 注入 WarpX（配置/时钟/服务），使 ReducedDiags 可拿到 ctx",
+   "kind": "refactor",
+   "depends": [
+    "A1.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeContext.H"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Runtime 在 InitData 前设置 context；WarpX 暴露只读 accessor；Python 路径 null 回退",
+   "note": "A1.4 的前置：没有 context 注入，ReducedDiags 无法去单例",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
    "id": "A1.4",
@@ -196,9 +218,7 @@
    "title": "Batch C：ReducedDiags 去 GetInstance",
    "kind": "refactor",
    "depends": [
-    "A1.1",
-    "A1.2",
-    "A1.3"
+    "A1.3a"
    ],
    "status": "pending",
    "outputs": [],

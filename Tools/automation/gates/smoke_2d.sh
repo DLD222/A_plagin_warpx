@@ -4,4 +4,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 BUILD_DIR="${WARPX_BUILD_DIR:-build}"
-ctest --test-dir "${BUILD_DIR}" -R '^test_2d_langmuir_multi\.(run|analysis)$' --output-on-failure
+ctest --test-dir "${BUILD_DIR}" -R '^test_2d_langmuir_multi\.(run|analysis)$|^runtime_snapshot_' --output-on-failure

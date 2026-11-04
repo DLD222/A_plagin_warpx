@@ -71,9 +71,10 @@ def load_spec() -> dict:
 
 
 def load_state(spec: dict) -> dict:
-    if STATE.exists():
-        return json.loads(STATE.read_text())
-    return {t["id"]: {"status": t["status"]} for t in spec["tasks"]}
+    state = json.loads(STATE.read_text()) if STATE.exists() else {}
+    for t in spec["tasks"]:
+        state.setdefault(t["id"], {"status": t["status"]})
+    return state
 
 
 def save_state(state: dict) -> None:
@@ -171,6 +172,10 @@ def cmd_run(spec, state, args):
                 if not run_step(cmd, log):
                     ok = False
                     break
+        if ok and t.get("verify_command"):
+            print(f"verify: {t['verify_command']}")
+            if not run_step(["bash", "-lc", t["verify_command"]], log):
+                ok = False
 
     if ok and (t["kind"] != "refactor" or args.accept or t.get("automation_command")):
         state[t["id"]] = {"status": "done", "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "log": str(log_path)}

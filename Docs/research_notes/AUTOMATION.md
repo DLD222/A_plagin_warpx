@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **39 个可执行任务**，每个任务带依赖、产出、验收和门禁。
+> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **40 个可执行任务**，每个任务带依赖、产出、验收和门禁。
 > 任务图：`Tools/automation/route_tasks.json`；运行器：`Tools/automation/route_tasks.py`；门禁：`Tools/automation/gates/`。
 
 ---
@@ -48,7 +48,7 @@
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
 | A0 审计 | 5 | 5 |
-| A1 去单例 | 10 | 4（A1.0 facade + A1.1–A1.3 类型） |
+| A1 去单例 | 11 | 4（A1.0 facade + A1.1–A1.3 类型） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |
 | A4 状态 schema | 5 | 0 |
@@ -89,7 +89,10 @@ python3 Tools/automation/route_tasks.py mark A1.4 pending
 
 日志：`.route_logs/<task>.log`、`.route_logs/check-<gate>.log`。
 
-**约定**：`refactor` 任务必须 `--accept` 才会标 done；构建/冒烟通过不等于重构完成。
+**约定**：
+1. `refactor` 任务必须 `--accept` 才会标 done；构建/冒烟通过不等于重构完成。
+2. 每个 `refactor` 应带 `verify_command`；运行器在标记 done 前执行它，`--accept` **不能绕过验证**。
+3. A1.1–A1.3 的验证是 `tests/runtime/test_runtime_snapshot.cpp`：初始化后逐项对比 `RuntimeConfig/TimeState/FrameState` 与旧 `WarpX` 状态，再推进 1 步对比时钟。
 
 ---
 
