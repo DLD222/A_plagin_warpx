@@ -8,6 +8,8 @@
 #include "FieldPoyntingFlux.H"
 
 #include "Fields.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"
@@ -103,9 +105,8 @@ void FieldPoyntingFlux::ComputeDiags (int /*step*/)
     // This will be called at the end of the time step. Only calculate the
     // flux if it had not already been calculated mid step.
     if (!use_mid_step_value) {
-        auto & warpx = WarpX::GetInstance();
         int const lev = 0;
-        amrex::Real const dt = warpx.getdt(lev);
+        amrex::Real const dt = data().dt(lev);
         ComputePoyntingFlux(dt);
     }
 }
@@ -127,25 +128,23 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
 
     int const lev = 0;
 
-    // Get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // RZ coordinate only working with one mode
 #if defined(WARPX_DIM_RZ)
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(warpx.n_rz_azimuthal_modes == 1,
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().n_rz_azimuthal_modes == 1,
         "FieldPoyntingFlux reduced diagnostics only implemented in RZ geometry for one mode");
 #endif
 
-    amrex::Box domain_box = warpx.Geom(lev).Domain();
+    amrex::Box domain_box = data().geom(lev).Domain();
     domain_box.surroundingNodes();
 
     // Get MultiFab data at given refinement level
-    amrex::MultiFab const & Ex = *warpx.m_fields.get(FieldType::Efield_fp, Direction{0}, lev);
-    amrex::MultiFab const & Ey = *warpx.m_fields.get(FieldType::Efield_fp, Direction{1}, lev);
-    amrex::MultiFab const & Ez = *warpx.m_fields.get(FieldType::Efield_fp, Direction{2}, lev);
-    amrex::MultiFab const & Bx = *warpx.m_fields.get(FieldType::Bfield_fp, Direction{0}, lev);
-    amrex::MultiFab const & By = *warpx.m_fields.get(FieldType::Bfield_fp, Direction{1}, lev);
-    amrex::MultiFab const & Bz = *warpx.m_fields.get(FieldType::Bfield_fp, Direction{2}, lev);
+    auto const& fields = data().fields();
+    amrex::MultiFab const & Ex = *fields.get(FieldType::Efield_fp, Direction{0}, lev);
+    amrex::MultiFab const & Ey = *fields.get(FieldType::Efield_fp, Direction{1}, lev);
+    amrex::MultiFab const & Ez = *fields.get(FieldType::Efield_fp, Direction{2}, lev);
+    amrex::MultiFab const & Bx = *fields.get(FieldType::Bfield_fp, Direction{0}, lev);
+    amrex::MultiFab const & By = *fields.get(FieldType::Bfield_fp, Direction{1}, lev);
+    amrex::MultiFab const & Bz = *fields.get(FieldType::Bfield_fp, Direction{2}, lev);
 
     // Index type (staggering) of each MultiFab
     // (with third component set to zero in 2D)
@@ -169,7 +168,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
 
         int const face_dir = face().coordDir();
 
-        if (face().isHigh() && WarpX::field_boundary_hi[face_dir] == FieldBoundaryType::Periodic) {
+        if (face().isHigh() && config().field_boundary_hi[face_dir] == FieldBoundaryType::Periodic) {
             // For upper periodic boundaries, copy the lower value instead of regenerating it.
             int const iu = int(face());
             int const il = int(face().flip());
@@ -181,7 +180,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
         amrex::Box const boundary = amrex::bdryNode(domain_box, face());
 
         // Get cell area
-        amrex::Real const *dx = warpx.Geom(lev).CellSize();
+        amrex::Real const *dx = data().geom(lev).CellSize();
         std::array<amrex::Real, AMREX_SPACEDIM> dxtemp = {AMREX_D_DECL(dx[0], dx[1], dx[2])};
         dxtemp[face_dir] = 1._rt;
         amrex::Real const dA = AMREX_D_TERM(dxtemp[0], *dxtemp[1], *dxtemp[2]);
@@ -229,7 +228,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
             // Lower corner of box physical domain
             amrex::XDim3 const xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
             amrex::Dim3 const lo = amrex::lbound(box);
-            amrex::Real const dr = warpx.Geom(lev).CellSize(lev);
+            amrex::Real const dr = data().geom(lev).CellSize(lev);
             amrex::Real const rmin = xyzmin.x;
             int const irmin = lo.x;
 #endif
@@ -256,8 +255,8 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
             // Compute E x B
             // On GPU, reduce_ops doesn't work with empty boxes.
             if (box.ok()) {
-                if (WarpX::grid_type == ablastr::utils::enums::GridType::Staggered ||
-                    WarpX::grid_type == ablastr::utils::enums::GridType::Hybrid) {
+                if (config().grid_type == ablastr::utils::enums::GridType::Staggered ||
+                    config().grid_type == ablastr::utils::enums::GridType::Hybrid) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingStaggered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
@@ -268,7 +267,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
                         flux += Poynting::Kernel<2, PoyntingStaggered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
                 }
-                else if (WarpX::grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_nodal()) {
+                else if (config().grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_nodal()) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingNodal>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
@@ -279,7 +278,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
                         flux += Poynting::Kernel<2, PoyntingNodal>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
                 }
-                else if (WarpX::grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_cell_centered()) {
+                else if (config().grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_cell_centered()) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingCellCentered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }

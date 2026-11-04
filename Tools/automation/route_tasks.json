@@ -254,12 +254,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
-   "id": "A1.4",
+   "id": "A1.4c",
    "phase": "A1",
-   "title": "Batch C3：FieldPoyntingFlux/FieldProbe/FieldReduction + 粒子型 ReducedDiags",
+   "title": "Batch C2：FieldPoyntingFlux + FieldReduction 去 GetInstance",
    "kind": "refactor",
    "depends": [
     "A1.4b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.cpp",
+    "Source/Diagnostics/ReducedDiags/FieldReduction.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Poynting 与 Reduction 用 data()/config()；E+B 场的通量/最大值与解析值一致",
+   "note": "FieldProbe 需要 FieldProbeParticleContainer，归 A1.4 C4",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C4：FieldProbe + 粒子型 ReducedDiags",
+   "kind": "refactor",
+   "depends": [
+    "A1.4c"
    ],
    "status": "pending",
    "outputs": [],

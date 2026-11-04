@@ -18,7 +18,8 @@
 | A1.3a | A1 | done | A1.3 | RuntimeContext 注入 WarpX（配置/时钟/服务），使 ReducedDiags 可拿到 ctx |
 | A1.4a | A1 | done | A1.3a | Batch C1：ReducedDiags context 基座 + Timestep 试点 |
 | A1.4b | A1 | done | A1.4a | Batch C1.5：FieldEnergy/FieldMaximum/FieldMomentum 去 GetInstance |
-| A1.4 | A1 | pending | A1.4b | Batch C3：FieldPoyntingFlux/FieldProbe/FieldReduction + 粒子型 ReducedDiags |
+| A1.4c | A1 | done | A1.4b | Batch C2：FieldPoyntingFlux + FieldReduction 去 GetInstance |
+| A1.4 | A1 | pending | A1.4c | Batch C4：FieldProbe + 粒子型 ReducedDiags |
 | A1.5 | A1 | pending | A1.4 | Batch D：FullDiagnostics/FlushFormat 去 GetInstance |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
@@ -49,5 +50,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.4` — Batch C3：FieldPoyntingFlux/FieldProbe/FieldReduction + 粒子型 ReducedDiags
+**Next:** `A1.4` — Batch C4：FieldProbe + 粒子型 ReducedDiags
 

@@ -8,6 +8,7 @@
 #include "ReducedDiags.H"
 
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
 
@@ -167,4 +168,15 @@ ReducedDiags::data () const
         return *m_runtime_context->data;
     }
     return warpx::runtime::WarpXRuntimeData::Legacy();
+}
+
+const warpx::runtime::RuntimeConfig&
+ReducedDiags::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy =
+        warpx::runtime::RuntimeConfig::FromLegacy();
+    return legacy;
 }

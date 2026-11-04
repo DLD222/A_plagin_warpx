@@ -134,27 +134,58 @@ int main (int argc, char* argv[])
         std::istringstream is(last_line("diags/reducedfiles/field_energy.txt"));
         double step = 0, time = 0, total = 0, e = 0, b = 0;
         is >> step >> time >> total >> e >> b;
-        constexpr double expected = 0.5 * 8.8541878188e-12 * 4.0;
+        constexpr double eps0 = 8.8541878188e-12;
+        constexpr double mu0 = 1.2566370612685e-6;
+        const double expected_e = 0.5 * eps0 * 4.0;
+        const double expected_b = 0.5 / mu0 * 4.0;
         check_eq(static_cast<int>(step), 1, "field_energy step");
-        check(std::abs(total - expected) <= 1.0e-12 * expected, "field_energy total");
-        check(std::abs(e - expected) <= 1.0e-12 * expected, "field_energy E component");
-        check(std::abs(b) <= 1.0e-30, "field_energy B component is zero");
+        check(std::abs(total - (expected_e + expected_b)) <= 1.0e-12 * (expected_e + expected_b),
+              "field_energy total");
+        check(std::abs(e - expected_e) <= 1.0e-12 * expected_e, "field_energy E component");
+        check(std::abs(b - expected_b) <= 1.0e-12 * expected_b, "field_energy B component");
     }
     {
         std::istringstream is(last_line("diags/reducedfiles/field_max.txt"));
         double step = 0, time = 0, ex = 0, ey = 0, ez = 0, emag = 0;
-        is >> step >> time >> ex >> ey >> ez >> emag;
+        double bx = 0, by = 0, bz = 0, bmag = 0;
+        is >> step >> time >> ex >> ey >> ez >> emag >> bx >> by >> bz >> bmag;
         check_eq(static_cast<int>(step), 1, "field_max step");
         check(std::abs(ex - 1.0) <= 1.0e-14, "field_max max_Ex");
         check(std::abs(emag - 1.0) <= 1.0e-14, "field_max max_|E|");
+        check(std::abs(by - 1.0) <= 1.0e-14, "field_max max_By");
+        check(std::abs(bmag - 1.0) <= 1.0e-14, "field_max max_|B|");
     }
     {
         std::istringstream is(last_line("diags/reducedfiles/field_mom.txt"));
         double step = 0, time = 0, px = 0, py = 0, pz = 0;
         is >> step >> time >> px >> py >> pz;
+        constexpr double eps0 = 8.8541878188e-12;
+        const double expected_pz = eps0 * 4.0;
         check_eq(static_cast<int>(step), 1, "field_mom step");
-        check(std::abs(px) <= 1.0e-30 && std::abs(py) <= 1.0e-30 && std::abs(pz) <= 1.0e-30,
-              "field_mom is zero for B=0");
+        check(std::abs(px) <= 1.0e-30 && std::abs(py) <= 1.0e-30, "field_mom x/y are zero");
+        check(std::abs(pz - expected_pz) <= 1.0e-12 * expected_pz, "field_mom pz = eps0*E*B*V");
+    }
+
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_poynting.txt"));
+        double step = 0, time = 0;
+        double plox = 0, ploz = 0, phix = 0, phiz = 0;
+        double elox = 0, eloz = 0, ehix = 0, ehiz = 0;
+        is >> step >> time >> plox >> ploz >> phix >> phiz >> elox >> eloz >> ehix >> ehiz;
+        constexpr double mu0 = 1.2566370612685e-6;
+        const double expected = 2.0 / mu0;   // area 2 (z faces), E=1, B=1
+        check_eq(static_cast<int>(step), 1, "field_poynting step");
+        check(std::abs(plox) <= 1.0e-30 && std::abs(phix) <= 1.0e-30, "poynting x faces are zero");
+        check(std::abs(ploz + expected) <= 1.0e-12 * expected, "poynting lo_z");
+        check(std::abs(phiz - expected) <= 1.0e-12 * expected, "poynting hi_z");
+    }
+
+    {
+        std::istringstream is(last_line("diags/reducedfiles/field_reduce.txt"));
+        double step = 0, time = 0, value = 0;
+        is >> step >> time >> value;
+        check_eq(static_cast<int>(step), 1, "field_reduce step");
+        check(std::abs(value - 1.0) <= 1.0e-14, "field_reduce Maximum(Ex)");
     }
 
     if (failures == 0) {

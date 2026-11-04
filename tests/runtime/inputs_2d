@@ -13,7 +13,7 @@ algo.maxwell_solver = yee
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
 
-warpx.reduced_diags_names = step_info field_energy field_max field_mom
+warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce
 step_info.type = Timestep
 step_info.intervals = 1
 field_energy.type = FieldEnergy
@@ -22,8 +22,16 @@ field_max.type = FieldMaximum
 field_max.intervals = 1
 field_mom.type = FieldMomentum
 field_mom.intervals = 1
+field_poynting.type = FieldPoyntingFlux
+field_poynting.intervals = 1
+field_reduce.type = FieldReduction
+field_reduce.reduction_type = Maximum
+field_reduce.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz) = "Ex"
 
 warpx.E_ext_grid_init_style = parse_E_ext_grid_function
 warpx.Ex_external_grid_function(x,y,z) = "1.0"
 warpx.Ey_external_grid_function(x,y,z) = "0.0"
 warpx.Ez_external_grid_function(x,y,z) = "0.0"
+
+warpx.B_ext_grid_init_style = constant
+warpx.B_external_grid = 0.0 1.0 0.0

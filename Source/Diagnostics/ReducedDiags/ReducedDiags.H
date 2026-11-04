@@ -14,7 +14,7 @@
 
 #include <string>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; struct RuntimeConfig; }
 #include <vector>
 
 /**
@@ -58,6 +58,7 @@ protected:
 
     //! Kernel data view (RuntimeContext when installed, legacy WarpX otherwise).
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;

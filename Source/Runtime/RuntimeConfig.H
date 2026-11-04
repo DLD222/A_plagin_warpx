@@ -78,12 +78,18 @@ struct RuntimeConfig
     ablastr::utils::text::IntervalsParser sort_intervals{};
     amrex::IntVect filter_npass_each_dir{AMREX_D_DECL(1, 1, 1)};
 
+    // low-level numerics (read by diagnostics)
+    int n_rz_azimuthal_modes = 0;
+
     // load balance
     LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo = LoadBalanceCostsUpdateAlgo::Default;
 
     // moving window (input side; runtime side lives in FrameState)
     int start_moving_window_step = -1;
     int end_moving_window_step = -1;
+
+    //! Snapshot from the legacy WarpX statics (transitional).
+    [[nodiscard]] static RuntimeConfig FromLegacy ();
 };
 
 } // namespace warpx::runtime
