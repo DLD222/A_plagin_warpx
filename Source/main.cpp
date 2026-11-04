@@ -6,9 +6,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
-
-#include "Initialization/WarpXInit.H"
+#include "Runtime/Runtime.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <ablastr/utils/timer/Timer.H>
@@ -17,18 +15,17 @@
 
 int
 main (int argc, char* argv[]) {
-    warpx::initialization::initialize_external_libraries(argc, argv);
+    warpx::runtime::Runtime runtime(argc, argv);
     {
         ABLASTR_PROFILE_VAR("main()", pmain);
 
         auto timer = ablastr::utils::timer::Timer{};
         timer.record_start_time();
 
-        auto& warpx = WarpX::GetInstance();
-        warpx.InitData();
-        warpx.Evolve();
-        const auto is_warpx_verbose = warpx.Verbose();
-        WarpX::Finalize();
+        runtime.initialize();
+        runtime.evolve();
+        const auto is_warpx_verbose = runtime.verbose();
+        runtime.finalize();
 
         timer.record_stop_time();
         if (is_warpx_verbose) {
@@ -38,5 +35,4 @@ main (int argc, char* argv[]) {
 
         ABLASTR_PROFILE_VAR_STOP(pmain);
     }
-    warpx::initialization::finalize_external_libraries();
 }

@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 状态：**第一遍完成**（自动解析 371 个 `.H` + 抽检；348 类 / 2,408 公共方法 / 12 子系统矩阵）。**第二遍人工核验未完成**，清单见 `LIFECYCLE_MATRIX.md` §14 与 `COVERAGE.md`。
+> 状态：**第一遍 + 第二遍核验完成**（2026-11-04）。371 头文件 / 348 类 / 2,408 公共方法；12 子系统矩阵；5 个待验证项已处理，并新增 4 个 `RemakeLevel` 缺口。详见 `VERIFICATION.md`。
 
 本目录是 [`../SOURCE_AUDIT.md`](../SOURCE_AUDIT.md) 的 A0 执行产物，也是 [`../最终的技术路线.md`](../最终的技术路线.md) 的前置输入。
 
@@ -13,6 +13,7 @@
 | [`classes.csv`](classes.csv) | 机器可读：`subsystem,file,kind,class,bases,n_public_methods,...` |
 | [`COVERAGE.md`](COVERAGE.md) | 371 个头文件的覆盖表；136 个无 class 的头文件清单 |
 | [`LIFECYCLE_MATRIX.md`](LIFECYCLE_MATRIX.md) | 12 个子系统的“所有者/创建/初始化/每步/regrid/restart/归属”矩阵 |
+| [`VERIFICATION.md`](VERIFICATION.md) | 第二遍核验：PSATD restart、RemakeLevel 缺口、诊断时序、Python callback、EB per-level；构建/冒烟基线 |
 
 ## 解析方法与限制
 

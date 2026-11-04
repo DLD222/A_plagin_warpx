@@ -176,12 +176,25 @@
 
 ---
 
-## 14. 待验证项
+## 14. 第二遍核验结果（2026-11-04）
 
-- PSATD `spectral_solver` 在 restart 时是否完全由 `AllocLevelData` 重建（已读入口，未逐行确认 `m_dt`/谱系数）。
-- `RemakeLevel` 对所有 level 资源的覆盖是否完整（已发现 `ClearLevel` 漏项）。
-- `MultiDiagnostics` 在 `InitData` 内构造、场未分配时的 `InitData` 时序。
-- Python callback 在 implicit/hybrid 分支的完整性。
-- EB `m_build_eb_data_per_level` 与 `RemakeLevel` 的交互。
+已确认（详见 [`VERIFICATION.md`](VERIFICATION.md)）：
 
-> 这些项在 A0 第二遍逐行确认；未确认前，`LevelResources` 的设计不能定稿。
+- **PSATD restart**：`ComputeDt` → `InitFromCheckpoint` → 每 level `AllocLevelData` → `AllocLevelSpectralSolver(dt[lev])`；谱求解器无持久状态，按新 ba/dm/dt 重建。
+- **诊断时序**：`MultiDiagnostics` 在 `InitData` 内、场分配前构造（`WarpXInitData.cpp:815`）；`InitData(*mypc)` 在场分配后（`:1021`）。注册与初始化必须分两步。
+- **Python callback**：显式分支覆盖较全；Hybrid 只有 `before/afterEsolve`；隐式分支几乎没有 callback（仅 `SemiImplicitDarwin` 的 `afterdeposition`）。
+- **EB per-level**：`build_eb_data_per_level` 默认 true；`m_eb_index_space` 不随 DM 重建（合理）；factory/flags 由 `RemakeLevel` + `InitializeEBGridData` 重建；ECT 共形 E 仍只支持 `maxLevel()==0`。
+
+新增缺口（A2 必须处理）：
+
+| 对象 | `RemakeLevel` | `ClearLevel` | 影响 |
+|---|---|---|---|
+| `pml[lev]` | 未重建 | 未清理 | 负载均衡后 PML split fields 仍是旧 DM |
+| `MacroscopicProperties` 系数场 | 未重建 | 未清理 | 介质 + 负载均衡会读旧 DM 的 MultiFab |
+| `Efield/Bfield/Afield_dotMask`、`phi_dotMask` | 未重建 | 已清 | 边界/诊断可能在 LB 后读旧 mask |
+| `m_flag_info_face` | 未重建 | 未清理 | ECT 借用信息与 borrowing 不一致 |
+| `m_field_factory`、`m_eb_update_*`、`m_borrowing` | 重建 | 未清理 | level 销毁时泄漏/悬空 |
+| `m_accelerator_lattice` | 重建 finder | 未清理 | level 销毁时泄漏 |
+
+**结论**：A2 的 `LevelResources` 必须是一张覆盖“场/材料/PML/EB/诊断/成本/加速器”的登记表，`RemakeLevel` 与 `ClearLevel` 共用；不能只补 `ClearLevel`。
+
