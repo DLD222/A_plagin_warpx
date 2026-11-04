@@ -16,7 +16,7 @@
 
 | 文件 | 关注点 |
 |---|---|
-| `Source/WarpX.H` | 254 个成员声明、191 个函数、68 个 static |
+| `Source/WarpX.H` | 254 个成员声明、191 个函数、66 个数据 static |
 | `Source/WarpX.cpp`（构造/ReadParameters 部分/AllocLevelData/ClearLevel/MakeNewLevel*） | 生命周期、全局状态、按 `FieldType` 分配 |
 | `Source/Evolve/WarpXEvolve.cpp`（Evolve/OneStep/OneStep_nosub/OneStep_sub1 的调用序列） | 时间步序列、物理分支 |
 | `Source/FieldSolver/WarpXPushFieldsEM.cpp`（EvolveB/E、MacroscopicEvolveE、PushPSATD 入口） | 场推进路径 |
@@ -47,9 +47,9 @@
 
 Route B 不需要逐行读每个 GPU kernel，但必须做到：
 
-1. **所有 368 个 `.H` 的公共接口读完**（类型、所有权、生命周期）。
+1. **所有 371 个 `.H` 的公共接口读完**（类型、所有权、生命周期）。
 2. **所有非 kernel `.cpp` 的入口函数读完**（构造/Init/Step/Regrid/Restart/Finalize）。
-3. **跨切面**：全局状态（68 static + 241 `GetInstance`）、IO/checkpoint、Python/PICMI、构建矩阵、测试。
+3. **跨切面**：全局状态（66 static + 241 `GetInstance`）、IO/checkpoint、Python/PICMI、构建矩阵、测试。
 4. **kernel `.K` 只抽样**：它们属于算法实现，不影响 Runtime 的边界；但必须知道它们读写哪些数据键。
 
 按 500 个有效文件、每文件 10–20 分钟，约 **80–160 小时**（2–4 周全职）。当前完成约 15%。
@@ -78,7 +78,7 @@ Route B 不需要逐行读每个 GPU kernel，但必须做到：
 | `Source/Evolve/` | 2 | 2,028 |
 | **合计** | **636**（.H/.cpp） | **100,539** |
 
-> 另有 `.K`/`.h` kernel 与测试文件未计入；`class/struct` 声明 418 处、唯一类名 343 个（Particles 91、Diagnostics 68、FieldSolver 54、Initialization 33、NonlinearSolvers 28、ablastr 17、MomentsSolver 13、其余 39）。
+> 另有 `.K`/`.h` kernel 与测试文件未计入；`class/struct` 声明 418 处、唯一类名 348 个（Particles 91、Diagnostics 68、FieldSolver 54、Initialization 33、NonlinearSolvers 28、ablastr 17、MomentsSolver 13、其余 39）。
 
 ---
 
@@ -88,7 +88,7 @@ Route B 不需要逐行读每个 GPU kernel，但必须做到：
 |---|---:|---|
 | `WarpX.H` | 1,811 行 | 内核/物理/配置/IO 全部混在一起 |
 | 成员声明（非函数） | 254 | 状态 + 配置 + 缓存 |
-| **static 成员** | **68** | 进程级全局状态；多实例/多包不可能 |
+| **static 成员** | **66（+ 单例 `m_instance`）** | 进程级全局状态；多实例/多包不可能 |
 | 成员函数声明 | 191 | 场/粒子/流体/诊断/AMR/IO 全在类里 |
 | `WarpX::GetInstance()` 调用 | **241 处 / 82 文件** | 单例耦合；Runtime 必须换成 Context 注入 |
 | `#include "WarpX.H"` | **134 文件** | 任何改动都触发大面积重编 |
@@ -97,9 +97,9 @@ Route B 不需要逐行读每个 GPU kernel，但必须做到：
 | `InitFromCheckpoint` 头部 | 手写 `WarpXHeader` 行序 | 重启格式是事实 ABI |
 | 动态 regrid | **不存在** | `regrid_int` 死参数；`MakeNewLevelFromCoarse` abort |
 
-**结论**：Route B 的第一年不是“写 Runtime”，而是**拆 68 个 static + 241 个单例调用 + 1,477 行参数解析 + 409 行硬编码分配**。这部分工作量必须计入，否则工期会低估 2–3 倍。
+**结论**：Route B 的第一年不是“写 Runtime”，而是**拆 66 个数据 static + 241 个单例调用 + 1,477 行参数解析 + 409 行硬编码分配**。这部分工作量必须计入，否则工期会低估 2–3 倍。
 
-### 2.1 68 个 static 的分类
+### 2.1 66 个数据 static 的分类
 
 | 类别 | 例子 | Runtime 归属 |
 |---|---|---|
@@ -219,7 +219,7 @@ Finalize()                          // WarpX.cpp:329
 | 初始化/外场 | 28 / 5k | `ExternalFieldParams`、parser | 构造/`InitData` | **中** |
 | Python/PICMI | 11 / 1.3k + `Python/` | `libwarpx` 单例绑定 | `initialize/initialize_data/evolve/finalize` | **中高**：必须保持 API |
 | 并行/regrid | 7 / 2.9k | `costs`、`load_balance_efficiency`、`RemakeLevel` | 每步 `CheckLoadBalance`；无动态 regrid | **高**：事务式重分配 |
-| 全局状态 | 68 static + 241 单例 | 进程级 | 全生命周期 | **最高**：横切所有子系统 |
+| 全局状态 | 66 static + 241 单例 | 进程级 | 全生命周期 | **最高**：横切所有子系统 |
 
 ---
 
@@ -297,7 +297,7 @@ galilean shift → BT diag buffer 时间/索引。
 
 1. **AMReX 生命周期**：`AmrCore`、`InitFromScratch`、`RemakeLevel`、`ClearLevel`、`FillBoundary`。
 2. **Level 资源表**：每个 level 的 `m_field_factory`、EB flags、PML、spectral solver、costs 需统一登记与释放（现在散落且 `ClearLevel` 漏项）。
-3. **68 个 static 的替代物**：`RuntimeConfig`（只读配置）、`TimeState`（step/time/dt/substep）、`FrameState`（boost/moving window）、`Services`（RNG/parser/FFT/reduce）。
+3. **66 个数据 static 的替代物**：`RuntimeConfig`（只读配置）、`TimeState`（step/time/dt/substep）、`FrameState`（boost/moving window）、`Services`（RNG/parser/FFT/reduce）。
 4. **单例 → Context 注入**：241 处 `WarpX::GetInstance()` 必须逐步换成 `StageContext`/`Services`；否则 Runtime 无法多实例、无法测试。
 5. **checkpoint 格式**：schema 驱动的读写是 Runtime 的职责；否则插件无法自定义状态持久化。
 6. **Python 入口**：`libwarpx.initialize/initialize_data/evolve/finalize` 的语义必须保持；Runtime 可以在其后，但 API 不能断。
@@ -314,7 +314,7 @@ galilean shift → BT diag buffer 时间/索引。
 | 阶段 | 内容 | 前置 | 估时 |
 |---|---|---|---|
 | **A0 审计** | 本文补全：500 文件、生命周期表、依赖图、Python/IO 细节 | — | 2–4 周 |
-| **A1 去单例** | `RuntimeConfig`/`TimeState`/`Services`；241 处 `GetInstance` 改注入；68 static 分类迁移 | A0 | 2–3 月 |
+| **A1 去单例** | `RuntimeConfig`/`TimeState`/`Services`；241 处 `GetInstance` 改注入；66 static 分类迁移 | A0 | 2–3 月 |
 | **A2 Level 资源** | 统一 `LevelResources`；`AllocLevelData` schema 化；`ClearLevel` 完整化 | A1 | 2–3 月 |
 | **A3 生命周期拆包** | `InitData`/`Evolve`/`Finalize` 拆成包阶段；`WarpX` 降为 `PicEmPackage` | A2 | 3–6 月 |
 | **A4 状态 schema** | `FieldRegistry`/`SpeciesRegistry`/`MaterialRegistry`；checkpoint schema 化 | A2 | 3–6 月 |
@@ -340,7 +340,7 @@ galilean shift → BT diag buffer 时间/索引。
 | 9 | Python/PICMI | 11 + py | 每个 WarpX 字段的 Python 绑定、callback 语义 |
 | 10 | 构建/测试 | CMake/tests | 维度/后端/EB/QED 组合、测试依赖 |
 | 11 | Utils/parser/filter/lattice | 32 | 服务化边界 |
-| 12 | 全局状态 | 68 static + 241 调用 | 每个 static 的读写者、迁移目标 |
+| 12 | 全局状态 | 66 static + 241 调用 | 每个 static 的读写者、迁移目标 |
 
 **完成标准**：对每个子系统给出
 - 状态表（对象/类型/所有者/创建/初始化/regrid/restart）；
@@ -364,7 +364,7 @@ galilean shift → BT diag buffer 时间/索引。
 ## 附录：本次审计新增的量化事实
 
 - `Source/`：636 文件、100,539 行、17 个一级目录。
-- `WarpX.H`：1,811 行、254 个成员声明、191 个函数、**68 个 static**。
+- `WarpX.H`：1,811 行、254 个成员声明、191 个函数、**66 个数据 static**。
 - `WarpX::GetInstance()`：**241 处 / 82 文件**；`#include "WarpX.H"`：**134 文件**。
 - `ReadParameters`：**1,477 行、178 个参数查询、36 个 ParmParse 块**。
 - `AllocLevelData`：**409 行、52 处 `FieldType`**。

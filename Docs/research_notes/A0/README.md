@@ -14,6 +14,7 @@
 | [`COVERAGE.md`](COVERAGE.md) | 371 个头文件的覆盖表；136 个无 class 的头文件清单 |
 | [`LIFECYCLE_MATRIX.md`](LIFECYCLE_MATRIX.md) | 12 个子系统的“所有者/创建/初始化/每步/regrid/restart/归属”矩阵 |
 | [`VERIFICATION.md`](VERIFICATION.md) | 第二遍核验：PSATD restart、RemakeLevel 缺口、诊断时序、Python callback、EB per-level；构建/冒烟基线 |
+| [`STATIC_INVENTORY.md`](STATIC_INVENTORY.md) | 66 个数据 static 的引用清单与 A1 迁移批次（Config/State/Cache） |
 
 ## 解析方法与限制
 
