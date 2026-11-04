@@ -10,6 +10,8 @@
  */
 #include "WarpX.H"
 
+#include "Runtime/RuntimeContext.H"
+
 #include "BoundaryConditions/PML.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
 #   include "BoundaryConditions/PML_RZ.H"
@@ -924,6 +926,10 @@ WarpX::InitData ()
     }
     else {
         ExecutePythonCallback("afterInitatRestart");
+    }
+
+    if (m_runtime_context != nullptr && m_runtime_context->refresh_time) {
+        m_runtime_context->refresh_time();
     }
 
     if (restart_chkfile.empty() || write_diagnostics_on_restart) {

@@ -96,6 +96,14 @@ FrameState make_frame ()
 Runtime::Runtime (int argc, char* argv[])
 {
     warpx::initialization::initialize_external_libraries(argc, argv);
+
+    // Construct WarpX (reads parameters) before InitData, so diagnostics and
+    // other setup-time consumers can see a config snapshot.
+    auto& warpx = WarpX::GetInstance();
+    sync_config();
+    sync_time();
+    m_context = RuntimeContext{&m_config, &m_time, &m_frame, nullptr, [this] { sync_time(); }};
+    warpx.SetRuntimeContext(&m_context);
 }
 
 Runtime::~Runtime ()
@@ -157,12 +165,30 @@ Runtime::frame () const
     return m_frame;
 }
 
+const RuntimeContext&
+Runtime::context () const
+{
+    return m_context;
+}
+
+void
+Runtime::sync_config ()
+{
+    m_config = make_config();
+}
+
+void
+Runtime::sync_time ()
+{
+    m_time = make_time();
+    m_frame = make_frame();
+}
+
 void
 Runtime::sync_state ()
 {
-    m_config = make_config();
-    m_time = make_time();
-    m_frame = make_frame();
+    sync_config();
+    sync_time();
 }
 
 } // namespace warpx::runtime

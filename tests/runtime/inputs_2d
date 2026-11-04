@@ -12,3 +12,7 @@ warpx.cfl = 0.4
 algo.maxwell_solver = yee
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
+
+warpx.reduced_diags_names = step_info
+step_info.type = Timestep
+step_info.intervals = 1

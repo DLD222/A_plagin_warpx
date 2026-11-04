@@ -201,7 +201,7 @@
    "depends": [
     "A1.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeContext.H"
    ],
@@ -213,12 +213,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
   },
   {
-   "id": "A1.4",
+   "id": "A1.4a",
    "phase": "A1",
-   "title": "Batch C：ReducedDiags 去 GetInstance",
+   "title": "Batch C1：ReducedDiags context 基座 + Timestep 试点",
    "kind": "refactor",
    "depends": [
     "A1.3a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ReducedDiags/ReducedDiags.H",
+    "Source/Diagnostics/ReducedDiags/Timestep.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "ReducedDiags 基类持有 RuntimeContext；Timestep 在 ComputeDiags 中优先用 ctx.time；诊断输出正确",
+   "note": "字段/粒子型 reduced diags 仍走 WarpX 数据访问，归 A1.4b",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot_' --output-on-failure"
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C2：字段/粒子型 ReducedDiags 去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.4a"
    ],
    "status": "pending",
    "outputs": [],

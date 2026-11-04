@@ -6,6 +6,8 @@
  */
 #include "MultiReducedDiags.H"
 
+#include "WarpX.H"
+
 #include "BeamRelevant.H"
 #include "ChargeOnEB.H"
 #include "ColliderRelevant.H"
@@ -94,6 +96,12 @@ MultiReducedDiags::MultiReducedDiags ()
             return reduced_diags_dictionary.at(rd_type)(rd_name);
         });
     // end loop over all reduced diags
+
+    // Install the runtime context on every diag after construction. Constructors
+    // still use the legacy accessors (context is not available there), but
+    // per-step code must prefer the context.
+    auto* ctx = WarpX::GetInstance().GetRuntimeContext();
+    for (auto& rd : m_multi_rd) { rd->SetRuntimeContext(ctx); }
 }
 // end constructor
 

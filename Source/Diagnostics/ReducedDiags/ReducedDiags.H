@@ -13,6 +13,8 @@
 #include <AMReX_REAL.H>
 
 #include <string>
+
+namespace warpx::runtime { struct RuntimeContext; }
 #include <vector>
 
 /**
@@ -47,6 +49,17 @@ public:
 
     /// output data
     std::vector<amrex::Real> m_data;
+
+    /// Non-owning runtime context (nullptr on the legacy/Python path).
+    void SetRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
+
+protected:
+    [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const { return m_runtime_context; }
+
+private:
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
+public:
 
     /**
      * constructor

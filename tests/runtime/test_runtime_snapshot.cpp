@@ -43,7 +43,17 @@ void check_real (amrex::Real a, amrex::Real b, const std::string& what)
 int main (int argc, char* argv[])
 {
     warpx::runtime::Runtime runtime(argc, argv);
+
+    // The context must be installed before InitData (diagnostics are built there).
+    auto* installed = WarpX::GetInstance().GetRuntimeContext();
+    check(installed != nullptr, "WarpX has a runtime context before InitData");
+    check(installed == &runtime.context(), "installed context is Runtime::context()");
+    check(runtime.context().config == &runtime.config(), "context.config points at RuntimeConfig");
+    check(runtime.context().time == &runtime.time(), "context.time points at TimeState");
+    check(runtime.context().frame == &runtime.frame(), "context.frame points at FrameState");
+
     runtime.initialize();
+    check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 
     const auto& c = runtime.config();
     check_eq(c.current_deposition_algo, WarpX::current_deposition_algo, "current_deposition_algo");

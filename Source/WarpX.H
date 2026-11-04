@@ -84,6 +84,8 @@
 #include <variant>
 #include <vector>
 
+namespace warpx::runtime { struct RuntimeContext; }
+
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
 {
@@ -1112,6 +1114,10 @@ public:
     ablastr::fields::MultiFabRegister m_fields;
     ablastr::fields::MultiFabRegister& GetMultiFabRegister() {return m_fields;}
 
+    //! Non-owning runtime context (nullptr on the legacy/Python path).
+    void SetRuntimeContext (warpx::runtime::RuntimeContext* context) { m_runtime_context = context; }
+    [[nodiscard]] warpx::runtime::RuntimeContext* GetRuntimeContext () const { return m_runtime_context; }
+
     //! Use this function to override the Level 0 grids made by AMReX.
     //! This function is called in amrex::AmrCore::InitFromScratch.
     void PostProcessBaseGrids (amrex::BoxArray& ba0) const final;
@@ -1198,6 +1204,7 @@ private:
 
     // Singleton is used when the code is run from python
     static WarpX* m_instance;
+    warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
     //! Complete the asynchronous broadcast of signal flags, and initiate a checkpoint if requested
     void HandleSignals ();

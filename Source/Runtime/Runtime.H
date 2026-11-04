@@ -10,6 +10,7 @@
 
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
 #include "Runtime/Services.H"
 #include "Runtime/TimeState.H"
 
@@ -55,13 +56,19 @@ public:
     //! Read-only frame/moving-window snapshot.
     [[nodiscard]] const FrameState& frame () const;
 
+    //! Non-owning context view (config/time/frame/services) installed into WarpX.
+    [[nodiscard]] const RuntimeContext& context () const;
+
 private:
     bool m_initialized = false;
     bool m_finalized = false;
     RuntimeConfig m_config{};
     TimeState m_time{};
     FrameState m_frame{};
+    RuntimeContext m_context{};
 
+    void sync_config ();
+    void sync_time ();
     void sync_state ();
 };
 

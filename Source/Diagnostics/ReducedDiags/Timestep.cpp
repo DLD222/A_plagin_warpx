@@ -9,6 +9,7 @@
 
 #include "Timestep.H"
 
+#include "Runtime/RuntimeContext.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -61,9 +62,17 @@ void Timestep::ComputeDiags (int step) {
     // Check if diagnostic should be done
     if (!m_intervals.contains(step+1)) { return; }
 
-    const auto& warpx = WarpX::GetInstance();
-    const auto max_level = warpx.maxLevel();
-    const auto dt = warpx.getdt();
+    const auto* ctx = runtime_context();
+    int max_level = 0;
+    amrex::Vector<amrex::Real> dt;
+    if (ctx != nullptr && ctx->time != nullptr) {
+        max_level = ctx->time->finest_level;
+        dt = ctx->time->dt;
+    } else {
+        const auto& warpx = WarpX::GetInstance();
+        max_level = warpx.maxLevel();
+        dt = warpx.getdt();
+    }
 
     for (int lev = 0; lev <= max_level; lev++) {
         m_data[lev] = dt[lev];

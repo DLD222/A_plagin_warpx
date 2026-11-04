@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **40 个可执行任务**，每个任务带依赖、产出、验收和门禁。
+> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **41 个可执行任务**，每个任务带依赖、产出、验收和门禁。
 > 任务图：`Tools/automation/route_tasks.json`；运行器：`Tools/automation/route_tasks.py`；门禁：`Tools/automation/gates/`。
 
 ---
@@ -48,7 +48,7 @@
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
 | A0 审计 | 5 | 5 |
-| A1 去单例 | 11 | 4（A1.0 facade + A1.1–A1.3 类型） |
+| A1 去单例 | 12 | 6（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |
 | A4 状态 schema | 5 | 0 |
@@ -139,7 +139,7 @@ python3 Tools/automation/route_tasks.py check full
 
 ## 7. 当前下一步
 
-`A1.4 Batch C：ReducedDiags 去 GetInstance`：
+`A1.4 Batch C2：字段/粒子型 ReducedDiags 去 GetInstance`：
 
 - 目标：把 `Diagnostics/ReducedDiags` 的 76 处 `WarpX::GetInstance()/WarpX::static` 改成 `ctx.config()/ctx.time()`。
 - 门：`build+smoke` + reduced-diag 相关 ctest。

@@ -10,6 +10,8 @@
  */
 #include "WarpX.H"
 
+#include "Runtime/RuntimeContext.H"
+
 #include "BoundaryConditions/PML.H"
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
@@ -264,6 +266,9 @@ WarpX::Evolve (int numsteps)
         for (int i = 0; i <= max_level; ++i) {
             t_old[i] = t_new[i];
             t_new[i] = cur_time;
+        }
+        if (m_runtime_context != nullptr && m_runtime_context->refresh_time) {
+            m_runtime_context->refresh_time();
         }
         multi_diags->FilterComputePackFlush( step, false, true );
 
