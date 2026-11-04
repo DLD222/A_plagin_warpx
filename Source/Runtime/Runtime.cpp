@@ -56,7 +56,7 @@ Runtime::finalize ()
 bool
 Runtime::verbose () const
 {
-    return !m_finalized && WarpX::GetInstance().Verbose();
+    return m_initialized && !m_finalized && WarpX::GetInstance().Verbose();
 }
 
 } // namespace warpx::runtime
