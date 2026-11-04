@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 5 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 5 classes/structs. Signatures are heuristic.
 
 ## `MomentFluidSolver`
 
 - file: `Source/Fluids/MomentFluidSolver.H`
 - kind: `class`
-- public methods: 5; public members: 0; private members: 7
+- public methods: 5; public members: 0
 
 ```cpp
 MomentFluidSolver () = default
@@ -22,7 +22,7 @@ bool Initialized () const
 
 - file: `Source/Fluids/MultiFluidContainer.H`
 - kind: `class`
-- public methods: 14; public members: 0; private members: 2
+- public methods: 14; public members: 0
 
 ```cpp
 MultiFluidContainer ()
@@ -45,7 +45,7 @@ void DepositCurrent (ablastr::fields::MultiFabRegister& m_fields, amrex::MultiFa
 
 - file: `Source/Fluids/QdsmcParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -57,7 +57,7 @@ enum
 
 - file: `Source/Fluids/QdsmcParticleContainer.H`
 - kind: `class`, bases: `public amrex::ParticleContainerPureSoA<QdsmcPIdx::nattribs, 0>`
-- public methods: 13; public members: 4; private members: 0
+- public methods: 13; public members: 4
 
 ```cpp
 explicit QdsmcParticleContainer (amrex::AmrCore* amr_core)
@@ -88,7 +88,7 @@ static constexpr int NInt = 0
 
 - file: `Source/Fluids/WarpXFluidContainer.H`
 - kind: `class`
-- public methods: 18; public members: 2; private members: 0
+- public methods: 18; public members: 2
 
 ```cpp
 WarpXFluidContainer (int ispecies, const std::string &name)

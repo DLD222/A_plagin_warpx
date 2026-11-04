@@ -291,6 +291,7 @@ Particles,Source/Particles/LaserParticleContainer.H,class,LaserParticleContainer
 Particles,Source/Particles/MultiParticleContainer.H,class,MultiParticleContainer,,67,18,3,False,False,True
 Particles,Source/Particles/ParticleBoundaries.H,struct,ParticleBoundaries,,9,14,0,False,False,True
 Particles,Source/Particles/ParticleBoundaries.H,struct,ParticleBoundariesData,,0,14,0,False,False,True
+Particles,Source/Particles/ParticleBoundaryBuffer.H,class,ParticleBoundaryBuffer,,20,0,6,False,False,True
 Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,PlasmaParserHelper,,5,7,0,False,False,True
 Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,PlasmaParserWrapper,,1,2,0,False,False,False
 Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,QEDHelper,,1,6,0,False,False,False
@@ -304,7 +305,7 @@ Particles,Source/Particles/PhotonParticleContainer.H,class,PhotonParticleContain
 Particles,Source/Particles/PhysicalParticleContainer.H,class,PhysicalParticleContainer,public WarpXParticleContainer,54,0,0,False,True,True
 Particles,Source/Particles/Pusher/CopyParticleAttribs.H,struct,CopyParticleAttribs,,2,10,0,False,False,True
 Particles,Source/Particles/Pusher/GetAndSetPosition.H,struct,GetParticlePosition,,5,5,0,False,False,True
-Particles,Source/Particles/Pusher/GetAndSetPosition.H,struct,SetParticlePosition,,1,9,0,False,False,True
+Particles,Source/Particles/Pusher/GetAndSetPosition.H,struct,SetParticlePosition,,1,6,0,False,False,True
 Particles,Source/Particles/Resampling/LevelingThinning.H,class,LevelingThinning,public ResamplingAlgorithm,4,0,1,False,False,False
 Particles,Source/Particles/Resampling/Resampling.H,class,Resampling,,4,0,2,False,False,False
 Particles,Source/Particles/Resampling/Resampling.H,struct,ResamplingAlgorithm,,7,0,0,False,True,True
@@ -322,12 +323,14 @@ Particles,Source/Particles/Sorting/SortingUtils.H,class,fillBufferFlagRemainingP
 Particles,Source/Particles/WarpXParticleContainer.H,struct,DiagIdx,,0,1,0,False,False,True
 Particles,Source/Particles/WarpXParticleContainer.H,struct,FieldGatherOrders,,0,3,0,False,False,False
 Particles,Source/Particles/WarpXParticleContainer.H,struct,IntIdx,,0,2,0,False,False,False
-Particles,Source/Particles/WarpXParticleContainer.H,struct,PIdx,,0,12,0,False,False,False
+Particles,Source/Particles/WarpXParticleContainer.H,struct,PIdx,,0,2,0,False,False,False
 Particles,Source/Particles/WarpXParticleContainer.H,class,WarpXParIter,"public amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>",12,0,0,False,False,False
 Particles,Source/Particles/WarpXParticleContainer.H,class,WarpXParticleContainer,"public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>",85,9,0,False,True,True
+Runtime,Source/Runtime/Runtime.H,class,Runtime,,10,0,2,False,False,False
 Utils,Source/Utils/Parser/BTDIntervalsParser.H,class,BTDIntervalsParser,,6,0,5,False,False,False
 Utils,Source/Utils/ParticleUtils.H,struct,HeapSortDecreasing,,0,0,0,False,False,True
 Utils,Source/Utils/ScatteringUtils.H,struct,AnisotropicCoefficientTable,,1,4,0,False,False,True
+Root,Source/WarpX.H,class,WarpX,public amrex::AmrCore,217,89,122,False,False,True
 ablastr,Source/ablastr/fields/Interpolate.H,struct,PoissonInterpCPtoFP,,1,3,0,False,False,False
 ablastr,Source/ablastr/fields/MLMGOptions.H,struct,MLMGOptions,,4,12,0,False,False,True
 ablastr,Source/ablastr/fields/MultiFabRegister.H,class,Direction,,2,12,1,False,False,True

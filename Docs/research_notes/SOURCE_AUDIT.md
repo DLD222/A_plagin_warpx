@@ -47,7 +47,7 @@
 
 Route B 不需要逐行读每个 GPU kernel，但必须做到：
 
-1. **所有 371 个 `.H` 的公共接口读完**（类型、所有权、生命周期）。
+1. **所有 372 个 `.H` 的公共接口读完**（类型、所有权、生命周期）。
 2. **所有非 kernel `.cpp` 的入口函数读完**（构造/Init/Step/Regrid/Restart/Finalize）。
 3. **跨切面**：全局状态（66 static + 241 `GetInstance`）、IO/checkpoint、Python/PICMI、构建矩阵、测试。
 4. **kernel `.K` 只抽样**：它们属于算法实现，不影响 Runtime 的边界；但必须知道它们读写哪些数据键。
@@ -78,7 +78,7 @@ Route B 不需要逐行读每个 GPU kernel，但必须做到：
 | `Source/Evolve/` | 2 | 2,028 |
 | **合计** | **636**（.H/.cpp） | **100,539** |
 
-> 另有 `.K`/`.h` kernel 与测试文件未计入；`class/struct` 声明 418 处、唯一类名 348 个（Particles 91、Diagnostics 68、FieldSolver 54、Initialization 33、NonlinearSolvers 28、ablastr 17、MomentsSolver 13、其余 39）。
+> 另有 `.K`/`.h` kernel 与测试文件未计入；`class/struct` 声明 418 处、唯一类名 349 个（Particles 91、Diagnostics 68、FieldSolver 54、Initialization 33、NonlinearSolvers 28、ablastr 17、MomentsSolver 13、其余 39）。
 
 ---
 

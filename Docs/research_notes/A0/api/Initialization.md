@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 33 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 33 classes/structs. Signatures are heuristic.
 
 ## `ProjectionDivCleaner`
 
 - file: `Source/Initialization/DivCleaner/ProjectionDivCleaner.H`
 - kind: `class`
-- public methods: 5; public members: 8; private members: 0
+- public methods: 5; public members: 8
 
 ```cpp
 explicit ProjectionDivCleaner (std::string const& a_field_name, bool a_vector_potential=false, int a_comp=0)
@@ -35,7 +35,7 @@ amrex::Gpu::DeviceVector<amrex::Real> m_stencil_coefs_z
 
 - file: `Source/Initialization/ExternalField.H`
 - kind: `struct`
-- public methods: 1; public members: 11; private members: 0
+- public methods: 1; public members: 11
 
 ```cpp
 explicit ExternalFieldParams(const amrex::ParmParse& pp_warpx)
@@ -61,7 +61,7 @@ std::string external_fields_path
 
 - file: `Source/Initialization/ExternalField.H`
 - kind: `class`
-- public methods: 6; public members: 0; private members: 16
+- public methods: 6; public members: 0
 
 ```cpp
 ExternalFieldReader (std::string read_fields_from_path, std::string F_name, std::string F_component, amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> const& problo, amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> const& pdx, amrex::Box const& dombox, bool distributed)
@@ -76,7 +76,7 @@ void prepare (amrex::RealBox const& pbox, int moving_dir, int moving_sign, std::
 
 - file: `Source/Initialization/ExternalField.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 ExternalFieldVectorView (ExternalFieldReader const* x_reader, ExternalFieldReader const* y_reader, ExternalFieldReader const* z_reader) noexcept
@@ -87,7 +87,7 @@ ExternalFieldVectorView (ExternalFieldReader const* x_reader, ExternalFieldReade
 
 - file: `Source/Initialization/ExternalField.H`
 - kind: `struct`
-- public methods: 0; public members: 6; private members: 0
+- public methods: 0; public members: 6
 
 Public members:
 
@@ -104,7 +104,7 @@ amrex::IntVect global_size
 
 - file: `Source/Initialization/GetTemperature.H`
 - kind: `struct`
-- public methods: 2; public members: 4; private members: 0
+- public methods: 2; public members: 4
 
 ```cpp
 !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE) ExternalFieldView m_temperature_in_eV_from_file
@@ -124,7 +124,7 @@ amrex::Real m_q_e_over_mc2
 
 - file: `Source/Initialization/GetTemperature.H`
 - kind: `struct`
-- public methods: 2; public members: 6; private members: 0
+- public methods: 2; public members: 6
 
 ```cpp
 !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE) ExternalFieldVectorView m_u_std_from_file
@@ -146,7 +146,7 @@ GetTemperature m_temperature
 
 - file: `Source/Initialization/GetVelocity.H`
 - kind: `struct`
-- public methods: 2; public members: 5; private members: 0
+- public methods: 2; public members: 5
 
 ```cpp
 !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE) ExternalFieldVectorView m_from_file
@@ -167,7 +167,7 @@ amrex::ParserExecutor<3> m_ux_mean_parser, m_uy_mean_parser, m_uz_mean_parser
 
 - file: `Source/Initialization/InjectorDensity.H`
 - kind: `struct`
-- public methods: 15; public members: 0; private members: 6
+- public methods: 15; public members: 0
 
 ```cpp
 InjectorDensity (InjectorDensityConstant* t, amrex::Real a_rho) : type(Type::constant), object(t,a_rho)
@@ -191,7 +191,7 @@ void prepare (int li, InjectorDensity** inj_rho)
 
 - file: `Source/Initialization/InjectorDensity.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit InjectorDensityConstant (amrex::Real a_rho) noexcept : m_rho(a_rho)
@@ -202,7 +202,7 @@ explicit InjectorDensityConstant (amrex::Real a_rho) noexcept : m_rho(a_rho)
 
 - file: `Source/Initialization/InjectorDensity.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 void operator () (InjectorDensity* p) const
@@ -212,7 +212,7 @@ void operator () (InjectorDensity* p) const
 
 - file: `Source/Initialization/InjectorDensity.H`
 - kind: `struct`
-- public methods: 7; public members: 0; private members: 2
+- public methods: 7; public members: 0
 
 ```cpp
 InjectorDensityFromFile (std::string const& a_file_name, std::string const& a_F_name, amrex::Geometry const& a_geom, bool a_distributed)
@@ -228,7 +228,7 @@ void prepare (int li)
 
 - file: `Source/Initialization/InjectorDensity.H`
 - kind: `struct`
-- public methods: 2; public members: 1; private members: 0
+- public methods: 2; public members: 1
 
 ```cpp
 explicit InjectorDensityParser (amrex::ParserExecutor<3> const& a_parser) noexcept : m_parser(a_parser)
@@ -245,7 +245,7 @@ amrex::ParserExecutor<3> m_parser
 
 - file: `Source/Initialization/InjectorFlux.H`
 - kind: `struct`
-- public methods: 9; public members: 0; private members: 4
+- public methods: 9; public members: 0
 
 ```cpp
 InjectorFlux (InjectorFluxConstant* t, amrex::Real a_flux) : type(Type::constant), object(t,a_flux)
@@ -263,7 +263,7 @@ void clear ()
 
 - file: `Source/Initialization/InjectorFlux.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit InjectorFluxConstant (amrex::Real a_flux) noexcept : m_flux(a_flux)
@@ -274,7 +274,7 @@ explicit InjectorFluxConstant (amrex::Real a_flux) noexcept : m_flux(a_flux)
 
 - file: `Source/Initialization/InjectorFlux.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 void operator () (InjectorFlux* p) const
@@ -284,7 +284,7 @@ void operator () (InjectorFlux* p) const
 
 - file: `Source/Initialization/InjectorFlux.H`
 - kind: `struct`
-- public methods: 2; public members: 1; private members: 0
+- public methods: 2; public members: 1
 
 ```cpp
 explicit InjectorFluxParser (amrex::ParserExecutor<4> const& a_parser) noexcept : m_parser(a_parser)
@@ -301,7 +301,7 @@ amrex::ParserExecutor<4> m_parser
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 15; public members: 2; private members: 2
+- public methods: 15; public members: 2
 
 ```cpp
 InjectorMomentum (InjectorMomentumConstant* t, amrex::Real a_ux, amrex::Real a_uy, amrex::Real a_uz) : type(Type::constant), object(t, a_ux, a_uy, a_uz)
@@ -332,7 +332,7 @@ Type type
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 1
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumConstant (amrex::Real a_ux, amrex::Real a_uy, amrex::Real a_uz) noexcept : m_ux(a_ux), m_uy(a_uy), m_uz(a_uz)
@@ -344,7 +344,7 @@ InjectorMomentumConstant (amrex::Real a_ux, amrex::Real a_uy, amrex::Real a_uz) 
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 void operator () (InjectorMomentum* p) const
@@ -354,7 +354,7 @@ void operator () (InjectorMomentum* p) const
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 2
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumGaussian (amrex::Real a_ux_m, amrex::Real a_uy_m, amrex::Real a_uz_m, amrex::Real a_ux_th, amrex::Real a_uy_th, amrex::Real a_uz_th) noexcept : m_ux_m(a_ux_m), m_uy_m(a_uy_m), m_uz_m(a_uz_m), m_ux_th(a_ux_th), m_uy_th(a_uy_th), m_uz_th(a_uz_th)
@@ -366,7 +366,7 @@ InjectorMomentumGaussian (amrex::Real a_ux_m, amrex::Real a_uy_m, amrex::Real a_
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 4
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumGaussianFlux (amrex::Real a_ux_m, amrex::Real a_uy_m, amrex::Real a_uz_m, amrex::Real a_ux_th, amrex::Real a_uy_th, amrex::Real a_uz_th, int a_flux_normal_axis, int a_flux_direction) noexcept : m_ux_m(a_ux_m), m_uy_m(a_uy_m), m_uz_m(a_uz_m), m_ux_th(a_ux_th), m_uy_th(a_uy_th), m_uz_th(a_uz_th), m_flux_normal_axis(a_flux_normal_axis), m_flux_direction(a_flux_direction)
@@ -378,7 +378,7 @@ InjectorMomentumGaussianFlux (amrex::Real a_ux_m, amrex::Real a_uy_m, amrex::Rea
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 2
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumJuttner(GetTemperature const& t, GetVelocityVector const& b) noexcept : velocity(b), temperature(t)
@@ -390,7 +390,7 @@ InjectorMomentumJuttner(GetTemperature const& t, GetVelocityVector const& b) noe
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 2
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumMaxwellian(GetTemperatureVector const& t, GetVelocityVector const& b) noexcept : velocity(b), temperature(t)
@@ -402,7 +402,7 @@ InjectorMomentumMaxwellian(GetTemperatureVector const& t, GetVelocityVector cons
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 1; private members: 0
+- public methods: 3; public members: 1
 
 ```cpp
 explicit InjectorMomentumParser (GetVelocityVector const& a_velocity) noexcept : m_velocity(a_velocity)
@@ -420,7 +420,7 @@ GetVelocityVector m_velocity
 
 - file: `Source/Initialization/InjectorMomentum.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 4
+- public methods: 3; public members: 0
 
 ```cpp
 InjectorMomentumUniform (amrex::Real a_ux_min, amrex::Real a_uy_min, amrex::Real a_uz_min, amrex::Real a_ux_max, amrex::Real a_uy_max, amrex::Real a_uz_max) noexcept : m_ux_min(a_ux_min), m_uy_min(a_uy_min), m_uz_min(a_uz_min), m_ux_max(a_ux_max), m_uy_max(a_uy_max), m_uz_max(a_uz_max), m_Dux(m_ux_max - m_ux_min), m_Duy(m_uy_max - m_uy_min), m_Duz(m_uz_max - m_uz_min), m_ux_h(amrex::Real(0.5) * (m_ux_max + m_ux_min)), m_uy_h(amrex::Real(0.5) * (m_uy_max + m_uy_min)), m_uz_h(amrex::Real(0.5) * (m_uz_max + m_uz_min))
@@ -432,7 +432,7 @@ InjectorMomentumUniform (amrex::Real a_ux_min, amrex::Real a_uy_min, amrex::Real
 
 - file: `Source/Initialization/InjectorPosition.H`
 - kind: `struct`
-- public methods: 12; public members: 0; private members: 7
+- public methods: 12; public members: 0
 
 ```cpp
 InjectorPosition (InjectorPositionRandom* t, amrex::Real a_xmin, amrex::Real a_xmax, amrex::Real a_ymin, amrex::Real a_ymax, amrex::Real a_zmin, amrex::Real a_zmax) : type(Type::random), object(t), xmin(a_xmin), xmax(a_xmax), ymin(a_ymin), ymax(a_ymax), zmin(a_zmin), zmax(a_zmax)
@@ -453,7 +453,7 @@ void operator= (InjectorPosition &&) = delete
 
 - file: `Source/Initialization/InjectorPosition.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 [[nodiscard]] AMREX_GPU_HOST_DEVICE amrex::XDim3 getPositionUnitBox (int , amrex::IntVect const , amrex::RandomEngine const& engine) const noexcept
@@ -463,7 +463,7 @@ void operator= (InjectorPosition &&) = delete
 
 - file: `Source/Initialization/InjectorPosition.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit InjectorPositionRandomPlane (int const& a_dir) noexcept : dir(a_dir)
@@ -474,7 +474,7 @@ explicit InjectorPositionRandomPlane (int const& a_dir) noexcept : dir(a_dir)
 
 - file: `Source/Initialization/InjectorPosition.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit InjectorPositionRegular (amrex::Dim3 const& a_ppc) noexcept : ppc(a_ppc)
@@ -485,7 +485,7 @@ explicit InjectorPositionRegular (amrex::Dim3 const& a_ppc) noexcept : ppc(a_ppc
 
 - file: `Source/Initialization/PlasmaInjector.H`
 - kind: `class`
-- public methods: 28; public members: 47; private members: 0
+- public methods: 28; public members: 47
 
 ```cpp
 PlasmaInjector () = default
@@ -567,7 +567,7 @@ int flux_normal_axis
 
 - file: `Source/Initialization/TemperatureProperties.H`
 - kind: `struct`
-- public methods: 2; public members: 13; private members: 0
+- public methods: 2; public members: 13
 
 ```cpp
 TemperatureProperties (const amrex::ParmParse& pp, std::string const& source_name, amrex::Geometry const& geom)
@@ -596,7 +596,7 @@ std::unique_ptr<ExternalFieldReader> m_temperature_in_eV_reader
 
 - file: `Source/Initialization/VelocityProperties.H`
 - kind: `struct`
-- public methods: 2; public members: 8; private members: 0
+- public methods: 2; public members: 8
 
 ```cpp
 VelocityProperties (const amrex::ParmParse& pp, std::string const& source_name, amrex::Geometry const& geom)

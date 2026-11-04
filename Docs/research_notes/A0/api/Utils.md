@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 3 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 3 classes/structs. Signatures are heuristic.
 
 ## `BTDIntervalsParser`
 
 - file: `Source/Utils/Parser/BTDIntervalsParser.H`
 - kind: `class`
-- public methods: 6; public members: 0; private members: 5
+- public methods: 6; public members: 0
 
 ```cpp
 BTDIntervalsParser () = default
@@ -23,13 +23,13 @@ explicit BTDIntervalsParser (const std::vector<std::string>& instr_vec)
 
 - file: `Source/Utils/ParticleUtils.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `AnisotropicCoefficientTable`
 
 - file: `Source/Utils/ScatteringUtils.H`
 - kind: `struct`
-- public methods: 1; public members: 4; private members: 0
+- public methods: 1; public members: 4
 
 ```cpp
 [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_INLINE amrex::ParticleReal getCoefficient ( amrex::ParticleReal const a_energy, int const a_coefficient_index) const

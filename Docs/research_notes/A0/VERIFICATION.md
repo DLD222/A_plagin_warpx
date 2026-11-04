@@ -11,10 +11,10 @@
 
 | 项 | 结果 |
 |---|---|
-| 头文件 | 371 个全部登记（`COVERAGE.md`） |
-| 解析出类 | 235 个文件、348 个类/结构体 |
+| 头文件 | 372 个全部登记（`COVERAGE.md`） |
+| 解析出类 | 235 个文件、349 个类/结构体 |
 | 无类头文件 | 136 个：30 个 `_fwd.H` 前向声明 + 106 个 free function/kernel/枚举（已逐个 grep 确认无 `class/struct` 定义） |
-| 公共方法 | 2,408 个（去重、去掉内联体碎片后） |
+| 公共方法 | 2,418 个（去重、去掉内联体碎片后） |
 | 重点类抽检 | `WarpX`（217）、`MultiParticleContainer`（67）、`FiniteDifferenceSolver`（64）、`MacroscopicProperties`（38）、`Diagnostics`（34）——签名与头文件一致；模板/默认参数有简化 |
 
 **解析限制**（已写进 `A0/README.md`）：`#if` 分支合并、嵌套类可能遗漏、宏不展开。用于“找类和接口”足够，不能替代逐行阅读。

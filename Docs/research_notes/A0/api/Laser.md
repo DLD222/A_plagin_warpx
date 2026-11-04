@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 5 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 5 classes/structs. Signatures are heuristic.
 
 ## `CommonLaserParameters`
 
 - file: `Source/Laser/LaserProfiles.H`
 - kind: `struct`
-- public methods: 0; public members: 4; private members: 0
+- public methods: 0; public members: 4
 
 Public members:
 
@@ -23,7 +23,7 @@ amrex::Vector<amrex::Real> nvec
 
 - file: `Source/Laser/LaserProfiles.H`
 - kind: `class`, bases: `public ILaserProfile`
-- public methods: 3; public members: 0; private members: 4
+- public methods: 3; public members: 0
 
 ```cpp
 void init ( const amrex::ParmParse& ppl, CommonLaserParameters params) final
@@ -35,7 +35,7 @@ void fill_amplitude ( int np, amrex::Real const * AMREX_RESTRICT Xp, amrex::Real
 
 - file: `Source/Laser/LaserProfiles.H`
 - kind: `class`, bases: `public ILaserProfile`
-- public methods: 6; public members: 0; private members: 3
+- public methods: 6; public members: 0
 
 ```cpp
 void init ( const amrex::ParmParse& ppl, CommonLaserParameters params) final
@@ -50,7 +50,7 @@ void internal_fill_amplitude_uniform_binary( int idx_t_left, int np, amrex::Real
 
 - file: `Source/Laser/LaserProfiles.H`
 - kind: `class`, bases: `public ILaserProfile`
-- public methods: 3; public members: 0; private members: 3
+- public methods: 3; public members: 0
 
 ```cpp
 void init ( const amrex::ParmParse& ppl, CommonLaserParameters params) final
@@ -62,7 +62,7 @@ void fill_amplitude ( int np, amrex::Real const * AMREX_RESTRICT Xp, amrex::Real
 
 - file: `Source/Laser/LaserProfiles.H`
 - kind: `class`
-- public methods: 9; public members: 0; private members: 0
+- public methods: 9; public members: 0
 
 ```cpp
 virtual void init ( const amrex::ParmParse& ppl, CommonLaserParameters params) = 0

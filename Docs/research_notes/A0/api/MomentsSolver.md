@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 15 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 15 classes/structs. Signatures are heuristic.
 
 ## `FrictionParams`
 
 - file: `Source/MomentsSolver/Coupling/FluidFriction.H`
 - kind: `struct`
-- public methods: 5; public members: 2; private members: 0
+- public methods: 5; public members: 2
 
 ```cpp
 Real nu = Real(0)
@@ -29,7 +29,7 @@ void* ctx = nullptr
 
 - file: `Source/MomentsSolver/Coupling/MomentCoupling.H`
 - kind: `struct`
-- public methods: 0; public members: 3; private members: 0
+- public methods: 0; public members: 3
 
 Public members:
 
@@ -43,7 +43,7 @@ Real gamma
 
 - file: `Source/MomentsSolver/Coupling/YeeDeposition.H`
 - kind: `struct`
-- public methods: 0; public members: 4; private members: 0
+- public methods: 0; public members: 4
 
 Public members:
 
@@ -58,7 +58,7 @@ std::vector<Real> rho_np1
 
 - file: `Source/MomentsSolver/Equations/EquationOfState.H`
 - kind: `struct`
-- public methods: 10; public members: 1; private members: 0
+- public methods: 10; public members: 1
 
 ```cpp
 Real (*pressure)(const void*, Real rho, Real e) = nullptr
@@ -83,7 +83,7 @@ const void* ctx = nullptr
 
 - file: `Source/MomentsSolver/Equations/EquationOfState.H`
 - kind: `struct`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 Real gamma = Real(5.0) / Real(3.0)
@@ -94,7 +94,7 @@ Real cv = Real(1.0)
 
 - file: `Source/MomentsSolver/Equations/EquationOfState.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 Real cs2 = Real(1.0)
@@ -104,7 +104,7 @@ Real cs2 = Real(1.0)
 
 - file: `Source/MomentsSolver/Equations/Euler5Eqn.H`
 - kind: `struct`
-- public methods: 0; public members: 3; private members: 0
+- public methods: 0; public members: 3
 
 Public members:
 
@@ -118,7 +118,7 @@ bool use_eos = false
 
 - file: `Source/MomentsSolver/Equations/Euler5Eqn.H`
 - kind: `struct`
-- public methods: 6; public members: 3; private members: 0
+- public methods: 6; public members: 3
 
 ```cpp
 MOMENTS_GPU_HOST_DEVICE static Real internal_energy (const Real* U) noexcept
@@ -141,7 +141,7 @@ struct Context
 
 - file: `Source/MomentsSolver/Equations/MaxwellEqn.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -153,7 +153,7 @@ Real c = 1.0
 
 - file: `Source/MomentsSolver/Equations/MaxwellEqn.H`
 - kind: `struct`
-- public methods: 3; public members: 3; private members: 0
+- public methods: 3; public members: 3
 
 ```cpp
 MOMENTS_GPU_HOST_DEVICE static Real max_wave_speed (const Real* U, int dir, const Context& ctx) noexcept
@@ -173,7 +173,7 @@ struct Context
 
 - file: `Source/MomentsSolver/Equations/MomentEquation.H`
 - kind: `struct`
-- public methods: 3; public members: 2; private members: 0
+- public methods: 3; public members: 2
 
 ```cpp
 MOMENTS_GPU_HOST_DEVICE Real (*max_wave_speed)(const void* ctx, const Real* U, int dir) noexcept = nullptr
@@ -192,7 +192,7 @@ int num_waves = 0
 
 - file: `Source/MomentsSolver/Equations/TenMomentEqn.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -204,7 +204,7 @@ Real k0 = 1.0
 
 - file: `Source/MomentsSolver/Equations/TenMomentEqn.H`
 - kind: `struct`
-- public methods: 5; public members: 3; private members: 0
+- public methods: 5; public members: 3
 
 ```cpp
 MOMENTS_GPU_HOST_DEVICE static int p_index (int i, int j) noexcept
@@ -226,7 +226,7 @@ struct Context
 
 - file: `Source/MomentsSolver/FV/MomentFVDriver.H`
 - kind: `struct`
-- public methods: 5; public members: 1; private members: 0
+- public methods: 5; public members: 1
 
 ```cpp
 static Real minmod (Real a, Real b)
@@ -246,7 +246,7 @@ static constexpr int N = Eq::num_eqs
 
 - file: `Source/MomentsSolver/FV/MomentFVNDDriver.H`
 - kind: `struct`
-- public methods: 14; public members: 3; private members: 0
+- public methods: 14; public members: 3
 
 ```cpp
 FVND (int a_nx, int a_ny, int a_nz, Real a_dx, Real a_dy, Real a_dz) : nx(a_nx), ny(a_ny), nz((DIM == 2) ? 1 : a_nz), dx(a_dx), dy(a_dy), dz((DIM == 2) ? Real(1) : a_dz)

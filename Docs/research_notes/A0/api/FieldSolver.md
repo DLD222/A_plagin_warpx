@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 53 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 53 classes/structs. Signatures are heuristic.
 
 ## `EffectivePotentialES`
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/EffectivePotentialES.H`
 - kind: `class`, bases: `public ElectrostaticSolver`
-- public methods: 6; public members: 1; private members: 0
+- public methods: 6; public members: 1
 
 ```cpp
 explicit EffectivePotentialES (int nlevs_max) : ElectrostaticSolver (nlevs_max)
@@ -29,7 +29,7 @@ bool m_overwrite_sigma
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H`
 - kind: `class`
-- public methods: 14; public members: 4; private members: 0
+- public methods: 14; public members: 4
 
 ```cpp
 ElectrostaticSolver() = default
@@ -61,7 +61,7 @@ bool is_igf_2d_slices = false
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/LabFrameExplicitES.H`
 - kind: `class`, bases: `public ElectrostaticSolver`
-- public methods: 5; public members: 0; private members: 0
+- public methods: 5; public members: 0
 
 ```cpp
 explicit LabFrameExplicitES (int nlevs_max) : ElectrostaticSolver (nlevs_max)
@@ -75,7 +75,7 @@ void computePhiTriDiagonal_periodic ( const ablastr::fields::MultiLevelScalarFie
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit EBCalcEfromPhiPerLevel(amrex::Vector<amrex::Array<amrex::MultiFab *, AMREX_SPACEDIM> > e_field) : m_e_field(std::move(e_field))
@@ -86,7 +86,7 @@ void operator()(amrex::MLMG & mlmg, int const lev)
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -99,7 +99,7 @@ amrex::ParserExecutor<4> potential_eb
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H`
 - kind: `class`
-- public methods: 7; public members: 21; private members: 7
+- public methods: 7; public members: 21
 
 ```cpp
 PoissonBoundaryHandler ()
@@ -141,7 +141,7 @@ bool phi_EB_only_t = true
 
 - file: `Source/FieldSolver/ElectrostaticSolvers/RelativisticExplicitES.H`
 - kind: `class`, bases: `public ElectrostaticSolver`
-- public methods: 5; public members: 0; private members: 0
+- public methods: 5; public members: 0
 
 ```cpp
 explicit RelativisticExplicitES (int nlevs_max) : ElectrostaticSolver (nlevs_max)
@@ -155,7 +155,7 @@ void AddBoundaryField ( ablastr::fields::MultiLevelVectorField& Efield )
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 static void InitializeStencilCoefficients ( std::array<amrex::Real, 3>& cell_size, amrex::Vector<amrex::Real>& stencil_coefs_x, amrex::Vector<amrex::Real>& stencil_coefs_y, amrex::Vector<amrex::Real>& stencil_coefs_z )
@@ -167,7 +167,7 @@ static amrex::IntVect GetMaxGuardCell ()
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 static void InitializeStencilCoefficients ( std::array<amrex::Real,3>& cell_size, amrex::Vector<amrex::Real>& stencil_coefs_x, amrex::Vector<amrex::Real>& stencil_coefs_y, amrex::Vector<amrex::Real>& stencil_coefs_z )
@@ -179,7 +179,7 @@ static amrex::IntVect GetMaxGuardCell ()
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 static void InitializeStencilCoefficients ( std::array<amrex::Real,3>& cell_size, amrex::Vector<amrex::Real>& stencil_coefs_x, amrex::Vector<amrex::Real>& stencil_coefs_y, amrex::Vector<amrex::Real>& stencil_coefs_z )
@@ -191,7 +191,7 @@ static amrex::IntVect GetMaxGuardCell ()
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 static void InitializeStencilCoefficients ( std::array<amrex::Real,3>& cell_size, amrex::Vector<amrex::Real>& stencil_coefs_r, amrex::Vector<amrex::Real>& stencil_coefs_z )
@@ -203,13 +203,13 @@ static amrex::IntVect GetMaxGuardCell ()
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/FieldAccessorFunctors.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 2
+- public methods: 0; public members: 0
 
 ## `SphericalYeeAlgorithm`
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H`
 - kind: `struct`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 static void InitializeStencilCoefficients ( std::array<amrex::Real,3>& cell_size, amrex::Vector<amrex::Real>& stencil_coefs_r)
@@ -221,7 +221,7 @@ static amrex::IntVect GetMaxGuardCell ()
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H`
 - kind: `class`
-- public methods: 64; public members: 0; private members: 14
+- public methods: 64; public members: 0
 
 ```cpp
 FiniteDifferenceSolver ( ElectromagneticSolverAlgo fdtd_algo, std::array<amrex::Real,3> cell_size, ablastr::utils::enums::GridType grid_type )
@@ -294,7 +294,7 @@ void ComputeVectorBiLaplacianCartesian ( ablastr::fields::VectorField& out_field
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/ExternalVectorPotential.H`
 - kind: `class`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 ExternalVectorPotential ()
@@ -310,7 +310,7 @@ void UpdateHybridExternalFields ( amrex::Real t, amrex::Real dt )
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H`
 - kind: `class`
-- public methods: 39; public members: 58; private members: 0
+- public methods: 39; public members: 58
 
 ```cpp
 HybridPICModel ()
@@ -403,19 +403,19 @@ std::string m_Jx_ext_grid_function = "0.0"
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `LaxWendroffAlgo`
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `MacroscopicProperties`
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H`
 - kind: `class`
-- public methods: 38; public members: 17; private members: 42
+- public methods: 38; public members: 17
 
 ```cpp
 MacroscopicProperties ()
@@ -484,7 +484,7 @@ amrex::GpuArray<int, 3> macro_cr_ratio
 
 - file: `Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/SubpixelTensor.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -496,7 +496,7 @@ amrex::Real m[9]
 
 - file: `Source/FieldSolver/ImplicitSolvers/DarwinLinearFieldOperator.H`
 - kind: `class`, bases: `public LinearFunction<WarpXSolverVec,SemiImplicitDarwin>`
-- public methods: 16; public members: 0; private members: 9
+- public methods: 16; public members: 0
 
 ```cpp
 DarwinLinearFieldOperator () = default
@@ -521,7 +521,7 @@ void define ( const WarpXSolverVec& a_U, SemiImplicitDarwin* a_ops, const Precon
 
 - file: `Source/FieldSolver/ImplicitSolvers/ImplicitOptions.H`
 - kind: `struct`
-- public methods: 1; public members: 13; private members: 0
+- public methods: 1; public members: 13
 
 ```cpp
 amrex::ParticleReal particle_tolerance = static_cast<amrex::ParticleReal>(1.0e-10)
@@ -549,7 +549,7 @@ int particle_shape
 
 - file: `Source/FieldSolver/ImplicitSolvers/ImplicitSolver.H`
 - kind: `class`
-- public methods: 40; public members: 0; private members: 0
+- public methods: 40; public members: 0
 
 ```cpp
 ImplicitSolver() = default
@@ -598,7 +598,7 @@ void FinishImplicitParticleUpdate (amrex::Real time, int step)
 
 - file: `Source/FieldSolver/ImplicitSolvers/MassMatrixSolverOps.H`
 - kind: `class`, bases: `public MatrixSolverOps<T>`
-- public methods: 15; public members: 0; private members: 9
+- public methods: 15; public members: 0
 
 ```cpp
 MassMatrixSolverOps () = default
@@ -622,7 +622,7 @@ RT computeResidualNormInternal (const T& a_x, const T& a_b) const
 
 - file: `Source/FieldSolver/ImplicitSolvers/SemiImplicitDarwin.H`
 - kind: `class`, bases: `public ImplicitSolver`
-- public methods: 21; public members: 0; private members: 12
+- public methods: 21; public members: 0
 
 ```cpp
 SemiImplicitDarwin() = default
@@ -652,7 +652,7 @@ void FinishVelocityUpdate ()
 
 - file: `Source/FieldSolver/ImplicitSolvers/SemiImplicitEM.H`
 - kind: `class`, bases: `public ImplicitSolver`
-- public methods: 14; public members: 0; private members: 2
+- public methods: 14; public members: 0
 
 ```cpp
 SemiImplicitEM() = default
@@ -675,7 +675,7 @@ void ComputeRHS (WarpXSolverVec& a_RHS, const WarpXSolverVec& a_E, amrex::Real s
 
 - file: `Source/FieldSolver/ImplicitSolvers/SparseJacobianMatrix.H`
 - kind: `class`
-- public methods: 14; public members: 0; private members: 11
+- public methods: 14; public members: 0
 
 ```cpp
 SparseJacobianMatrix () = default
@@ -698,7 +698,7 @@ int Assemble (const WarpXSolverDOF* a_dofs, const amrex::Vector<amrex::Geometry>
 
 - file: `Source/FieldSolver/ImplicitSolvers/StrangImplicitSpectralEM.H`
 - kind: `class`, bases: `public ImplicitSolver`
-- public methods: 12; public members: 0; private members: 2
+- public methods: 12; public members: 0
 
 ```cpp
 StrangImplicitSpectralEM() = default
@@ -719,7 +719,7 @@ void ComputeRHS (WarpXSolverVec& a_RHS, const WarpXSolverVec& a_E, amrex::Real s
 
 - file: `Source/FieldSolver/ImplicitSolvers/ThetaImplicitEM.H`
 - kind: `class`, bases: `public ImplicitSolver`
-- public methods: 16; public members: 0; private members: 2
+- public methods: 16; public members: 0
 
 ```cpp
 ThetaImplicitEM() = default
@@ -744,7 +744,7 @@ void InitializeCurlCurlBCMasks ()
 
 - file: `Source/FieldSolver/ImplicitSolvers/WarpXSolverDOF.H`
 - kind: `struct`
-- public methods: 3; public members: 7; private members: 0
+- public methods: 3; public members: 7
 
 ```cpp
 void Define ( WarpX* , int, const std::string&, const std::string&)
@@ -768,7 +768,7 @@ amrex::Vector<amrex::Long> m_row_offsets
 
 - file: `Source/FieldSolver/ImplicitSolvers/WarpXSolverVec.H`
 - kind: `class`
-- public methods: 38; public members: 0; private members: 11
+- public methods: 38; public members: 0
 
 ```cpp
 WarpXSolverVec() = default
@@ -815,7 +815,7 @@ void copyTo (amrex::Real*) const
 
 - file: `Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H`
 - kind: `class`
-- public methods: 3; public members: 0; private members: 3
+- public methods: 3; public members: 0
 
 ```cpp
 EBCalcBfromVectorPotentialPerLevel (ablastr::fields::MultiLevelVectorField const & b_field, ablastr::fields::MultiLevelVectorField const & grad_buf_e_stag, ablastr::fields::MultiLevelVectorField const & grad_buf_b_stag) : m_b_field(b_field), m_grad_buf_e_stag(grad_buf_e_stag), m_grad_buf_b_stag(grad_buf_b_stag)
@@ -827,7 +827,7 @@ void doInterp (amrex::MultiFab & src, amrex::MultiFab & dst)
 
 - file: `Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H`
 - kind: `class`
-- public methods: 1; public members: 4; private members: 0
+- public methods: 1; public members: 4
 
 ```cpp
 void defineVectorPotentialBCs ()
@@ -846,7 +846,7 @@ bool has_non_periodic = false
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmComoving.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithm`
-- public methods: 5; public members: 0; private members: 7
+- public methods: 5; public members: 0
 
 ```cpp
 PsatdAlgorithmComoving (const SpectralKSpace& spectral_kspace, const amrex::DistributionMapping& dm, const SpectralFieldIndex& spectral_index, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_comoving, amrex::Real dt, bool update_with_rho)
@@ -860,7 +860,7 @@ void VayDeposition (SpectralFieldData& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmGalilean.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithm`
-- public methods: 6; public members: 0; private members: 10
+- public methods: 6; public members: 0
 
 ```cpp
 PsatdAlgorithmGalilean ( const SpectralKSpace& spectral_kspace, const amrex::DistributionMapping& dm, const SpectralFieldIndex& spectral_index, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_galilean, amrex::Real dt, bool update_with_rho, bool time_averaging, bool dive_cleaning, bool divb_cleaning)
@@ -875,7 +875,7 @@ void VayDeposition (SpectralFieldData& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmGalileanRZ.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithmRZ`
-- public methods: 5; public members: 0; private members: 6
+- public methods: 5; public members: 0
 
 ```cpp
 PsatdAlgorithmGalileanRZ (SpectralKSpaceRZ const & spectral_kspace, amrex::DistributionMapping const & dm, const SpectralFieldIndex& spectral_index, int n_rz_azimuthal_modes, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_galilean, amrex::Real dt_step, bool update_with_rho)
@@ -889,7 +889,7 @@ void VayDeposition (SpectralFieldDataRZ& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmJRhomFirstOrder.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithm`
-- public methods: 4; public members: 0; private members: 4
+- public methods: 4; public members: 0
 
 ```cpp
 PsatdAlgorithmJRhomFirstOrder ( const SpectralKSpace& spectral_kspace, const amrex::DistributionMapping& dm, const SpectralFieldIndex& spectral_index, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, amrex::Real dt, bool div_cleaning, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho)
@@ -902,7 +902,7 @@ void VayDeposition (SpectralFieldData& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmJRhomSecondOrder.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithm`
-- public methods: 6; public members: 0; private members: 9
+- public methods: 6; public members: 0
 
 ```cpp
 PsatdAlgorithmJRhomSecondOrder ( const SpectralKSpace& spectral_kspace, const amrex::DistributionMapping& dm, const SpectralFieldIndex& spectral_index, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, amrex::Real dt, bool update_with_rho, bool time_averaging, bool dive_cleaning, bool divb_cleaning, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho )
@@ -917,7 +917,7 @@ void VayDeposition (SpectralFieldData& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmPml.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithm`
-- public methods: 5; public members: 0; private members: 10
+- public methods: 5; public members: 0
 
 ```cpp
 PsatdAlgorithmPml( const SpectralKSpace& spectral_kspace, const amrex::DistributionMapping& dm, const SpectralFieldIndex& spectral_index, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_galilean, amrex::Real dt, bool dive_cleaning, bool divb_cleaning)
@@ -931,7 +931,7 @@ void VayDeposition (SpectralFieldData& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmPmlRZ.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithmRZ`
-- public methods: 5; public members: 0; private members: 3
+- public methods: 5; public members: 0
 
 ```cpp
 PsatdAlgorithmPmlRZ (SpectralKSpaceRZ const & spectral_kspace, amrex::DistributionMapping const & dm, const SpectralFieldIndex& spectral_index, int n_rz_azimuthal_modes, int norder_z, ablastr::utils::enums::GridType grid_type, amrex::Real dt_step)
@@ -945,7 +945,7 @@ void VayDeposition (SpectralFieldDataRZ& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmRZ.H`
 - kind: `class`, bases: `public SpectralBaseAlgorithmRZ`
-- public methods: 5; public members: 0; private members: 9
+- public methods: 5; public members: 0
 
 ```cpp
 PsatdAlgorithmRZ(SpectralKSpaceRZ const & spectral_kspace, amrex::DistributionMapping const & dm, const SpectralFieldIndex& spectral_index, int n_rz_azimuthal_modes, int norder_z, ablastr::utils::enums::GridType grid_type, amrex::Real dt_step, bool update_with_rho, bool time_averaging, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho, bool dive_cleaning, bool divb_cleaning)
@@ -959,7 +959,7 @@ void VayDeposition (SpectralFieldDataRZ& field_data) final
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/SpectralBaseAlgorithm.H`
 - kind: `class`
-- public methods: 9; public members: 0; private members: 0
+- public methods: 9; public members: 0
 
 ```cpp
 virtual void pushSpectralFields(SpectralFieldData& f) const = 0
@@ -977,7 +977,7 @@ void ComputeSpectralDivE ( int lev, SpectralFieldData& field_data, ablastr::fiel
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralAlgorithms/SpectralBaseAlgorithmRZ.H`
 - kind: `class`
-- public methods: 9; public members: 0; private members: 0
+- public methods: 9; public members: 0
 
 ```cpp
 virtual void pushSpectralFields(SpectralFieldDataRZ & f) = 0
@@ -995,7 +995,7 @@ virtual void VayDeposition (SpectralFieldDataRZ& field_data) = 0
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralBinomialFilter.H`
 - kind: `class`
-- public methods: 5; public members: 0; private members: 0
+- public methods: 5; public members: 0
 
 ```cpp
 SpectralBinomialFilter () = default
@@ -1009,7 +1009,7 @@ KFilterArray const & getFilterArrayZ ()
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralFieldData.H`
 - kind: `class`
-- public methods: 9; public members: 1; private members: 5
+- public methods: 9; public members: 1
 
 ```cpp
 SpectralFieldData( const amrex::BoxArray& realspace_ba, const SpectralKSpace& k_space, const amrex::DistributionMapping& dm, int n_field_required, bool periodic_single_box)
@@ -1033,7 +1033,7 @@ SpectralField fields
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralFieldData.H`
 - kind: `class`
-- public methods: 7; public members: 16; private members: 0
+- public methods: 7; public members: 16
 
 ```cpp
 SpectralFieldIndex (bool update_with_rho, bool time_averaging, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho, bool dive_cleaning, bool divb_cleaning, bool pml, bool pml_rz = false)
@@ -1070,7 +1070,7 @@ int Er_pml = -1, Et_pml = -1, Br_pml = -1, Bt_pml = -1
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralFieldDataRZ.H`
 - kind: `class`
-- public methods: 20; public members: 3; private members: 8
+- public methods: 20; public members: 3
 
 ```cpp
 SpectralFieldDataRZ (int lev, const amrex::BoxArray& realspace_ba, const SpectralKSpaceRZ& k_space, const amrex::DistributionMapping& dm, int n_field_required, int n_modes)
@@ -1107,7 +1107,7 @@ int m_ncomps
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralHankelTransform/HankelTransform.H`
 - kind: `class`
-- public methods: 4; public members: 0; private members: 5
+- public methods: 4; public members: 0
 
 ```cpp
 HankelTransform(int hankel_order, int azimuthal_mode, int nr, amrex::Real rmax)
@@ -1120,7 +1120,7 @@ void HankelInverseTransform(amrex::FArrayBox const& G, int G_icomp, amrex::FArra
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralHankelTransform/SpectralHankelTransformer.H`
 - kind: `class`
-- public methods: 8; public members: 0; private members: 6
+- public methods: 8; public members: 0
 
 ```cpp
 SpectralHankelTransformer () = default
@@ -1137,7 +1137,7 @@ void SpectralToPhysical_Vector (amrex::Box const & box, amrex::FArrayBox const &
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralKSpace.H`
 - kind: `class`
-- public methods: 5; public members: 1; private members: 0
+- public methods: 5; public members: 1
 
 ```cpp
 SpectralKSpace() : dx(amrex::RealVect::Zero)
@@ -1157,7 +1157,7 @@ amrex::BoxArray spectralspace_ba
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralKSpaceRZ.H`
 - kind: `class`, bases: `public SpectralKSpace`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 SpectralKSpaceRZ(const amrex::BoxArray& realspace_ba, const amrex::DistributionMapping& dm, amrex::RealVect realspace_dx)
@@ -1169,7 +1169,7 @@ amrex::RealVect const & getCellSize () const
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralSolver.H`
 - kind: `class`
-- public methods: 10; public members: 2; private members: 2
+- public methods: 10; public members: 2
 
 ```cpp
 SpectralSolver (const amrex::BoxArray& realspace_ba, const amrex::DistributionMapping& dm, int norder_x, int norder_y, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_galilean, const amrex::Vector<amrex::Real>& v_comoving, amrex::RealVect dx, amrex::Real dt, bool pml, bool periodic_single_box, bool update_with_rho, bool fft_do_time_averaging, PSATDSolutionType psatd_solution_type, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho, bool dive_cleaning, bool divb_cleaning)
@@ -1195,7 +1195,7 @@ amrex::Real m_dt
 
 - file: `Source/FieldSolver/SpectralSolver/SpectralSolverRZ.H`
 - kind: `class`
-- public methods: 15; public members: 2; private members: 4
+- public methods: 15; public members: 2
 
 ```cpp
 SpectralSolverRZ (int lev, amrex::BoxArray const & realspace_ba, amrex::DistributionMapping const & dm, int n_rz_azimuthal_modes, int norder_z, ablastr::utils::enums::GridType grid_type, const amrex::Vector<amrex::Real>& v_galilean, amrex::RealVect dx, amrex::Real dt, bool with_pml, bool update_with_rho, bool fft_do_time_averaging, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho, bool dive_cleaning, bool divb_cleaning)

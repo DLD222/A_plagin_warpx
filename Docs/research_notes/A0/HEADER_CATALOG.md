@@ -2,41 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 范围：`Source/**/*.H`，自动解析 + 人工抽检。签名来自源码启发式抽取；默认参数/模板/宏可能被简化，精确签名以头文件为准。
-> 机器可读表：`classes.csv`；逐子系统签名：`api/<Subsystem>.md`。
-
-
-## 0. 覆盖与读法
-
-- 头文件：**371**；解析出 class/struct 的头文件：**235**；未解析出 class/struct：**136**（多为 free function/kernel/模板工具，见 [`COVERAGE.md`](COVERAGE.md)）。
-- 类/结构体：**348**；公共方法：**2,408**（启发式抽取并去重；模板/默认参数可能简化）。
-- 逐子系统签名：[`api/`](api/)；机器可读：[`classes.csv`](classes.csv)；生命周期：[`LIFECYCLE_MATRIX.md`](LIFECYCLE_MATRIX.md)。
-- 读法：先看 §1 总量，再看 §2 类索引定位类，最后进 `api/<Subsystem>.md` 看完整公共签名。
-
-### 公共方法最多的 20 个类（Route B 的重点）
-
-| 类 | 文件 | 公共方法 |
-|---|---|---:|
-| `WarpX` | `Source/WarpX.H` | 217 |
-| `WarpXParticleContainer` | `Source/Particles/WarpXParticleContainer.H` | 85 |
-| `MultiParticleContainer` | `Source/Particles/MultiParticleContainer.H` | 67 |
-| `FiniteDifferenceSolver` | `Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H` | 64 |
-| `PhysicalParticleContainer` | `Source/Particles/PhysicalParticleContainer.H` | 54 |
-| `ImplicitSolver` | `Source/FieldSolver/ImplicitSolvers/ImplicitSolver.H` | 40 |
-| `HybridPICModel` | `Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H` | 39 |
-| `WarpXSolverVec` | `Source/FieldSolver/ImplicitSolvers/WarpXSolverVec.H` | 38 |
-| `MacroscopicProperties` | `Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H` | 38 |
-| `MultiFabRegister` | `Source/ablastr/fields/MultiFabRegister.H` | 34 |
-| `Diagnostics` | `Source/Diagnostics/Diagnostics.H` | 34 |
-| `PlasmaInjector` | `Source/Initialization/PlasmaInjector.H` | 28 |
-| `BTDPlotfileHeaderImpl` | `Source/Diagnostics/BTD_Plotfile_Header_Impl.H` | 27 |
-| `JacobianFunctionMF` | `Source/NonlinearSolvers/JacobianFunctionMF.H` | 23 |
-| `SemiImplicitDarwin` | `Source/FieldSolver/ImplicitSolvers/SemiImplicitDarwin.H` | 21 |
-| `SpectralFieldDataRZ` | `Source/FieldSolver/SpectralSolver/SpectralFieldDataRZ.H` | 20 |
-| `ParticleBoundaryBuffer` | `Source/Particles/ParticleBoundaryBuffer.H` | 20 |
-| `WarpXFluidContainer` | `Source/Fluids/WarpXFluidContainer.H` | 18 |
-| `MultiDiagnostics` | `Source/Diagnostics/MultiDiagnostics.H` | 14 |
-| `MultiReducedDiags` | `Source/Diagnostics/ReducedDiags/MultiReducedDiags.H` | 12 |
+> 自动生成；签名启发式抽取，精确签名以头文件为准。机器可读：`classes.csv`；逐子系统：`api/`；覆盖：`COVERAGE.md`。
 
 ## 1. 总览
 
@@ -55,10 +21,11 @@
 | [AcceleratorLattice](api/AcceleratorLattice.md) | 9 | 26 | 6 |
 | [Laser](api/Laser.md) | 5 | 21 | 1 |
 | [Parallelization](api/Parallelization.md) | 1 | 15 | 1 |
+| [Runtime](api/Runtime.md) | 1 | 10 | 1 |
 | [Filter](api/Filter.md) | 3 | 9 | 3 |
 | [Utils](api/Utils.md) | 3 | 7 | 3 |
 | [EmbeddedBoundary](api/EmbeddedBoundary.md) | 4 | 1 | 2 |
-| **合计** | **348** | **2408** | **235** |
+| **合计** | **349** | **2418** | **236** |
 
 ## 2. 类索引（按子系统）
 
@@ -459,6 +426,12 @@
 | 类/结构体 | 文件 | 公共方法 | 基类 |
 |---|---|---:|---|
 | `WarpX` | `Source/WarpX.H` | 217 | public amrex::AmrCore |
+
+### Runtime
+
+| 类/结构体 | 文件 | 公共方法 | 基类 |
+|---|---|---:|---|
+| `Runtime` | `Source/Runtime/Runtime.H` | 10 |  |
 
 ### Utils
 

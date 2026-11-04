@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 97 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 97 classes/structs. Signatures are heuristic.
 
 ## `BackgroundMCCCollision`
 
 - file: `Source/Particles/Collision/BackgroundMCC/BackgroundMCCCollision.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 10; public members: 0; private members: 17
+- public methods: 10; public members: 0
 
 ```cpp
 explicit BackgroundMCCCollision (std::string const& collision_name)
@@ -27,7 +27,7 @@ void doBackgroundIonization ( int lev, amrex::LayoutData<amrex::Real>* cost, War
 
 - file: `Source/Particles/Collision/BackgroundMCC/ImpactIonization.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 6
+- public methods: 1; public members: 0
 
 ```cpp
 ImpactIonizationFilterFunc( ScatteringProcess const& mcc_process, double const mass, amrex::ParticleReal const total_collision_prob, amrex::ParticleReal const nu_max, amrex::ParserExecutor<4> const& n_a_func, amrex::Real t ) : m_mcc_process(mcc_process.executor()), m_mass(mass), m_total_collision_prob(total_collision_prob), m_nu_max(nu_max), m_n_a_func(n_a_func), m_t(t)
@@ -37,7 +37,7 @@ ImpactIonizationFilterFunc( ScatteringProcess const& mcc_process, double const m
 
 - file: `Source/Particles/Collision/BackgroundMCC/ImpactIonization.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 5
+- public methods: 1; public members: 0
 
 ```cpp
 ImpactIonizationTransformFunc( amrex::ParticleReal energy_cost, double mass1, amrex::ParticleReal sqrt_kb_m, amrex::ParserExecutor<4> const& T_a_func, amrex::Real t ) : m_energy_cost(energy_cost), m_mass1(mass1), m_sqrt_kb_m(sqrt_kb_m), m_T_a_func(T_a_func), m_t(t)
@@ -47,7 +47,7 @@ ImpactIonizationTransformFunc( amrex::ParticleReal energy_cost, double mass1, am
 
 - file: `Source/Particles/Collision/BackgroundStopping/BackgroundStopping.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 9; public members: 0; private members: 7
+- public methods: 9; public members: 0
 
 ```cpp
 explicit BackgroundStopping (const std::string& collision_name)
@@ -65,7 +65,7 @@ void doBackgroundStoppingOnIonsWithinTile (WarpXParIter& pti, amrex::Real dt, am
 
 - file: `Source/Particles/Collision/BinaryCollision/BinaryCollision.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 9; public members: 0; private members: 13
+- public methods: 9; public members: 0
 
 ```cpp
 BinaryCollision (const std::string& collision_name, MultiParticleContainer const * const mypc) : CollisionBase(collision_name)
@@ -83,7 +83,7 @@ void doCollisionsWithinTile ( amrex::Real dt, int const lev, amrex::MFIter const
 
 - file: `Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 4; public members: 1; private members: 13
+- public methods: 4; public members: 1
 
 ```cpp
 BremsstrahlungFunc () = default
@@ -102,7 +102,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 11; private members: 0
+- public methods: 0; public members: 11
 
 Public members:
 
@@ -124,7 +124,7 @@ amrex::ParticleReal * m_sigma_total
 
 - file: `Source/Particles/Collision/BinaryCollision/Bremsstrahlung/PhotonCreationFunc.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 PhotonCreationFunc () = default
@@ -135,7 +135,7 @@ PhotonCreationFunc (const std::string& collision_name, MultiParticleContainer co
 
 - file: `Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 6; private members: 0
+- public methods: 0; public members: 6
 
 Public members:
 
@@ -152,7 +152,7 @@ bool m_isSameSpecies
 
 - file: `Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 4; public members: 1; private members: 5
+- public methods: 4; public members: 1
 
 ```cpp
 PairWiseCoulombCollisionFunc () = default
@@ -171,7 +171,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/DSMC/DSMCFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 4; public members: 1; private members: 4
+- public methods: 4; public members: 1
 
 ```cpp
 DSMCFunc () = default
@@ -190,7 +190,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/DSMC/DSMCFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 6; private members: 0
+- public methods: 0; public members: 6
 
 Public members:
 
@@ -207,7 +207,7 @@ ScatteringProcess::Executor* m_scattering_processes_data
 
 - file: `Source/Particles/Collision/BinaryCollision/DSMC/SplitAndScatterFunc.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 5
+- public methods: 2; public members: 0
 
 ```cpp
 SplitAndScatterFunc () = default
@@ -218,7 +218,7 @@ SplitAndScatterFunc (const std::string& collision_name, MultiParticleContainer c
 
 - file: `Source/Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerCollisionFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 7; private members: 0
+- public methods: 0; public members: 7
 
 Public members:
 
@@ -236,7 +236,7 @@ bool m_need_product_data = false
 
 - file: `Source/Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerCollisionFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 4; public members: 1; private members: 5
+- public methods: 4; public members: 1
 
 ```cpp
 LinearBreitWheelerCollisionFunc () = default
@@ -255,7 +255,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/LinearCompton/LinearComptonCollisionFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 7; private members: 0
+- public methods: 0; public members: 7
 
 Public members:
 
@@ -273,7 +273,7 @@ bool m_need_product_data = false
 
 - file: `Source/Particles/Collision/BinaryCollision/LinearCompton/LinearComptonCollisionFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 4; public members: 1; private members: 5
+- public methods: 4; public members: 1
 
 ```cpp
 LinearComptonCollisionFunc () = default
@@ -292,7 +292,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H`
 - kind: `struct`
-- public methods: 0; public members: 10; private members: 0
+- public methods: 0; public members: 10
 
 Public members:
 
@@ -313,7 +313,7 @@ amrex::Array4<amrex::Real> m_particle_production
 
 - file: `Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H`
 - kind: `class`, bases: `public CollisionFuncBase`
-- public methods: 5; public members: 5; private members: 8
+- public methods: 5; public members: 5
 
 ```cpp
 NuclearFusionFunc () = default
@@ -337,7 +337,7 @@ struct Executor
 
 - file: `Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 NoParticleCreationFunc () = default
@@ -348,7 +348,7 @@ NoParticleCreationFunc (const std::string& , MultiParticleContainer const * cons
 
 - file: `Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 9
+- public methods: 2; public members: 0
 
 ```cpp
 ParticleCreationFunc () = default
@@ -359,7 +359,7 @@ ParticleCreationFunc (const std::string& collision_name, MultiParticleContainer 
 
 - file: `Source/Particles/Collision/BinaryCollision/ParticleShufflers.H`
 - kind: `struct`
-- public methods: 5; public members: 6; private members: 0
+- public methods: 5; public members: 6
 
 ```cpp
 IndependentPairHelper (int a_n_cells, T_index const* AMREX_RESTRICT a_cell_offsets_1, T_index const* AMREX_RESTRICT a_cell_offsets_2) : m_n_cells(a_n_cells), m_cell_offsets_1(a_cell_offsets_1), m_cell_offsets_2(a_cell_offsets_2)
@@ -384,7 +384,7 @@ int m_n_independent_pairs
 
 - file: `Source/Particles/Collision/CollisionBase.H`
 - kind: `class`
-- public methods: 13; public members: 0; private members: 0
+- public methods: 13; public members: 0
 
 ```cpp
 explicit CollisionBase (const std::string& collision_name)
@@ -406,7 +406,7 @@ void BackwardCompatibility ()
 
 - file: `Source/Particles/Collision/CollisionFuncBase.H`
 - kind: `class`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 CollisionFuncBase () = default
@@ -422,7 +422,7 @@ virtual void AllocData ()
 
 - file: `Source/Particles/Collision/CollisionHandler.H`
 - kind: `class`
-- public methods: 3; public members: 0; private members: 4
+- public methods: 3; public members: 0
 
 ```cpp
 explicit CollisionHandler (const MultiParticleContainer* mypc)
@@ -434,7 +434,7 @@ void doCollisions (int step, amrex::Real cur_time, amrex::Real dt, MultiParticle
 
 - file: `Source/Particles/Collision/HybridResistiveDrag/HybridResistiveDrag.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 explicit HybridResistiveDrag (const std::string& collision_name)
@@ -450,7 +450,7 @@ void doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer*
 
 - file: `Source/Particles/Collision/InverseBremsstrahlung/InverseBremsstrahlung.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 8; public members: 0; private members: 3
+- public methods: 8; public members: 0
 
 ```cpp
 InverseBremsstrahlung (std::string const& collision_name, MultiParticleContainer const* mypc)
@@ -467,7 +467,7 @@ void doInverseBremsstrahlungWithinTile (amrex::Real dt, int lev, amrex::MFIter c
 
 - file: `Source/Particles/Collision/PulsedDecay/PulsedDecay.H`
 - kind: `class`, bases: `public CollisionBase`
-- public methods: 7; public members: 0; private members: 6
+- public methods: 7; public members: 0
 
 ```cpp
 PulsedDecay (std::string const& collision_name, MultiParticleContainer const * mypc)
@@ -483,7 +483,7 @@ void doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer*
 
 - file: `Source/Particles/Collision/ScatteringProcess.H`
 - kind: `struct`
-- public methods: 1; public members: 8; private members: 0
+- public methods: 1; public members: 8
 
 ```cpp
 [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE amrex::ParticleReal getCrossSection (amrex::ParticleReal E_coll) const
@@ -506,7 +506,7 @@ bool m_produces_products = false
 
 - file: `Source/Particles/Collision/ScatteringProcess.H`
 - kind: `class`
-- public methods: 17; public members: 1; private members: 6
+- public methods: 17; public members: 1
 
 ```cpp
 ScatteringProcess ( const std::string& scattering_process, const std::string& cross_section_file, amrex::ParticleReal energy, ScatteringAngleModel scattering_angle_model )
@@ -538,7 +538,7 @@ struct Executor
 
 - file: `Source/Particles/Deposition/VarianceAccumulationBuffer.H`
 - kind: `class`
-- public methods: 5; public members: 0; private members: 0
+- public methods: 5; public members: 0
 
 ```cpp
 VarianceAccumulationBuffer (ablastr::fields::MultiLevelVectorField const& T_vf, std::string const& species_name )
@@ -552,7 +552,7 @@ amrex::iMultiFab* get_n(ablastr::fields::Direction dir, int lev)
 
 - file: `Source/Particles/ElementaryProcess/Ionization.H`
 - kind: `struct`
-- public methods: 1; public members: 34; private members: 0
+- public methods: 1; public members: 34
 
 ```cpp
 IonizationFilterFunc (const WarpXParIter& a_pti, int lev, amrex::IntVect ngEB, amrex::FArrayBox const& exfab, amrex::FArrayBox const& eyfab, amrex::FArrayBox const& ezfab, amrex::FArrayBox const& bxfab, amrex::FArrayBox const& byfab, amrex::FArrayBox const& bzfab, amrex::Vector<amrex::ParticleReal>& E_external_particle, amrex::Vector<amrex::ParticleReal>& B_external_particle, const amrex::Real* AMREX_RESTRICT a_ionization_energies, const amrex::Real* AMREX_RESTRICT a_adk_prefactor, const amrex::Real* AMREX_RESTRICT a_adk_exp_prefactor, const amrex::Real* AMREX_RESTRICT a_adk_power, const amrex::Real* AMREX_RESTRICT a_adk_correction_factors, int a_comp, int a_atomic_number, int a_do_adk_correction, int a_offset = 0) noexcept
@@ -601,13 +601,13 @@ amrex::Dim3 m_lo
 
 - file: `Source/Particles/ElementaryProcess/Ionization.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `BreitWheelerEngine`
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H`
 - kind: `class`
-- public methods: 11; public members: 0; private members: 4
+- public methods: 11; public members: 0
 
 ```cpp
 BreitWheelerEngine () = default
@@ -627,7 +627,7 @@ void compute_lookup_tables (PicsarBreitWheelerCtrl ctrl, amrex::ParticleReal bw_
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H`
 - kind: `class`
-- public methods: 2; public members: 1; private members: 2
+- public methods: 2; public members: 1
 
 ```cpp
 BreitWheelerEvolveOpticalDepth () = default
@@ -644,7 +644,7 @@ Public members:
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 BreitWheelerGeneratePairs () = default
@@ -655,7 +655,7 @@ explicit BreitWheelerGeneratePairs (const BW_pair_prod_table_view& table_view): 
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 BreitWheelerGetOpticalDepth () = default
@@ -665,7 +665,7 @@ BreitWheelerGetOpticalDepth () = default
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -678,7 +678,7 @@ BW_pair_prod_table_params pair_prod_params
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QedWrapperCommons.H`
 - kind: `class`, bases: `public std::vector<Real>`
-- public methods: 3; public members: 0; private members: 1
+- public methods: 3; public members: 0
 
 ```cpp
 PicsarQedVector(Args&&... args) : HV(std::forward<Args>(args)...)
@@ -690,7 +690,7 @@ const Real* data() const
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -703,7 +703,7 @@ QS_phot_em_table_params phot_em_params
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H`
 - kind: `class`
-- public methods: 11; public members: 0; private members: 4
+- public methods: 11; public members: 0
 
 ```cpp
 QuantumSynchrotronEngine () = default
@@ -723,7 +723,7 @@ void compute_lookup_tables (PicsarQuantumSyncCtrl ctrl, amrex::ParticleReal qs_m
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H`
 - kind: `class`
-- public methods: 2; public members: 1; private members: 2
+- public methods: 2; public members: 1
 
 ```cpp
 QuantumSynchrotronEvolveOpticalDepth () = default
@@ -740,7 +740,7 @@ Public members:
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 0
+- public methods: 1; public members: 0
 
 ```cpp
 QuantumSynchrotronGetOpticalDepth () = default
@@ -750,7 +750,7 @@ QuantumSynchrotronGetOpticalDepth () = default
 
 - file: `Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H`
 - kind: `class`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 QuantumSynchrotronPhotonEmission () = default
@@ -761,7 +761,7 @@ explicit QuantumSynchrotronPhotonEmission ( const QS_phot_em_table_view table_vi
 
 - file: `Source/Particles/ElementaryProcess/QEDPairGeneration.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 1
+- public methods: 1; public members: 0
 
 ```cpp
 explicit PairGenerationFilterFunc(int const opt_depth_runtime_comp) : m_opt_depth_runtime_comp(opt_depth_runtime_comp)
@@ -771,7 +771,7 @@ explicit PairGenerationFilterFunc(int const opt_depth_runtime_comp) : m_opt_dept
 
 - file: `Source/Particles/ElementaryProcess/QEDPairGeneration.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 27
+- public methods: 1; public members: 0
 
 ```cpp
 PairGenerationTransformFunc(BreitWheelerGeneratePairs generate_functor, const WarpXParIter& a_pti, int lev, amrex::IntVect ngEB, amrex::FArrayBox const& exfab, amrex::FArrayBox const& eyfab, amrex::FArrayBox const& ezfab, amrex::FArrayBox const& bxfab, amrex::FArrayBox const& byfab, amrex::FArrayBox const& bzfab, amrex::Vector<amrex::ParticleReal>& E_external_particle, amrex::Vector<amrex::ParticleReal>& B_external_particle, int a_offset = 0)
@@ -781,7 +781,7 @@ PairGenerationTransformFunc(BreitWheelerGeneratePairs generate_functor, const Wa
 
 - file: `Source/Particles/ElementaryProcess/QEDPhotonEmission.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 1
+- public methods: 1; public members: 0
 
 ```cpp
 explicit PhotonEmissionFilterFunc(int const opt_depth_runtime_comp) : m_opt_depth_runtime_comp(opt_depth_runtime_comp)
@@ -791,7 +791,7 @@ explicit PhotonEmissionFilterFunc(int const opt_depth_runtime_comp) : m_opt_dept
 
 - file: `Source/Particles/ElementaryProcess/QEDPhotonEmission.H`
 - kind: `class`
-- public methods: 1; public members: 0; private members: 29
+- public methods: 1; public members: 0
 
 ```cpp
 PhotonEmissionTransformFunc ( QuantumSynchrotronGetOpticalDepth opt_depth_functor, int opt_depth_runtime_comp, QuantumSynchrotronPhotonEmission emission_functor, const WarpXParIter& a_pti, int lev, amrex::IntVect ngEB, amrex::FArrayBox const& exfab, amrex::FArrayBox const& eyfab, amrex::FArrayBox const& ezfab, amrex::FArrayBox const& bxfab, amrex::FArrayBox const& byfab, amrex::FArrayBox const& bzfab, amrex::Vector<amrex::ParticleReal>& E_external_particle, amrex::Vector<amrex::ParticleReal>& B_external_particle, int a_offset = 0)
@@ -801,7 +801,7 @@ PhotonEmissionTransformFunc ( QuantumSynchrotronGetOpticalDepth opt_depth_functo
 
 - file: `Source/Particles/ElementaryProcess/QEDSchwingerProcess.H`
 - kind: `struct`
-- public methods: 0; public members: 3; private members: 0
+- public methods: 0; public members: 3
 
 Public members:
 
@@ -815,7 +815,7 @@ amrex::Real m_dt
 
 - file: `Source/Particles/ElementaryProcess/QEDSchwingerProcess.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -828,7 +828,7 @@ int m_weight_index
 
 - file: `Source/Particles/ExternalParticleFields.H`
 - kind: `class`
-- public methods: 1; public members: 4; private members: 0
+- public methods: 1; public members: 4
 
 ```cpp
 void ReadParameters()
@@ -847,7 +847,7 @@ int m_nBfields
 
 - file: `Source/Particles/ExternalParticleFields.H`
 - kind: `struct`
-- public methods: 0; public members: 4; private members: 0
+- public methods: 0; public members: 4
 
 Public members:
 
@@ -862,7 +862,7 @@ amrex::ParserExecutor<1> time_executor
 
 - file: `Source/Particles/Filter/FilterFunctors.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 2
+- public methods: 1; public members: 0
 
 ```cpp
 GeometryFilter(bool a_is_active, amrex::RealBox a_domain) : m_is_active(a_is_active), m_domain(a_domain)
@@ -872,7 +872,7 @@ GeometryFilter(bool a_is_active, amrex::RealBox a_domain) : m_is_active(a_is_act
 
 - file: `Source/Particles/Filter/FilterFunctors.H`
 - kind: `struct`
-- public methods: 1; public members: 7; private members: 1
+- public methods: 1; public members: 7
 
 ```cpp
 ParserFilter(bool a_is_active, amrex::ParserExecutor<7> const& a_filter_parser, const amrex::ParticleReal a_mass, const amrex::Real time): m_is_active
@@ -894,7 +894,7 @@ InputUnits m_units
 
 - file: `Source/Particles/Filter/FilterFunctors.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 2
+- public methods: 1; public members: 0
 
 ```cpp
 RandomFilter(bool a_is_active, amrex::Real a_fraction) : m_is_active(a_is_active), m_fraction(a_fraction)
@@ -904,7 +904,7 @@ RandomFilter(bool a_is_active, amrex::Real a_fraction) : m_is_active(a_is_active
 
 - file: `Source/Particles/Filter/FilterFunctors.H`
 - kind: `struct`
-- public methods: 1; public members: 0; private members: 2
+- public methods: 1; public members: 0
 
 ```cpp
 UniformFilter(bool a_is_active, int a_stride) : m_is_active(a_is_active), m_stride(a_stride)
@@ -914,7 +914,7 @@ UniformFilter(bool a_is_active, int a_stride) : m_is_active(a_is_active), m_stri
 
 - file: `Source/Particles/Gather/GetExternalFields.H`
 - kind: `struct`
-- public methods: 3; public members: 24; private members: 0
+- public methods: 3; public members: 24
 
 ```cpp
 GetExternalEBField () = default
@@ -955,7 +955,7 @@ LatticeElementFinderDevice d_lattice_element_finder
 
 - file: `Source/Particles/Gather/ScaleFields.H`
 - kind: `struct`
-- public methods: 2; public members: 5; private members: 0
+- public methods: 2; public members: 5
 
 ```cpp
 explicit ScaleFields(bool do_scale) noexcept : m_do_scale(do_scale)
@@ -976,7 +976,7 @@ amrex::Real m_v_boost
 
 - file: `Source/Particles/LaserParticleContainer.H`
 - kind: `class`, bases: `public WarpXParticleContainer`
-- public methods: 15; public members: 0; private members: 12
+- public methods: 15; public members: 0
 
 ```cpp
 LaserParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name)
@@ -1000,7 +1000,7 @@ void update_laser_particle (WarpXParIter& pti, int np, amrex::ParticleReal * AMR
 
 - file: `Source/Particles/MultiParticleContainer.H`
 - kind: `class`
-- public methods: 67; public members: 18; private members: 3
+- public methods: 67; public members: 18
 
 ```cpp
 explicit MultiParticleContainer (amrex::AmrCore* amr_core)
@@ -1099,7 +1099,7 @@ amrex::Gpu::DeviceVector<amrex::ParticleReal> d_repeated_plasma_lens_strengths_B
 
 - file: `Source/Particles/ParticleBoundaries.H`
 - kind: `struct`
-- public methods: 9; public members: 14; private members: 0
+- public methods: 9; public members: 14
 
 ```cpp
 ParticleBoundaries () noexcept
@@ -1136,7 +1136,7 @@ ParticleBoundariesData data
 
 - file: `Source/Particles/ParticleBoundaries.H`
 - kind: `struct`
-- public methods: 0; public members: 14; private members: 0
+- public methods: 0; public members: 14
 
 Public members:
 
@@ -1161,7 +1161,7 @@ bool reflect_all_velocities
 
 - file: `Source/Particles/ParticleBoundaryBuffer.H`
 - kind: `class`
-- public methods: 20; public members: 0; private members: 6
+- public methods: 20; public members: 0
 
 ```cpp
 ParticleBoundaryBuffer ()
@@ -1190,7 +1190,7 @@ std::string boundaryName (int const ibuffer)
 
 - file: `Source/Particles/ParticleCreation/AddPlasmaUtilities.H`
 - kind: `struct`
-- public methods: 5; public members: 7; private members: 0
+- public methods: 5; public members: 7
 
 ```cpp
 PlasmaParserHelper (SoAType& a_soa, std::size_t old_size, const std::vector<std::string>& a_user_int_attribs, const std::vector<std::string>& a_user_real_attribs, const PlasmaParserWrapper& wrapper) : m_wrapper_ptr(&wrapper)
@@ -1216,7 +1216,7 @@ const PlasmaParserWrapper* m_wrapper_ptr
 
 - file: `Source/Particles/ParticleCreation/AddPlasmaUtilities.H`
 - kind: `struct`
-- public methods: 1; public members: 2; private members: 0
+- public methods: 1; public members: 2
 
 ```cpp
 PlasmaParserWrapper (std::size_t a_num_user_int_attribs, std::size_t a_num_user_real_attribs, const amrex::Vector< std::unique_ptr<amrex::Parser> >& a_user_int_attrib_parser, const amrex::Vector< std::unique_ptr<amrex::Parser> >& a_user_real_attrib_parser)
@@ -1233,7 +1233,7 @@ amrex::Gpu::PinnedVector< amrex::ParserExecutor<7> > m_user_real_attrib_parserex
 
 - file: `Source/Particles/ParticleCreation/AddPlasmaUtilities.H`
 - kind: `struct`
-- public methods: 1; public members: 6; private members: 0
+- public methods: 1; public members: 6
 
 ```cpp
 QEDHelper (SoAType& a_soa, std::size_t old_size, bool a_has_quantum_sync, bool a_has_breit_wheeler, const std::shared_ptr<QuantumSynchrotronEngine>& a_shr_p_qs_engine, const std::shared_ptr<BreitWheelerEngine>& a_shr_p_bw_engine) : has_quantum_sync(a_has_quantum_sync), has_breit_wheeler(a_has_breit_wheeler)
@@ -1254,7 +1254,7 @@ BreitWheelerGetOpticalDepth breit_wheeler_get_opt
 
 - file: `Source/Particles/ParticleCreation/SmartCopy.H`
 - kind: `struct`
-- public methods: 0; public members: 8; private members: 0
+- public methods: 0; public members: 8
 
 Public members:
 
@@ -1273,7 +1273,7 @@ const InitializationPolicy* m_policy_int
 
 - file: `Source/Particles/ParticleCreation/SmartCopy.H`
 - kind: `class`
-- public methods: 3; public members: 4; private members: 5
+- public methods: 3; public members: 4
 
 ```cpp
 SmartCopyFactory (const SrcPC& src, const DstPC& dst) noexcept : m_tag_real
@@ -1294,7 +1294,7 @@ Public members:
 
 - file: `Source/Particles/ParticleCreation/SmartCreate.H`
 - kind: `struct`
-- public methods: 0; public members: 3; private members: 0
+- public methods: 0; public members: 3
 
 Public members:
 
@@ -1308,7 +1308,7 @@ int m_weight_index = 0
 
 - file: `Source/Particles/ParticleCreation/SmartCreate.H`
 - kind: `class`
-- public methods: 3; public members: 2; private members: 3
+- public methods: 3; public members: 2
 
 ```cpp
 explicit SmartCreateFactory (const PartTileData& part) noexcept: m_policy_real
@@ -1327,7 +1327,7 @@ Public members:
 
 - file: `Source/Particles/ParticleCreation/SmartUtils.H`
 - kind: `struct`
-- public methods: 1; public members: 3; private members: 0
+- public methods: 1; public members: 3
 
 ```cpp
 [[nodiscard]] int size () const noexcept
@@ -1345,7 +1345,7 @@ amrex::Gpu::DeviceVector<int> dst_comps
 
 - file: `Source/Particles/ParticleThermalizer/ParticleThermalizer.H`
 - kind: `class`
-- public methods: 4; public members: 0; private members: 7
+- public methods: 4; public members: 0
 
 ```cpp
 ParticleThermalizer ()
@@ -1358,7 +1358,7 @@ void applyThermalizer (WarpXParticleContainer &pcont) const
 
 - file: `Source/Particles/PhotonParticleContainer.H`
 - kind: `class`, bases: `public PhysicalParticleContainer`
-- public methods: 15; public members: 0; private members: 0
+- public methods: 15; public members: 0
 
 ```cpp
 PhotonParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name)
@@ -1382,7 +1382,7 @@ void DepositMassMatrices (ablastr::fields::MultiFabRegister& , int , amrex::Real
 
 - file: `Source/Particles/PhysicalParticleContainer.H`
 - kind: `class`, bases: `public WarpXParticleContainer`
-- public methods: 54; public members: 0; private members: 0
+- public methods: 54; public members: 0
 
 ```cpp
 PhysicalParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name)
@@ -1445,7 +1445,7 @@ void DepositTemperature ( WarpXParIter& pti, RealVector const & wp, RealVector c
 
 - file: `Source/Particles/Pusher/CopyParticleAttribs.H`
 - kind: `struct`
-- public methods: 2; public members: 10; private members: 0
+- public methods: 2; public members: 10
 
 ```cpp
 CopyParticleAttribs () = default
@@ -1471,7 +1471,7 @@ amrex::ParticleReal* AMREX_RESTRICT uzpold = nullptr
 
 - file: `Source/Particles/Pusher/GetAndSetPosition.H`
 - kind: `struct`
-- public methods: 5; public members: 5; private members: 0
+- public methods: 5; public members: 5
 
 ```cpp
 static constexpr RType m_x_default = RType(0.0)
@@ -1495,7 +1495,7 @@ const RType* AMREX_RESTRICT m_phi = nullptr
 
 - file: `Source/Particles/Pusher/GetAndSetPosition.H`
 - kind: `struct`
-- public methods: 1; public members: 9; private members: 0
+- public methods: 1; public members: 6
 
 ```cpp
 explicit SetParticlePosition (const ptiType& a_pti, long a_offset = 0) noexcept
@@ -1507,9 +1507,6 @@ Public members:
 RType* AMREX_RESTRICT m_x
 RType* AMREX_RESTRICT m_y
 RType* AMREX_RESTRICT m_z
-RType* AMREX_RESTRICT m_x
-RType* AMREX_RESTRICT m_z
-RType* AMREX_RESTRICT m_z
 RType* AMREX_RESTRICT m_x = nullptr
 RType* AMREX_RESTRICT m_theta
 RType* AMREX_RESTRICT m_phi
@@ -1519,7 +1516,7 @@ RType* AMREX_RESTRICT m_phi
 
 - file: `Source/Particles/Resampling/LevelingThinning.H`
 - kind: `class`, bases: `public ResamplingAlgorithm`
-- public methods: 4; public members: 0; private members: 1
+- public methods: 4; public members: 0
 
 ```cpp
 LevelingThinning () = default
@@ -1532,7 +1529,7 @@ void operator() ( const amrex::Geometry& geom_lev, WarpXParIter& pti, int lev, W
 
 - file: `Source/Particles/Resampling/Resampling.H`
 - kind: `class`
-- public methods: 4; public members: 0; private members: 2
+- public methods: 4; public members: 0
 
 ```cpp
 Resampling () = default
@@ -1545,7 +1542,7 @@ void operator() ( const amrex::Geometry& geom_lev, WarpXParIter& pti, int lev, W
 
 - file: `Source/Particles/Resampling/Resampling.H`
 - kind: `struct`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 virtual void operator() ( const amrex::Geometry& , WarpXParIter& , int , WarpXParticleContainer* ) const = 0
@@ -1561,7 +1558,7 @@ ResamplingAlgorithm& operator= ( ResamplingAlgorithm&& ) = default
 
 - file: `Source/Particles/Resampling/ResamplingTrigger.H`
 - kind: `class`
-- public methods: 4; public members: 0; private members: 2
+- public methods: 4; public members: 0
 
 ```cpp
 ResamplingTrigger () = default
@@ -1574,13 +1571,13 @@ void initialize_global_numcells () const
 
 - file: `Source/Particles/Resampling/VelocityCoincidenceThinning.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `VelocityBinCalculator`
 
 - file: `Source/Particles/Resampling/VelocityCoincidenceThinning.H`
 - kind: `struct`
-- public methods: 0; public members: 5; private members: 0
+- public methods: 0; public members: 5
 
 Public members:
 
@@ -1596,7 +1593,7 @@ amrex::ParticleReal ux_min, uy_min, uz_min, ux_max, uy_max
 
 - file: `Source/Particles/Resampling/VelocityCoincidenceThinning.H`
 - kind: `class`, bases: `public ResamplingAlgorithm`
-- public methods: 3; public members: 3; private members: 5
+- public methods: 3; public members: 3
 
 ```cpp
 VelocityCoincidenceThinning () = default
@@ -1616,7 +1613,7 @@ struct VelocityBinCalculator
 
 - file: `Source/Particles/RigidInjectedParticleContainer.H`
 - kind: `class`, bases: `public PhysicalParticleContainer`
-- public methods: 13; public members: 0; private members: 7
+- public methods: 13; public members: 0
 
 ```cpp
 RigidInjectedParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name)
@@ -1638,25 +1635,25 @@ void WriteHeader (std::ostream& os) const override
 
 - file: `Source/Particles/ShapeFactors.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `Compute_shape_factor_pair`
 
 - file: `Source/Particles/ShapeFactors.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `Compute_shifted_shape_factor`
 
 - file: `Source/Particles/ShapeFactors.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `copyAndReorder`
 
 - file: `Source/Particles/Sorting/SortingUtils.H`
 - kind: `class`
-- public methods: 1; public members: 2; private members: 3
+- public methods: 1; public members: 2
 
 ```cpp
 copyAndReorder( amrex::Gpu::DeviceVector<T> const& src, amrex::Gpu::DeviceVector<T>& dst, amrex::Gpu::DeviceVector<int> const& indices ): m_src_ptr
@@ -1673,7 +1670,7 @@ Public members:
 
 - file: `Source/Particles/Sorting/SortingUtils.H`
 - kind: `class`
-- public methods: 1; public members: 3; private members: 6
+- public methods: 1; public members: 3
 
 ```cpp
 fillBufferFlag( WarpXParIter const& pti, amrex::iMultiFab const* bmasks, amrex::Gpu::DeviceVector<int>& inexflag, amrex::Geometry const& geom ): m_domain
@@ -1691,7 +1688,7 @@ Public members:
 
 - file: `Source/Particles/Sorting/SortingUtils.H`
 - kind: `class`
-- public methods: 1; public members: 5; private members: 8
+- public methods: 1; public members: 5
 
 ```cpp
 fillBufferFlagRemainingParticles( WarpXParIter const& pti, amrex::iMultiFab const* bmasks, amrex::Gpu::DeviceVector<int>& inexflag, amrex::Geometry const& geom, amrex::Gpu::DeviceVector<int> const& particle_indices, int start_index ) : m_domain
@@ -1711,7 +1708,7 @@ Public members:
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -1723,7 +1720,7 @@ enum
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 3; private members: 0
+- public methods: 0; public members: 3
 
 Public members:
 
@@ -1737,7 +1734,7 @@ int b_shape
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -1750,21 +1747,11 @@ static constexpr std::initializer_list<char const *> names =
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 12; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
 ```cpp
-enum
-static constexpr auto names =
-enum
-static constexpr auto names =
-enum
-static constexpr auto names =
-enum
-static constexpr auto names =
-enum
-static constexpr auto names =
 enum
 static constexpr auto names =
 ```
@@ -1773,7 +1760,7 @@ static constexpr auto names =
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `class`, bases: `public amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>`
-- public methods: 12; public members: 0; private members: 0
+- public methods: 12; public members: 0
 
 ```cpp
 WarpXParIter (ContainerType& pc, int level)
@@ -1794,7 +1781,7 @@ WarpXParIter (ContainerType& pc, int level, amrex::MFItInfo& info)
 
 - file: `Source/Particles/WarpXParticleContainer.H`
 - kind: `class`, bases: `public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>`
-- public methods: 85; public members: 9; private members: 0
+- public methods: 85; public members: 9
 
 ```cpp
 WarpXParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name)

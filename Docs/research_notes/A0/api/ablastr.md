@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 17 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 17 classes/structs. Signatures are heuristic.
 
 ## `PoissonInterpCPtoFP`
 
 - file: `Source/ablastr/fields/Interpolate.H`
 - kind: `struct`
-- public methods: 1; public members: 3; private members: 0
+- public methods: 1; public members: 3
 
 ```cpp
 PoissonInterpCPtoFP( amrex::Array4<amrex::Real> const phi_fp_arr, amrex::Array4<amrex::Real const> const phi_cp_arr, amrex::IntVect const refratio) : m_phi_fp_arr(phi_fp_arr), m_phi_cp_arr(phi_cp_arr), m_refratio(refratio)
@@ -26,7 +26,7 @@ amrex::IntVect m_refratio
 
 - file: `Source/ablastr/fields/MLMGOptions.H`
 - kind: `struct`
-- public methods: 4; public members: 12; private members: 0
+- public methods: 4; public members: 12
 
 ```cpp
 amrex::Real relative_tolerance = amrex::Real(1.e-11)
@@ -56,7 +56,7 @@ std::string hypre_options_namespace = "hypre"
 
 - file: `Source/ablastr/fields/MultiFabRegister.H`
 - kind: `class`
-- public methods: 2; public members: 12; private members: 1
+- public methods: 2; public members: 12
 
 ```cpp
 constexpr explicit Direction (int d) : dir(d)
@@ -84,7 +84,7 @@ static constexpr std::string_view z_string = "z"
 
 - file: `Source/ablastr/fields/MultiFabRegister.H`
 - kind: `struct`
-- public methods: 0; public members: 7; private members: 0
+- public methods: 0; public members: 7
 
 Public members:
 
@@ -102,7 +102,7 @@ std::string m_owner
 
 - file: `Source/ablastr/fields/MultiFabRegister.H`
 - kind: `struct`
-- public methods: 34; public members: 1; private members: 1
+- public methods: 34; public members: 1
 
 ```cpp
 MultiFabRegister() = default
@@ -151,13 +151,13 @@ static inline std::vector<Direction> m_all_dirs =
 
 - file: `Source/ablastr/fields/MultiFabRegister.H`
 - kind: `struct`, bases: `std::false_type`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `FFTplan`
 
 - file: `Source/ablastr/math/fft/AnyFFT.H`
 - kind: `struct`
-- public methods: 0; public members: 6; private members: 0
+- public methods: 0; public members: 6
 
 Public members:
 
@@ -174,7 +174,7 @@ amrex::gpuStream_t m_stream
 
 - file: `Source/ablastr/parallelization/KernelTimer.H`
 - kind: `class`
-- public methods: 5; public members: 0; private members: 3
+- public methods: 5; public members: 0
 
 ```cpp
 ~KernelTimer () = default
@@ -188,7 +188,7 @@ KernelTimer& operator= ( KernelTimer&& ) = default
 
 - file: `Source/ablastr/utils/SignalHandling.H`
 - kind: `class`
-- public methods: 6; public members: 3; private members: 4
+- public methods: 6; public members: 3
 
 ```cpp
 static int parseSignalNameToNumber (const std::string &str)
@@ -211,7 +211,7 @@ static bool signal_conf_requests[SIGNAL_REQUESTS_SIZE][NUM_SIGNALS]
 
 - file: `Source/ablastr/utils/msg_logger/MsgLogger.H`
 - kind: `class`
-- public methods: 6; public members: 0; private members: 4
+- public methods: 6; public members: 0
 
 ```cpp
 Logger()
@@ -226,7 +226,7 @@ void clear()
 
 - file: `Source/ablastr/utils/msg_logger/MsgLogger.H`
 - kind: `struct`
-- public methods: 3; public members: 3; private members: 0
+- public methods: 3; public members: 3
 
 ```cpp
 [[nodiscard]] std::vector<char> serialize() const
@@ -246,7 +246,7 @@ Priority priority
 
 - file: `Source/ablastr/utils/msg_logger/MsgLogger.H`
 - kind: `struct`
-- public methods: 3; public members: 2; private members: 0
+- public methods: 3; public members: 2
 
 ```cpp
 [[nodiscard]] std::vector<char> serialize() const
@@ -265,7 +265,7 @@ std::int64_t counter
 
 - file: `Source/ablastr/utils/msg_logger/MsgLogger.H`
 - kind: `struct`
-- public methods: 3; public members: 3; private members: 0
+- public methods: 3; public members: 3
 
 ```cpp
 [[nodiscard]] std::vector<char> serialize() const
@@ -285,7 +285,7 @@ std::vector<int> ranks
 
 - file: `Source/ablastr/utils/text/IntervalsParser.H`
 - kind: `class`
-- public methods: 8; public members: 0; private members: 3
+- public methods: 8; public members: 0
 
 ```cpp
 IntervalsParser () = default
@@ -302,7 +302,7 @@ explicit IntervalsParser (const std::vector<std::string>& instr_vec)
 
 - file: `Source/ablastr/utils/text/IntervalsParser.H`
 - kind: `class`
-- public methods: 8; public members: 0; private members: 4
+- public methods: 8; public members: 0
 
 ```cpp
 explicit SliceParser (const std::string& instr, bool require_stop=false)
@@ -319,7 +319,7 @@ explicit SliceParser (const std::string& instr, bool require_stop=false)
 
 - file: `Source/ablastr/utils/timer/Timer.H`
 - kind: `class`
-- public methods: 5; public members: 0; private members: 2
+- public methods: 5; public members: 0
 
 ```cpp
 Timer() = default
@@ -333,7 +333,7 @@ void record_stop_time() noexcept
 
 - file: `Source/ablastr/warn_manager/WarnManager.H`
 - kind: `class`
-- public methods: 15; public members: 2; private members: 4
+- public methods: 15; public members: 2
 
 ```cpp
 WarnManager( const WarnManager& ) = delete

@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: BSD-3-Clause
+name: route-gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fast-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Public-release compliance
+        run: python3 Tools/automation/gates/compliance.py
+      - name: A0 audit consistency
+        run: python3 Tools/automation/gates/audit_check.py
+      - name: Route task graph is valid
+        run: python3 Tools/automation/route_tasks.py next

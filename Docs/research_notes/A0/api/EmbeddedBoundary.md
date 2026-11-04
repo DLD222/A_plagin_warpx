@@ -2,25 +2,25 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 4 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 4 classes/structs. Signatures are heuristic.
 
 ## `Absorb`
 
 - file: `Source/EmbeddedBoundary/ParticleBoundaryProcess.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `NoOp`
 
 - file: `Source/EmbeddedBoundary/ParticleBoundaryProcess.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `ParticleBoundaryInteraction`
 
 - file: `Source/EmbeddedBoundary/ParticleBoundaryProcess.H`
 - kind: `struct`
-- public methods: 1; public members: 3; private members: 0
+- public methods: 1; public members: 3
 
 ```cpp
 amrex::ParticleReal m_uth = amrex::ParticleReal(0.)
@@ -38,7 +38,7 @@ ParticleBoundaryType m_boundary_type
 
 - file: `Source/EmbeddedBoundary/WarpXFaceInfoBox.H`
 - kind: `struct`
-- public methods: 0; public members: 7; private members: 0
+- public methods: 0; public members: 7
 
 Public members:
 

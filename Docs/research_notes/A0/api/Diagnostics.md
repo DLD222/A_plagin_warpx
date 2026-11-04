@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 71 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 71 classes/structs. Signatures are heuristic.
 
 ## `BTDMultiFabHeaderImpl`
 
 - file: `Source/Diagnostics/BTD_Plotfile_Header_Impl.H`
 - kind: `class`
-- public methods: 16; public members: 0; private members: 12
+- public methods: 16; public members: 0
 
 ```cpp
 explicit BTDMultiFabHeaderImpl (std::string const& Headerfile_path)
@@ -33,7 +33,7 @@ void SetMaxVal (int ifab, const amrex::Vector<amrex::Real>& maxval)
 
 - file: `Source/Diagnostics/BTD_Plotfile_Header_Impl.H`
 - kind: `class`
-- public methods: 8; public members: 3; private members: 0
+- public methods: 8; public members: 3
 
 ```cpp
 explicit BTDParticleDataHeaderImpl (std::string const& Headerfile_path)
@@ -58,7 +58,7 @@ std::string m_Header_path
 
 - file: `Source/Diagnostics/BTD_Plotfile_Header_Impl.H`
 - kind: `class`
-- public methods: 27; public members: 0; private members: 19
+- public methods: 27; public members: 0
 
 ```cpp
 explicit BTDPlotfileHeaderImpl (std::string const& Headerfile_path)
@@ -94,7 +94,7 @@ void AppendNewFabHi (amrex::Array<amrex::Real, AMREX_SPACEDIM> newFabHi)
 
 - file: `Source/Diagnostics/BTD_Plotfile_Header_Impl.H`
 - kind: `class`
-- public methods: 7; public members: 7; private members: 9
+- public methods: 7; public members: 7
 
 ```cpp
 BTDSpeciesHeaderImpl (std::string const& Headerfile_path, std::string const& species_name)
@@ -122,7 +122,7 @@ int m_finestLevel
 
 - file: `Source/Diagnostics/BTDiagnostics.H`
 - kind: `class`, bases: `public Diagnostics`
-- public methods: 1; public members: 0; private members: 34
+- public methods: 1; public members: 0
 
 ```cpp
 BTDiagnostics (int i, const std::string& name, DiagTypes diag_type)
@@ -132,7 +132,7 @@ BTDiagnostics (int i, const std::string& name, DiagTypes diag_type)
 
 - file: `Source/Diagnostics/BoundaryScrapingDiagnostics.H`
 - kind: `class`, bases: `public Diagnostics`
-- public methods: 1; public members: 0; private members: 1
+- public methods: 1; public members: 0
 
 ```cpp
 BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type)
@@ -142,7 +142,7 @@ BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/BackTransformFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 5; public members: 0; private members: 10
+- public methods: 5; public members: 0
 
 ```cpp
 BackTransformFunctor ( const amrex::MultiFab * mf_src, int lev, int ncomp, int num_buffers, amrex::Vector< std::string > varnames, amrex::Vector< std::string > varnames_fields, amrex::IntVect crse_ratio= amrex::IntVect(1))
@@ -156,7 +156,7 @@ void LorentzTransformZ (amrex::MultiFab& data, amrex::Real gamma_boost, amrex::R
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H`
 - kind: `class`, bases: `public ComputeParticleDiagFunctor`
-- public methods: 4; public members: 0; private members: 7
+- public methods: 4; public members: 0
 
 ```cpp
 BackTransformParticleFunctor(WarpXParticleContainer *pc_src, std::string species_name, int num_buffers)
@@ -169,7 +169,7 @@ void PrepareFunctorData ( int i_buffer, bool z_slice_in_domain, amrex::Real old_
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H`
 - kind: `struct`
-- public methods: 1; public members: 19; private members: 0
+- public methods: 1; public members: 19
 
 ```cpp
 LorentzTransformParticles (const WarpXParticleContainer& pc, WarpXParIter& a_pti, amrex::Real t_boost, amrex::Real dt, amrex::Real t_lab, int a_offset = 0)
@@ -203,7 +203,7 @@ const amrex::ParticleReal* AMREX_RESTRICT m_wpnew = nullptr
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H`
 - kind: `struct`
-- public methods: 1; public members: 4; private members: 0
+- public methods: 1; public members: 4
 
 ```cpp
 SelectParticles (const WarpXParticleContainer& pc, WarpXParIter& a_pti, amrex::Real current_z_boost, amrex::Real old_z_boost, int a_offset = 0)
@@ -222,7 +222,7 @@ amrex::ParticleReal* AMREX_RESTRICT zpold = nullptr
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/CellCenterFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 CellCenterFunctor(const amrex::MultiFab * mf_src, int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian=true, int ncomp=1)
@@ -233,7 +233,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H`
 - kind: `class`
-- public methods: 11; public members: 0; private members: 1
+- public methods: 11; public members: 0
 
 ```cpp
 ComputeDiagFunctor( int ncomp, amrex::IntVect crse_ratio) : m_ncomp(ncomp), m_crse_ratio(crse_ratio)
@@ -253,7 +253,7 @@ void InterpolateMFForDiag ( amrex::MultiFab& mf_dst, const amrex::MultiFab& mf_s
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/ComputeParticleDiagFunctor.H`
 - kind: `class`
-- public methods: 9; public members: 0; private members: 0
+- public methods: 9; public members: 0
 
 ```cpp
 ComputeParticleDiagFunctor( ) = default
@@ -271,7 +271,7 @@ virtual void InitData ()
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/DarwinEfieldFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 DarwinEfieldFunctor ( const amrex::MultiFab* mf_Efield, const amrex::MultiFab* mf_dA, int lev, amrex::IntVect crse_ratio, int ncomp=1 )
@@ -282,7 +282,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/DivBFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 DivBFunctor ( ablastr::fields::VectorField const & arr_mf_src, int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian=true, int ncomp=1 )
@@ -293,7 +293,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/DivEFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 DivEFunctor ( ablastr::fields::VectorField const & arr_mf_src, int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian=true, int ncomp=1 )
@@ -304,7 +304,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/EBCoveredFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 EBCoveredFunctor ( int lev, amrex::IntVect crse_ratio, int ncomp=1 )
@@ -315,7 +315,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/JFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 4
+- public methods: 2; public members: 0
 
 ```cpp
 JFunctor (int dir, int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian=true, bool deposit_current=false, int ncomp=1)
@@ -326,7 +326,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/JdispFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 3
+- public methods: 2; public members: 0
 
 ```cpp
 JdispFunctor (int dir, int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian=true, int ncomp=1)
@@ -337,7 +337,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/PartPerCellFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 2
+- public methods: 2; public members: 0
 
 ```cpp
 PartPerCellFunctor(const amrex::MultiFab* mf_src, int lev, amrex::IntVect crse_ratio, int species_index=-1, int ncomp=1)
@@ -348,7 +348,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/PartPerGridFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 PartPerGridFunctor(const amrex::MultiFab * mf_src, int lev, amrex::IntVect crse_ratio, int ncomp=1)
@@ -359,7 +359,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/ParticleReductionFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 8
+- public methods: 2; public members: 0
 
 ```cpp
 ParticleReductionFunctor(const amrex::MultiFab * mf_src, int lev, amrex::IntVect crse_ratio, const std::string& fn_str, int ispec, bool do_average, bool do_filter, const std::string& filter_str, int ncomp=1)
@@ -370,7 +370,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/PhiFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 2
+- public methods: 2; public members: 0
 
 ```cpp
 PhiFunctor (int lev, amrex::IntVect crse_ratio, bool convertRZmodes2cartesian = true, int ncomp = 1)
@@ -381,7 +381,7 @@ void operator() ( amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/ProcessNumberFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 ProcessNumberFunctor(const amrex::MultiFab * mf_src, int lev, amrex::IntVect crse_ratio, int ncomp=1)
@@ -392,7 +392,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/RhoFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 4
+- public methods: 2; public members: 0
 
 ```cpp
 RhoFunctor (int lev, amrex::IntVect crse_ratio, bool apply_rz_psatd_filter = false, int species_index = -1, bool convertRZmodes2cartesian = true, int ncomp = 1)
@@ -403,7 +403,7 @@ void operator() ( amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/ComputeDiagFunctors/TemperatureFunctor.H`
 - kind: `class`, bases: `public ComputeDiagFunctor`
-- public methods: 2; public members: 0; private members: 2
+- public methods: 2; public members: 0
 
 ```cpp
 TemperatureFunctor(int lev, amrex::IntVect crse_ratio, int ispec, int ncomp=1)
@@ -414,7 +414,7 @@ void operator()(amrex::MultiFab& mf_dst, int dcomp, int ) const override
 
 - file: `Source/Diagnostics/Diagnostics.H`
 - kind: `class`
-- public methods: 34; public members: 1; private members: 0
+- public methods: 34; public members: 1
 
 ```cpp
 Diagnostics (int i, std::string name, DiagTypes diag_type)
@@ -463,7 +463,7 @@ DiagTypes m_diag_type
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormat.H`
 - kind: `class`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 virtual void WriteToFile ( const amrex::Vector<std::string>& varnames, const amrex::Vector<amrex::MultiFab>& mf, amrex::Vector<amrex::Geometry>& geom, amrex::Vector<int> iteration, double time, const amrex::Vector<ParticleDiag>& particle_diags, int nlev, std::string prefix, int file_min_digits, bool plot_raw_fields, bool plot_raw_fields_guards, int verbose = 2, bool use_pinned_pc = false, bool isBTD = false, int snapshotID = -1, int bufferID = 1, int numBuffers = 1, const amrex::Geometry& full_BTD_snapshot = amrex::Geometry(), bool isLastBTDFlush = false) const = 0
@@ -479,7 +479,7 @@ FlushFormat& operator= ( FlushFormat&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatAscent.H`
 - kind: `class`, bases: `public FlushFormatInSitu`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 void WriteToFile ( const amrex::Vector<std::string>& varnames, const amrex::Vector<amrex::MultiFab>& mf, amrex::Vector<amrex::Geometry>& geom, amrex::Vector<int> iteration, double time, const amrex::Vector<ParticleDiag>& particle_diags, int nlev, std::string prefix, int file_min_digits, bool plot_raw_fields, bool plot_raw_fields_guards, int verbose = 2, bool use_pinned_pc = false, bool isBTD = false, int snapshotID = -1, int bufferID = 1, int numBuffers = 1, const amrex::Geometry& full_BTD_snapshot = amrex::Geometry(), bool isLastBTDFlush = false) const override
@@ -495,7 +495,7 @@ FlushFormatAscent& operator= ( FlushFormatAscent&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatCatalyst.H`
 - kind: `class`, bases: `public FlushFormatInSitu`
-- public methods: 8; public members: 0; private members: 0
+- public methods: 8; public members: 0
 
 ```cpp
 FlushFormatCatalyst()
@@ -512,13 +512,13 @@ FlushFormatCatalyst& operator= ( FlushFormatCatalyst&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.H`
 - kind: `class`, bases: `public FlushFormatPlotfile`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `FlushFormatInSitu`
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatInSitu.H`
 - kind: `class`, bases: `public FlushFormat`
-- public methods: 7; public members: 0; private members: 0
+- public methods: 7; public members: 0
 
 ```cpp
 void WriteParticles(const amrex::Vector<ParticleDiag>& particle_diags, conduit::Node& a_bp_mesh) const
@@ -534,7 +534,7 @@ FlushFormatInSitu& operator= ( FlushFormatInSitu&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatOpenPMD.H`
 - kind: `class`, bases: `public FlushFormat`
-- public methods: 7; public members: 0; private members: 2
+- public methods: 7; public members: 0
 
 ```cpp
 explicit FlushFormatOpenPMD (const std::string& diag_name)
@@ -550,7 +550,7 @@ FlushFormatOpenPMD& operator= ( FlushFormatOpenPMD&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatPlotfile.H`
 - kind: `class`, bases: `public FlushFormat`
-- public methods: 11; public members: 0; private members: 0
+- public methods: 11; public members: 0
 
 ```cpp
 void WriteToFile ( const amrex::Vector<std::string>& varnames, const amrex::Vector<amrex::MultiFab>& mf, amrex::Vector<amrex::Geometry>& geom, amrex::Vector<int> iteration, double time, const amrex::Vector<ParticleDiag>& particle_diags, int nlev, std::string prefix, int file_min_digits, bool plot_raw_fields, bool plot_raw_fields_guards, int verbose = 2, bool use_pinned_pc = false, bool isBTD = false, int snapshotID = -1, int bufferID = 1, int numBuffers = 1, const amrex::Geometry& full_BTD_snapshot = amrex::Geometry(), bool isLastBTDFlush = false) const override
@@ -570,7 +570,7 @@ FlushFormatPlotfile& operator= ( FlushFormatPlotfile&& ) = default
 
 - file: `Source/Diagnostics/FlushFormats/FlushFormatSensei.H`
 - kind: `class`, bases: `public FlushFormat`
-- public methods: 9; public members: 0; private members: 4
+- public methods: 9; public members: 0
 
 ```cpp
 FlushFormatSensei()
@@ -588,7 +588,7 @@ void WriteParticles(const amrex::Vector<ParticleDiag>& particle_diags) const
 
 - file: `Source/Diagnostics/FullDiagnostics.H`
 - kind: `class`, bases: `public Diagnostics`
-- public methods: 1; public members: 1; private members: 9
+- public methods: 1; public members: 1
 
 ```cpp
 FullDiagnostics (int i, const std::string& name, DiagTypes diag_type)
@@ -604,7 +604,7 @@ enum struct TimeAverageType
 
 - file: `Source/Diagnostics/MultiDiagnostics.H`
 - kind: `class`
-- public methods: 11; public members: 0; private members: 4
+- public methods: 11; public members: 0
 
 ```cpp
 MultiDiagnostics ()
@@ -624,7 +624,7 @@ DiagTypes diagstypes(int idiag)
 
 - file: `Source/Diagnostics/ParticleDiag/ParticleDiag.H`
 - kind: `class`
-- public methods: 4; public members: 17; private members: 4
+- public methods: 4; public members: 17
 
 ```cpp
 ParticleDiag(const std::string& diag_name, const std::string& name, WarpXParticleContainer* pc, WarpXParticleContainer::Base *pinned_pc = nullptr)
@@ -659,7 +659,7 @@ amrex::RealBox m_diag_domain
 
 - file: `Source/Diagnostics/ReducedDiags/BeamRelevant.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 1; private members: 0
+- public methods: 2; public members: 1
 
 ```cpp
 explicit BeamRelevant(const std::string& rd_name)
@@ -676,7 +676,7 @@ std::string m_beam_name
 
 - file: `Source/Diagnostics/ReducedDiags/ChargeOnEB.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 2
+- public methods: 2; public members: 0
 
 ```cpp
 explicit ChargeOnEB (const std::string& rd_name)
@@ -687,7 +687,7 @@ void ComputeDiags (int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/ColliderRelevant.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 1; private members: 2
+- public methods: 2; public members: 1
 
 ```cpp
 explicit ColliderRelevant(const std::string& rd_name)
@@ -704,7 +704,7 @@ std::vector<std::string> m_beam_name
 
 - file: `Source/Diagnostics/ReducedDiags/ColliderRelevant.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -717,7 +717,7 @@ int idx
 
 - file: `Source/Diagnostics/ReducedDiags/DifferentialLuminosity.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 5; private members: 3
+- public methods: 2; public members: 5
 
 ```cpp
 explicit DifferentialLuminosity(const std::string& rd_name)
@@ -738,7 +738,7 @@ amrex::Real m_bin_size
 
 - file: `Source/Diagnostics/ReducedDiags/DifferentialLuminosity.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -751,7 +751,7 @@ int idx
 
 - file: `Source/Diagnostics/ReducedDiags/DifferentialLuminosity2D.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 3; public members: 12; private members: 1
+- public methods: 3; public members: 12
 
 ```cpp
 explicit DifferentialLuminosity2D(const std::string& rd_name)
@@ -780,7 +780,7 @@ amrex::TableData<amrex::Real,2> m_h_data_2D
 
 - file: `Source/Diagnostics/ReducedDiags/FieldEnergy.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 3; public members: 0; private members: 0
+- public methods: 3; public members: 0
 
 ```cpp
 explicit FieldEnergy(const std::string& rd_name)
@@ -792,7 +792,7 @@ amrex::Real ComputeNorm2(const amrex::MultiFab& field, int lev)
 
 - file: `Source/Diagnostics/ReducedDiags/FieldMaximum.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit FieldMaximum(const std::string& rd_name)
@@ -803,7 +803,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/FieldMomentum.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit FieldMomentum(const std::string& rd_name)
@@ -814,7 +814,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 6; public members: 0; private members: 1
+- public methods: 6; public members: 0
 
 ```cpp
 explicit FieldPoyntingFlux (const std::string& rd_name)
@@ -829,25 +829,25 @@ void ReadCheckpointData (std::string const & dir) final
 
 - file: `Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `PoyntingNodal`
 
 - file: `Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `PoyntingStaggered`
 
 - file: `Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H`
 - kind: `struct`
-- public methods: 0; public members: 0; private members: 0
+- public methods: 0; public members: 0
 
 ## `FieldProbe`
 
 - file: `Source/Diagnostics/ReducedDiags/FieldProbe.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 4; public members: 1; private members: 22
+- public methods: 4; public members: 1
 
 ```cpp
 explicit FieldProbe (const std::string& rd_name)
@@ -866,7 +866,7 @@ static const int noutputs = 11
 
 - file: `Source/Diagnostics/ReducedDiags/FieldProbeParticleContainer.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -878,7 +878,7 @@ enum
 
 - file: `Source/Diagnostics/ReducedDiags/FieldProbeParticleContainer.H`
 - kind: `class`, bases: `public amrex::ParticleContainerPureSoA<FieldProbePIdx::nattribs, 0>`
-- public methods: 7; public members: 4; private members: 0
+- public methods: 7; public members: 4
 
 ```cpp
 explicit FieldProbeParticleContainer (amrex::AmrCore* amr_core)
@@ -903,7 +903,7 @@ static constexpr int NInt = 0
 
 - file: `Source/Diagnostics/ReducedDiags/FieldReduction.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 4; public members: 0; private members: 3
+- public methods: 4; public members: 0
 
 ```cpp
 explicit FieldReduction(const std::string& rd_name)
@@ -916,7 +916,7 @@ void ComputeFieldReduction()
 
 - file: `Source/Diagnostics/ReducedDiags/LoadBalanceCosts.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 3; public members: 8; private members: 0
+- public methods: 3; public members: 8
 
 ```cpp
 explicit LoadBalanceCosts(const std::string& rd_name)
@@ -941,7 +941,7 @@ int m_nBoxesMax = -1
 
 - file: `Source/Diagnostics/ReducedDiags/LoadBalanceEfficiency.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit LoadBalanceEfficiency(const std::string& rd_name)
@@ -952,7 +952,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/MultiReducedDiags.H`
 - kind: `class`
-- public methods: 9; public members: 3; private members: 0
+- public methods: 9; public members: 3
 
 ```cpp
 MultiReducedDiags ()
@@ -978,7 +978,7 @@ std::vector<std::unique_ptr<ReducedDiags>> m_multi_rd
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleEnergy.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit ParticleEnergy(const std::string& rd_name)
@@ -989,7 +989,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleExtrema.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 1; private members: 2
+- public methods: 2; public members: 1
 
 ```cpp
 explicit ParticleExtrema(const std::string& rd_name)
@@ -1006,7 +1006,7 @@ std::string m_species_name
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleExtrema.H`
 - kind: `struct`
-- public methods: 0; public members: 2; private members: 0
+- public methods: 0; public members: 2
 
 Public members:
 
@@ -1019,7 +1019,7 @@ int idx
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleHistogram.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 10; private members: 0
+- public methods: 2; public members: 10
 
 ```cpp
 explicit ParticleHistogram(const std::string& rd_name)
@@ -1045,7 +1045,7 @@ bool m_do_parser_filter = false
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleHistogram2D.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 3; public members: 23; private members: 0
+- public methods: 3; public members: 23
 
 ```cpp
 explicit ParticleHistogram2D(const std::string& rd_name)
@@ -1085,7 +1085,7 @@ bool m_do_parser_value
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleMomentum.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit ParticleMomentum(const std::string& rd_name)
@@ -1096,7 +1096,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/ParticleNumber.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit ParticleNumber(const std::string& rd_name)
@@ -1107,7 +1107,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/ReducedDiags.H`
 - kind: `class`
-- public methods: 15; public members: 8; private members: 0
+- public methods: 15; public members: 8
 
 ```cpp
 explicit ReducedDiags (const std::string& rd_name)
@@ -1144,7 +1144,7 @@ std::vector<amrex::Real> m_data
 
 - file: `Source/Diagnostics/ReducedDiags/RhoMaximum.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 1
+- public methods: 2; public members: 0
 
 ```cpp
 explicit RhoMaximum(const std::string& rd_name)
@@ -1155,7 +1155,7 @@ void ComputeDiags(int step) final
 
 - file: `Source/Diagnostics/ReducedDiags/Timestep.H`
 - kind: `class`, bases: `public ReducedDiags`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 explicit Timestep (const std::string& rd_name)
@@ -1166,7 +1166,7 @@ void ComputeDiags (int step) final
 
 - file: `Source/Diagnostics/WarpXOpenPMD.H`
 - kind: `class`
-- public methods: 12; public members: 0; private members: 11
+- public methods: 12; public members: 0
 
 ```cpp
 WarpXOpenPMDPlot (openPMD::IterationEncoding ie, const std::string& filetype, const std::string& operator_type, const std::map< std::string, std::string >& operator_parameters, const std::string& engine_type, const std::map< std::string, std::string >& engine_parameters, const std::vector<bool>& fieldPMLdirections, const std::string& authors)
@@ -1187,7 +1187,7 @@ void FlushBTDToDisk ()
 
 - file: `Source/Diagnostics/WarpXOpenPMD.H`
 - kind: `class`
-- public methods: 2; public members: 2; private members: 4
+- public methods: 2; public members: 2
 
 ```cpp
 explicit WarpXParticleCounter (ParticleContainer* pc)

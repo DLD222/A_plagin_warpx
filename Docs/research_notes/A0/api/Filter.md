@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 3 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 3 classes/structs. Signatures are heuristic.
 
 ## `BilinearFilter`
 
 - file: `Source/Filter/BilinearFilter.H`
 - kind: `class`, bases: `public Filter`
-- public methods: 2; public members: 1; private members: 0
+- public methods: 2; public members: 1
 
 ```cpp
 BilinearFilter() = default
@@ -25,7 +25,7 @@ amrex::Array<unsigned int, AMREX_SPACEDIM> npass_each_dir
 
 - file: `Source/Filter/Filter.H`
 - kind: `class`
-- public methods: 4; public members: 1; private members: 0
+- public methods: 4; public members: 1
 
 ```cpp
 Filter () = default
@@ -44,7 +44,7 @@ amrex::IntVect stencil_length_each_dir
 
 - file: `Source/Filter/NCIGodfreyFilter.H`
 - kind: `class`, bases: `public Filter`
-- public methods: 3; public members: 1; private members: 3
+- public methods: 3; public members: 1
 
 ```cpp
 NCIGodfreyFilter () = default

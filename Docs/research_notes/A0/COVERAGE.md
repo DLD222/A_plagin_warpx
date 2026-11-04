@@ -2,37 +2,12 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-- 头文件总数：**371**
-- 解析出至少一个 class/struct 的头文件：**235**
-- 未解析出 class/struct 的头文件：**136**
-  - 其中 **30** 个是 `_fwd.H` 前向声明（`class Foo;`），不是遗漏；
-  - 其余 **106** 个是 free function / kernel / 模板工具 / 枚举，无类可列。
-- 解析出的 class/struct：**348**；公共方法（清理后）：**2,408**
+- 头文件总数：**372**
+- 解析出类：**236**
+- 无类头文件：**136**（含 `_fwd.H` 与 free function/kernel）
+- 类/结构体：**349**；公共方法：**2418**
 
-## 未解析出头文件的分布
-
-| 子系统 | 数量 |
-|---|---:|
-| Particles | 44 |
-| ablastr | 24 |
-| FieldSolver | 14 |
-| Utils | 13 |
-| BoundaryConditions | 7 |
-| Diagnostics | 7 |
-| EmbeddedBoundary | 5 |
-| Initialization | 5 |
-| Fluids | 4 |
-| NonlinearSolvers | 4 |
-| MomentsSolver | 2 |
-| Parallelization | 2 |
-| Python | 2 |
-| AcceleratorLattice | 1 |
-| Fields.H | 1 |
-| Filter | 1 |
-
-## 未解析出 class/struct 的头文件
-
-> 需要人工确认它们是“纯 free-function/kernel”还是解析遗漏。
+## 无 class/struct 的头文件
 
 - `Source/AcceleratorLattice/LatticeElements/HardEdged_K.H`
 - `Source/BoundaryConditions/FieldBoundaries.H`

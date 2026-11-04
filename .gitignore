@@ -100,3 +100,7 @@ benchmarks/**/*.log
 
 # Third-party papers are not redistributed; see Docs/refs/README.md
 Docs/refs/*.pdf
+
+# Route automation state/logs
+.route_state.json
+.route_logs/

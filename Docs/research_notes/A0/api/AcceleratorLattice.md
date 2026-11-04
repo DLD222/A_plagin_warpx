@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 9 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 9 classes/structs. Signatures are heuristic.
 
 ## `AcceleratorLattice`
 
 - file: `Source/AcceleratorLattice/AcceleratorLattice.H`
 - kind: `class`
-- public methods: 5; public members: 6; private members: 0
+- public methods: 5; public members: 6
 
 ```cpp
 AcceleratorLattice ()
@@ -33,7 +33,7 @@ HardEdgedPlasmaLens h_plasmalens
 
 - file: `Source/AcceleratorLattice/LatticeElementFinder.H`
 - kind: `struct`
-- public methods: 5; public members: 8; private members: 0
+- public methods: 5; public members: 8
 
 ```cpp
 void InitElementFinder (int lev, amrex::Real gamma_boost, const amrex::Vector<amrex::Real>& time, amrex::MFIter const& a_mfi, AcceleratorLattice const& accelerator_lattice)
@@ -60,7 +60,7 @@ amrex::Gpu::DeviceVector<int> d_plasmalens_indices
 
 - file: `Source/AcceleratorLattice/LatticeElementFinder.H`
 - kind: `struct`
-- public methods: 1; public members: 16; private members: 0
+- public methods: 1; public members: 16
 
 ```cpp
 void InitLatticeElementFinderDevice (WarpXParIter const& a_pti, int a_offset, AcceleratorLattice const& accelerator_lattice, LatticeElementFinder const & h_finder, const amrex::Vector<amrex::Real>& dts)
@@ -91,7 +91,7 @@ int const* d_plasmalens_indices_arr = nullptr
 
 - file: `Source/AcceleratorLattice/LatticeElements/Drift.H`
 - kind: `struct`, bases: `LatticeElementBase`
-- public methods: 2; public members: 0; private members: 0
+- public methods: 2; public members: 0
 
 ```cpp
 Drift ()
@@ -102,7 +102,7 @@ void AddElement (amrex::ParmParse & pp_element, amrex::ParticleReal & z_location
 
 - file: `Source/AcceleratorLattice/LatticeElements/HardEdgedPlasmaLens.H`
 - kind: `struct`, bases: `LatticeElementBase`
-- public methods: 4; public members: 4; private members: 0
+- public methods: 4; public members: 4
 
 ```cpp
 HardEdgedPlasmaLens ()
@@ -124,7 +124,7 @@ amrex::Gpu::DeviceVector<amrex::ParticleReal> d_dBdx
 
 - file: `Source/AcceleratorLattice/LatticeElements/HardEdgedPlasmaLens.H`
 - kind: `struct`
-- public methods: 1; public members: 5; private members: 0
+- public methods: 1; public members: 5
 
 ```cpp
 void InitHardEdgedPlasmaLensDevice (HardEdgedPlasmaLens const& h_plasmalens)
@@ -144,7 +144,7 @@ const amrex::ParticleReal* AMREX_RESTRICT d_dBdx_arr
 
 - file: `Source/AcceleratorLattice/LatticeElements/HardEdgedQuadrupole.H`
 - kind: `struct`, bases: `LatticeElementBase`
-- public methods: 4; public members: 4; private members: 0
+- public methods: 4; public members: 4
 
 ```cpp
 HardEdgedQuadrupole ()
@@ -166,7 +166,7 @@ amrex::Gpu::DeviceVector<amrex::ParticleReal> d_dBdx
 
 - file: `Source/AcceleratorLattice/LatticeElements/HardEdgedQuadrupole.H`
 - kind: `struct`
-- public methods: 1; public members: 5; private members: 0
+- public methods: 1; public members: 5
 
 ```cpp
 void InitHardEdgedQuadrupoleDevice (HardEdgedQuadrupole const& h_quad)
@@ -186,7 +186,7 @@ const amrex::ParticleReal* AMREX_RESTRICT d_dBdx_arr
 
 - file: `Source/AcceleratorLattice/LatticeElements/LatticeElementBase.H`
 - kind: `struct`
-- public methods: 3; public members: 6; private members: 0
+- public methods: 3; public members: 6
 
 ```cpp
 explicit LatticeElementBase (std::string const& element_name)

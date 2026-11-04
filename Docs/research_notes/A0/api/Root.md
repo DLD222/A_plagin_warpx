@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 1 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 1 classes/structs. Signatures are heuristic.
 
 ## `WarpX`
 
 - file: `Source/WarpX.H`
 - kind: `class`, bases: `public amrex::AmrCore`
-- public methods: 217; public members: 89; private members: 122
+- public methods: 217; public members: 89
 
 ```cpp
 static WarpX& GetInstance ()

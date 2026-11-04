@@ -1,0 +1,687 @@
+{
+ "version": 1,
+ "updated": "2026-11-04",
+ "source": "Docs/research_notes/最终的技术路线.md",
+ "gates": {
+  "fast": [
+   "compliance",
+   "audit"
+  ],
+  "build+smoke": [
+   "compliance",
+   "audit",
+   "build",
+   "smoke"
+  ],
+  "full": [
+   "compliance",
+   "audit",
+   "build",
+   "smoke",
+   "ab"
+  ]
+ },
+ "tasks": [
+  {
+   "id": "A0.1",
+   "phase": "A0",
+   "title": "372 个 .H 的类目录与公共接口",
+   "kind": "audit",
+   "depends": [],
+   "status": "done",
+   "outputs": [
+    "Docs/research_notes/A0/HEADER_CATALOG.md",
+    "Docs/research_notes/A0/classes.csv"
+   ],
+   "effort_days": 0.5,
+   "gate": "fast",
+   "automation_command": "python3 Tools/automation/gates/audit_check.py",
+   "acceptance": "类目录/CSV 生成，372 头文件登记",
+   "note": ""
+  },
+  {
+   "id": "A0.2",
+   "phase": "A0",
+   "title": "12 个子系统生命周期矩阵",
+   "kind": "audit",
+   "depends": [
+    "A0.1"
+   ],
+   "status": "done",
+   "outputs": [
+    "Docs/research_notes/A0/LIFECYCLE_MATRIX.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "fast",
+   "automation_command": null,
+   "acceptance": "12 子系统表齐全",
+   "note": ""
+  },
+  {
+   "id": "A0.3",
+   "phase": "A0",
+   "title": "66 个 static 的引用清单与迁移批次",
+   "kind": "audit",
+   "depends": [
+    "A0.1"
+   ],
+   "status": "done",
+   "outputs": [
+    "Docs/research_notes/A0/STATIC_INVENTORY.md"
+   ],
+   "effort_days": 0.5,
+   "gate": "fast",
+   "automation_command": null,
+   "acceptance": "66 static 分类",
+   "note": ""
+  },
+  {
+   "id": "A0.4",
+   "phase": "A0",
+   "title": "第二遍核验：PSATD restart / RemakeLevel / 诊断时序 / callback / EB",
+   "kind": "audit",
+   "depends": [
+    "A0.1",
+    "A0.2"
+   ],
+   "status": "done",
+   "outputs": [
+    "Docs/research_notes/A0/VERIFICATION.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "fast",
+   "automation_command": null,
+   "acceptance": "5 个待验证项 + 4 个 RemakeLevel 缺口",
+   "note": ""
+  },
+  {
+   "id": "A0.5",
+   "phase": "A0",
+   "title": "A0 收口报告",
+   "kind": "docs",
+   "depends": [
+    "A0.1",
+    "A0.2",
+    "A0.3",
+    "A0.4"
+   ],
+   "status": "done",
+   "outputs": [
+    "Docs/research_notes/A0/README.md"
+   ],
+   "effort_days": 0.2,
+   "gate": "fast",
+   "automation_command": null,
+   "acceptance": "README 状态更新",
+   "note": ""
+  },
+  {
+   "id": "A1.0",
+   "phase": "A1",
+   "title": "Runtime facade + main.cpp 切换",
+   "kind": "refactor",
+   "depends": [
+    "A0.5"
+   ],
+   "status": "done",
+   "outputs": [
+    "Source/Runtime/Runtime.H",
+    "Source/Runtime/Runtime.cpp",
+    "Source/main.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "构建 + langmuir 2/2 PASS",
+   "note": ""
+  },
+  {
+   "id": "A1.1",
+   "phase": "A1",
+   "title": "RuntimeConfig（只读配置）类型",
+   "kind": "refactor",
+   "depends": [
+    "A1.0"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeConfig.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "不改变行为；所有配置项只读",
+   "note": ""
+  },
+  {
+   "id": "A1.2",
+   "phase": "A1",
+   "title": "TimeState / FrameState 类型",
+   "kind": "refactor",
+   "depends": [
+    "A1.0"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/TimeState.H",
+    "Source/Runtime/FrameState.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "step/time/dt/substep；boost/moving-window",
+   "note": ""
+  },
+  {
+   "id": "A1.3",
+   "phase": "A1",
+   "title": "Services 接口（FillBoundary/Reduce/Parser/RNG/Log）",
+   "kind": "refactor",
+   "depends": [
+    "A1.0"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/Services.H"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "host 侧粗粒度；kernel 内零虚调用",
+   "note": ""
+  },
+  {
+   "id": "A1.4",
+   "phase": "A1",
+   "title": "Batch C：ReducedDiags 去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.1",
+    "A1.2",
+    "A1.3"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 5.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "每文件一批；不再直接读 WarpX::static",
+   "note": ""
+  },
+  {
+   "id": "A1.5",
+   "phase": "A1",
+   "title": "Batch D：FullDiagnostics/FlushFormat 去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "保持 checkpoint/openPMD 行为",
+   "note": ""
+  },
+  {
+   "id": "A1.6",
+   "phase": "A1",
+   "title": "Batch E：场求解器的只读配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "先 Yee，再 PSATD/ES/Hybrid",
+   "note": ""
+  },
+  {
+   "id": "A1.7",
+   "phase": "A1",
+   "title": "Batch F：粒子/流体配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.6"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "按容器分批",
+   "note": ""
+  },
+  {
+   "id": "A1.8",
+   "phase": "A1",
+   "title": "移除 WarpX::m_instance 与剩余 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.5",
+    "A1.7"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "目标：main/Python 之外无单例",
+   "note": ""
+  },
+  {
+   "id": "A1.9",
+   "phase": "A1",
+   "title": "A1 回归门（A/B + 子系统测试）",
+   "kind": "test",
+   "depends": [
+    "A1.8"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 2.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "逐位/数值门 + 全量冒烟",
+   "note": ""
+  },
+  {
+   "id": "A2.1",
+   "phase": "A2",
+   "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
+   "kind": "refactor",
+   "depends": [
+    "A1.9"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H"
+   ],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "单一所有者；RAII",
+   "note": ""
+  },
+  {
+   "id": "A2.2",
+   "phase": "A2",
+   "title": "ClearLevel 完整化",
+   "kind": "refactor",
+   "depends": [
+    "A2.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "覆盖 field_factory/EB flags/borrowing/lattice/dotMask",
+   "note": ""
+  },
+  {
+   "id": "A2.3",
+   "phase": "A2",
+   "title": "RemakeLevel 完整化（PML/材料/dotMask/flag_info）",
+   "kind": "refactor",
+   "depends": [
+    "A2.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "同 BoxArray 换 DM；ASAN 跑一遍",
+   "note": ""
+  },
+  {
+   "id": "A2.4",
+   "phase": "A2",
+   "title": "AllocLevelData schema 化",
+   "kind": "refactor",
+   "depends": [
+    "A2.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 12.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "按 FieldSpec 分配；去掉 52 处硬编码",
+   "note": ""
+  },
+  {
+   "id": "A2.5",
+   "phase": "A2",
+   "title": "A2 回归门（多层/EB/PML/PSATD/LB）",
+   "kind": "test",
+   "depends": [
+    "A2.2",
+    "A2.3",
+    "A2.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "含负载均衡测试",
+   "note": ""
+  },
+  {
+   "id": "A3.1",
+   "phase": "A3",
+   "title": "InitData 阶段化",
+   "kind": "refactor",
+   "depends": [
+    "A2.5"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "MakeLevel/InitLevel/Diagnostics/PML 分阶段",
+   "note": ""
+  },
+  {
+   "id": "A3.2",
+   "phase": "A3",
+   "title": "Evolve/OneStep 阶段化",
+   "kind": "refactor",
+   "depends": [
+    "A3.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 15.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "显式 Strang 先拆；隐式/Hybrid 保留",
+   "note": ""
+  },
+  {
+   "id": "A3.3",
+   "phase": "A3",
+   "title": "PicEmPackage（schema + stages + plugins）",
+   "kind": "refactor",
+   "depends": [
+    "A3.2"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "WarpX 降为包实现体",
+   "note": ""
+  },
+  {
+   "id": "A3.4",
+   "phase": "A3",
+   "title": "A3 回归门",
+   "kind": "test",
+   "depends": [
+    "A3.3"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "P0/E3/S5/E6 + ECT + ctest",
+   "note": ""
+  },
+  {
+   "id": "A4.1",
+   "phase": "A4",
+   "title": "FieldRegistry（字符串键 + schema）",
+   "kind": "refactor",
+   "depends": [
+    "A3.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "替换 FieldType 的 kernel 依赖",
+   "note": ""
+  },
+  {
+   "id": "A4.2",
+   "phase": "A4",
+   "title": "SpeciesRegistry（粒子/流体不透明句柄）",
+   "kind": "refactor",
+   "depends": [
+    "A4.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 12.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "统一物种创建/迁移",
+   "note": ""
+  },
+  {
+   "id": "A4.3",
+   "phase": "A4",
+   "title": "MaterialRegistry（系数 bundle）",
+   "kind": "refactor",
+   "depends": [
+    "A4.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 6.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "eps/sigma/mu/jcond",
+   "note": ""
+  },
+  {
+   "id": "A4.4",
+   "phase": "A4",
+   "title": "schema 驱动 checkpoint/restart（兼容旧格式）",
+   "kind": "refactor",
+   "depends": [
+    "A4.1",
+    "A4.2",
+    "A4.3"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 12.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "双读旧 WarpXHeader",
+   "note": ""
+  },
+  {
+   "id": "A4.5",
+   "phase": "A4",
+   "title": "A4 回归门（重启逐位）",
+   "kind": "test",
+   "depends": [
+    "A4.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "restart 前后逐位",
+   "note": ""
+  },
+  {
+   "id": "A5.1",
+   "phase": "A5",
+   "title": "Stage/Handler/PluginHost 骨架",
+   "kind": "refactor",
+   "depends": [
+    "A4.5"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Plugin/PluginHost.H"
+   ],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "注册/选择/依赖校验",
+   "note": ""
+  },
+  {
+   "id": "A5.2",
+   "phase": "A5",
+   "title": "数据依赖拓扑排序与冲突检测",
+   "kind": "refactor",
+   "depends": [
+    "A5.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "稳定排序；环/写冲突 abort",
+   "note": ""
+  },
+  {
+   "id": "A5.3",
+   "phase": "A5",
+   "title": "内置插件适配（yee/pic/medium/pec/diag）",
+   "kind": "refactor",
+   "depends": [
+    "A5.2"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 15.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "旧实现包一层；A/B 逐位",
+   "note": ""
+  },
+  {
+   "id": "A5.4",
+   "phase": "A5",
+   "title": "外挂插件示例（1 个 .cpp）",
+   "kind": "test",
+   "depends": [
+    "A5.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "examples/plugins/my_field.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "不改内核、可编可跑",
+   "note": ""
+  },
+  {
+   "id": "A5.5",
+   "phase": "A5",
+   "title": "运行期 .so 加载（可选）",
+   "kind": "refactor",
+   "depends": [
+    "A5.3"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "C ABI + 版本校验；host 角色",
+   "note": ""
+  },
+  {
+   "id": "A5.6",
+   "phase": "A5",
+   "title": "A5 回归门（A/B + 外挂）",
+   "kind": "test",
+   "depends": [
+    "A5.4"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "A/B 逐位",
+   "note": ""
+  },
+  {
+   "id": "A6.1",
+   "phase": "A6",
+   "title": "动态 regrid 事务（AmrCore::regrid）",
+   "kind": "refactor",
+   "depends": [
+    "A5.6"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 15.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "新 level 创建/销毁",
+   "note": ""
+  },
+  {
+   "id": "A6.2",
+   "phase": "A6",
+   "title": "通用 RemakeLevel（任意 BoxArray）",
+   "kind": "refactor",
+   "depends": [
+    "A6.1"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "按 LevelResources 遍历",
+   "note": ""
+  },
+  {
+   "id": "A6.3",
+   "phase": "A6",
+   "title": "IAmrPolicy（tagging/LB/base grid）",
+   "kind": "refactor",
+   "depends": [
+    "A6.2"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 8.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "只决策，不碰机制",
+   "note": ""
+  },
+  {
+   "id": "A6.4",
+   "phase": "A6",
+   "title": "A6 回归门（动态加密 + 插件 on_regrid）",
+   "kind": "test",
+   "depends": [
+    "A6.3"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 3.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "加密前后物理门",
+   "note": ""
+  }
+ ]
+}

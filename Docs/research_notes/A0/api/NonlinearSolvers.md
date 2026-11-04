@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 23 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 23 classes/structs. Signatures are heuristic.
 
 ## `AMReXGMRES`
 
 - file: `Source/NonlinearSolvers/AMReXGMRES_Wrapper.H`
 - kind: `class`, bases: `public LinearSolver<Vec,LinOp>`
-- public methods: 6; public members: 0; private members: 1
+- public methods: 6; public members: 0
 
 ```cpp
 AMReXGMRES () = default
@@ -23,7 +23,7 @@ AMReXGMRES& operator=(AMReXGMRES&&) noexcept = delete
 
 - file: `Source/NonlinearSolvers/AlgMGPC.H`
 - kind: `class`, bases: `public Preconditioner<T,Ops>`
-- public methods: 11; public members: 0; private members: 0
+- public methods: 11; public members: 0
 
 ```cpp
 AlgMGPC () = default
@@ -43,7 +43,7 @@ void printParameters () const override
 
 - file: `Source/NonlinearSolvers/CurlCurlMLMGPC.H`
 - kind: `class`, bases: `public Preconditioner<T,Ops>`
-- public methods: 11; public members: 0; private members: 0
+- public methods: 11; public members: 0
 
 ```cpp
 CurlCurlMLMGPC () = default
@@ -63,7 +63,7 @@ void printParameters() const override
 
 - file: `Source/NonlinearSolvers/DarwinMLMGPC.H`
 - kind: `class`, bases: `public Preconditioner<T,Ops>`
-- public methods: 11; public members: 0; private members: 0
+- public methods: 11; public members: 0
 
 ```cpp
 DarwinMLMGPC () = default
@@ -83,7 +83,7 @@ void printParameters () const override
 
 - file: `Source/NonlinearSolvers/ExternLibPC.H`
 - kind: `class`, bases: `public Preconditioner<T,Ops>`
-- public methods: 13; public members: 0; private members: 0
+- public methods: 13; public members: 0
 
 ```cpp
 ExternLibPC () = default
@@ -105,7 +105,7 @@ inline void setName (const std::string& a_name) override
 
 - file: `Source/NonlinearSolvers/JacobiPC.H`
 - kind: `class`, bases: `public Preconditioner<T,Ops>`
-- public methods: 11; public members: 0; private members: 0
+- public methods: 11; public members: 0
 
 ```cpp
 JacobiPC () = default
@@ -125,7 +125,7 @@ void printParameters() const override
 
 - file: `Source/NonlinearSolvers/JacobianFunctionMF.H`
 - kind: `class`, bases: `public LinearFunction<T,Ops>`
-- public methods: 23; public members: 0; private members: 9
+- public methods: 23; public members: 0
 
 ```cpp
 JacobianFunctionMF() = default
@@ -157,7 +157,7 @@ void define( const T&, Ops*, const PreconditionerType& ) override
 
 - file: `Source/NonlinearSolvers/LinearFunction.H`
 - kind: `class`
-- public methods: 23; public members: 0; private members: 0
+- public methods: 23; public members: 0
 
 ```cpp
 LinearFunction() = default
@@ -189,7 +189,7 @@ virtual void define( const T&, Ops*, const PreconditionerType& ) = 0
 
 - file: `Source/NonlinearSolvers/LinearSolver.H`
 - kind: `class`
-- public methods: 17; public members: 0; private members: 0
+- public methods: 17; public members: 0
 
 ```cpp
 LinearSolver () = default
@@ -215,7 +215,7 @@ virtual void setMaxIters (int niters) = 0
 
 - file: `Source/NonlinearSolvers/MatrixPCAlgMG.H`
 - kind: `class`
-- public methods: 11; public members: 0; private members: 2
+- public methods: 11; public members: 0
 
 ```cpp
 MatrixPCAlgMG (const std::string& a_name, const amrex::Vector<amrex::Long>& a_row_offsets)
@@ -235,7 +235,7 @@ void Apply ()
 
 - file: `Source/NonlinearSolvers/MatrixSolverOps.H`
 - kind: `class`
-- public methods: 14; public members: 0; private members: 0
+- public methods: 14; public members: 0
 
 ```cpp
 MatrixSolverOps () = default
@@ -258,7 +258,7 @@ virtual void JacobiSweep (T& a_x, const T& a_b, RT a_omega) = 0
 
 - file: `Source/NonlinearSolvers/NewtonSolver.H`
 - kind: `class`, bases: `public NonlinearSolver<Vec,Ops>`
-- public methods: 15; public members: 0; private members: 10
+- public methods: 15; public members: 0
 
 ```cpp
 NewtonSolver() = default
@@ -282,7 +282,7 @@ void PrintParams () const override
 
 - file: `Source/NonlinearSolvers/NewtonSolverParams.H`
 - kind: `struct`
-- public methods: 3; public members: 10; private members: 0
+- public methods: 3; public members: 10
 
 ```cpp
 void Parse (bool a_query_linear_solver = true)
@@ -309,7 +309,7 @@ PreconditionerType pc_type = PreconditionerType::none
 
 - file: `Source/NonlinearSolvers/NonlinearSolver.H`
 - kind: `class`
-- public methods: 17; public members: 0; private members: 0
+- public methods: 17; public members: 0
 
 ```cpp
 NonlinearSolver() = default
@@ -335,7 +335,7 @@ virtual void Verbose ( bool a_verbose )
 
 - file: `Source/NonlinearSolvers/NonlinearSolver.H`
 - kind: `struct`
-- public methods: 3; public members: 7; private members: 0
+- public methods: 3; public members: 7
 
 ```cpp
 void Parse (const std::string& a_prefix)
@@ -359,7 +359,7 @@ int diagnostic_interval = 1
 
 - file: `Source/NonlinearSolvers/PETScKSP_Wrapper.H`
 - kind: `class`, bases: `public LinearSolver<Vec,LinOp>`
-- public methods: 17; public members: 0; private members: 1
+- public methods: 17; public members: 0
 
 ```cpp
 PETScKSP () = default
@@ -385,7 +385,7 @@ void setMaxIters (int niters) override
 
 - file: `Source/NonlinearSolvers/PETScSNES_Wrapper.H`
 - kind: `class`, bases: `public NonlinearSolver<Vec,Ops>`
-- public methods: 14; public members: 0; private members: 2
+- public methods: 14; public members: 0
 
 ```cpp
 PETScSNES () = default
@@ -408,7 +408,7 @@ bool ReinitializePETSc () override
 
 - file: `Source/NonlinearSolvers/PicardSolver.H`
 - kind: `class`, bases: `public NonlinearSolver<Vec,Ops>`
-- public methods: 9; public members: 0; private members: 3
+- public methods: 9; public members: 0
 
 ```cpp
 PicardSolver() = default
@@ -426,7 +426,7 @@ void PrintParams () const override
 
 - file: `Source/NonlinearSolvers/Preconditioner.H`
 - kind: `class`
-- public methods: 15; public members: 0; private members: 0
+- public methods: 15; public members: 0
 
 ```cpp
 Preconditioner () = default
@@ -450,7 +450,7 @@ inline void CurTimeStep (const RT a_dt)
 
 - file: `Source/NonlinearSolvers/WarpX_PETSc.H`
 - kind: `class`, bases: `public PETScSolver_impl`
-- public methods: 18; public members: 1; private members: 10
+- public methods: 18; public members: 1
 
 ```cpp
 KSP_impl (LinOpType&)
@@ -483,7 +483,7 @@ LinOpType* m_linop = nullptr
 
 - file: `Source/NonlinearSolvers/WarpX_PETSc.H`
 - kind: `class`
-- public methods: 12; public members: 10; private members: 0
+- public methods: 12; public members: 10
 
 ```cpp
 PETScSolver_impl ()
@@ -519,7 +519,7 @@ PreconditionerType m_pc_type = PreconditionerType::none
 
 - file: `Source/NonlinearSolvers/WarpX_PETSc.H`
 - kind: `class`, bases: `public PETScSolver_impl`
-- public methods: 18; public members: 3; private members: 19
+- public methods: 18; public members: 3
 
 ```cpp
 SNES_impl (const VecType&, TIType*, const NonlinearSolverParams&, const NewtonSolverParams&)
@@ -554,7 +554,7 @@ std::unique_ptr<LinOpType> m_linop
 
 - file: `Source/NonlinearSolvers/WeightedJacobiImpl.H`
 - kind: `class`
-- public methods: 19; public members: 0; private members: 10
+- public methods: 19; public members: 0
 
 ```cpp
 WeightedJacobiImpl () = default

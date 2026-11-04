@@ -2,13 +2,13 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> Generated from headers; 8 classes/structs. Signatures are parsed heuristically; check the header for exact defaults/templates.
+> Generated; 8 classes/structs. Signatures are heuristic.
 
 ## `PEC_Insulator`
 
 - file: `Source/BoundaryConditions/PEC_Insulator.H`
 - kind: `class`
-- public methods: 10; public members: 0; private members: 40
+- public methods: 10; public members: 0
 
 ```cpp
 PEC_Insulator()
@@ -27,7 +27,7 @@ void ApplyPEC_InsulatortoField (std::array<amrex::MultiFab*, 3> field, amrex::Ar
 
 - file: `Source/BoundaryConditions/PML.H`
 - kind: `class`, bases: `public amrex::FabArray<SigmaBox>`
-- public methods: 3; public members: 0; private members: 2
+- public methods: 3; public members: 0
 
 ```cpp
 MultiSigmaBox(const amrex::BoxArray& ba, const amrex::DistributionMapping& dm, const amrex::BoxArray* grid_ba, const amrex::Real* dx, const amrex::IntVect& ncell, const amrex::IntVect& delta, const amrex::Box& regular_domain, amrex::Real v_sigma_sb)
@@ -39,7 +39,7 @@ void ComputePMLFactorsE (const amrex::Real* dx, amrex::Real dt)
 
 - file: `Source/BoundaryConditions/PML.H`
 - kind: `class`
-- public methods: 17; public members: 0; private members: 14
+- public methods: 17; public members: 0
 
 ```cpp
 PML (int lev, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm, bool do_similar_dm_pml, const amrex::Geometry* geom, const amrex::Geometry* cgeom, int ncell, int delta, amrex::IntVect ref_ratio, amrex::Real dt, int nox_fft, int noy_fft, int noz_fft, ablastr::utils::enums::GridType grid_type, int do_moving_window, int pml_has_particles, int do_pml_in_domain, PSATDSolutionType psatd_solution_type, TimeDependencyJ time_dependency_J, TimeDependencyRho time_dependency_rho, bool do_pml_dive_cleaning, bool do_pml_divb_cleaning, const amrex::IntVect& fill_guards_fields, const amrex::IntVect& fill_guards_current, bool eb_enabled, int max_guard_EB, amrex::Real v_sigma_sb, ablastr::fields::MultiFabRegister& fields, amrex::IntVect do_pml_Lo = amrex::IntVect::TheUnitVector(), amrex::IntVect do_pml_Hi = amrex::IntVect::TheUnitVector())
@@ -65,7 +65,7 @@ static void Exchange (amrex::MultiFab& pml, amrex::MultiFab& reg, const amrex::G
 
 - file: `Source/BoundaryConditions/PML.H`
 - kind: `struct`, bases: `amrex::Gpu::DeviceVector<amrex::Real>`
-- public methods: 2; public members: 1; private members: 0
+- public methods: 2; public members: 1
 
 ```cpp
 [[nodiscard]] int lo() const
@@ -82,7 +82,7 @@ int m_lo, m_hi
 
 - file: `Source/BoundaryConditions/PML.H`
 - kind: `struct`
-- public methods: 5; public members: 9; private members: 0
+- public methods: 5; public members: 9
 
 ```cpp
 SigmaBox (const amrex::Box& box, const amrex::BoxArray& grids, const amrex::Real* dx, const amrex::IntVect& ncell, const amrex::IntVect& delta, const amrex::Box& regdomain, amrex::Real v_sigma)
@@ -110,7 +110,7 @@ amrex::Real v_sigma
 
 - file: `Source/BoundaryConditions/PML.H`
 - kind: `class`, bases: `public amrex::FabFactory<SigmaBox>`
-- public methods: 11; public members: 0; private members: 6
+- public methods: 11; public members: 0
 
 ```cpp
 SigmaBoxFactory (const amrex::BoxArray* grid_ba, const amrex::Real* dx, const amrex::IntVect& ncell, const amrex::IntVect& delta, const amrex::Box& regular_domain, const amrex::Real v_sigma_sb) : m_grids
@@ -130,7 +130,7 @@ void destroy (SigmaBox* fab) const final
 
 - file: `Source/BoundaryConditions/PMLComponent.H`
 - kind: `struct`
-- public methods: 0; public members: 1; private members: 0
+- public methods: 0; public members: 1
 
 Public members:
 
@@ -142,7 +142,7 @@ enum
 
 - file: `Source/BoundaryConditions/PML_RZ.H`
 - kind: `class`
-- public methods: 7; public members: 0; private members: 3
+- public methods: 7; public members: 0
 
 ```cpp
 PML_RZ (int lev, amrex::BoxArray const& grid_ba, amrex::DistributionMapping const& grid_dm, amrex::Geometry const* geom, ablastr::fields::MultiFabRegister& fields, int ncell, int do_pml_in_domain)
