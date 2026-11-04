@@ -1,0 +1,347 @@
+subsystem,file,kind,class,bases,n_public_methods,n_public_members,n_private_members,is_template,has_virtual,has_pure
+AcceleratorLattice,Source/AcceleratorLattice/AcceleratorLattice.H,class,AcceleratorLattice,,5,6,0,False,False,False
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElementFinder.H,struct,LatticeElementFinder,,5,8,0,False,False,False
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElementFinder.H,struct,LatticeElementFinderDevice,,1,16,0,False,False,True
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/Drift.H,struct,Drift,LatticeElementBase,2,0,0,False,False,False
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/HardEdgedPlasmaLens.H,struct,HardEdgedPlasmaLens,LatticeElementBase,4,4,0,False,False,False
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/HardEdgedPlasmaLens.H,struct,HardEdgedPlasmaLensDevice,,1,5,0,False,False,True
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/HardEdgedQuadrupole.H,struct,HardEdgedQuadrupole,LatticeElementBase,4,4,0,False,False,False
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/HardEdgedQuadrupole.H,struct,HardEdgedQuadrupoleDevice,,1,5,0,False,False,True
+AcceleratorLattice,Source/AcceleratorLattice/LatticeElements/LatticeElementBase.H,struct,LatticeElementBase,,3,6,0,False,False,True
+BoundaryConditions,Source/BoundaryConditions/PEC_Insulator.H,class,PEC_Insulator,,10,0,40,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PML.H,class,MultiSigmaBox,public amrex::FabArray<SigmaBox>,3,0,2,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PML.H,class,PML,,17,0,14,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PML.H,struct,Sigma,amrex::Gpu::DeviceVector<amrex::Real>,2,1,0,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PML.H,struct,SigmaBox,,5,9,0,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PML.H,class,SigmaBoxFactory,public amrex::FabFactory<SigmaBox>,11,0,6,False,False,False
+BoundaryConditions,Source/BoundaryConditions/PMLComponent.H,struct,PMLComp,,0,1,0,False,False,True
+BoundaryConditions,Source/BoundaryConditions/PML_RZ.H,class,PML_RZ,,7,0,3,False,False,False
+Diagnostics,Source/Diagnostics/BTD_Plotfile_Header_Impl.H,class,BTDMultiFabHeaderImpl,,16,0,12,False,False,False
+Diagnostics,Source/Diagnostics/BTD_Plotfile_Header_Impl.H,class,BTDParticleDataHeaderImpl,,8,3,0,False,False,False
+Diagnostics,Source/Diagnostics/BTD_Plotfile_Header_Impl.H,class,BTDPlotfileHeaderImpl,,27,0,19,False,False,False
+Diagnostics,Source/Diagnostics/BTD_Plotfile_Header_Impl.H,class,BTDSpeciesHeaderImpl,,7,7,9,False,False,False
+Diagnostics,Source/Diagnostics/BTDiagnostics.H,class,BTDiagnostics,public Diagnostics,1,0,34,False,False,True
+Diagnostics,Source/Diagnostics/BoundaryScrapingDiagnostics.H,class,BoundaryScrapingDiagnostics,public Diagnostics,1,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/BackTransformFunctor.H,class,BackTransformFunctor,public ComputeDiagFunctor,5,0,10,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H,class,BackTransformParticleFunctor,public ComputeParticleDiagFunctor,4,0,7,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H,struct,LorentzTransformParticles,,1,19,0,False,False,True
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.H,struct,SelectParticles,,1,4,0,False,False,True
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/CellCenterFunctor.H,class,CellCenterFunctor,public ComputeDiagFunctor,2,0,3,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H,class,ComputeDiagFunctor,,11,0,1,False,True,True
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/ComputeParticleDiagFunctor.H,class,ComputeParticleDiagFunctor,,9,0,0,False,True,True
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/DarwinEfieldFunctor.H,class,DarwinEfieldFunctor,public ComputeDiagFunctor,2,0,3,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/DivBFunctor.H,class,DivBFunctor,public ComputeDiagFunctor,2,0,3,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/DivEFunctor.H,class,DivEFunctor,public ComputeDiagFunctor,2,0,3,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/EBCoveredFunctor.H,class,EBCoveredFunctor,public ComputeDiagFunctor,2,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/JFunctor.H,class,JFunctor,public ComputeDiagFunctor,2,0,4,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/JdispFunctor.H,class,JdispFunctor,public ComputeDiagFunctor,2,0,3,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/PartPerCellFunctor.H,class,PartPerCellFunctor,public ComputeDiagFunctor,2,0,2,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/PartPerGridFunctor.H,class,PartPerGridFunctor,public ComputeDiagFunctor,2,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/ParticleReductionFunctor.H,class,ParticleReductionFunctor,public ComputeDiagFunctor,2,0,8,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/PhiFunctor.H,class,PhiFunctor,public ComputeDiagFunctor,2,0,2,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/ProcessNumberFunctor.H,class,ProcessNumberFunctor,public ComputeDiagFunctor,2,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/RhoFunctor.H,class,RhoFunctor,public ComputeDiagFunctor,2,0,4,False,False,False
+Diagnostics,Source/Diagnostics/ComputeDiagFunctors/TemperatureFunctor.H,class,TemperatureFunctor,public ComputeDiagFunctor,2,0,2,False,False,False
+Diagnostics,Source/Diagnostics/Diagnostics.H,class,Diagnostics,,34,1,0,False,True,True
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormat.H,class,FlushFormat,,7,0,0,False,True,True
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatAscent.H,class,FlushFormatAscent,public FlushFormatInSitu,7,0,0,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatCatalyst.H,class,FlushFormatCatalyst,public FlushFormatInSitu,8,0,0,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.H,class,FlushFormatCheckpoint,public FlushFormatPlotfile,0,0,0,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatInSitu.H,class,FlushFormatInSitu,public FlushFormat,7,0,0,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatOpenPMD.H,class,FlushFormatOpenPMD,public FlushFormat,7,0,2,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatPlotfile.H,class,FlushFormatPlotfile,public FlushFormat,11,0,0,False,False,False
+Diagnostics,Source/Diagnostics/FlushFormats/FlushFormatSensei.H,class,FlushFormatSensei,public FlushFormat,9,0,4,False,False,True
+Diagnostics,Source/Diagnostics/FullDiagnostics.H,class,FullDiagnostics,public Diagnostics,1,1,9,False,False,False
+Diagnostics,Source/Diagnostics/MultiDiagnostics.H,class,MultiDiagnostics,,11,0,4,False,False,True
+Diagnostics,Source/Diagnostics/ParticleDiag/ParticleDiag.H,class,ParticleDiag,,4,17,4,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/BeamRelevant.H,class,BeamRelevant,public ReducedDiags,2,1,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ChargeOnEB.H,class,ChargeOnEB,public ReducedDiags,2,0,2,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ColliderRelevant.H,class,ColliderRelevant,public ReducedDiags,2,1,2,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ColliderRelevant.H,struct,aux_header_index,,0,2,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/DifferentialLuminosity.H,class,DifferentialLuminosity,public ReducedDiags,2,5,3,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/DifferentialLuminosity.H,struct,aux_header_index,,0,2,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/DifferentialLuminosity2D.H,class,DifferentialLuminosity2D,public ReducedDiags,3,12,1,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldEnergy.H,class,FieldEnergy,public ReducedDiags,3,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldMaximum.H,class,FieldMaximum,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldMomentum.H,class,FieldMomentum,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H,class,FieldPoyntingFlux,public ReducedDiags,6,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H,struct,PoyntingCellCentered,,0,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H,struct,PoyntingNodal,,0,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.H,struct,PoyntingStaggered,,0,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldProbe.H,class,FieldProbe,public ReducedDiags,4,1,22,False,False,True
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldProbeParticleContainer.H,struct,FieldProbePIdx,,0,1,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldProbeParticleContainer.H,class,FieldProbeParticleContainer,"public amrex::ParticleContainerPureSoA<FieldProbePIdx::nattribs, 0>",7,4,0,False,False,True
+Diagnostics,Source/Diagnostics/ReducedDiags/FieldReduction.H,class,FieldReduction,public ReducedDiags,4,0,3,False,False,True
+Diagnostics,Source/Diagnostics/ReducedDiags/LoadBalanceCosts.H,class,LoadBalanceCosts,public ReducedDiags,3,8,0,False,False,True
+Diagnostics,Source/Diagnostics/ReducedDiags/LoadBalanceEfficiency.H,class,LoadBalanceEfficiency,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/MultiReducedDiags.H,class,MultiReducedDiags,,9,3,0,False,False,True
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleEnergy.H,class,ParticleEnergy,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleExtrema.H,class,ParticleExtrema,public ReducedDiags,2,1,2,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleExtrema.H,struct,aux_header_index,,0,2,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleHistogram.H,class,ParticleHistogram,public ReducedDiags,2,10,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleHistogram2D.H,class,ParticleHistogram2D,public ReducedDiags,3,23,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleMomentum.H,class,ParticleMomentum,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ParticleNumber.H,class,ParticleNumber,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/ReducedDiags.H,class,ReducedDiags,,15,8,0,False,True,True
+Diagnostics,Source/Diagnostics/ReducedDiags/RhoMaximum.H,class,RhoMaximum,public ReducedDiags,2,0,1,False,False,False
+Diagnostics,Source/Diagnostics/ReducedDiags/Timestep.H,class,Timestep,public ReducedDiags,2,0,0,False,False,False
+Diagnostics,Source/Diagnostics/WarpXOpenPMD.H,class,WarpXOpenPMDPlot,,12,0,11,False,False,True
+Diagnostics,Source/Diagnostics/WarpXOpenPMD.H,class,WarpXParticleCounter,,2,2,4,False,False,True
+EmbeddedBoundary,Source/EmbeddedBoundary/ParticleBoundaryProcess.H,struct,Absorb,,0,0,0,False,False,False
+EmbeddedBoundary,Source/EmbeddedBoundary/ParticleBoundaryProcess.H,struct,NoOp,,0,0,0,False,False,False
+EmbeddedBoundary,Source/EmbeddedBoundary/ParticleBoundaryProcess.H,struct,ParticleBoundaryInteraction,,1,3,0,False,False,True
+EmbeddedBoundary,Source/EmbeddedBoundary/WarpXFaceInfoBox.H,struct,FaceInfoBox,,0,7,0,False,False,True
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/EffectivePotentialES.H,class,EffectivePotentialES,public ElectrostaticSolver,6,1,0,False,False,False
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H,class,ElectrostaticSolver,,14,4,0,False,True,True
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/LabFrameExplicitES.H,class,LabFrameExplicitES,public ElectrostaticSolver,5,0,0,False,False,False
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H,class,EBCalcEfromPhiPerLevel,,2,0,1,False,False,False
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H,struct,PhiCalculatorEB,,0,2,0,False,False,False
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.H,class,PoissonBoundaryHandler,,7,21,7,False,False,False
+FieldSolver,Source/FieldSolver/ElectrostaticSolvers/RelativisticExplicitES.H,class,RelativisticExplicitES,public ElectrostaticSolver,5,0,0,False,False,False
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H,struct,CartesianCKCAlgorithm,,3,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H,struct,CartesianNodalAlgorithm,,3,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H,struct,CartesianYeeAlgorithm,,3,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H,struct,CylindricalYeeAlgorithm,,3,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/FieldAccessorFunctors.H,struct,FieldAccessorMacroscopic,,0,0,2,False,False,False
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H,struct,SphericalYeeAlgorithm,,3,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H,class,FiniteDifferenceSolver,,64,0,14,False,False,False
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/ExternalVectorPotential.H,class,ExternalVectorPotential,,7,0,0,False,False,False
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H,class,HybridPICModel,,39,58,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H,struct,BackwardEulerAlgo,,0,0,0,False,False,False
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H,struct,LaxWendroffAlgo,,0,0,0,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H,class,MacroscopicProperties,,38,17,42,False,False,True
+FieldSolver,Source/FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/SubpixelTensor.H,struct,Mat3,,0,1,0,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/DarwinLinearFieldOperator.H,class,DarwinLinearFieldOperator,"public LinearFunction<WarpXSolverVec,SemiImplicitDarwin>",16,0,9,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/ImplicitOptions.H,struct,ImplicitOptions,,1,13,0,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/ImplicitSolver.H,class,ImplicitSolver,,40,0,0,False,True,True
+FieldSolver,Source/FieldSolver/ImplicitSolvers/MassMatrixSolverOps.H,class,MassMatrixSolverOps,public MatrixSolverOps<T>,15,0,9,False,False,True
+FieldSolver,Source/FieldSolver/ImplicitSolvers/SemiImplicitDarwin.H,class,SemiImplicitDarwin,public ImplicitSolver,21,0,12,False,False,True
+FieldSolver,Source/FieldSolver/ImplicitSolvers/SemiImplicitEM.H,class,SemiImplicitEM,public ImplicitSolver,14,0,2,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/SparseJacobianMatrix.H,class,SparseJacobianMatrix,,14,0,11,False,False,True
+FieldSolver,Source/FieldSolver/ImplicitSolvers/StrangImplicitSpectralEM.H,class,StrangImplicitSpectralEM,public ImplicitSolver,12,0,2,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/ThetaImplicitEM.H,class,ThetaImplicitEM,public ImplicitSolver,16,0,2,False,False,False
+FieldSolver,Source/FieldSolver/ImplicitSolvers/WarpXSolverDOF.H,struct,WarpXSolverDOF,,3,7,0,False,False,True
+FieldSolver,Source/FieldSolver/ImplicitSolvers/WarpXSolverVec.H,class,WarpXSolverVec,,38,0,11,False,False,True
+FieldSolver,Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H,class,EBCalcBfromVectorPotentialPerLevel,,3,0,3,False,False,False
+FieldSolver,Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H,class,VectorPoissonBoundaryHandler,,1,4,0,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmComoving.H,class,PsatdAlgorithmComoving,public SpectralBaseAlgorithm,5,0,7,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmGalilean.H,class,PsatdAlgorithmGalilean,public SpectralBaseAlgorithm,6,0,10,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmGalileanRZ.H,class,PsatdAlgorithmGalileanRZ,public SpectralBaseAlgorithmRZ,5,0,6,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmJRhomFirstOrder.H,class,PsatdAlgorithmJRhomFirstOrder,public SpectralBaseAlgorithm,4,0,4,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmJRhomSecondOrder.H,class,PsatdAlgorithmJRhomSecondOrder,public SpectralBaseAlgorithm,6,0,9,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmPml.H,class,PsatdAlgorithmPml,public SpectralBaseAlgorithm,5,0,10,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmPmlRZ.H,class,PsatdAlgorithmPmlRZ,public SpectralBaseAlgorithmRZ,5,0,3,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/PsatdAlgorithmRZ.H,class,PsatdAlgorithmRZ,public SpectralBaseAlgorithmRZ,5,0,9,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/SpectralBaseAlgorithm.H,class,SpectralBaseAlgorithm,,9,0,0,False,True,True
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralAlgorithms/SpectralBaseAlgorithmRZ.H,class,SpectralBaseAlgorithmRZ,,9,0,0,False,True,True
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralBinomialFilter.H,class,SpectralBinomialFilter,,5,0,0,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralFieldData.H,class,SpectralFieldData,,9,1,5,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralFieldData.H,class,SpectralFieldIndex,,7,16,0,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralFieldDataRZ.H,class,SpectralFieldDataRZ,,20,3,8,False,False,True
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralHankelTransform/HankelTransform.H,class,HankelTransform,,4,0,5,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralHankelTransform/SpectralHankelTransformer.H,class,SpectralHankelTransformer,,8,0,6,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralKSpace.H,class,SpectralKSpace,,5,1,0,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralKSpaceRZ.H,class,SpectralKSpaceRZ,public SpectralKSpace,3,0,0,False,False,False
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralSolver.H,class,SpectralSolver,,10,2,2,False,False,True
+FieldSolver,Source/FieldSolver/SpectralSolver/SpectralSolverRZ.H,class,SpectralSolverRZ,,15,2,4,False,False,True
+Filter,Source/Filter/BilinearFilter.H,class,BilinearFilter,public Filter,2,1,0,False,False,False
+Filter,Source/Filter/Filter.H,class,Filter,,4,1,0,False,False,True
+Filter,Source/Filter/NCIGodfreyFilter.H,class,NCIGodfreyFilter,public Filter,3,1,3,False,False,False
+Fluids,Source/Fluids/MomentFluidSolver.H,class,MomentFluidSolver,,5,0,7,False,False,True
+Fluids,Source/Fluids/MultiFluidContainer.H,class,MultiFluidContainer,,14,0,2,False,False,False
+Fluids,Source/Fluids/QdsmcParticleContainer.H,struct,QdsmcPIdx,,0,1,0,False,False,False
+Fluids,Source/Fluids/QdsmcParticleContainer.H,class,QdsmcParticleContainer,"public amrex::ParticleContainerPureSoA<QdsmcPIdx::nattribs, 0>",13,4,0,False,False,True
+Fluids,Source/Fluids/WarpXFluidContainer.H,class,WarpXFluidContainer,,18,2,0,False,False,True
+Initialization,Source/Initialization/DivCleaner/ProjectionDivCleaner.H,class,ProjectionDivCleaner,,5,8,0,False,False,True
+Initialization,Source/Initialization/ExternalField.H,struct,ExternalFieldParams,,1,11,0,False,False,False
+Initialization,Source/Initialization/ExternalField.H,class,ExternalFieldReader,,6,0,16,False,False,False
+Initialization,Source/Initialization/ExternalField.H,struct,ExternalFieldVectorView,,2,0,3,False,False,False
+Initialization,Source/Initialization/ExternalField.H,struct,ExternalFieldView,,0,6,0,False,False,False
+Initialization,Source/Initialization/GetTemperature.H,struct,GetTemperature,,2,4,0,False,False,False
+Initialization,Source/Initialization/GetTemperature.H,struct,GetTemperatureVector,,2,6,0,False,False,False
+Initialization,Source/Initialization/GetVelocity.H,struct,GetVelocityVector,,2,5,0,False,False,False
+Initialization,Source/Initialization/InjectorDensity.H,struct,InjectorDensity,,15,0,6,False,False,False
+Initialization,Source/Initialization/InjectorDensity.H,struct,InjectorDensityConstant,,2,0,1,False,False,False
+Initialization,Source/Initialization/InjectorDensity.H,struct,InjectorDensityDeleter,,1,0,0,False,False,False
+Initialization,Source/Initialization/InjectorDensity.H,struct,InjectorDensityFromFile,,7,0,2,False,False,False
+Initialization,Source/Initialization/InjectorDensity.H,struct,InjectorDensityParser,,2,1,0,False,False,False
+Initialization,Source/Initialization/InjectorFlux.H,struct,InjectorFlux,,9,0,4,False,False,False
+Initialization,Source/Initialization/InjectorFlux.H,struct,InjectorFluxConstant,,2,0,1,False,False,False
+Initialization,Source/Initialization/InjectorFlux.H,struct,InjectorFluxDeleter,,1,0,0,False,False,False
+Initialization,Source/Initialization/InjectorFlux.H,struct,InjectorFluxParser,,2,1,0,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentum,,15,2,2,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumConstant,,3,0,1,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumDeleter,,1,0,0,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumGaussian,,3,0,2,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumGaussianFlux,,3,0,4,False,False,True
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumJuttner,,3,0,2,False,False,True
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumMaxwellian,,3,0,2,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumParser,,3,1,0,False,False,False
+Initialization,Source/Initialization/InjectorMomentum.H,struct,InjectorMomentumUniform,,3,0,4,False,False,False
+Initialization,Source/Initialization/InjectorPosition.H,struct,InjectorPosition,,12,0,7,False,False,False
+Initialization,Source/Initialization/InjectorPosition.H,struct,InjectorPositionRandom,,1,0,0,False,False,False
+Initialization,Source/Initialization/InjectorPosition.H,struct,InjectorPositionRandomPlane,,2,0,1,False,False,True
+Initialization,Source/Initialization/InjectorPosition.H,struct,InjectorPositionRegular,,2,0,1,False,False,False
+Initialization,Source/Initialization/PlasmaInjector.H,class,PlasmaInjector,,28,47,0,False,False,True
+Initialization,Source/Initialization/TemperatureProperties.H,struct,TemperatureProperties,,2,13,0,False,False,False
+Initialization,Source/Initialization/VelocityProperties.H,struct,VelocityProperties,,2,8,0,False,False,False
+Laser,Source/Laser/LaserProfiles.H,struct,CommonLaserParameters,,0,4,0,False,False,False
+Laser,Source/Laser/LaserProfiles.H,class,FieldFunctionLaserProfile,public ILaserProfile,3,0,4,False,False,False
+Laser,Source/Laser/LaserProfiles.H,class,FromFileLaserProfile,public ILaserProfile,6,0,3,False,False,False
+Laser,Source/Laser/LaserProfiles.H,class,GaussianLaserProfile,public ILaserProfile,3,0,3,False,False,True
+Laser,Source/Laser/LaserProfiles.H,class,ILaserProfile,,9,0,0,False,True,True
+MomentsSolver,Source/MomentsSolver/Coupling/FluidFriction.H,struct,FrictionParams,,5,2,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Coupling/MomentCoupling.H,struct,Species5,,0,3,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Coupling/YeeDeposition.H,struct,YeeDeposit,,0,4,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/EquationOfState.H,struct,Eos,,10,1,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/EquationOfState.H,struct,IdealGasEos,,2,0,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/EquationOfState.H,struct,IsothermalEos,,1,0,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/Euler5Eqn.H,struct,Context,,0,3,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/Euler5Eqn.H,struct,Euler5,,6,3,0,False,False,True
+MomentsSolver,Source/MomentsSolver/Equations/MaxwellEqn.H,struct,Context,,0,1,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/MaxwellEqn.H,struct,Maxwell6,,3,3,0,False,False,True
+MomentsSolver,Source/MomentsSolver/Equations/MomentEquation.H,struct,EquationVTable,,3,2,0,False,False,True
+MomentsSolver,Source/MomentsSolver/Equations/TenMomentEqn.H,struct,Context,,0,1,0,False,False,False
+MomentsSolver,Source/MomentsSolver/Equations/TenMomentEqn.H,struct,TenMoment,,5,3,0,False,False,True
+MomentsSolver,Source/MomentsSolver/FV/MomentFVDriver.H,struct,FV1D,,5,1,0,False,False,True
+MomentsSolver,Source/MomentsSolver/FV/MomentFVNDDriver.H,struct,FVND,,14,3,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/AMReXGMRES_Wrapper.H,class,AMReXGMRES,"public LinearSolver<Vec,LinOp>",6,0,1,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/AlgMGPC.H,class,AlgMGPC,"public Preconditioner<T,Ops>",11,0,0,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/CurlCurlMLMGPC.H,class,CurlCurlMLMGPC,"public Preconditioner<T,Ops>",11,0,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/DarwinMLMGPC.H,class,DarwinMLMGPC,"public Preconditioner<T,Ops>",11,0,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/ExternLibPC.H,class,ExternLibPC,"public Preconditioner<T,Ops>",13,0,0,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/JacobiPC.H,class,JacobiPC,"public Preconditioner<T,Ops>",11,0,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/JacobianFunctionMF.H,class,JacobianFunctionMF,"public LinearFunction<T,Ops>",23,0,9,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/LinearFunction.H,class,LinearFunction,,23,0,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/LinearSolver.H,class,LinearSolver,,17,0,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/MatrixPCAlgMG.H,class,MatrixPCAlgMG,,11,0,2,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/MatrixSolverOps.H,class,MatrixSolverOps,,14,0,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/NewtonSolver.H,class,NewtonSolver,"public NonlinearSolver<Vec,Ops>",15,0,10,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/NewtonSolverParams.H,struct,NewtonSolverParams,,3,10,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/NonlinearSolver.H,class,NonlinearSolver,,17,0,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/NonlinearSolver.H,struct,NonlinearSolverParams,,3,7,0,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/PETScKSP_Wrapper.H,class,PETScKSP,"public LinearSolver<Vec,LinOp>",17,0,1,False,True,False
+NonlinearSolvers,Source/NonlinearSolvers/PETScSNES_Wrapper.H,class,PETScSNES,"public NonlinearSolver<Vec,Ops>",14,0,2,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/PicardSolver.H,class,PicardSolver,"public NonlinearSolver<Vec,Ops>",9,0,3,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/Preconditioner.H,class,Preconditioner,,15,0,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/WarpX_PETSc.H,class,KSP_impl,public PETScSolver_impl,18,1,10,False,False,False
+NonlinearSolvers,Source/NonlinearSolvers/WarpX_PETSc.H,class,PETScSolver_impl,,12,10,0,False,True,True
+NonlinearSolvers,Source/NonlinearSolvers/WarpX_PETSc.H,class,SNES_impl,public PETScSolver_impl,18,3,19,False,False,True
+NonlinearSolvers,Source/NonlinearSolvers/WeightedJacobiImpl.H,class,WeightedJacobiImpl,,19,0,10,False,False,True
+Parallelization,Source/Parallelization/GuardCellManager.H,class,guardCellManager,,15,0,0,False,False,False
+Particles,Source/Particles/Collision/BackgroundMCC/BackgroundMCCCollision.H,class,BackgroundMCCCollision,public CollisionBase,10,0,17,False,False,True
+Particles,Source/Particles/Collision/BackgroundMCC/ImpactIonization.H,class,ImpactIonizationFilterFunc,,1,0,6,False,False,True
+Particles,Source/Particles/Collision/BackgroundMCC/ImpactIonization.H,class,ImpactIonizationTransformFunc,,1,0,5,False,False,False
+Particles,Source/Particles/Collision/BackgroundStopping/BackgroundStopping.H,class,BackgroundStopping,public CollisionBase,9,0,7,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/BinaryCollision.H,class,BinaryCollision,public CollisionBase,9,0,13,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H,class,BremsstrahlungFunc,public CollisionFuncBase,4,1,13,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H,struct,Executor,,0,11,0,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/Bremsstrahlung/PhotonCreationFunc.H,class,PhotonCreationFunc,,2,0,3,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H,struct,Executor,,0,6,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H,class,PairWiseCoulombCollisionFunc,public CollisionFuncBase,4,1,5,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/DSMC/DSMCFunc.H,class,DSMCFunc,public CollisionFuncBase,4,1,4,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/DSMC/DSMCFunc.H,struct,Executor,,0,6,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/DSMC/SplitAndScatterFunc.H,class,SplitAndScatterFunc,,2,0,5,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerCollisionFunc.H,struct,Executor,,0,7,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerCollisionFunc.H,class,LinearBreitWheelerCollisionFunc,public CollisionFuncBase,4,1,5,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/LinearCompton/LinearComptonCollisionFunc.H,struct,Executor,,0,7,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/LinearCompton/LinearComptonCollisionFunc.H,class,LinearComptonCollisionFunc,public CollisionFuncBase,4,1,5,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H,struct,Executor,,0,10,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H,class,NuclearFusionFunc,public CollisionFuncBase,5,5,8,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.H,class,NoParticleCreationFunc,,2,0,0,False,False,False
+Particles,Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.H,class,ParticleCreationFunc,,2,0,9,False,False,True
+Particles,Source/Particles/Collision/BinaryCollision/ParticleShufflers.H,struct,IndependentPairHelper,,5,6,0,False,False,True
+Particles,Source/Particles/Collision/CollisionBase.H,class,CollisionBase,,13,0,0,False,True,True
+Particles,Source/Particles/Collision/CollisionFuncBase.H,class,CollisionFuncBase,,7,0,0,False,True,False
+Particles,Source/Particles/Collision/CollisionHandler.H,class,CollisionHandler,,3,0,4,False,False,False
+Particles,Source/Particles/Collision/HybridResistiveDrag/HybridResistiveDrag.H,class,HybridResistiveDrag,public CollisionBase,7,0,0,False,False,False
+Particles,Source/Particles/Collision/InverseBremsstrahlung/InverseBremsstrahlung.H,class,InverseBremsstrahlung,public CollisionBase,8,0,3,False,False,True
+Particles,Source/Particles/Collision/PulsedDecay/PulsedDecay.H,class,PulsedDecay,public CollisionBase,7,0,6,False,False,False
+Particles,Source/Particles/Collision/ScatteringProcess.H,struct,Executor,,1,8,0,False,False,True
+Particles,Source/Particles/Collision/ScatteringProcess.H,class,ScatteringProcess,,17,1,6,False,False,True
+Particles,Source/Particles/Deposition/VarianceAccumulationBuffer.H,class,VarianceAccumulationBuffer,,5,0,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/Ionization.H,struct,IonizationFilterFunc,,1,34,0,False,False,True
+Particles,Source/Particles/ElementaryProcess/Ionization.H,struct,IonizationTransformFunc,,0,0,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H,class,BreitWheelerEngine,,11,0,4,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H,class,BreitWheelerEvolveOpticalDepth,,2,1,2,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H,class,BreitWheelerGeneratePairs,,2,0,1,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H,class,BreitWheelerGetOpticalDepth,,1,0,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H,struct,PicsarBreitWheelerCtrl,,0,2,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QedWrapperCommons.H,class,PicsarQedVector,public std::vector<Real>,3,0,1,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H,struct,PicsarQuantumSyncCtrl,,0,2,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H,class,QuantumSynchrotronEngine,,11,0,4,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H,class,QuantumSynchrotronEvolveOpticalDepth,,2,1,2,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H,class,QuantumSynchrotronGetOpticalDepth,,1,0,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H,class,QuantumSynchrotronPhotonEmission,,2,0,1,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDPairGeneration.H,class,PairGenerationFilterFunc,,1,0,1,False,False,True
+Particles,Source/Particles/ElementaryProcess/QEDPairGeneration.H,class,PairGenerationTransformFunc,,1,0,27,False,False,True
+Particles,Source/Particles/ElementaryProcess/QEDPhotonEmission.H,class,PhotonEmissionFilterFunc,,1,0,1,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDPhotonEmission.H,class,PhotonEmissionTransformFunc,,1,0,29,False,False,True
+Particles,Source/Particles/ElementaryProcess/QEDSchwingerProcess.H,struct,SchwingerFilterFunc,,0,3,0,False,False,False
+Particles,Source/Particles/ElementaryProcess/QEDSchwingerProcess.H,struct,SchwingerTransformFunc,,0,2,0,False,False,True
+Particles,Source/Particles/ExternalParticleFields.H,class,ExternalParticleFields,,1,4,0,False,False,False
+Particles,Source/Particles/ExternalParticleFields.H,struct,ParticleFieldMetaData,,0,4,0,False,False,False
+Particles,Source/Particles/Filter/FilterFunctors.H,struct,GeometryFilter,,1,0,2,False,False,False
+Particles,Source/Particles/Filter/FilterFunctors.H,struct,ParserFilter,,1,7,1,False,False,True
+Particles,Source/Particles/Filter/FilterFunctors.H,struct,RandomFilter,,1,0,2,False,False,False
+Particles,Source/Particles/Filter/FilterFunctors.H,struct,UniformFilter,,1,0,2,False,False,True
+Particles,Source/Particles/Gather/GetExternalFields.H,struct,GetExternalEBField,,3,24,0,False,False,True
+Particles,Source/Particles/Gather/ScaleFields.H,struct,ScaleFields,,2,5,0,False,False,True
+Particles,Source/Particles/LaserParticleContainer.H,class,LaserParticleContainer,public WarpXParticleContainer,15,0,12,False,False,True
+Particles,Source/Particles/MultiParticleContainer.H,class,MultiParticleContainer,,67,18,3,False,False,True
+Particles,Source/Particles/ParticleBoundaries.H,struct,ParticleBoundaries,,9,14,0,False,False,True
+Particles,Source/Particles/ParticleBoundaries.H,struct,ParticleBoundariesData,,0,14,0,False,False,True
+Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,PlasmaParserHelper,,5,7,0,False,False,True
+Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,PlasmaParserWrapper,,1,2,0,False,False,False
+Particles,Source/Particles/ParticleCreation/AddPlasmaUtilities.H,struct,QEDHelper,,1,6,0,False,False,False
+Particles,Source/Particles/ParticleCreation/SmartCopy.H,struct,SmartCopy,,0,8,0,False,False,True
+Particles,Source/Particles/ParticleCreation/SmartCopy.H,class,SmartCopyFactory,,3,4,5,False,False,False
+Particles,Source/Particles/ParticleCreation/SmartCreate.H,struct,SmartCreate,,0,3,0,False,False,True
+Particles,Source/Particles/ParticleCreation/SmartCreate.H,class,SmartCreateFactory,,3,2,3,False,False,False
+Particles,Source/Particles/ParticleCreation/SmartUtils.H,struct,SmartCopyTag,,1,3,0,False,False,False
+Particles,Source/Particles/ParticleThermalizer/ParticleThermalizer.H,class,ParticleThermalizer,,4,0,7,False,False,False
+Particles,Source/Particles/PhotonParticleContainer.H,class,PhotonParticleContainer,public PhysicalParticleContainer,15,0,0,False,False,False
+Particles,Source/Particles/PhysicalParticleContainer.H,class,PhysicalParticleContainer,public WarpXParticleContainer,54,0,0,False,True,True
+Particles,Source/Particles/Pusher/CopyParticleAttribs.H,struct,CopyParticleAttribs,,2,10,0,False,False,True
+Particles,Source/Particles/Pusher/GetAndSetPosition.H,struct,GetParticlePosition,,5,5,0,False,False,True
+Particles,Source/Particles/Pusher/GetAndSetPosition.H,struct,SetParticlePosition,,1,9,0,False,False,True
+Particles,Source/Particles/Resampling/LevelingThinning.H,class,LevelingThinning,public ResamplingAlgorithm,4,0,1,False,False,False
+Particles,Source/Particles/Resampling/Resampling.H,class,Resampling,,4,0,2,False,False,False
+Particles,Source/Particles/Resampling/Resampling.H,struct,ResamplingAlgorithm,,7,0,0,False,True,True
+Particles,Source/Particles/Resampling/ResamplingTrigger.H,class,ResamplingTrigger,,4,0,2,False,False,False
+Particles,Source/Particles/Resampling/VelocityCoincidenceThinning.H,struct,HeapSort,,0,0,0,False,False,True
+Particles,Source/Particles/Resampling/VelocityCoincidenceThinning.H,struct,VelocityBinCalculator,,0,5,0,False,False,False
+Particles,Source/Particles/Resampling/VelocityCoincidenceThinning.H,class,VelocityCoincidenceThinning,public ResamplingAlgorithm,3,3,5,False,False,True
+Particles,Source/Particles/RigidInjectedParticleContainer.H,class,RigidInjectedParticleContainer,public PhysicalParticleContainer,13,0,7,False,True,True
+Particles,Source/Particles/ShapeFactors.H,struct,Compute_shape_factor,,0,0,0,False,False,True
+Particles,Source/Particles/ShapeFactors.H,struct,Compute_shape_factor_pair,,0,0,0,False,False,False
+Particles,Source/Particles/ShapeFactors.H,struct,Compute_shifted_shape_factor,,0,0,0,False,False,True
+Particles,Source/Particles/Sorting/SortingUtils.H,class,copyAndReorder,,1,2,3,False,False,False
+Particles,Source/Particles/Sorting/SortingUtils.H,class,fillBufferFlag,,1,3,6,False,False,True
+Particles,Source/Particles/Sorting/SortingUtils.H,class,fillBufferFlagRemainingParticles,,1,5,8,False,False,True
+Particles,Source/Particles/WarpXParticleContainer.H,struct,DiagIdx,,0,1,0,False,False,True
+Particles,Source/Particles/WarpXParticleContainer.H,struct,FieldGatherOrders,,0,3,0,False,False,False
+Particles,Source/Particles/WarpXParticleContainer.H,struct,IntIdx,,0,2,0,False,False,False
+Particles,Source/Particles/WarpXParticleContainer.H,struct,PIdx,,0,12,0,False,False,False
+Particles,Source/Particles/WarpXParticleContainer.H,class,WarpXParIter,"public amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>",12,0,0,False,False,False
+Particles,Source/Particles/WarpXParticleContainer.H,class,WarpXParticleContainer,"public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>",85,9,0,False,True,True
+Utils,Source/Utils/Parser/BTDIntervalsParser.H,class,BTDIntervalsParser,,6,0,5,False,False,False
+Utils,Source/Utils/ParticleUtils.H,struct,HeapSortDecreasing,,0,0,0,False,False,True
+Utils,Source/Utils/ScatteringUtils.H,struct,AnisotropicCoefficientTable,,1,4,0,False,False,True
+ablastr,Source/ablastr/fields/Interpolate.H,struct,PoissonInterpCPtoFP,,1,3,0,False,False,False
+ablastr,Source/ablastr/fields/MLMGOptions.H,struct,MLMGOptions,,4,12,0,False,False,True
+ablastr,Source/ablastr/fields/MultiFabRegister.H,class,Direction,,2,12,1,False,False,True
+ablastr,Source/ablastr/fields/MultiFabRegister.H,struct,MultiFabOwner,,0,7,0,False,False,True
+ablastr,Source/ablastr/fields/MultiFabRegister.H,struct,MultiFabRegister,,34,1,1,False,False,False
+ablastr,Source/ablastr/fields/MultiFabRegister.H,struct,is_castable_to_string,std::false_type,0,0,0,True,False,False
+ablastr,Source/ablastr/math/fft/AnyFFT.H,struct,FFTplan,,0,6,0,False,False,False
+ablastr,Source/ablastr/parallelization/KernelTimer.H,class,KernelTimer,,5,0,3,False,False,False
+ablastr,Source/ablastr/utils/SignalHandling.H,class,SignalHandling,,6,3,4,False,False,True
+ablastr,Source/ablastr/utils/msg_logger/MsgLogger.H,class,Logger,,6,0,4,False,False,False
+ablastr,Source/ablastr/utils/msg_logger/MsgLogger.H,struct,Msg,,3,3,0,False,False,False
+ablastr,Source/ablastr/utils/msg_logger/MsgLogger.H,struct,MsgWithCounter,,3,2,0,False,False,False
+ablastr,Source/ablastr/utils/msg_logger/MsgLogger.H,struct,MsgWithCounterAndRanks,,3,3,0,False,False,False
+ablastr,Source/ablastr/utils/text/IntervalsParser.H,class,IntervalsParser,,8,0,3,False,False,False
+ablastr,Source/ablastr/utils/text/IntervalsParser.H,class,SliceParser,,8,0,4,False,False,True
+ablastr,Source/ablastr/utils/timer/Timer.H,class,Timer,,5,0,2,False,False,False
+ablastr,Source/ablastr/warn_manager/WarnManager.H,class,WarnManager,,15,2,4,False,False,True
