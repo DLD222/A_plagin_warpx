@@ -1,5 +1,7 @@
 # WarpX 插件化最终架构（源码核对版）
 
+> 状态：V1，已被 `PLUGIN_RUNTIME_ARCHITECTURE_V2.md` 修正（V2 把内核改为 Runtime、接口改为通用数据键、协作改为数据依赖调度）。本文保留作为“WarpX 内开孔”路线的细节。
+
 > 本文取代 `PLUGIN_ARCHITECTURE_DESIGN.md` 作为架构准绳；`PLUGIN_P1_IMPLEMENTATION_PLAN.md` 降级为“第一个里程碑的施工细节”。
 > 依据：工作区 `cfb8f8d`（源码 = `WarpX_fluid` HEAD `0de0e26` 拷贝），逐文件核对，不引用未读代码。
 > 目标只有一句话：**内核稳定、旧源码基本不动；用户新增能力 = 写一个模块 + 用标准插头接上；不改正旧源码。**
