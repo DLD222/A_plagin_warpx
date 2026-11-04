@@ -1,5 +1,7 @@
 # 插件化运行时架构 V2：通用内核、数据总线与协作调度
 
+> 状态：支撑材料。实施以 [`最终的技术路线.md`](最终的技术路线.md) 为准。
+
 > 本文是对 `PLUGIN_ARCHITECTURE_FINAL.md` 的修正版。修正的原因：上一版仍把 `WarpX` 这个“物理类”当内核，把 E/B/J/rho 写进接口；这违反“内核不绑定任何具体物理”。
 > 依据：WarpX 源码逐文件核对 + 5 个成熟框架的对照（MOOSE、Cordis/DSH、Gkeyll、preCICE、AMReX）。
 > 结论先行：**主程序应是一个新的 `SimulationRuntime`（运行时内核），不是 `WarpX` 类；`WarpX` 降级为“标准 PIC/EM 物理包”。内核只认“命名状态 + 阶段 + 数据依赖”，不认 E/B/粒子/材料。**
