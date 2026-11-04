@@ -1,0 +1,49 @@
+name: Weekly update
+
+on:
+  # Scheduled runs disabled in this fork; trigger manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 9 * * 1"  # every Monday at 1:00am PST (9:00am UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autoupdate:
+    name: Autoupdate
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Checkout branch
+        run: |
+          git checkout weekly_update || git checkout -b weekly_update
+      - name: Update dependencies
+        run: |
+          python Tools/Release/update_dependencies.py
+      - name: Commit changes
+        run: |
+          git add -u
+          git commit -m "Update dependencies.json"
+      - name: Push changes
+        run: |
+          git push -f origin weekly_update
+      - name: Open pull request
+        run: |
+          if gh pr view weekly_update --json number >/dev/null 2>&1; then
+            gh pr edit weekly_update \
+              --body "Automated via .github/workflows/weekly_update.yml."
+          else
+            gh pr create \
+              --base "${{ github.event.repository.default_branch }}" \
+              --body "Automated via .github/workflows/weekly_update.yml." \
+              --title "Dependencies: weekly update"
+          fi
