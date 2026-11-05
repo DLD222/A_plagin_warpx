@@ -11,6 +11,8 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -43,14 +45,13 @@ using warpx::fields::FieldType;
 namespace
 {
     amrex::Long
-    countBoxMacroParticles (amrex::MFIter const & mfi, int const lev)
+    countBoxMacroParticles (amrex::MFIter const & mfi, int const lev,
+                            MultiParticleContainer const & mpc)
     {
         const int gid = mfi.index();
         const int tid = mfi.LocalTileIndex();
         auto box_index = std::make_pair(gid, tid);
 
-        auto & warpx = WarpX::GetInstance();
-        MultiParticleContainer const & mpc = warpx.GetPartContainer();
         int const nSpecies = mpc.nSpecies();
 
         amrex::Long num_macro_particles = 0;
@@ -77,20 +78,17 @@ LoadBalanceCosts::LoadBalanceCosts (const std::string& rd_name)
 // function that gathers costs
 void LoadBalanceCosts::ComputeDiags (int step)
 {
-    // get a reference to WarpX instance
-    auto& warpx = WarpX::GetInstance();
-
     // judge if the diags should be done
     // costs is initialized only if we're doing load balance
     if (!m_intervals.contains(step+1) ||
-        !warpx.get_load_balance_intervals().isActivated() ) { return; }
+        !data().loadBalanceIntervals().isActivated() ) { return; }
 
     // get number of boxes over all levels
-    auto nLevels = warpx.finestLevel() + 1;
+    auto nLevels = data().finestLevel() + 1;
     int nBoxes = 0;
     for (int lev = 0; lev < nLevels; ++lev)
     {
-        auto *const cost = WarpX::getCosts(lev);
+        auto *const cost = data().costs(lev);
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             cost, "ERROR: costs are not initialized on level " + std::to_string(lev) + " !");
         nBoxes += cost->size();
@@ -113,12 +111,12 @@ void LoadBalanceCosts::ComputeDiags (int step)
     costs.resize(nLevels);
     for (int lev = 0; lev < nLevels; ++lev)
     {
-        costs[lev] = std::make_unique<LayoutData<Real>>(*WarpX::getCosts(lev));
+        costs[lev] = std::make_unique<LayoutData<Real>>(*data().costs(lev));
     }
 
-    if (WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Heuristic)
+    if (config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Heuristic)
     {
-        warpx.ComputeCostsHeuristic(costs);
+        data().computeCostsHeuristic(costs);
     }
 
     // keep track of correct index in array over all boxes on all levels
@@ -130,8 +128,8 @@ void LoadBalanceCosts::ComputeDiags (int step)
     // save data
     for (int lev = 0; lev < nLevels; ++lev)
     {
-        const amrex::DistributionMapping& dm = warpx.DistributionMap(lev);
-        const MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
+        const amrex::DistributionMapping& dm = data().distributionMap(lev);
+        const MultiFab & Ex = *data().fields().get(FieldType::Efield_aux, Direction{0}, lev);
         for (MFIter mfi(Ex, false); mfi.isValid(); ++mfi)
         {
             const Box& tbx = mfi.tilebox();
@@ -150,7 +148,7 @@ void LoadBalanceCosts::ComputeDiags (int step)
             m_data[shift_m_data + mfi.index()*m_nDataFields + 5] = 0.;
 #endif
             m_data[shift_m_data + mfi.index()*m_nDataFields + 6] = static_cast<amrex::Real>(tbx.d_numPts()); // note: difference to volume
-            m_data[shift_m_data + mfi.index()*m_nDataFields + 7] = countBoxMacroParticles(mfi, lev);
+            m_data[shift_m_data + mfi.index()*m_nDataFields + 7] = countBoxMacroParticles(mfi, lev, data().particles());
 #ifdef AMREX_USE_GPU
             m_data[shift_m_data + mfi.index()*m_nDataFields + 8] = amrex::Gpu::Device::deviceId();
 #endif
@@ -261,7 +259,7 @@ void LoadBalanceCosts::WriteToFile (int step) const
     ofs << std::fixed << std::setprecision(14) << std::scientific;
 
     // write time
-    ofs << WarpX::GetInstance().gett_new(0);
+    ofs << data().t_new(0);
 
     // loop over data size and write
     for (int i = 0; i < static_cast<int>(m_data.size()); ++i)
@@ -284,13 +282,10 @@ void LoadBalanceCosts::WriteToFile (int step) const
     // close file
     ofs.close();
 
-    // get a reference to WarpX instance
-    auto& warpx = WarpX::GetInstance();
-
     if (!ParallelDescriptor::IOProcessor()) { return; }
 
     // final step is a special case, fill jagged array with NaN
-    if (m_intervals.nextContains(step+1) > warpx.maxStep())
+    if (m_intervals.nextContains(step+1) > data().maxStep())
     {
         // open tmp file to copy data
         const std::string fileTmpName = m_path + m_rd_name + ".tmp." + m_extension;

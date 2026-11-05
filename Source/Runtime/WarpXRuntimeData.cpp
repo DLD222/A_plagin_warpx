@@ -11,6 +11,10 @@
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
+#include <AMReX_EBFabFactory.H>
+
+#include <stdexcept>
+
 namespace warpx::runtime
 {
 
@@ -36,5 +40,21 @@ int WarpXRuntimeData::istep (int lev) const { return m_warpx.getistep(lev); }
 EvolveScheme WarpXRuntimeData::evolveScheme () const { return m_warpx.evolve_scheme; }
 amrex::LayoutData<amrex::Real>* WarpXRuntimeData::costs (int lev) const { return WarpX::getCosts(lev); }
 amrex::Real WarpXRuntimeData::loadBalanceEfficiency (int lev) const { return m_warpx.getLoadBalanceEfficiency(lev); }
+ablastr::utils::text::IntervalsParser WarpXRuntimeData::loadBalanceIntervals () const { return m_warpx.get_load_balance_intervals(); }
+int WarpXRuntimeData::maxStep () const { return m_warpx.maxStep(); }
+void WarpXRuntimeData::computeCostsHeuristic (
+    amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const
+{
+    m_warpx.ComputeCostsHeuristic(costs);
+}
+const amrex::EBFArrayBoxFactory& WarpXRuntimeData::fieldEBFactory (int lev) const
+{
+#if defined(AMREX_USE_EB)
+    return m_warpx.fieldEBFactory(lev);
+#else
+    amrex::ignore_unused(lev);
+    throw std::runtime_error("WarpXRuntimeData::fieldEBFactory requires AMREX_USE_EB");
+#endif
+}
 
 } // namespace warpx::runtime

@@ -20,6 +20,9 @@
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
+#include "Particles/MultiParticleContainer.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Algorithm.H>
@@ -90,11 +93,8 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
         coarsest level of refinement for the calculations involving chi.",
         ablastr::warn_manager::WarnPriority::low);
 
-    // get WarpX class object
-    auto& warpx = WarpX::GetInstance();
-
     // get MultiParticleContainer class object
-    const MultiParticleContainer& mypc =  warpx.GetPartContainer();
+    const MultiParticleContainer& mypc = data().particles();
 
     // loop over species
     for (int i_s = 0; i_s < 2; ++i_s)
@@ -198,13 +198,10 @@ void ColliderRelevant::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    const MultiParticleContainer& mypc = WarpX::GetInstance().GetPartContainer();
-
-    // get a reference to WarpX instance
-    auto& warpx = WarpX::GetInstance();
+    const MultiParticleContainer& mypc = data().particles();
 
     // get cell volume
-    amrex::Geometry const & geom = warpx.Geom(0);
+    amrex::Geometry const & geom = data().geom(0);
     const amrex::Real dV = AMREX_D_TERM(geom.CellSize(0), *geom.CellSize(1), *geom.CellSize(2));
 
     const auto get_idx = [&](const std::string& name){
@@ -434,23 +431,23 @@ void ColliderRelevant::ComputeDiags (int step)
         if (myspc.DoQED())
         {
             // define variables in preparation for field gatheeduce_data.value()ring
-            const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
-            const int nox = WarpX::nox;
-            const bool galerkin_interpolation = WarpX::galerkin_interpolation;
-            const amrex::IntVect ngEB = warpx.getngEB();
+            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
+            const int nox = config().nox();
+            const bool galerkin_interpolation = config().galerkin_interpolation();
+            const amrex::IntVect ngEB = data().ngEB();
 
             // TODO loop over refinement levels: for (int lev = 0; lev <= level_number; ++lev)
             const int lev = 0;
 
             // define variables in preparation for field gathering
             using warpx::fields::FieldType;
-            const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(lev, 0));
-            const amrex::MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
-            const amrex::MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, lev);
-            const amrex::MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
-            const amrex::MultiFab & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
-            const amrex::MultiFab & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
-            const amrex::MultiFab & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
+            const amrex::XDim3 dinv = data().invCellSize(std::max(lev, 0));
+            const amrex::MultiFab & Ex = *data().fields().get(FieldType::Efield_aux, Direction{0}, lev);
+            const amrex::MultiFab & Ey = *data().fields().get(FieldType::Efield_aux, Direction{1}, lev);
+            const amrex::MultiFab & Ez = *data().fields().get(FieldType::Efield_aux, Direction{2}, lev);
+            const amrex::MultiFab & Bx = *data().fields().get(FieldType::Bfield_aux, Direction{0}, lev);
+            const amrex::MultiFab & By = *data().fields().get(FieldType::Bfield_aux, Direction{1}, lev);
+            const amrex::MultiFab & Bz = *data().fields().get(FieldType::Bfield_aux, Direction{2}, lev);
 
             // declare reduce_op
             ReduceOps<ReduceOpMin, ReduceOpMax, ReduceOpSum> reduce_op;
@@ -480,7 +477,7 @@ void ColliderRelevant::ComputeDiags (int step)
                 amrex::Box box = pti.tilebox();
                 box.grow(ngEB);
                 const amrex::Dim3 lo = amrex::lbound(box);
-                const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+                const amrex::XDim3 xyzmin = data().lowerCorner(box, lev);
                 const amrex::Array4<const amrex::Real> & ex_arr = Ex[pti].array();
                 const amrex::Array4<const amrex::Real> & ey_arr = Ey[pti].array();
                 const amrex::Array4<const amrex::Real> & ez_arr = Ez[pti].array();
@@ -546,8 +543,8 @@ void ColliderRelevant::ComputeDiags (int step)
     } // end loop over species
 
     // make density MultiFabs from nodal to cell centered
-    amrex::BoxArray ba = warpx.boxArray(0);
-    const amrex::DistributionMapping dmap = warpx.DistributionMap(0);
+    amrex::BoxArray ba = data().boxArray(0);
+    const amrex::DistributionMapping dmap = data().distributionMap(0);
     constexpr int ncomp = 1;
     constexpr int ngrow = 0;
     amrex::MultiFab mf_dst1(ba.convert(amrex::IntVect::TheCellVector()), dmap, ncomp, ngrow);

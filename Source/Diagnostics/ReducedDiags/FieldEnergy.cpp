@@ -181,10 +181,9 @@ FieldEnergy::ComputeNorm2(amrex::MultiFab const& field, [[maybe_unused]]int lev)
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
         // Lower corner of tile box physical domain
-        auto const & warpx = WarpX::GetInstance();
-        amrex::Geometry const & geom = warpx.Geom(lev);
+        amrex::Geometry const & geom = data().geom(lev);
         amrex::Real const dr = geom.CellSize(0);
-        amrex::XDim3 const xyzmin = WarpX::LowerCorner(tilebox, lev, 0._rt);
+        amrex::XDim3 const xyzmin = data().lowerCorner(tilebox, lev);
         amrex::Real const rmin = xyzmin.x + (is_nodal[0] ? 0._rt : 0.5_rt*dr);
 #endif
 

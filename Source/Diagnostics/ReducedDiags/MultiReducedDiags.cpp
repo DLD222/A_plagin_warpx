@@ -45,7 +45,8 @@
 using namespace amrex;
 
 // constructor
-MultiReducedDiags::MultiReducedDiags ()
+MultiReducedDiags::MultiReducedDiags (const warpx::runtime::RuntimeContext* ctx)
+    : m_ctx(ctx)
 {
     // read reduced diags names
     const ParmParse pp_warpx("warpx");
@@ -100,8 +101,7 @@ MultiReducedDiags::MultiReducedDiags ()
     // Install the runtime context on every diag after construction. Constructors
     // still use the legacy accessors (context is not available there), but
     // per-step code must prefer the context.
-    auto* ctx = WarpX::GetInstance().GetRuntimeContext();
-    for (auto& rd : m_multi_rd) { rd->SetRuntimeContext(ctx); }
+    for (auto& rd : m_multi_rd) { rd->SetRuntimeContext(m_ctx); }
 }
 // end constructor
 

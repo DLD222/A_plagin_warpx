@@ -13,6 +13,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/Parser/ParserUtils.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_GpuAtomic.H>
@@ -98,33 +99,31 @@ void ChargeOnEB::ComputeDiags (const int step)
 #if ((defined WARPX_DIM_3D) && (defined AMREX_USE_EB))
     using ablastr::fields::Direction;
 
-    // get a reference to WarpX instance
-    auto & warpx = WarpX::GetInstance();
-
     // Only compute the integral on level 0
     int const lev = 0;
 
     // get MultiFab data at lev
     using warpx::fields::FieldType;
-    const amrex::MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_fp, Direction{0}, lev);
-    const amrex::MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_fp, Direction{1}, lev);
-    const amrex::MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_fp, Direction{2}, lev);
+    auto const& fields = data().fields();
+    const amrex::MultiFab & Ex = *fields.get(FieldType::Efield_fp, Direction{0}, lev);
+    const amrex::MultiFab & Ey = *fields.get(FieldType::Efield_fp, Direction{1}, lev);
+    const amrex::MultiFab & Ez = *fields.get(FieldType::Efield_fp, Direction{2}, lev);
 
     // get EB structures
-    amrex::EBFArrayBoxFactory const& eb_box_factory = warpx.fieldEBFactory(lev);
+    amrex::EBFArrayBoxFactory const& eb_box_factory = data().fieldEBFactory(lev);
     amrex::FabArray<amrex::EBCellFlagFab> const& eb_flag = eb_box_factory.getMultiEBCellFlagFab();
     amrex::MultiCutFab const& eb_bnd_cent = eb_box_factory.getBndryCent();
     amrex::MultiCutFab const& eb_bnd_normal = eb_box_factory.getBndryNormal();
     amrex::Array<const amrex::MultiCutFab*,AMREX_SPACEDIM> eb_area_fraction = eb_box_factory.getAreaFrac();
 
     // get surface integration element
-    const amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> dx = warpx.Geom(lev).CellSizeArray();
+    const amrex::GpuArray<amrex::Real,AMREX_SPACEDIM> dx = data().geom(lev).CellSizeArray();
     amrex::Real const dSx = dx[1]*dx[2];
     amrex::Real const dSy = dx[2]*dx[0];
     amrex::Real const dSz = dx[0]*dx[1];
 
     // Required for parser
-    const amrex::RealBox& real_box = warpx.Geom(lev).ProbDomain();
+    const amrex::RealBox& real_box = data().geom(lev).ProbDomain();
     const bool do_parser_weighting = m_do_parser_weighting;
     auto fun_weightingparser =
             utils::parser::compileParser<3>(m_parser_weighting.get());

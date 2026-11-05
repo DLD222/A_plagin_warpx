@@ -226,7 +226,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
             // Lower corner of box physical domain
-            amrex::XDim3 const xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+            amrex::XDim3 const xyzmin = data().lowerCorner(box, lev);
             amrex::Dim3 const lo = amrex::lbound(box);
             amrex::Real const dr = data().geom(lev).CellSize(lev);
             amrex::Real const rmin = xyzmin.x;

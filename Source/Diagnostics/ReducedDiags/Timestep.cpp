@@ -10,6 +10,7 @@
 #include "Timestep.H"
 
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -25,8 +26,7 @@ using namespace amrex::literals;
 Timestep::Timestep (const std::string& rd_name)
 :ReducedDiags{rd_name}
 {
-    const auto& warpx = WarpX::GetInstance();
-    const auto max_level = warpx.maxLevel();
+    const auto max_level = data().maxLevel();
 
     // data size should be equal to the number of refinement levels
     m_data.resize(max_level + 1, 0.0_rt);
@@ -69,9 +69,11 @@ void Timestep::ComputeDiags (int step) {
         max_level = ctx->time->finest_level;
         dt = ctx->time->dt;
     } else {
-        const auto& warpx = WarpX::GetInstance();
-        max_level = warpx.maxLevel();
-        dt = warpx.getdt();
+        max_level = data().maxLevel();
+        dt.resize(max_level + 1);
+        for (int lev = 0; lev <= max_level; ++lev) {
+            dt[lev] = data().dt(lev);
+        }
     }
 
     for (int lev = 0; lev <= max_level; lev++) {

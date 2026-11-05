@@ -13,5 +13,12 @@ foreach(D IN LISTS WarpX_DIMS)
                  COMMAND test_runtime_snapshot_${SD} ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_particles --particles)
         set_tests_properties(runtime_snapshot_particles_${D} PROPERTIES
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+        if(TARGET app_${SD})
+            add_test(NAME runtime_lb_${D}
+                     COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_lb)
+            set_tests_properties(runtime_lb_${D} PROPERTIES
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+        endif()
     endif()
 endforeach()

@@ -42,6 +42,11 @@ public:
     [[nodiscard]] EvolveScheme evolveScheme () const override;
     [[nodiscard]] amrex::LayoutData<amrex::Real>* costs (int lev) const override;
     [[nodiscard]] amrex::Real loadBalanceEfficiency (int lev) const override;
+    [[nodiscard]] ablastr::utils::text::IntervalsParser loadBalanceIntervals () const override;
+    [[nodiscard]] int maxStep () const override;
+    void computeCostsHeuristic (
+        amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const override;
+    [[nodiscard]] const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const override;
 
 private:
     WarpX& m_warpx;

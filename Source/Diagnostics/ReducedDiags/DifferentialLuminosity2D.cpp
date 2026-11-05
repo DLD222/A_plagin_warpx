@@ -18,6 +18,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Algorithm.H>
@@ -156,9 +157,6 @@ void DifferentialLuminosity2D::ComputeDiags (int step)
     // output table data
     auto d_table = m_d_data_2D.table();
 
-    // get a reference to WarpX instance
-    auto& warpx = WarpX::GetInstance();
-
     // declare local variables
     auto const num_bins_1 = m_bin_num_1;
     Real const bin_min_1  = m_bin_min_1;
@@ -168,7 +166,7 @@ void DifferentialLuminosity2D::ComputeDiags (int step)
     Real const bin_size_2 = m_bin_size_2;
 
     // get MultiParticleContainer class object
-    const MultiParticleContainer& mypc = warpx.GetPartContainer();
+    const MultiParticleContainer& mypc = data().particles();
 
     auto& species_1 = mypc.GetParticleContainerFromName(m_beam_name[0]);
     auto& species_2 = mypc.GetParticleContainerFromName(m_beam_name[1]);
@@ -182,17 +180,17 @@ void DifferentialLuminosity2D::ComputeDiags (int step)
 #endif
     for (int lev = 0; lev < nlevs; ++lev) {
         // get cell volume and timestep at current level
-        Geometry const & geom = warpx.Geom(lev);
+        Geometry const & geom = data().geom(lev);
         const Real dV = AMREX_D_TERM(geom.CellSize(0), *geom.CellSize(1), *geom.CellSize(2));
-        const Real dt = warpx.getdt(lev);
+        const Real dt = data().dt(lev);
 
         for (amrex::MFIter mfi = species_1.MakeMFIter(lev); mfi.isValid(); ++mfi){
 
             ParticleTileType& ptile_1 = species_1.ParticlesAt(lev, mfi);
             ParticleTileType& ptile_2 = species_2.ParticlesAt(lev, mfi);
 
-            ParticleBins bins_1 = ParticleUtils::findParticlesInEachCell( warpx.Geom(lev), mfi, ptile_1 );
-            ParticleBins bins_2 = ParticleUtils::findParticlesInEachCell( warpx.Geom(lev), mfi, ptile_2 );
+            ParticleBins bins_1 = ParticleUtils::findParticlesInEachCell( data().geom(lev), mfi, ptile_1 );
+            ParticleBins bins_2 = ParticleUtils::findParticlesInEachCell( data().geom(lev), mfi, ptile_2 );
 
             // species 1
             const auto soa_1 = ptile_1.getParticleTileData();
@@ -423,8 +421,7 @@ void DifferentialLuminosity2D::WriteToFile (int step) const
     data.resetDataset(dataset);
 
     // Get time at level 0
-    auto & warpx = WarpX::GetInstance();
-    auto const time = warpx.gett_new(0);
+    auto const time = data().t_new(0);
     i.setTime(time);
 
     auto const& h_table_data = m_h_data_2D.table();

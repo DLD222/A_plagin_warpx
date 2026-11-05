@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+namespace warpx::runtime { struct RuntimeContext; }
+
 /**
  * This class holds multiple instances of ReducedDiagnostics, and contains
  * general functions to initialize, compute, and write these diagnostics
@@ -34,8 +36,11 @@ public:
     /// m_multi_rd stores a pointer to each reduced diagnostics
     std::vector<std::unique_ptr<ReducedDiags>> m_multi_rd;
 
+    /// non-owning runtime context (nullptr on the legacy/Python path)
+    const warpx::runtime::RuntimeContext* m_ctx = nullptr;
+
     /// constructor
-    MultiReducedDiags ();
+    explicit MultiReducedDiags (const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /** Loop over all ReducedDiags and call their InitData
      */

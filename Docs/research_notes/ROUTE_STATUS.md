@@ -24,7 +24,7 @@
 | A1.4c | A1 | done | A1.4b | Batch C2：FieldPoyntingFlux + FieldReduction 去 GetInstance |
 | A1.4d | A1 | done | A1.4c | Batch C3：粒子统计诊断（Number/Energy/Momentum/RhoMaximum/LB efficiency） |
 | A1.4e | A1 | done | A1.4d | Batch C4：FieldProbe + ParticleExtrema + 直方图 |
-| A1.4 | A1 | pending | A0.6,A0.7 | Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts） |
+| A1.4 | A1 | done | A0.6,A0.7 | Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts） |
 | A1.5 | A1 | pending | A1.4 | Batch D：FullDiagnostics/FlushFormat 去 GetInstance |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
@@ -57,5 +57,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.4` — Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts）
+**Next:** `A1.5` — Batch D：FullDiagnostics/FlushFormat 去 GetInstance
 

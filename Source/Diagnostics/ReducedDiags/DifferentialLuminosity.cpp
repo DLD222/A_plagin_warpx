@@ -17,6 +17,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Algorithm.H>
@@ -147,16 +148,13 @@ void DifferentialLuminosity::ComputeDiags (int step)
     constexpr Real c2 = PhysConst::c2;
     const Real c_over_qe = PhysConst::c/PhysConst::q_e;
 
-    // get a reference to WarpX instance
-    auto& warpx = WarpX::GetInstance();
-
     // declare local variables
     auto const num_bins = m_bin_num;
     Real const bin_min  = m_bin_min;
     Real const bin_size = m_bin_size;
 
     // get MultiParticleContainer class object
-    const MultiParticleContainer& mypc = warpx.GetPartContainer();
+    const MultiParticleContainer& mypc = data().particles();
 
     auto& species_1 = mypc.GetParticleContainerFromName(m_beam_name[0]);
     auto& species_2 = mypc.GetParticleContainerFromName(m_beam_name[1]);
@@ -172,9 +170,9 @@ void DifferentialLuminosity::ComputeDiags (int step)
 #endif
     for (int lev = 0; lev < nlevs; ++lev) {
         // get cell volume and timestep at current level
-        Geometry const & geom = warpx.Geom(lev);
+        Geometry const & geom = data().geom(lev);
         const Real dV = AMREX_D_TERM(geom.CellSize(0), *geom.CellSize(1), *geom.CellSize(2));
-        const Real dt = warpx.getdt(lev);
+        const Real dt = data().dt(lev);
 
         for (amrex::MFIter mfi = species_1.MakeMFIter(lev); mfi.isValid(); ++mfi){
 

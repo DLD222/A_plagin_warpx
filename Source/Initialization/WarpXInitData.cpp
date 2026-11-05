@@ -817,7 +817,7 @@ WarpX::InitData ()
     multi_diags = std::make_unique<MultiDiagnostics>();
 
     /** create object for reduced diagnostics */
-    reduced_diags = std::make_unique<MultiReducedDiags>();
+    reduced_diags = std::make_unique<MultiReducedDiags>(m_runtime_context);
 
     // Set the header for the file saving dt_update data
     WriteDtUpdateFileHeader();

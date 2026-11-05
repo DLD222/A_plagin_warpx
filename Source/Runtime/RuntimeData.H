@@ -10,6 +10,8 @@
 
 #include "Utils/WarpXAlgorithmSelection.H"
 
+#include <ablastr/utils/text/IntervalsParser.H>
+
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_Array.H>
@@ -17,9 +19,12 @@
 #include <AMReX_DistributionMapping.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_LayoutData.H>
+#include <AMReX_Vector.H>
+
+#include <memory>
 #include <AMReX_REAL.H>
 
-namespace amrex { class AmrCore; }
+namespace amrex { class AmrCore; class EBFArrayBoxFactory; }
 
 class MultiParticleContainer;
 class MultiFluidContainer;
@@ -65,6 +70,13 @@ public:
 
     [[nodiscard]] virtual amrex::LayoutData<amrex::Real>* costs (int lev) const = 0;
     [[nodiscard]] virtual amrex::Real loadBalanceEfficiency (int lev) const = 0;
+    [[nodiscard]] virtual ablastr::utils::text::IntervalsParser loadBalanceIntervals () const = 0;
+    [[nodiscard]] virtual int maxStep () const = 0;
+    virtual void computeCostsHeuristic (
+        amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const = 0;
+
+    //! Embedded-boundary factory (only valid when AMREX_USE_EB is on).
+    [[nodiscard]] virtual const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const = 0;
 };
 
 } // namespace warpx::runtime
