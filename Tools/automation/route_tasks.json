@@ -1452,12 +1452,31 @@
    "verify_command": null
   },
   {
+   "id": "A2.4b",
+   "phase": "A2",
+   "title": "PSATD/implicit 字段 schema 化（E_old/current_nodal/vay）",
+   "kind": "refactor",
+   "depends": [
+    "A2.4a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "9 个字段走 schema；PSATD 数值不变",
+   "note": "nodal_ba 用 NodeVector",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4a"
+    "A2.4b"
    ],
    "status": "pending",
    "outputs": [],
