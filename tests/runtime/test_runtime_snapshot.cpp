@@ -7,6 +7,7 @@
  */
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
+#include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
 #include <algorithm>
@@ -64,6 +65,16 @@ int main (int argc, char* argv[])
     check(runtime.context().bus == &runtime.bus(), "context.bus points at Runtime::bus()");
     check(WarpX::GetInstance().levelResources().fields() == &runtime.fields(),
           "LevelResources borrows the same field registry");
+
+    {
+        warpx::runtime::StagePlan plan;
+        plan.add({warpx::runtime::Stage::Diagnostics, 0}, "diag");
+        plan.add({warpx::runtime::Stage::Init, 1}, "init1");
+        plan.add({warpx::runtime::Stage::Init, 0}, "init0");
+        const auto ordered = plan.sorted();
+        check_eq(ordered.front().second, std::string("init0"), "StagePlan sorts Init/0 first");
+        check_eq(ordered.back().second, std::string("diag"), "StagePlan sorts Diagnostics last");
+    }
 
     runtime.initialize();
     check(WarpX::GetInstance().levelResources().size() ==

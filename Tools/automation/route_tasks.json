@@ -1625,12 +1625,31 @@
    }
   },
   {
+   "id": "A3.1a",
+   "phase": "A3",
+   "title": "StagePoint/StagePlan 类型骨架",
+   "kind": "refactor",
+   "depends": [
+    "A2.5"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3.1_INITDATA_PHASES.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "类型可编译；枚举/排序单测；不改 InitData",
+   "note": "A3.1b 再拆阶段方法",
+   "verify_command": null
+  },
+  {
    "id": "A3.1",
    "phase": "A3",
    "title": "InitData 阶段化",
    "kind": "refactor",
    "depends": [
-    "A2.5"
+    "A3.1a"
    ],
    "status": "pending",
    "outputs": [],
