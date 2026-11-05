@@ -18,6 +18,9 @@
 #include "Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Array.H>
@@ -101,7 +104,7 @@ PhotonParticleContainer::PushPX (WarpXParIter& pti,
     // That's why this argument MomentumPushType /momentum_push_type/ is ignored.
 
     // Get inverse cell size on gather_lev
-    const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(gather_lev,0));
+    const amrex::XDim3 dinv = data().invCellSize(std::max(gather_lev,0));
 
     // Get box from which field is gathered.
     // If not gathering from the finest level, the box is coarsened.
@@ -109,7 +112,7 @@ PhotonParticleContainer::PushPX (WarpXParIter& pti,
     if (lev == gather_lev) {
         box = pti.tilebox();
     } else {
-        const IntVect& ref_ratio = WarpX::RefRatio(gather_lev);
+        const IntVect& ref_ratio = data().refRatio(gather_lev);
         box = amrex::coarsen(pti.tilebox(),ref_ratio);
     }
 
@@ -154,13 +157,13 @@ PhotonParticleContainer::PushPX (WarpXParIter& pti,
     const amrex::ParticleReal Bz_external_particle = m_B_external_particle[2];
 
     // Lower corner of tile box physical domain (take into account Galilean shift)
-    const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, gather_lev, 0._rt);
+    const amrex::XDim3 xyzmin = data().lowerCorner(box, gather_lev);
 
     const Dim3 lo = lbound(box);
 
-    const bool galerkin_interpolation = WarpX::galerkin_interpolation;
-    const int nox = WarpX::nox;
-    const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
+    const bool galerkin_interpolation = config().galerkin_interpolation();
+    const int nox = config().nox();
+    const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
 
     amrex::Array4<const amrex::Real> const& ex_arr = exfab->array();
     amrex::Array4<const amrex::Real> const& ey_arr = eyfab->array();

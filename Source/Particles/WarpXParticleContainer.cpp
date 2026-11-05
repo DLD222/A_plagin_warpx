@@ -26,6 +26,7 @@
 #include "Utils/WarpXConst.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/FrameState.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -3221,5 +3222,16 @@ WarpXParticleContainer::data () const
         return *m_runtime_context->data;
     }
     static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}
+
+const warpx::runtime::FrameState&
+WarpXParticleContainer::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
+        return *m_runtime_context->frame;
+    }
+    static const warpx::runtime::FrameState legacy =
+        warpx::runtime::FrameState::FromLegacy();
     return legacy;
 }

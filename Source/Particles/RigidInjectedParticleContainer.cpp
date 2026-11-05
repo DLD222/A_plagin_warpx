@@ -21,6 +21,9 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -86,8 +89,8 @@ void RigidInjectedParticleContainer::InitData()
 {
     // Perform Lorentz transform of `z_inject_plane`
     const amrex::Real t_boost = WarpX::GetInstance().gett_new(0);
-    const amrex::Real zinject_plane_boost = zinject_plane/WarpX::gamma_boost
-                                    - WarpX::beta_boost*PhysConst::c*t_boost;
+    const amrex::Real zinject_plane_boost = zinject_plane/frame().gamma_boost
+                                    - frame().beta_boost*PhysConst::c*t_boost;
     zinject_plane_levels.resize(finestLevel()+1, zinject_plane_boost);
 
     AddParticles(0); // Note - add on level 0
@@ -112,7 +115,7 @@ RigidInjectedParticleContainer::RemapParticles()
         // at the start of the simulation.
         const ParticleReal t_lab = 0._prt;
 
-        const ParticleReal uz_boost = WarpX::gamma_boost*WarpX::beta_boost*PhysConst::c;
+        const ParticleReal uz_boost = frame().gamma_boost*frame().beta_boost*PhysConst::c;
         constexpr auto inv_c2 = PhysConst::inv_c2_v<amrex::ParticleReal>;
 
         vzbeam_ave_boosted = meanParticleVelocity(false)[2];
@@ -140,7 +143,7 @@ RigidInjectedParticleContainer::RemapParticles()
                     // Loop over particles
                     const long np = pti.numParticles();
                     const ParticleReal lvzbeam_ave_boosted = vzbeam_ave_boosted;
-                    const ParticleReal gamma_boost = WarpX::gamma_boost;
+                    const ParticleReal gamma_boost = frame().gamma_boost;
                     amrex::ParallelFor( np, [=] AMREX_GPU_DEVICE (long i)
                     {
                         ParticleReal xp, yp, zp;
@@ -221,7 +224,7 @@ RigidInjectedParticleContainer::PushPX (WarpXParIter& pti,
     }
 
     const bool do_scale = not done_injecting_lev;
-    const Real v_boost = WarpX::beta_boost*PhysConst::c;
+    const Real v_boost = frame().beta_boost*PhysConst::c;
     PhysicalParticleContainer::PushPX(pti, exfab, eyfab, ezfab, bxfab, byfab, bzfab,
                                       ngEB, e_is_nodal, offset, np_to_push, lev, gather_lev, dt,
                                       ScaleFields(do_scale, dt, zinject_plane_lev_previous,
@@ -283,7 +286,7 @@ RigidInjectedParticleContainer::Evolve (ablastr::fields::MultiFabRegister& field
 
     // Update location of injection plane in the boosted frame
     zinject_plane_lev_previous = zinject_plane_levels[lev];
-    zinject_plane_levels[lev] -= dt*WarpX::beta_boost*PhysConst::c;
+    zinject_plane_levels[lev] -= dt*frame().beta_boost*PhysConst::c;
     zinject_plane_lev = zinject_plane_levels[lev];
 
     // Set the done injecting flag when the inject plane moves out of the
@@ -297,8 +300,8 @@ RigidInjectedParticleContainer::Evolve (ablastr::fields::MultiFabRegister& field
 #else
     const int zindex = 0;
 #endif
-    done_injecting_lev = ((zinject_plane_levels[lev] < plo[zindex] && WarpX::moving_window_v + WarpX::beta_boost*PhysConst::c >= 0.) ||
-                           (zinject_plane_levels[lev] > phi[zindex] && WarpX::moving_window_v + WarpX::beta_boost*PhysConst::c <= 0.));
+    done_injecting_lev = ((zinject_plane_levels[lev] < plo[zindex] && WarpX::moving_window_v + frame().beta_boost*PhysConst::c >= 0.) ||
+                           (zinject_plane_levels[lev] > phi[zindex] && WarpX::moving_window_v + frame().beta_boost*PhysConst::c <= 0.));
 
     PhysicalParticleContainer::Evolve(fields,
                                       lev,
@@ -323,7 +326,7 @@ RigidInjectedParticleContainer::PushP (int lev, Real dt,
 
     if (do_not_push) { return; }
 
-    const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(lev,0));
+    const amrex::XDim3 dinv = data().invCellSize(std::max(lev,0));
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel
@@ -358,11 +361,11 @@ RigidInjectedParticleContainer::PushP (int lev, Real dt,
 
             const Dim3 lo = lbound(box);
 
-            const bool galerkin_interpolation = WarpX::galerkin_interpolation;
-            const int nox = WarpX::nox;
-            const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
+            const bool galerkin_interpolation = config().galerkin_interpolation();
+            const int nox = config().nox();
+            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
 
-            const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+            const amrex::XDim3 xyzmin = data().lowerCorner(box, lev);
 
             amrex::Array4<const amrex::Real> const& ex_arr = exfab.array();
             amrex::Array4<const amrex::Real> const& ey_arr = eyfab.array();
@@ -400,7 +403,7 @@ RigidInjectedParticleContainer::PushP (int lev, Real dt,
             const amrex::ParticleReal q = this->m_charge;
             const amrex::ParticleReal mass = this->m_mass;
 
-            const auto pusher_algo = WarpX::particle_pusher_algo;
+            const auto pusher_algo = config().particle_pusher_algo();
             const auto do_crr = do_classical_radiation_reaction;
 
             enum exteb_flags : int { no_exteb, has_exteb };

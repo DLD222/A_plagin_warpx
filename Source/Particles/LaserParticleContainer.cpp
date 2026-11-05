@@ -17,6 +17,9 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -178,17 +181,17 @@ LaserParticleContainer::LaserParticleContainer (AmrCore* amr_core, int ispecies,
     Real s = 1.0_rt / std::sqrt(m_nvec[0]*m_nvec[0] + m_nvec[1]*m_nvec[1] + m_nvec[2]*m_nvec[2]);
     m_nvec = { m_nvec[0]*s, m_nvec[1]*s, m_nvec[2]*s };
 
-    if (WarpX::gamma_boost > 1.) {
+    if (frame().gamma_boost > 1.) {
         // Check that the laser direction is equal to the boost direction
         AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
-            (m_nvec[0]-WarpX::boost_direction[0])*(m_nvec[0]-WarpX::boost_direction[0]) +
-            (m_nvec[1]-WarpX::boost_direction[1])*(m_nvec[1]-WarpX::boost_direction[1]) +
-            (m_nvec[2]-WarpX::boost_direction[2])*(m_nvec[2]-WarpX::boost_direction[2]) < 1.e-12,
+            (m_nvec[0]-frame().boost_direction[0])*(m_nvec[0]-frame().boost_direction[0]) +
+            (m_nvec[1]-frame().boost_direction[1])*(m_nvec[1]-frame().boost_direction[1]) +
+            (m_nvec[2]-frame().boost_direction[2])*(m_nvec[2]-frame().boost_direction[2]) < 1.e-12,
             "The Lorentz boost should be in the same direction as the laser propagation");
         // Get the position of the plane, along the boost direction, in the lab frame
         // and convert the position of the antenna to the boosted frame
         m_Z0_lab = m_nvec[0]*m_position[0] + m_nvec[1]*m_position[1] + m_nvec[2]*m_position[2];
-        const Real Z0_boost = m_Z0_lab/WarpX::gamma_boost;
+        const Real Z0_boost = m_Z0_lab/frame().gamma_boost;
         m_position[0] += (Z0_boost-m_Z0_lab)*m_nvec[0];
         m_position[1] += (Z0_boost-m_Z0_lab)*m_nvec[1];
         m_position[2] += (Z0_boost-m_Z0_lab)*m_nvec[2];
@@ -235,7 +238,7 @@ LaserParticleContainer::LaserParticleContainer (AmrCore* amr_core, int ispecies,
         m_updated_position = m_position;
 
         // Sanity checks
-        const int dir = WarpX::moving_window_dir;
+        const int dir = frame().moving_window_dir;
         std::vector<Real> windir(3, 0.0);
 #if defined(WARPX_DIM_1D_Z)
         windir[2] = 1.0;
@@ -251,11 +254,11 @@ LaserParticleContainer::LaserParticleContainer (AmrCore* amr_core, int ispecies,
             (m_nvec[2]-windir[2])*(m_nvec[2]-windir[2]) < 1.e-12,
             "do_continous_injection for laser particle only works"
             " if moving window direction and laser propagation direction are the same");
-        if ( WarpX::gamma_boost>1 ){
+        if ( frame().gamma_boost>1 ){
             AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
-                (WarpX::boost_direction[0]-0)*(WarpX::boost_direction[0]-0) +
-                (WarpX::boost_direction[1]-0)*(WarpX::boost_direction[1]-0) +
-                (WarpX::boost_direction[2]-1)*(WarpX::boost_direction[2]-1) < 1.e-12,
+                (frame().boost_direction[0]-0)*(frame().boost_direction[0]-0) +
+                (frame().boost_direction[1]-0)*(frame().boost_direction[1]-0) +
+                (frame().boost_direction[2]-1)*(frame().boost_direction[2]-1) < 1.e-12,
                 "do_continous_injection for laser particle only works if "
                 "warpx.boost_direction = z. TODO: all directions.");
         }
@@ -327,25 +330,25 @@ LaserParticleContainer::UpdateAntennaPosition (const amrex::Real dt)
 {
     if (!m_enabled) { return; }
 
-    const int dir = WarpX::moving_window_dir;
-    if (do_continuous_injection and (WarpX::gamma_boost > 1)){
+    const int dir = frame().moving_window_dir;
+    if (do_continuous_injection and (frame().gamma_boost > 1)){
         // In boosted-frame simulations, the antenna has moved since the last
         // call to this function, and injection position needs to be updated
 #if defined(WARPX_DIM_3D)
-        m_updated_position[dir] -= WarpX::beta_boost *
-            WarpX::boost_direction[dir] * PhysConst::c * dt;
+        m_updated_position[dir] -= frame().beta_boost *
+            frame().boost_direction[dir] * PhysConst::c * dt;
 #elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
         // In 2D, dir=0 corresponds to x and dir=1 corresponds to z
         // This needs to be converted in order to index `boost_direction`
         // which has 3 components, for both 2D and 3D simulations.
-        m_updated_position[2*dir] -= WarpX::beta_boost *
-            WarpX::boost_direction[2*dir] * PhysConst::c * dt;
+        m_updated_position[2*dir] -= frame().beta_boost *
+            frame().boost_direction[2*dir] * PhysConst::c * dt;
 #elif defined(WARPX_DIM_1D_Z)
         // In 1D, dir=0 corresponds to z
         // This needs to be converted in order to index `boost_direction`
         // which has 3 components, for 1D, 2D, and 3D simulations.
-        m_updated_position[2] -= WarpX::beta_boost *
-            WarpX::boost_direction[2] * PhysConst::c * dt;
+        m_updated_position[2] -= frame().beta_boost *
+            frame().boost_direction[2] * PhysConst::c * dt;
         amrex::ignore_unused(dir);
 #elif defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
         amrex::ignore_unused(dir, dt);
@@ -523,7 +526,7 @@ LaserParticleContainer::InitData (int lev)
 #else
                     // Particles are laid out in radial spokes
                     const auto n_spokes =
-                        static_cast<int>((WarpX::n_rz_azimuthal_modes - 1)*m_min_particles_per_mode);
+                        static_cast<int>((config().n_rz_azimuthal_modes() - 1)*m_min_particles_per_mode);
                     for (int spoke = 0 ; spoke < n_spokes ; spoke++) {
                         const Real phase = 2._rt*MathConst::pi*spoke/n_spokes;
                         for (int k = 0; k<2; ++k) {
@@ -576,11 +579,11 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
     const PushType push_type = (implicit_options == nullptr) ? PushType::Explicit : PushType::Implicit;
 
     Real t_lab = t;
-    if (WarpX::gamma_boost > 1) {
+    if (frame().gamma_boost > 1) {
         // Convert time from the boosted to the lab-frame
         // (in order to later calculate the amplitude of the field,
         // at the position of the antenna, in the lab-frame)
-        t_lab = 1._rt/WarpX::gamma_boost*t + WarpX::beta_boost*m_Z0_lab/PhysConst::c;
+        t_lab = 1._rt/frame().gamma_boost*t + frame().beta_boost*m_Z0_lab/PhysConst::c;
     }
 
     // Update laser profile
@@ -588,7 +591,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
 
     BL_ASSERT(OnSameGrids(lev, *fields.get(FieldType::current_fp, Direction{0}, lev)));
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     const bool has_rho = fields.has(FieldType::rho_fp, lev);
     const bool has_buffer = fields.has_vector(FieldType::current_buf, lev);
@@ -607,7 +610,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
 
         for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
         {
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -678,7 +681,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
                 amrex::MultiFab * jz = fields.get(current_fp_string, Direction{2}, lev);
                 DepositCurrent(pti, wp, uxp, uyp, uzp, ion_lev, jx, jy, jz,
                                0, np_to_deposit, thread_num,
-                               lev, lev, dt, relative_time, push_type, WarpX::nox);
+                               lev, lev, dt, relative_time, push_type, config().nox());
 
                 if (has_buffer)
                 {
@@ -688,7 +691,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
                     amrex::MultiFab * cjz = fields.get(FieldType::current_buf, Direction{2}, lev);
                     DepositCurrent(pti, wp, uxp, uyp, uzp, ion_lev, cjx, cjy, cjz,
                                    np_to_deposit, np-np_to_deposit, thread_num,
-                                   lev, lev-1, dt, relative_time, push_type, WarpX::nox);
+                                   lev, lev-1, dt, relative_time, push_type, config().nox());
                 }
             }
 
@@ -708,7 +711,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
             // This is necessary because of plane_Xp, plane_Yp and amplitude_E
             amrex::Gpu::synchronize();
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 wt = static_cast<Real>(amrex::second()) - wt;
                 amrex::HostDevice::Atomic::Add( &(*cost)[pti.index()], wt);
@@ -731,7 +734,7 @@ LaserParticleContainer::PostRestart ()
 void
 LaserParticleContainer::ComputeSpacing (int lev, Real& Sx, Real& Sy) const
 {
-    const std::array<Real,3>& dx = WarpX::CellSize(lev);
+    const std::array<Real,3>& dx = data().cellSize(lev);
 
 #if !defined(WARPX_DIM_RZ)
     constexpr float small_float_coeff = 1.e-25f;
@@ -776,8 +779,8 @@ LaserParticleContainer::ComputeWeightMobility ([[maybe_unused]] Real Sx, [[maybe
     m_weight *= AMREX_D_TERM(1._rt, * Sx, * Sy);
     // When running in the boosted-frame, the input parameters (and in particular
     // the amplitude of the field) are given in the lab-frame.
-    // Therefore, the mobility needs to be modified by a factor WarpX::gamma_boost.
-    m_mobility = m_mobility/WarpX::gamma_boost;
+    // Therefore, the mobility needs to be modified by a factor frame().gamma_boost.
+    m_mobility = m_mobility/frame().gamma_boost;
 }
 
 void
@@ -897,8 +900,8 @@ LaserParticleContainer::update_laser_particle (WarpXParIter& pti,
 
     // Copy member variables to tmp copies for GPU runs.
     const Real tmp_mobility = m_mobility;
-    const Real gamma_boost = WarpX::gamma_boost;
-    const Real beta_boost = WarpX::beta_boost;
+    const Real gamma_boost = frame().gamma_boost;
+    const Real beta_boost = frame().beta_boost;
     amrex::ParallelFor(
         np,
         [=] AMREX_GPU_DEVICE (int i) {

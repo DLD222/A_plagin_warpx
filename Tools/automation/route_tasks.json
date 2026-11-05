@@ -573,12 +573,34 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.7",
+   "id": "A1.7c",
    "phase": "A1",
-   "title": "Batch F3：Physical/Laser/Photon 粒子容器配置迁移",
+   "title": "Physical/Laser/Photon/Rigid 粒子容器配置迁移",
    "kind": "refactor",
    "depends": [
     "A1.7b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/PhysicalParticleContainer.cpp",
+    "Source/Particles/LaserParticleContainer.cpp",
+    "Source/Particles/PhotonParticleContainer.cpp",
+    "Source/Particles/RigidInjectedParticleContainer.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "派生容器用 config()/frame()/data()；粒子/激光/光子回归通过",
+   "note": "复用基类 context；LowerCorner 第三参数丢弃",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.7",
+   "phase": "A1",
+   "title": "Batch F4：流体/碰撞/注入残余配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.7c"
    ],
    "status": "pending",
    "outputs": [],

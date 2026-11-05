@@ -24,7 +24,7 @@
 #endif
 #include "MultiParticleContainer_fwd.H"
 
-namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; }
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; struct FrameState; class RuntimeData; }
 
 #include "Particles/Deposition/TemperatureDepositionTypes.H"
 #include "Particles/Deposition/VarianceAccumulationBuffer.H"
@@ -229,6 +229,7 @@ public:
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] const warpx::runtime::FrameState& frame () const;
     ~WarpXParticleContainer() override = default;
 
     // Move and copy operations
