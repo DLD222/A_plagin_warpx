@@ -11,6 +11,10 @@
 #include <AMReX.H>
 #include <AMReX_AmrParticles.H>
 
+#include <memory>
+
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; }
+
 /**
  * \brief Functor to compute a diagnostic and store the result in existing ParticleContainer.
  */
@@ -18,15 +22,16 @@ class ComputeParticleDiagFunctor
 {
 public:
 
-    ComputeParticleDiagFunctor( ) = default;
+    ComputeParticleDiagFunctor ();
     /** Virtual Destructor to handle clean destruction of derived classes */
-    virtual ~ComputeParticleDiagFunctor() = default;
+    virtual ~ComputeParticleDiagFunctor();
 
-    /** Default assignment and copy operations*/
-    ComputeParticleDiagFunctor(const ComputeParticleDiagFunctor&) = default;
-    ComputeParticleDiagFunctor& operator=(const ComputeParticleDiagFunctor&) = default;
-    ComputeParticleDiagFunctor(ComputeParticleDiagFunctor&&) = default;
-    ComputeParticleDiagFunctor& operator=(ComputeParticleDiagFunctor&&) = default;
+    void SetRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
+
+    ComputeParticleDiagFunctor(const ComputeParticleDiagFunctor&) = delete;
+    ComputeParticleDiagFunctor& operator=(const ComputeParticleDiagFunctor&) = delete;
+    ComputeParticleDiagFunctor(ComputeParticleDiagFunctor&&) = delete;
+    ComputeParticleDiagFunctor& operator=(ComputeParticleDiagFunctor&&) = delete;
 
     /** \brief Prepare data required to back-transform particle attributes for
      *         lab-frame snapshot, with index i_buffer.
@@ -44,6 +49,13 @@ public:
      *            full (1) or not (0). If it is full, then Lorentz-transform is not performed
      *            by setting m_perform_backtransform to 0 for the corresponding ith snapshot.
      */
+protected:
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+
+public:
     virtual void PrepareFunctorData ( int i_buffer, bool ZSliceInDomain,
                                       amrex::Real old_z_boost,
                                       amrex::Real current_z_boost, amrex::Real t_lab,

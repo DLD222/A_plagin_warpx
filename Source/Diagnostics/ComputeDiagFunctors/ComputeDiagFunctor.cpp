@@ -10,6 +10,7 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/HostServices.H"
+#include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -53,5 +54,15 @@ ComputeDiagFunctor::config () const
         return *m_runtime_context->config;
     }
     static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::FrameState&
+ComputeDiagFunctor::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
+        return *m_runtime_context->frame;
+    }
+    static const warpx::runtime::FrameState legacy = warpx::runtime::FrameState::FromLegacy();
     return legacy;
 }

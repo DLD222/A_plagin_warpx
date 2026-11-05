@@ -816,12 +816,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8h",
+   "phase": "A1",
+   "title": "BTD functor 迁移 + 粒子 functor context 基座",
+   "kind": "refactor",
+   "depends": [
+    "A1.8g"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/BackTransformFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/ComputeParticleDiagFunctor.H"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "BTD 的 geom/t_new/dt 走 data()；粒子 functor 通过 context 取数据；回归通过",
+   "note": "ComputeDiagFunctors 只剩基类 fallback",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8g"
+    "A1.8h"
    ],
    "status": "pending",
    "outputs": [],

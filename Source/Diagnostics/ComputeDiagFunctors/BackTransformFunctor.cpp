@@ -8,6 +8,8 @@
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/utils/Communication.H>
@@ -51,10 +53,9 @@ BackTransformFunctor::operator ()(amrex::MultiFab& mf_dst, int /*dcomp*/, const 
     // Perform back-transformation only if z slice is within the domain stored as 0/1
     // in m_perform_backtransform[i_buffer]
     if ( m_perform_backtransform[i_buffer] == 1) {
-        auto& warpx = WarpX::GetInstance();
-        auto geom = warpx.Geom(m_lev);
-        const amrex::Real gamma_boost = WarpX::gamma_boost;
-        const int moving_window_dir = WarpX::moving_window_dir;
+        auto geom = data().geom(m_lev);
+        const amrex::Real gamma_boost = frame().gamma_boost;
+        const int moving_window_dir = frame().moving_window_dir;
         const amrex::Real beta_boost = std::sqrt( 1._rt - 1._rt/( gamma_boost * gamma_boost) );
         const bool interpolate = true;
         std::unique_ptr< amrex::MultiFab > slice = nullptr;

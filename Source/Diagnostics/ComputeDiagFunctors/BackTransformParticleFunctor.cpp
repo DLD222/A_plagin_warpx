@@ -9,6 +9,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -83,12 +84,11 @@ void
 BackTransformParticleFunctor::operator () (WarpXParticleContainer::Base& pc_dst, int &totalParticleCounter, int i_buffer) const
 {
     if (m_perform_backtransform[i_buffer] == 0) { return; }
-    auto &warpx = WarpX::GetInstance();
     // get particle slice
     const int nlevs = std::max(0, m_pc_src->finestLevel()+1);
     for (int lev = 0; lev < nlevs; ++lev) {
-        const amrex::Real t_boost = warpx.gett_new(0);
-        const amrex::Real dt = warpx.getdt(0);
+        const amrex::Real t_boost = data().t_new(0);
+        const amrex::Real dt = data().dt(0);
 
         for (WarpXParIter pti(*m_pc_src, lev); pti.isValid(); ++pti) {
             pc_dst.DefineAndReturnParticleTile(lev, pti.index(), pti.LocalTileIndex() );
