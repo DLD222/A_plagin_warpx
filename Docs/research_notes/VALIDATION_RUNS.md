@@ -100,7 +100,22 @@ test_2d_langmuir_multi_psatd.analysis  PASS
 
 用途：验证 PSATD context 链与本地 FFTW 构建。
 
-## 3. 结论
+## 3. 定量结果
+
+| 算例 | 量 | 结果 |
+|---|---|---|
+| `test_2d_langmuir_multi` | `Ex` vs 解析解最大相对误差 | **2.88e-2** |
+| | `Ez` vs 解析解最大相对误差 | **2.88e-2** |
+| `test_2d_langmuir_multi_psatd` | `Ex/Ez` vs 解析解 | **2.88e-2** |
+| `test_2d_langmuir_fluid` | `Ex/Ez` | **1.87e-2** |
+| | `Jx/Jz` | **1.35e-2** |
+| | `rho` | **1.42e-2** |
+| `test_2d_collision_xz` | analysis 误差 | **4.66e-4** |
+| `runtime_psatd_check_2` | 场能量守恒 | **1.77083756376e-11 J**（step 0/1 一致） |
+
+这些数值来自当前 `build` / `build_fft` 实际运行，不是“测试退出码为 0”本身。
+
+## 4. 结论
 
 - Runtime 自测：默认 4/4、FFT 6/6；
 - 四个真实物理算例（Yee、碰撞、流体、PSATD）的 `run + analysis` 全部通过；
