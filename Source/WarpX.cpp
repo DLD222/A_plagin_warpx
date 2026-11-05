@@ -3051,12 +3051,12 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         const int ncomp_ext_B = mypc->m_external_particle_fields_metadata.m_nBfields;
 
         // Same as Bfield_fp for reading external field data, except for allocating as many components as external B fields are provided
-        m_fields.alloc_init(FieldType::B_external_particle_field, Direction{0}, lev, amrex::convert(ba, Bfield_aux_levl_0->ixType()),
-            dm, ncomp_ext_B, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::B_external_particle_field, Direction{1}, lev, amrex::convert(ba, Bfield_aux_levl_1->ixType()),
-            dm, ncomp_ext_B, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::B_external_particle_field, Direction{2}, lev, amrex::convert(ba, Bfield_aux_levl_2->ixType()),
-            dm, ncomp_ext_B, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("B_external_particle_field_x", FieldType::B_external_particle_field, Direction{0}, lev,
+                               amrex::convert(ba, Bfield_aux_levl_0->ixType()), dm, ncomp_ext_B, ngEB);
+        AllocLevelFieldOnBA("B_external_particle_field_y", FieldType::B_external_particle_field, Direction{1}, lev,
+                               amrex::convert(ba, Bfield_aux_levl_1->ixType()), dm, ncomp_ext_B, ngEB);
+        AllocLevelFieldOnBA("B_external_particle_field_z", FieldType::B_external_particle_field, Direction{2}, lev,
+                               amrex::convert(ba, Bfield_aux_levl_2->ixType()), dm, ncomp_ext_B, ngEB);
     }
     if (m_p_ext_field_params->E_ext_grid_type != ExternalFieldType::default_zero && m_p_ext_field_params->E_ext_grid_type != ExternalFieldType::constant) {
         // These fields will be added directly to the grid, i.e. to fp, and need to match the index type
@@ -3074,12 +3074,12 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         const int ncomp_ext_E = mypc->m_external_particle_fields_metadata.m_nEfields;
 
         // Same as Efield_fp for reading external field data, except for allocating as many components as external E fields are provided
-        m_fields.alloc_init(FieldType::E_external_particle_field, Direction{0}, lev, amrex::convert(ba, Efield_aux_levl_0->ixType()),
-            dm, ncomp_ext_E, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::E_external_particle_field, Direction{1}, lev, amrex::convert(ba, Efield_aux_levl_1->ixType()),
-            dm, ncomp_ext_E, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::E_external_particle_field, Direction{2}, lev, amrex::convert(ba, Efield_aux_levl_2->ixType()),
-            dm, ncomp_ext_E, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("E_external_particle_field_x", FieldType::E_external_particle_field, Direction{0}, lev,
+                               amrex::convert(ba, Efield_aux_levl_0->ixType()), dm, ncomp_ext_E, ngEB);
+        AllocLevelFieldOnBA("E_external_particle_field_y", FieldType::E_external_particle_field, Direction{1}, lev,
+                               amrex::convert(ba, Efield_aux_levl_1->ixType()), dm, ncomp_ext_E, ngEB);
+        AllocLevelFieldOnBA("E_external_particle_field_z", FieldType::E_external_particle_field, Direction{2}, lev,
+                               amrex::convert(ba, Efield_aux_levl_2->ixType()), dm, ncomp_ext_E, ngEB);
     }
 
     //
@@ -3122,13 +3122,13 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
         if (fft_do_time_averaging)
         {
-            m_fields.alloc_init(FieldType::Bfield_avg_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-            m_fields.alloc_init(FieldType::Bfield_avg_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-            m_fields.alloc_init(FieldType::Bfield_avg_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+            AllocLevelFieldOnBA("Bfield_avg_cp_x", FieldType::Bfield_avg_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Bfield_avg_cp_y", FieldType::Bfield_avg_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Bfield_avg_cp_z", FieldType::Bfield_avg_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB);
 
-            m_fields.alloc_init(FieldType::Efield_avg_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-            m_fields.alloc_init(FieldType::Efield_avg_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-            m_fields.alloc_init(FieldType::Efield_avg_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+            AllocLevelFieldOnBA("Efield_avg_cp_x", FieldType::Efield_avg_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Efield_avg_cp_y", FieldType::Efield_avg_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Efield_avg_cp_z", FieldType::Efield_avg_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB);
         }
 
         // Create the MultiFabs for the current
@@ -3137,31 +3137,27 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         AllocLevelFieldOnBA("current_cp_z", FieldType::current_cp, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ);
 
         if (rho_ncomps > 0) {
-            m_fields.alloc_init(FieldType::rho_cp,
-                lev, amrex::convert(cba, rho_nodal_flag), dm,
-                rho_ncomps, ngRho, 0.0_rt);
+            AllocLevelFieldScalar("rho_cp", FieldType::rho_cp, lev, cba, dm,
+                                  rho_ncomps, rho_nodal_flag, ngRho);
         }
 
         if (do_dive_cleaning)
         {
-            m_fields.alloc_init(FieldType::F_cp,
-                lev, amrex::convert(cba, IntVect::TheUnitVector()), dm,
-                ncomps, ngF, 0.0_rt);
+            AllocLevelFieldScalar("F_cp", FieldType::F_cp, lev, cba, dm,
+                                  ncomps, IntVect::TheUnitVector(), ngF);
         }
 
         if (do_divb_cleaning)
         {
             if (grid_type == GridType::Collocated)
             {
-                m_fields.alloc_init(FieldType::G_cp,
-                    lev, amrex::convert(cba, IntVect::TheUnitVector()), dm,
-                    ncomps, ngG, 0.0_rt);
+                AllocLevelFieldScalar("G_cp", FieldType::G_cp, lev, cba, dm,
+                                      ncomps, IntVect::TheUnitVector(), ngG);
             }
             else // grid_type=staggered or grid_type=hybrid
             {
-                m_fields.alloc_init(FieldType::G_cp,
-                    lev, amrex::convert(cba, IntVect::TheZeroVector()), dm,
-                    ncomps, ngG, 0.0_rt);
+                AllocLevelFieldScalar("G_cp", FieldType::G_cp, lev, cba, dm,
+                                      ncomps, IntVect::TheZeroVector(), ngG);
             }
         }
 
@@ -3230,14 +3226,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 AllocLevelFieldOnBA("Efield_cax_z", FieldType::Efield_cax, Direction{2}, lev, cnba, dm, ncomps, ngEB);
             } else {
                 // Create the MultiFabs for B
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelFieldOnBA("Bfield_cax_x", FieldType::Bfield_cax, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Bfield_cax_y", FieldType::Bfield_cax, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Bfield_cax_z", FieldType::Bfield_cax, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB);
 
                 // Create the MultiFabs for E
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{0}, lev, amrex::convert(cba,Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{1}, lev, amrex::convert(cba,Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{2}, lev, amrex::convert(cba,Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelFieldOnBA("Efield_cax_x", FieldType::Efield_cax, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Efield_cax_y", FieldType::Efield_cax, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Efield_cax_z", FieldType::Efield_cax, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB);
             }
 
             AllocInitMultiFab(gather_buffer_masks[lev], ba, dm, ncomps, amrex::IntVect(1), lev, "gather_buffer_masks");
@@ -3246,11 +3242,11 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         }
 
         if (n_current_deposition_buffer > 0) {
-            m_fields.alloc_init(FieldType::current_buf, Direction{0}, lev, amrex::convert(cba,jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-            m_fields.alloc_init(FieldType::current_buf, Direction{1}, lev, amrex::convert(cba,jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-            m_fields.alloc_init(FieldType::current_buf, Direction{2}, lev, amrex::convert(cba,jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
+            AllocLevelFieldOnBA("current_buf_x", FieldType::current_buf, Direction{0}, lev, amrex::convert(cba, jx_nodal_flag), dm, ncomps, ngJ);
+            AllocLevelFieldOnBA("current_buf_y", FieldType::current_buf, Direction{1}, lev, amrex::convert(cba, jy_nodal_flag), dm, ncomps, ngJ);
+            AllocLevelFieldOnBA("current_buf_z", FieldType::current_buf, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ);
             if (m_fields.has(FieldType::rho_cp, lev)) {
-                m_fields.alloc_init(FieldType::rho_buf, lev, amrex::convert(cba,rho_nodal_flag), dm, 2*ncomps, ngRho, 0.0_rt);
+                AllocLevelFieldScalar("rho_buf", FieldType::rho_buf, lev, cba, dm, 2*ncomps, rho_nodal_flag, ngRho);
             }
             AllocInitMultiFab(current_buffer_masks[lev], ba, dm, ncomps, amrex::IntVect(1), lev, "current_buffer_masks");
             // Current buffer masks have 1 ghost cell, because of the fact

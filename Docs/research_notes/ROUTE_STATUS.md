@@ -83,9 +83,10 @@
 | A2.4d | A2 | done | A2.4c | scalar helper + rho/phi/distance/dual/current_store schema 化 |
 | A2.4e1 | A2 | done | A2.4d | 显式 BA helper + Bfield_aux/Efield_aux schema 化 |
 | A2.4e2 | A2 | done | A2.4e1 | cp/cax/vector potential/external/material 字段 schema 化 |
-| A2.4 | A2 | pending | A2.4e2 | AllocLevelData schema 化 |
+| A2.4e3 | A2 | done | A2.4e2 | 剩余 cp/buf/external particle 字段 schema 化，收口 A2.4 |
+| A2.4 | A2 | done | A2.4e3 | AllocLevelData schema 化 |
 | A2.5a | A2 | done | A2.3 | A2 定向回归门（默认/FFT/ASAN） |
-| A2.5 | A2 | pending | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
+| A2.5 | A2 | done | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1 | A3 | pending | A2.5 | InitData 阶段化 |
 | A3.2 | A3 | pending | A3.1 | Evolve/OneStep 阶段化 |
 | A3.3 | A3 | pending | A3.2 | PicEmPackage（schema + stages + plugins） |
@@ -109,5 +110,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A2.4` — AllocLevelData schema 化
+**Next:** `A3.1` — InitData 阶段化
 

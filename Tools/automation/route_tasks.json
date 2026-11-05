@@ -1547,20 +1547,42 @@
    "verify_command": null
   },
   {
+   "id": "A2.4e3",
+   "phase": "A2",
+   "title": "剩余 cp/buf/external particle 字段 schema 化，收口 A2.4",
+   "kind": "refactor",
+   "depends": [
+    "A2.4e2"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "除 3 个 helper 内部 alloc 外无裸 alloc_init；MR/EB/PSATD 通过",
+   "note": "alias_init 不是分配，不计入",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4e2"
+    "A2.4e3"
    ],
    "status": "pending",
    "outputs": [],
    "effort_days": 12.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "按 FieldSpec 分配；去掉 52 处硬编码",
-   "note": ""
+   "acceptance": "所有 MultiFab 分配经 FieldSchema；仅剩 3 个 helper 内部 alloc_init；alias 不计",
+   "note": "A2.4a-e3 完成",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A2.5a",
@@ -1596,8 +1618,11 @@
    "effort_days": 3.0,
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
-   "acceptance": "含负载均衡测试",
-   "note": ""
+   "acceptance": "full_gate 5/5 + A2.5a 默认11/11、FFT13/13、ASAN7/7；A/B 推迟 A5",
+   "note": "A2.5a 已记录定向门",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A3.1",
