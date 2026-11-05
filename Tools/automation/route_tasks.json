@@ -1315,6 +1315,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b",
+   "phase": "A3",
+   "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/MODULARITY_AUDIT.md"
+   ],
+   "effort_days": 6.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "核心不再持有 CollisionHandler；插件只读 SpeciesHandle；test_2d_collision_xz 数值保持 4.66e-4",
+   "note": "碰撞参数迁入 collisions.*；可启用/禁用",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
