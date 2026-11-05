@@ -775,12 +775,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8f",
+   "phase": "A1",
+   "title": "Rho/J functor 迁移 + 沉积/滤波 host services",
+   "kind": "refactor",
+   "depends": [
+    "A1.8e"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/JFunctor.cpp",
+    "Source/Runtime/HostServices.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "rho/j 诊断走 host().computeRho/depositCurrent；plotfile 含 rho/jx 通过",
+   "note": "RZ PSATD filter 保留在 host service",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8e"
+    "A1.8f"
    ],
    "status": "pending",
    "outputs": [],

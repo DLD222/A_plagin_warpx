@@ -15,6 +15,7 @@
 #include <AMReX_Vector.H>
 
 #include <array>
+#include <memory>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -43,6 +44,13 @@ public:
                               ablastr::fields::VectorField const& B,
                               const std::array<amrex::Real, 3>& dx) = 0;
     virtual void computeDivE (amrex::MultiFab& divE, int lev) = 0;
+
+    //! Deposit/finalize current on level (current_fp is updated in place).
+    virtual void depositCurrent (int lev, amrex::Real dt) = 0;
+
+    //! Deposit/finalize charge density on level.
+    [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
+    computeRho (int lev, int species_index, bool apply_rz_psatd_filter) = 0;
 
     //! Moving window metadata.
     [[nodiscard]] virtual amrex::Real movingWindowX () const = 0;

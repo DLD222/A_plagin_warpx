@@ -12,9 +12,12 @@
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "Diagnostics/Diagnostics.H"
+#include "Fluids/MultiFluidContainer.H"
+#include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
+#include <memory>
 #include <ostream>
 
 namespace warpx::runtime
@@ -42,6 +45,64 @@ void
 WarpXHostServices::computeDivE (amrex::MultiFab& divE, int lev)
 {
     m_warpx.ComputeDivE(divE, lev);
+}
+
+
+void
+WarpXHostServices::depositCurrent (int lev, amrex::Real dt)
+{
+    using warpx::fields::FieldType;
+    using ablastr::fields::Direction;
+
+    ablastr::fields::MultiLevelVectorField current_fp_temp {
+        m_warpx.m_fields.get_alldirs(FieldType::current_fp, lev)
+    };
+
+    auto& mypc = m_warpx.GetPartContainer();
+    mypc.DepositCurrent(current_fp_temp, dt, 0.0);
+
+    for (int idim = 0; idim < 3; ++idim) {
+        auto& J = *current_fp_temp[0][idim];
+        WarpXSumGuardCells(J, m_warpx.Geom(lev).periodicity(), J.nGrowVect(), 0, J.nComp());
+    }
+
+    m_warpx.FinalizeJOnLevel(lev,
+        current_fp_temp[0][0], current_fp_temp[0][1], current_fp_temp[0][2],
+        PatchType::fine);
+}
+
+std::unique_ptr<amrex::MultiFab>
+WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_filter)
+{
+    std::unique_ptr<amrex::MultiFab> rho;
+    if (species_index == -1) {
+        auto& mypc = m_warpx.GetPartContainer();
+        rho = mypc.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
+        if (m_warpx.DoFluidSpecies()) {
+            auto& myfl = m_warpx.GetFluidContainer();
+            myfl.DepositCharge(m_warpx.m_fields, *rho, lev);
+        }
+    } else {
+        auto& mypc = m_warpx.GetPartContainer().GetParticleContainer(species_index);
+        rho = mypc.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
+    }
+
+    m_warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
+    m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+
+#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
+    if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD &&
+        WarpX::use_kspace_filter && apply_rz_psatd_filter) {
+        auto& solver = m_warpx.get_spectral_solver_fp(lev);
+        const SpectralFieldIndex& Idx = solver.m_spectral_index;
+        solver.ForwardTransform(lev, *rho, Idx.rho_new);
+        solver.ApplyFilter(lev, Idx.rho_new);
+        solver.BackwardTransform(lev, *rho, Idx.rho_new);
+    }
+#else
+    amrex::ignore_unused(apply_rz_psatd_filter);
+#endif
+    return rho;
 }
 
 amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving_window_x(); }

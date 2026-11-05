@@ -9,6 +9,8 @@
 #include "Fields.H"
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -35,30 +37,14 @@ JFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/
 {
     using ablastr::fields::Direction;
 
-    auto& warpx = WarpX::GetInstance();
     /** pointer to source multifab (can be multi-component) */
-    amrex::MultiFab* m_mf_src = warpx.m_fields.get(FieldType::current_fp,Direction{m_dir},m_lev);
+    amrex::MultiFab* m_mf_src = const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+        .get(FieldType::current_fp, Direction{m_dir}, m_lev);
 
     // Deposit current if no solver or the electrostatic solver is being used
     if (m_deposit_current)
     {
-        // allocate temporary multifab to deposit current density into
-        ablastr::fields::MultiLevelVectorField current_fp_temp {
-            warpx.m_fields.get_alldirs(FieldType::current_fp, m_lev)
-        };
-
-        auto& mypc = warpx.GetPartContainer();
-        mypc.DepositCurrent(current_fp_temp, warpx.getdt(m_lev), 0.0);
-
-        // Sum deposited guard contributions without filtering.
-        for (int idim = 0; idim < 3; ++idim) {
-            auto& J = *current_fp_temp[0][idim];
-            WarpXSumGuardCells(J, warpx.Geom(m_lev).periodicity(), J.nGrowVect(), 0, J.nComp());
-        }
-
-        warpx.FinalizeJOnLevel(m_lev,
-            current_fp_temp[0][0], current_fp_temp[0][1], current_fp_temp[0][2],
-            PatchType::fine);
+        host().depositCurrent(m_lev, data().dt(m_lev));
     }
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mf_src != nullptr, "m_mf_src can't be a nullptr.");
@@ -66,5 +52,5 @@ JFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/
 
     InterpolateMFForDiag(
         mf_dst, *m_mf_src, dcomp,
-        warpx.DistributionMap(m_lev), m_convertRZmodes2cartesian);
+        data().distributionMap(m_lev), m_convertRZmodes2cartesian);
 }

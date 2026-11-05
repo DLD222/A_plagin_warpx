@@ -10,6 +10,8 @@
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -34,49 +36,9 @@ RhoFunctor::RhoFunctor (const int lev,
 void
 RhoFunctor::operator() ( amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/ ) const
 {
-    auto& warpx = WarpX::GetInstance();
-    std::unique_ptr<amrex::MultiFab> rho;
+    std::unique_ptr<amrex::MultiFab> rho =
+        host().computeRho(m_lev, m_species_index, m_apply_rz_psatd_filter);
 
-    // Deposit charge density
-    // Call this with local=true since the parallel transfers will be handled
-    // by ApplyFilterandSumBoundaryRho
-
-    // Dump total rho
-    if (m_species_index == -1) {
-        auto& mypc = warpx.GetPartContainer();
-        rho = mypc.GetChargeDensityOnLevel(m_lev, true, /*finalize*/false);
-        if (warpx.DoFluidSpecies()) {
-            auto& myfl = warpx.GetFluidContainer();
-            myfl.DepositCharge(warpx.m_fields, *rho, m_lev);
-        }
-    }
-    // Dump rho per species
-    else {
-        auto& mypc = warpx.GetPartContainer().GetParticleContainer(m_species_index);
-        rho = mypc.GetChargeDensityOnLevel(m_lev, true, /*finalize*/false);
-    }
-
-    // Handle the parallel transfers of guard cells and
-    // apply the filtering if requested.
-    warpx.ApplyFilterandSumBoundaryRho(m_lev, m_lev, *rho, 0, rho->nComp());
-    warpx.FinalizeRhoOnLevel(m_lev, rho.get(), PatchType::fine);
-
-#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
-    // Apply k-space filtering when using the PSATD solver
-    if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)
-    {
-        if (WarpX::use_kspace_filter && m_apply_rz_psatd_filter) {
-            auto & solver = warpx.get_spectral_solver_fp(m_lev);
-            const SpectralFieldIndex& Idx = solver.m_spectral_index;
-            solver.ForwardTransform(m_lev, *rho, Idx.rho_new);
-            solver.ApplyFilter(m_lev, Idx.rho_new);
-            solver.BackwardTransform(m_lev, *rho, Idx.rho_new);
-        }
-    }
-#else
-    amrex::ignore_unused(m_apply_rz_psatd_filter);
-#endif
-
-    InterpolateMFForDiag(mf_dst, *rho, dcomp, warpx.DistributionMap(m_lev),
+    InterpolateMFForDiag(mf_dst, *rho, dcomp, data().distributionMap(m_lev),
                          m_convertRZmodes2cartesian);
 }
