@@ -88,7 +88,7 @@ RigidInjectedParticleContainer::RigidInjectedParticleContainer (AmrCore* amr_cor
 void RigidInjectedParticleContainer::InitData()
 {
     // Perform Lorentz transform of `z_inject_plane`
-    const amrex::Real t_boost = WarpX::GetInstance().gett_new(0);
+    const amrex::Real t_boost = data().t_new(0);
     const amrex::Real zinject_plane_boost = zinject_plane/frame().gamma_boost
                                     - frame().beta_boost*PhysConst::c*t_boost;
     zinject_plane_levels.resize(finestLevel()+1, zinject_plane_boost);

@@ -1113,12 +1113,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8w",
+   "phase": "A1",
+   "title": "粒子创建/注入剩余局部单例（AddParticles/DefaultInit/Rigid）",
+   "kind": "refactor",
+   "depends": [
+    "A1.8v"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/ParticleCreation/AddParticles.cpp",
+    "Source/Particles/ParticleCreation/DefaultInitialization.H",
+    "Source/Particles/RigidInjectedParticleContainer.cpp"
+   ],
+   "effort_days": 0.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "三文件无 GetInstance；粒子注入/rigid 回归通过",
+   "note": "tmp_pc 用 amrCore()；时间用 pc.data()",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8v"
+    "A1.8w"
    ],
    "status": "pending",
    "outputs": [],

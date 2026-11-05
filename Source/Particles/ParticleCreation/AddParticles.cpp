@@ -1261,7 +1261,7 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
     // Create temporary particle container to which particles will be added;
     // we will then call Redistribute on this new container and finally
     // add the new particles to the original container.
-    PhysicalParticleContainer tmp_pc(&WarpX::GetInstance());
+    PhysicalParticleContainer tmp_pc(amrCore());
     for (int ic = 0; ic < NumRuntimeRealComps(); ++ic) { tmp_pc.AddRealComp(GetRealSoANames()[ic + NArrayReal], false); }
     for (int ic = 0; ic < NumRuntimeIntComps(); ++ic) { tmp_pc.AddIntComp(GetIntSoANames()[ic + NArrayInt], false); }
     tmp_pc.defineAllParticleTiles();

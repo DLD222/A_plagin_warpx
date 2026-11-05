@@ -9,6 +9,7 @@
 #define WARPX_DEFAULTINITIALIZATION_H_
 
 #include <WarpX.H>
+#include "Runtime/RuntimeData.H"
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"
 #   include "Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H"
@@ -145,7 +146,7 @@ void DefaultInitializeRuntimeAttributes (PTile& ptile,
         const amrex::ParticleReal* AMREX_RESTRICT uy = soa.m_rdata[PIdx::uy];
         const amrex::ParticleReal* AMREX_RESTRICT uz = soa.m_rdata[PIdx::uz];
         constexpr int lev = 0;
-        const amrex::Real t = WarpX::GetInstance().gett_new(lev);
+        const amrex::Real t = pc.data().t_new(lev);
 
         // Check: does the particle data reside on CPU or GPU?
         amrex::Arena const * const pc_arena = pc.arena();
