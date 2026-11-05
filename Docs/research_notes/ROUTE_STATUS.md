@@ -94,8 +94,8 @@
 | A3.2a | A3 | done | A3.1c | OneStep_nosub 提取显式 PIC 阶段方法 |
 | A3.2b | A3 | done | A3.2a | 显式 PIC 通过 StagePlan 执行 |
 | A3.2 | A3 | done | A3.2b | Evolve/OneStep 阶段化 |
-| A3.3 | A3 | pending | A3.2 | PicEmPackage（schema + stages + plugins） |
-| A3.3a | A3 | pending | A3.3 | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
+| A3.3 | A3 | pending | A3.3a | PicEmPackage（schema + stages + plugins） |
+| A3.3a | A3 | done | A3.2b | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
 | A3.3b | A3 | pending | A3.3 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |

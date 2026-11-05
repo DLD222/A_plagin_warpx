@@ -7,6 +7,7 @@
  */
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
+#include "Runtime/HandlerSpec.H"
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
@@ -65,6 +66,25 @@ int main (int argc, char* argv[])
     check(runtime.context().bus == &runtime.bus(), "context.bus points at Runtime::bus()");
     check(WarpX::GetInstance().levelResources().fields() == &runtime.fields(),
           "LevelResources borrows the same field registry");
+
+    {
+        struct FakeHandler final : warpx::runtime::IHandler {
+            warpx::runtime::HandlerSpec s;
+            explicit FakeHandler (warpx::runtime::HandlerSpec spec) : s(std::move(spec)) {}
+            [[nodiscard]] warpx::runtime::HandlerSpec spec () const override { return s; }
+            void apply (warpx::runtime::StageContext&) override {}
+        };
+
+        warpx::runtime::PluginHost host;
+        host.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "diag", {warpx::runtime::Stage::Diagnostics, 0}, {}, {}, {}, {}, 0}));
+        host.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "push", {warpx::runtime::Stage::Push, 0}, {}, {}, {}, {}, 0}));
+        const auto ordered = host.ordered();
+        check_eq(ordered.size(), std::size_t(2), "PluginHost stores handlers");
+        check_eq(ordered.front()->spec().name, std::string("push"),
+                 "PluginHost orders Push before Diagnostics");
+    }
 
     {
         warpx::runtime::StagePlan plan;

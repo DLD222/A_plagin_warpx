@@ -1764,7 +1764,7 @@
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.2"
+    "A3.3a"
    ],
    "status": "pending",
    "outputs": [],
@@ -1780,7 +1780,7 @@
    "title": "HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary）",
    "kind": "refactor",
    "depends": [
-    "A3.3"
+    "A3.2b"
    ],
    "status": "pending",
    "outputs": [
