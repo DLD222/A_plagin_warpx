@@ -540,19 +540,8 @@ void WarpX::OneStep (
  * for the field advance and particle pusher.
  */
 void
-WarpX::OneStep_nosub (
-    amrex::Real a_cur_time,
-    amrex::Real a_dt,
-    int a_step
-)
+WarpX::OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
 {
-    ABLASTR_PROFILE("WarpX::OneStep_nosub()");
-
-    // Push particle from x^{n} to x^{n+1}
-    //               from p^{n-1/2} to p^{n+1/2}
-    // Deposit current j^{n+1/2}
-    // Deposit charge density rho^{n}
-
     ExecutePythonCallback("beforedeposition");
 
     // with collisions placed in the middle of the momentum push
@@ -593,6 +582,13 @@ WarpX::OneStep_nosub (
     }
 
     ExecutePythonCallback("afterdeposition");
+}
+
+void
+WarpX::OneStep_FinalizeDeposition ()
+{
+    using warpx::fields::FieldType;
+    using ablastr::fields::Direction;
 
     SyncCurrentAndRho(); // Filter, exchange gurd cells, and interpolate across levels
     FinalizeRho(); // Apply boundary conditions and inverse volume scaling to rho
@@ -620,6 +616,14 @@ WarpX::OneStep_nosub (
     // At this point, J is up-to-date inside the domain except with Vay deposition,
     // and E and B are up-to-date including enough guard cells for the first
     // step of the field solve.
+
+
+}
+
+void
+WarpX::OneStep_FieldSolve (amrex::Real a_cur_time)
+{
+    using ablastr::fields::Direction;
 
     // For extended PML: copy J from regular grid to PML, and damp J in PML
     if (do_pml && pml_has_particles) { CopyJPML(); }
@@ -697,6 +701,26 @@ WarpX::OneStep_nosub (
     } // !PSATD
 
     ExecutePythonCallback("afterEsolve");
+}
+
+void
+WarpX::OneStep_nosub (
+    amrex::Real a_cur_time,
+    amrex::Real a_dt,
+    int a_step
+)
+{
+    ABLASTR_PROFILE("WarpX::OneStep_nosub()");
+
+    // Push particle from x^{n} to x^{n+1}
+    //               from p^{n-1/2} to p^{n+1/2}
+    // Deposit current j^{n+1/2}
+    // Deposit charge density rho^{n}
+
+    OneStep_PushParticles(a_cur_time, a_dt, a_step);
+    OneStep_FinalizeDeposition();
+    OneStep_FieldSolve(a_cur_time);
+
 }
 
 bool WarpX::checkStopSimulation (amrex::Real cur_time)

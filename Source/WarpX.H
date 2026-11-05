@@ -1261,6 +1261,10 @@ private:
         bool verbose_step
     );
 
+    void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
+    void OneStep_FinalizeDeposition ();
+    void OneStep_FieldSolve (amrex::Real a_cur_time);
+
     void OneStep_nosub (
         amrex::Real a_cur_time,
         amrex::Real a_dt,
