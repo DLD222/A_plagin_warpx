@@ -82,7 +82,7 @@ WarpX::AddMagnetostaticFieldLabFrame()
     // Store the boundary conditions for the field solver if they haven't been
     // stored yet
     if (!m_vector_poisson_boundary_handler.bcs_set) {
-        m_vector_poisson_boundary_handler.defineVectorPotentialBCs();
+        m_vector_poisson_boundary_handler.defineVectorPotentialBCs(Geom(0));
     }
 
 #ifdef WARPX_DIM_RZ
@@ -284,13 +284,11 @@ WarpX::setVectorPotentialBC (ablastr::fields::MultiLevelVectorField const& A) co
     } // lev
 }
 
-void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs ( )
+void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs (const amrex::Geometry& geom)
 {
     for (int adim = 0; adim < 3; adim++) {
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
         int dim_start = 0;
-        WarpX& warpx = WarpX::GetInstance();
-        auto geom = warpx.Geom(0);
         if (geom.ProbLo(0) == 0){
 #if defined(WARPX_DIM_RZ)
             // For the m=0 mode, regularity on the axis requires A_r = A_t = 0
@@ -322,6 +320,7 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
             }
         }
 #else
+        amrex::ignore_unused(geom);
         const int dim_start = 0;
 #endif
         bool ndotA = false;

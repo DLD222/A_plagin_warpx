@@ -1155,12 +1155,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8y",
+   "phase": "A1",
+   "title": "ParticleIO 自由函数 context + 磁静边界 handler 显式 Geometry",
+   "kind": "refactor",
+   "depends": [
+    "A1.8x"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ParticleIO.cpp",
+    "Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "两文件无直接 GetInstance；openPMD/plotfile 粒子路径与回归通过",
+   "note": "storePhi/storeField 接收 RuntimeData；RZ handler 接收 Geometry",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8x"
+    "A1.8y"
    ],
    "status": "pending",
    "outputs": [],

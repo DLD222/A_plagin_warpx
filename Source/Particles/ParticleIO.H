@@ -89,6 +89,7 @@ particlesConvertUnits (ConvertDirection convert_direction, T_ParticleContainer* 
  */
 void
 storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
+    const warpx::runtime::RuntimeData& data,
     ElectrostaticSolverAlgo electrostatic_solver_id, bool is_full_diagnostic );
 
 /** \brief Gathers fields from a MultiFab to the macroparticles.
@@ -104,7 +105,8 @@ storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
  * \param save_Bz Whether the Ex field is saved
  */
 void
-storeFieldOnParticles (WarpXParticleContainer::Base& tmp, bool is_full_diagnostic,
+storeFieldOnParticles (WarpXParticleContainer::Base& tmp,
+    const warpx::runtime::RuntimeData& data, bool is_full_diagnostic,
                        bool save_Ex, bool save_Ey, bool save_Ez,
                        bool save_Bx, bool save_By, bool save_Bz);
 

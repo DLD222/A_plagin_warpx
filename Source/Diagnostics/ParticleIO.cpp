@@ -9,6 +9,8 @@
 
 #include "Fields.H"
 #include "Particles/ParticleIO.H"
+
+#include "Runtime/RuntimeData.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/PhysicalParticleContainer.H"
@@ -251,6 +253,7 @@ MultiParticleContainer::WriteHeader (std::ostream& os) const
 
 void
 storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
+    const warpx::runtime::RuntimeData& data,
     ElectrostaticSolverAlgo electrostatic_solver_id, bool is_full_diagnostic ) {
 
     using PinnedParIter = typename WarpXParticleContainer::ParIterType;
@@ -270,12 +273,11 @@ storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
         "but this is only available with `diag_type = Full`.");
     tmp.AddRealComp("phi");
     int const phi_index = tmp.GetRealCompIndex("phi");
-    auto& warpx = WarpX::GetInstance();
-    for (int lev=0; lev<=warpx.finestLevel(); lev++) {
-        const amrex::Geometry& geom = warpx.Geom(lev);
+    for (int lev=0; lev<=data.finestLevel(); lev++) {
+        const amrex::Geometry& geom = data.geom(lev);
         auto plo = geom.ProbLoArray();
         auto dxi = geom.InvCellSizeArray();
-        amrex::MultiFab const& phi = *warpx.m_fields.get(FieldType::phi_fp, lev);
+        amrex::MultiFab const& phi = *data.fields().get(FieldType::phi_fp, lev);
 
 #ifdef AMREX_USE_OMP
         #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
@@ -305,7 +307,8 @@ storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
 }
 
 void
-storeFieldOnParticles ( WarpXParticleContainer::Base& tmp, bool is_full_diagnostic,
+storeFieldOnParticles ( WarpXParticleContainer::Base& tmp,
+    const warpx::runtime::RuntimeData& data, bool is_full_diagnostic,
                         bool save_Ex, bool save_Ey, bool save_Ez,
                         bool save_Bx, bool save_By, bool save_Bz) {
 
@@ -335,14 +338,13 @@ storeFieldOnParticles ( WarpXParticleContainer::Base& tmp, bool is_full_diagnost
     int const By_index = save_By ? tmp.GetRealCompIndex("By") : -1;
     int const Bz_index = save_Bz ? tmp.GetRealCompIndex("Bz") : -1;
 
-    auto & warpx = WarpX::GetInstance();
-    auto & fields = warpx.m_fields;
+    auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data.fields());
 
     const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
     const int nox = WarpX::nox;
     const bool galerkin_interpolation = WarpX::galerkin_interpolation;
 
-    for (int lev=0; lev<=warpx.finestLevel(); lev++) {
+    for (int lev=0; lev<=data.finestLevel(); lev++) {
 
         const amrex::XDim3 dinv = WarpX::InvCellSize(lev);
 

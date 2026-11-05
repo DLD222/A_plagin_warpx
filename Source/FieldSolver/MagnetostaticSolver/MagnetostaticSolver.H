@@ -10,6 +10,7 @@
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_Array.H>
+#include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_MLMG.H>
 #include <AMReX_REAL.H>
@@ -29,7 +30,7 @@ namespace MagnetostaticSolver {
         std::array<std::array<bool, AMREX_SPACEDIM * 2>, 3> dirichlet_flag;
         bool has_non_periodic = false;
 
-        void defineVectorPotentialBCs ();
+        void defineVectorPotentialBCs (const amrex::Geometry& geom);
     };
 
     /** use amrex to directly calculate the magnetic field since with EB's the
