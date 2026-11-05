@@ -9,6 +9,9 @@
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -29,4 +32,26 @@ ComputeDiagFunctor::data () const
         m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
     }
     return *m_legacy_data;
+}
+
+warpx::runtime::HostServices&
+ComputeDiagFunctor::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) {
+        return *m_runtime_context->host;
+    }
+    if (!m_legacy_host) {
+        m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance());
+    }
+    return *m_legacy_host;
+}
+
+const warpx::runtime::RuntimeConfig&
+ComputeDiagFunctor::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
 }

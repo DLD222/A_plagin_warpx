@@ -22,6 +22,10 @@ public:
     explicit WarpXHostServices (WarpX& warpx) : m_warpx(warpx) {}
 
     void prepareFieldsForDiagnostics () override;
+    void computeDivB (amrex::MultiFab& divB, int dcomp,
+                      ablastr::fields::VectorField const& B,
+                      const std::array<amrex::Real, 3>& dx) override;
+    void computeDivE (amrex::MultiFab& divE, int lev) override;
     [[nodiscard]] amrex::Real movingWindowX () const override;
     [[nodiscard]] bool movingWindowActive (int step) const override;
     [[nodiscard]] int numCellsShifted (amrex::Real distance, amrex::Real dx) const override;

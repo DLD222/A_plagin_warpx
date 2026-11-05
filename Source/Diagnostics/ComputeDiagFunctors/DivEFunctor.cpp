@@ -1,5 +1,9 @@
 #include "DivEFunctor.H"
 
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+
 #include "Utils/TextMsg.H"
 #ifdef WARPX_DIM_RZ
 #   include "Utils/WarpXAlgorithmSelection.H"
@@ -29,7 +33,6 @@ DivEFunctor::DivEFunctor (
 void
 DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
-    auto& warpx = WarpX::GetInstance();
     // Guard cell is set to 1 for generality. However, for a cell-centered
     // output Multifab, mf_dst, the guard-cell data is not needed especially considering
     // the operations performend in the CoarsenAndInterpolate function.
@@ -42,13 +45,13 @@ DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_
 #else
     // For RZ spectral, all quantities are cell centered
     const auto cell_type =
-        (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)?
+        (config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::PSATD)?
         amrex::IntVect::TheCellVector():amrex::IntVect::TheNodeVector();
 #endif
 
-    const amrex::BoxArray& ba = amrex::convert(warpx.boxArray(m_lev), cell_type);
-    amrex::MultiFab divE(ba, warpx.DistributionMap(m_lev), WarpX::ncomps, ng );
-    warpx.ComputeDivE(divE, m_lev);
+    const amrex::BoxArray& ba = amrex::convert(data().boxArray(m_lev), cell_type);
+    amrex::MultiFab divE(ba, data().distributionMap(m_lev), config().ncomps(), ng );
+    host().computeDivE(divE, m_lev);
 
 #ifdef WARPX_DIM_RZ
     if (m_convertRZmodes2cartesian) {
@@ -57,7 +60,7 @@ DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             nComp()==1,
             "The RZ averaging over modes must write into 1 single component");
-        amrex::MultiFab mf_dst_stag(divE.boxArray(), warpx.DistributionMap(m_lev), 1, divE.nGrowVect());
+        amrex::MultiFab mf_dst_stag(divE.boxArray(), data().distributionMap(m_lev), 1, divE.nGrowVect());
         // Mode 0
         amrex::MultiFab::Copy(mf_dst_stag, divE, 0, 0, 1, divE.nGrowVect());
         for (int ic=1 ; ic < divE.nComp() ; ic += 2) {

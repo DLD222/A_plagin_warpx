@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; class HostServices; class WarpXHostServices; struct RuntimeConfig; }
 
 /**
  * \brief Functor to compute a diagnostic and store the result in existing
@@ -106,9 +106,12 @@ private:
 
 protected:
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
 
     /** Coarsening ratio used to interpolate fields from simulation MultiFabs to output MultiFab. */
     amrex::IntVect m_crse_ratio;

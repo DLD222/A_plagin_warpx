@@ -734,12 +734,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8d",
+   "phase": "A1",
+   "title": "DivB/DivE functor 迁移 + HostServices 场代数",
+   "kind": "refactor",
+   "depends": [
+    "A1.8c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/DivBFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/DivEFunctor.cpp",
+    "Source/Runtime/HostServices.H"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "DivB/DivE 走 data()/config()/host()；默认与 FFT 回归通过",
+   "note": "computeDivB/DivE 进 HostServices",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8c"
+    "A1.8d"
    ],
    "status": "pending",
    "outputs": [],

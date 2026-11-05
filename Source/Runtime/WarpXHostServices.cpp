@@ -30,6 +30,20 @@ WarpXHostServices::prepareFieldsForDiagnostics ()
     m_warpx.FillBoundaryAux(m_warpx.getngUpdateAux());
 }
 
+void
+WarpXHostServices::computeDivB (amrex::MultiFab& divB, int dcomp,
+                                ablastr::fields::VectorField const& B,
+                                const std::array<amrex::Real, 3>& dx)
+{
+    WarpX::ComputeDivB(divB, dcomp, B, dx);
+}
+
+void
+WarpXHostServices::computeDivE (amrex::MultiFab& divE, int lev)
+{
+    m_warpx.ComputeDivE(divE, lev);
+}
+
 amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving_window_x(); }
 bool WarpXHostServices::movingWindowActive (int step) const { return WarpX::moving_window_active(step); }
 int WarpXHostServices::numCellsShifted (amrex::Real distance, amrex::Real dx) const { return WarpX::NumCellsShifted(distance, dx); }

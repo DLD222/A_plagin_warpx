@@ -11,8 +11,10 @@
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_REAL.H>
+#include <AMReX_MultiFab.H>
 #include <AMReX_Vector.H>
 
+#include <array>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -35,6 +37,12 @@ public:
 
     //! Fill E/B guards, update auxiliary data and its guards (diagnostics only).
     virtual void prepareFieldsForDiagnostics () = 0;
+
+    //! Field algebra used by diagnostics.
+    virtual void computeDivB (amrex::MultiFab& divB, int dcomp,
+                              ablastr::fields::VectorField const& B,
+                              const std::array<amrex::Real, 3>& dx) = 0;
+    virtual void computeDivE (amrex::MultiFab& divE, int lev) = 0;
 
     //! Moving window metadata.
     [[nodiscard]] virtual amrex::Real movingWindowX () const = 0;
