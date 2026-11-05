@@ -2424,6 +2424,22 @@ WarpX::AllocLevelField (const std::string& key, FieldType type,
 }
 
 void
+WarpX::AllocLevelFieldOnBA (const std::string& key, FieldType type,
+                            ablastr::fields::Direction dir, int lev,
+                            const BoxArray& alloc_ba, const DistributionMapping& dm,
+                            int ncomp, const IntVect& ngrow, Real initial)
+{
+    warpx::runtime::FieldSpec spec;
+    spec.name = key;
+    spec.ncomp = ncomp;
+    spec.nodal = IntVect(alloc_ba.ixType().toIntVect());
+    spec.ngrow = ngrow;
+    m_field_schema.declare(spec);
+
+    m_fields.alloc_init(type, dir, lev, alloc_ba, dm, ncomp, ngrow, initial);
+}
+
+void
 WarpX::AllocLevelFieldScalar (const std::string& key, FieldType type, int lev,
                               const BoxArray& ba, const DistributionMapping& dm,
                               int ncomp, const IntVect& nodal,
@@ -2966,13 +2982,13 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         // Create aux multifabs on Nodal Box Array
         BoxArray const nba = amrex::convert(ba,IntVect::TheNodeVector());
 
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{0}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{1}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{2}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Bfield_aux_x", FieldType::Bfield_aux, Direction{0}, lev, nba, dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_aux_y", FieldType::Bfield_aux, Direction{1}, lev, nba, dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_aux_z", FieldType::Bfield_aux, Direction{2}, lev, nba, dm, ncomps, ngEB);
 
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{0}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{1}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{2}, lev, nba, dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Efield_aux_x", FieldType::Efield_aux, Direction{0}, lev, nba, dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_aux_y", FieldType::Efield_aux, Direction{1}, lev, nba, dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_aux_z", FieldType::Efield_aux, Direction{2}, lev, nba, dm, ncomps, ngEB);
     } else if (lev == 0) {
         if (WarpX::fft_do_time_averaging) {
             m_fields.alias_init(FieldType::Bfield_aux, FieldType::Bfield_avg_fp, Direction{0}, lev, 0.0_rt);
@@ -2984,9 +3000,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
             m_fields.alias_init(FieldType::Efield_aux, FieldType::Efield_avg_fp, Direction{2}, lev, 0.0_rt);
         } else {
             if (mypc->m_B_ext_particle_s == "read_from_file") {
-                m_fields.alloc_init(FieldType::Bfield_aux, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_aux, Direction{1}, lev, amrex::convert(ba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_aux, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelField("Bfield_aux_x", FieldType::Bfield_aux, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
+                AllocLevelField("Bfield_aux_y", FieldType::Bfield_aux, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
+                AllocLevelField("Bfield_aux_z", FieldType::Bfield_aux, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
             } else {
                 // In this case, the aux grid is simply an alias of the fp grid (most common case in WarpX)
                 m_fields.alias_init(FieldType::Bfield_aux, FieldType::Bfield_fp, Direction{0}, lev, 0.0_rt);
@@ -2994,9 +3010,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 m_fields.alias_init(FieldType::Bfield_aux, FieldType::Bfield_fp, Direction{2}, lev, 0.0_rt);
             }
             if (mypc->m_E_ext_particle_s == "read_from_file") {
-                m_fields.alloc_init(FieldType::Efield_aux, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_aux, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_aux, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelField("Efield_aux_x", FieldType::Efield_aux, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
+                AllocLevelField("Efield_aux_y", FieldType::Efield_aux, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
+                AllocLevelField("Efield_aux_z", FieldType::Efield_aux, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
             } else {
                 // In this case, the aux grid is simply an alias of the fp grid (most common case in WarpX)
                 m_fields.alias_init(FieldType::Efield_aux, FieldType::Efield_fp, Direction{0}, lev, 0.0_rt);
@@ -3005,13 +3021,13 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
             }
         }
     } else {
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{1}, lev, amrex::convert(ba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_aux, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("Bfield_aux_x", FieldType::Bfield_aux, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
+        AllocLevelField("Bfield_aux_y", FieldType::Bfield_aux, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
+        AllocLevelField("Bfield_aux_z", FieldType::Bfield_aux, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
 
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_aux, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("Efield_aux_x", FieldType::Efield_aux, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
+        AllocLevelField("Efield_aux_y", FieldType::Efield_aux, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
+        AllocLevelField("Efield_aux_z", FieldType::Efield_aux, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
     }
 
     // The external fields that are read from file

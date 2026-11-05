@@ -1357,6 +1357,14 @@ private:
                           const amrex::IntVect& ngrow,
                           amrex::Real initial = 0.0);
 
+    void AllocLevelFieldOnBA (const std::string& key,
+                              warpx::fields::FieldType type,
+                              ablastr::fields::Direction dir,
+                              int lev, const amrex::BoxArray& alloc_ba,
+                              const amrex::DistributionMapping& dm,
+                              int ncomp, const amrex::IntVect& ngrow,
+                              amrex::Real initial = 0.0);
+
     void AllocLevelFieldScalar (const std::string& key,
                                 warpx::fields::FieldType type,
                                 int lev, const amrex::BoxArray& ba,

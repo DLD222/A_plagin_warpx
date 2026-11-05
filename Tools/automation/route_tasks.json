@@ -1509,12 +1509,31 @@
    "verify_command": null
   },
   {
+   "id": "A2.4e1",
+   "phase": "A2",
+   "title": "显式 BA helper + Bfield_aux/Efield_aux schema 化",
+   "kind": "refactor",
+   "depends": [
+    "A2.4d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "aux 字段走 schema（含 nba 路径）；默认/FFT 回归通过",
+   "note": "alias 路径不套 schema",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4d"
+    "A2.4e1"
    ],
    "status": "pending",
    "outputs": [],
