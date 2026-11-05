@@ -25,7 +25,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_RealBox.H>
 
-namespace amrex { class AmrCore; class EBFArrayBoxFactory; }
+namespace amrex { class AmrCore; class EBFArrayBoxFactory; namespace EB2 { class IndexSpace; } }
 
 class NCIGodfreyFilter;
 class MultiParticleContainer;
@@ -72,6 +72,8 @@ public:
     [[nodiscard]] virtual amrex::IntVect ngDeposRho () const = 0;
     [[nodiscard]] virtual amrex::IntVect ngDeposJ () const = 0;
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::Real>& vGalilean () const = 0;
+    [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;
     [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
     nciGodfreyFilterExEyBz () const = 0;
     [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&

@@ -1086,7 +1086,7 @@ WarpX::InitPML ()
             guard_cells.ng_FieldSolver.max(),
             v_particle_pml,
             m_fields,
-            do_pml_Lo[0], do_pml_Hi[0]);
+            do_pml_Lo[0], do_pml_Hi[0], m_runtime_context);
 #endif
 
         for (int lev = 1; lev <= max_level; ++lev)
@@ -1127,7 +1127,7 @@ WarpX::InitPML ()
                 guard_cells.ng_FieldSolver.max(),
                 v_particle_pml,
                 m_fields,
-                do_pml_Lo[lev], do_pml_Hi[lev]);
+                do_pml_Lo[lev], do_pml_Hi[lev], m_runtime_context);
         }
     }
 }

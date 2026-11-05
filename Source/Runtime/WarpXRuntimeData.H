@@ -44,6 +44,8 @@ public:
     [[nodiscard]] amrex::IntVect ngDeposRho () const override;
     [[nodiscard]] amrex::IntVect ngDeposJ () const override;
     [[nodiscard]] bool useVerboncoeurAxisCorrection () const override;
+    [[nodiscard]] const amrex::Vector<amrex::Real>& vGalilean () const override;
+    [[nodiscard]] const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const override;
     [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
     nciGodfreyFilterExEyBz () const override;
     [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&

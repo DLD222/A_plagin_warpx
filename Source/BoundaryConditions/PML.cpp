@@ -21,6 +21,9 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/Parser/ParserUtils.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -701,8 +704,10 @@ PML::PML (const int lev, const BoxArray& grid_ba,
           bool eb_enabled,
           int max_guard_EB, const amrex::Real v_sigma_sb,
           ablastr::fields::MultiFabRegister& fields,
-          const amrex::IntVect do_pml_Lo, const amrex::IntVect do_pml_Hi)
-    : m_dive_cleaning(do_pml_dive_cleaning),
+          const amrex::IntVect do_pml_Lo, const amrex::IntVect do_pml_Hi,
+          const warpx::runtime::RuntimeContext* ctx)
+    : m_runtime_context(ctx),
+      m_dive_cleaning(do_pml_dive_cleaning),
       m_divb_cleaning(do_pml_divb_cleaning),
       m_fill_guards_fields(fill_guards_fields),
       m_fill_guards_current(fill_guards_current),
@@ -826,8 +831,7 @@ PML::PML (const int lev, const BoxArray& grid_ba,
 
 #ifdef AMREX_USE_EB
     if (eb_enabled) {
-        auto const& warpx = WarpX::GetInstance();
-        auto const* eb_index_space = warpx.GetEBIndexSpace(lev);
+        auto const* eb_index_space = data().ebIndexSpace(lev);
         pml_field_factory = amrex::makeEBFabFactory(
             eb_index_space,
             *geom,
@@ -936,7 +940,7 @@ PML::PML (const int lev, const BoxArray& grid_ba,
         const RealVect dx{AMREX_D_DECL(geom->CellSize(0), geom->CellSize(1), geom->CellSize(2))};
         // Get the cell-centered box, with guard cells
         BoxArray realspace_ba = ba; // Copy box
-        amrex::Vector<amrex::Real> const v_galilean = WarpX::GetInstance().m_v_galilean;
+        amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
         amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
         realspace_ba.enclosedCells().grow(nge); // cell-centered + guard cells
         spectral_solver_fp = std::make_unique<SpectralSolver>(realspace_ba, dm,
@@ -1081,7 +1085,7 @@ PML::PML (const int lev, const BoxArray& grid_ba,
             const RealVect cdx{AMREX_D_DECL(cgeom->CellSize(0), cgeom->CellSize(1), cgeom->CellSize(2))};
             // Get the cell-centered box, with guard cells
             BoxArray realspace_cba = cba; // Copy box
-            amrex::Vector<amrex::Real> const v_galilean = WarpX::GetInstance().m_v_galilean;
+            amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
             amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
             realspace_cba.enclosedCells().grow(nge); // cell-centered + guard cells
             spectral_solver_cp = std::make_unique<SpectralSolver>(realspace_cba, cdm,
@@ -1455,3 +1459,11 @@ PushPMLPSATDSinglePatch (
     }
 }
 #endif
+
+const warpx::runtime::RuntimeData&
+PML::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}

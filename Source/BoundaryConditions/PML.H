@@ -13,6 +13,8 @@
 
 #include "Utils/WarpXAlgorithmSelection.H"
 
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
+
 #ifdef WARPX_USE_FFT
 #   include "FieldSolver/SpectralSolver/SpectralSolver.H"
 #endif
@@ -154,7 +156,12 @@ public:
          int max_guard_EB, amrex::Real v_sigma_sb,
          ablastr::fields::MultiFabRegister& fields,
          amrex::IntVect do_pml_Lo = amrex::IntVect::TheUnitVector(),
-         amrex::IntVect do_pml_Hi = amrex::IntVect::TheUnitVector());
+         amrex::IntVect do_pml_Hi = amrex::IntVect::TheUnitVector(),
+         const warpx::runtime::RuntimeContext* ctx = nullptr);
+
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
     void ComputePMLFactors (amrex::Real dt);
 

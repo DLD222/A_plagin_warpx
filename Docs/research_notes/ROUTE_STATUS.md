@@ -56,7 +56,8 @@
 | A1.8o | A1 | done | A1.8n | BTDiagnostics 去 GetInstance + BTD 算例 |
 | A1.8p | A1 | done | A1.8o | ProjectionDivCleaner context + 场/几何迁移 |
 | A1.8q | A1 | done | A1.8p | MagnetostaticSolver 主路径去 GetInstance |
-| A1.8 | A1 | pending | A1.8q | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
+| A1.8r | A1 | done | A1.8q | PML context + v_galilean/EB index space 迁移 |
+| A1.8 | A1 | pending | A1.8r | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
 | A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
 | A2.1 | A2 | pending | A1.9a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |

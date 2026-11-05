@@ -1014,12 +1014,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8r",
+   "phase": "A1",
+   "title": "PML context + v_galilean/EB index space 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8q"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/BoundaryConditions/PML.cpp",
+    "Source/Initialization/WarpXInitData.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "PML 只剩 data fallback；test_2d_pml_x_yee 通过",
+   "note": "vGalilean/ebIndexSpace 进 RuntimeData",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8q"
+    "A1.8r"
    ],
    "status": "pending",
    "outputs": [],
