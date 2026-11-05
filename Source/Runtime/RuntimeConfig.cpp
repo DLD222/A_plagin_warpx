@@ -12,51 +12,250 @@
 namespace warpx::runtime
 {
 
+CurrentDepositionAlgo
+RuntimeConfig::current_deposition_algo () const
+{
+    return WarpX::current_deposition_algo;
+}
+
+ChargeDepositionAlgo
+RuntimeConfig::charge_deposition_algo () const
+{
+    return WarpX::charge_deposition_algo;
+}
+
+GatheringAlgo
+RuntimeConfig::field_gathering_algo () const
+{
+    return WarpX::field_gathering_algo;
+}
+
+ParticlePusherAlgo
+RuntimeConfig::particle_pusher_algo () const
+{
+    return WarpX::particle_pusher_algo;
+}
+
+ElectromagneticSolverAlgo
+RuntimeConfig::electromagnetic_solver_id () const
+{
+    return WarpX::electromagnetic_solver_id;
+}
+
+ElectrostaticSolverAlgo
+RuntimeConfig::electrostatic_solver_id () const
+{
+    return WarpX::electrostatic_solver_id;
+}
+
+PoissonSolverAlgo
+RuntimeConfig::poisson_solver_id () const
+{
+    return WarpX::poisson_solver_id;
+}
+
+ablastr::utils::enums::GridType
+RuntimeConfig::grid_type () const
+{
+    return WarpX::grid_type;
+}
+
+int
+RuntimeConfig::ect_conformal_E () const
+{
+    return WarpX::ect_conformal_E;
+}
+
+amrex::Real
+RuntimeConfig::ect_conformal_E_Astab () const
+{
+    return WarpX::ect_conformal_E_Astab;
+}
+
+int
+RuntimeConfig::macroscopic_subpixel () const
+{
+    return WarpX::macroscopic_subpixel;
+}
+
+int
+RuntimeConfig::ect_te_borrowing () const
+{
+    return WarpX::ect_te_borrowing;
+}
+
+const amrex::Array<FieldBoundaryType, AMREX_SPACEDIM>&
+RuntimeConfig::field_boundary_lo () const
+{
+    return WarpX::field_boundary_lo;
+}
+
+const amrex::Array<FieldBoundaryType, AMREX_SPACEDIM>&
+RuntimeConfig::field_boundary_hi () const
+{
+    return WarpX::field_boundary_hi;
+}
+
+const amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM>&
+RuntimeConfig::particle_boundary_lo () const
+{
+    return WarpX::particle_boundary_lo;
+}
+
+const amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM>&
+RuntimeConfig::particle_boundary_hi () const
+{
+    return WarpX::particle_boundary_hi;
+}
+
+ParticleBoundaryType
+RuntimeConfig::eb_particle_boundary () const
+{
+    return WarpX::eb_particle_boundary;
+}
+
+TimeDependencyJ
+RuntimeConfig::time_dependency_J () const
+{
+    return WarpX::time_dependency_J;
+}
+
+TimeDependencyRho
+RuntimeConfig::time_dependency_rho () const
+{
+    return WarpX::time_dependency_rho;
+}
+
+bool
+RuntimeConfig::do_single_precision_comms () const
+{
+    return WarpX::do_single_precision_comms;
+}
+
+bool
+RuntimeConfig::do_shared_mem_charge_deposition () const
+{
+    return WarpX::do_shared_mem_charge_deposition;
+}
+
+bool
+RuntimeConfig::do_shared_mem_current_deposition () const
+{
+    return WarpX::do_shared_mem_current_deposition;
+}
+
+bool
+RuntimeConfig::do_dive_cleaning () const
+{
+    return WarpX::do_dive_cleaning;
+}
+
+bool
+RuntimeConfig::do_divb_cleaning () const
+{
+    return WarpX::do_divb_cleaning;
+}
+
+bool
+RuntimeConfig::use_fdtd_nci_corr () const
+{
+    return WarpX::use_fdtd_nci_corr;
+}
+
+bool
+RuntimeConfig::galerkin_interpolation () const
+{
+    return WarpX::galerkin_interpolation;
+}
+
+bool
+RuntimeConfig::use_filter () const
+{
+    return WarpX::use_filter;
+}
+
+bool
+RuntimeConfig::use_kspace_filter () const
+{
+    return WarpX::use_kspace_filter;
+}
+
+bool
+RuntimeConfig::use_filter_compensation () const
+{
+    return WarpX::use_filter_compensation;
+}
+
+bool
+RuntimeConfig::serialize_initial_conditions () const
+{
+    return WarpX::serialize_initial_conditions;
+}
+
+bool
+RuntimeConfig::compute_max_step_from_btd () const
+{
+    return WarpX::compute_max_step_from_btd;
+}
+
+bool
+RuntimeConfig::do_dynamic_scheduling () const
+{
+    return WarpX::do_dynamic_scheduling;
+}
+
+bool
+RuntimeConfig::refine_plasma () const
+{
+    return WarpX::refine_plasma;
+}
+
+const ablastr::utils::text::IntervalsParser&
+RuntimeConfig::sort_intervals () const
+{
+    return WarpX::sort_intervals;
+}
+
+const amrex::IntVect&
+RuntimeConfig::filter_npass_each_dir () const
+{
+    return WarpX::filter_npass_each_dir;
+}
+
+int
+RuntimeConfig::n_rz_azimuthal_modes () const
+{
+    return WarpX::n_rz_azimuthal_modes;
+}
+
+int
+RuntimeConfig::nox () const
+{
+    return WarpX::nox;
+}
+
+LoadBalanceCostsUpdateAlgo
+RuntimeConfig::load_balance_costs_update_algo () const
+{
+    return WarpX::load_balance_costs_update_algo;
+}
+
+int
+RuntimeConfig::start_moving_window_step () const
+{
+    return WarpX::start_moving_window_step;
+}
+
+int
+RuntimeConfig::end_moving_window_step () const
+{
+    return WarpX::end_moving_window_step;
+}
+
 RuntimeConfig
 RuntimeConfig::FromLegacy ()
 {
-    RuntimeConfig c;
-    c.current_deposition_algo = WarpX::current_deposition_algo;
-    c.charge_deposition_algo = WarpX::charge_deposition_algo;
-    c.field_gathering_algo = WarpX::field_gathering_algo;
-    c.particle_pusher_algo = WarpX::particle_pusher_algo;
-    c.electromagnetic_solver_id = WarpX::electromagnetic_solver_id;
-    c.electrostatic_solver_id = WarpX::electrostatic_solver_id;
-    c.poisson_solver_id = WarpX::poisson_solver_id;
-    c.grid_type = WarpX::grid_type;
-    c.ect_conformal_E = WarpX::ect_conformal_E;
-    c.ect_conformal_E_Astab = WarpX::ect_conformal_E_Astab;
-    c.macroscopic_subpixel = WarpX::macroscopic_subpixel;
-    c.ect_te_borrowing = WarpX::ect_te_borrowing;
-    c.field_boundary_lo = WarpX::field_boundary_lo;
-    c.field_boundary_hi = WarpX::field_boundary_hi;
-    c.particle_boundary_lo = WarpX::particle_boundary_lo;
-    c.particle_boundary_hi = WarpX::particle_boundary_hi;
-    c.eb_particle_boundary = WarpX::eb_particle_boundary;
-    c.time_dependency_J = WarpX::time_dependency_J;
-    c.time_dependency_rho = WarpX::time_dependency_rho;
-    c.do_single_precision_comms = WarpX::do_single_precision_comms;
-    c.do_shared_mem_charge_deposition = WarpX::do_shared_mem_charge_deposition;
-    c.do_shared_mem_current_deposition = WarpX::do_shared_mem_current_deposition;
-    c.do_dive_cleaning = WarpX::do_dive_cleaning;
-    c.do_divb_cleaning = WarpX::do_divb_cleaning;
-    c.use_fdtd_nci_corr = WarpX::use_fdtd_nci_corr;
-    c.galerkin_interpolation = WarpX::galerkin_interpolation;
-    c.use_filter = WarpX::use_filter;
-    c.use_kspace_filter = WarpX::use_kspace_filter;
-    c.use_filter_compensation = WarpX::use_filter_compensation;
-    c.serialize_initial_conditions = WarpX::serialize_initial_conditions;
-    c.compute_max_step_from_btd = WarpX::compute_max_step_from_btd;
-    c.do_dynamic_scheduling = WarpX::do_dynamic_scheduling;
-    c.refine_plasma = WarpX::refine_plasma;
-    c.sort_intervals = WarpX::sort_intervals;
-    c.filter_npass_each_dir = WarpX::filter_npass_each_dir;
-    c.n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
-    c.nox = WarpX::nox;
-    c.load_balance_costs_update_algo = WarpX::load_balance_costs_update_algo;
-    c.start_moving_window_step = WarpX::start_moving_window_step;
-    c.end_moving_window_step = WarpX::end_moving_window_step;
-    return c;
+    return RuntimeConfig{};
 }
 
 } // namespace warpx::runtime

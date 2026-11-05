@@ -9,6 +9,8 @@
 #define WARPX_RUNTIME_RUNTIME_H_
 
 #include "Runtime/FrameState.H"
+
+#include <ablastr/fields/MultiFabRegister.H>
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/Services.H"
@@ -62,6 +64,10 @@ public:
 
     //! Non-owning context view (config/time/frame/services) installed into WarpX.
     [[nodiscard]] const RuntimeContext& context () const;
+
+    //! Live field registry (the authoritative storage; no DataBus copy).
+    [[nodiscard]] ablastr::fields::MultiFabRegister& fields ();
+    [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const;
 
 private:
     bool m_initialized = false;

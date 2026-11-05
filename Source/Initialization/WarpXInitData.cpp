@@ -748,12 +748,12 @@ WarpX::PrintMainPICparameters ()
       psatd_noz_fft = (noz_fft == -1) ? "inf" : std::to_string(noz_fft);
 
       if (dims=="3" ){
-        amrex::Print() << "Spectral order:       | - psatd.nox = " << psatd_nox_fft << "\n";
+        amrex::Print() << "Spectral order:       | - psatd.nox() = " << psatd_nox_fft << "\n";
         amrex::Print() << "                      | - psatd.noy = " << psatd_noy_fft << "\n";
         amrex::Print() << "                      | - psatd.noz = " << psatd_noz_fft << "\n";
       }
       else if (dims=="2" and WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD){
-        amrex::Print() << "Spectral order:       | - psatd.nox = " << psatd_nox_fft << "\n";
+        amrex::Print() << "Spectral order:       | - psatd.nox() = " << psatd_nox_fft << "\n";
         amrex::Print() << "                      | - psatd.noz = " << psatd_noz_fft << "\n";
       }
       else if (dims=="1" and WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD){
@@ -1624,7 +1624,7 @@ void WarpX::InitializeEBGridData (int lev)
                 // without aborting. Refuse mesh refinement until this is implemented.
                 WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                     maxLevel() == 0,
-                    "algo.ect_conformal_E does not support mesh refinement yet: the dual "
+                    "algo.ect_conformal_E() does not support mesh refinement yet: the dual "
                     "geometry is only initialised on the finest level");
             }
 
@@ -1648,7 +1648,7 @@ void WarpX::InitializeEBGridData (int lev)
                     edge_lengths_lev, area_mod);
                 ComputeFaceExtensions();
 
-                // Dual geometry for the conformal E update (see algo.ect_conformal_E).
+                // Dual geometry for the conformal E update (see algo.ect_conformal_E()).
                 // It has to be computed *before* the masks, because the Ey mask uses A_y
                 // (see C_SIDE_FIX_PLAN.md F3).
                 amrex::MultiFab* dual_A_y_lev = nullptr;

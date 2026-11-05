@@ -256,9 +256,9 @@ void ParticleExtrema::ComputeDiags (int step)
             chimax.resize(level_number+1,0.0_rt);
 
             // define variables in preparation for field gathering
-            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes;
-            const int nox = config().nox;
-            const bool galerkin_interpolation = config().galerkin_interpolation;
+            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
+            const int nox = config().nox();
+            const bool galerkin_interpolation = config().galerkin_interpolation();
             const amrex::IntVect ngEB = data().ngEB();
 
             using ablastr::fields::Direction;

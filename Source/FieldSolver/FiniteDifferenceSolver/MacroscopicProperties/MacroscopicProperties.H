@@ -86,7 +86,7 @@ public:
      *  the three of them form one row of the 3x3 tensor. In the isotropic case
      *  they are diagonal (1/eps), so enabling this costs the same as the scalar
      *  path but lets the kernel support anisotropic materials later.
-     *  Allocated only when `algo.macroscopic_subpixel = 1`. */
+     *  Allocated only when `algo.macroscopic_subpixel() = 1`. */
     amrex::MultiFab& geteps_inv_x_mf () {return (*m_eps_inv_x);}
     amrex::MultiFab& geteps_inv_y_mf () {return (*m_eps_inv_y);}
     amrex::MultiFab& geteps_inv_z_mf () {return (*m_eps_inv_z);}

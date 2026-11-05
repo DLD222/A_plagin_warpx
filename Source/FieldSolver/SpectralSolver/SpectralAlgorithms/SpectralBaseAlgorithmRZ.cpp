@@ -47,7 +47,7 @@ SpectralBaseAlgorithmRZ::ComputeSpectralDivE (
         Real const * modified_kz_arr = modified_kz_vec[mfi].dataPtr();
 
         int const nr = bx.length(0);
-        int const modes = field_data.n_rz_azimuthal_modes;
+        int const modes = field_data.n_rz_azimuthal_modes();
         const int n_fields = m_spectral_index.n_fields;
 
         // Loop over indices within one box

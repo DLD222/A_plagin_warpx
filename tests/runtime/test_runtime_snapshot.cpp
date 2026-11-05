@@ -56,48 +56,58 @@ int main (int argc, char* argv[])
     check(runtime.context().config == &runtime.config(), "context.config points at RuntimeConfig");
     check(runtime.context().time == &runtime.time(), "context.time points at TimeState");
     check(runtime.context().frame == &runtime.frame(), "context.frame points at FrameState");
+    check(&runtime.fields() == &WarpX::GetInstance().GetMultiFabRegister(),
+          "Runtime::fields() is the authoritative MultiFabRegister (no DataBus copy)");
 
     runtime.initialize();
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 
+    // RuntimeConfig must be a live view, not a value snapshot (audit D4).
+    {
+        const int nox_before = WarpX::nox;
+        WarpX::nox = nox_before + 1;
+        check_eq(runtime.config().nox(), nox_before + 1, "RuntimeConfig is live (nox)");
+        WarpX::nox = nox_before;
+    }
+
     const auto& c = runtime.config();
-    check_eq(c.current_deposition_algo, WarpX::current_deposition_algo, "current_deposition_algo");
-    check_eq(c.charge_deposition_algo, WarpX::charge_deposition_algo, "charge_deposition_algo");
-    check_eq(c.field_gathering_algo, WarpX::field_gathering_algo, "field_gathering_algo");
-    check_eq(c.particle_pusher_algo, WarpX::particle_pusher_algo, "particle_pusher_algo");
-    check_eq(c.electromagnetic_solver_id, WarpX::electromagnetic_solver_id, "electromagnetic_solver_id");
-    check_eq(c.electrostatic_solver_id, WarpX::electrostatic_solver_id, "electrostatic_solver_id");
-    check_eq(c.poisson_solver_id, WarpX::poisson_solver_id, "poisson_solver_id");
-    check_eq(c.grid_type, WarpX::grid_type, "grid_type");
-    check_eq(c.ect_conformal_E, WarpX::ect_conformal_E, "ect_conformal_E");
-    check_real(c.ect_conformal_E_Astab, WarpX::ect_conformal_E_Astab, "ect_conformal_E_Astab");
-    check_eq(c.macroscopic_subpixel, WarpX::macroscopic_subpixel, "macroscopic_subpixel");
-    check_eq(c.ect_te_borrowing, WarpX::ect_te_borrowing, "ect_te_borrowing");
-    check_eq(c.field_boundary_lo, WarpX::field_boundary_lo, "field_boundary_lo");
-    check_eq(c.field_boundary_hi, WarpX::field_boundary_hi, "field_boundary_hi");
-    check_eq(c.particle_boundary_lo, WarpX::particle_boundary_lo, "particle_boundary_lo");
-    check_eq(c.particle_boundary_hi, WarpX::particle_boundary_hi, "particle_boundary_hi");
-    check_eq(c.eb_particle_boundary, WarpX::eb_particle_boundary, "eb_particle_boundary");
-    check_eq(c.time_dependency_J, WarpX::time_dependency_J, "time_dependency_J");
-    check_eq(c.time_dependency_rho, WarpX::time_dependency_rho, "time_dependency_rho");
-    check_eq(c.do_single_precision_comms, WarpX::do_single_precision_comms, "do_single_precision_comms");
-    check_eq(c.do_shared_mem_charge_deposition, WarpX::do_shared_mem_charge_deposition, "do_shared_mem_charge_deposition");
-    check_eq(c.do_shared_mem_current_deposition, WarpX::do_shared_mem_current_deposition, "do_shared_mem_current_deposition");
-    check_eq(c.do_dive_cleaning, WarpX::do_dive_cleaning, "do_dive_cleaning");
-    check_eq(c.do_divb_cleaning, WarpX::do_divb_cleaning, "do_divb_cleaning");
-    check_eq(c.use_fdtd_nci_corr, WarpX::use_fdtd_nci_corr, "use_fdtd_nci_corr");
-    check_eq(c.galerkin_interpolation, WarpX::galerkin_interpolation, "galerkin_interpolation");
-    check_eq(c.use_filter, WarpX::use_filter, "use_filter");
-    check_eq(c.use_kspace_filter, WarpX::use_kspace_filter, "use_kspace_filter");
-    check_eq(c.use_filter_compensation, WarpX::use_filter_compensation, "use_filter_compensation");
-    check_eq(c.serialize_initial_conditions, WarpX::serialize_initial_conditions, "serialize_initial_conditions");
-    check_eq(c.compute_max_step_from_btd, WarpX::compute_max_step_from_btd, "compute_max_step_from_btd");
-    check_eq(c.do_dynamic_scheduling, WarpX::do_dynamic_scheduling, "do_dynamic_scheduling");
-    check_eq(c.refine_plasma, WarpX::refine_plasma, "refine_plasma");
-    check_eq(c.filter_npass_each_dir, WarpX::filter_npass_each_dir, "filter_npass_each_dir");
-    check_eq(c.load_balance_costs_update_algo, WarpX::load_balance_costs_update_algo, "load_balance_costs_update_algo");
-    check_eq(c.start_moving_window_step, WarpX::start_moving_window_step, "start_moving_window_step");
-    check_eq(c.end_moving_window_step, WarpX::end_moving_window_step, "end_moving_window_step");
+    check_eq(c.current_deposition_algo(), WarpX::current_deposition_algo, "current_deposition_algo");
+    check_eq(c.charge_deposition_algo(), WarpX::charge_deposition_algo, "charge_deposition_algo");
+    check_eq(c.field_gathering_algo(), WarpX::field_gathering_algo, "field_gathering_algo");
+    check_eq(c.particle_pusher_algo(), WarpX::particle_pusher_algo, "particle_pusher_algo");
+    check_eq(c.electromagnetic_solver_id(), WarpX::electromagnetic_solver_id, "electromagnetic_solver_id");
+    check_eq(c.electrostatic_solver_id(), WarpX::electrostatic_solver_id, "electrostatic_solver_id");
+    check_eq(c.poisson_solver_id(), WarpX::poisson_solver_id, "poisson_solver_id");
+    check_eq(c.grid_type(), WarpX::grid_type, "grid_type");
+    check_eq(c.ect_conformal_E(), WarpX::ect_conformal_E, "ect_conformal_E");
+    check_real(c.ect_conformal_E_Astab(), WarpX::ect_conformal_E_Astab, "ect_conformal_E_Astab");
+    check_eq(c.macroscopic_subpixel(), WarpX::macroscopic_subpixel, "macroscopic_subpixel");
+    check_eq(c.ect_te_borrowing(), WarpX::ect_te_borrowing, "ect_te_borrowing");
+    check_eq(c.field_boundary_lo(), WarpX::field_boundary_lo, "field_boundary_lo");
+    check_eq(c.field_boundary_hi(), WarpX::field_boundary_hi, "field_boundary_hi");
+    check_eq(c.particle_boundary_lo(), WarpX::particle_boundary_lo, "particle_boundary_lo");
+    check_eq(c.particle_boundary_hi(), WarpX::particle_boundary_hi, "particle_boundary_hi");
+    check_eq(c.eb_particle_boundary(), WarpX::eb_particle_boundary, "eb_particle_boundary");
+    check_eq(c.time_dependency_J(), WarpX::time_dependency_J, "time_dependency_J");
+    check_eq(c.time_dependency_rho(), WarpX::time_dependency_rho, "time_dependency_rho");
+    check_eq(c.do_single_precision_comms(), WarpX::do_single_precision_comms, "do_single_precision_comms");
+    check_eq(c.do_shared_mem_charge_deposition(), WarpX::do_shared_mem_charge_deposition, "do_shared_mem_charge_deposition");
+    check_eq(c.do_shared_mem_current_deposition(), WarpX::do_shared_mem_current_deposition, "do_shared_mem_current_deposition");
+    check_eq(c.do_dive_cleaning(), WarpX::do_dive_cleaning, "do_dive_cleaning");
+    check_eq(c.do_divb_cleaning(), WarpX::do_divb_cleaning, "do_divb_cleaning");
+    check_eq(c.use_fdtd_nci_corr(), WarpX::use_fdtd_nci_corr, "use_fdtd_nci_corr");
+    check_eq(c.galerkin_interpolation(), WarpX::galerkin_interpolation, "galerkin_interpolation");
+    check_eq(c.use_filter(), WarpX::use_filter, "use_filter");
+    check_eq(c.use_kspace_filter(), WarpX::use_kspace_filter, "use_kspace_filter");
+    check_eq(c.use_filter_compensation(), WarpX::use_filter_compensation, "use_filter_compensation");
+    check_eq(c.serialize_initial_conditions(), WarpX::serialize_initial_conditions, "serialize_initial_conditions");
+    check_eq(c.compute_max_step_from_btd(), WarpX::compute_max_step_from_btd, "compute_max_step_from_btd");
+    check_eq(c.do_dynamic_scheduling(), WarpX::do_dynamic_scheduling, "do_dynamic_scheduling");
+    check_eq(c.refine_plasma(), WarpX::refine_plasma, "refine_plasma");
+    check_eq(c.filter_npass_each_dir(), WarpX::filter_npass_each_dir, "filter_npass_each_dir");
+    check_eq(c.load_balance_costs_update_algo(), WarpX::load_balance_costs_update_algo, "load_balance_costs_update_algo");
+    check_eq(c.start_moving_window_step(), WarpX::start_moving_window_step, "start_moving_window_step");
+    check_eq(c.end_moving_window_step(), WarpX::end_moving_window_step, "end_moving_window_step");
 
     const auto& t = runtime.time();
     check_eq(t.step, WarpX::GetInstance().getistep(0), "time.step");

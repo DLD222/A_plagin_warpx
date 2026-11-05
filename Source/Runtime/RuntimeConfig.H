@@ -17,79 +17,64 @@
 #include <AMReX_IntVect.H>
 #include <AMReX_REAL.H>
 
-/**
- * \brief Read-only snapshot of the algorithm configuration.
- *
- * This is the A1 replacement target for the 40 config `WarpX::static` members.
- * It is populated once, after input parsing, and must not be mutated afterwards.
- * Plugins should receive `const RuntimeConfig&`, never `WarpX::`.
- */
 namespace warpx::runtime
 {
 
-struct RuntimeConfig
+/**
+ * \brief Live, read-only view of the algorithm configuration.
+ *
+ * This replaces the former value snapshot (audit D4): every getter reads the
+ * current WarpX value, so `dt`, `finestLevel`, moving-window and filter state
+ * cannot go stale. It is not a plugin data store; storage remains in WarpX/
+ * MultiFabRegister.
+ */
+class RuntimeConfig
 {
-    // deposition / gathering / pusher
-    CurrentDepositionAlgo current_deposition_algo = CurrentDepositionAlgo::Default;
-    ChargeDepositionAlgo charge_deposition_algo = ChargeDepositionAlgo::Default;
-    GatheringAlgo field_gathering_algo = GatheringAlgo::Default;
-    ParticlePusherAlgo particle_pusher_algo = ParticlePusherAlgo::Default;
+public:
+    RuntimeConfig () = default;
 
-    // field solver selection
-    ElectromagneticSolverAlgo electromagnetic_solver_id = ElectromagneticSolverAlgo::Default;
-    ElectrostaticSolverAlgo electrostatic_solver_id = ElectrostaticSolverAlgo::Default;
-    PoissonSolverAlgo poisson_solver_id = PoissonSolverAlgo::Default;
-    ablastr::utils::enums::GridType grid_type = ablastr::utils::enums::GridType::Default;
+    [[nodiscard]] CurrentDepositionAlgo current_deposition_algo () const;
+    [[nodiscard]] ChargeDepositionAlgo charge_deposition_algo () const;
+    [[nodiscard]] GatheringAlgo field_gathering_algo () const;
+    [[nodiscard]] ParticlePusherAlgo particle_pusher_algo () const;
+    [[nodiscard]] ElectromagneticSolverAlgo electromagnetic_solver_id () const;
+    [[nodiscard]] ElectrostaticSolverAlgo electrostatic_solver_id () const;
+    [[nodiscard]] PoissonSolverAlgo poisson_solver_id () const;
+    [[nodiscard]] ablastr::utils::enums::GridType grid_type () const;
+    [[nodiscard]] int ect_conformal_E () const;
+    [[nodiscard]] amrex::Real ect_conformal_E_Astab () const;
+    [[nodiscard]] int macroscopic_subpixel () const;
+    [[nodiscard]] int ect_te_borrowing () const;
+    [[nodiscard]] const amrex::Array<FieldBoundaryType, AMREX_SPACEDIM>& field_boundary_lo () const;
+    [[nodiscard]] const amrex::Array<FieldBoundaryType, AMREX_SPACEDIM>& field_boundary_hi () const;
+    [[nodiscard]] const amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM>& particle_boundary_lo () const;
+    [[nodiscard]] const amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM>& particle_boundary_hi () const;
+    [[nodiscard]] ParticleBoundaryType eb_particle_boundary () const;
+    [[nodiscard]] TimeDependencyJ time_dependency_J () const;
+    [[nodiscard]] TimeDependencyRho time_dependency_rho () const;
+    [[nodiscard]] bool do_single_precision_comms () const;
+    [[nodiscard]] bool do_shared_mem_charge_deposition () const;
+    [[nodiscard]] bool do_shared_mem_current_deposition () const;
+    [[nodiscard]] bool do_dive_cleaning () const;
+    [[nodiscard]] bool do_divb_cleaning () const;
+    [[nodiscard]] bool use_fdtd_nci_corr () const;
+    [[nodiscard]] bool galerkin_interpolation () const;
+    [[nodiscard]] bool use_filter () const;
+    [[nodiscard]] bool use_kspace_filter () const;
+    [[nodiscard]] bool use_filter_compensation () const;
+    [[nodiscard]] bool serialize_initial_conditions () const;
+    [[nodiscard]] bool compute_max_step_from_btd () const;
+    [[nodiscard]] bool do_dynamic_scheduling () const;
+    [[nodiscard]] bool refine_plasma () const;
+    [[nodiscard]] const ablastr::utils::text::IntervalsParser& sort_intervals () const;
+    [[nodiscard]] const amrex::IntVect& filter_npass_each_dir () const;
+    [[nodiscard]] int n_rz_azimuthal_modes () const;
+    [[nodiscard]] int nox () const;
+    [[nodiscard]] LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo () const;
+    [[nodiscard]] int start_moving_window_step () const;
+    [[nodiscard]] int end_moving_window_step () const;
 
-    // macroscopic / EB
-    int ect_conformal_E = 0;
-    amrex::Real ect_conformal_E_Astab = 0.5;
-    int macroscopic_subpixel = 0;
-    int ect_te_borrowing = 1;
-
-    // boundaries
-    amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> field_boundary_lo{};
-    amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> field_boundary_hi{};
-    amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM> particle_boundary_lo{};
-    amrex::Array<ParticleBoundaryType, AMREX_SPACEDIM> particle_boundary_hi{};
-    ParticleBoundaryType eb_particle_boundary = ParticleBoundaryType::Absorbing;
-
-    // PSATD source time dependency
-    TimeDependencyJ time_dependency_J = TimeDependencyJ::Default;
-    TimeDependencyRho time_dependency_rho = TimeDependencyRho::Default;
-
-    // communication / deposition
-    bool do_single_precision_comms = false;
-    bool do_shared_mem_charge_deposition = false;
-    bool do_shared_mem_current_deposition = false;
-
-    // cleaning / numerics
-    bool do_dive_cleaning = false;
-    bool do_divb_cleaning = false;
-    bool use_fdtd_nci_corr = false;
-    bool galerkin_interpolation = true;
-    bool use_filter = false;
-    bool use_kspace_filter = false;
-    bool use_filter_compensation = false;
-    bool serialize_initial_conditions = false;
-    bool compute_max_step_from_btd = false;
-    bool do_dynamic_scheduling = false;
-    bool refine_plasma = false;
-    ablastr::utils::text::IntervalsParser sort_intervals{};
-    amrex::IntVect filter_npass_each_dir{AMREX_D_DECL(1, 1, 1)};
-
-    // low-level numerics (read by diagnostics)
-    int n_rz_azimuthal_modes = 0;
-    int nox = 3;
-
-    // load balance
-    LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo = LoadBalanceCostsUpdateAlgo::Default;
-
-    // moving window (input side; runtime side lives in FrameState)
-    int start_moving_window_step = -1;
-    int end_moving_window_step = -1;
-
-    //! Snapshot from the legacy WarpX statics (transitional).
+    //! Compatibility factory; the object is stateless/live.
     [[nodiscard]] static RuntimeConfig FromLegacy ();
 };
 

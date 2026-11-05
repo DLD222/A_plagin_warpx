@@ -398,8 +398,8 @@ void FieldProbe::ComputeDiags (int step)
         amrex::Real move_dist = 0.0;
         bool const update_particles_moving_window =
             do_moving_window_FP &&
-            step > config().start_moving_window_step &&
-            step <= config().end_moving_window_step;
+            step > config().start_moving_window_step() &&
+            step <= config().end_moving_window_step();
         if (update_particles_moving_window)
         {
             const int step_diff = step - m_last_compute_step;
@@ -529,7 +529,7 @@ void FieldProbe::ComputeDiags (int step)
                 const Dim3 lo = lbound(box);
 
                 // Temporarily defining modes and interp outside ParallelFor to avoid GPU compilation errors.
-                const int temp_modes = config().n_rz_azimuthal_modes;
+                const int temp_modes = config().n_rz_azimuthal_modes();
                 const int temp_interp_order = interp_order;
                 const bool temp_field_probe_integrate = m_field_probe_integrate;
 

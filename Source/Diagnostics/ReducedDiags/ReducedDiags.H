@@ -12,9 +12,10 @@
 
 #include <AMReX_REAL.H>
 
+#include <memory>
 #include <string>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; struct RuntimeConfig; struct FrameState; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; struct RuntimeConfig; struct FrameState; }
 #include <vector>
 
 /**
@@ -63,6 +64,7 @@ protected:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
 
 public:
 
@@ -75,7 +77,7 @@ public:
     /**
      * Virtual destructor for polymorphism
      */
-    virtual ~ReducedDiags () = default;
+    virtual ~ReducedDiags ();
 
     // Default move and copy operations
     ReducedDiags(const ReducedDiags&) = default;

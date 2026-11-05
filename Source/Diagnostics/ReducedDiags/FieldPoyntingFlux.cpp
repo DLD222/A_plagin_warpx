@@ -130,7 +130,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
 
     // RZ coordinate only working with one mode
 #if defined(WARPX_DIM_RZ)
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().n_rz_azimuthal_modes == 1,
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().n_rz_azimuthal_modes() == 1,
         "FieldPoyntingFlux reduced diagnostics only implemented in RZ geometry for one mode");
 #endif
 
@@ -168,7 +168,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
 
         int const face_dir = face().coordDir();
 
-        if (face().isHigh() && config().field_boundary_hi[face_dir] == FieldBoundaryType::Periodic) {
+        if (face().isHigh() && config().field_boundary_hi()[face_dir] == FieldBoundaryType::Periodic) {
             // For upper periodic boundaries, copy the lower value instead of regenerating it.
             int const iu = int(face());
             int const il = int(face().flip());
@@ -255,8 +255,8 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
             // Compute E x B
             // On GPU, reduce_ops doesn't work with empty boxes.
             if (box.ok()) {
-                if (config().grid_type == ablastr::utils::enums::GridType::Staggered ||
-                    config().grid_type == ablastr::utils::enums::GridType::Hybrid) {
+                if (config().grid_type() == ablastr::utils::enums::GridType::Staggered ||
+                    config().grid_type() == ablastr::utils::enums::GridType::Hybrid) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingStaggered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
@@ -267,7 +267,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
                         flux += Poynting::Kernel<2, PoyntingStaggered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
                 }
-                else if (config().grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_nodal()) {
+                else if (config().grid_type() == ablastr::utils::enums::GridType::Collocated && Ex.is_nodal()) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingNodal>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
@@ -278,7 +278,7 @@ void FieldPoyntingFlux::ComputePoyntingFlux (amrex::Real dt)
                         flux += Poynting::Kernel<2, PoyntingNodal>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }
                 }
-                else if (config().grid_type == ablastr::utils::enums::GridType::Collocated && Ex.is_cell_centered()) {
+                else if (config().grid_type() == ablastr::utils::enums::GridType::Collocated && Ex.is_cell_centered()) {
                     if (normal_dir == 0) {
                         flux += Poynting::Kernel<0, PoyntingCellCentered>(box, Ex_arr, Ey_arr, Ez_arr, Bx_arr, By_arr, Bz_arr, area_factor);
                     }

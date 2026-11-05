@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **45 个可执行任务**，每个任务带依赖、产出、验收和门禁。
+> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **50 个可执行任务**，每个任务带依赖、产出、验收和门禁。
 > 任务图：`Tools/automation/route_tasks.json`；运行器：`Tools/automation/route_tasks.py`；门禁：`Tools/automation/gates/`。
 
 ---
@@ -47,13 +47,13 @@
 
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
-| A0 审计 | 5 | 5 |
-| A1 去单例 | 16 | 10（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram） |
+| A0 审计 + 对齐层 | 8 | 7（A0.6 DataBus schema 仍 pending） |
+| A1 去单例 | 17 | 10（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |
 | A4 状态 schema | 5 | 0 |
 | A5 调度器/插件 | 6 | 0 |
-| A6 动态 regrid | 4 | 0 |
+| A6 动态 regrid | 5 | 0（新增 A6a 基础设施） |
 
 ---
 

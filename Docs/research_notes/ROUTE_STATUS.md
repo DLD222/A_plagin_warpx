@@ -10,6 +10,9 @@
 | A0.2 | A0 | done | A0.1 | 12 个子系统生命周期矩阵 |
 | A0.3 | A0 | done | A0.1 | 66 个 static 的引用清单与迁移批次 |
 | A0.4 | A0 | done | A0.1,A0.2 | 第二遍核验：PSATD restart / RemakeLevel / 诊断时序 / callback / EB |
+| A0.6a | A0 | done | A0.4 | RuntimeConfig 改实时 getter；Runtime::fields() 复用 MultiFabRegister；去 Legacy 单例 |
+| A0.6 | A0 | pending | A0.6a | 统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4） |
+| A0.7 | A0 | done | A0.4 | Python 18 回调 → StagePoint 子位点表（D2） |
 | A0.5 | A0 | done | A0.1,A0.2,A0.3,A0.4 | A0 收口报告 |
 | A1.0 | A1 | done | A0.5 | Runtime facade + main.cpp 切换 |
 | A1.1 | A1 | done | A1.0 | RuntimeConfig（只读配置）类型 |
@@ -21,13 +24,14 @@
 | A1.4c | A1 | done | A1.4b | Batch C2：FieldPoyntingFlux + FieldReduction 去 GetInstance |
 | A1.4d | A1 | done | A1.4c | Batch C3：粒子统计诊断（Number/Energy/Momentum/RhoMaximum/LB efficiency） |
 | A1.4e | A1 | done | A1.4d | Batch C4：FieldProbe + ParticleExtrema + 直方图 |
-| A1.4 | A1 | pending | A1.4e | Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts） |
+| A1.4 | A1 | pending | A0.6,A0.7 | Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts） |
 | A1.5 | A1 | pending | A1.4 | Batch D：FullDiagnostics/FlushFormat 去 GetInstance |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
 | A1.8 | A1 | pending | A1.5,A1.7 | 移除 WarpX::m_instance 与剩余 GetInstance |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
-| A2.1 | A2 | pending | A1.9 | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
+| A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
+| A2.1 | A2 | pending | A1.9a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
 | A2.2 | A2 | pending | A2.1 | ClearLevel 完整化 |
 | A2.3 | A2 | pending | A2.1 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
 | A2.4 | A2 | pending | A2.1 | AllocLevelData schema 化 |
@@ -47,10 +51,11 @@
 | A5.4 | A5 | pending | A5.3 | 外挂插件示例（1 个 .cpp） |
 | A5.5 | A5 | pending | A5.3 | 运行期 .so 加载（可选） |
 | A5.6 | A5 | pending | A5.4 | A5 回归门（A/B + 外挂） |
-| A6.1 | A6 | pending | A5.6 | 动态 regrid 事务（AmrCore::regrid） |
+| A6a | A6 | pending | A5.6 | 动态 regrid 基础设施（MakeNewLevelFromCoarse + AmrCore::regrid） |
+| A6.1 | A6 | pending | A6a | 动态 regrid 事务（AmrCore::regrid） |
 | A6.2 | A6 | pending | A6.1 | 通用 RemakeLevel（任意 BoxArray） |
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.4` — Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts）
+**Next:** `A0.6` — 统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4）
 

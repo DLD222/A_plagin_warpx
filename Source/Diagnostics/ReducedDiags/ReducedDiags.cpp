@@ -12,6 +12,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
+#include "WarpX.H"
 
 #include "WarpX.H"
 #include "Utils/Parser/ParserUtils.H"
@@ -162,13 +163,18 @@ void ReducedDiags::WriteToFile (int step) const
 }
 // end ReducedDiags::WriteToFile
 
+ReducedDiags::~ReducedDiags () = default;
+
 const warpx::runtime::RuntimeData&
 ReducedDiags::data () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
         return *m_runtime_context->data;
     }
-    return warpx::runtime::WarpXRuntimeData::Legacy();
+    if (!m_legacy_data) {
+        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
+    }
+    return *m_legacy_data;
 }
 
 const warpx::runtime::RuntimeConfig&

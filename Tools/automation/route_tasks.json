@@ -95,6 +95,67 @@
    "note": ""
   },
   {
+   "id": "A0.6a",
+   "phase": "A0",
+   "title": "RuntimeConfig 改实时 getter；Runtime::fields() 复用 MultiFabRegister；去 Legacy 单例",
+   "kind": "refactor",
+   "depends": [
+    "A0.4"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeConfig.H",
+    "Source/Runtime/RuntimeConfig.cpp",
+    "Source/Runtime/Runtime.H",
+    "Source/Diagnostics/ReducedDiags/ReducedDiags.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "config 无字段快照；nox 改动立即可见；fields() 指针等于 WarpX 的 register；无 Legacy static",
+   "note": "审计 D1/D4 的第一刀",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+  },
+  {
+   "id": "A0.6",
+   "phase": "A0",
+   "title": "统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4）",
+   "kind": "refactor",
+   "depends": [
+    "A0.6a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeConfig.H",
+    "Source/Runtime/RuntimeData.H"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Runtime 持有 MultiFabRegister 引用；无值快照；alias 不物化",
+   "note": "审计 D1/D4 硬阻塞",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+  },
+  {
+   "id": "A0.7",
+   "phase": "A0",
+   "title": "Python 18 回调 → StagePoint 子位点表（D2）",
+   "kind": "docs",
+   "depends": [
+    "A0.4"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/STAGE_POINTS.md"
+   ],
+   "effort_days": 1.5,
+   "gate": "fast",
+   "automation_command": null,
+   "acceptance": "18 个回调逐个映射；HandlerSpec 草案含 sub/priority",
+   "note": "审计 D2 硬阻塞",
+   "verify_command": null
+  },
+  {
    "id": "A0.5",
    "phase": "A0",
    "title": "A0 收口报告",
@@ -324,7 +385,8 @@
    "title": "Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts）",
    "kind": "refactor",
    "depends": [
-    "A1.4e"
+    "A0.6",
+    "A0.7"
    ],
    "status": "pending",
    "outputs": [],
@@ -416,12 +478,31 @@
    "note": ""
   },
   {
+   "id": "A1.9a",
+   "phase": "A1",
+   "title": "20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8）",
+   "kind": "refactor",
+   "depends": [
+    "A1.9"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/CapabilitySet.H"
+   ],
+   "effort_days": 5.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "每个 enum 归入模板/注册表/capability 三类；构造期校验",
+   "note": "审计 D6/D8",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A1.9"
+    "A1.9a"
    ],
    "status": "pending",
    "outputs": [
@@ -746,12 +827,29 @@
    "note": ""
   },
   {
+   "id": "A6a",
+   "phase": "A6",
+   "title": "动态 regrid 基础设施（MakeNewLevelFromCoarse + AmrCore::regrid）",
+   "kind": "refactor",
+   "depends": [
+    "A5.6"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 10.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "新 level 创建/销毁；非 abort",
+   "note": "审计 D5：新增能力，不是迁移保真",
+   "verify_command": null
+  },
+  {
    "id": "A6.1",
    "phase": "A6",
    "title": "动态 regrid 事务（AmrCore::regrid）",
    "kind": "refactor",
    "depends": [
-    "A5.6"
+    "A6a"
    ],
    "status": "pending",
    "outputs": [],

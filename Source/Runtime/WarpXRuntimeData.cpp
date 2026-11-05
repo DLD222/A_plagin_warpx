@@ -14,12 +14,6 @@
 namespace warpx::runtime
 {
 
-WarpXRuntimeData&
-WarpXRuntimeData::Legacy ()
-{
-    static WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
-}
 
 ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () { return m_warpx.GetMultiFabRegister(); }
 const ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () const { return m_warpx.GetMultiFabRegister(); }

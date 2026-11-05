@@ -116,6 +116,18 @@ Runtime::context () const
     return m_context;
 }
 
+ablastr::fields::MultiFabRegister&
+Runtime::fields ()
+{
+    return WarpX::GetInstance().GetMultiFabRegister();
+}
+
+const ablastr::fields::MultiFabRegister&
+Runtime::fields () const
+{
+    return WarpX::GetInstance().GetMultiFabRegister();
+}
+
 void
 Runtime::sync_config ()
 {

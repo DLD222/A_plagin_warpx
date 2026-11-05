@@ -21,9 +21,6 @@ class WarpXRuntimeData final : public RuntimeData
 public:
     explicit WarpXRuntimeData (WarpX& warpx) : m_warpx(warpx) {}
 
-    //! Legacy fallback (WarpX singleton); used when no RuntimeContext is installed.
-    static WarpXRuntimeData& Legacy ();
-
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override;
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
     [[nodiscard]] amrex::AmrCore& amrCore () const override;
