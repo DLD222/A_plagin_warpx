@@ -27,6 +27,7 @@
 
 namespace amrex { class AmrCore; class EBFArrayBoxFactory; }
 
+class NCIGodfreyFilter;
 class MultiParticleContainer;
 class MultiFluidContainer;
 
@@ -71,6 +72,10 @@ public:
     [[nodiscard]] virtual amrex::IntVect ngDeposRho () const = 0;
     [[nodiscard]] virtual amrex::IntVect ngDeposJ () const = 0;
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
+    nciGodfreyFilterExEyBz () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
+    nciGodfreyFilterBxByEz () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect numProcs () const = 0;
     [[nodiscard]] virtual amrex::IntVect maxGridSize (int lev) const = 0;

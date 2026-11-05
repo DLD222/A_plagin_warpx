@@ -42,6 +42,8 @@ amrex::IntVect WarpXRuntimeData::ngEB () const { return m_warpx.getngEB(); }
 amrex::IntVect WarpXRuntimeData::ngDeposRho () const { return m_warpx.get_ng_depos_rho(); }
 amrex::IntVect WarpXRuntimeData::ngDeposJ () const { return m_warpx.get_ng_depos_J(); }
 bool WarpXRuntimeData::useVerboncoeurAxisCorrection () const { return m_warpx.UseVerboncoeurAxisCorrection(); }
+const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return m_warpx.nci_godfrey_filter_exeybz; }
+const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return m_warpx.nci_godfrey_filter_bxbyez; }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return m_warpx.blockingFactor(lev); }
 amrex::IntVect WarpXRuntimeData::numProcs () const { return m_warpx.get_numprocs(); }
 amrex::IntVect WarpXRuntimeData::maxGridSize (int lev) const { return m_warpx.maxGridSize(lev); }

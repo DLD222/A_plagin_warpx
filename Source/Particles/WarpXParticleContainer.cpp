@@ -152,7 +152,7 @@ WarpXParticleContainer::~WarpXParticleContainer () = default;
 
 WarpXParticleContainer::WarpXParticleContainer (AmrCore* amr_core, int ispecies, const std::string& name)
     : amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(amr_core->GetParGDB())
-    , species_id(ispecies), species_name(name)
+    , species_id(ispecies), species_name(name), m_amr_core(amr_core)
 {
     if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
         m_runtime_context = w->GetRuntimeContext();

@@ -232,6 +232,7 @@ public:
     [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
     [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const { return m_runtime_context; }
+    [[nodiscard]] amrex::AmrCore* amrCore () const { return m_amr_core; }
     ~WarpXParticleContainer() override;
 
     // Move and copy operations
@@ -808,6 +809,7 @@ public:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    amrex::AmrCore* m_amr_core = nullptr;
     mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
     void particlePostLocate(ParticleType& p, const amrex::ParticleLocData& pld, int lev) override;
 

@@ -45,6 +45,7 @@
 #   include "EmbeddedBoundary/ParticleScraper.H"
 #endif
 #include "Runtime/FrameState.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
@@ -387,25 +388,25 @@ PhysicalParticleContainer::AllocData ()
     if (m_do_temperature_deposition) {
         using ablastr::fields::Direction;
 
-        auto& warpx = WarpX::GetInstance();
         ablastr::fields::MultiLevelVectorField J_vf =
-            warpx.m_fields.get_mr_levels_alldirs(warpx::fields::FieldType::current_fp, warpx.finestLevel());
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+                .get_mr_levels_alldirs(warpx::fields::FieldType::current_fp, data().finestLevel());
 
         const std::string T_field_name = "T_" + species_name;
 
-        for (int lev = 0; lev <= warpx.finestLevel(); ++lev) {
+        for (int lev = 0; lev <= data().finestLevel(); ++lev) {
             for (int idir = 0; idir < 3; ++idir) {
                 amrex::BoxArray const& ba = J_vf[lev][Direction{idir}]->boxArray();
                 amrex::DistributionMapping const& dm = J_vf[lev][Direction{idir}]->DistributionMap();
                 amrex::IntVect const& ng = J_vf[lev][Direction{idir}]->nGrowVect();
 
-                warpx.m_fields.alloc_init(T_field_name, Direction{idir},
-                    lev, ba, dm, WarpX::ncomps, ng, 0.0_rt);
+                const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(T_field_name, Direction{idir},
+                    lev, ba, dm, config().ncomps(), ng, 0.0_rt);
             }
         }
 
         const ablastr::fields::MultiLevelVectorField T_vf =
-            warpx.m_fields.get_mr_levels_alldirs(T_field_name, warpx.finestLevel());
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_mr_levels_alldirs(T_field_name, data().finestLevel());
 
         // Allocate Accumulation Arrays
         local_temperature_arrays = std::make_unique<warpx::particles::deposition::VarianceAccumulationBuffer>(
@@ -964,8 +965,8 @@ PhysicalParticleContainer::applyNCIFilter (
 {
 
     // Get instances of NCI Godfrey filters
-    const auto& nci_godfrey_filter_exeybz = WarpX::GetInstance().nci_godfrey_filter_exeybz;
-    const auto& nci_godfrey_filter_bxbyez = WarpX::GetInstance().nci_godfrey_filter_bxbyez;
+    const auto& nci_godfrey_filter_exeybz = data().nciGodfreyFilterExEyBz();
+    const auto& nci_godfrey_filter_bxbyez = data().nciGodfreyFilterBxByEz();
 
 #if defined(WARPX_DIM_1D_Z)
     const Box& tbox = amrex::grow(box, static_cast<int>(config().noz()));
@@ -1025,7 +1026,7 @@ PhysicalParticleContainer::applyNCIFilter (
 void
 PhysicalParticleContainer::SplitParticles (int lev)
 {
-    PhysicalParticleContainer pctmp_split(&WarpX::GetInstance());
+    PhysicalParticleContainer pctmp_split(amrCore());
     RealVector psplit_x, psplit_y, psplit_z, psplit_w;
     RealVector psplit_ux, psplit_uy, psplit_uz;
     long np_split_to_add = 0;
@@ -1700,7 +1701,7 @@ PhysicalParticleContainer::InitIonizationModule ()
     constexpr Real UH = utils::physics::table_ionization_energies[0];
     const Real l_eff = std::sqrt(UH/h_ionization_energies[0]) - 1._rt;
 
-    const Real dt = WarpX::GetInstance().getdt(0);
+    const Real dt = data().dt(0);
 
     ionization_energies.resize(ion_atomic_number);
     adk_power.resize(ion_atomic_number);
@@ -1829,7 +1830,7 @@ PhysicalParticleContainer::findRefinedInjectionBox (amrex::Box& a_fine_injection
     static bool refine_injection = false;
     static Box fine_injection_box;
     static amrex::IntVect rrfac(AMREX_D_DECL(1,1,1));
-    if (!refine_injection and WarpX::moving_window_active(WarpX::GetInstance().getistep(0)+1) and WarpX::refine_plasma and do_continuous_injection and numLevels() == 2) {
+    if (!refine_injection and host().movingWindowActive(data().istep(0)+1) and config().refine_plasma() and do_continuous_injection and numLevels() == 2) {
         refine_injection = true;
         fine_injection_box = ParticleBoxArray(1).minimalBox();
         fine_injection_box.setSmall(frame().moving_window_dir, std::numeric_limits<int>::lowest()/2);
@@ -1960,9 +1961,7 @@ PhysicalParticleContainer::DepositTemperature (
     if (do_not_deposit) { return; }
 
     // Number of guard cells for local deposition of J
-    const WarpX& warpx = WarpX::GetInstance();
-
-    const amrex::IntVect ng_J = warpx.get_ng_depos_J();
+    const amrex::IntVect ng_J = data().ngDeposJ();
 
     // Extract deposition order and check that particles shape fits within the guard cells.
     // NOTE: In specific situations where the staggering of J and the current deposition algorithm
@@ -2086,13 +2085,11 @@ PhysicalParticleContainer::AccumulateVelocitiesAndComputeTemperature (
     // Will fix this in a follow up PR.
     auto depos_type = TemperatureDepositionType::DOUBLE_PASS;
 
-    const auto& warpx = WarpX::GetInstance();
-
     // Loop over the refinement levels
     auto const finest_level = static_cast<int>(T_vf.size() - 1);
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        auto const& periodicity = warpx.Geom(lev).periodicity();
+        auto const& periodicity = data().geom(lev).periodicity();
 
         // Clear accumulation arrays
         local_temperature_arrays->reset();

@@ -44,6 +44,10 @@ public:
     [[nodiscard]] amrex::IntVect ngDeposRho () const override;
     [[nodiscard]] amrex::IntVect ngDeposJ () const override;
     [[nodiscard]] bool useVerboncoeurAxisCorrection () const override;
+    [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
+    nciGodfreyFilterExEyBz () const override;
+    [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
+    nciGodfreyFilterBxByEz () const override;
     [[nodiscard]] amrex::IntVect blockingFactor (int lev) const override;
     [[nodiscard]] amrex::IntVect numProcs () const override;
     [[nodiscard]] amrex::IntVect maxGridSize (int lev) const override;
