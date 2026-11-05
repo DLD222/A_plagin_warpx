@@ -52,6 +52,9 @@ public:
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) = 0;
 
+    //! Electrostatic potential on level (uses phi_fp when available).
+    [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> computePhi (int lev) = 0;
+
     //! Moving window metadata.
     [[nodiscard]] virtual amrex::Real movingWindowX () const = 0;
     [[nodiscard]] virtual bool movingWindowActive (int step) const = 0;

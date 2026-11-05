@@ -45,7 +45,8 @@
 | A1.8d | A1 | done | A1.8c | DivB/DivE functor 迁移 + HostServices 场代数 |
 | A1.8e | A1 | done | A1.8d | Jdisp/Darwin functor 迁移 |
 | A1.8f | A1 | done | A1.8e | Rho/J functor 迁移 + 沉积/滤波 host services |
-| A1.8 | A1 | pending | A1.8f | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
+| A1.8g | A1 | done | A1.8f | PhiFunctor 迁移 + 静电势 host service |
+| A1.8 | A1 | pending | A1.8g | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
 | A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
 | A2.1 | A2 | pending | A1.9a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |

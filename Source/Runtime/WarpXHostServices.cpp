@@ -12,6 +12,7 @@
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "Diagnostics/Diagnostics.H"
+#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
@@ -103,6 +104,42 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
     amrex::ignore_unused(apply_rz_psatd_filter);
 #endif
     return rho;
+}
+
+
+std::unique_ptr<amrex::MultiFab>
+WarpXHostServices::computePhi (int lev)
+{
+    if (m_warpx.m_fields.has(warpx::fields::FieldType::phi_fp, lev)) {
+        const auto* src = m_warpx.m_fields.get(warpx::fields::FieldType::phi_fp, lev);
+        auto phi = std::make_unique<amrex::MultiFab>(
+            src->boxArray(), src->DistributionMap(), src->nComp(), src->nGrowVect());
+        amrex::MultiFab::Copy(*phi, *src, 0, 0, src->nComp(), src->nGrowVect());
+        return phi;
+    }
+
+    const int num_levels = 1;
+    amrex::Vector<std::unique_ptr<amrex::MultiFab>> rho_vec(num_levels);
+    amrex::Vector<std::unique_ptr<amrex::MultiFab>> phi_vec(num_levels);
+
+    amrex::BoxArray ba = m_warpx.boxArray(lev);
+    ba.surroundingNodes();
+    rho_vec[0] = std::make_unique<amrex::MultiFab>(ba, m_warpx.DistributionMap(lev), 1, 1);
+    rho_vec[0]->setVal(0.);
+    m_warpx.ComputeDivE(*rho_vec[0], lev);
+    rho_vec[0]->mult(ablastr::constant::SI::epsilon_0);
+
+    phi_vec[0] = std::make_unique<amrex::MultiFab>(ba, m_warpx.DistributionMap(lev), 1, 1);
+    phi_vec[0]->setVal(0.);
+
+    auto& es_solver = m_warpx.GetElectrostaticSolver();
+    es_solver.m_poisson_boundary_handler->DefinePhiBCs(m_warpx.Geom(0));
+    const std::array<amrex::Real, 3> beta = {0.0};
+    es_solver.computePhi(
+        amrex::GetVecOfPtrs(rho_vec), amrex::GetVecOfPtrs(phi_vec),
+        beta, es_solver.m_mlmg_options, /*is_igf_2d_slices*/ false);
+
+    return std::move(phi_vec[0]);
 }
 
 amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving_window_x(); }

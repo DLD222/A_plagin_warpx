@@ -796,12 +796,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8g",
+   "phase": "A1",
+   "title": "PhiFunctor 迁移 + 静电势 host service",
+   "kind": "refactor",
+   "depends": [
+    "A1.8f"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/PhiFunctor.cpp",
+    "Source/Runtime/HostServices.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Phi 走 host().computePhi；phi_fp/现算两条路径保留；回归通过",
+   "note": "剩余 BTD 两个 functor",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8f"
+    "A1.8g"
    ],
    "status": "pending",
    "outputs": [],
