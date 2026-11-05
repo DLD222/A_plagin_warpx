@@ -69,6 +69,7 @@ public:
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
     [[nodiscard]] virtual amrex::IntVect ngDeposRho () const = 0;
+    [[nodiscard]] virtual amrex::IntVect ngDeposJ () const = 0;
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect numProcs () const = 0;

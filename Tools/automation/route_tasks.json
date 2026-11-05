@@ -897,12 +897,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8l",
+   "phase": "A1",
+   "title": "WarpXParticleContainer 主体去 GetInstance（沉积/rho/边界/同步）",
+   "kind": "refactor",
+   "depends": [
+    "A1.8k"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/WarpXParticleContainer.cpp",
+    "Source/Runtime/HostServices.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "基类仅剩 WarpXParIter 两处与 fallback；粒子/碰撞/流体回归通过",
+   "note": "EB flag/syncCurrent/inverse-volume 进 HostServices",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8k"
+    "A1.8l"
    ],
    "status": "pending",
    "outputs": [],

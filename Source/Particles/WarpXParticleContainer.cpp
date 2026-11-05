@@ -28,7 +28,9 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -145,6 +147,8 @@ WarpXParIter::WarpXParIter (ContainerType& pc, int level, MFItInfo& info)
                    info.SetDynamic(WarpX::GetInstance().runtime_config().do_dynamic_scheduling()))
 {
 }
+
+WarpXParticleContainer::~WarpXParticleContainer () = default;
 
 WarpXParticleContainer::WarpXParticleContainer (AmrCore* amr_core, int ispecies, const std::string& name)
     : amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(amr_core->GetParGDB())
@@ -398,10 +402,10 @@ WarpXParticleContainer::AddNParticles (int /*lev*/, long n,
     // Remove particles that are inside the embedded boundaries
 #ifdef AMREX_USE_EB
     if (EB::enabled()) {
-        auto & warpx = WarpX::GetInstance();
         scrapeParticlesAtEB(
             *this,
-            warpx.m_fields.get_mr_levels(FieldType::distance_to_eb, warpx.finestLevel()),
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+                .get_mr_levels(FieldType::distance_to_eb, data().finestLevel()),
             ParticleBoundaryProcess::Absorb());
         deleteInvalidParticles();
     }
@@ -468,9 +472,7 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
     if (do_not_deposit) { return; }
 
     // Number of guard cells for local deposition of J
-    const WarpX& warpx = WarpX::GetInstance();
-
-    const amrex::IntVect& ng_J = warpx.get_ng_depos_J();
+    const amrex::IntVect ng_J = data().ngDeposJ();
 
     // Extract deposition order and check that particles shape fits within the guard cells.
     // NOTE: In specific situations where the staggering of J and the current deposition algorithm
@@ -617,13 +619,13 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
     // Take into account Galilean shift
     const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
 
-    amrex::Box domain_box = warpx.Geom(depos_lev).Domain();
+    amrex::Box domain_box = data().geom(depos_lev).Domain();
 
     // Make sure that domain_box includes the upper boundary node
     domain_box.surroundingNodes();
 
-    auto const & field_boundary_lo = warpx.GetFieldBoundaryLo();
-    auto const & field_boundary_hi = warpx.GetFieldBoundaryHi();
+    auto const & field_boundary_lo = config().field_boundary_lo();
+    auto const & field_boundary_hi = config().field_boundary_hi();
 
     amrex::GpuArray<amrex::GpuArray<bool,2>, AMREX_SPACEDIM> do_cropping;
     amrex::GpuArray<amrex::GpuArray<double,2>, AMREX_SPACEDIM> domain_double;
@@ -754,7 +756,7 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
 
                 amrex::Array4<const int> eb_reduce_particle_shape;
                 if (EB::enabled()) {
-                    eb_reduce_particle_shape = (*warpx.GetEBReduceParticleShapeFlag()[lev])[pti].array();
+                    eb_reduce_particle_shape = (*host().ebReduceParticleShapeFlag()[lev])[pti].array();
                 }
 
                 if      (particle_shape == 1){
@@ -1058,9 +1060,7 @@ WarpXParticleContainer::DepositMassMatrices (WarpXParIter& pti, const RealVector
     if (do_not_deposit) { return; }
 
     // Number of guard cells for local deposition of J
-    const WarpX& warpx = WarpX::GetInstance();
-
-    const amrex::IntVect& ng_J = warpx.get_ng_depos_J();
+    const amrex::IntVect ng_J = data().ngDeposJ();
 
     const amrex::XDim3 dinv = data().invCellSize(std::max(depos_lev,0));
 
@@ -1157,13 +1157,13 @@ WarpXParticleContainer::DepositMassMatrices (WarpXParIter& pti, const RealVector
     // Take into account Galilean shift
     const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
 
-    amrex::Box domain_box = warpx.Geom(depos_lev).Domain();
+    amrex::Box domain_box = data().geom(depos_lev).Domain();
 
     // Make sure that domain_box includes the upper boundary node
     domain_box.surroundingNodes();
 
-    auto const & field_boundary_lo = warpx.GetFieldBoundaryLo();
-    auto const & field_boundary_hi = warpx.GetFieldBoundaryHi();
+    auto const & field_boundary_lo = config().field_boundary_lo();
+    auto const & field_boundary_hi = config().field_boundary_hi();
 
     amrex::GpuArray<amrex::GpuArray<bool,2>, AMREX_SPACEDIM> do_cropping;
     amrex::GpuArray<amrex::GpuArray<double,2>, AMREX_SPACEDIM> domain_double;
@@ -1531,22 +1531,20 @@ WarpXParticleContainer::DepositCurrent (
 void WarpXParticleContainer::DepositCurrentOnLevel (
     const std::string& mf_name, int lev, const amrex::Real dt, const amrex::Real relative_time
 ) {
-    auto& warpx = WarpX::GetInstance();
     // allocate temporary multifab to deposit current density into
     const ablastr::fields::MultiLevelVectorField current {
-        warpx.m_fields.get_alldirs(mf_name, lev)
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_alldirs(mf_name, lev)
     };
 
     DepositCurrent(current, dt, relative_time);
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        warpx.ApplyInverseVolumeScalingToCurrentDensity(
-            current[lev][0], current[lev][1], current[lev][2], lev
-        );
+        host().applyInverseVolumeScalingToCurrentDensity(
+            current[lev][0], current[lev][1], current[lev][2], lev);
 #endif
 
     // Sum guard cells
-    warpx.SyncCurrent(mf_name);
+    host().syncCurrent(mf_name);
 }
 
 /* \brief Charge Deposition for thread thread_num
@@ -1591,8 +1589,7 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
         if (np_to_deposit == 0) { return; }
 
         // Number of guard cells for local deposition of rho
-        const WarpX& warpx = WarpX::GetInstance();
-        const amrex::IntVect& ng_rho = warpx.get_ng_depos_rho();
+        const amrex::IntVect ng_rho = data().ngDeposRho();
 
         // Extract deposition order and check that particles shape fits within the guard cells.
         // NOTE: In specific situations where the staggering of rho and the charge deposition algorithm
@@ -1672,7 +1669,7 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
         // Lower corner of tile box physical domain
         // Note that this includes guard cells since it is after tilebox.ngrow
         // Take into account Galilean shift
-        const Real dt = warpx.getdt(lev);
+        const Real dt = data().dt(lev);
         const amrex::Real time_shift_delta = (icomp == 0 ? 0.0_rt : dt);
         const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
 
@@ -1816,11 +1813,9 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
 #endif
     } else {
 
-        const WarpX& warpx = WarpX::GetInstance();
-
         // deposition guards
         //   note: this is smaller than rho->nGrowVect() for PSATD
-        const amrex::IntVect& ng_rho = warpx.get_ng_depos_rho();
+        const amrex::IntVect ng_rho = data().ngDeposRho();
 
         amrex::IntVect ref_ratio;
         if (lev == depos_lev) {
@@ -1844,7 +1839,7 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
         // Lower corner of tile box physical domain
         // Note that this includes guard cells since it is after tilebox.ngrow
         // Take into account Galilean shift
-        const amrex::Real dt = warpx.getdt(lev);
+        const amrex::Real dt = data().dt(lev);
         const amrex::Real time_shift_delta = (icomp == 0 ? 0.0_rt : dt);
         const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
         const amrex::XDim3 dinv = data().invCellSize(std::max(depos_lev,0));
@@ -1973,8 +1968,7 @@ WarpXParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
     }
 
     // Number of guard cells for local deposition of rho
-    const WarpX& warpx = WarpX::GetInstance();
-    const int ng_rho = warpx.get_ng_depos_rho().max();
+    const int ng_rho = data().ngDeposRho().max();
 
     auto rho = std::make_unique<MultiFab>(nba, dm, config().ncomps(),ng_rho);
     DepositChargeOnLevel(rho.get(), lev, local, /*reset=*/true, /*icomp=*/0);
@@ -1982,7 +1976,7 @@ WarpXParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
         AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
             !local,
             "GetChargeDensityOnLevel requires local=false when finalize=true.");
-        WarpX::GetInstance().FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
     }
     return rho;
 }
@@ -2002,8 +1996,6 @@ WarpXParticleContainer::DepositTotalNGPTemperature (int lev)
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mass > 0.,
         "DepositTotalNGPTemperature: The temperature can not be calculated for a massless species.");
 
-    WarpX & warpx = WarpX::GetInstance();
-
     const auto plo = Geom(lev).ProbLoArray();
     const auto dxi = Geom(lev).InvCellSizeArray();
 
@@ -2018,29 +2010,29 @@ WarpXParticleContainer::DepositTotalNGPTemperature (int lev)
     amrex::IntVect const ng = amrex::IntVect::TheZeroVector();
     bool const remake = true;
     bool const redistribute_on_remake = false;
-    if (!warpx.m_fields.has(T_field_name, lev)) {
-        warpx.m_fields.alloc_init(T_field_name, lev, ba, dm, ncomps, ng, 0.,
+    if (!const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).has(T_field_name, lev)) {
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(T_field_name, lev, ba, dm, ncomps, ng, 0.,
                                   remake, redistribute_on_remake);
     }
-    if (!warpx.m_fields.has(N_field_name, lev)) {
-        warpx.m_fields.alloc_init(N_field_name, lev, ba, dm, ncomps, ng, 0.,
+    if (!const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).has(N_field_name, lev)) {
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(N_field_name, lev, ba, dm, ncomps, ng, 0.,
                                   remake, redistribute_on_remake);
     }
-    if (!warpx.m_fields.has(u_field_name, Direction{0}, lev)) {
-        warpx.m_fields.alloc_init(u_field_name, Direction{0}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
-        warpx.m_fields.alloc_init(u_field_name, Direction{1}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
-        warpx.m_fields.alloc_init(u_field_name, Direction{2}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
+    if (!const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).has(u_field_name, Direction{0}, lev)) {
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(u_field_name, Direction{0}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(u_field_name, Direction{1}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
+        const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(u_field_name, Direction{2}, lev, ba, dm, ncomps, ng, 0., remake, redistribute_on_remake);
     }
 
-    amrex::MultiFab & temperature = *warpx.m_fields.get(T_field_name, lev);
+    amrex::MultiFab & temperature = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(T_field_name, lev);
     temperature.setVal(0., 0, temperature.nComp(), temperature.nGrowVect());
 
-    amrex::MultiFab & particle_number = *warpx.m_fields.get(N_field_name, lev);
+    amrex::MultiFab & particle_number = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(N_field_name, lev);
     particle_number.setVal(0., 0, particle_number.nComp(), particle_number.nGrowVect());
 
-    amrex::MultiFab & ux_mf = *warpx.m_fields.get(u_field_name, Direction{0}, lev);
-    amrex::MultiFab & uy_mf = *warpx.m_fields.get(u_field_name, Direction{1}, lev);
-    amrex::MultiFab & uz_mf = *warpx.m_fields.get(u_field_name, Direction{2}, lev);
+    amrex::MultiFab & ux_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(u_field_name, Direction{0}, lev);
+    amrex::MultiFab & uy_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(u_field_name, Direction{1}, lev);
+    amrex::MultiFab & uz_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(u_field_name, Direction{2}, lev);
     ux_mf.setVal(0., 0, ux_mf.nComp(), ux_mf.nGrowVect());
     uy_mf.setVal(0., 0, uy_mf.nComp(), uy_mf.nGrowVect());
     uz_mf.setVal(0., 0, uz_mf.nComp(), uz_mf.nGrowVect());
@@ -2214,13 +2206,11 @@ WarpXParticleContainer::GetDebyeLength (int lev)
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mass*m_charge != 0.,
         "The Debye length can not be calculated for a massless or neutral species.");
 
-    WarpX & warpx = WarpX::GetInstance();
-
     // This assumes that this is the first place these are needed each step
     // In addition to the temperature, this also calculates Vbar and N
     DepositTotalNGPTemperature(lev);
-    amrex::MultiFab & particle_number = *warpx.m_fields.get("N_" + species_name, lev);
-    amrex::MultiFab & temperature = *warpx.m_fields.get("T_" + species_name, lev);
+    amrex::MultiFab & particle_number = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + species_name, lev);
+    amrex::MultiFab & temperature = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + species_name, lev);
 
     amrex::BoxArray const & ba = temperature.boxArray();
     amrex::DistributionMapping const & dm = temperature.DistributionMap();
@@ -2317,18 +2307,17 @@ WarpXParticleContainer::CalculateNuei(amrex::MultiFab & species_nuei,
 
     // This assumes that all of these quantities have already been calculated
     // from the call to GenerateGlobalDebyeLength at the start of the collisions
-    WarpX & warpx = WarpX::GetInstance();
-    amrex::MultiFab const & uxi_mf = *warpx.m_fields.get("u_" + species_name, Direction{0}, lev);
-    amrex::MultiFab const & uyi_mf = *warpx.m_fields.get("u_" + species_name, Direction{1}, lev);
-    amrex::MultiFab const & uzi_mf = *warpx.m_fields.get("u_" + species_name, Direction{2}, lev);
-    amrex::MultiFab const & uxe_mf = *warpx.m_fields.get("u_" + electron_species.species_name, Direction{0}, lev);
-    amrex::MultiFab const & uye_mf = *warpx.m_fields.get("u_" + electron_species.species_name, Direction{1}, lev);
-    amrex::MultiFab const & uze_mf = *warpx.m_fields.get("u_" + electron_species.species_name, Direction{2}, lev);
-    amrex::MultiFab const & Ti_mf = *warpx.m_fields.get("T_" + species_name, lev);
-    amrex::MultiFab const & Te_mf = *warpx.m_fields.get("T_" + electron_species.species_name, lev);
-    amrex::MultiFab const & Ni_mf = *warpx.m_fields.get("N_" + species_name, lev);
-    amrex::MultiFab const & Ne_mf = *warpx.m_fields.get("N_" + electron_species.species_name, lev);
-    amrex::MultiFab const & global_debye_length = *warpx.m_fields.get(warpx::fields::FieldType::global_debye_length, lev);
+    amrex::MultiFab const & uxi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{0}, lev);
+    amrex::MultiFab const & uyi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{1}, lev);
+    amrex::MultiFab const & uzi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{2}, lev);
+    amrex::MultiFab const & uxe_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{0}, lev);
+    amrex::MultiFab const & uye_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{1}, lev);
+    amrex::MultiFab const & uze_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{2}, lev);
+    amrex::MultiFab const & Ti_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + species_name, lev);
+    amrex::MultiFab const & Te_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + electron_species.species_name, lev);
+    amrex::MultiFab const & Ni_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + species_name, lev);
+    amrex::MultiFab const & Ne_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + electron_species.species_name, lev);
+    amrex::MultiFab const & global_debye_length = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(warpx::fields::FieldType::global_debye_length, lev);
 
     auto const rimass = static_cast<amrex::Real>(m_mass);
     auto const Zi = static_cast<amrex::Real>(m_charge)/PhysConst::q_e;
@@ -3234,4 +3223,12 @@ WarpXParticleContainer::frame () const
     static const warpx::runtime::FrameState legacy =
         warpx::runtime::FrameState::FromLegacy();
     return legacy;
+}
+
+warpx::runtime::HostServices&
+WarpXParticleContainer::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
+    if (!m_legacy_host) { m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance()); }
+    return *m_legacy_host;
 }

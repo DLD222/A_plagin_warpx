@@ -13,6 +13,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_iMultiFab.H>
 #include <AMReX_Vector.H>
 
 #include <array>
@@ -66,6 +67,17 @@ public:
     //! Apply the configured filter to one direction of a multi-level vector field.
     virtual void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
                                 int lev, int idir) = 0;
+
+    //! EB particle-shape reduction flags.
+    [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<amrex::iMultiFab>>&
+    ebReduceParticleShapeFlag () const = 0;
+
+    //! Synchronize current (and guard cells) for a named current field.
+    virtual void syncCurrent (const std::string& current_fp_string) = 0;
+
+    //! RZ current-density volume scaling.
+    virtual void applyInverseVolumeScalingToCurrentDensity (
+        amrex::MultiFab* Jx, amrex::MultiFab* Jy, amrex::MultiFab* Jz, int lev) = 0;
 
     //! Electrostatic potential on level (uses phi_fp when available).
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> computePhi (int lev) = 0;

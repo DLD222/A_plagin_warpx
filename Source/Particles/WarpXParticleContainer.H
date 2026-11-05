@@ -24,7 +24,7 @@
 #endif
 #include "MultiParticleContainer_fwd.H"
 
-namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; struct FrameState; class RuntimeData; }
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; struct FrameState; class RuntimeData; class HostServices; class WarpXHostServices; }
 
 #include "Particles/Deposition/TemperatureDepositionTypes.H"
 #include "Particles/Deposition/VarianceAccumulationBuffer.H"
@@ -229,14 +229,15 @@ public:
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
     [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const { return m_runtime_context; }
-    ~WarpXParticleContainer() override = default;
+    ~WarpXParticleContainer() override;
 
     // Move and copy operations
     WarpXParticleContainer(const WarpXParticleContainer&)            = delete;
     WarpXParticleContainer& operator=(const WarpXParticleContainer&) = delete;
-    WarpXParticleContainer(WarpXParticleContainer&&)                 = default;
+    WarpXParticleContainer(WarpXParticleContainer&&)                 = delete;
     WarpXParticleContainer& operator=(WarpXParticleContainer&&)      = default;
 
     virtual void InitData () = 0;
@@ -807,6 +808,7 @@ public:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
     void particlePostLocate(ParticleType& p, const amrex::ParticleLocData& pld, int lev) override;
 
 };

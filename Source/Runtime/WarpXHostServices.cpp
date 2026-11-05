@@ -172,6 +172,29 @@ WarpXHostServices::applyFilterMF (ablastr::fields::MultiLevelVectorField const& 
     m_warpx.ApplyFilterMF(field, lev, idir);
 }
 
+const amrex::Vector<std::unique_ptr<amrex::iMultiFab>>&
+WarpXHostServices::ebReduceParticleShapeFlag () const
+{
+    return m_warpx.GetEBReduceParticleShapeFlag();
+}
+
+void
+WarpXHostServices::syncCurrent (const std::string& current_fp_string)
+{
+    m_warpx.SyncCurrent(current_fp_string);
+}
+
+void
+WarpXHostServices::applyInverseVolumeScalingToCurrentDensity (
+    amrex::MultiFab* Jx, amrex::MultiFab* Jy, amrex::MultiFab* Jz, int lev)
+{
+#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+    m_warpx.ApplyInverseVolumeScalingToCurrentDensity(Jx, Jy, Jz, lev);
+#else
+    amrex::ignore_unused(Jx, Jy, Jz, lev);
+#endif
+}
+
 amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving_window_x(); }
 bool WarpXHostServices::movingWindowActive (int step) const { return WarpX::moving_window_active(step); }
 int WarpXHostServices::numCellsShifted (amrex::Real distance, amrex::Real dx) const { return WarpX::NumCellsShifted(distance, dx); }
