@@ -455,12 +455,33 @@
    "note": ""
   },
   {
-   "id": "A1.6",
+   "id": "A1.6a",
    "phase": "A1",
-   "title": "Batch E：场求解器的只读配置迁移",
+   "title": "Yee/FDTD 求解器 context + 配置/成本迁移",
    "kind": "refactor",
    "depends": [
-    "A1.4"
+    "A1.5"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H",
+    "Source/FieldSolver/FiniteDifferenceSolver/EvolveE.cpp",
+    "Source/FieldSolver/FiniteDifferenceSolver/EvolveB.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "FDTD 目录无 WarpX:: 配置静态；Yee 2D 冒烟通过",
+   "note": "剩余 PSATD/ES/Hybrid",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.6",
+   "phase": "A1",
+   "title": "Batch E2：PSATD / 静电 / Hybrid-PIC 场求解器配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.6a"
    ],
    "status": "pending",
    "outputs": [],

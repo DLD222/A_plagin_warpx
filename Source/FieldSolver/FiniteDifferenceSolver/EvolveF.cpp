@@ -4,6 +4,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "FiniteDifferenceSolver.H"
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
@@ -178,11 +180,11 @@ void FiniteDifferenceSolver::EvolveFCylindrical (
         Real constexpr inv_epsilon0 = 1./PhysConst::epsilon_0;
 
         // Use the right shift in components:
-        // - the first WarpX::ncomps (2*n_rz_azimuthal_modes-1) components correspond to rho old (i.e. rho_comp=0)
-        // - the next WarpX::ncomps (2*n_rz_azimuthal_modes-1) components correspond to rho new (i.e. rho_comp=1)
+        // - the first config().ncomps() (2*n_rz_azimuthal_modes-1) components correspond to rho old (i.e. rho_comp=0)
+        // - the next config().ncomps() (2*n_rz_azimuthal_modes-1) components correspond to rho new (i.e. rho_comp=1)
         int rho_shift = 0;
         if (rho_comp == 1) {
-            rho_shift = WarpX::ncomps;
+            rho_shift = config().ncomps();
         }
 
         // Loop over the cells and update the fields
@@ -267,7 +269,7 @@ void FiniteDifferenceSolver::EvolveFSpherical (
         // - the next component corresponds to rho new (i.e. rho_comp=1)
         int rho_shift = 0;
         if (rho_comp == 1) {
-            rho_shift = WarpX::ncomps;
+            rho_shift = config().ncomps();
         }
 
         // Loop over the cells and update the fields

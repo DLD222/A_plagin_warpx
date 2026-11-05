@@ -20,6 +20,8 @@
 #endif
 
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -46,7 +48,7 @@ void FiniteDifferenceSolver::ComputeCurlA (
         );
 
 #else
-    if (WarpX::grid_type == GridType::Staggered)
+    if (config().grid_type() == GridType::Staggered)
     {
         ComputeCurlACartesian <CartesianYeeAlgorithm> (
             Bfield, Afield, eb_update_B, lev, ngrow
@@ -92,7 +94,7 @@ void FiniteDifferenceSolver::ComputeCurlACylindrical (
         "ComputeCurlACylindrical: ngrow > 0 is not supported.");
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset Bfield
     Bfield[0]->setVal(0);
@@ -104,7 +106,7 @@ void FiniteDifferenceSolver::ComputeCurlACylindrical (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Afield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -217,7 +219,7 @@ void FiniteDifferenceSolver::ComputeCurlACylindrical (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<Real>(amrex::second()) - wt;
@@ -243,7 +245,7 @@ void FiniteDifferenceSolver::ComputeCurlASpherical (
         "ComputeCurlASpherical: ngrow > 0 is not supported.");
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset Bfield
     Bfield[0]->setVal(0);
@@ -255,7 +257,7 @@ void FiniteDifferenceSolver::ComputeCurlASpherical (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Afield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -319,7 +321,7 @@ void FiniteDifferenceSolver::ComputeCurlASpherical (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<Real>(amrex::second()) - wt;
@@ -363,7 +365,7 @@ void FiniteDifferenceSolver::ComputeCurlACartesian (
     }
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset Bfield
     Bfield[0]->setVal(0);
@@ -375,7 +377,7 @@ void FiniteDifferenceSolver::ComputeCurlACartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Afield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -448,7 +450,7 @@ void FiniteDifferenceSolver::ComputeCurlACartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;

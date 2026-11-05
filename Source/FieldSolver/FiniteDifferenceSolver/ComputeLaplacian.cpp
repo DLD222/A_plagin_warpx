@@ -19,6 +19,8 @@
 #endif
 
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -97,7 +99,7 @@ void FiniteDifferenceSolver::ComputeLaplacianCartesian (
     using ablastr::fields::Direction;
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset output field
     out_field->setVal(0);
@@ -107,7 +109,7 @@ void FiniteDifferenceSolver::ComputeLaplacianCartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*in_field, TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -154,7 +156,7 @@ void FiniteDifferenceSolver::ComputeLaplacianCartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -239,7 +241,7 @@ void FiniteDifferenceSolver::ComputeVectorLaplacianCartesian (
     using ablastr::fields::Direction;
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset output field
     out_field[0]->setVal(0);
@@ -251,7 +253,7 @@ void FiniteDifferenceSolver::ComputeVectorLaplacianCartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*in_field[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -326,7 +328,7 @@ void FiniteDifferenceSolver::ComputeVectorLaplacianCartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -422,7 +424,7 @@ void FiniteDifferenceSolver::ComputeVectorBiLaplacianCartesian (
         "in every direction for the direct nabla^4 stencil.");
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset output field
     out_field[0]->setVal(0);
@@ -434,7 +436,7 @@ void FiniteDifferenceSolver::ComputeVectorBiLaplacianCartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*in_field[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -519,7 +521,7 @@ void FiniteDifferenceSolver::ComputeVectorBiLaplacianCartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;

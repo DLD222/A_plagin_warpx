@@ -19,6 +19,8 @@
 #endif
 
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -97,7 +99,7 @@ void FiniteDifferenceSolver::ComputeGradientCartesian (
     using ablastr::fields::Direction;
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset output field
     out_field[0]->setVal(0);
@@ -109,7 +111,7 @@ void FiniteDifferenceSolver::ComputeGradientCartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*in_field, TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -170,7 +172,7 @@ void FiniteDifferenceSolver::ComputeGradientCartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;

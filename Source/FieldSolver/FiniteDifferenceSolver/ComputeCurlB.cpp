@@ -18,6 +18,8 @@
 #endif
 
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -44,7 +46,7 @@ void FiniteDifferenceSolver::ComputeCurlB (
         );
 
 #else
-    if (WarpX::grid_type == GridType::Staggered)
+    if (config().grid_type() == GridType::Staggered)
     {
         ComputeCurlBCartesian <CartesianYeeAlgorithm> (
             Efield, Bfield, eb_update_E, lev, ngrow
@@ -134,7 +136,7 @@ void FiniteDifferenceSolver::ComputeCurlBCartesian (
     }
 
     // for the profiler
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // reset Efield
     Efield[0]->setVal(0);
@@ -146,7 +148,7 @@ void FiniteDifferenceSolver::ComputeCurlBCartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Bfield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers) {
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers) {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
@@ -219,7 +221,7 @@ void FiniteDifferenceSolver::ComputeCurlBCartesian (
             }
         );
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;

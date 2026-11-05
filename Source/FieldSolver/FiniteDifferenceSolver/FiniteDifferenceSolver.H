@@ -30,6 +30,8 @@
 #include <array>
 #include <memory>
 
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; struct RuntimeConfig; }
+
 /**
  * \brief Top-level class for the electromagnetic finite-difference solver
  *
@@ -52,7 +54,8 @@ class FiniteDifferenceSolver
         FiniteDifferenceSolver (
             ElectromagneticSolverAlgo fdtd_algo,
             std::array<amrex::Real,3> cell_size,
-            ablastr::utils::enums::GridType grid_type );
+            ablastr::utils::enums::GridType grid_type,
+            const warpx::runtime::RuntimeContext* ctx = nullptr );
 
         void EvolveB ( ablastr::fields::MultiFabRegister& fields,
                        int lev,
@@ -282,6 +285,10 @@ class FiniteDifferenceSolver
             int lev );
 
     private:
+        [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+        [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
+        const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
         ElectromagneticSolverAlgo m_fdtd_algo;
         ablastr::utils::enums::GridType m_grid_type;

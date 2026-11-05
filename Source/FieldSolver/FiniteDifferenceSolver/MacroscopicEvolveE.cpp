@@ -9,6 +9,8 @@
 #endif
 #include "EmbeddedBoundary/Enabled.H"
 #include "MacroscopicProperties/MacroscopicProperties.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -59,7 +61,7 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
         m_grid_type != GridType::Collocated, "Macroscopic E field solver does not work on collocated grids");
 
 
-    if (m_fdtd_algo == ElectromagneticSolverAlgo::ECT && WarpX::ect_conformal_E > 0) {
+    if (m_fdtd_algo == ElectromagneticSolverAlgo::ECT && config().ect_conformal_E() > 0) {
         EvolveECartesianECT ( fields, Efield, Bfield, Jfield, eb_update_E, 0, dt,
                               macroscopic_properties );
     } else if (m_fdtd_algo == ElectromagneticSolverAlgo::Yee) {

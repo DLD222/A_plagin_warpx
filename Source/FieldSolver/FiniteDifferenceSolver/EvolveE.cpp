@@ -23,6 +23,8 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -92,7 +94,7 @@ void FiniteDifferenceSolver::EvolveE (
 
         EvolveECartesian <CartesianNodalAlgorithm> ( Efield, Bfield, Jfield, eb_update_E, Ffield, lev, dt );
 
-    } else if (m_fdtd_algo == ElectromagneticSolverAlgo::ECT && WarpX::ect_conformal_E > 0) {
+    } else if (m_fdtd_algo == ElectromagneticSolverAlgo::ECT && config().ect_conformal_E() > 0) {
 
         EvolveECartesianECT ( fields, Efield, Bfield, Jfield, eb_update_E, lev, dt, nullptr );
 
@@ -123,7 +125,7 @@ void FiniteDifferenceSolver::EvolveECartesian (
     amrex::MultiFab const* Ffield,
     int lev, amrex::Real const dt ) {
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
     Real constexpr c2 = PhysConst::c2;
 
     // Loop through the grids, and over the tiles within each grid
@@ -131,7 +133,7 @@ void FiniteDifferenceSolver::EvolveECartesian (
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Efield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -231,7 +233,7 @@ void FiniteDifferenceSolver::EvolveECartesian (
 
         }
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -259,9 +261,9 @@ void FiniteDifferenceSolver::EvolveECartesianECT (
     // Denominator floors for the dual lengths (G3): Lx and Lz are also the denominators
     // of Ez and Ex, so a cut line of vanishing length would amplify them. Only the
     // denominators are floored; the Ey flux weights keep the true open lengths.
-    auto const cell_size = WarpX::CellSize(lev);
-    Real const L_stab_x = static_cast<Real>(WarpX::ect_conformal_E_Astab) * cell_size[0];
-    Real const L_stab_z = static_cast<Real>(WarpX::ect_conformal_E_Astab) * cell_size[2];
+    auto const cell_size = data().cellSize(lev);
+    Real const L_stab_x = static_cast<Real>(config().ect_conformal_E_Astab()) * cell_size[0];
+    Real const L_stab_z = static_cast<Real>(config().ect_conformal_E_Astab()) * cell_size[2];
     auto const dx = cell_size[0];
     auto const dz = cell_size[2];
 
@@ -429,14 +431,14 @@ void FiniteDifferenceSolver::EvolveECylindrical (
     amrex::MultiFab const* Ffield,
     int lev, amrex::Real const dt ) {
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // Loop through the grids, and over the tiles within each grid
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Efield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -631,7 +633,7 @@ void FiniteDifferenceSolver::EvolveECylindrical (
 
         } // end of if condition for F
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -651,14 +653,14 @@ void FiniteDifferenceSolver::EvolveESpherical (
     amrex::MultiFab const* Ffield,
     int lev, amrex::Real const dt ) {
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // Loop through the grids, and over the tiles within each grid
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     for ( MFIter mfi(*Efield[0], TilingIfNotGPU()); mfi.isValid(); ++mfi ) {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -741,7 +743,7 @@ void FiniteDifferenceSolver::EvolveESpherical (
 
         } // end of if condition for F
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
