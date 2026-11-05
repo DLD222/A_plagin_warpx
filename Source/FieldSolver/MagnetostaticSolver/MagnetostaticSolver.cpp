@@ -179,12 +179,13 @@ WarpX::computeVectorPotential (ablastr::fields::MultiLevelVectorField const& cur
     {
         Bfield_fp,
         m_fields.get_mr_levels_alldirs(FieldType::vector_potential_grad_buf_e_stag, finest_level),
-        m_fields.get_mr_levels_alldirs(FieldType::vector_potential_grad_buf_b_stag, finest_level)
+        m_fields.get_mr_levels_alldirs(FieldType::vector_potential_grad_buf_b_stag, finest_level),
+        this
     });
 
 #if defined(AMREX_USE_EB)
     std::optional<amrex::Vector<amrex::EBFArrayBoxFactory const *> > eb_farray_box_factory;
-    auto &warpx = WarpX::GetInstance();
+    auto &warpx = *this;
 
     if (EB::enabled()) {
         amrex::Vector<amrex::EBFArrayBoxFactory const *> factories;
@@ -389,7 +390,7 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
 void MagnetostaticSolver::EBCalcBfromVectorPotentialPerLevel::doInterp (amrex::MultiFab & src,
                                                                         amrex::MultiFab & dst)
 {
-    WarpX &warpx = WarpX::GetInstance();
+    WarpX &warpx = *m_warpx;
 
     // Grab Interpolation Coefficients
     // Order of finite-order centering of fields

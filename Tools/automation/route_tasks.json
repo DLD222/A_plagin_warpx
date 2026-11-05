@@ -995,12 +995,31 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8q",
+   "phase": "A1",
+   "title": "MagnetostaticSolver 主路径去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.8p"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "WarpX::computeVectorPotential/EBCalc 不再 GetInstance；构建回归通过",
+   "note": "RZ 边界 handler 仍有一处（当前无调用点）",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8p"
+    "A1.8q"
    ],
    "status": "pending",
    "outputs": [],

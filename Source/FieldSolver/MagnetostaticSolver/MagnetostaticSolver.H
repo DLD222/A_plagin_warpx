@@ -14,6 +14,8 @@
 #include <AMReX_MLMG.H>
 #include <AMReX_REAL.H>
 
+class WarpX;
+
 namespace MagnetostaticSolver {
 
     /** Boundary Handler for the Vector Potential Poisson Solver
@@ -39,14 +41,17 @@ namespace MagnetostaticSolver {
         ablastr::fields::MultiLevelVectorField m_b_field;
         ablastr::fields::MultiLevelVectorField m_grad_buf_e_stag;
         ablastr::fields::MultiLevelVectorField m_grad_buf_b_stag;
+        WarpX* m_warpx = nullptr;
 
       public:
         EBCalcBfromVectorPotentialPerLevel (ablastr::fields::MultiLevelVectorField const & b_field,
                                             ablastr::fields::MultiLevelVectorField const & grad_buf_e_stag,
-                                            ablastr::fields::MultiLevelVectorField const & grad_buf_b_stag)
+                                            ablastr::fields::MultiLevelVectorField const & grad_buf_b_stag,
+                                            WarpX* warpx)
                 : m_b_field(b_field),
                   m_grad_buf_e_stag(grad_buf_e_stag),
-                  m_grad_buf_b_stag(grad_buf_b_stag)
+                  m_grad_buf_b_stag(grad_buf_b_stag),
+                  m_warpx(warpx)
         {}
 
         void operator() (amrex::Array<std::unique_ptr<amrex::MLMG>, 3> & mlmg, int lev);
