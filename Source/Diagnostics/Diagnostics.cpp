@@ -629,6 +629,7 @@ Diagnostics::InitBaseData ()
         WARPX_ABORT_WITH_MESSAGE(
             "unknown output format");
     }
+    m_flush_format->SetRuntimeContext(m_runtime_context);
 
     // allocate vector of buffers then allocate vector of levels for each buffer
     m_mf_output.resize( m_num_buffers );

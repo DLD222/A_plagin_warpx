@@ -62,16 +62,24 @@ public:
     [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
+    [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
+    [[nodiscard]] virtual amrex::IntVect numProcs () const = 0;
+    [[nodiscard]] virtual amrex::IntVect maxGridSize (int lev) const = 0;
+    [[nodiscard]] virtual amrex::IntVect refRatio (int lev) const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::IntVect>& refRatioVector () const = 0;
+    [[nodiscard]] virtual const amrex::Array<amrex::Real, 3>& galileanShift () const = 0;
 
     [[nodiscard]] virtual amrex::Real t_new (int lev) const = 0;
     [[nodiscard]] virtual amrex::Real dt (int lev) const = 0;
     [[nodiscard]] virtual int istep (int lev) const = 0;
+    [[nodiscard]] virtual amrex::Vector<int> istepVector () const = 0;
     [[nodiscard]] virtual EvolveScheme evolveScheme () const = 0;
 
     [[nodiscard]] virtual amrex::LayoutData<amrex::Real>* costs (int lev) const = 0;
     [[nodiscard]] virtual amrex::Real loadBalanceEfficiency (int lev) const = 0;
     [[nodiscard]] virtual ablastr::utils::text::IntervalsParser loadBalanceIntervals () const = 0;
     [[nodiscard]] virtual int maxStep () const = 0;
+    [[nodiscard]] virtual bool isSynchronized () const = 0;
     virtual void computeCostsHeuristic (
         amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const = 0;
 

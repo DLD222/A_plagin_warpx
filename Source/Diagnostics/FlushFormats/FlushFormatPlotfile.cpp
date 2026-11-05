@@ -10,6 +10,7 @@
 #include "Utils/Interpolate.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -104,7 +105,7 @@ FlushFormatPlotfile::WriteToFile (
     amrex::WriteMultiLevelPlotfile(filename, nlev,
                                    amrex::GetVecOfConstPtrs(mf),
                                    varnames, geom,
-                                   static_cast<Real>(time), iteration, warpx.refRatio(),
+                                   static_cast<Real>(time), iteration, data().refRatioVector(),
                                    "HyperCLaw-V1.1",
                                    "Level_",
                                    "Cell",
@@ -205,14 +206,14 @@ FlushFormatPlotfile::WriteJobInfo(const std::string& dir) const
         jobInfoFile << " Grid Information\n";
         jobInfoFile << PrettyLine;
 
-        for (int i = 0; i <= warpx.finestLevel(); i++)
+        for (int i = 0; i <= data().finestLevel(); i++)
         {
             jobInfoFile << " level: " << i << "\n";
-            jobInfoFile << "   number of boxes = " << warpx.boxArray(i).size() << "\n";
+            jobInfoFile << "   number of boxes = " << data().boxArray(i).size() << "\n";
             jobInfoFile << "   maximum zones   = ";
             for (int n = 0; n < AMREX_SPACEDIM; n++)
             {
-                jobInfoFile << warpx.Geom(i).Domain().length(n) << " ";
+                jobInfoFile << data().geom(i).Domain().length(n) << " ";
             }
             jobInfoFile << "\n\n";
         }
@@ -268,10 +269,10 @@ FlushFormatPlotfile::WriteWarpXHeader(
 
         HeaderFile << "Checkpoint version: 1\n";
 
-        const int nlevels = warpx.finestLevel()+1;
+        const int nlevels = data().finestLevel()+1;
         HeaderFile << nlevels << "\n";
 
-        for (int i = 0; i < warpx.getistep().size(); ++i) {
+        for (int i = 0; i < data().istepVector().size(); ++i) {
             HeaderFile << warpx.getistep(i) << " ";
         }
         HeaderFile << "\n";

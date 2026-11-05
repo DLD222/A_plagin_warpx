@@ -36,14 +36,22 @@ public:
     [[nodiscard]] amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const override;
     [[nodiscard]] amrex::XDim3 invCellSize (int lev) const override;
     [[nodiscard]] amrex::IntVect ngEB () const override;
+    [[nodiscard]] amrex::IntVect blockingFactor (int lev) const override;
+    [[nodiscard]] amrex::IntVect numProcs () const override;
+    [[nodiscard]] amrex::IntVect maxGridSize (int lev) const override;
+    [[nodiscard]] amrex::IntVect refRatio (int lev) const override;
+    [[nodiscard]] const amrex::Vector<amrex::IntVect>& refRatioVector () const override;
+    [[nodiscard]] const amrex::Array<amrex::Real, 3>& galileanShift () const override;
     [[nodiscard]] amrex::Real t_new (int lev) const override;
     [[nodiscard]] amrex::Real dt (int lev) const override;
     [[nodiscard]] int istep (int lev) const override;
+    [[nodiscard]] amrex::Vector<int> istepVector () const override;
     [[nodiscard]] EvolveScheme evolveScheme () const override;
     [[nodiscard]] amrex::LayoutData<amrex::Real>* costs (int lev) const override;
     [[nodiscard]] amrex::Real loadBalanceEfficiency (int lev) const override;
     [[nodiscard]] ablastr::utils::text::IntervalsParser loadBalanceIntervals () const override;
     [[nodiscard]] int maxStep () const override;
+    [[nodiscard]] bool isSynchronized () const override;
     void computeCostsHeuristic (
         amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const override;
     [[nodiscard]] const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const override;

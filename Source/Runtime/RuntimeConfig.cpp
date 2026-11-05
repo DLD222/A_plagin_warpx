@@ -234,6 +234,12 @@ RuntimeConfig::nox () const
     return WarpX::nox;
 }
 
+bool
+RuntimeConfig::fft_do_time_averaging () const
+{
+    return WarpX::fft_do_time_averaging;
+}
+
 LoadBalanceCostsUpdateAlgo
 RuntimeConfig::load_balance_costs_update_algo () const
 {

@@ -418,12 +418,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.5",
+   "id": "A1.5b",
    "phase": "A1",
-   "title": "Batch D2：FullDiagnostics 字段 functor + FlushFormats 去 GetInstance",
+   "title": "FullDiagnostics 字段/几何 + Checkpoint/Plotfile 主体迁移",
    "kind": "refactor",
    "depends": [
     "A1.5a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/FullDiagnostics.cpp",
+    "Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp",
+    "Source/Diagnostics/FlushFormats/FlushFormatPlotfile.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "diag1 plotfile 通过；字段 functor 用 data().fields()；checkpoint 字段用 data()；无回归",
+   "note": "剩余：PrepareFieldFunctor 的 FillBoundary 服务、moving window 头、PML checkpoint、in-situ",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.5",
+   "phase": "A1",
+   "title": "Batch D3：诊断 kernel services（FillBoundary/moving window/PML/in-situ）",
+   "kind": "refactor",
+   "depends": [
+    "A1.5b"
    ],
    "status": "pending",
    "outputs": [],

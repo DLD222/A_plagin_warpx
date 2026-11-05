@@ -6,6 +6,10 @@
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
 #include "Particles/MultiParticleContainer.H"
 
+#include "Runtime/RuntimeContext.H"
+
+namespace warpx::runtime { class RuntimeData; struct RuntimeConfig; }
+
 class FlushFormat
 {
 public:
@@ -29,10 +33,23 @@ public:
     FlushFormat () = default;
     virtual ~FlushFormat() = default;
 
+    void SetRuntimeContext (const warpx::runtime::RuntimeContext* ctx)
+    {
+        m_runtime_context = ctx;
+    }
+
     FlushFormat ( FlushFormat const &)             = default;
     FlushFormat& operator= ( FlushFormat const & ) = default;
     FlushFormat ( FlushFormat&& )                  = default;
     FlushFormat& operator= ( FlushFormat&& )       = default;
+
+protected:
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    //! Mutable view for checkpoint writers (VisMF::Write takes MultiFab&).
+    [[nodiscard]] ablastr::fields::MultiFabRegister& fields () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 };
 
 #endif // WARPX_FLUSHFORMAT_H_
