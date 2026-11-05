@@ -1009,7 +1009,7 @@ public:
      * @param[in] costs vector of (`unique_ptr` to) vectors; expected to be initialized
      * to correct number of boxes and boxes per level
      */
-    void ComputeCostsHeuristic (amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real> > >& costs);
+    void ComputeCostsHeuristic ();
 
     void ApplyFilterandSumBoundaryRho (int lev, int glev, amrex::MultiFab& rho, int icomp, int ncomp);
 
@@ -1520,7 +1520,6 @@ private:
     ablastr::utils::text::IntervalsParser load_balance_intervals;
     /** Collection of LayoutData to keep track of weights used in load balancing
      * routines. Contains timer-based or heuristic-based costs depending on input option */
-    amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real> > > costs;
     /** Load balance with 'space filling curve' strategy. */
     int load_balance_with_sfc = 0;
     /** Controls the maximum number of boxes that can be assigned to a rank during

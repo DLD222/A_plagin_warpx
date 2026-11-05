@@ -70,8 +70,7 @@ public:
     [[nodiscard]] int maxStep () const override;
     [[nodiscard]] amrex::Real stopTime () const override;
     [[nodiscard]] bool isSynchronized () const override;
-    void computeCostsHeuristic (
-        amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const override;
+    void computeCostsHeuristic () const override;
     [[nodiscard]] const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const override;
 
 private:

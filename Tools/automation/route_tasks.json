@@ -1292,12 +1292,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1c2a",
+   "phase": "A2",
+   "title": "costs 迁入 LevelStorage + Costs API 收口",
+   "kind": "refactor",
+   "depends": [
+    "A2.1c1"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/Parallelization/WarpXRegrid.cpp",
+    "Source/Runtime/RuntimeData.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 costs 成员；ComputeCostsHeuristic 无参；LB 路径编译/回归通过",
+   "note": "PML 留 A2.1c2b",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A2.1c1"
+    "A2.1c2a"
    ],
    "status": "pending",
    "outputs": [

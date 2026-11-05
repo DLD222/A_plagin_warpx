@@ -41,6 +41,9 @@ struct LevelStorage
 
     //! Optional accelerator-lattice element finder.
     std::unique_ptr<AcceleratorLattice> accelerator_lattice;
+
+    //! Per-level load-balance costs.
+    std::unique_ptr<amrex::LayoutData<amrex::Real>> costs;
 };
 
 class LevelResources

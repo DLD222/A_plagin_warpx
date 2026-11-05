@@ -101,8 +101,7 @@ public:
     [[nodiscard]] virtual int maxStep () const = 0;
     [[nodiscard]] virtual amrex::Real stopTime () const = 0;
     [[nodiscard]] virtual bool isSynchronized () const = 0;
-    virtual void computeCostsHeuristic (
-        amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const = 0;
+    virtual void computeCostsHeuristic () const = 0;
 
     //! Embedded-boundary factory (only valid when AMREX_USE_EB is on).
     [[nodiscard]] virtual const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const = 0;

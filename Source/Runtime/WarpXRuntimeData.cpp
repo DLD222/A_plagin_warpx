@@ -66,10 +66,9 @@ ablastr::utils::text::IntervalsParser WarpXRuntimeData::loadBalanceIntervals () 
 int WarpXRuntimeData::maxStep () const { return m_warpx.maxStep(); }
 amrex::Real WarpXRuntimeData::stopTime () const { return m_warpx.stopTime(); }
 bool WarpXRuntimeData::isSynchronized () const { return m_warpx.getis_synchronized(); }
-void WarpXRuntimeData::computeCostsHeuristic (
-    amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const
+void WarpXRuntimeData::computeCostsHeuristic () const
 {
-    m_warpx.ComputeCostsHeuristic(costs);
+    m_warpx.ComputeCostsHeuristic();
 }
 const amrex::EBFArrayBoxFactory& WarpXRuntimeData::fieldEBFactory (int lev) const
 {

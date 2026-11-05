@@ -116,7 +116,11 @@ void LoadBalanceCosts::ComputeDiags (int step)
 
     if (config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Heuristic)
     {
-        data().computeCostsHeuristic(costs);
+        data().computeCostsHeuristic();
+        for (int lev = 0; lev < nLevels; ++lev)
+        {
+            costs[lev] = std::make_unique<LayoutData<Real>>(*data().costs(lev));
+        }
     }
 
     // keep track of correct index in array over all boxes on all levels

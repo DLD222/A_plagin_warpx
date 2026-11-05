@@ -1375,10 +1375,10 @@ WarpX::InitLevelData (int lev, Real /*time*/)
     // load external grid fields into E/Bfield_fp_external multifabs
     LoadExternalFields(lev);
 
-    if (costs[lev]) {
-        const auto iarr = costs[lev]->IndexArray();
+    if (m_level_resources.level(lev).costs) {
+        const auto iarr = m_level_resources.level(lev).costs->IndexArray();
         for (const auto& i : iarr) {
-            (*costs[lev])[i] = 0.0;
+            (*m_level_resources.level(lev).costs)[i] = 0.0;
             WarpX::setLoadBalanceEfficiency(lev, -1);
         }
     }

@@ -461,7 +461,6 @@ WarpX::WarpX ()
     do_pml_Lo.resize(nlevs_max);
     do_pml_Hi.resize(nlevs_max);
 
-    costs.resize(nlevs_max);
     load_balance_efficiency.resize(nlevs_max);
 
     m_level_resources.resize(nlevs_max);
@@ -2401,7 +2400,7 @@ WarpX::ClearLevel (int lev)
     }
 #endif
 
-    costs[lev].reset();
+
     load_balance_efficiency[lev] = -1;
 }
 
@@ -3239,7 +3238,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
     if (load_balance_intervals.isActivated())
     {
-        costs[lev] = std::make_unique<LayoutData<Real>>(ba, dm);
+        m_level_resources.level(lev).costs = std::make_unique<LayoutData<Real>>(ba, dm);
         load_balance_efficiency[lev] = -1;
     }
 }
@@ -3558,7 +3557,7 @@ WarpX::getCosts (int lev)
 {
     if (m_instance)
     {
-        return m_instance->costs[lev].get();
+        return m_instance->m_level_resources.level(lev).costs.get();
     } else
     {
         return nullptr;

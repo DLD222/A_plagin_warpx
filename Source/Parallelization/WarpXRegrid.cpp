@@ -64,7 +64,7 @@ WarpX::CheckLoadBalance (int step)
         // Reset the costs to 0
         ResetCosts();
     }
-    if (!costs.empty())
+    if (m_level_resources.size() != 0)
     {
         RescaleCosts(step);
     }
@@ -76,14 +76,14 @@ WarpX::LoadBalance ()
     ABLASTR_PROFILE_REGION("LoadBalance");
     ABLASTR_PROFILE("WarpX::LoadBalance()");
 
-    AMREX_ALWAYS_ASSERT(!costs.empty());
-    AMREX_ALWAYS_ASSERT(costs[0] != nullptr);
+    AMREX_ALWAYS_ASSERT(m_level_resources.size() != 0);
+    AMREX_ALWAYS_ASSERT(m_level_resources.level(0).costs != nullptr);
 
 #ifdef AMREX_USE_MPI
     if (load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Heuristic)
     {
         // compute the costs on a per-rank basis
-        ComputeCostsHeuristic(costs);
+        ComputeCostsHeuristic();
     }
 
     // By default, do not do a redistribute; this toggles to true if RemakeLevel
@@ -97,7 +97,7 @@ WarpX::LoadBalance ()
 
         // Compute the new distribution mapping
         DistributionMapping newdm;
-        const amrex::Real nboxes = costs[lev]->size();
+        const amrex::Real nboxes = m_level_resources.level(lev).costs->size();
         const amrex::Real nprocs = ParallelContext::NProcsSub();
         const int nmax = static_cast<int>(std::ceil(nboxes/nprocs*load_balance_knapsack_factor));
         // These store efficiency (meaning, the  average 'cost' over all ranks,
@@ -106,11 +106,11 @@ WarpX::LoadBalance ()
         amrex::Real proposedEfficiency = 0.0;
 
         newdm = (load_balance_with_sfc)
-            ? DistributionMapping::makeSFC(*costs[lev],
+            ? DistributionMapping::makeSFC(*m_level_resources.level(lev).costs,
                                            currentEfficiency, proposedEfficiency,
                                            false,
                                            ParallelDescriptor::IOProcessorNumber())
-            : DistributionMapping::makeKnapSack(*costs[lev],
+            : DistributionMapping::makeKnapSack(*m_level_resources.level(lev).costs,
                                                 currentEfficiency, proposedEfficiency,
                                                 nmax,
                                                 false,
@@ -311,13 +311,13 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
         // Re-initialize the lattice element finder with the new ba and dm.
         m_level_resources.level(lev).accelerator_lattice->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
 
-        if (costs[lev] != nullptr)
+        if (m_level_resources.level(lev).costs != nullptr)
         {
-            costs[lev] = std::make_unique<LayoutData<Real>>(ba, dm);
-            const auto iarr = costs[lev]->IndexArray();
+            m_level_resources.level(lev).costs = std::make_unique<LayoutData<Real>>(ba, dm);
+            const auto iarr = m_level_resources.level(lev).costs->IndexArray();
             for (const auto& i : iarr)
             {
-                (*costs[lev])[i] = 0.0;
+                (*m_level_resources.level(lev).costs)[i] = 0.0;
                 setLoadBalanceEfficiency(lev, -1);
             }
         }
@@ -349,7 +349,7 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
 }
 
 void
-WarpX::ComputeCostsHeuristic (amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real> > >& a_costs)
+WarpX::ComputeCostsHeuristic ()
 {
     using ablastr::fields::Direction;
     using warpx::fields::FieldType;
@@ -367,7 +367,7 @@ WarpX::ComputeCostsHeuristic (amrex::Vector<std::unique_ptr<amrex::LayoutData<am
             // Particle loop
             for (WarpXParIter pti(myspc, lev); pti.isValid(); ++pti)
             {
-                (*a_costs[lev])[pti.index()] += costs_heuristic_particles_wt*pti.numParticles();
+                (*m_level_resources.level(lev).costs)[pti.index()] += costs_heuristic_particles_wt*pti.numParticles();
             }
         }
 
@@ -376,7 +376,7 @@ WarpX::ComputeCostsHeuristic (amrex::Vector<std::unique_ptr<amrex::LayoutData<am
         for (MFIter mfi(*Ex, false); mfi.isValid(); ++mfi)
         {
             const Box& gbx = mfi.growntilebox();
-            (*a_costs[lev])[mfi.index()] += costs_heuristic_cells_wt*gbx.numPts();
+            (*m_level_resources.level(lev).costs)[mfi.index()] += costs_heuristic_cells_wt*gbx.numPts();
         }
     }
 }
@@ -384,16 +384,16 @@ WarpX::ComputeCostsHeuristic (amrex::Vector<std::unique_ptr<amrex::LayoutData<am
 void
 WarpX::ResetCosts ()
 {
-    AMREX_ALWAYS_ASSERT(!costs.empty());
-    AMREX_ALWAYS_ASSERT(costs[0] != nullptr);
+    AMREX_ALWAYS_ASSERT(m_level_resources.size() != 0);
+    AMREX_ALWAYS_ASSERT(m_level_resources.level(0).costs != nullptr);
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        const auto iarr = costs[lev]->IndexArray();
+        const auto iarr = m_level_resources.level(lev).costs->IndexArray();
         for (const auto& i : iarr)
         {
             // Reset costs
-            (*costs[lev])[i] = 0.0;
+            (*m_level_resources.level(lev).costs)[i] = 0.0;
         }
     }
 }
@@ -407,19 +407,19 @@ WarpX::RescaleCosts (int step)
         return;
     }
 
-    AMREX_ALWAYS_ASSERT(costs.size() == finest_level + 1);
+    AMREX_ALWAYS_ASSERT(m_level_resources.size() == finest_level + 1);
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        if (costs[lev])
+        if (m_level_resources.level(lev).costs)
         {
             // Perform running average of the costs
             // (Giving more importance to most recent costs; only needed
             // for timers update, heuristic load balance considers the
             // instantaneous costs)
-            for (const auto& i : costs[lev]->IndexArray())
+            for (const auto& i : m_level_resources.level(lev).costs->IndexArray())
             {
-                (*costs[lev])[i] *= (1._rt - 2._rt/load_balance_intervals.localPeriod(step+1));
+                (*m_level_resources.level(lev).costs)[i] *= (1._rt - 2._rt/load_balance_intervals.localPeriod(step+1));
             }
         }
     }
