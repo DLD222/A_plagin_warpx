@@ -898,7 +898,7 @@ sed -n '56,100p'   Source/Diagnostics/ReducedDiags/MultiReducedDiags.cpp  # 硬�
 
 | 文档 | 关系 |
 |---|---|
-| [`最终的技术路线.md`](最终的技术路线.md) | **被审计对象**。方向仍为唯一准绳；本文的缺口清单应回写进该文档 |
+| [`最终的技术路线.md`](最终的技术路线.md) | **被审计对象**。方向仍为唯一准绳；§1.3 新增了 **P1 实施原则（能复制就复制，能小改就小改）**，优先级低于 I1–I6 但高于实现风格 |
 | [`ROUTE_AUDIT_REVIEW.md`](ROUTE_AUDIT_REVIEW.md) | 本文的**结论速览版**（约 1/4 篇幅） |
 | [`SOURCE_AUDIT.md`](SOURCE_AUDIT.md) | 路线的事实底稿；数字基本可靠，8 处需修正（见第 2 章） |
 | [`AUTOMATION.md`](AUTOMATION.md) | 任务图与门禁；A0 完成度表述与路线 §9 矛盾 |
