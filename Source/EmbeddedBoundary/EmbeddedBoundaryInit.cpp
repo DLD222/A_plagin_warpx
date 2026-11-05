@@ -577,7 +577,7 @@ web::MarkExtensionCells (
                 }
 
 // TE faces (idim == 0 and 2 in XZ) can borrow area from their in-plane
-                // neighbours (G2). With algo.ect_te_borrowing() = 0 they fall back to the
+                // neighbours (G2). With algo.ect_te_borrowing = 0 they fall back to the
                 // pre-G2 behaviour: no extension, tiny faces enlarged by BCK.
                 if ((idim == 0 || idim == 2) && (WarpX::ect_te_borrowing == 0)) {
                     flag_ext_face_data(i, j, k) = 0;

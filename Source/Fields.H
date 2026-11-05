@@ -73,9 +73,9 @@ namespace warpx::fields
         edge_lengths,   /**< Only used with the ECT solver. Indicates the length of the cell edge that is covered by the EB, in SI units */
         face_areas,     /**< Only used with the ECT solver. Indicates the area of the cell face that is covered by the EB, in SI units */
         area_mod,
-        dual_A_y,       /**< Only used with the ECT solver and algo.ect_conformal_E(). Dual (node-centred) face area for Ey */
-        dual_L_x,       /**< Only used with the ECT solver and algo.ect_conformal_E(). Open length along x, stored where Bx lives */
-        dual_L_z,       /**< Only used with the ECT solver and algo.ect_conformal_E(). Open length along z, stored where Bz lives */
+        dual_A_y,       /**< Only used with the ECT solver and algo.ect_conformal_E. Dual (node-centred) face area for Ey */
+        dual_L_x,       /**< Only used with the ECT solver and algo.ect_conformal_E. Open length along x, stored where Bx lives */
+        dual_L_z,       /**< Only used with the ECT solver and algo.ect_conformal_E. Open length along z, stored where Bz lives */
         pml_E_fp,
         pml_B_fp,
         pml_j_fp,

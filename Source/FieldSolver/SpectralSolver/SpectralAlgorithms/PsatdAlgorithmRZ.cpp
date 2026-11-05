@@ -57,19 +57,19 @@ PsatdAlgorithmRZ::PsatdAlgorithmRZ (SpectralKSpaceRZ const & spectral_kspace,
     if (time_averaging && time_dependency_J != TimeDependencyJ::Linear)
     {
         WARPX_ABORT_WITH_MESSAGE(
-            "RZ PSATD: psatd.do_time_averaging=1 implemented only with psatd.time_dependency_J()=linear");
+            "RZ PSATD: psatd.do_time_averaging=1 implemented only with psatd.time_dependency_J=linear");
     }
 
     if (dive_cleaning && time_dependency_J != TimeDependencyJ::Linear)
     {
         WARPX_ABORT_WITH_MESSAGE(
-            "RZ PSATD: warpx.do_dive_cleaning=1 implemented only with psatd.time_dependency_J()=linear");
+            "RZ PSATD: warpx.do_dive_cleaning=1 implemented only with psatd.time_dependency_J=linear");
     }
 
     if (divb_cleaning && time_dependency_J != TimeDependencyJ::Linear)
     {
         WARPX_ABORT_WITH_MESSAGE(
-            "RZ PSATD: warpx.do_divb_cleaning=1 implemented only with psatd.time_dependency_J()=linear");
+            "RZ PSATD: warpx.do_divb_cleaning=1 implemented only with psatd.time_dependency_J=linear");
     }
 }
 
@@ -125,7 +125,7 @@ PsatdAlgorithmRZ::pushSpectralFields(SpectralFieldDataRZ & f)
 
         // Loop over indices within one box
         // Note that k = 0
-        int const modes = f.n_rz_azimuthal_modes();
+        int const modes = f.n_rz_azimuthal_modes;
         amrex::ParallelFor(bx, modes,
         [=] AMREX_GPU_DEVICE(int i, int j, int k, int mode) noexcept
         {
@@ -369,7 +369,7 @@ void PsatdAlgorithmRZ::InitializeSpectralCoefficients (SpectralFieldDataRZ const
         amrex::Real const dt = m_dt;
 
         // Loop over indices within one box
-        int const modes = f.n_rz_azimuthal_modes();
+        int const modes = f.n_rz_azimuthal_modes;
         amrex::ParallelFor(bx, modes,
         [=] AMREX_GPU_DEVICE(int i, int j, int k, int mode) noexcept
         {
@@ -446,7 +446,7 @@ PsatdAlgorithmRZ::CurrentCorrection (SpectralFieldDataRZ& field_data)
         amrex::Real const dt = m_dt;
 
         // Loop over indices within one box
-        int const modes = field_data.n_rz_azimuthal_modes();
+        int const modes = field_data.n_rz_azimuthal_modes;
         ParallelFor(bx, modes,
         [=] AMREX_GPU_DEVICE(int i, int j, int k, int mode) noexcept
         {

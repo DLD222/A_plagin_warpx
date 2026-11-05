@@ -66,7 +66,7 @@ PsatdAlgorithmPmlRZ::pushSpectralFields (SpectralFieldDataRZ & f)
 
         // Loop over indices within one box
         // Note that k = 0
-        int const modes = f.n_rz_azimuthal_modes();
+        int const modes = f.n_rz_azimuthal_modes;
         amrex::ParallelFor(bx, modes,
         [=] AMREX_GPU_DEVICE(int i, int j, int k, int mode) noexcept
         {
@@ -135,7 +135,7 @@ void PsatdAlgorithmPmlRZ::InitializeSpectralCoefficients (SpectralFieldDataRZ co
         amrex::Real const dt = m_dt;
 
         // Loop over indices within one box
-        int const modes = f.n_rz_azimuthal_modes();
+        int const modes = f.n_rz_azimuthal_modes;
         amrex::ParallelFor(bx, modes,
         [=] AMREX_GPU_DEVICE(int i, int j, int k, int mode) noexcept
         {

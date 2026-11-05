@@ -354,7 +354,7 @@ MacroscopicProperties::InitData (
     // material 2 are simply ignored (the run then looks exactly like the vacuum run).
     if (m_has_interface && !WarpX::macroscopic_subpixel) {
         ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
-            "interface_function is set but algo.macroscopic_subpixel()=0: the subpixel "
+            "interface_function is set but algo.macroscopic_subpixel=0: the subpixel "
             "rows are NOT built and epsilon2 / tensor material 2 will be ignored.");
     }
     // Initialize sigma
@@ -429,7 +429,7 @@ MacroscopicProperties::InitData (
     // at a*dt ~ O(0.1..1) the two integrators differ visibly (see c03-E6).
     if (!WarpX::macroscopic_subpixel && m_sigma_mf && m_sigma_mf->max(0) > amrex::Real(0.0)) {
         ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
-            "macroscopic.sigma > 0 but algo.macroscopic_subpixel()=0: the E update "
+            "macroscopic.sigma > 0 but algo.macroscopic_subpixel=0: the E update "
             "falls back to the first-order backward-Euler integrator instead of "
             "the exact exponential step.");
     }

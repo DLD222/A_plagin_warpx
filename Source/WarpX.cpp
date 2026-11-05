@@ -592,37 +592,37 @@ WarpX::ReadParameters ()
         // Refuse the combination instead of silently ignoring the tensor.
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             !(macroscopic_subpixel > 0 && electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT),
-            "algo.macroscopic_subpixel() requires algo.maxwell_solver = yee: the tensor/subpixel "
+            "algo.macroscopic_subpixel requires algo.maxwell_solver = yee: the tensor/subpixel "
             "path is Yee-only, ECT is the cut-cell (conformal) path");
         pp_algo.query("ect_te_borrowing", ect_te_borrowing);
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             ect_conformal_E_Astab > 0.0_rt,
-            "algo.ect_conformal_E_Astab() must be > 0 (it is a floor on A_y in units of dx*dz)");
+            "algo.ect_conformal_E_Astab must be > 0 (it is a floor on A_y in units of dx*dz)");
         if (electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT && !EB::enabled()) {
             throw std::runtime_error("ECP Solver requires to enable embedded boundaries at runtime.");
         }
         // Negative values would silently disable the conformal update: reject them.
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             ect_conformal_E >= 0,
-            "algo.ect_conformal_E() must be >= 0 (0 = off)");
+            "algo.ect_conformal_E must be >= 0 (0 = off)");
         if (ect_conformal_E > 0) {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT,
-                "algo.ect_conformal_E() requires algo.maxwell_solver = ect");
+                "algo.ect_conformal_E requires algo.maxwell_solver = ect");
             // Schemes 3 and 4 are not implemented yet. Do not widen this range until
             // their code lands: otherwise the bool "constant_geometry" would silently
             // treat them as scheme 2 (see C_SIDE_FIX_PLAN.md, item M1).
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 ect_conformal_E <= 9,
-                "algo.ect_conformal_E() must be 0,1,2,4,6,7");
+                "algo.ect_conformal_E must be 0,1,2,4,6,7");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 ect_conformal_E != 3,
-                "algo.ect_conformal_E(): scheme 3 (face fractions) was measured to be "
+                "algo.ect_conformal_E: scheme 3 (face fractions) was measured to be "
                 "worse than scheme 2 and is deliberately not implemented, see "
                 "C_SIDE_FINDINGS_2026-10-31.md F-1");
 #if !defined(WARPX_DIM_XZ)
             WARPX_ABORT_WITH_MESSAGE(
-                "algo.ect_conformal_E() is only implemented for 2D (XZ) builds");
+                "algo.ect_conformal_E is only implemented for 2D (XZ) builds");
 #endif
         }
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
@@ -2742,7 +2742,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                  *  dual_A_y : dual face area around the node where Ey lives   (IntVect = (1,1))
                  *  dual_L_x : open length along x, stored where Bx lives      (IntVect = (1,0))
                  *  dual_L_z : open length along z, stored where Bz lives      (IntVect = (0,1))
-                 *  Only allocated in 2D (XZ), see algo.ect_conformal_E(). */
+                 *  Only allocated in 2D (XZ), see algo.ect_conformal_E. */
                 if (WarpX::ect_conformal_E > 0) {
                     m_fields.alloc_init(FieldType::dual_A_y, lev, amrex::convert(ba, Ey_nodal_flag),
                         dm, ncomps, guard_cells.ng_FieldSolver, 1.0_rt);
