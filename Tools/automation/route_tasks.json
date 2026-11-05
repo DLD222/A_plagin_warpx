@@ -533,12 +533,32 @@
    "note": ""
   },
   {
-   "id": "A1.7",
+   "id": "A1.7a",
    "phase": "A1",
-   "title": "Batch F：粒子/流体配置迁移",
+   "title": "粒子边界缓冲 context + 数据访问迁移",
    "kind": "refactor",
    "depends": [
     "A1.6"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/ParticleBoundaryBuffer.H",
+    "Source/Particles/ParticleBoundaryBuffer.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "ParticleBoundaryBuffer 不再直接 GetInstance；domain/EB 边界抓取走 data()",
+   "note": "A1.7 的第一批；粒子容器大文件后续",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.7",
+   "phase": "A1",
+   "title": "Batch F2：WarpXParticleContainer / MultiParticleContainer 配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.7a"
    ],
    "status": "pending",
    "outputs": [],

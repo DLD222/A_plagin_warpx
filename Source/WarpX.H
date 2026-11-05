@@ -84,7 +84,7 @@
 #include <variant>
 #include <vector>
 
-namespace warpx::runtime { struct RuntimeContext; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeConfig; }
 
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
@@ -1117,6 +1117,7 @@ public:
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context) { m_runtime_context = context; }
     [[nodiscard]] warpx::runtime::RuntimeContext* GetRuntimeContext () const { return m_runtime_context; }
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& runtime_config () const;
 
     //! Use this function to override the Level 0 grids made by AMReX.
     //! This function is called in amrex::AmrCore::InitFromScratch.

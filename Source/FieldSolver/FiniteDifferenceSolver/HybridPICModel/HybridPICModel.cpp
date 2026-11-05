@@ -11,6 +11,9 @@
 
 #include "HybridPICModel.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
+
 #include <ablastr/coarsen/sample.H>
 #include <ablastr/utils/Communication.H>
 #include <ablastr/warn_manager/WarnManager.H>
@@ -31,7 +34,8 @@
 using namespace amrex;
 using warpx::fields::FieldType;
 
-HybridPICModel::HybridPICModel ()
+HybridPICModel::HybridPICModel (const warpx::runtime::RuntimeContext* ctx)
+    : m_runtime_context(ctx)
 {
     ReadParameters();
 }
@@ -817,7 +821,7 @@ void HybridPICModel::CalculateElectronPressure(const int lev, bool const floor_d
     warpx.ApplyElectronPressureBoundary(lev, PatchType::fine);
     ablastr::utils::communication::FillBoundary(
         *electron_pressure_fp,
-        WarpX::do_single_precision_comms,
+        config().do_single_precision_comms(),
         warpx.Geom(lev).periodicity(),
         true);
 
@@ -829,7 +833,7 @@ void HybridPICModel::CalculateElectronPressure(const int lev, bool const floor_d
         amrex::MultiFab & Te = *warpx.m_fields.get(
             FieldType::hybrid_electron_temperature_fp, lev);
         ablastr::utils::communication::FillBoundary(
-            Te, WarpX::do_single_precision_comms,
+            Te, config().do_single_precision_comms(),
             warpx.Geom(lev).periodicity(), true);
     }
 }
@@ -910,11 +914,11 @@ void HybridPICModel::CalculateElectronFluidVelocity (const int lev) const
     // that would otherwise be injected into particles by the gather inside
     // the drag operator). A multi-pass filter reads ghosts beyond the single
     // computed layer and needs them communicated first.
-    if (WarpX::use_filter) {
-        if (WarpX::filter_npass_each_dir.max() > 1) {
+    if (config().use_filter()) {
+        if (config().filter_npass_each_dir().max() > 1) {
             for (int idim = 0; idim < 3; ++idim) {
                 ablastr::utils::communication::FillBoundary(
-                    *Ve[idim], WarpX::do_single_precision_comms,
+                    *Ve[idim], config().do_single_precision_comms(),
                     warpx.Geom(lev).periodicity(), true);
             }
         }
@@ -927,7 +931,7 @@ void HybridPICModel::CalculateElectronFluidVelocity (const int lev) const
     // computed above.
     for (int idim = 0; idim < 3; ++idim) {
         ablastr::utils::communication::FillBoundary(
-            *Ve[idim], WarpX::do_single_precision_comms,
+            *Ve[idim], config().do_single_precision_comms(),
             warpx.Geom(lev).periodicity(), true);
     }
 
@@ -1020,7 +1024,7 @@ void HybridPICModel::CalculateIonFluidVelocity (const int lev) const
         // Same J-style binomial filter as in CalculateElectronFluidVelocity;
         // the ghost cells were computed above, so no pre-filter exchange is
         // needed.
-        if (WarpX::use_filter) {
+        if (config().use_filter()) {
             warpx.ApplyFilterMF(
                 warpx.m_fields.get_mr_levels_alldirs("Vs_fp_" + spec, warpx.finestLevel()),
                 lev);
@@ -1031,7 +1035,7 @@ void HybridPICModel::CalculateIonFluidVelocity (const int lev) const
         // neighbor-consistent.
         for (int idim = 0; idim < 3; ++idim) {
             ablastr::utils::communication::FillBoundary(
-                *Vs[idim], WarpX::do_single_precision_comms,
+                *Vs[idim], config().do_single_precision_comms(),
                 warpx.Geom(lev).periodicity(), true);
         }
 
@@ -2064,7 +2068,7 @@ void HybridPICModel::QDSMCFillElectronPressureFromTe (
     }
     warpx.ApplyElectronPressureBoundary(lev, PatchType::fine);
     ablastr::utils::communication::FillBoundary(
-        Pe, WarpX::do_single_precision_comms, warpx.Geom(lev).periodicity(), true);
+        Pe, config().do_single_precision_comms(), warpx.Geom(lev).periodicity(), true);
 }
 
 
@@ -2985,4 +2989,14 @@ void HybridPICModel::FieldPush (
     // Push forward the B-field using Faraday's law
     warpx.EvolveB(dt, subcycling_half, t_old);
     warpx.FillBoundaryB(ng, nodal_sync);
+}
+
+const warpx::runtime::RuntimeConfig&
+HybridPICModel::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
 }

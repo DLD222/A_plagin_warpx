@@ -9,6 +9,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
 #include "WarpX.H"
 
 #include "BoundaryConditions/FieldBoundaries.H"
@@ -389,7 +391,7 @@ WarpX::WarpX ()
     }
 
     // Particle Boundary Buffer (i.e., scraped particles on boundary)
-    m_particle_boundary_buffer = std::make_unique<ParticleBoundaryBuffer>();
+    m_particle_boundary_buffer = std::make_unique<ParticleBoundaryBuffer>(m_runtime_context);
 
     // Fluid Container
     if (do_fluid_species) {
@@ -430,7 +432,7 @@ WarpX::WarpX ()
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC)
     {
         // Create hybrid-PIC model object if needed
-        m_hybrid_pic_model = std::make_unique<HybridPICModel>();
+        m_hybrid_pic_model = std::make_unique<HybridPICModel>(m_runtime_context);
     }
 
     current_buffer_masks.resize(nlevs_max);
@@ -3784,4 +3786,14 @@ WarpX::getFieldDotMaskPointer ( FieldType field_type, int lev, ablastr::fields::
             WARPX_ABORT_WITH_MESSAGE("Invalid field type for dotMask");
             return Efield_dotMask[lev][dir].get();
     }
+}
+
+const warpx::runtime::RuntimeConfig&
+WarpX::runtime_config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
 }

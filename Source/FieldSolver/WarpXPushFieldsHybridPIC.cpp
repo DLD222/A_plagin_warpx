@@ -13,6 +13,7 @@
 #include "Utils/TextMsg.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
+#include "Runtime/RuntimeConfig.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -130,7 +131,7 @@ void WarpX::HybridPICEvolveFields ()
         getistep(0),
         0.5_rt*dt[0],
         SubcyclingHalf::FirstHalf, guard_cells.ng_FieldSolver,
-        WarpX::sync_nodal_points
+        runtime_config().sync_nodal_points()
     );
 
     // Average rho^{n} and rho^{n+1} to get rho^{n+1/2} in rho_fp_temp
@@ -176,7 +177,7 @@ void WarpX::HybridPICEvolveFields ()
         getistep(0),
         0.5_rt*dt[0],
         SubcyclingHalf::SecondHalf, guard_cells.ng_FieldSolver,
-        WarpX::sync_nodal_points
+        runtime_config().sync_nodal_points()
     );
 
     // Extrapolate the ion current density to t=n+1 using
@@ -217,7 +218,7 @@ void WarpX::HybridPICEvolveFields ()
         m_fields.get_mr_levels_alldirs(FieldType::Bfield_fp, finest_level),
         m_fields.get_mr_levels(FieldType::rho_fp, finest_level),
         m_eb_update_E_fp, false);
-    FillBoundaryE(guard_cells.ng_FieldSolver, WarpX::sync_nodal_points);
+    FillBoundaryE(guard_cells.ng_FieldSolver, runtime_config().sync_nodal_points());
 
     // Update Ve_fp and per-species Vs_fp at t=n+1 for the next step's
     // particle-level drag operator and per-species resistive overlay.
@@ -237,7 +238,7 @@ void WarpX::HybridPICEvolveFields ()
             for (int idim = 0; idim < 3; ++idim) {
                 ablastr::utils::communication::FillBoundary(
                     *J_plasma[idim], J_plasma[idim]->nGrowVect(),
-                    WarpX::do_single_precision_comms, Geom(lev).periodicity());
+                    runtime_config().do_single_precision_comms(), Geom(lev).periodicity());
             }
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
             ApplyFieldBoundaryOnAxis(J_plasma[0], J_plasma[1], J_plasma[2], lev);
@@ -343,12 +344,12 @@ void WarpX::HybridPICDepositRhoAndJ ()
                 ablastr::utils::communication::SumBoundary(
                     *rho_spec[lev], 0, rho_spec[lev]->nComp(),
                     rho_spec[lev]->nGrowVect(), rho_spec[lev]->nGrowVect(),
-                    WarpX::do_single_precision_comms, Geom(lev).periodicity());
+                    runtime_config().do_single_precision_comms(), Geom(lev).periodicity());
                 for (int idim = 0; idim < 3; ++idim) {
                     ablastr::utils::communication::SumBoundary(
                         *J_spec[lev][idim], 0, J_spec[lev][idim]->nComp(),
                         J_spec[lev][idim]->nGrowVect(), J_spec[lev][idim]->nGrowVect(),
-                        WarpX::do_single_precision_comms, Geom(lev).periodicity());
+                        runtime_config().do_single_precision_comms(), Geom(lev).periodicity());
                 }
                 // Apply boundary conditions to rho_spec, and then apply volume scaling
                 FinalizeRhoOnLevel(lev, rho_spec[lev], PatchType::fine);
@@ -421,7 +422,7 @@ void WarpX::HybridPICDepositRhoAndJ ()
         ablastr::utils::communication::FillBoundary(
             *m_fields.get(FieldType::rho_fp, lev),
             m_fields.get(FieldType::rho_fp, lev)->nGrowVect(),
-            WarpX::do_single_precision_comms,
+            runtime_config().do_single_precision_comms(),
             Geom(lev).periodicity(),
             true
         );
@@ -429,7 +430,7 @@ void WarpX::HybridPICDepositRhoAndJ ()
             ablastr::utils::communication::FillBoundary(
                 *m_fields.get(FieldType::current_fp, Direction{idim}, lev),
                 m_fields.get(FieldType::current_fp, Direction{idim}, lev)->nGrowVect(),
-                WarpX::do_single_precision_comms,
+                runtime_config().do_single_precision_comms(),
                 Geom(lev).periodicity(),
                 true
             );
@@ -585,7 +586,7 @@ void WarpX::HybridPICInitializeRhoJandB ()
             for (int idim = 0; idim < 3; ++idim) {
                 ablastr::utils::communication::FillBoundary(
                     *J_plasma[idim], J_plasma[idim]->nGrowVect(),
-                    WarpX::do_single_precision_comms, Geom(lev).periodicity());
+                    runtime_config().do_single_precision_comms(), Geom(lev).periodicity());
             }
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
             ApplyFieldBoundaryOnAxis(J_plasma[0], J_plasma[1], J_plasma[2], lev);

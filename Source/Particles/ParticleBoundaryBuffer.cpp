@@ -4,6 +4,9 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "EmbeddedBoundary/DistanceToEB.H"
@@ -197,7 +200,8 @@ struct CopyAndTimestamp {
 };
 
 
-ParticleBoundaryBuffer::ParticleBoundaryBuffer ()
+ParticleBoundaryBuffer::ParticleBoundaryBuffer (const warpx::runtime::RuntimeContext* ctx)
+    : m_runtime_context(ctx)
 {
     m_particle_containers.resize(numBoundaries());
     m_do_boundary_buffer.resize(numBoundaries());
@@ -362,8 +366,7 @@ void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (MultiParticleC
     ABLASTR_PROFILE("ParticleBoundaryBuffer::gatherParticles");
 
     using PIter = amrex::ParConstIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
-    const auto& warpx_instance = WarpX::GetInstance();
-    const amrex::Geometry& geom = warpx_instance.Geom(0);
+    const amrex::Geometry& geom = data().geom(0);
     auto plo = geom.ProbLoArray();
     auto phi = geom.ProbHiArray();
     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim)
@@ -448,14 +451,13 @@ void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (MultiParticleC
                         }
                         {
                           ABLASTR_PROFILE("ParticleBoundaryBuffer::gatherParticles::filterAndTransform");
-                          auto& warpx = WarpX::GetInstance();
-                          const auto dt = warpx.getdt(pti.GetLevel());
+                          const auto dt = data().dt(pti.GetLevel());
                           auto & buf = buffer[i];
                           const int step_scraped_index = buf.GetIntCompIndex("stepScraped") - WarpXParticleContainer::NArrayInt;
                           const int delta_index = buf.GetRealCompIndex("deltaTimeScraped") - WarpXParticleContainer::NArrayReal;
                           const int time_scraped_index = buf.GetRealCompIndex("timeScraped") - WarpXParticleContainer::NArrayReal;
                           const int normal_index = buf.GetRealCompIndex("nx") - WarpXParticleContainer::NArrayReal;
-                          const int step = warpx_instance.getistep(0);
+                          const int step = data().istep(0);
                           amrex::filterAndTransformParticles(ptile_buffer, ptile,
                                                              predicate,
                                                              CopyAndTimestamp{step_scraped_index, delta_index, time_scraped_index, normal_index,
@@ -560,14 +562,13 @@ void ParticleBoundaryBuffer::gatherParticlesFromEmbeddedBoundaries (
                         if (new_np > capacity) { ptile_buffer.reserve(2*new_np); }
                         ptile_buffer.resize(new_np);
                     }
-                    auto &warpx = WarpX::GetInstance();
-                    const auto dt = warpx.getdt(pti.GetLevel());
+                    const auto dt = data().dt(pti.GetLevel());
                     auto & buf = buffer[i];
                     const int step_scraped_index = buf.GetIntCompIndex("stepScraped") - WarpXParticleContainer::NArrayInt;
                     const int delta_index = buf.GetRealCompIndex("deltaTimeScraped") - WarpXParticleContainer::NArrayReal;
                     const int time_scraped_index = buf.GetRealCompIndex("timeScraped") - WarpXParticleContainer::NArrayReal;
                     const int normal_index = buf.GetRealCompIndex("nx") - WarpXParticleContainer::NArrayReal;
-                    const int step = warpx_instance.getistep(0);
+                    const int step = data().istep(0);
 
                     {
                         ABLASTR_PROFILE("ParticleBoundaryBuffer::gatherParticles::filterTransformEB");
@@ -589,7 +590,7 @@ int ParticleBoundaryBuffer::getNumParticlesInContainer(
         const std::string& species_name, int boundary, bool local) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = WarpX::GetInstance().GetPartContainer().getSpeciesID(species_name);
+    auto index = data().particles().getSpeciesID(species_name);
 
     if (buffer[index].isDefined()){
         return static_cast<int>(buffer[index].TotalNumberOfParticles(false, local));
@@ -603,7 +604,7 @@ WarpXParticleContainer::Base &
 ParticleBoundaryBuffer::getParticleBuffer(const std::string& species_name, int boundary) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = WarpX::GetInstance().GetPartContainer().getSpeciesID(species_name);
+    auto index = data().particles().getSpeciesID(species_name);
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_do_boundary_buffer[boundary][index],
                                      "Attempted to get particle buffer for boundary "
@@ -618,7 +619,17 @@ WarpXParticleContainer::Base *
 ParticleBoundaryBuffer::getParticleBufferPointer(const std::string& species_name, int boundary) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = WarpX::GetInstance().GetPartContainer().getSpeciesID(species_name);
+    auto index = data().particles().getSpeciesID(species_name);
 
     return &buffer[index];
+}
+
+const warpx::runtime::RuntimeData&
+ParticleBoundaryBuffer::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
 }

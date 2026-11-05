@@ -72,6 +72,7 @@ public:
     [[nodiscard]] int nox () const;
     [[nodiscard]] bool fft_do_time_averaging () const;
     [[nodiscard]] int ncomps () const;
+    [[nodiscard]] bool sync_nodal_points () const;
     [[nodiscard]] LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo () const;
     [[nodiscard]] int start_moving_window_step () const;
     [[nodiscard]] int end_moving_window_step () const;

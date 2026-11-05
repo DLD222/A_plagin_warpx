@@ -33,6 +33,8 @@
 #include <AMReX_BoxArray.H>
 #include <AMReX_IntVect.H>
 #include <AMReX_DistributionMapping.H>
+
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; }
 #include <AMReX_Enum.H>
 
 #include <map>
@@ -58,10 +60,14 @@ AMREX_ENUM(VacuumSeamSwitchMode,
 class HybridPICModel
 {
 public:
-    HybridPICModel ();
+    explicit HybridPICModel (const warpx::runtime::RuntimeContext* ctx = nullptr);
     // Defined out-of-line in the .cpp so the unique_ptr<QdsmcParticleContainer>
     // member can destroy a forward-declared particle container.
     ~HybridPICModel ();
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
     HybridPICModel ( HybridPICModel const & )             = delete;
     HybridPICModel& operator= ( HybridPICModel const & )  = delete;

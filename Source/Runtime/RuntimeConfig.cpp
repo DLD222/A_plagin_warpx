@@ -246,6 +246,12 @@ RuntimeConfig::ncomps () const
     return WarpX::ncomps;
 }
 
+bool
+RuntimeConfig::sync_nodal_points () const
+{
+    return true; // WarpX::sync_nodal_points is a private constexpr true
+}
+
 LoadBalanceCostsUpdateAlgo
 RuntimeConfig::load_balance_costs_update_algo () const
 {

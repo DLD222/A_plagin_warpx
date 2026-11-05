@@ -22,7 +22,7 @@
 class WARPX_EXPORT ParticleBoundaryBuffer
 {
 public:
-    ParticleBoundaryBuffer ();
+    explicit ParticleBoundaryBuffer (const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     ~ParticleBoundaryBuffer() = default;
 
@@ -71,6 +71,9 @@ public:
     std::string boundaryName (int const ibuffer) {return m_boundary_names[ibuffer];}
 
 private:
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
     // over boundary, then number of species
     std::vector<std::vector<WarpXParticleContainer::Base> > m_particle_containers;
 
