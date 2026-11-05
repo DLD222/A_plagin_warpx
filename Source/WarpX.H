@@ -1078,7 +1078,7 @@ public:
     void ErrorEst (int lev, amrex::TagBoxArray& tags, amrex::Real time, int /*ngrow*/) final;
 
     // Return the accelerator lattice instance defined at the given refinement level
-    const AcceleratorLattice& get_accelerator_lattice (int lev) {return *(m_accelerator_lattice[lev]);}
+    const AcceleratorLattice& get_accelerator_lattice (int lev) {return *(m_level_resources.level(lev).accelerator_lattice);}
 
     // for cuda
     void BuildBufferMasksInBox ( amrex::Box tbx, amrex::IArrayBox &buffer_mask,
@@ -1447,7 +1447,6 @@ private:
     /** EB: m_borrowing contains the info about the enlarged cells, i.e. for every enlarged cell it
      * contains the info of which neighbors are being intruded (and the amount of borrowed area).
      * This is only used for the ECT solver.*/
-    amrex::Vector<std::array< std::unique_ptr<amrex::LayoutData<FaceInfoBox> >, 3 > > m_borrowing;
 
     // Copy of the coarse aux
     amrex::Vector<std::unique_ptr<amrex::iMultiFab> > current_buffer_masks;
@@ -1629,8 +1628,6 @@ private:
     //! particle buffer for scraped particles on the boundaries
     std::unique_ptr<ParticleBoundaryBuffer> m_particle_boundary_buffer;
 
-    // Accelerator lattice elements
-    amrex::Vector< std::unique_ptr<AcceleratorLattice> > m_accelerator_lattice;
 
     //
     // Embedded Boundary

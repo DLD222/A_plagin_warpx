@@ -611,7 +611,7 @@ WarpX::ComputeFaceExtensions ()
     );
 
     const auto Bfield = m_fields.get_alldirs(FieldType::Bfield_fp, maxLevel());
-    ::init_borrowing(m_borrowing[maxLevel()], Bfield);
+    ::init_borrowing(m_level_resources.level(maxLevel()).borrowing, Bfield);
     ComputeOneWayExtensions();
 
     amrex::Array1D<int, 0, 2> N_ext_faces_after_one_way = ::CountExtFaces(m_flag_ext_face, maxLevel());
@@ -626,7 +626,7 @@ WarpX::ComputeFaceExtensions ()
     );
 
     ComputeEightWaysExtensions();
-    ::shrink_borrowing(m_borrowing[maxLevel()], Bfield);
+    ::shrink_borrowing(m_level_resources.level(maxLevel()).borrowing, Bfield);
 
     amrex::Array1D<int, 0, 2> N_ext_faces_after_eight_ways = ::CountExtFaces(m_flag_ext_face, maxLevel());
     ablastr::warn_manager::WMRecordWarning("Embedded Boundary",
@@ -715,7 +715,7 @@ WarpX::ComputeOneWayExtensions ()
             auto const &S = m_fields.get(FieldType::face_areas, Direction{idim}, maxLevel())->array(mfi);
             auto const &flag_ext_face = m_flag_ext_face[maxLevel()][idim]->array(mfi);
             auto const &flag_info_face = m_flag_info_face[maxLevel()][idim]->array(mfi);
-            auto &borrowing = (*m_borrowing[maxLevel()][idim])[mfi];
+            auto &borrowing = (*m_level_resources.level(maxLevel()).borrowing[idim])[mfi];
             auto const &borrowing_inds_pointer = borrowing.inds_pointer.array();
             auto const &borrowing_size = borrowing.size.array();
             amrex::Long const ncells = box.numPts();
@@ -883,7 +883,7 @@ WarpX::ComputeEightWaysExtensions ()
             auto const &S = m_fields.get(FieldType::face_areas, Direction{idim}, maxLevel())->array(mfi);
             auto const &flag_ext_face = m_flag_ext_face[maxLevel()][idim]->array(mfi);
             auto const &flag_info_face = m_flag_info_face[maxLevel()][idim]->array(mfi);
-            auto &borrowing = (*m_borrowing[maxLevel()][idim])[mfi];
+            auto &borrowing = (*m_level_resources.level(maxLevel()).borrowing[idim])[mfi];
             auto const &borrowing_inds_pointer = borrowing.inds_pointer.array();
             auto const &borrowing_size = borrowing.size.array();
             amrex::Long const ncells = box.numPts();

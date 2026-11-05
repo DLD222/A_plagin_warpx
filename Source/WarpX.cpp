@@ -427,7 +427,6 @@ WarpX::WarpX ()
 
     m_flag_info_face.resize(nlevs_max);
     m_flag_ext_face.resize(nlevs_max);
-    m_borrowing.resize(nlevs_max);
 
     // Create Electrostatic Solver object if needed
     if ((WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame)
@@ -566,7 +565,6 @@ WarpX::WarpX ()
     }
 
 
-    m_accelerator_lattice.resize(nlevs_max);
 
 }
 
@@ -2485,8 +2483,8 @@ WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& d
     AllocLevelMFs(lev, ba, dm, guard_cells.ng_alloc_EB, guard_cells.ng_alloc_J,
                   guard_cells.ng_alloc_Rho, guard_cells.ng_alloc_F, guard_cells.ng_alloc_G, aux_is_nodal);
 
-    m_accelerator_lattice[lev] = std::make_unique<AcceleratorLattice>();
-    m_accelerator_lattice[lev]->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
+    m_level_resources.level(lev).accelerator_lattice = std::make_unique<AcceleratorLattice>();
+    m_level_resources.level(lev).accelerator_lattice->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
 
 }
 
@@ -2796,11 +2794,11 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 m_fields.alloc_init(FieldType::area_mod, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag),
                     dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
 
-                m_borrowing[lev][0] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
+                m_level_resources.level(lev).borrowing[0] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
                         amrex::convert(ba, Bx_nodal_flag), dm);
-                m_borrowing[lev][1] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
+                m_level_resources.level(lev).borrowing[1] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
                         amrex::convert(ba, By_nodal_flag), dm);
-                m_borrowing[lev][2] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
+                m_level_resources.level(lev).borrowing[2] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
                         amrex::convert(ba, Bz_nodal_flag), dm);
 
                 /** Venl contains the electromotive force for every mesh face, i.e. every entry is

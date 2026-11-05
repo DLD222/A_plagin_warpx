@@ -207,7 +207,7 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
                         RemakeMultiFab( m_eb_update_B_cp[lev][idim] );
                     }
                     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT) {
-                        m_borrowing[lev][idim] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(amrex::convert(ba, Bfield_fp[lev][idim]->ixType().toIntVect()), dm);
+                        m_level_resources.level(lev).borrowing[idim] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(amrex::convert(ba, Bfield_fp[lev][idim]->ixType().toIntVect()), dm);
                     }
                 }
             }
@@ -309,7 +309,7 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
         }
 
         // Re-initialize the lattice element finder with the new ba and dm.
-        m_accelerator_lattice[lev]->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
+        m_level_resources.level(lev).accelerator_lattice->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
 
         if (costs[lev] != nullptr)
         {

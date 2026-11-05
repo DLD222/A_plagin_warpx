@@ -976,12 +976,12 @@ WarpX::EvolveB (int lev, PatchType patch_type, amrex::Real a_dt, SubcyclingHalf 
         m_fdtd_solver_fp[lev]->EvolveB( m_fields,
                                         lev,
                                         patch_type,
-                                        m_flag_info_face[lev], m_borrowing[lev], a_dt );
+                                        m_flag_info_face[lev], m_level_resources.level(lev).borrowing, a_dt );
     } else {
         m_fdtd_solver_cp[lev]->EvolveB( m_fields,
                                         lev,
                                         patch_type,
-                                        m_flag_info_face[lev], m_borrowing[lev], a_dt );
+                                        m_flag_info_face[lev], m_level_resources.level(lev).borrowing, a_dt );
     }
 
     // Evolve B field in PML cells

@@ -9,6 +9,9 @@
 
 #include <algorithm>
 
+#include "AcceleratorLattice/AcceleratorLattice.H"
+#include "EmbeddedBoundary/WarpXFaceInfoBox.H"
+
 namespace warpx::runtime
 {
 

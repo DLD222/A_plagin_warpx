@@ -11,9 +11,14 @@
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_FabFactory.H>
+#include <AMReX_LayoutData.H>
 
+#include <array>
 #include <memory>
 #include <vector>
+
+class AcceleratorLattice;
+struct FaceInfoBox;
 
 namespace warpx::runtime
 {
@@ -30,6 +35,12 @@ struct LevelStorage
 {
     //! Field factory (plain or EB); owned by this level.
     std::unique_ptr<amrex::FabFactory<amrex::FArrayBox>> field_factory;
+
+    //! EB face-extension borrowing data (one per direction).
+    std::array<std::unique_ptr<amrex::LayoutData<FaceInfoBox>>, 3> borrowing;
+
+    //! Optional accelerator-lattice element finder.
+    std::unique_ptr<AcceleratorLattice> accelerator_lattice;
 };
 
 class LevelResources

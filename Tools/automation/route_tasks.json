@@ -1271,12 +1271,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1c1",
+   "phase": "A2",
+   "title": "borrowing + accelerator_lattice 迁入 LevelStorage",
+   "kind": "refactor",
+   "depends": [
+    "A2.1b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/WarpX.cpp",
+    "Source/Parallelization/WarpXRegrid.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 m_borrowing/m_accelerator_lattice；EB/MR/回归通过",
+   "note": "PML/costs 留 A2.1c2",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A2.1b"
+    "A2.1c1"
    ],
    "status": "pending",
    "outputs": [
