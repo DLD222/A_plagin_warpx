@@ -24,6 +24,8 @@
 
 namespace amrex { class AmrMesh; }
 
+class ParticleBoundaryBuffer;
+
 namespace warpx::runtime
 {
 
@@ -81,6 +83,9 @@ public:
 
     //! Electrostatic potential on level (uses phi_fp when available).
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> computePhi (int lev) = 0;
+
+    //! Particle boundary buffer owned by the kernel.
+    virtual ParticleBoundaryBuffer& particleBoundaryBuffer () = 0;
 
     //! Mutable run-control (BTD may extend max_step/stop_time).
     virtual void updateMaxStep (int new_max_step) = 0;

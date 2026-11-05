@@ -199,6 +199,12 @@ amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving
 bool WarpXHostServices::movingWindowActive (int step) const { return WarpX::moving_window_active(step); }
 int WarpXHostServices::numCellsShifted (amrex::Real distance, amrex::Real dx) const { return WarpX::NumCellsShifted(distance, dx); }
 bool WarpXHostServices::doMovingWindow () const { return m_warpx.getdo_moving_window(); }
+ParticleBoundaryBuffer&
+WarpXHostServices::particleBoundaryBuffer ()
+{
+    return m_warpx.GetParticleBoundaryBuffer();
+}
+
 void WarpXHostServices::updateMaxStep (int new_max_step) { m_warpx.updateMaxStep(new_max_step); }
 void WarpXHostServices::updateStopTime (amrex::Real new_stop_time) { m_warpx.updateStopTime(new_stop_time); }
 

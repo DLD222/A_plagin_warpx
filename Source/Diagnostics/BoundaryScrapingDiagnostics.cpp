@@ -8,6 +8,8 @@
 #include "BoundaryScrapingDiagnostics.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Diagnostics/Diagnostics.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeData.H"
 #include "Diagnostics/FlushFormats/FlushFormat.H"
 #include "Particles/ParticleBoundaryBuffer.H"
 #include "Utils/TextMsg.H"
@@ -89,15 +91,13 @@ BoundaryScrapingDiagnostics::InitializeBufferData (int /*i_buffer*/, int /*lev*/
 void
 BoundaryScrapingDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
 {
-    auto & warpx = WarpX::GetInstance();
-
     // If the user does not specify any species, dump all species
     if (m_output_species_names.empty()) {
         m_output_species_names = mpc.GetSpeciesNames();
     }
 
     // Initialize one ParticleDiag per species requested
-    ParticleBoundaryBuffer& particle_buffer = warpx.GetParticleBoundaryBuffer();
+    ParticleBoundaryBuffer& particle_buffer = host().particleBoundaryBuffer();
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         for (auto const& species_name : m_output_species_names){
             WarpXParticleContainer* pc = &mpc.GetParticleContainerFromName(species_name);
@@ -126,8 +126,7 @@ BoundaryScrapingDiagnostics::DoDump (int step, int /*i_buffer*/, bool force_flus
 void
 BoundaryScrapingDiagnostics::Flush (int i_buffer, bool /* force_flush */)
 {
-    auto & warpx = WarpX::GetInstance();
-    ParticleBoundaryBuffer& particle_buffer = warpx.GetParticleBoundaryBuffer();
+    ParticleBoundaryBuffer& particle_buffer = host().particleBoundaryBuffer();
 
     int n_particles = 0;
     for (auto const& species_name : m_output_species_names) {
@@ -145,18 +144,18 @@ BoundaryScrapingDiagnostics::Flush (int i_buffer, bool /* force_flush */)
     int const numBTDBuffers = 0;
     // The data being written out is saved in a pinned particle container
     bool const use_pinned_pc = true;
-    const amrex::Geometry& geom = warpx.Geom(0); // For compatibility with `WriteToFile` ; not used
+    const amrex::Geometry& geom = data().geom(0); // For compatibility with `WriteToFile` ; not used
 
     // The data for each boundary is written out to a separate directory with the boundary name
     const std::string file_prefix = m_file_prefix + "/particles_at_" + particle_buffer.boundaryName(i_buffer);
 
     m_flush_format->WriteToFile(
-        m_varnames, m_mf_output.at(i_buffer), m_geom_output.at(i_buffer), warpx.getistep(),
-        warpx.gett_new(0),
+        m_varnames, m_mf_output.at(i_buffer), m_geom_output.at(i_buffer), data().istepVector(),
+        data().t_new(0),
         m_output_species.at(i_buffer),
         nlev_output, file_prefix,
         m_file_min_digits, false, false, m_verbose, use_pinned_pc, isBTD,
-        warpx.getistep(0), bufferID, numBTDBuffers, geom,
+        data().istep(0), bufferID, numBTDBuffers, geom,
         isLastBTD);
 
     // Now that the data has been written out, clear out the buffer

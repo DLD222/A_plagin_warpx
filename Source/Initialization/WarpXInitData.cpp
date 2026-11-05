@@ -1386,6 +1386,7 @@ WarpX::InitLevelData (int lev, Real /*time*/)
 
 template<typename T>
 void ComputeExternalFieldOnGridUsingParser_template (
+    WarpX& warpx,
     const T& field,
     amrex::ParserExecutor<4> const& fx_parser,
     amrex::ParserExecutor<4> const& fy_parser,
@@ -1394,7 +1395,6 @@ void ComputeExternalFieldOnGridUsingParser_template (
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > > const& eb_update_field,
     bool use_eb_flags)
 {
-    auto &warpx = WarpX::GetInstance();
     auto const &geom = warpx.Geom(lev);
 
     auto t = warpx.gett_new(lev);
@@ -1548,6 +1548,7 @@ void WarpX::ComputeExternalFieldOnGridUsingParser (
 {
     if (std::holds_alternative<warpx::fields::FieldType>(field)){
         ComputeExternalFieldOnGridUsingParser_template<warpx::fields::FieldType> (
+            *this,
             std::get<warpx::fields::FieldType>(field),
             fx_parser, fy_parser, fz_parser,
             lev, patch_type, eb_update_field,
@@ -1555,6 +1556,7 @@ void WarpX::ComputeExternalFieldOnGridUsingParser (
     }
     else{
         ComputeExternalFieldOnGridUsingParser_template<std::string> (
+            *this,
             std::get<std::string>(field),
             fx_parser, fy_parser, fz_parser,
             lev, patch_type, eb_update_field,

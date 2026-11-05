@@ -1134,12 +1134,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8x",
+   "phase": "A1",
+   "title": "边界诊断/hybrid 推进/外场 parser 剩余单例",
+   "kind": "refactor",
+   "depends": [
+    "A1.8w"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/BoundaryScrapingDiagnostics.cpp",
+    "Source/FieldSolver/WarpXPushFieldsHybridPIC.cpp",
+    "Source/Initialization/WarpXInitData.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "三处无 GetInstance（除 dead RZ handler/legacy）；回归通过",
+   "note": "BoundaryBuffer host service; parser template 收 WarpX&",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8w"
+    "A1.8x"
    ],
    "status": "pending",
    "outputs": [],
