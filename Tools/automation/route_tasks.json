@@ -1433,12 +1433,31 @@
    }
   },
   {
+   "id": "A2.4a",
+   "phase": "A2",
+   "title": "FieldSchema + base E/B/J 分配",
+   "kind": "refactor",
+   "depends": [
+    "A2.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A2.4_ALLOC_SCHEMA.md"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "base E/B/J 走 FieldAllocSpec；数值不变",
+   "note": "PSATD/EB 留 b/c",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.1"
+    "A2.4a"
    ],
    "status": "pending",
    "outputs": [],
