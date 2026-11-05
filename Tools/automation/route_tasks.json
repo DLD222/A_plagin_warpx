@@ -857,12 +857,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8j",
+   "phase": "A1",
+   "title": "ES 向量数据 + syncRho/finalizeRho host services 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8i"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A1.8_SERVICES_DESIGN.md",
+    "Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "ES 不再直接 GetInstance；新增静电算例验收",
+   "note": "设计见 A1.8_SERVICES_DESIGN.md；Hybrid 留 A3",
+   "verify_command": null
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8i"
+    "A1.8j"
    ],
    "status": "pending",
    "outputs": [],
