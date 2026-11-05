@@ -976,12 +976,31 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8p",
+   "phase": "A1",
+   "title": "ProjectionDivCleaner context + 场/几何迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8o"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Initialization/DivCleaner/ProjectionDivCleaner.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "div cleaner 类无 GetInstance；WarpX 入口传 context；构建与回归通过",
+   "note": "WarpX::ProjectionCleanDivB 用自身 m_fields/m_runtime_context",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8o"
+    "A1.8p"
    ],
    "status": "pending",
    "outputs": [],

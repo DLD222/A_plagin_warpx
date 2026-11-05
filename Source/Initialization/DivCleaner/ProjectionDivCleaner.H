@@ -40,6 +40,8 @@
 #include "Fields.H"
 #include "Utils/Parser/ParserUtils.H"
 
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
+
 namespace warpx::initialization {
 
 class ProjectionDivCleaner
@@ -79,6 +81,9 @@ protected:
     int m_comp = 0;
 
 private:
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
     // Helper template for executing the MLMG solver with cell and node based solvers
     template <typename T>
     AMREX_FORCE_INLINE void runMLMG (
@@ -122,7 +127,7 @@ public:
 
     // Default Constructor
     explicit ProjectionDivCleaner (std::string const& a_field_name, bool a_vector_potential=false,
-                                   int a_comp=0);
+                                   int a_comp=0, const warpx::runtime::RuntimeContext* ctx=nullptr);
 
     void ReadParameters ();
 

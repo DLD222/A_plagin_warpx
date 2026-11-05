@@ -9,6 +9,10 @@
 
 #include "ProjectionDivCleaner.H"
 
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
+
 #include <AMReX_MLPoisson.H>
 #include <AMReX_MLNodeLaplacian.H>
 #include <AMReX_MultiFabUtil.H>
@@ -34,19 +38,18 @@ using namespace amrex;
 namespace warpx::initialization {
 
 ProjectionDivCleaner::ProjectionDivCleaner(std::string const& a_field_name, bool a_vector_potential,
-                                           int a_comp) :
+                                           int a_comp, const warpx::runtime::RuntimeContext* ctx) :
     m_field_name{a_field_name},
     m_grid_type{WarpX::grid_type},
     m_vector_potential{a_vector_potential},
-    m_comp{a_comp}
+    m_comp{a_comp},
+    m_runtime_context{ctx}
 {
     using ablastr::fields::Direction;
     ReadParameters();
 
-    auto& warpx = WarpX::GetInstance();
-
     // Only div clean level 0
-    if (warpx.finestLevel() > 0) {
+    if (data().finestLevel() > 0) {
         ablastr::warn_manager::WMRecordWarning("Projection Div Cleaner",
             "Multiple AMR levels detected, only first level has been cleaned.",
             ablastr::warn_manager::WarnPriority::low);
@@ -56,7 +59,7 @@ ProjectionDivCleaner::ProjectionDivCleaner(std::string const& a_field_name, bool
     m_source.resize(m_levels);
 
     const int ncomps = WarpX::ncomps;
-    auto const& ng = warpx.m_fields.get(m_field_name, Direction{0}, 0)->nGrowVect();
+    auto const& ng = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{0}, 0)->nGrowVect();
 
     IntVect nodal_flag{};
     if (m_grid_type == GridType::Collocated || m_vector_potential) {
@@ -69,8 +72,8 @@ ProjectionDivCleaner::ProjectionDivCleaner(std::string const& a_field_name, bool
     for (int lev = 0; lev < m_levels; ++lev)
     {
         // Default BoxArray and DistributionMap for initializing the output MultiFab, m_mf_output.
-        const amrex::BoxArray& ba = warpx.boxArray(lev);
-        const amrex::DistributionMapping& dmap = warpx.DistributionMap(lev);
+        const amrex::BoxArray& ba = data().boxArray(lev);
+        const amrex::DistributionMapping& dmap = data().distributionMap(lev);
 
         m_solution[lev].reset();
         m_source[lev].reset();
@@ -147,12 +150,9 @@ ProjectionDivCleaner::ReadParameters ()
 void
 ProjectionDivCleaner::solve ()
 {
-    // Get WarpX object
-    auto & warpx = WarpX::GetInstance();
-
-    const auto& ba = warpx.boxArray();
-    const auto& dmap = warpx.DistributionMap();
-    const auto& geom = warpx.Geom();
+    const auto& ba = data().boxArrayAll();
+    const auto& dmap = data().distributionMapAll();
+    const auto& geom = data().geomAll();
 
     // Pull boundary conditions from WarpX class
     // bogus values are overwritten.
@@ -222,9 +222,7 @@ ProjectionDivCleaner::setSourceFromField ()
 {
     using ablastr::fields::Direction;
 
-    // Get WarpX object
-    auto & warpx = WarpX::GetInstance();
-    const auto& geom = warpx.Geom();
+    const auto& geom = data().geomAll();
 
     // This function will compute -divB and store it in the source multifab
     for (int ilev = 0; ilev < m_levels; ++ilev)
@@ -233,13 +231,13 @@ ProjectionDivCleaner::setSourceFromField ()
         // External fields may stack several independent field maps as separate components,
         // so we clean one component (one map) at a time with the same single-field machinery.
         amrex::MultiFab Bx(
-            *warpx.m_fields.get(m_field_name, Direction{0}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{0}, ilev),
             amrex::make_alias, m_comp, 1);
         amrex::MultiFab By(
-            *warpx.m_fields.get(m_field_name, Direction{1}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{1}, ilev),
             amrex::make_alias, m_comp, 1);
         amrex::MultiFab Bz(
-            *warpx.m_fields.get(m_field_name, Direction{2}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{2}, ilev),
             amrex::make_alias, m_comp, 1);
 
         // Synchronize the ghost cells, do halo exchange
@@ -315,9 +313,7 @@ ProjectionDivCleaner::correctField ()
 {
     using ablastr::fields::Direction;
 
-    // Get WarpX object
-    auto & warpx = WarpX::GetInstance();
-    const auto& geom = warpx.Geom();
+    const auto& geom = data().geomAll();
 
     // This function computes the gradient of the solution and subtracts out divB component from B
     for (int ilev = 0; ilev < m_levels; ++ilev)
@@ -326,13 +322,13 @@ ProjectionDivCleaner::correctField ()
         // External fields may stack several independent field maps as separate components,
         // so we correct one component (one map) at a time with the same single-field machinery.
         amrex::MultiFab Bx(
-            *warpx.m_fields.get(m_field_name, Direction{0}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{0}, ilev),
             amrex::make_alias, m_comp, 1);
         amrex::MultiFab By(
-            *warpx.m_fields.get(m_field_name, Direction{1}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{1}, ilev),
             amrex::make_alias, m_comp, 1);
         amrex::MultiFab Bz(
-            *warpx.m_fields.get(m_field_name, Direction{2}, ilev),
+            *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(m_field_name, Direction{2}, ilev),
             amrex::make_alias, m_comp, 1);
 
 #ifdef AMREX_USE_OMP
@@ -409,6 +405,14 @@ ProjectionDivCleaner::correctField ()
     }
 }
 
+const warpx::runtime::RuntimeData&
+ProjectionDivCleaner::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}
+
 } // namespace warpx::initialization
 
 void
@@ -434,15 +438,13 @@ WarpX::ProjectionCleanDivB() {
                 ablastr::warn_manager::WarnPriority::low);
         }
 
-        auto & warpx = WarpX::GetInstance();
-
         bool cleaned_any = false;
 
         // External B field loaded onto the grid (warpx.B_ext_grid_init_style, i.e.
         // LoadInitialField / AnalyticInitialField / LoadInitialFieldFromPython). It is added
         // directly to the solver B field and is a single component.
-        if (warpx.m_fields.has_vector("Bfield_fp_external", 0)) {
-            warpx::initialization::ProjectionDivCleaner dc("Bfield_fp_external");
+        if (m_fields.has_vector("Bfield_fp_external", 0)) {
+            warpx::initialization::ProjectionDivCleaner dc("Bfield_fp_external", false, 0, m_runtime_context);
             dc.setSourceFromField();
             dc.solve();
             dc.correctField();
@@ -453,12 +455,12 @@ WarpX::ProjectionCleanDivB() {
         // read_from_file, i.e. LoadAppliedField). Several applied-field maps may be stacked as
         // independent components; each is cleaned separately so that the gathered field stays
         // divergence free for any combination of per-map time dependences.
-        if (warpx.m_fields.has_vector("B_external_particle_field", 0)) {
-            const int ncomp = warpx.m_fields.get(
+        if (m_fields.has_vector("B_external_particle_field", 0)) {
+            const int ncomp = m_fields.get(
                 "B_external_particle_field", ablastr::fields::Direction{0}, 0)->nComp();
             for (int ic = 0; ic < ncomp; ++ic) {
                 warpx::initialization::ProjectionDivCleaner dc(
-                    "B_external_particle_field", false, ic);
+                    "B_external_particle_field", false, ic, m_runtime_context);
                 dc.setSourceFromField();
                 dc.solve();
                 dc.correctField();
@@ -482,3 +484,4 @@ WarpX::ProjectionCleanDivB() {
             ablastr::warn_manager::WarnPriority::low);
     }
 }
+
