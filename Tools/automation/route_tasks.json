@@ -1720,12 +1720,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.2b",
+   "phase": "A3",
+   "title": "显式 PIC 通过 StagePlan 执行",
+   "kind": "refactor",
+   "depends": [
+    "A3.2a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Evolve/WarpXEvolve.cpp",
+    "Source/Runtime/StagePoint.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Stage 顺序 Push->AfterPush->FieldSolve；Langmuir/PML/PSATD 通过",
+   "note": "发现并修正 Stage 枚举顺序错误",
+   "verify_command": null
+  },
+  {
    "id": "A3.2",
    "phase": "A3",
    "title": "Evolve/OneStep 阶段化",
    "kind": "refactor",
    "depends": [
-    "A3.2a"
+    "A3.2b"
    ],
    "status": "pending",
    "outputs": [],
@@ -1733,7 +1753,10 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "显式 Strang 先拆；隐式/Hybrid 保留",
-   "note": ""
+   "note": "",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A3.3",

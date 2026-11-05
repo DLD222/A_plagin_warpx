@@ -8,6 +8,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
 #include "Runtime/RuntimeContext.H"
@@ -717,9 +718,21 @@ WarpX::OneStep_nosub (
     // Deposit current j^{n+1/2}
     // Deposit charge density rho^{n}
 
-    OneStep_PushParticles(a_cur_time, a_dt, a_step);
-    OneStep_FinalizeDeposition();
-    OneStep_FieldSolve(a_cur_time);
+    warpx::runtime::StagePlan plan;
+    plan.add({warpx::runtime::Stage::Push, 0}, "Push");
+    plan.add({warpx::runtime::Stage::AfterPush, 0}, "FinalizeDeposition");
+    plan.add({warpx::runtime::Stage::FieldSolve, 0}, "FieldSolve");
+
+    for (const auto& [point, name] : plan.sorted()) {
+        amrex::ignore_unused(point);
+        if (name == "Push") {
+            OneStep_PushParticles(a_cur_time, a_dt, a_step);
+        } else if (name == "FinalizeDeposition") {
+            OneStep_FinalizeDeposition();
+        } else if (name == "FieldSolve") {
+            OneStep_FieldSolve(a_cur_time);
+        }
+    }
 
 }
 

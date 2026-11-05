@@ -21,15 +21,15 @@ enum class Stage
     BeforeInit,
     Init,
     AfterInit,
-    BeforeFieldSolve,
-    FieldSolve,
-    AfterFieldSolve,
     BeforePush,
     Push,
     AfterPush,
     BeforeCollisions,
     Collisions,
     AfterCollisions,
+    BeforeFieldSolve,
+    FieldSolve,
+    AfterFieldSolve,
     Diagnostics,
     Finalize
 };
