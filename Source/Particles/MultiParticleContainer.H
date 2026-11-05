@@ -73,6 +73,9 @@ public:
 
     explicit MultiParticleContainer (amrex::AmrCore* amr_core);
 
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
     ~MultiParticleContainer() = default;
 
     MultiParticleContainer (MultiParticleContainer const &)             = delete;
@@ -566,6 +569,7 @@ protected:
 #endif
 
 private:
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
     // physical particles (+ laser)
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>> allcontainers;

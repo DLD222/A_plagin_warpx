@@ -70,6 +70,12 @@ public:
     [[nodiscard]] const amrex::IntVect& filter_npass_each_dir () const;
     [[nodiscard]] int n_rz_azimuthal_modes () const;
     [[nodiscard]] int nox () const;
+    [[nodiscard]] int noy () const;
+    [[nodiscard]] int noz () const;
+    [[nodiscard]] int particle_max_grid_crossings () const;
+    [[nodiscard]] int villasenor_mass_matrices_max_grid_crossings () const;
+    [[nodiscard]] int shared_mem_current_tpb () const;
+    [[nodiscard]] const amrex::IntVect& shared_tilesize () const;
     [[nodiscard]] bool fft_do_time_averaging () const;
     [[nodiscard]] int ncomps () const;
     [[nodiscard]] bool sync_nodal_points () const;

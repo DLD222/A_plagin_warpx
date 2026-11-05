@@ -41,6 +41,10 @@
 #include "EmbeddedBoundary/ParticleScraper.H"
 #include "EmbeddedBoundary/ParticleBoundaryProcess.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -96,6 +100,9 @@ namespace
 
 MultiParticleContainer::MultiParticleContainer (AmrCore* amr_core)
 {
+    if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
+        m_runtime_context = w->GetRuntimeContext();
+    }
 
     ReadParameters();
 
@@ -341,11 +348,11 @@ MultiParticleContainer::ReadParameters ()
         }
         pp_particles.query("use_fdtd_nci_corr", WarpX::use_fdtd_nci_corr);
 #ifdef WARPX_DIM_RZ
-        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(WarpX::use_fdtd_nci_corr==0,
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().use_fdtd_nci_corr()==0,
                             "ERROR: use_fdtd_nci_corr is not supported in RZ");
 #endif
 #if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(WarpX::use_fdtd_nci_corr==0,
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().use_fdtd_nci_corr()==0,
                             "ERROR: use_fdtd_nci_corr is not supported in 1D");
 #endif
 
@@ -575,7 +582,7 @@ MultiParticleContainer::GetZeroChargeDensity (const int lev)
 
 #ifdef WARPX_DIM_RZ
     const bool is_PSATD_RZ =
-        (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD);
+        (config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::PSATD);
 #else
     const bool is_PSATD_RZ = false;
 #endif
@@ -584,7 +591,7 @@ MultiParticleContainer::GetZeroChargeDensity (const int lev)
         nba.surroundingNodes();
     }
 
-    auto zero_rho = std::make_unique<MultiFab>(nba, dmap, WarpX::ncomps, ng_rho);
+    auto zero_rho = std::make_unique<MultiFab>(nba, dmap, config().ncomps(), ng_rho);
     zero_rho->setVal(amrex::Real(0.0));
     return zero_rho;
 }
@@ -694,7 +701,7 @@ MultiParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
         // pass less than `rho->nGrowVect()` in the fifth input variable `dst_ng`
         ablastr::utils::communication::SumBoundary(
             *rho, 0, rho->nComp(), rho->nGrowVect(), rho->nGrowVect(),
-            WarpX::do_single_precision_comms, gm.periodicity());
+            config().do_single_precision_comms(), gm.periodicity());
     }
 
     if (finalize) {
@@ -1162,7 +1169,7 @@ MultiParticleContainer::doFieldIonization (int lev,
 {
     ABLASTR_PROFILE("MultiParticleContainer::doFieldIonization()");
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // Loop over all species.
     // Ionized particles in pc_source create particles in pc_product
@@ -1188,7 +1195,7 @@ MultiParticleContainer::doFieldIonization (int lev,
 #endif
         for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -1207,7 +1214,7 @@ MultiParticleContainer::doFieldIonization (int lev,
 
             setNewParticleIDs(dst_tile, np_dst, num_added);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -1250,8 +1257,8 @@ void MultiParticleContainer::CheckIonizationProductSpecies()
 void MultiParticleContainer::ScrapeParticlesAtEB (
     ablastr::fields::MultiLevelScalarField const& distance_to_eb)
 {
-    if (WarpX::eb_particle_boundary == ParticleBoundaryType::Reflecting ||
-        WarpX::eb_particle_boundary == ParticleBoundaryType::Thermal) {
+    if (config().eb_particle_boundary() == ParticleBoundaryType::Reflecting ||
+        config().eb_particle_boundary() == ParticleBoundaryType::Thermal) {
         auto& warpx = WarpX::GetInstance();
         for (auto& pc : allcontainers) {
             amrex::ParticleReal const mass = pc->getMass();
@@ -1260,7 +1267,7 @@ void MultiParticleContainer::ScrapeParticlesAtEB (
                 amrex::Real const dt_lev = warpx.getdt(lev);
                 scrapeParticlesAtEB(*pc, distance_to_eb, lev,
                     ParticleBoundaryProcess::ParticleBoundaryInteraction{
-                        dt_lev, mass, WarpX::eb_particle_boundary, uth});
+                        dt_lev, mass, config().eb_particle_boundary(), uth});
             }
         }
     } else {
@@ -1801,7 +1808,7 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
 {
     ABLASTR_PROFILE("MultiParticleContainer::doQedBreitWheeler()");
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // Loop over all species.
     // Photons undergoing Breit Wheeler process create electrons
@@ -1837,7 +1844,7 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
 #endif
         for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -1864,7 +1871,7 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
             setNewParticleIDs(dst_ele_tile, np_dst_ele, num_added);
             setNewParticleIDs(dst_pos_tile, np_dst_pos, num_added);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -1884,7 +1891,7 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
 {
     ABLASTR_PROFILE("MultiParticleContainer::doQedQuantumSync()");
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     // Loop over all species.
     // Electrons or positrons undergoing Quantum photon emission process
@@ -1914,7 +1921,7 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
 #endif
         for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -1945,7 +1952,7 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
                                   dst_tile, np_dst, num_added,
                                   m_quantum_sync_photon_creation_energy_threshold);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -2009,3 +2016,23 @@ void MultiParticleContainer::CheckQEDProductSpecies()
 }
 
 #endif
+
+const warpx::runtime::RuntimeConfig&
+MultiParticleContainer::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::RuntimeData&
+MultiParticleContainer::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}

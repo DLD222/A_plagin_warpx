@@ -24,6 +24,8 @@
 #endif
 #include "MultiParticleContainer_fwd.H"
 
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; }
+
 #include "Particles/Deposition/TemperatureDepositionTypes.H"
 #include "Particles/Deposition/VarianceAccumulationBuffer.H"
 
@@ -224,6 +226,9 @@ public:
     using DiagnosticParticles = amrex::Vector<std::map<std::pair<int, int>, DiagnosticParticleData> >;
 
     WarpXParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name);
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     ~WarpXParticleContainer() override = default;
 
     // Move and copy operations
@@ -799,6 +804,7 @@ public:
     virtual bool getTemperatureDepositionFlag () const noexcept {return false;}
 
 private:
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     void particlePostLocate(ParticleType& p, const amrex::ParticleLocData& pld, int lev) override;
 
 };

@@ -234,6 +234,42 @@ RuntimeConfig::nox () const
     return WarpX::nox;
 }
 
+int
+RuntimeConfig::noy () const
+{
+    return WarpX::noy;
+}
+
+int
+RuntimeConfig::noz () const
+{
+    return WarpX::noz;
+}
+
+int
+RuntimeConfig::particle_max_grid_crossings () const
+{
+    return WarpX::particle_max_grid_crossings;
+}
+
+int
+RuntimeConfig::villasenor_mass_matrices_max_grid_crossings () const
+{
+    return 3; // WarpX::villasenor_mass_matrices_max_grid_crossings is constexpr
+}
+
+int
+RuntimeConfig::shared_mem_current_tpb () const
+{
+    return WarpX::shared_mem_current_tpb;
+}
+
+const amrex::IntVect&
+RuntimeConfig::shared_tilesize () const
+{
+    return WarpX::shared_tilesize;
+}
+
 bool
 RuntimeConfig::fft_do_time_averaging () const
 {

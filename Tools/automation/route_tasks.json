@@ -553,12 +553,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.7",
+   "id": "A1.7b",
    "phase": "A1",
-   "title": "Batch F2：WarpXParticleContainer / MultiParticleContainer 配置迁移",
+   "title": "WarpXParticleContainer/MultiParticleContainer 配置迁移",
    "kind": "refactor",
    "depends": [
     "A1.7a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/WarpXParticleContainer.H",
+    "Source/Particles/MultiParticleContainer.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "容器基类/Multi 的 nox/noz/沉积/边界/负载均衡配置走 config()；粒子回归通过",
+   "note": "GetInstance 字段访问仍留待 A1.7 后续批",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.7",
+   "phase": "A1",
+   "title": "Batch F3：Physical/Laser/Photon 粒子容器配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.7b"
    ],
    "status": "pending",
    "outputs": [],

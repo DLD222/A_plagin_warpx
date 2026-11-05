@@ -33,7 +33,8 @@
 | A1.6c | A1 | done | A1.6b | PSATD context 链 + FFT 算例验收 |
 | A1.6 | A1 | done | A1.6c | Batch E3b：Hybrid-PIC 模型配置迁移 |
 | A1.7a | A1 | done | A1.6 | 粒子边界缓冲 context + 数据访问迁移 |
-| A1.7 | A1 | pending | A1.7a | Batch F2：WarpXParticleContainer / MultiParticleContainer 配置迁移 |
+| A1.7b | A1 | done | A1.7a | WarpXParticleContainer/MultiParticleContainer 配置迁移 |
+| A1.7 | A1 | pending | A1.7b | Batch F3：Physical/Laser/Photon 粒子容器配置迁移 |
 | A1.8 | A1 | pending | A1.5,A1.7 | 移除 WarpX::m_instance 与剩余 GetInstance |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
 | A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
@@ -63,5 +64,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.7` — Batch F2：WarpXParticleContainer / MultiParticleContainer 配置迁移
+**Next:** `A1.7` — Batch F3：Physical/Laser/Photon 粒子容器配置迁移
 
