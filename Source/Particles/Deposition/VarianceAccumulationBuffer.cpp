@@ -14,6 +14,7 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -107,7 +108,7 @@ VarianceAccumulationBuffer::ConvertVarianceToTemperatureAndFilter (
             if (apply_filter) {
                 amrex::Gpu::streamSynchronize();
 
-                (m_runtime_context && m_runtime_context->host ? m_runtime_context->host->applyFilterMF(var_vf, lev, idir) : WarpX::GetInstance().ApplyFilterMF(var_vf, lev, idir));
+                host().applyFilterMF(var_vf, lev, idir);
 
                 amrex::Gpu::streamSynchronize();
 
@@ -136,5 +137,13 @@ VarianceAccumulationBuffer::data () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
     static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}
+
+warpx::runtime::HostServices&
+VarianceAccumulationBuffer::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
+    static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
     return legacy;
 }

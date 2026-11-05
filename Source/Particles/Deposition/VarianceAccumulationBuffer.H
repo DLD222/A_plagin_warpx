@@ -12,7 +12,7 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 
-namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; }
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; class HostServices; class WarpXHostServices; }
 
 namespace warpx::particles::deposition {
 
@@ -26,6 +26,7 @@ class VarianceAccumulationBuffer {
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
 
     public:
     // Constructor for accumulation buffer
