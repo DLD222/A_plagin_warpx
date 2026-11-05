@@ -289,9 +289,8 @@ QdsmcParticleContainer::SetV (int lev,
 {
     ABLASTR_PROFILE("QdsmcParticleContainer::SetV()");
 
-    auto & warpx = WarpX::GetInstance();
-    auto const plo = warpx.Geom(lev).ProbLoArray();
-    auto const dxi = warpx.Geom(lev).InvCellSizeArray();
+    auto const plo = data().geom(lev).ProbLoArray();
+    auto const dxi = data().geom(lev).InvCellSizeArray();
 
     for (iterator pti(*this, lev); pti.isValid(); ++pti)
     {
@@ -339,14 +338,13 @@ QdsmcParticleContainer::SetK (int lev,
 {
     ABLASTR_PROFILE("QdsmcParticleContainer::SetK()");
 
-    auto & warpx = WarpX::GetInstance();
-    auto const plo = warpx.Geom(lev).ProbLoArray();
-    auto const phi = warpx.Geom(lev).ProbHiArray();
-    auto const dxi = warpx.Geom(lev).InvCellSizeArray();
-    auto const dx = warpx.Geom(lev).CellSizeArray();
+    auto const plo = data().geom(lev).ProbLoArray();
+    auto const phi = data().geom(lev).ProbHiArray();
+    auto const dxi = data().geom(lev).InvCellSizeArray();
+    auto const dx = data().geom(lev).CellSizeArray();
     amrex::GpuArray<int, AMREX_SPACEDIM> is_periodic;
     for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-        is_periodic[d] = warpx.Geom(lev).isPeriodic(d);
+        is_periodic[d] = data().geom(lev).isPeriodic(d);
     }
 
     for (iterator pti(*this, lev); pti.isValid(); ++pti)
@@ -574,8 +572,7 @@ QdsmcParticleContainer::DepositScalar (int lev, int const attr,
                                        amrex::Real const scale,
                                        amrex::MultiFab & field)
 {
-    auto & warpx = WarpX::GetInstance();
-    amrex::Periodicity const & period = warpx.Geom(lev).periodicity();
+    amrex::Periodicity const & period = data().geom(lev).periodicity();
     amrex::XDim3 const dinv = data().invCellSize(lev);
 
     field.setVal(0);

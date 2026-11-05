@@ -55,8 +55,7 @@ WarpXFluidContainer::WarpXFluidContainer(int ispecies, const std::string &name,
 {
     ReadParameters();
 
-    WarpX &warpx = WarpX::GetInstance();
-    const amrex::Geometry &geom = warpx.Geom(0);
+    const amrex::Geometry &geom = data().geom(0);
 
     // Initialize injection objects
     const ParmParse pp_species_name(species_name);
@@ -374,8 +373,7 @@ void WarpXFluidContainer::ApplyBcFluidsAndComms (ablastr::fields::MultiFabRegist
     using ablastr::fields::Direction;
     ABLASTR_PROFILE("WarpXFluidContainer::ApplyBcFluidsAndComms");
 
-    WarpX &warpx = WarpX::GetInstance();
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const amrex::Periodicity &period = geom.periodicity();
     const Array<int,AMREX_SPACEDIM> periodic_directions = geom.isPeriodic();
     amrex::Box domain = geom.Domain();
@@ -482,9 +480,8 @@ void WarpXFluidContainer::AdvectivePush_Muscl (ablastr::fields::MultiFabRegister
     ABLASTR_PROFILE("WarpXFluidContainer::AdvectivePush_Muscl");
 
     // Grab the grid spacing
-    WarpX &warpx = WarpX::GetInstance();
-    const Real dt = warpx.getdt(lev);
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const Real dt = data().dt(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const auto dx = geom.CellSizeArray();
     const amrex::Real clight = PhysConst::c;
 #if defined(WARPX_DIM_3D)
@@ -1077,9 +1074,8 @@ void WarpXFluidContainer::centrifugal_source_rz (ablastr::fields::MultiFabRegist
     using ablastr::fields::Direction;
     ABLASTR_PROFILE("WarpXFluidContainer::centrifugal_source_rz");
 
-    WarpX &warpx = WarpX::GetInstance();
-    const Real dt = warpx.getdt(lev);
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const Real dt = data().dt(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const auto dx = geom.CellSizeArray();
     const auto problo = geom.ProbLoArray();
     const amrex::Real clight = PhysConst::c;
@@ -1151,11 +1147,10 @@ void WarpXFluidContainer::GatherAndPush (
     using ablastr::fields::Direction;
     ABLASTR_PROFILE("WarpXFluidContainer::GatherAndPush");
 
-    WarpX &warpx = WarpX::GetInstance();
     const amrex::Real q = getCharge();
     const amrex::Real m = getMass();
-    const Real dt = warpx.getdt(lev);
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const Real dt = data().dt(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const auto dx = geom.CellSizeArray();
     const auto problo = geom.ProbLoArray();
     const amrex::Real gamma_boost = frame().gamma_boost;
@@ -1430,13 +1425,12 @@ void WarpXFluidContainer::DepositCharge (ablastr::fields::MultiFabRegister& fiel
 {
     ABLASTR_PROFILE("WarpXFluidContainer::DepositCharge");
 
-    WarpX &warpx = WarpX::GetInstance();
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const amrex::Periodicity &period = geom.periodicity();
     const amrex::Real q = getCharge();
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     const amrex::Real dr = data().cellSize(lev)[0];
-    const bool use_axis_correction = warpx.UseVerboncoeurAxisCorrection();
+    const bool use_axis_correction = data().useVerboncoeurAxisCorrection();
 #endif
     auto const &owner_mask_rho = amrex::OwnerMask(rho, period);
 
@@ -1510,8 +1504,7 @@ void WarpXFluidContainer::DepositCurrent(
     }
 
     // We now need to create a mask to fix the double counting.
-    WarpX &warpx = WarpX::GetInstance();
-    const amrex::Geometry &geom = warpx.Geom(lev);
+    const amrex::Geometry &geom = data().geom(lev);
     const amrex::Periodicity &period = geom.periodicity();
     auto const &owner_mask_x = amrex::OwnerMask(jx, period);
     auto const &owner_mask_y = amrex::OwnerMask(jy, period);

@@ -40,6 +40,7 @@ amrex::RealBox WarpXRuntimeData::realBox (const amrex::Box& box, int lev) const 
 amrex::XDim3 WarpXRuntimeData::invCellSize (int lev) const { return WarpX::InvCellSize(lev); }
 amrex::IntVect WarpXRuntimeData::ngEB () const { return m_warpx.getngEB(); }
 amrex::IntVect WarpXRuntimeData::ngDeposRho () const { return m_warpx.get_ng_depos_rho(); }
+bool WarpXRuntimeData::useVerboncoeurAxisCorrection () const { return m_warpx.UseVerboncoeurAxisCorrection(); }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return m_warpx.blockingFactor(lev); }
 amrex::IntVect WarpXRuntimeData::numProcs () const { return m_warpx.get_numprocs(); }
 amrex::IntVect WarpXRuntimeData::maxGridSize (int lev) const { return m_warpx.maxGridSize(lev); }

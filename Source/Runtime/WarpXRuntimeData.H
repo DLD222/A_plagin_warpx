@@ -42,6 +42,7 @@ public:
     [[nodiscard]] amrex::XDim3 invCellSize (int lev) const override;
     [[nodiscard]] amrex::IntVect ngEB () const override;
     [[nodiscard]] amrex::IntVect ngDeposRho () const override;
+    [[nodiscard]] bool useVerboncoeurAxisCorrection () const override;
     [[nodiscard]] amrex::IntVect blockingFactor (int lev) const override;
     [[nodiscard]] amrex::IntVect numProcs () const override;
     [[nodiscard]] amrex::IntVect maxGridSize (int lev) const override;
