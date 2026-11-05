@@ -1,6 +1,8 @@
 
 #include "TemperatureFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
@@ -27,16 +29,15 @@ void
 TemperatureFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
     using namespace amrex::literals;
-    auto& warpx = WarpX::GetInstance();
 
-    auto& pc = warpx.GetPartContainer().GetParticleContainer(m_ispec);
+    auto& pc = const_cast<MultiParticleContainer&>(data().particles()).GetParticleContainer(m_ispec);
     amrex::Real const mass = pc.getMass();  // Note, implicit conversion from ParticleReal
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(mass > 0.,
         "The temperature diagnostic can not be calculated for a massless species.");
 
     pc.DepositTotalNGPTemperature(m_lev);
-    amrex::MultiFab const & temperature = *warpx.m_fields.get("T_" + pc.getName(), m_lev);
+    amrex::MultiFab const & temperature = *data().fields().get("T_" + pc.getName(), m_lev);
 
     // Coarsen and interpolate from temperature to the output diagnostic MultiFab, mf_dst.
     ablastr::coarsen::sample::Coarsen(mf_dst, temperature, dcomp, 0, nComp(), 0, m_crse_ratio);

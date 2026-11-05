@@ -1,5 +1,7 @@
 #include "PartPerCellFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
@@ -29,21 +31,20 @@ PartPerCellFunctor::PartPerCellFunctor(const amrex::MultiFab* mf_src,
 void
 PartPerCellFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
-    auto& warpx = WarpX::GetInstance();
     // Guard cell is set to 1 for generality. However, for a cell-centered
     // output Multifab, mf_dst, the guard-cell data is not needed especially considering
     // the operations performend in the CoarsenAndInterpolate function.
     constexpr int ng = 1;
     // Temporary cell-centered, single-component MultiFab for storing particles per cell.
-    amrex::MultiFab ppc_mf(warpx.boxArray(m_lev), warpx.DistributionMap(m_lev), 1, ng);
+    amrex::MultiFab ppc_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, ng);
     // Set value to 0, and increment the value in each cell with ppc.
     ppc_mf.setVal(0._rt);
     if (m_species_index == -1) {
         // Compute ppc which includes a summation over all species.
-        warpx.GetPartContainer().Increment(ppc_mf, m_lev);
+        const_cast<MultiParticleContainer&>(data().particles()).Increment(ppc_mf, m_lev);
     } else {
         // Compute ppc for the specified species
-        auto& mypc = warpx.GetPartContainer().GetParticleContainer(m_species_index);
+        auto& mypc = const_cast<MultiParticleContainer&>(data().particles()).GetParticleContainer(m_species_index);
         mypc.Increment(ppc_mf, m_lev);
     }
     // Coarsen and interpolate from ppc_mf to the output diagnostic MultiFab, mf_dst.

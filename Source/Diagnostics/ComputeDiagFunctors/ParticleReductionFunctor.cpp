@@ -1,6 +1,8 @@
 
 #include "ParticleReductionFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
@@ -45,14 +47,13 @@ ParticleReductionFunctor::ParticleReductionFunctor (const amrex::MultiFab* mf_sr
 void
 ParticleReductionFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
-    auto& warpx = WarpX::GetInstance();
     // Guard cell is set to 1 for generality. However, for a cell-centered
     // output Multifab, mf_dst, the guard-cell data is not needed especially considering
     // the operations performend in the CoarsenAndInterpolate function.
     constexpr int ng = 1;
     // Temporary cell-centered, multi-component MultiFab for storing particles per cell.
-    amrex::MultiFab red_mf(warpx.boxArray(m_lev), warpx.DistributionMap(m_lev), 1, ng);
-    auto& pc = warpx.GetPartContainer().GetParticleContainer(m_ispec);
+    amrex::MultiFab red_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, ng);
+    auto& pc = const_cast<MultiParticleContainer&>(data().particles()).GetParticleContainer(m_ispec);
     // Copy over member variables so they can be captured in the lambda
     auto map_fn = m_map_fn;
     auto filter_fn = m_filter_fn;
@@ -83,7 +84,7 @@ ParticleReductionFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, 
                 amrex::Gpu::Atomic::AddNoRet(&out_array(ii, jj, kk, 0), (amrex::Real)(p.rdata(PIdx::w) * value));
             });
     if (m_do_average) {
-        amrex::MultiFab ppc_mf(warpx.boxArray(m_lev), warpx.DistributionMap(m_lev), 1, ng);
+        amrex::MultiFab ppc_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, ng);
         // Add the weight for each particle -- total number of particles of this species
         ParticleToMesh(pc, ppc_mf, m_lev,
                 [=] AMREX_GPU_DEVICE (const WarpXParticleContainer::SuperParticleType& p,

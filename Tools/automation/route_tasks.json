@@ -713,12 +713,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8c",
+   "phase": "A1",
+   "title": "粒子类诊断 functor 迁移（PartPerCell/ParticleReduction/Temperature）",
+   "kind": "refactor",
+   "depends": [
+    "A1.8b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/PartPerCellFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/ParticleReductionFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/TemperatureFunctor.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "三个 functor 走 data()；诊断回归通过",
+   "note": "剩余算法型 functor（Rho/J/Div/Phi/Darwin/BTD）需 host services",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8b"
+    "A1.8c"
    ],
    "status": "pending",
    "outputs": [],
