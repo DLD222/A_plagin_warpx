@@ -64,9 +64,9 @@
 | A1.8w | A1 | done | A1.8v | 粒子创建/注入剩余局部单例（AddParticles/DefaultInit/Rigid） |
 | A1.8x | A1 | done | A1.8w | 边界诊断/hybrid 推进/外场 parser 剩余单例 |
 | A1.8y | A1 | done | A1.8x | ParticleIO 自由函数 context + 磁静边界 handler 显式 Geometry |
-| A1.8 | A1 | pending | A1.8y | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
-| A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
-| A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
+| A1.8 | A1 | done | A1.8y | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
+| A1.9a | A1 | done | A1.8 | A1 基线回归门（build+smoke，无 A/B） |
+| A1.9 | A1 | done | A1.9a | A1 回归门（A/B + 子系统测试） |
 | A2.1 | A2 | pending | A1.9a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
 | A2.2 | A2 | pending | A2.1 | ClearLevel 完整化 |
 | A2.3 | A2 | pending | A2.1 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
@@ -95,5 +95,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.8` — Batch G2：移除 m_instance 与剩余 GetInstance 调用点
+**Next:** `A2.1` — LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）
 

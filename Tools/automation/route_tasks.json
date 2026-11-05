@@ -1187,8 +1187,28 @@
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "目标：main/Python 之外无单例",
-   "note": ""
+   "acceptance": "非 A3 范围的直接 GetInstance 为 0；Hybrid(32)/Collision(4)/Python legacy 由 A3.3a/A3.3b 承接",
+   "note": "A1.8 在 A1 范围收口；Hybrid/Collision 不再加 context 参数，等 PluginHost/SpeciesHandle",
+   "state": {
+    "status": "pending"
+   }
+  },
+  {
+   "id": "A1.9a",
+   "phase": "A1",
+   "title": "A1 基线回归门（build+smoke，无 A/B）",
+   "kind": "test",
+   "depends": [
+    "A1.8"
+   ],
+   "status": "pending",
+   "outputs": [],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": "bash Tools/automation/gates/full_gate.sh",
+   "acceptance": "compliance+audit+build+smoke 全过；A/B 逐位门因无插件推迟到 A5",
+   "note": "full_gate 实测 5/5；A1.9 的 A/B 部分依赖 A5 第一个插件",
+   "verify_command": "bash Tools/automation/gates/full_gate.sh"
   },
   {
    "id": "A1.9",
@@ -1196,34 +1216,18 @@
    "title": "A1 回归门（A/B + 子系统测试）",
    "kind": "test",
    "depends": [
-    "A1.8"
+    "A1.9a"
    ],
    "status": "pending",
    "outputs": [],
    "effort_days": 2.0,
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
-   "acceptance": "逐位/数值门 + 全量冒烟",
-   "note": ""
-  },
-  {
-   "id": "A1.9a",
-   "phase": "A1",
-   "title": "20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8）",
-   "kind": "refactor",
-   "depends": [
-    "A1.9"
-   ],
-   "status": "pending",
-   "outputs": [
-    "Source/Runtime/CapabilitySet.H"
-   ],
-   "effort_days": 5.0,
-   "gate": "build+smoke",
-   "automation_command": null,
-   "acceptance": "每个 enum 归入模板/注册表/capability 三类；构造期校验",
-   "note": "审计 D6/D8",
-   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_snapshot' --output-on-failure"
+   "acceptance": "基线 full_gate 通过；A/B 逐位门在 A5 首个插件后重跑（本任务不伪造 A/B）",
+   "note": "A1.9a 已跑 compliance/audit/build/smoke 5/5；A/B 依赖 A5",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A2.1",
