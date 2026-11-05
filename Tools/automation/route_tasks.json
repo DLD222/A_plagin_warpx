@@ -1388,24 +1388,30 @@
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "单一所有者；RAII",
-   "note": "设计见 Docs/research_notes/A2.1_LEVEL_RESOURCES_DESIGN.md；按 a–e 分步"
+   "acceptance": "factory/PML/borrowing/costs/dotMask/lattice 单一所有者；spectral 仍由 WarpX 管理",
+   "note": "spectral solver 130 处访问，留 A2.3 统一处理",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A2.2",
    "phase": "A2",
-   "title": "ClearLevel 完整化",
+   "title": "ClearLevel 完整化（EB flags/buffer masks/spectral）",
    "kind": "refactor",
    "depends": [
-    "A2.1"
+    "A2.1c2b"
    ],
    "status": "pending",
-   "outputs": [],
-   "effort_days": 3.0,
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 1.5,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "覆盖 field_factory/EB flags/borrowing/lattice/dotMask",
-   "note": ""
+   "acceptance": "ClearLevel 释放 EB update/reduce/flag_info/buffer masks；EB/MR 回归通过",
+   "note": "spectral solver 仍由 ClearLevel 单独 reset",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
    "id": "A2.3",
@@ -1413,7 +1419,7 @@
    "title": "RemakeLevel 完整化（PML/材料/dotMask/flag_info）",
    "kind": "refactor",
    "depends": [
-    "A2.1"
+    "A2.2"
    ],
    "status": "pending",
    "outputs": [],

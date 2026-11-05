@@ -2380,6 +2380,19 @@ WarpX::ClearLevel (int lev)
     m_fields.clear_level(lev);
     m_level_resources.clear(lev);
 
+#ifdef AMREX_USE_EB
+    m_eb_reduce_particle_shape[lev].reset();
+    for (int i = 0; i < 3; ++i) {
+        m_eb_update_E_fp[lev][i].reset();
+        m_eb_update_B_fp[lev][i].reset();
+        m_eb_update_E_cp[lev][i].reset();
+        m_eb_update_B_cp[lev][i].reset();
+        m_flag_info_face[lev][i].reset();
+    }
+#endif
+
+    current_buffer_masks[lev].reset();
+    gather_buffer_masks[lev].reset();
 
 #ifdef WARPX_USE_FFT
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD) {
