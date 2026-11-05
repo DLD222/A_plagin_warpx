@@ -1313,6 +1313,26 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1d",
+   "phase": "A2",
+   "title": "dotMask 缓存迁入 LevelStorage",
+   "kind": "refactor",
+   "depends": [
+    "A2.1c2a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 dotMask 成员；ClearLevel 释放；PML/边界回归通过",
+   "note": "dotMask 是缓存，不是场 owner",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",

@@ -414,10 +414,6 @@ WarpX::WarpX ()
         myfl = std::make_unique<MultiFluidContainer>(m_runtime_context);
     }
 
-    Efield_dotMask.resize(nlevs_max);
-    Bfield_dotMask.resize(nlevs_max);
-    Afield_dotMask.resize(nlevs_max);
-    phi_dotMask.resize(nlevs_max);
 
     m_eb_update_E_fp.resize(nlevs_max);
     m_eb_update_B_fp.resize(nlevs_max);
@@ -2385,13 +2381,6 @@ WarpX::ClearLevel (int lev)
     m_fields.clear_level(lev);
     m_level_resources.clear(lev);
 
-    for (int i = 0; i < 3; ++i) {
-        Efield_dotMask [lev][i].reset();
-        Bfield_dotMask [lev][i].reset();
-        Afield_dotMask [lev][i].reset();
-    }
-
-    phi_dotMask[lev].reset();
 
 #ifdef WARPX_USE_FFT
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD) {
@@ -3787,20 +3776,20 @@ WarpX::getFieldDotMaskPointer ( FieldType field_type, int lev, ablastr::fields::
     switch(field_type)
     {
         case FieldType::Efield_fp :
-            ::SetDotMask( Efield_dotMask[lev][dir], m_fields.get("Efield_fp", dir, lev), periodicity);
-            return Efield_dotMask[lev][dir].get();
+            ::SetDotMask( m_level_resources.level(lev).Efield_dotMask[dir], m_fields.get("Efield_fp", dir, lev), periodicity);
+            return m_level_resources.level(lev).Efield_dotMask[dir].get();
         case FieldType::Bfield_fp :
-            ::SetDotMask( Bfield_dotMask[lev][dir], m_fields.get("Bfield_fp", dir, lev), periodicity);
-            return Bfield_dotMask[lev][dir].get();
+            ::SetDotMask( m_level_resources.level(lev).Bfield_dotMask[dir], m_fields.get("Bfield_fp", dir, lev), periodicity);
+            return m_level_resources.level(lev).Bfield_dotMask[dir].get();
         case FieldType::vector_potential_fp_nodal :
-            ::SetDotMask( Afield_dotMask[lev][dir], m_fields.get("vector_potential_fp_nodal", dir, lev), periodicity);
-            return Afield_dotMask[lev][dir].get();
+            ::SetDotMask( m_level_resources.level(lev).Afield_dotMask[dir], m_fields.get("vector_potential_fp_nodal", dir, lev), periodicity);
+            return m_level_resources.level(lev).Afield_dotMask[dir].get();
         case FieldType::phi_fp :
-            ::SetDotMask( phi_dotMask[lev], m_fields.get("phi_fp", lev), periodicity);
-            return phi_dotMask[lev].get();
+            ::SetDotMask( m_level_resources.level(lev).phi_dotMask, m_fields.get("phi_fp", lev), periodicity);
+            return m_level_resources.level(lev).phi_dotMask.get();
         default:
             WARPX_ABORT_WITH_MESSAGE("Invalid field type for dotMask");
-            return Efield_dotMask[lev][dir].get();
+            return m_level_resources.level(lev).Efield_dotMask[dir].get();
     }
 }
 

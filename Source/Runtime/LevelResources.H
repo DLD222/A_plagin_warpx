@@ -44,6 +44,12 @@ struct LevelStorage
 
     //! Per-level load-balance costs.
     std::unique_ptr<amrex::LayoutData<amrex::Real>> costs;
+
+    //! Cached dot masks (derived from fields; not physical state).
+    mutable std::array<std::unique_ptr<amrex::iMultiFab>, 3> Efield_dotMask;
+    mutable std::array<std::unique_ptr<amrex::iMultiFab>, 3> Bfield_dotMask;
+    mutable std::array<std::unique_ptr<amrex::iMultiFab>, 3> Afield_dotMask;
+    mutable std::unique_ptr<amrex::iMultiFab> phi_dotMask;
 };
 
 class LevelResources
