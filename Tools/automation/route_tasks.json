@@ -1701,12 +1701,31 @@
    }
   },
   {
+   "id": "A3.2a",
+   "phase": "A3",
+   "title": "OneStep_nosub 提取显式 PIC 阶段方法",
+   "kind": "refactor",
+   "depends": [
+    "A3.1c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3.2_EVOLVE_PHASES.md"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "显式路径分块；隐式/Hybrid 不动；数值不变",
+   "note": "A3.2b 才上 StagePlan",
+   "verify_command": null
+  },
+  {
    "id": "A3.2",
    "phase": "A3",
    "title": "Evolve/OneStep 阶段化",
    "kind": "refactor",
    "depends": [
-    "A3.1"
+    "A3.2a"
    ],
    "status": "pending",
    "outputs": [],
