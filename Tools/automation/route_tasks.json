@@ -917,12 +917,31 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8m",
+   "phase": "A1",
+   "title": "MultiParticleContainer 主体去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.8l"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/MultiParticleContainer.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "MPC 只剩 data/host fallback；粒子/碰撞/流体回归通过",
+   "note": "含 QED 断言与 EB scrape 路径",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8l"
+    "A1.8m"
    ],
    "status": "pending",
    "outputs": [],

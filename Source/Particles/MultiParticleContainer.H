@@ -75,6 +75,7 @@ public:
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
 
     ~MultiParticleContainer() = default;
 

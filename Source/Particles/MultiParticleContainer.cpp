@@ -44,6 +44,8 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -574,11 +576,10 @@ MultiParticleContainer::PushP (int lev, Real dt,
 std::unique_ptr<MultiFab>
 MultiParticleContainer::GetZeroChargeDensity (const int lev)
 {
-    const WarpX& warpx = WarpX::GetInstance();
 
-    BoxArray nba = warpx.boxArray(lev);
-    const DistributionMapping dmap = warpx.DistributionMap(lev);
-    const int ng_rho = warpx.get_ng_depos_rho().max();
+    BoxArray nba = data().boxArray(lev);
+    const DistributionMapping dmap = data().distributionMap(lev);
+    const int ng_rho = data().ngDeposRho().max();
 
 #ifdef WARPX_DIM_RZ
     const bool is_PSATD_RZ =
@@ -619,7 +620,7 @@ MultiParticleContainer::DepositCurrent (
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     for (int lev = 0; lev < J.size(); ++lev)
     {
-        WarpX::GetInstance().ApplyInverseVolumeScalingToCurrentDensity(
+        host().applyInverseVolumeScalingToCurrentDensity(
             J[lev][0], J[lev][1], J[lev][2], lev);
     }
 #endif
@@ -670,11 +671,11 @@ MultiParticleContainer::DepositTemperatures (
         // Generate Name to look up temperature MF in the register
         const std::string temperature_vf_str = "T_" + species_names[pc->getSpeciesId()];
         const ablastr::fields::MultiLevelVectorField T_vf =
-            fields.get_mr_levels_alldirs(temperature_vf_str, WarpX::GetInstance().finestLevel());
+            fields.get_mr_levels_alldirs(temperature_vf_str, data().finestLevel());
 
         // Clear temperature MF for this species
         for (int idim = 0; idim < 3; ++idim) {
-            for (int lev = 0; lev <= WarpX::GetInstance().finestLevel(); ++lev) {
+            for (int lev = 0; lev <= data().finestLevel(); ++lev) {
                 T_vf[lev][Direction{idim}]->setVal(0.0_rt);
             }
         }
@@ -708,7 +709,7 @@ MultiParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
         AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
             !local,
             "GetChargeDensityOnLevel requires local=false when finalize=true.");
-        WarpX::GetInstance().FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
     }
     return rho;
 }
@@ -716,10 +717,9 @@ MultiParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
 std::unique_ptr<amrex::MultiFab>
 MultiParticleContainer::GetGlobalPlasmaFrequency (int lev)
 {
-    const WarpX & warpx = WarpX::GetInstance();
 
-    amrex::BoxArray const & ba = warpx.boxArray(lev);
-    amrex::DistributionMapping const & dmap = warpx.DistributionMap(lev);
+    amrex::BoxArray const & ba = data().boxArray(lev);
+    amrex::DistributionMapping const & dmap = data().distributionMap(lev);
     int const ncomps = 1;
     const amrex::IntVect ng = amrex::IntVect::TheZeroVector();
     auto global_plasma_frequency = std::make_unique<amrex::MultiFab>(ba, dmap, ncomps, ng);
@@ -757,7 +757,6 @@ MultiParticleContainer::GetGlobalPlasmaFrequency (int lev)
 void
 MultiParticleContainer::GenerateGlobalDebyeLength ()
 {
-    WarpX & warpx = WarpX::GetInstance();
 
     if (allcontainers.empty()){ return; }
 
@@ -767,18 +766,18 @@ MultiParticleContainer::GenerateGlobalDebyeLength ()
 
     for (int lev = 0 ; lev <= finest_level ; lev++) {
 
-        if (!warpx.m_fields.has(FieldType::global_debye_length, lev)) {
-            amrex::BoxArray const & ba = warpx.boxArray(lev);
-            amrex::DistributionMapping const & dmap = warpx.DistributionMap(lev);
+        if (!const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).has(FieldType::global_debye_length, lev)) {
+            amrex::BoxArray const & ba = data().boxArray(lev);
+            amrex::DistributionMapping const & dmap = data().distributionMap(lev);
             int const ncomps = 1;
             const amrex::IntVect ng = amrex::IntVect::TheZeroVector();
             bool const remake = true;
             bool const redistribute_on_remake = false;
-            warpx.m_fields.alloc_init(FieldType::global_debye_length, lev, ba, dmap, ncomps, ng, 0.,
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(FieldType::global_debye_length, lev, ba, dmap, ncomps, ng, 0.,
                                       remake, redistribute_on_remake);
         }
 
-        amrex::MultiFab & global_debye_length = *warpx.m_fields.get(FieldType::global_debye_length, lev);
+        amrex::MultiFab & global_debye_length = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::global_debye_length, lev);
         global_debye_length.setVal(amrex::Real(0.0));
 
         for (auto& pc : allcontainers) {
@@ -832,7 +831,6 @@ MultiParticleContainer::GenerateGlobalDebyeLength ()
 void
 MultiParticleContainer::CalculateNuei (std::string const & electron_species_name)
 {
-    WarpX & warpx = WarpX::GetInstance();
 
     if (allcontainers.empty()) { return; }
 
@@ -845,18 +843,18 @@ MultiParticleContainer::CalculateNuei (std::string const & electron_species_name
     for (int lev = 0 ; lev <= finest_level ; lev++) {
 
         std::string const field_name = "nuei_" + electron_species_name;
-        if (!warpx.m_fields.has(field_name, lev)) {
-            amrex::BoxArray const & ba = warpx.boxArray(lev);
-            amrex::DistributionMapping const & dmap = warpx.DistributionMap(lev);
+        if (!const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).has(field_name, lev)) {
+            amrex::BoxArray const & ba = data().boxArray(lev);
+            amrex::DistributionMapping const & dmap = data().distributionMap(lev);
             const int ncomps = 1;
             const amrex::IntVect ng = amrex::IntVect::TheZeroVector();
             const bool remake = true;
             const bool redistribute_on_remake = false;
-            warpx.m_fields.alloc_init(field_name, lev, ba, dmap, ncomps, ng, 0.,
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(field_name, lev, ba, dmap, ncomps, ng, 0.,
                                       remake, redistribute_on_remake);
         }
 
-        amrex::MultiFab & species_nuei = *warpx.m_fields.get(field_name, lev);
+        amrex::MultiFab & species_nuei = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(field_name, lev);
         species_nuei.setVal(amrex::Real(0.0));
 
         for (auto& pc : allcontainers) {
@@ -936,8 +934,7 @@ MultiParticleContainer::ApplyBoundaryConditions ()
 Vector<Long>
 MultiParticleContainer::GetZeroParticlesInGrid (const int lev) const
 {
-    const WarpX& warpx = WarpX::GetInstance();
-    const auto num_boxes = static_cast<int>(warpx.boxArray(lev).size());
+    const auto num_boxes = static_cast<int>(data().boxArray(lev).size());
     Vector<Long> r(num_boxes, 0);
     return r;
 }
@@ -1259,12 +1256,11 @@ void MultiParticleContainer::ScrapeParticlesAtEB (
 {
     if (config().eb_particle_boundary() == ParticleBoundaryType::Reflecting ||
         config().eb_particle_boundary() == ParticleBoundaryType::Thermal) {
-        auto& warpx = WarpX::GetInstance();
         for (auto& pc : allcontainers) {
             amrex::ParticleReal const mass = pc->getMass();
             amrex::ParticleReal const uth = pc->getBoundaryThermalVelocity();
             for (int lev = 0; lev <= pc->finestLevel(); ++lev) {
-                amrex::Real const dt_lev = warpx.getdt(lev);
+                amrex::Real const dt_lev = data().dt(lev);
                 scrapeParticlesAtEB(*pc, distance_to_eb, lev,
                     ParticleBoundaryProcess::ParticleBoundaryInteraction{
                         dt_lev, mass, config().eb_particle_boundary(), uth});
@@ -1620,16 +1616,15 @@ MultiParticleContainer::doQEDSchwinger ()
 
     if (!m_do_qed_schwinger) {return;}
 
-    auto & warpx = WarpX::GetInstance();
 
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(warpx.grid_type == GridType::Collocated ||
-       warpx.field_gathering_algo == GatheringAlgo::MomentumConserving,
-          "ERROR: Schwinger process only implemented for warpx.grid_type=collocated"
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().grid_type() == GridType::Collocated ||
+       config().field_gathering_algo() == GatheringAlgo::MomentumConserving,
+          "ERROR: Schwinger process only implemented for config().grid_type()=collocated"
                                  "or algo.field_gathering = momentum-conserving");
 
     constexpr int level_0 = 0;
 
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(warpx.maxLevel() == level_0,
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(data().maxLevel() == level_0,
         "ERROR: Schwinger process not implemented with mesh refinement");
 
 #ifdef WARPX_DIM_RZ
@@ -1641,7 +1636,7 @@ MultiParticleContainer::doQEDSchwinger ()
 
 // Get cell volume. In 2D the transverse size is
 // chosen by the user in the input file.
-    amrex::Geometry const & geom = warpx.Geom(level_0);
+    amrex::Geometry const & geom = data().geom(level_0);
 #if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     const auto dV = geom.CellSize(0); // TODO: scale properly
 #elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
@@ -1653,7 +1648,7 @@ MultiParticleContainer::doQEDSchwinger ()
 #endif
 
     // Get the temporal step
-    const auto dt =  warpx.getdt(level_0);
+    const auto dt =  data().dt(level_0);
 
     auto& pc_product_ele =
             allcontainers[m_qed_schwinger_ele_product];
@@ -1664,12 +1659,12 @@ MultiParticleContainer::doQEDSchwinger ()
     pc_product_pos->defineAllParticleTiles();
 
     using ablastr::fields::Direction;
-    const MultiFab & Ex = *warpx.m_fields.get(FieldType::Efield_aux, Direction{0}, level_0);
-    const MultiFab & Ey = *warpx.m_fields.get(FieldType::Efield_aux, Direction{1}, level_0);
-    const MultiFab & Ez = *warpx.m_fields.get(FieldType::Efield_aux, Direction{2}, level_0);
-    const MultiFab & Bx = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{0}, level_0);
-    const MultiFab & By = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{1}, level_0);
-    const MultiFab & Bz = *warpx.m_fields.get(FieldType::Bfield_aux, Direction{2}, level_0);
+    const MultiFab & Ex = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Efield_aux, Direction{0}, level_0);
+    const MultiFab & Ey = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Efield_aux, Direction{1}, level_0);
+    const MultiFab & Ez = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Efield_aux, Direction{2}, level_0);
+    const MultiFab & Bx = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Bfield_aux, Direction{0}, level_0);
+    const MultiFab & By = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Bfield_aux, Direction{1}, level_0);
+    const MultiFab & Bz = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::Bfield_aux, Direction{2}, level_0);
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
@@ -1708,7 +1703,7 @@ MultiParticleContainer::doQEDSchwinger ()
 
         const auto Transform = SchwingerTransformFunc{m_qed_schwinger_y_size, PIdx::w};
 
-        const amrex::Geometry& geom_level_zero = warpx.Geom(level_0);
+        const amrex::Geometry& geom_level_zero = data().geom(level_0);
 
         const auto num_added = filterCreateTransformFromFAB<1>( *pc_product_ele, *pc_product_pos, dst_ele_tile,
                                dst_pos_tile, box, fieldsEB, np_ele_dst,
@@ -1724,9 +1719,8 @@ MultiParticleContainer::doQEDSchwinger ()
 amrex::Box
 MultiParticleContainer::ComputeSchwingerGlobalBox () const
 {
-    auto & warpx = WarpX::GetInstance();
     constexpr int level_0 = 0;
-    amrex::Geometry const & geom = warpx.Geom(level_0);
+    amrex::Geometry const & geom = data().geom(level_0);
 
 #if defined(WARPX_DIM_3D)
     const amrex::Array<amrex::Real,3> schwinger_min{m_qed_schwinger_xmin,
@@ -2034,5 +2028,13 @@ MultiParticleContainer::data () const
         return *m_runtime_context->data;
     }
     static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}
+
+warpx::runtime::HostServices&
+MultiParticleContainer::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
+    static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
     return legacy;
 }
