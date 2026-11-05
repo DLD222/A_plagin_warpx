@@ -8,6 +8,8 @@
 #define WARPX_BTDIAGNOSTICS_H_
 
 #include "Diagnostics.H"
+
+namespace warpx::runtime { struct RuntimeContext; }
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Utils/WarpXConst.H"
@@ -28,7 +30,8 @@ class BTDiagnostics final : public Diagnostics
 {
 public:
 
-    BTDiagnostics (int i, const std::string& name, DiagTypes diag_type);
+    BTDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                 const warpx::runtime::RuntimeContext* ctx = nullptr);
 
 private:
     /** Whether to plot raw (i.e., NOT cell-centered) fields */

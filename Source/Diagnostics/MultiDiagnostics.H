@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+namespace warpx::runtime { struct RuntimeContext; }
+
 
 /**
  * \brief This class contains a vector of all diagnostics in the simulation.
@@ -18,7 +20,7 @@
 class MultiDiagnostics
 {
 public:
-    MultiDiagnostics ();
+    explicit MultiDiagnostics (const warpx::runtime::RuntimeContext* ctx = nullptr);
     /** \brief Read Input parameters. Called in constructor. */
     void ReadParameters ();
 
@@ -45,6 +47,7 @@ private:
     /** Vector of pointers to all diagnostics */
     amrex::Vector<std::unique_ptr<Diagnostics> > alldiags;
     int ndiags = 0; /**< number of different diagnostics */
+    const warpx::runtime::RuntimeContext* m_ctx = nullptr;
     std::vector<std::string> diags_names;
     /**Type of each diagnostics*/
     std::vector<DiagTypes> diags_types;

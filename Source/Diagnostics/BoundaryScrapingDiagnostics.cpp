@@ -24,8 +24,9 @@
 
 using namespace amrex::literals;
 
-BoundaryScrapingDiagnostics::BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type)
-    : Diagnostics{i, name, diag_type}
+BoundaryScrapingDiagnostics::BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                                                          const warpx::runtime::RuntimeContext* ctx)
+    : Diagnostics{i, name, diag_type, ctx}
 {
     ReadParameters();
 }

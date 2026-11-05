@@ -55,8 +55,9 @@ namespace
     constexpr int permission_flag_rwxrxrx = 0755;
 }
 
-BTDiagnostics::BTDiagnostics (int i, const std::string& name, DiagTypes diag_type)
-    : Diagnostics{i, name, diag_type},
+BTDiagnostics::BTDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                              const warpx::runtime::RuntimeContext* ctx)
+    : Diagnostics{i, name, diag_type, ctx},
       m_cell_centered_data_name("BTD_cell_centered_data_" + name)
 {
 #if defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)

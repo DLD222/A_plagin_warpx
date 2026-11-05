@@ -397,12 +397,33 @@
    "note": ""
   },
   {
-   "id": "A1.5",
+   "id": "A1.5a",
    "phase": "A1",
-   "title": "Batch D：FullDiagnostics/FlushFormat 去 GetInstance",
+   "title": "Diagnostics context 注入 + 基类配置/几何迁移",
    "kind": "refactor",
    "depends": [
     "A1.4"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/Diagnostics.H",
+    "Source/Diagnostics/Diagnostics.cpp",
+    "Source/Diagnostics/MultiDiagnostics.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Diagnostics 持有 RuntimeContext；config/frame/data helper；FullDiag 构造走 config；diag1 冒烟通过",
+   "note": "仍是过渡：FullDiagnostics 内部字段访问/FlushFormats 未迁移",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.5",
+   "phase": "A1",
+   "title": "Batch D2：FullDiagnostics 字段 functor + FlushFormats 去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.5a"
    ],
    "status": "pending",
    "outputs": [],

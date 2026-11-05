@@ -42,3 +42,8 @@ warpx.Ez_external_grid_function(x,y,z) = "0.0"
 warpx.B_ext_grid_init_style = constant
 warpx.B_external_grid = 0.0 1.0 0.0
 
+
+diagnostics.diags_names = diag1
+diag1.diag_type = Full
+diag1.intervals = 1
+diag1.fields_to_plot = Ex

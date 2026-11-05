@@ -23,6 +23,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
+#include "Runtime/RuntimeConfig.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -53,11 +54,12 @@
 using namespace amrex::literals;
 using warpx::fields::FieldType;
 
-FullDiagnostics::FullDiagnostics (int i, const std::string& name, DiagTypes diag_type):
-    Diagnostics{i, name, diag_type},
+FullDiagnostics::FullDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                                  const warpx::runtime::RuntimeContext* ctx):
+    Diagnostics{i, name, diag_type, ctx},
     m_solver_deposits_current{
-        (WarpX::electromagnetic_solver_id != ElectromagneticSolverAlgo::None) ||
-        (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)}
+        (config().electromagnetic_solver_id() != ElectromagneticSolverAlgo::None) ||
+        (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)}
 {
     ReadParameters();
     BackwardCompatibility();

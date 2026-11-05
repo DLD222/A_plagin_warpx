@@ -11,7 +11,8 @@
 
 using namespace amrex;
 
-MultiDiagnostics::MultiDiagnostics ()
+MultiDiagnostics::MultiDiagnostics (const warpx::runtime::RuntimeContext* ctx)
+    : m_ctx(ctx)
 {
     ReadParameters();
     /** Resize alldiags and initialize each element to a pointer to a
@@ -20,11 +21,11 @@ MultiDiagnostics::MultiDiagnostics ()
     alldiags.resize( ndiags );
     for (int i=0; i<ndiags; i++){
         if ( diags_types[i] == DiagTypes::Full || diags_types[i] == DiagTypes::TimeAveraged ){
-            alldiags[i] = std::make_unique<FullDiagnostics>(i, diags_names[i], diags_types[i]);
+            alldiags[i] = std::make_unique<FullDiagnostics>(i, diags_names[i], diags_types[i], m_ctx);
         } else if ( diags_types[i] == DiagTypes::BackTransformed ){
-            alldiags[i] = std::make_unique<BTDiagnostics>(i, diags_names[i], diags_types[i]);
+            alldiags[i] = std::make_unique<BTDiagnostics>(i, diags_names[i], diags_types[i], m_ctx);
         } else if ( diags_types[i] == DiagTypes::BoundaryScraping ){
-            alldiags[i] = std::make_unique<BoundaryScrapingDiagnostics>(i, diags_names[i], diags_types[i]);
+            alldiags[i] = std::make_unique<BoundaryScrapingDiagnostics>(i, diags_names[i], diags_types[i], m_ctx);
         } else {
             WARPX_ABORT_WITH_MESSAGE("Unknown diagnostic type");
         }

@@ -2,6 +2,8 @@
 #define WARPX_FULLDIAGNOSTICS_H_
 
 #include "Diagnostics.H"
+
+namespace warpx::runtime { struct RuntimeContext; }
 #include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/utils/text/IntervalsParser.H>
@@ -13,7 +15,8 @@
 class FullDiagnostics final : public Diagnostics
 {
 public:
-    FullDiagnostics (int i, const std::string& name, DiagTypes diag_type);
+    FullDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                 const warpx::runtime::RuntimeContext* ctx = nullptr);
     /** Type of time averaging for diagnostics (fields only)
      * None corresponds to instantaneous diags
      * Static corresponds to a fixed starting step for averaging,

@@ -17,6 +17,11 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -38,12 +43,47 @@
 
 using namespace amrex::literals;
 
-Diagnostics::Diagnostics (int i, std::string name, DiagTypes diag_type)
-    : m_diag_type(diag_type), m_diag_name(std::move(name)), m_diag_index(i)
+Diagnostics::Diagnostics (int i, std::string name, DiagTypes diag_type,
+                          const warpx::runtime::RuntimeContext* ctx)
+    : m_diag_type(diag_type), m_diag_name(std::move(name)), m_diag_index(i),
+      m_runtime_context(ctx)
 {
 }
 
 Diagnostics::~Diagnostics () = default;
+
+const warpx::runtime::RuntimeConfig&
+Diagnostics::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::FrameState&
+Diagnostics::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
+        return *m_runtime_context->frame;
+    }
+    static const warpx::runtime::FrameState legacy =
+        warpx::runtime::FrameState::FromLegacy();
+    return legacy;
+}
+
+const warpx::runtime::RuntimeData&
+Diagnostics::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
+    if (!m_legacy_data) {
+        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
+    }
+    return *m_legacy_data;
+}
 
 bool
 Diagnostics::BaseReadParameters ()
@@ -51,8 +91,8 @@ Diagnostics::BaseReadParameters ()
     auto & warpx = WarpX::GetInstance();
 
     // Diagnostics are constructed before the checkpoint geometry is restored.
-    if (WarpX::do_moving_window) {
-        m_moving_window_initial_lo = warpx.Geom(0).ProbLo(WarpX::moving_window_dir);
+    if (frame().do_moving_window) {
+        m_moving_window_initial_lo = data().geom(0).ProbLo(frame().moving_window_dir);
     }
 
     const amrex::ParmParse pp_diag_name(m_diag_name);
@@ -93,9 +133,9 @@ Diagnostics::BaseReadParameters ()
 
     // Sanity check if user requests to plot phi
     if (utils::algorithms::is_in(m_varnames_fields, "phi") && (
-            WarpX::electrostatic_solver_id != ElectrostaticSolverAlgo::LabFrame &&
-            WarpX::electrostatic_solver_id != ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic &&
-            WarpX::electrostatic_solver_id != ElectrostaticSolverAlgo::LabFrameEffectivePotential
+            config().electrostatic_solver_id() != ElectrostaticSolverAlgo::LabFrame &&
+            config().electrostatic_solver_id() != ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic &&
+            config().electrostatic_solver_id() != ElectrostaticSolverAlgo::LabFrameEffectivePotential
         )
     ){
         ablastr::warn_manager::WMRecordWarning(
@@ -108,23 +148,23 @@ Diagnostics::BaseReadParameters ()
     // Sanity check if user requests to plot A
     if (utils::algorithms::any_of_is_in(m_varnames_fields, amrex::Vector<std::string>({"Ax", "Ay", "Az", "Ar", "At"}))){
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-            warpx.electrostatic_solver_id==ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic,
+            config().electrostatic_solver_id()==ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic,
             "plot A only works if do_electrostatic = labframe-electromagnetostatic");
     }
 
     // Sanity check if user requests to plot F
     if (utils::algorithms::is_in(m_varnames_fields, "F")){
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-            warpx.do_dive_cleaning,
-            "plot F only works if warpx.do_dive_cleaning = 1");
+            config().do_dive_cleaning(),
+            "plot F only works if config().do_dive_cleaning() = 1");
     }
 
     // G can be written to file only if WarpX::do_divb_cleaning = 1
     if (utils::algorithms::is_in(m_varnames_fields, "G"))
     {
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-            warpx.do_divb_cleaning,
-            "G can be written to file only if warpx.do_divb_cleaning = 1");
+            config().do_divb_cleaning(),
+            "G can be written to file only if config().do_divb_cleaning() = 1");
     }
 
     // If user requests to plot proc_number for a serial run,
@@ -178,7 +218,7 @@ Diagnostics::BaseReadParameters ()
     }
 
     // Names of all species in the simulation
-    m_all_species_names = warpx.GetPartContainer().GetSpeciesNames();
+    m_all_species_names = data().particles().GetSpeciesNames();
 
     // Get names of species to average at each grid point
     const bool pfield_species_specified = pp_diag_name.queryarr("particle_fields_species", m_pfield_species);
@@ -231,18 +271,18 @@ Diagnostics::BaseReadParameters ()
 
     if (!lo_specified) {
        for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
-            m_lo[idim] = warpx.Geom(0).ProbLo(idim);
+            m_lo[idim] = data().geom(0).ProbLo(idim);
        }
     }
     const bool hi_specified = utils::parser::queryArrWithParser(
         pp_diag_name, "diag_hi", m_hi, 0, AMREX_SPACEDIM);
     if (!hi_specified) {
        for (int idim =0; idim < AMREX_SPACEDIM; ++idim) {
-            m_hi[idim] = warpx.Geom(0).ProbHi(idim);
+            m_hi[idim] = data().geom(0).ProbHi(idim);
        }
     }
     // For a moving window simulation, the user-defined m_lo and m_hi must be converted.
-    if (WarpX::do_moving_window) {
+    if (frame().do_moving_window) {
 #if defined(WARPX_DIM_3D)
     amrex::Vector<int> dim_map {0, 1, 2};
 #elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
@@ -250,14 +290,14 @@ Diagnostics::BaseReadParameters ()
 #else
     amrex::Vector<int> dim_map {2};
 #endif
-       if (WarpX::boost_direction[ dim_map[WarpX::moving_window_dir] ] == 1) {
+       if (frame().boost_direction[ dim_map[frame().moving_window_dir] ] == 1) {
            // Convert user-defined lo and hi for diagnostics to account for boosted-frame
            // simulations with moving window
-           const amrex::Real beta_window = WarpX::moving_window_v / PhysConst::c;
+           const amrex::Real beta_window = frame().moving_window_v / PhysConst::c;
            const amrex::Real convert_factor = 1._rt/(
-               WarpX::gamma_boost * (1._rt - WarpX::beta_boost * beta_window) );
-           m_lo[WarpX::moving_window_dir] *= convert_factor;
-           m_hi[WarpX::moving_window_dir] *= convert_factor;
+               frame().gamma_boost * (1._rt - frame().beta_boost * beta_window) );
+           m_lo[frame().moving_window_dir] *= convert_factor;
+           m_hi[frame().moving_window_dir] *= convert_factor;
        }
     }
 
@@ -552,10 +592,10 @@ Diagnostics::InitBaseData ()
     // The checkpoint geometry contains the shifts actually applied to the grid.
     // Reconstructing them from the step count and dt can round differently at cell
     // boundaries. Preserve each diagnostic's offset from the original simulation domain.
-    if (WarpX::do_moving_window && warpx.getistep(0) > 0) {
-        const int moving_dir = WarpX::moving_window_dir;
+    if (frame().do_moving_window && warpx.getistep(0) > 0) {
+        const int moving_dir = frame().moving_window_dir;
         const amrex::Real displacement =
-            warpx.Geom(0).ProbLo(moving_dir) - m_moving_window_initial_lo;
+            data().geom(0).ProbLo(moving_dir) - m_moving_window_initial_lo;
         m_lo[moving_dir] += displacement;
         m_hi[moving_dir] += displacement;
     }
@@ -655,7 +695,7 @@ Diagnostics::ComputeAndPack ()
             // needed for contour plots of rho, i.e. ascent/sensei
             if (m_format == "sensei" || m_format == "ascent") {
                 ablastr::utils::communication::FillBoundary(m_mf_output[i_buffer][lev], WarpX::do_single_precision_comms,
-                                                            warpx.Geom(lev).periodicity());
+                                                            data().geom(lev).periodicity());
             }
         }
         // Call Particle functor

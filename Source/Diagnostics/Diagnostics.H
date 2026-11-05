@@ -20,6 +20,14 @@
 #include <string>
 #include <vector>
 
+namespace warpx::runtime {
+struct RuntimeContext;
+class RuntimeData;
+class WarpXRuntimeData;
+struct RuntimeConfig;
+struct FrameState;
+}
+
 /** All types of diagnostics. */
 enum struct DiagTypes {Full, BackTransformed, BoundaryScraping, TimeAveraged};
 /**
@@ -37,10 +45,15 @@ public:
      * @param name diagnostics name in the inputs file
      * @param diag_type diagnostics type (e.g., full, back-transformed, time-averaged, etc.)
      */
-    Diagnostics (int i, std::string name, DiagTypes diag_type);
+    Diagnostics (int i, std::string name, DiagTypes diag_type,
+                 const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /** Virtual Destructor to handle clean destruction of derived classes */
     virtual ~Diagnostics ();
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::FrameState& frame () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
 
     Diagnostics (Diagnostics const &)              = delete;
     Diagnostics& operator= (Diagnostics const & )  = delete;
@@ -188,6 +201,9 @@ public:
      * \param[in] snapshot_full value to set m_snapshot_full in BTD for the ith snapshot (i_buffer)
      */
     virtual void set_snapshot_full ( [[maybe_unused]] int i_buffer, [[maybe_unused]] int snapshot_full) { }
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
 
 protected:
     /** Read Parameters of the base Diagnostics class */

@@ -8,6 +8,8 @@
 #define WARPX_BOUNDARYSCRAPINGDIAGNOSTICS_H_
 
 #include "Diagnostics.H"
+
+namespace warpx::runtime { struct RuntimeContext; }
 #include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/utils/text/IntervalsParser.H>
@@ -26,7 +28,8 @@ public:
      * @param name diagnostics name in the inputs file
      * @param diag_type diagnostics type (e.g., full, back-transformed, time-averaged, etc.)
      */
-    BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type);
+    BoundaryScrapingDiagnostics (int i, const std::string& name, DiagTypes diag_type,
+                 const warpx::runtime::RuntimeContext* ctx = nullptr);
 
 private:
     /** Read relevant parameters for BoundaryScraping */
