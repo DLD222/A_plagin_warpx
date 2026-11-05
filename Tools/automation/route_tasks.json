@@ -1759,12 +1759,31 @@
    }
   },
   {
+   "id": "A3.3b1",
+   "phase": "A3",
+   "title": "PicEmPackage 声明 3 个 HandlerSpec（不执行）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/PicEmPackage.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "push/finalize/field-solve specs 注册且排序正确；不持有 WarpX",
+   "note": "执行 handler 等 StageContext 状态收口",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.3a"
+    "A3.3b1"
    ],
    "status": "pending",
    "outputs": [],

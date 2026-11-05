@@ -62,7 +62,24 @@ public:
         m_handlers.push_back(std::move(handler));
     }
 
+    void declare (HandlerSpec spec)
+    {
+        m_specs.push_back(std::move(spec));
+    }
+
     [[nodiscard]] std::size_t size () const { return m_handlers.size(); }
+
+    [[nodiscard]] const std::vector<HandlerSpec>& specs () const { return m_specs; }
+
+    [[nodiscard]] std::vector<HandlerSpec> ordered_specs () const
+    {
+        auto out = m_specs;
+        std::stable_sort(out.begin(), out.end(), [](const HandlerSpec& a, const HandlerSpec& b) {
+            if (!(a.point == b.point)) { return a.point < b.point; }
+            return a.priority < b.priority;
+        });
+        return out;
+    }
 
     [[nodiscard]] std::vector<IHandler*> ordered () const
     {
@@ -89,6 +106,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<IHandler>> m_handlers;
+    std::vector<HandlerSpec> m_specs;
 };
 
 } // namespace warpx::runtime

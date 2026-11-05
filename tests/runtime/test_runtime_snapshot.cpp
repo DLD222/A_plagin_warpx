@@ -8,6 +8,7 @@
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/PicEmPackage.H"
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
@@ -84,6 +85,17 @@ int main (int argc, char* argv[])
         check_eq(ordered.size(), std::size_t(2), "PluginHost stores handlers");
         check_eq(ordered.front()->spec().name, std::string("push"),
                  "PluginHost orders Push before Diagnostics");
+    }
+
+    {
+        warpx::runtime::PluginHost host;
+        warpx::runtime::PicEmPackage::register_specs(host);
+        const auto specs = host.ordered_specs();
+        check_eq(specs.size(), std::size_t(3), "PicEmPackage declares three specs");
+        check_eq(specs.front().name, std::string("pic_push"),
+                 "PicEmPackage Push comes first");
+        check_eq(specs.back().name, std::string("pic_field_solve"),
+                 "PicEmPackage FieldSolve comes last");
     }
 
     {
