@@ -5,6 +5,7 @@
  * License: BSD-3-Clause
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
 #include "WarpX.H"
 
@@ -58,6 +59,8 @@ int main (int argc, char* argv[])
     check(runtime.context().frame == &runtime.frame(), "context.frame points at FrameState");
     check(&runtime.fields() == &WarpX::GetInstance().GetMultiFabRegister(),
           "Runtime::fields() is the authoritative MultiFabRegister (no DataBus copy)");
+    check(&runtime.bus().fields() == &runtime.fields(), "DataBus forwards to the same Register");
+    check(runtime.context().bus == &runtime.bus(), "context.bus points at Runtime::bus()");
 
     runtime.initialize();
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
@@ -128,6 +131,24 @@ int main (int argc, char* argv[])
     check_real(f.moving_window_v, WarpX::moving_window_v, "frame.moving_window_v");
     check_eq(f.start_moving_window_step, WarpX::start_moving_window_step, "frame.start_moving_window_step");
     check_eq(f.end_moving_window_step, WarpX::end_moving_window_step, "frame.end_moving_window_step");
+
+    // A0.6: DataBus only declares/forwards; alias must not copy a MultiFab.
+    {
+        warpx::runtime::FieldSpec spec;
+        spec.name = "A0_6_probe";
+        spec.ncomp = 1;
+        spec.ngrow = amrex::IntVect{AMREX_D_DECL(1, 1, 1)};
+        spec.unit = "V/m";
+        runtime.bus().declare(spec);
+        check(runtime.bus().spec("A0_6_probe") != nullptr, "DataBus stores FieldSpec");
+        check(!runtime.bus().has("A0_6_probe", 0), "declare() does not allocate");
+    }
+    {
+        auto* owner = runtime.bus().field("Efield_fp", 0, 0);
+        auto* alias = runtime.bus().alias("A0_6_alias", "Efield_fp", 0, 0);
+        check(owner != nullptr, "Efield_fp exists");
+        check(alias->atLocalIdx(0).dataPtr(0) == owner->atLocalIdx(0).dataPtr(0), "alias_init shares the same data (no copy)");
+    }
 
     runtime.evolve(1);
     check_eq(runtime.time().step, 1, "time.step after evolve");

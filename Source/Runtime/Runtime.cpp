@@ -8,6 +8,7 @@
 #include "Runtime/Runtime.H"
 
 #include "Initialization/WarpXInit.H"
+#include "Runtime/DataBus.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -44,10 +45,11 @@ Runtime::Runtime (int argc, char* argv[])
     // other setup-time consumers can see a config snapshot.
     auto& warpx = WarpX::GetInstance();
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
+    m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
     sync_config();
     sync_time();
-    m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), nullptr,
-                               [this] { sync_time(); }};
+    m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
+                               nullptr, [this] { sync_time(); }};
     warpx.SetRuntimeContext(&m_context);
 }
 
@@ -126,6 +128,18 @@ const ablastr::fields::MultiFabRegister&
 Runtime::fields () const
 {
     return WarpX::GetInstance().GetMultiFabRegister();
+}
+
+DataBus&
+Runtime::bus ()
+{
+    return *m_bus;
+}
+
+const DataBus&
+Runtime::bus () const
+{
+    return *m_bus;
 }
 
 void

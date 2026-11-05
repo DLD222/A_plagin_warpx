@@ -11,7 +11,7 @@
 | A0.3 | A0 | done | A0.1 | 66 个 static 的引用清单与迁移批次 |
 | A0.4 | A0 | done | A0.1,A0.2 | 第二遍核验：PSATD restart / RemakeLevel / 诊断时序 / callback / EB |
 | A0.6a | A0 | done | A0.4 | RuntimeConfig 改实时 getter；Runtime::fields() 复用 MultiFabRegister；去 Legacy 单例 |
-| A0.6 | A0 | pending | A0.6a | 统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4） |
+| A0.6 | A0 | done | A0.6a | 统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4） |
 | A0.7 | A0 | done | A0.4 | Python 18 回调 → StagePoint 子位点表（D2） |
 | A0.5 | A0 | done | A0.1,A0.2,A0.3,A0.4 | A0 收口报告 |
 | A1.0 | A1 | done | A0.5 | Runtime facade + main.cpp 切换 |
@@ -57,5 +57,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A0.6` — 统一 DataBus 与 MultiFabRegister；RuntimeConfig 改实时接口（D1/D4）
+**Next:** `A1.4` — Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts）
 

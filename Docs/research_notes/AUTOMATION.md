@@ -47,7 +47,7 @@
 
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
-| A0 审计 + 对齐层 | 8 | 7（A0.6 DataBus schema 仍 pending） |
+| A0 审计 + 对齐层 | 8 | 8（含 A0.6 DataBus/FieldSpec/alias） |
 | A1 去单例 | 17 | 10（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |

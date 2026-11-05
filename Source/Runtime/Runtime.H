@@ -22,6 +22,7 @@ namespace warpx::runtime
 {
 
 class WarpXRuntimeData;
+class DataBus;
 
 /**
  * \brief Process-level owner of the simulation lifetime.
@@ -69,6 +70,10 @@ public:
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields ();
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const;
 
+    //! Thin schema/forwarding layer over fields(); no storage of its own.
+    [[nodiscard]] DataBus& bus ();
+    [[nodiscard]] const DataBus& bus () const;
+
 private:
     bool m_initialized = false;
     bool m_finalized = false;
@@ -77,6 +82,7 @@ private:
     FrameState m_frame{};
     RuntimeContext m_context{};
     std::unique_ptr<WarpXRuntimeData> m_data;
+    std::unique_ptr<DataBus> m_bus;
 
     void sync_config ();
     void sync_time ();
