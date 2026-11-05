@@ -796,8 +796,12 @@ WarpX::PrintMainPICparameters ()
 }
 
 void
-WarpX::InitData ()
+WarpX::InitData_BeforeInit ()
 {
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
+
+
     ABLASTR_PROFILE("WarpX::InitData()");
 
     using ablastr::fields::Direction;
@@ -830,6 +834,15 @@ WarpX::InitData ()
         zmin_domain_boost_step_0 = geom[0].ProbLo(WARPX_ZINDEX);
     }
 #endif
+
+}
+
+void
+WarpX::InitData_Init ()
+{
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
+
     if (restart_chkfile.empty())
     {
         ComputeDt();
@@ -844,6 +857,15 @@ WarpX::InitData ()
         PostRestart();
         reduced_diags->InitData();
     }
+
+
+}
+
+void
+WarpX::InitData_AfterInit ()
+{
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
 
     ComputeMaxStep();
 
@@ -893,6 +915,15 @@ WarpX::InitData ()
         WarpX::ProjectionCleanDivB();
     }
 
+
+}
+
+void
+WarpX::InitData_FieldSolve ()
+{
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
+
     if (restart_chkfile.empty())
     {
         ExecutePythonCallback("beforeInitEsolve");
@@ -927,6 +958,15 @@ WarpX::InitData ()
     else {
         ExecutePythonCallback("afterInitatRestart");
     }
+
+
+}
+
+void
+WarpX::InitData_Diagnostics ()
+{
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
 
     if (m_runtime_context != nullptr && m_runtime_context->refresh_time) {
         m_runtime_context->refresh_time();
@@ -963,6 +1003,16 @@ WarpX::InitData ()
     ::CheckKnownEMSolverIssues(
         electromagnetic_solver_id, current_deposition_algo,
         is_any_boundary_pml, external_particle_field_used);
+}
+
+void
+WarpX::InitData ()
+{
+    InitData_BeforeInit();
+    InitData_Init();
+    InitData_AfterInit();
+    InitData_FieldSolve();
+    InitData_Diagnostics();
 }
 
 void

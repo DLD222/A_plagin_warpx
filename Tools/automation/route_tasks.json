@@ -1644,12 +1644,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.1b",
+   "phase": "A3",
+   "title": "InitData 提取为 5 个阶段方法（行为不变）",
+   "kind": "refactor",
+   "depends": [
+    "A3.1a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Initialization/WarpXInitData.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "InitData 只调用阶段方法；Langmuir/EB/PML restart 通过",
+   "note": "BeforeInit/Init/AfterInit/FieldSolve/Diagnostics",
+   "verify_command": null
+  },
+  {
    "id": "A3.1",
    "phase": "A3",
    "title": "InitData 阶段化",
    "kind": "refactor",
    "depends": [
-    "A3.1a"
+    "A3.1b"
    ],
    "status": "pending",
    "outputs": [],

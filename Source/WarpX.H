@@ -138,6 +138,11 @@ public:
                                                int  bdry_side ) const;
 
     void InitData ();
+    void InitData_BeforeInit ();
+    void InitData_Init ();
+    void InitData_AfterInit ();
+    void InitData_FieldSolve ();
+    void InitData_Diagnostics ();
 
     void Evolve (int numsteps = -1);
 
