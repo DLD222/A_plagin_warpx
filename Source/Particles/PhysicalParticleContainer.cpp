@@ -256,7 +256,7 @@ PhysicalParticleContainer::PhysicalParticleContainer (AmrCore* amr_core, int isp
     pp_species_name.query("do_field_ionization", do_field_ionization);
 
     pp_species_name.query("do_resampling", do_resampling);
-    if (do_resampling) { m_resampler = Resampling(species_name); }
+    if (do_resampling) { m_resampler = Resampling(species_name, runtime_context()); }
 
     //check if Radiation Reaction is enabled and do consistency checks
     pp_species_name.query("do_classical_radiation_reaction", do_classical_radiation_reaction);

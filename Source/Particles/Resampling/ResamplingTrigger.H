@@ -14,6 +14,8 @@
 #include <limits>
 #include <string>
 
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
+
 /**
  * \brief This class is used to determine if resampling should be done at a given timestep for
  * a given species. Specifically resampling is performed if the current timestep is included in
@@ -33,7 +35,8 @@ public:
      * \brief Constructor of the ResamplingTrigger class. Reads the resampling trigger parameters
      * from the input file.
      */
-    explicit ResamplingTrigger (const std::string& species_name);
+    explicit ResamplingTrigger (const std::string& species_name,
+                               const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /**
      * \brief A method that returns true if resampling should be done for the considered species
@@ -52,6 +55,9 @@ public:
     void initialize_global_numcells () const;
 
 private:
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
     // Intervals that define predetermined timesteps at which resampling is performed for all
     // species.
     ablastr::utils::text::IntervalsParser m_resampling_intervals;

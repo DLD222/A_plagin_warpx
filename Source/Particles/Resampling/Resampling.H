@@ -9,6 +9,8 @@
 
 #include "ResamplingTrigger.H"
 
+namespace warpx::runtime { struct RuntimeContext; }
+
 #include "Particles/WarpXParticleContainer_fwd.H"
 
 #include <AMReX_REAL.H>
@@ -65,7 +67,8 @@ public:
      *
      * @param[in] species_name the name of the resampled species
      */
-    explicit Resampling (const std::string& species_name);
+    explicit Resampling (const std::string& species_name,
+                         const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /**
      * \brief A method that returns true if resampling should be done for the considered species

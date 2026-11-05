@@ -1073,12 +1073,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8u",
+   "phase": "A1",
+   "title": "ResamplingTrigger context 链路",
+   "kind": "refactor",
+   "depends": [
+    "A1.8t"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Resampling/ResamplingTrigger.cpp",
+    "Source/Particles/Resampling/Resampling.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Resampling->Trigger 传 context；触发逻辑走 data()；回归通过",
+   "note": "fallback 保留；直接单例减少 1",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8t"
+    "A1.8u"
    ],
    "status": "pending",
    "outputs": [],

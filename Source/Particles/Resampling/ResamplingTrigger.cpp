@@ -6,6 +6,11 @@
  */
 #include "ResamplingTrigger.H"
 
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
+#include "WarpX.H"
+
 #include "Utils/Parser/ParserUtils.H"
 #include "WarpX.H"
 
@@ -14,7 +19,9 @@
 
 #include <vector>
 
-ResamplingTrigger::ResamplingTrigger (const std::string& species_name)
+ResamplingTrigger::ResamplingTrigger (const std::string& species_name,
+                                      const warpx::runtime::RuntimeContext* ctx)
+    : m_runtime_context(ctx)
 {
     const amrex::ParmParse pp_species_name(species_name);
 
@@ -38,10 +45,17 @@ bool ResamplingTrigger::triggered (const int timestep, const amrex::Real global_
 
 void ResamplingTrigger::initialize_global_numcells () const
 {
-    auto & warpx = WarpX::GetInstance();
-    for (int lev = 0; lev <= warpx.maxLevel(); lev++)
+    for (int lev = 0; lev <= data().maxLevel(); lev++)
     {
-        m_global_numcells +=  warpx.boxArray(lev).numPts();
+        m_global_numcells += data().boxArray(lev).numPts();
     }
     m_initialized = true;
+}
+
+const warpx::runtime::RuntimeData&
+ResamplingTrigger::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
 }
