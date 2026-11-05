@@ -1490,12 +1490,31 @@
    "verify_command": null
   },
   {
+   "id": "A2.4d",
+   "phase": "A2",
+   "title": "scalar helper + rho/phi/distance/dual/current_store schema 化",
+   "kind": "refactor",
+   "depends": [
+    "A2.4c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "scalar/初值 helper；rho/phi/distance/dual/current 走 schema；EB/ES 通过",
+   "note": "剩余 ECT iMultiFab/材料字段",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4c"
+    "A2.4d"
    ],
    "status": "pending",
    "outputs": [],

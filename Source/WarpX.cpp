@@ -2409,7 +2409,8 @@ void
 WarpX::AllocLevelField (const std::string& key, FieldType type,
                         ablastr::fields::Direction dir, int lev,
                         const BoxArray& ba, const DistributionMapping& dm,
-                        int ncomp, const IntVect& nodal, const IntVect& ngrow)
+                        int ncomp, const IntVect& nodal, const IntVect& ngrow,
+                        Real initial)
 {
     warpx::runtime::FieldSpec spec;
     spec.name = key;
@@ -2419,7 +2420,24 @@ WarpX::AllocLevelField (const std::string& key, FieldType type,
     m_field_schema.declare(spec);
 
     m_fields.alloc_init(type, dir, lev, amrex::convert(ba, nodal), dm,
-                        spec.ncomp, spec.ngrow, 0.0_rt);
+                        spec.ncomp, spec.ngrow, initial);
+}
+
+void
+WarpX::AllocLevelFieldScalar (const std::string& key, FieldType type, int lev,
+                              const BoxArray& ba, const DistributionMapping& dm,
+                              int ncomp, const IntVect& nodal,
+                              const IntVect& ngrow, Real initial)
+{
+    warpx::runtime::FieldSpec spec;
+    spec.name = key;
+    spec.ncomp = ncomp;
+    spec.nodal = nodal;
+    spec.ngrow = ngrow;
+    m_field_schema.declare(spec);
+
+    m_fields.alloc_init(type, lev, amrex::convert(ba, nodal), dm,
+                        spec.ncomp, spec.ngrow, initial);
 }
 
 void
@@ -2639,12 +2657,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     if (m_implicit_solver) {
         // Current from suborbit particles are deposited to the standard current_fp container.
         // Current from non-suborbit particles are deposited to current_fp_non_suborbit.
-        m_fields.alloc_init(FieldType::current_fp_non_suborbit, Direction{0}, lev,
-                            amrex::convert(ba, jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_fp_non_suborbit, Direction{1}, lev,
-                            amrex::convert(ba, jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_fp_non_suborbit, Direction{2}, lev,
-                            amrex::convert(ba, jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
+        AllocLevelField("current_fp_non_suborbit_x", FieldType::current_fp_non_suborbit, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ);
+        AllocLevelField("current_fp_non_suborbit_y", FieldType::current_fp_non_suborbit, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ);
+        AllocLevelField("current_fp_non_suborbit_z", FieldType::current_fp_non_suborbit, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ);
 
         AllocLevelField("E_old_x", FieldType::E_old, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
         AllocLevelField("E_old_y", FieldType::E_old, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
@@ -2723,7 +2738,8 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         constexpr int nc_ls = 1;
         amrex::IntVect const ng_ls(2);
         //EB level set
-        m_fields.alloc_init(FieldType::distance_to_eb, lev, amrex::convert(ba, IntVect::TheNodeVector()), dm, nc_ls, ng_ls, 0.0_rt);
+        AllocLevelFieldScalar("distance_to_eb", FieldType::distance_to_eb, lev, ba, dm,
+                              nc_ls, IntVect::TheNodeVector(), ng_ls);
         // Whether to reduce the particle shape to order 1 when close to the EB
         AllocInitMultiFab(m_eb_reduce_particle_shape[lev], amrex::convert(ba, IntVect::TheCellVector()), dm, ncomps,
             ngRho, lev, "m_eb_reduce_particle_shape");
@@ -2770,12 +2786,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                  *  dual_L_z : open length along z, stored where Bz lives      (IntVect = (0,1))
                  *  Only allocated in 2D (XZ), see algo.ect_conformal_E. */
                 if (WarpX::ect_conformal_E > 0) {
-                    m_fields.alloc_init(FieldType::dual_A_y, lev, amrex::convert(ba, Ey_nodal_flag),
-                        dm, ncomps, guard_cells.ng_FieldSolver, 1.0_rt);
-                    m_fields.alloc_init(FieldType::dual_L_x, lev, amrex::convert(ba, Bx_nodal_flag),
-                        dm, ncomps, guard_cells.ng_FieldSolver, 1.0_rt);
-                    m_fields.alloc_init(FieldType::dual_L_z, lev, amrex::convert(ba, Bz_nodal_flag),
-                        dm, ncomps, guard_cells.ng_FieldSolver, 1.0_rt);
+                    AllocLevelFieldScalar("dual_A_y", FieldType::dual_A_y, lev, ba, dm, ncomps, Ey_nodal_flag, guard_cells.ng_FieldSolver, 1.0_rt);
+                    AllocLevelFieldScalar("dual_L_x", FieldType::dual_L_x, lev, ba, dm, ncomps, Bx_nodal_flag, guard_cells.ng_FieldSolver, 1.0_rt);
+                    AllocLevelFieldScalar("dual_L_z", FieldType::dual_L_z, lev, ba, dm, ncomps, Bz_nodal_flag, guard_cells.ng_FieldSolver, 1.0_rt);
                 }
 
                 AllocInitMultiFab(m_flag_info_face[lev][0], amrex::convert(ba, Bx_nodal_flag), dm, ncomps,
@@ -2843,9 +2856,8 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     }
     if (rho_ncomps > 0)
     {
-        m_fields.alloc_init(FieldType::rho_fp,
-            lev, amrex::convert(ba, rho_nodal_flag), dm,
-            rho_ncomps, ngRho, 0.0_rt);
+        AllocLevelFieldScalar("rho_fp", FieldType::rho_fp, lev, ba, dm,
+                              rho_ncomps, rho_nodal_flag, ngRho);
     }
 
     // P2-b: conduction charge of the macroscopic medium. Nodal (same location as
@@ -2863,15 +2875,15 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameEffectivePotential )
     {
         const IntVect ngPhi = IntVect( AMREX_D_DECL(1,1,1) );
-        m_fields.alloc_init(FieldType::phi_fp, lev, amrex::convert(ba, phi_nodal_flag), dm,
-                             ncomps, ngPhi, 0.0_rt );
+        AllocLevelFieldScalar("phi_fp", FieldType::phi_fp, lev, ba, dm,
+                              ncomps, phi_nodal_flag, ngPhi);
     }
 
     if (m_do_subcycling && lev == 0)
     {
-        m_fields.alloc_init(FieldType::current_store, Direction{0}, lev, amrex::convert(ba,jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_store, Direction{1}, lev, amrex::convert(ba,jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_store, Direction{2}, lev, amrex::convert(ba,jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
+        AllocLevelField("current_store_x", FieldType::current_store, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ);
+        AllocLevelField("current_store_y", FieldType::current_store, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ);
+        AllocLevelField("current_store_z", FieldType::current_store, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ);
     }
 
     if (do_dive_cleaning)

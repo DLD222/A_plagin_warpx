@@ -1354,7 +1354,16 @@ private:
                           int lev, const amrex::BoxArray& ba,
                           const amrex::DistributionMapping& dm,
                           int ncomp, const amrex::IntVect& nodal,
-                          const amrex::IntVect& ngrow);
+                          const amrex::IntVect& ngrow,
+                          amrex::Real initial = 0.0);
+
+    void AllocLevelFieldScalar (const std::string& key,
+                                warpx::fields::FieldType type,
+                                int lev, const amrex::BoxArray& ba,
+                                const amrex::DistributionMapping& dm,
+                                int ncomp, const amrex::IntVect& nodal,
+                                const amrex::IntVect& ngrow,
+                                amrex::Real initial = 0.0);
 
     void AllocLevelMFs (int lev, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm,
                         const amrex::IntVect& ngEB, amrex::IntVect& ngJ,
