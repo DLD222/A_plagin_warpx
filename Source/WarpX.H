@@ -42,6 +42,7 @@
 
 #include "AcceleratorLattice/AcceleratorLattice.H"
 #include "Fields.H"
+#include "Runtime/FieldSchema.H"
 #include "Runtime/LevelResources.H"
 #include "FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H"
 #include "FieldSolver/ImplicitSolvers/WarpXSolverVec.H"
@@ -1129,8 +1130,12 @@ public:
     //! A2.1 per-level resource registry (borrows m_fields; does not own it).
     warpx::runtime::LevelResources m_level_resources;
 
+    //! A2.4 field allocation schema (descriptions only; no storage).
+    warpx::runtime::FieldSchema m_field_schema;
+
     ablastr::fields::MultiFabRegister& GetMultiFabRegister() {return m_fields;}
     [[nodiscard]] const warpx::runtime::LevelResources& levelResources () const { return m_level_resources; }
+    [[nodiscard]] const warpx::runtime::FieldSchema& fieldSchema () const { return m_field_schema; }
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context) { m_runtime_context = context; }
@@ -1342,6 +1347,14 @@ private:
     {
         return gather_buffer_masks[lev].get();
     }
+
+    void AllocLevelField (const std::string& key,
+                          warpx::fields::FieldType type,
+                          ablastr::fields::Direction dir,
+                          int lev, const amrex::BoxArray& ba,
+                          const amrex::DistributionMapping& dm,
+                          int ncomp, const amrex::IntVect& nodal,
+                          const amrex::IntVect& ngrow);
 
     void AllocLevelMFs (int lev, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm,
                         const amrex::IntVect& ngEB, amrex::IntVect& ngJ,

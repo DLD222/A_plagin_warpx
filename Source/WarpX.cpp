@@ -2406,6 +2406,23 @@ WarpX::ClearLevel (int lev)
 }
 
 void
+WarpX::AllocLevelField (const std::string& key, FieldType type,
+                        ablastr::fields::Direction dir, int lev,
+                        const BoxArray& ba, const DistributionMapping& dm,
+                        int ncomp, const IntVect& nodal, const IntVect& ngrow)
+{
+    warpx::runtime::FieldSpec spec;
+    spec.name = key;
+    spec.ncomp = ncomp;
+    spec.nodal = nodal;
+    spec.ngrow = ngrow;
+    m_field_schema.declare(spec);
+
+    m_fields.alloc_init(type, dir, lev, amrex::convert(ba, nodal), dm,
+                        spec.ncomp, spec.ngrow, 0.0_rt);
+}
+
+void
 WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& dm)
 {
     m_level_resources.resize(maxLevel() + 1);
@@ -2607,17 +2624,17 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     //
     const std::array<Real,3> dx = CellSize(lev);
 
-    m_fields.alloc_init(FieldType::Bfield_fp, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-    m_fields.alloc_init(FieldType::Bfield_fp, Direction{1}, lev, amrex::convert(ba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-    m_fields.alloc_init(FieldType::Bfield_fp, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+    AllocLevelField("Bfield_fp_x", FieldType::Bfield_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
+    AllocLevelField("Bfield_fp_y", FieldType::Bfield_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
+    AllocLevelField("Bfield_fp_z", FieldType::Bfield_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
 
-    m_fields.alloc_init(FieldType::Efield_fp, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-    m_fields.alloc_init(FieldType::Efield_fp, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-    m_fields.alloc_init(FieldType::Efield_fp, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+    AllocLevelField("Efield_fp_x", FieldType::Efield_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
+    AllocLevelField("Efield_fp_y", FieldType::Efield_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
+    AllocLevelField("Efield_fp_z", FieldType::Efield_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
 
-    m_fields.alloc_init(FieldType::current_fp, Direction{0}, lev, amrex::convert(ba, jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-    m_fields.alloc_init(FieldType::current_fp, Direction{1}, lev, amrex::convert(ba, jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-    m_fields.alloc_init(FieldType::current_fp, Direction{2}, lev, amrex::convert(ba, jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
+    AllocLevelField("current_fp_x", FieldType::current_fp, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ);
+    AllocLevelField("current_fp_y", FieldType::current_fp, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ);
+    AllocLevelField("current_fp_z", FieldType::current_fp, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ);
 
     if (m_implicit_solver) {
         // Current from suborbit particles are deposited to the standard current_fp container.

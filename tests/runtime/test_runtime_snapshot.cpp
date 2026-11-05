@@ -69,6 +69,13 @@ int main (int argc, char* argv[])
     check(WarpX::GetInstance().levelResources().size() ==
               WarpX::GetInstance().maxLevel() + 1,
           "LevelResources tracks the AMR hierarchy");
+    check(WarpX::GetInstance().fieldSchema().contains("Efield_fp_x"),
+          "FieldSchema declares base E field");
+    check(WarpX::GetInstance().fieldSchema().get("Efield_fp_x").ncomp ==
+              WarpX::GetInstance().ncomps,
+          "FieldSchema ncomp matches register");
+    check(WarpX::GetInstance().fieldSchema().contains("current_fp_z"),
+          "FieldSchema declares base J field");
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 
     // RuntimeConfig must be a live view, not a value snapshot (audit D4).
