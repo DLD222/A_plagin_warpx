@@ -42,6 +42,7 @@
 
 #include "AcceleratorLattice/AcceleratorLattice.H"
 #include "Fields.H"
+#include "Runtime/LevelResources.H"
 #include "FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H"
 #include "FieldSolver/ImplicitSolvers/WarpXSolverVec.H"
 #include "Filter/BilinearFilter.H"
@@ -1116,7 +1117,12 @@ public:
 
     // Field container
     ablastr::fields::MultiFabRegister m_fields;
+
+    //! A2.1 per-level resource registry (borrows m_fields; does not own it).
+    warpx::runtime::LevelResources m_level_resources;
+
     ablastr::fields::MultiFabRegister& GetMultiFabRegister() {return m_fields;}
+    [[nodiscard]] const warpx::runtime::LevelResources& levelResources () const { return m_level_resources; }
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context) { m_runtime_context = context; }

@@ -1230,12 +1230,32 @@
    }
   },
   {
+   "id": "A2.1a",
+   "phase": "A2",
+   "title": "LevelResources 空壳 + bind_fields + 层级一致性断言",
+   "kind": "refactor",
+   "depends": [
+    "A1.9a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/Runtime/LevelResources.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "LevelResources 借用 m_fields 不拥有；size 跟随 AMR；runtime 测试断言通过",
+   "note": "A2.1b 起迁移 field_factory/PML 等",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A1.9a"
+    "A2.1a"
    ],
    "status": "pending",
    "outputs": [

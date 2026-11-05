@@ -355,6 +355,8 @@ WarpX::WarpX ()
     m_instance = this; // This guarantees that GetInstance() can be
                        // indirectly used in WarpX constructor.
 
+    m_level_resources.bind_fields(m_fields);
+
     warpx::initialization::initialize_warning_manager();
 
     ReadParameters();
@@ -2407,6 +2409,8 @@ WarpX::ClearLevel (int lev)
 void
 WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& dm)
 {
+    m_level_resources.resize(maxLevel() + 1);
+    if (!m_level_resources.has_fields()) { m_level_resources.bind_fields(m_fields); }
     const bool aux_is_nodal = (field_gathering_algo == GatheringAlgo::MomentumConserving);
 
     const Real* dx = Geom(lev).CellSize();

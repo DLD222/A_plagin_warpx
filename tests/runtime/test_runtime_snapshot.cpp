@@ -62,8 +62,13 @@ int main (int argc, char* argv[])
           "Runtime::fields() is the authoritative MultiFabRegister (no DataBus copy)");
     check(&runtime.bus().fields() == &runtime.fields(), "DataBus forwards to the same Register");
     check(runtime.context().bus == &runtime.bus(), "context.bus points at Runtime::bus()");
+    check(WarpX::GetInstance().levelResources().fields() == &runtime.fields(),
+          "LevelResources borrows the same field registry");
 
     runtime.initialize();
+    check(WarpX::GetInstance().levelResources().size() ==
+              WarpX::GetInstance().maxLevel() + 1,
+          "LevelResources tracks the AMR hierarchy");
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 
     // RuntimeConfig must be a live view, not a value snapshot (audit D4).
