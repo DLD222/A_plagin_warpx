@@ -1471,12 +1471,31 @@
    "verify_command": null
   },
   {
+   "id": "A2.4c",
+   "phase": "A2",
+   "title": "EB/ECT + averaging 字段 schema 化",
+   "kind": "refactor",
+   "depends": [
+    "A2.4b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "21 个字段走 schema；EB 算例通过；dual/distance 留后续",
+   "note": "edge/face/area_mod/Venl/ECTRho/avg",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4b"
+    "A2.4c"
    ],
    "status": "pending",
    "outputs": [],

@@ -2710,13 +2710,13 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
     if (fft_do_time_averaging)
     {
-        m_fields.alloc_init(FieldType::Bfield_avg_fp, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_avg_fp, Direction{1}, lev, amrex::convert(ba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_avg_fp, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("Bfield_avg_fp_x", FieldType::Bfield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
+        AllocLevelField("Bfield_avg_fp_y", FieldType::Bfield_avg_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
+        AllocLevelField("Bfield_avg_fp_z", FieldType::Bfield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
 
-        m_fields.alloc_init(FieldType::Efield_avg_fp, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_avg_fp, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_avg_fp, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("Efield_avg_fp_x", FieldType::Efield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
+        AllocLevelField("Efield_avg_fp_y", FieldType::Efield_avg_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
+        AllocLevelField("Efield_avg_fp_z", FieldType::Efield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
     }
 
     if (EB::enabled()) {
@@ -2755,20 +2755,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
             if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT) {
 
                 //! EB: Lengths of the mesh edges
-                m_fields.alloc_init(FieldType::edge_lengths, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::edge_lengths, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::edge_lengths, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
+                AllocLevelField("edge_lengths_x", FieldType::edge_lengths, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("edge_lengths_y", FieldType::edge_lengths, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("edge_lengths_z", FieldType::edge_lengths, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, guard_cells.ng_FieldSolver);
 
                 //! EB: Areas of the mesh faces
-                m_fields.alloc_init(FieldType::face_areas, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::face_areas, Direction{1}, lev, amrex::convert(ba, By_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::face_areas, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
+                AllocLevelField("face_areas_x", FieldType::face_areas, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("face_areas_y", FieldType::face_areas, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("face_areas_z", FieldType::face_areas, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, guard_cells.ng_FieldSolver);
 
                 /** Dual geometry for the conformal (non-stair-case) E update.
                  *  dual_A_y : dual face area around the node where Ey lives   (IntVect = (1,1))
@@ -2800,12 +2794,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 /** EB: area_mod contains the modified areas of the mesh faces, i.e. if a face is enlarged it
                 * contains the area of the enlarged face
                 * This is only used for the ECT solver.*/
-                m_fields.alloc_init(FieldType::area_mod, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::area_mod, Direction{1}, lev, amrex::convert(ba, By_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::area_mod, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
+                AllocLevelField("area_mod_x", FieldType::area_mod, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("area_mod_y", FieldType::area_mod, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("area_mod_z", FieldType::area_mod, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, guard_cells.ng_FieldSolver);
 
                 m_level_resources.level(lev).borrowing[0] = std::make_unique<amrex::LayoutData<FaceInfoBox>>(
                         amrex::convert(ba, Bx_nodal_flag), dm);
@@ -2817,12 +2808,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 /** Venl contains the electromotive force for every mesh face, i.e. every entry is
                 * the corresponding entry in ECTRhofield multiplied by the total area (possibly with enlargement)
                 * This is only used for the ECT solver.*/
-                m_fields.alloc_init(FieldType::Venl, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::Venl, Direction{1}, lev, amrex::convert(ba, By_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::Venl, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
+                AllocLevelField("Venl_x", FieldType::Venl, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("Venl_y", FieldType::Venl, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("Venl_z", FieldType::Venl, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, guard_cells.ng_FieldSolver);
 
                 /** ECTRhofield is needed only by the ect
                 * solver and it contains the electromotive force density for every mesh face.
@@ -2831,12 +2819,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 * and below).
                 * Although it's called rho it has nothing to do with the charge density!
                 * This is only used for the ECT solver.*/
-                m_fields.alloc_init(FieldType::ECTRhofield, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::ECTRhofield, Direction{1}, lev, amrex::convert(ba, By_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
-                m_fields.alloc_init(FieldType::ECTRhofield, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag),
-                    dm, ncomps, guard_cells.ng_FieldSolver, 0.0_rt);
+                AllocLevelField("ECTRhofield_x", FieldType::ECTRhofield, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("ECTRhofield_y", FieldType::ECTRhofield, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, guard_cells.ng_FieldSolver);
+                AllocLevelField("ECTRhofield_z", FieldType::ECTRhofield, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, guard_cells.ng_FieldSolver);
         }
     }
 

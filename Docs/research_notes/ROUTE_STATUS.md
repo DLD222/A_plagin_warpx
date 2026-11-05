@@ -79,7 +79,8 @@
 | A2.3 | A2 | done | A2.2 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
 | A2.4a | A2 | done | A2.3 | FieldSchema + base E/B/J 分配 |
 | A2.4b | A2 | done | A2.4a | PSATD/implicit 字段 schema 化（E_old/current_nodal/vay） |
-| A2.4 | A2 | pending | A2.4b | AllocLevelData schema 化 |
+| A2.4c | A2 | done | A2.4b | EB/ECT + averaging 字段 schema 化 |
+| A2.4 | A2 | pending | A2.4c | AllocLevelData schema 化 |
 | A2.5 | A2 | pending | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1 | A3 | pending | A2.5 | InitData 阶段化 |
 | A3.2 | A3 | pending | A3.1 | Evolve/OneStep 阶段化 |
