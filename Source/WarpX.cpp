@@ -273,7 +273,8 @@ namespace
     }
 }
 
-void WarpX::MakeWarpX ()
+std::unique_ptr<WarpX>
+WarpX::Create ()
 {
     warpx::initialization::check_dims();
 
@@ -306,14 +307,28 @@ void WarpX::MakeWarpX ()
 
     CheckGriddingForRZSpectral();
 
-    m_instance = new WarpX();
+    return std::unique_ptr<WarpX>(new WarpX());
 }
+
+void
+WarpX::MakeWarpX ()
+{
+    if (!m_instance) {
+        m_instance = Create().release();
+    }
+}
+
+namespace {
+// Python/legacy fallback owner. The C++ main path uses Runtime's unique_ptr.
+std::unique_ptr<WarpX> legacy_owner;
+} // namespace
 
 WarpX&
 WarpX::GetInstance ()
 {
     if (!m_instance) {
-        MakeWarpX();
+        legacy_owner = WarpX::Create();
+        m_instance = legacy_owner.get();
     }
     return *m_instance;
 }
@@ -321,10 +336,9 @@ WarpX::GetInstance ()
 void
 WarpX::ResetInstance ()
 {
-    if (m_instance){
-        delete m_instance;
-        m_instance = nullptr;
-    }
+    // Ownership lives in Runtime or the Python/legacy fallback; never delete here.
+    legacy_owner.reset();
+    m_instance = nullptr;
 }
 
 void

@@ -39,7 +39,8 @@
 | A1.7e | A1 | done | A1.7d | Qdsmc + 碰撞模块配置迁移 |
 | A1.7f | A1 | done | A1.7e | 注入 AddParticles 配置迁移 + 未知组件 policy 显式报错 |
 | A1.7 | A1 | done | A1.7f | Batch F6：注入（AddParticles）残余配置迁移 |
-| A1.8 | A1 | pending | A1.5,A1.7 | 移除 WarpX::m_instance 与剩余 GetInstance |
+| A1.8a | A1 | done | A1.7 | WarpX 所有权反转：Runtime 持有 unique_ptr，GetInstance 变非拥有访问器 |
+| A1.8 | A1 | pending | A1.8a | Batch G2：移除 m_instance 与剩余 GetInstance 调用点 |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
 | A1.9a | A1 | pending | A1.9 | 20+ 运行时 enum → 工厂注册表 + CapabilitySet（D6/D8） |
 | A2.1 | A2 | pending | A1.9a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
@@ -68,5 +69,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.8` — 移除 WarpX::m_instance 与剩余 GetInstance
+**Next:** `A1.8` — Batch G2：移除 m_instance 与剩余 GetInstance 调用点
 

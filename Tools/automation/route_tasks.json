@@ -671,13 +671,34 @@
    "note": ""
   },
   {
-   "id": "A1.8",
+   "id": "A1.8a",
    "phase": "A1",
-   "title": "移除 WarpX::m_instance 与剩余 GetInstance",
+   "title": "WarpX 所有权反转：Runtime 持有 unique_ptr，GetInstance 变非拥有访问器",
    "kind": "refactor",
    "depends": [
-    "A1.5",
     "A1.7"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.H",
+    "Source/WarpX.cpp",
+    "Source/Runtime/Runtime.H",
+    "Source/Runtime/Runtime.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "main 路径无 new/delete 拥有；Python fallback 独立 owner；默认与 FFT 回归通过",
+   "note": "A1.8 第一刀；m_instance 仍为兼容访问指针",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.8",
+   "phase": "A1",
+   "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
+   "kind": "refactor",
+   "depends": [
+    "A1.8a"
    ],
    "status": "pending",
    "outputs": [],

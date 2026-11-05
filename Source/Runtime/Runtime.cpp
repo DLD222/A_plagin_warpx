@@ -21,9 +21,8 @@ namespace warpx::runtime
 namespace
 {
 
-TimeState make_time ()
+TimeState make_time (const WarpX& warpx)
 {
-    const auto& warpx = WarpX::GetInstance();
     TimeState t;
     t.step = warpx.getistep(0);
     t.finest_level = warpx.finestLevel();
@@ -44,7 +43,8 @@ Runtime::Runtime (int argc, char* argv[])
 
     // Construct WarpX (reads parameters) before InitData, so diagnostics and
     // other setup-time consumers can see a config snapshot.
-    auto& warpx = WarpX::GetInstance();
+    m_warpx = WarpX::Create();
+    auto& warpx = *m_warpx;
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
     m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
     m_host = std::make_unique<WarpXHostServices>(warpx);
@@ -67,7 +67,7 @@ Runtime::initialize ()
     if (m_finalized) {
         throw std::runtime_error("Runtime::initialize() called after finalize()");
     }
-    WarpX::GetInstance().InitData();
+    m_warpx->InitData();
     m_initialized = true;
     sync_state();
 }
@@ -78,7 +78,7 @@ Runtime::evolve (int numsteps)
     if (!m_initialized || m_finalized) {
         throw std::runtime_error("Runtime::evolve() called before initialize() or after finalize()");
     }
-    WarpX::GetInstance().Evolve(numsteps);
+    m_warpx->Evolve(numsteps);
     sync_state();
 }
 
@@ -86,14 +86,18 @@ void
 Runtime::finalize ()
 {
     if (m_finalized) { return; }
-    WarpX::Finalize();
+    m_host.reset();
+    m_bus.reset();
+    m_data.reset();
+    m_warpx.reset();
+    WarpX::ResetInstance();
     m_finalized = true;
 }
 
 bool
 Runtime::verbose () const
 {
-    return m_initialized && !m_finalized && WarpX::GetInstance().Verbose();
+    return m_initialized && !m_finalized && m_warpx->Verbose();
 }
 
 const RuntimeConfig&
@@ -123,13 +127,13 @@ Runtime::context () const
 ablastr::fields::MultiFabRegister&
 Runtime::fields ()
 {
-    return WarpX::GetInstance().GetMultiFabRegister();
+    return m_warpx->GetMultiFabRegister();
 }
 
 const ablastr::fields::MultiFabRegister&
 Runtime::fields () const
 {
-    return WarpX::GetInstance().GetMultiFabRegister();
+    return m_warpx->GetMultiFabRegister();
 }
 
 DataBus&
@@ -165,7 +169,7 @@ Runtime::sync_config ()
 void
 Runtime::sync_time ()
 {
-    m_time = make_time();
+    m_time = make_time(*m_warpx);
     m_frame = FrameState::FromLegacy();
 }
 

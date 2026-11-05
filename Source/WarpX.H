@@ -82,15 +82,19 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <memory>
 #include <vector>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeConfig; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeConfig; class Runtime; }
 
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
 {
 public:
     static WarpX& GetInstance ();
+
+    //! Create a new instance owned by the caller (Runtime / Python fallback).
+    static std::unique_ptr<WarpX> Create ();
 
     static void ResetInstance ();
 
@@ -1203,7 +1207,9 @@ private:
      */
     static void MakeWarpX ();
 
-    // Singleton is used when the code is run from python
+    friend class warpx::runtime::Runtime;
+
+    // Non-owning compatibility accessor; ownership is Runtime or the Python fallback.
     static WarpX* m_instance;
     warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 

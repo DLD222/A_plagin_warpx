@@ -18,6 +18,8 @@
 
 #include <memory>
 
+class WarpX;
+
 namespace warpx::runtime
 {
 
@@ -86,6 +88,7 @@ private:
     TimeState m_time{};
     FrameState m_frame{};
     RuntimeContext m_context{};
+    std::unique_ptr<WarpX> m_warpx;
     std::unique_ptr<WarpXRuntimeData> m_data;
     std::unique_ptr<DataBus> m_bus;
     std::unique_ptr<WarpXHostServices> m_host;
