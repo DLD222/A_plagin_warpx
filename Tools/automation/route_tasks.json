@@ -1663,12 +1663,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.1c",
+   "phase": "A3",
+   "title": "InitData 通过 StagePlan 执行",
+   "kind": "refactor",
+   "depends": [
+    "A3.1b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Initialization/WarpXInitData.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "5 阶段按 StagePlan 顺序执行；顺序与旧调用一致；回归通过",
+   "note": "按 name 分发，后续 A3.2 改 HandlerSpec",
+   "verify_command": null
+  },
+  {
    "id": "A3.1",
    "phase": "A3",
    "title": "InitData 阶段化",
    "kind": "refactor",
    "depends": [
-    "A3.1b"
+    "A3.1c"
    ],
    "status": "pending",
    "outputs": [],
@@ -1676,7 +1695,10 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "MakeLevel/InitLevel/Diagnostics/PML 分阶段",
-   "note": ""
+   "note": "",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A3.2",

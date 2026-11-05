@@ -8,6 +8,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
 #include "Runtime/RuntimeContext.H"
@@ -1008,11 +1009,27 @@ WarpX::InitData_Diagnostics ()
 void
 WarpX::InitData ()
 {
-    InitData_BeforeInit();
-    InitData_Init();
-    InitData_AfterInit();
-    InitData_FieldSolve();
-    InitData_Diagnostics();
+    warpx::runtime::StagePlan plan;
+    plan.add({warpx::runtime::Stage::BeforeInit, 0}, "BeforeInit");
+    plan.add({warpx::runtime::Stage::Init, 0}, "Init");
+    plan.add({warpx::runtime::Stage::AfterInit, 0}, "AfterInit");
+    plan.add({warpx::runtime::Stage::FieldSolve, 0}, "FieldSolve");
+    plan.add({warpx::runtime::Stage::Diagnostics, 0}, "Diagnostics");
+
+    for (const auto& [point, name] : plan.sorted()) {
+        amrex::ignore_unused(point);
+        if (name == "BeforeInit") {
+            InitData_BeforeInit();
+        } else if (name == "Init") {
+            InitData_Init();
+        } else if (name == "AfterInit") {
+            InitData_AfterInit();
+        } else if (name == "FieldSolve") {
+            InitData_FieldSolve();
+        } else if (name == "Diagnostics") {
+            InitData_Diagnostics();
+        }
+    }
 }
 
 void

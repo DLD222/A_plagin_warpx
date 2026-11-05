@@ -89,7 +89,8 @@
 | A2.5 | A2 | done | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1a | A3 | done | A2.5 | StagePoint/StagePlan 类型骨架 |
 | A3.1b | A3 | done | A3.1a | InitData 提取为 5 个阶段方法（行为不变） |
-| A3.1 | A3 | pending | A3.1b | InitData 阶段化 |
+| A3.1c | A3 | done | A3.1b | InitData 通过 StagePlan 执行 |
+| A3.1 | A3 | done | A3.1c | InitData 阶段化 |
 | A3.2 | A3 | pending | A3.1 | Evolve/OneStep 阶段化 |
 | A3.3 | A3 | pending | A3.2 | PicEmPackage（schema + stages + plugins） |
 | A3.3a | A3 | pending | A3.3 | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
@@ -112,5 +113,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A3.1` — InitData 阶段化
+**Next:** `A3.2` — Evolve/OneStep 阶段化
 
