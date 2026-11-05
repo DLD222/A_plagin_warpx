@@ -35,6 +35,7 @@ public:
     [[nodiscard]] amrex::Array<amrex::Real, 3> cellSize (int lev) const override;
     [[nodiscard]] amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const override;
     [[nodiscard]] amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const override;
+    [[nodiscard]] amrex::RealBox realBox (const amrex::Box& box, int lev) const override;
     [[nodiscard]] amrex::XDim3 invCellSize (int lev) const override;
     [[nodiscard]] amrex::IntVect ngEB () const override;
     [[nodiscard]] amrex::IntVect blockingFactor (int lev) const override;

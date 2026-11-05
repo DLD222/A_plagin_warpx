@@ -33,6 +33,7 @@ const amrex::DistributionMapping& WarpXRuntimeData::distributionMap (int lev) co
 amrex::Array<amrex::Real, 3> WarpXRuntimeData::cellSize (int lev) const { return WarpX::CellSize(lev); }
 amrex::XDim3 WarpXRuntimeData::lowerCorner (const amrex::Box& box, int lev) const { return WarpX::LowerCorner(box, lev, amrex::Real(0.0)); }
 amrex::XDim3 WarpXRuntimeData::upperCorner (const amrex::Box& box, int lev) const { return WarpX::UpperCorner(box, lev, amrex::Real(0.0)); }
+amrex::RealBox WarpXRuntimeData::realBox (const amrex::Box& box, int lev) const { return WarpX::getRealBox(box, lev); }
 amrex::XDim3 WarpXRuntimeData::invCellSize (int lev) const { return WarpX::InvCellSize(lev); }
 amrex::IntVect WarpXRuntimeData::ngEB () const { return m_warpx.getngEB(); }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return m_warpx.blockingFactor(lev); }

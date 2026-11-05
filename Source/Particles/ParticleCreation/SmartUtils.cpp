@@ -7,13 +7,15 @@
  */
 #include "SmartUtils.H"
 
+#include "Utils/TextMsg.H"
+
 #include <AMReX_GpuContainers.H>
 
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-PolicyVec getPolicies (std::vector<std::string> const & names_vec) noexcept
+PolicyVec getPolicies (std::vector<std::string> const & names_vec)
 {
     NameMap names;
     for (auto i = 0u; i < names_vec.size(); ++i) { names.emplace(names_vec[i], i); }
@@ -22,7 +24,11 @@ PolicyVec getPolicies (std::vector<std::string> const & names_vec) noexcept
     h_policies.resize(names.size());
     for (const auto& kv : names)
     {
-        h_policies[kv.second] = ::initialization_policies[kv.first];
+        const auto policy_it = ::initialization_policies.find(kv.first);
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            policy_it != ::initialization_policies.end(),
+            "No initialization policy registered for particle component '" + kv.first + "'");
+        h_policies[kv.second] = policy_it->second;
     }
 
     // host-to-device copy

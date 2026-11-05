@@ -635,12 +635,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.7f",
+   "phase": "A1",
+   "title": "注入 AddParticles 配置迁移 + 未知组件 policy 显式报错",
+   "kind": "refactor",
+   "depends": [
+    "A1.7e"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/ParticleCreation/AddParticles.cpp",
+    "Source/Particles/ParticleCreation/SmartUtils.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "注入不再直接读 WarpX 静态；未知组件不再静默 Zero；粒子回归通过",
+   "note": "审计 §8.1 第 5 条",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.7",
    "phase": "A1",
    "title": "Batch F6：注入（AddParticles）残余配置迁移",
    "kind": "refactor",
    "depends": [
-    "A1.7e"
+    "A1.7f"
    ],
    "status": "pending",
    "outputs": [],

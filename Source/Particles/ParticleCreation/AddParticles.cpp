@@ -25,6 +25,9 @@
 #   include "EmbeddedBoundary/ParticleBoundaryProcess.H"
 #   include "EmbeddedBoundary/ParticleScraper.H"
 #endif
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -199,7 +202,7 @@ PhysicalParticleContainer::AddParticles (int lev)
     for (auto const& plasma_injector : plasma_injectors) {
 
         if (plasma_injector->add_single_particle) {
-            if (WarpX::gamma_boost > 1.) {
+            if (frame().gamma_boost > 1.) {
                 MapParticletoBoostedFrame(plasma_injector->single_particle_pos[0],
                                           plasma_injector->single_particle_pos[1],
                                           plasma_injector->single_particle_pos[2],
@@ -220,7 +223,7 @@ PhysicalParticleContainer::AddParticles (int lev)
         }
 
         if (plasma_injector->add_multiple_particles) {
-            if (WarpX::gamma_boost > 1.) {
+            if (frame().gamma_boost > 1.) {
                 for (int i=0 ; i < plasma_injector->multiple_particles_pos_x.size() ; i++) {
                     MapParticletoBoostedFrame(plasma_injector->multiple_particles_pos_x[i],
                                               plasma_injector->multiple_particles_pos_y[i],
@@ -300,21 +303,21 @@ void PhysicalParticleContainer::MapParticletoBoostedFrame (
 
     // For now, start with the assumption that this will only happen
     // at the start of the simulation.
-    const amrex::ParticleReal uz_boost = WarpX::gamma_boost*WarpX::beta_boost*PhysConst::c;
+    const amrex::ParticleReal uz_boost = frame().gamma_boost*frame().beta_boost*PhysConst::c;
 
     // tpr is the particle's time in the boosted frame
-    const amrex::ParticleReal tpr = WarpX::gamma_boost*t_lab - uz_boost*z/PhysConst::c2;
+    const amrex::ParticleReal tpr = frame().gamma_boost*t_lab - uz_boost*z/PhysConst::c2;
 
     // The particle's transformed location in the boosted frame
     const amrex::ParticleReal xpr = x;
     const amrex::ParticleReal ypr = y;
-    const amrex::ParticleReal zpr = WarpX::gamma_boost*z - uz_boost*t_lab;
+    const amrex::ParticleReal zpr = frame().gamma_boost*z - uz_boost*t_lab;
 
     // transform u and gamma to the boosted frame
     const amrex::ParticleReal gamma_lab = std::sqrt(1._rt + (ux*ux + uy*uy + uz*uz)/PhysConst::c2);
     // ux = ux;
     // uy = uy;
-    uz = WarpX::gamma_boost*uz - uz_boost*gamma_lab;
+    uz = frame().gamma_boost*uz - uz_boost*gamma_lab;
     const amrex::ParticleReal gammapr = std::sqrt(1._rt + (ux*ux + uy*uy + uz*uz)/PhysConst::c2);
 
     const amrex::ParticleReal vxpr = ux/gammapr;
@@ -327,7 +330,7 @@ void PhysicalParticleContainer::MapParticletoBoostedFrame (
 
     //Move the particles to where they will be at t = t0, the current simulation time in the boosted frame
     constexpr int lev = 0;
-    const amrex::Real t0 = WarpX::GetInstance().gett_new(lev);
+    const amrex::Real t0 = data().t_new(lev);
     if (boost_adjust_transverse_positions) {
         x = xpr - (tpr-t0)*vxpr;
         y = ypr - (tpr-t0)*vypr;
@@ -350,7 +353,7 @@ PhysicalParticleContainer::CheckAndAddParticle (
     amrex::Gpu::HostVector<ParticleReal>& particle_w,
     amrex::Real t_lab) const
 {
-    if (WarpX::gamma_boost > 1.) {
+    if (frame().gamma_boost > 1.) {
         MapParticletoBoostedFrame(x, y, z, ux, uy, uz, t_lab);
     }
     particle_x.push_back(x);
@@ -767,7 +770,7 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
 
     defineAllParticleTiles();
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     amrex::Box fine_injection_box;
     amrex::IntVect rrfac(AMREX_D_DECL(1,1,1));
@@ -776,9 +779,9 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
     InjectorPosition* inj_pos = plasma_injector.getInjectorPosition();
     InjectorMomentum* inj_mom = plasma_injector.getInjectorMomentumDevice();
     InjectorMomentum* h_inj_mom = plasma_injector.getInjectorMomentumHost();
-    const amrex::Real gamma_boost = WarpX::gamma_boost;
-    const amrex::Real beta_boost = WarpX::beta_boost;
-    const amrex::Real t = WarpX::GetInstance().gett_new(lev);
+    const amrex::Real gamma_boost = frame().gamma_boost;
+    const amrex::Real beta_boost = frame().beta_boost;
+    const amrex::Real t = data().t_new(lev);
     const amrex::Real density_min = plasma_injector.density_min;
     const amrex::Real density_max = plasma_injector.density_max;
 
@@ -806,8 +809,8 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
                                 get_zlab);
     } else {
         // Continuous particle injection due to moving window
-        const int moving_dir = WarpX::moving_window_dir;
-        const int moving_sign = (WarpX::moving_window_v > 0) ? 1 : -1;
+        const int moving_dir = frame().moving_window_dir;
+        const int moving_sign = (frame().moving_window_v > 0) ? 1 : -1;
         plasma_injector.prepare(part_realbox, moving_dir, moving_sign, get_zlab);
     }
 
@@ -817,18 +820,18 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
     }
 #if defined(AMREX_USE_OMP) && !defined(AMREX_USE_GPU)
     info.SetDynamic(true);
-#pragma omp parallel if (not WarpX::serialize_initial_conditions && amrex::Gpu::notInLaunchRegion())
+#pragma omp parallel if (not config().serialize_initial_conditions() && amrex::Gpu::notInLaunchRegion())
 #endif
     for (MFIter mfi = MakeMFIter(lev, info); mfi.isValid(); ++mfi)
     {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
 
         const amrex::Box& tile_box = mfi.tilebox();
-        const amrex::RealBox tile_realbox = WarpX::getRealBox(tile_box, lev);
+        const amrex::RealBox tile_realbox = data().realBox(tile_box, lev);
 
         // Find the cells of part_box that overlap with tile_realbox
         // If there is no overlap, just go to the next tile in the loop
@@ -1203,7 +1206,7 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
 
         amrex::Gpu::synchronize();
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
             amrex::HostDevice::Atomic::Add( &(*cost)[mfi.index()], wt);
@@ -1215,10 +1218,9 @@ PhysicalParticleContainer::AddPlasma (PlasmaInjector& plasma_injector, int lev, 
     if (EB::enabled())
     {
         using warpx::fields::FieldType;
-        auto & warpx = WarpX::GetInstance();
         scrapeParticlesAtEB(
             *this,
-            warpx.m_fields.get_mr_levels(FieldType::distance_to_eb, warpx.finestLevel()),
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_mr_levels(FieldType::distance_to_eb, data().finestLevel()),
             ParticleBoundaryProcess::Absorb());
     }
 #endif
@@ -1249,12 +1251,12 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
     amrex::EBFArrayBoxFactory const* eb_factory = nullptr;
     amrex::FabArray<amrex::EBCellFlagFab> const* eb_flag = nullptr;
     if (inject_from_eb) {
-        eb_factory = &(WarpX::GetInstance().fieldEBFactory(0));
+        eb_factory = &(data().fieldEBFactory(0));
         eb_flag = &(eb_factory->getMultiEBCellFlagFab());
     }
 #endif
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(0);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(0);
 
     // Create temporary particle container to which particles will be added;
     // we will then call Redistribute on this new container and finally
@@ -1272,7 +1274,7 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
     InjectorFlux*  inj_flux = plasma_injector.getInjectorFlux();
     InjectorMomentum* inj_mom = plasma_injector.getInjectorMomentumDevice();
     constexpr int level_zero = 0;
-    const amrex::Real t = WarpX::GetInstance().gett_new(level_zero);
+    const amrex::Real t = data().t_new(level_zero);
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     const amrex::Real radial_numpercell_power = plasma_injector.radial_numpercell_power;
@@ -1295,14 +1297,14 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
 #endif
     for (MFIter mfi = MakeMFIter(0, info); mfi.isValid(); ++mfi)
     {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
         auto wt = static_cast<amrex::Real>(amrex::second());
 
         const amrex::Box& tile_box = mfi.tilebox();
-        const amrex::RealBox tile_realbox = WarpX::getRealBox(tile_box, 0);
+        const amrex::RealBox tile_realbox = data().realBox(tile_box, 0);
 
         // Find the cells of part_realbox that overlap with tile_realbox
         // If there is no overlap, just go to the next tile in the loop
@@ -1722,7 +1724,7 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
 
         amrex::Gpu::synchronize(); // If this is removed, we need to make sure inj_rho is async safe.
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
             amrex::HostDevice::Atomic::Add( &(*cost)[mfi.index()], wt);
@@ -1734,10 +1736,9 @@ PhysicalParticleContainer::AddPlasmaFlux (PlasmaInjector const& plasma_injector,
     if (EB::enabled())
     {
         using warpx::fields::FieldType;
-        auto & warpx = WarpX::GetInstance();
         scrapeParticlesAtEB(
             tmp_pc,
-            warpx.m_fields.get_mr_levels(FieldType::distance_to_eb, warpx.finestLevel()),
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_mr_levels(FieldType::distance_to_eb, data().finestLevel()),
             ParticleBoundaryProcess::Absorb());
     }
 #endif

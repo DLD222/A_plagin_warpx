@@ -35,7 +35,7 @@ struct SmartCopyTag
     [[nodiscard]] int size () const noexcept { return static_cast<int>(common_names.size()); }
 };
 
-PolicyVec getPolicies (std::vector<std::string> const & names) noexcept;
+PolicyVec getPolicies (std::vector<std::string> const & names);
 
 SmartCopyTag getSmartCopyTag (std::vector<std::string> const & src, std::vector<std::string> const & dst) noexcept;
 

@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <AMReX_REAL.H>
+#include <AMReX_RealBox.H>
 
 namespace amrex { class AmrCore; class EBFArrayBoxFactory; }
 
@@ -61,6 +62,7 @@ public:
     [[nodiscard]] virtual amrex::Array<amrex::Real, 3> cellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const = 0;
+    [[nodiscard]] virtual amrex::RealBox realBox (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
