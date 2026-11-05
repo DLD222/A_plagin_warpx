@@ -76,7 +76,7 @@
 | A2.1c2b | A2 | done | A2.1c2b1 | PML 迁入 LevelStorage + RemakeLevel 重建 |
 | A2.1 | A2 | done | A2.1c2b | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
 | A2.2 | A2 | done | A2.1c2b | ClearLevel 完整化（EB flags/buffer masks/spectral） |
-| A2.3 | A2 | pending | A2.2 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
+| A2.3 | A2 | done | A2.2 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
 | A2.4 | A2 | pending | A2.1 | AllocLevelData schema 化 |
 | A2.5 | A2 | pending | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1 | A3 | pending | A2.5 | InitData 阶段化 |
@@ -102,5 +102,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A2.3` — RemakeLevel 完整化（PML/材料/dotMask/flag_info）
+**Next:** `A2.4` — AllocLevelData schema 化
 

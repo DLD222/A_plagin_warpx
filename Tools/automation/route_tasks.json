@@ -1427,7 +1427,10 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "同 BoxArray 换 DM；ASAN 跑一遍",
-   "note": ""
+   "note": "同 BA 单进程 DM 变化不再早退；PML/EB/borrowing/costs/lattice 已重建；ASAN 通过",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A2.4",

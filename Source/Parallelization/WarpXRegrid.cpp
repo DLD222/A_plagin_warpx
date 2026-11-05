@@ -189,7 +189,9 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
     bool const eb_enabled = EB::enabled();
     if (ba == boxArray(lev))
     {
-        if (ParallelDescriptor::NProcs() == 1) { return; }
+        // With one rank the mapping is normally trivial, but a load-balance
+        // call may still hand us a different DistributionMapping.
+        if (ParallelDescriptor::NProcs() == 1 && dm == DistributionMap(lev)) { return; }
 
         m_fields.remake_level(lev, dm);
 
