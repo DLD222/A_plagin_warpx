@@ -17,6 +17,8 @@
 
 #include <string>
 
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; struct FrameState; class RuntimeData; }
+
 
 /**
  * WarpXFluidContainer is the base class from which all concrete
@@ -31,7 +33,14 @@ class WarpXFluidContainer
 public:
     friend MultiFluidContainer;
 
-    WarpXFluidContainer (int ispecies, const std::string &name);
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::FrameState& frame () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
+    WarpXFluidContainer (int ispecies, const std::string &name,
+                          const warpx::runtime::RuntimeContext* ctx = nullptr);
     ~WarpXFluidContainer() = default;
 
     WarpXFluidContainer (WarpXFluidContainer const &)             = delete;

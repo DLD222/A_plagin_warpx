@@ -595,12 +595,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.7",
+   "id": "A1.7d",
    "phase": "A1",
-   "title": "Batch F4：流体/碰撞/注入残余配置迁移",
+   "title": "流体容器 context + 配置迁移",
    "kind": "refactor",
    "depends": [
     "A1.7c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Fluids/MultiFluidContainer.H",
+    "Source/Fluids/WarpXFluidContainer.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "MultiFluid/WarpXFluidContainer 用 config()/frame()/data()；构建与回归通过",
+   "note": "Qdsmc/碰撞残余后续",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.7",
+   "phase": "A1",
+   "title": "Batch F5：Qdsmc/碰撞/注入残余",
+   "kind": "refactor",
+   "depends": [
+    "A1.7d"
    ],
    "status": "pending",
    "outputs": [],

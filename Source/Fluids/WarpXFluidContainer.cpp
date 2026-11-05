@@ -12,6 +12,11 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXUtil.H"
 #include "Utils/SpeciesUtils.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
@@ -42,9 +47,11 @@ namespace
 #endif
 
 
-WarpXFluidContainer::WarpXFluidContainer(int ispecies, const std::string &name):
+WarpXFluidContainer::WarpXFluidContainer(int ispecies, const std::string &name,
+                                         const warpx::runtime::RuntimeContext* ctx):
     species_id{ispecies},
-    species_name{name}
+    species_name{name},
+    m_runtime_context{ctx}
 {
     ReadParameters();
 
@@ -462,10 +469,10 @@ void WarpXFluidContainer::ApplyBcFluidsAndComms (ablastr::fields::MultiFabRegist
     }
 
     // Fill guard cells
-    FillBoundary(*fields.get(name_mf_N, lev), fields.get(name_mf_N, lev)->nGrowVect(), WarpX::do_single_precision_comms, period);
-    FillBoundary(*fields.get(name_mf_NU, Direction{0}, lev), fields.get(name_mf_NU, Direction{0}, lev)->nGrowVect(), WarpX::do_single_precision_comms, period);
-    FillBoundary(*fields.get(name_mf_NU, Direction{1}, lev), fields.get(name_mf_NU, Direction{1}, lev)->nGrowVect(), WarpX::do_single_precision_comms, period);
-    FillBoundary(*fields.get(name_mf_NU, Direction{2}, lev), fields.get(name_mf_NU, Direction{2}, lev)->nGrowVect(), WarpX::do_single_precision_comms, period);
+    FillBoundary(*fields.get(name_mf_N, lev), fields.get(name_mf_N, lev)->nGrowVect(), config().do_single_precision_comms(), period);
+    FillBoundary(*fields.get(name_mf_NU, Direction{0}, lev), fields.get(name_mf_NU, Direction{0}, lev)->nGrowVect(), config().do_single_precision_comms(), period);
+    FillBoundary(*fields.get(name_mf_NU, Direction{1}, lev), fields.get(name_mf_NU, Direction{1}, lev)->nGrowVect(), config().do_single_precision_comms(), period);
+    FillBoundary(*fields.get(name_mf_NU, Direction{2}, lev), fields.get(name_mf_NU, Direction{2}, lev)->nGrowVect(), config().do_single_precision_comms(), period);
 }
 
 // Muscl Advection Update
@@ -1151,8 +1158,8 @@ void WarpXFluidContainer::GatherAndPush (
     const amrex::Geometry &geom = warpx.Geom(lev);
     const auto dx = geom.CellSizeArray();
     const auto problo = geom.ProbLoArray();
-    const amrex::Real gamma_boost = WarpX::gamma_boost;
-    const amrex::Real beta_boost = WarpX::beta_boost;
+    const amrex::Real gamma_boost = frame().gamma_boost;
+    const amrex::Real beta_boost = frame().beta_boost;
     //Check whether m_E_ext_s is "none"
     bool external_e_fields; // Needs intializing
     bool external_b_fields; // Needs intializing
@@ -1428,7 +1435,7 @@ void WarpXFluidContainer::DepositCharge (ablastr::fields::MultiFabRegister& fiel
     const amrex::Periodicity &period = geom.periodicity();
     const amrex::Real q = getCharge();
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-    const amrex::Real dr = WarpX::CellSize(lev)[0];
+    const amrex::Real dr = data().cellSize(lev)[0];
     const bool use_axis_correction = warpx.UseVerboncoeurAxisCorrection();
 #endif
     auto const &owner_mask_rho = amrex::OwnerMask(rho, period);
@@ -1449,7 +1456,7 @@ void WarpXFluidContainer::DepositCharge (ablastr::fields::MultiFabRegister& fiel
         const amrex::Array4<int> owner_mask_rho_arr = owner_mask_rho->array(mfi);
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        const amrex::Real rmin = WarpX::LowerCorner(tile_box, lev, 0.0_rt).x;
+        const amrex::Real rmin = data().lowerCorner(tile_box, lev).x;
         const int irmin = amrex::lbound(tile_box).x;
 #endif
 
@@ -1595,4 +1602,28 @@ void WarpXFluidContainer::DepositCurrent(
             }
         );
     }
+}
+
+const warpx::runtime::RuntimeConfig&
+WarpXFluidContainer::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) { return *m_runtime_context->config; }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::FrameState&
+WarpXFluidContainer::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) { return *m_runtime_context->frame; }
+    static const warpx::runtime::FrameState legacy = warpx::runtime::FrameState::FromLegacy();
+    return legacy;
+}
+
+const warpx::runtime::RuntimeData&
+WarpXFluidContainer::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
 }

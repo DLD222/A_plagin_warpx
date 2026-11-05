@@ -395,7 +395,7 @@ WarpX::WarpX ()
 
     // Fluid Container
     if (do_fluid_species) {
-        myfl = std::make_unique<MultiFluidContainer>();
+        myfl = std::make_unique<MultiFluidContainer>(m_runtime_context);
     }
 
     Efield_dotMask.resize(nlevs_max);

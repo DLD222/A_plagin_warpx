@@ -18,6 +18,8 @@
 
 #include <string>
 
+namespace warpx::runtime { struct RuntimeContext; }
+
 /**
  * The class MultiFluidContainer holds multiple instances of the
  * class WarpXFluidContainer, stored in its member variable "allcontainers".
@@ -37,7 +39,7 @@ class MultiFluidContainer
 
 public:
 
-    MultiFluidContainer ();
+    explicit MultiFluidContainer (const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     ~MultiFluidContainer() = default;
 
