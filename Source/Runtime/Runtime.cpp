@@ -9,6 +9,7 @@
 
 #include "Initialization/WarpXInit.H"
 #include "Runtime/DataBus.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -46,10 +47,11 @@ Runtime::Runtime (int argc, char* argv[])
     auto& warpx = WarpX::GetInstance();
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
     m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
+    m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();
     sync_time();
     m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
-                               nullptr, [this] { sync_time(); }};
+                               m_host.get(), nullptr, [this] { sync_time(); }};
     warpx.SetRuntimeContext(&m_context);
 }
 
@@ -140,6 +142,18 @@ const DataBus&
 Runtime::bus () const
 {
     return *m_bus;
+}
+
+HostServices&
+Runtime::host ()
+{
+    return *m_host;
+}
+
+const HostServices&
+Runtime::host () const
+{
+    return *m_host;
 }
 
 void

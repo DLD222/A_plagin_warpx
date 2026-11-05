@@ -137,8 +137,6 @@ FlushFormatCatalyst::WriteToFile (
     amrex::Print() << Utils::TextMsg::Info("Running Catalyst pipeline scripts...");
 
     ABLASTR_PROFILE("FlushFormatCatalyst::WriteToFile()");
-    auto & warpx = WarpX::GetInstance();
-
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         !isBTD,
         "In-situ visualization is not currently supported for back-transformed diagnostics.");
@@ -155,7 +153,7 @@ FlushFormatCatalyst::WriteToFile (
     auto& meshData = meshChannel["data"];
 
     amrex::MultiLevelToBlueprint(
-        nlev, amrex::GetVecOfConstPtrs(mf), varnames, geom, time, iteration, warpx.refRatio(), meshData);
+        nlev, amrex::GetVecOfConstPtrs(mf), varnames, geom, time, iteration, data().refRatioVector(), meshData);
     ABLASTR_PROFILE_VAR_STOP(prof_catalyst_mesh_blueprint);
 
     // Particle data

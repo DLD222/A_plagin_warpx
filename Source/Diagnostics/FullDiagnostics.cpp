@@ -25,6 +25,7 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/FrameState.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
@@ -1046,11 +1047,7 @@ FullDiagnostics::PrepareFieldDataForOutput ()
 {
     // First, make sure all guard cells are properly filled
     // Probably overkill/unnecessary, but safe and shouldn't happen often !!
-    auto & warpx = WarpX::GetInstance();
-    warpx.FillBoundaryE(warpx.getngEB());
-    warpx.FillBoundaryB(warpx.getngEB());
-    warpx.UpdateAuxiliaryData();
-    warpx.FillBoundaryAux(warpx.getngUpdateAux());
+    host().prepareFieldsForDiagnostics();
 
     // Update the RealBox used for the geometry filter in particle diags
     // Note that full diagnostics every diag has only one buffer. (m_num_buffers = 1).
@@ -1068,8 +1065,6 @@ FullDiagnostics::PrepareFieldDataForOutput ()
 void
 FullDiagnostics::MovingWindowAndGalileanDomainShift (int step)
 {
-    auto & warpx = WarpX::GetInstance();
-
     // Get current finest level available
     const int finest_level = data().finestLevel();
 
@@ -1114,14 +1109,14 @@ FullDiagnostics::MovingWindowAndGalileanDomainShift (int step)
         m_geom_output[0][lev].ProbDomain( amrex::RealBox(new_lo, new_hi) );
     }
     // For Moving Window Shift
-    if (WarpX::moving_window_active(step+1)) {
+    if (host().movingWindowActive(step+1)) {
         const int moving_dir = frame().moving_window_dir;
-        const amrex::Real moving_window_x = warpx.getmoving_window_x();
+        const amrex::Real moving_window_x = host().movingWindowX();
         // Get the updated lo and hi of the geom domain
         const amrex::Real* cur_lo = m_geom_output[0][0].ProbLo();
         const amrex::Real* cur_hi = m_geom_output[0][0].ProbHi();
         const amrex::Real* geom_dx = m_geom_output[0][0].CellSize();
-        const int num_shift_base = WarpX::NumCellsShifted(moving_window_x - cur_lo[moving_dir],
+        const int num_shift_base = host().numCellsShifted(moving_window_x - cur_lo[moving_dir],
                                                            geom_dx[moving_dir]);
         // Update the diagnostic geom domain. Note that this is done only for the
         // base level 0 because m_geom_output[0][lev] share the same static RealBox

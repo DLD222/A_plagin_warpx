@@ -1,5 +1,6 @@
 CEXE_sources += Runtime.cpp
 CEXE_sources += DataBus.cpp
+CEXE_sources += WarpXHostServices.cpp
 CEXE_sources += RuntimeConfig.cpp
 CEXE_sources += FrameState.cpp
 CEXE_sources += WarpXRuntimeData.cpp

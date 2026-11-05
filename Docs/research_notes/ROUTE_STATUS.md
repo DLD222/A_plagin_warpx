@@ -27,7 +27,7 @@
 | A1.4 | A1 | done | A0.6,A0.7 | Batch C6：剩余专用诊断（ChargeOnEB/Collider/DifferentialLuminosity/BeamRelevant/LoadBalanceCosts） |
 | A1.5a | A1 | done | A1.4 | Diagnostics context 注入 + 基类配置/几何迁移 |
 | A1.5b | A1 | done | A1.5a | FullDiagnostics 字段/几何 + Checkpoint/Plotfile 主体迁移 |
-| A1.5 | A1 | pending | A1.5b | Batch D3：诊断 kernel services（FillBoundary/moving window/PML/in-situ） |
+| A1.5 | A1 | done | A1.5b | Batch D3：诊断 kernel services（FillBoundary/moving window/PML/in-situ） |
 | A1.6 | A1 | pending | A1.4 | Batch E：场求解器的只读配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
 | A1.8 | A1 | pending | A1.5,A1.7 | 移除 WarpX::m_instance 与剩余 GetInstance |
@@ -59,5 +59,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.5` — Batch D3：诊断 kernel services（FillBoundary/moving window/PML/in-situ）
+**Next:** `A1.6` — Batch E：场求解器的只读配置迁移
 

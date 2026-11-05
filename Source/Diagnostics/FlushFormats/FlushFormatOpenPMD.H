@@ -24,7 +24,8 @@ class FlushFormatOpenPMD final : public FlushFormat
 public:
 
     /** Constructor takes name of diagnostics to set the output directory */
-    explicit FlushFormatOpenPMD (const std::string& diag_name);
+    explicit FlushFormatOpenPMD (const std::string& diag_name,
+                                  const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /** Flush fields and particles to plotfile */
     void WriteToFile (

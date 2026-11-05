@@ -9,6 +9,7 @@
 #include "Fields.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
@@ -60,8 +61,6 @@ FlushFormatCheckpoint::WriteToFile (
     using WARPX_UNITY_ID::default_level_prefix;
 
     ABLASTR_PROFILE("FlushFormatCheckpoint::WriteToFile()");
-
-    auto & warpx = WarpX::GetInstance();
 
     const VisMF::Header::Version current_version = VisMF::GetHeaderVersion();
     VisMF::SetHeaderVersion(amrex::VisMF::Header::NoFabHeader_v1);
@@ -173,19 +172,11 @@ FlushFormatCheckpoint::WriteToFile (
             }
         }
 
-        if (warpx.DoPML()) {
-            if (warpx.GetPML(lev)) {
-                warpx.GetPML(lev)->CheckPoint(
-                    fields(),
-                    amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "pml"));
-            }
-#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
-            if (warpx.GetPML_RZ(lev)) {
-                warpx.GetPML_RZ(lev)->CheckPoint(
-                    fields(),
-                    amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "pml_rz"));
-            }
-#endif
+        if (host().doPML()) {
+            host().checkpointPML(
+                lev,
+                amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "pml"),
+                fields());
         }
 
         fields().write_checkpoints(lev, amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, ""));
@@ -266,7 +257,6 @@ void
 FlushFormatCheckpoint::WriteDMaps (const std::string& dir, int nlev) const
 {
     if (ParallelDescriptor::IOProcessor()) {
-        auto & warpx = WarpX::GetInstance();
         for (int lev = 0; lev < nlev; ++lev) {
             std::string DMFileName = dir;
             if (!DMFileName.empty() && DMFileName[DMFileName.size()-1] != '/') {DMFileName += '/';}
@@ -279,7 +269,7 @@ FlushFormatCheckpoint::WriteDMaps (const std::string& dir, int nlev) const
             if (!DMFile.good()) { amrex::FileOpenFailed(DMFileName); }
 
             DMFile << ParallelDescriptor::NProcs() << "\n";
-            warpx.DistributionMap(lev).writeOn(DMFile);
+            data().distributionMap(lev).writeOn(DMFile);
 
             DMFile.flush();
             DMFile.close();
@@ -295,7 +285,6 @@ void
 FlushFormatCheckpoint::WriteReducedDiagsData (std::string const & dir) const
 {
     if (ParallelDescriptor::IOProcessor()) {
-        auto & warpx = WarpX::GetInstance();
-        warpx.reduced_diags->WriteCheckpointData(dir);
+        host().writeReducedDiagCheckpoint(dir);
     }
 }

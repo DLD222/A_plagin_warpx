@@ -21,6 +21,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
@@ -88,8 +89,6 @@ Diagnostics::data () const
 bool
 Diagnostics::BaseReadParameters ()
 {
-    auto & warpx = WarpX::GetInstance();
-
     // Diagnostics are constructed before the checkpoint geometry is restored.
     if (frame().do_moving_window) {
         m_moving_window_initial_lo = data().geom(0).ProbLo(frame().moving_window_dir);
@@ -500,10 +499,8 @@ Diagnostics::InitDataAfterRestart (const MultiParticleContainer& mpc)
 void
 Diagnostics::InitData (const MultiParticleContainer& mpc)
 {
-    auto& warpx = WarpX::GetInstance();
-
     // Get current finest level available
-    const int finest_level = warpx.finestLevel();
+    const int finest_level = data().finestLevel();
 
     // initialize member variables and arrays in base class::Diagnostics
     InitBaseData();
@@ -580,19 +577,18 @@ Diagnostics::InitData (const MultiParticleContainer& mpc)
 void
 Diagnostics::InitBaseData ()
 {
-    auto & warpx = WarpX::GetInstance();
     // Number of levels in the simulation at the current timestep
-    nlev = warpx.finestLevel() + 1;
+    nlev = data().finestLevel() + 1;
     // default number of levels to be output = nlev
     nlev_output = nlev;
     // Maximum number of levels that will be allocated in the simulation
-    nmax_lev = warpx.maxLevel() + 1;
+    nmax_lev = data().maxLevel() + 1;
     m_all_field_functors.resize( nmax_lev );
 
     // The checkpoint geometry contains the shifts actually applied to the grid.
     // Reconstructing them from the step count and dt can round differently at cell
     // boundaries. Preserve each diagnostic's offset from the original simulation domain.
-    if (frame().do_moving_window && warpx.getistep(0) > 0) {
+    if (frame().do_moving_window && data().istep(0) > 0) {
         const int moving_dir = frame().moving_window_dir;
         const amrex::Real displacement =
             data().geom(0).ProbLo(moving_dir) - m_moving_window_initial_lo;
@@ -620,7 +616,7 @@ Diagnostics::InitBaseData ()
 #endif
     } else if (m_format == "openpmd"){
 #ifdef WARPX_USE_OPENPMD
-        m_flush_format = std::make_unique<FlushFormatOpenPMD>(m_diag_name);
+        m_flush_format = std::make_unique<FlushFormatOpenPMD>(m_diag_name, m_runtime_context);
 #else
         WARPX_ABORT_WITH_MESSAGE(
             "To use openpmd output format, need to compile with USE_OPENPMD=TRUE");
@@ -666,8 +662,6 @@ Diagnostics::ComputeAndPack ()
     // to determine if the transform is to be done this step.
     PrepareParticleDataForOutput();
 
-    auto & warpx = WarpX::GetInstance();
-
     // compute the necessary fields and store result in m_mf_output.
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         for(int lev=0; lev<nlev_output; lev++){
@@ -695,7 +689,7 @@ Diagnostics::ComputeAndPack ()
 
             // needed for contour plots of rho, i.e. ascent/sensei
             if (m_format == "sensei" || m_format == "ascent") {
-                ablastr::utils::communication::FillBoundary(m_mf_output[i_buffer][lev], WarpX::do_single_precision_comms,
+                ablastr::utils::communication::FillBoundary(m_mf_output[i_buffer][lev], config().do_single_precision_comms(),
                                                             data().geom(lev).periodicity());
             }
         }
@@ -723,4 +717,16 @@ Diagnostics::FilterComputePackFlush (int step, bool force_flush)
         if ( !DoDump (step, i_buffer, force_flush) ) { continue; }
         Flush(i_buffer, force_flush);
     }
+}
+
+warpx::runtime::HostServices&
+Diagnostics::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) {
+        return *m_runtime_context->host;
+    }
+    if (!m_legacy_host) {
+        m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance());
+    }
+    return *m_legacy_host;
 }

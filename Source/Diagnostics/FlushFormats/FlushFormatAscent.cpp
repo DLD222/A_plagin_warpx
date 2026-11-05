@@ -26,8 +26,6 @@ FlushFormatAscent::WriteToFile (
 {
 #ifdef AMREX_USE_ASCENT
     ABLASTR_PROFILE("FlushFormatAscent::WriteToFile()");
-    auto & warpx = WarpX::GetInstance();
-
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         !isBTD,
         "In-situ visualization is not currently supported for back-transformed diagnostics.");
@@ -41,7 +39,7 @@ FlushFormatAscent::WriteToFile (
     ABLASTR_PROFILE_VAR("FlushFormatAscent::WriteToFile::MultiLevelToBlueprint", prof_ascent_mesh_blueprint);
     conduit::Node bp_mesh;
     amrex::MultiLevelToBlueprint(
-        nlev, amrex::GetVecOfConstPtrs(mf), varnames, geom, time, iteration, warpx.refRatio(), bp_mesh);
+        nlev, amrex::GetVecOfConstPtrs(mf), varnames, geom, time, iteration, data().refRatioVector(), bp_mesh);
     ABLASTR_PROFILE_VAR_STOP(prof_ascent_mesh_blueprint);
 
     ABLASTR_PROFILE_VAR("FlushFormatAscent::WriteToFile::WriteParticles", prof_ascent_particles);

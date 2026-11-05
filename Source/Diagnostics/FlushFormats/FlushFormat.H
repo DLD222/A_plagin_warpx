@@ -8,7 +8,7 @@
 
 #include "Runtime/RuntimeContext.H"
 
-namespace warpx::runtime { class RuntimeData; struct RuntimeConfig; }
+namespace warpx::runtime { class RuntimeData; class HostServices; struct RuntimeConfig; }
 
 class FlushFormat
 {
@@ -48,6 +48,7 @@ protected:
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     //! Mutable view for checkpoint writers (VisMF::Write takes MultiFab&).
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 };

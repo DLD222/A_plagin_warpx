@@ -9,6 +9,7 @@
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 
 #include <stdexcept>
@@ -40,4 +41,13 @@ ablastr::fields::MultiFabRegister&
 FlushFormat::fields () const
 {
     return const_cast<warpx::runtime::RuntimeData&>(data()).fields();
+}
+
+warpx::runtime::HostServices&
+FlushFormat::host () const
+{
+    if (m_runtime_context == nullptr || m_runtime_context->host == nullptr) {
+        throw std::runtime_error("FlushFormat: runtime host services are not set");
+    }
+    return *m_runtime_context->host;
 }

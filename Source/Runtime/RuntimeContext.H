@@ -18,6 +18,7 @@ namespace warpx::runtime
 {
 
 class DataBus;
+class HostServices;
 class RuntimeData;
 class Services;
 
@@ -35,6 +36,7 @@ struct RuntimeContext
     const FrameState* frame = nullptr;
     RuntimeData* data = nullptr;
     DataBus* bus = nullptr;
+    HostServices* host = nullptr;
     Services* services = nullptr;
 
     //! Transitional live-clock hook: WarpX calls this at step boundaries and

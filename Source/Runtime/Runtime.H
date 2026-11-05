@@ -23,6 +23,7 @@ namespace warpx::runtime
 
 class WarpXRuntimeData;
 class DataBus;
+class WarpXHostServices;
 
 /**
  * \brief Process-level owner of the simulation lifetime.
@@ -74,6 +75,10 @@ public:
     [[nodiscard]] DataBus& bus ();
     [[nodiscard]] const DataBus& bus () const;
 
+    //! Kernel services (FillBoundary/moving window/PML/in-situ metadata).
+    [[nodiscard]] HostServices& host ();
+    [[nodiscard]] const HostServices& host () const;
+
 private:
     bool m_initialized = false;
     bool m_finalized = false;
@@ -83,6 +88,7 @@ private:
     RuntimeContext m_context{};
     std::unique_ptr<WarpXRuntimeData> m_data;
     std::unique_ptr<DataBus> m_bus;
+    std::unique_ptr<WarpXHostServices> m_host;
 
     void sync_config ();
     void sync_time ();
