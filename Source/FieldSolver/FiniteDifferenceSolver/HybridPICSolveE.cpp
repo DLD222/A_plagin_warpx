@@ -643,12 +643,12 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
 
     const bool holmstrom_vacuum_region = hybrid_model->m_holmstrom_vacuum_region;
 
-    auto & warpx = WarpX::GetInstance();
-    const amrex::Real t_new = warpx.gett_new(lev);
+    const amrex::Real t_new = data().t_new(lev);
     ablastr::fields::VectorField Bfield_external, Efield_external;
     if (include_external_fields) {
-        Bfield_external = warpx.m_fields.get_alldirs(FieldType::hybrid_B_fp_external, 0); // lev=0
-        Efield_external = warpx.m_fields.get_alldirs(FieldType::hybrid_E_fp_external, 0); // lev=0
+        auto& fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
+        Bfield_external = fields.get_alldirs(FieldType::hybrid_B_fp_external, 0); // lev=0
+        Efield_external = fields.get_alldirs(FieldType::hybrid_E_fp_external, 0); // lev=0
     }
 
     // Index type required for interpolating fields from their respective
@@ -694,8 +694,8 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
     ablastr::fields::VectorField eta_overlay_mf = {nullptr, nullptr, nullptr};
     ablastr::fields::VectorField eta_coef_mf = {nullptr, nullptr, nullptr};
     if (has_eta_overlay) {
-        eta_overlay_mf = warpx.m_fields.get_alldirs("hybrid_eta_overlay_fp", lev);
-        eta_coef_mf = warpx.m_fields.get_alldirs("hybrid_eta_overlay_coef_fp", lev);
+        eta_overlay_mf = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_alldirs("hybrid_eta_overlay_fp", lev);
+        eta_coef_mf = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_alldirs("hybrid_eta_overlay_coef_fp", lev);
     }
 
     // Loop through the grids, and over the tiles within each grid for the
@@ -1141,12 +1141,12 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
     // density-floor selection of the guarded Hall term otherwise.
     const VacuumSeamSwitchMode switch_mode = hybrid_model->m_vacuum_seam_switch_mode;
 
-    auto & warpx = WarpX::GetInstance();
-    const amrex::Real t_new = warpx.gett_new(lev);
+    const amrex::Real t_new = data().t_new(lev);
     ablastr::fields::VectorField Bfield_external, Efield_external;
     if (include_external_fields) {
-        Bfield_external = warpx.m_fields.get_alldirs(FieldType::hybrid_B_fp_external, 0); // lev=0
-        Efield_external = warpx.m_fields.get_alldirs(FieldType::hybrid_E_fp_external, 0); // lev=0
+        auto& fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
+        Bfield_external = fields.get_alldirs(FieldType::hybrid_B_fp_external, 0); // lev=0
+        Efield_external = fields.get_alldirs(FieldType::hybrid_E_fp_external, 0); // lev=0
     }
 
     // Index type required for interpolating fields from their respective
@@ -1191,8 +1191,8 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
     ablastr::fields::VectorField eta_overlay_mf = {nullptr, nullptr, nullptr};
     ablastr::fields::VectorField eta_coef_mf = {nullptr, nullptr, nullptr};
     if (has_eta_overlay) {
-        eta_overlay_mf = warpx.m_fields.get_alldirs("hybrid_eta_overlay_fp", lev);
-        eta_coef_mf = warpx.m_fields.get_alldirs("hybrid_eta_overlay_coef_fp", lev);
+        eta_overlay_mf = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_alldirs("hybrid_eta_overlay_fp", lev);
+        eta_coef_mf = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get_alldirs("hybrid_eta_overlay_coef_fp", lev);
     }
 
     // Loop through the grids, and over the tiles within each grid for the
