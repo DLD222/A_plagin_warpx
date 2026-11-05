@@ -1239,13 +1239,14 @@
    ],
    "status": "pending",
    "outputs": [
+    "Docs/research_notes/A2.1_LEVEL_RESOURCES_DESIGN.md",
     "Source/Runtime/LevelResources.H"
    ],
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "单一所有者；RAII",
-   "note": ""
+   "note": "设计见 Docs/research_notes/A2.1_LEVEL_RESOURCES_DESIGN.md；按 a–e 分步"
   },
   {
    "id": "A2.2",
