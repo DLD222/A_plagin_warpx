@@ -837,12 +837,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8i",
+   "phase": "A1",
+   "title": "VarianceAccumulationBuffer context + 场/滤波迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8h"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Deposition/VarianceAccumulationBuffer.H",
+    "Source/Particles/Deposition/VarianceAccumulationBuffer.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "variance buffer 用 data/config；滤波走 HostServices；回归通过",
+   "note": "局部温度诊断路径",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8h"
+    "A1.8i"
    ],
    "status": "pending",
    "outputs": [],

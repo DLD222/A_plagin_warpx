@@ -230,6 +230,7 @@ public:
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
+    [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const { return m_runtime_context; }
     ~WarpXParticleContainer() override = default;
 
     // Move and copy operations

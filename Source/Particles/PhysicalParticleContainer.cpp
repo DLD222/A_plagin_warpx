@@ -409,7 +409,7 @@ PhysicalParticleContainer::AllocData ()
 
         // Allocate Accumulation Arrays
         local_temperature_arrays = std::make_unique<warpx::particles::deposition::VarianceAccumulationBuffer>(
-            T_vf, species_name);
+            T_vf, species_name, runtime_context());
     }
 }
 

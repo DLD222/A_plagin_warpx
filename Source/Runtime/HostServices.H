@@ -52,6 +52,10 @@ public:
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) = 0;
 
+    //! Apply the configured filter to one direction of a multi-level vector field.
+    virtual void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
+                                int lev, int idir) = 0;
+
     //! Electrostatic potential on level (uses phi_fp when available).
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> computePhi (int lev) = 0;
 

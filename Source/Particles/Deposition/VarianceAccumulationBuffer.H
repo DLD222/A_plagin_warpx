@@ -12,6 +12,8 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; }
+
 namespace warpx::particles::deposition {
 
 class VarianceAccumulationBuffer {
@@ -20,11 +22,16 @@ class VarianceAccumulationBuffer {
     std::string m_species_name;
 
     amrex::Vector<std::array<std::unique_ptr<amrex::iMultiFab>, 3> > m_nsamples;
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
 
     public:
     // Constructor for accumulation buffer
     // This is built after the T vector fields are created, so use it to allocate the
-    VarianceAccumulationBuffer (ablastr::fields::MultiLevelVectorField const& T_vf, std::string const& species_name );
+    VarianceAccumulationBuffer (ablastr::fields::MultiLevelVectorField const& T_vf, std::string const& species_name,
+                               const warpx::runtime::RuntimeContext* ctx = nullptr );
 
     // This public member functions
     void reset ();

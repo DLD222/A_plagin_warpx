@@ -31,6 +31,8 @@ public:
     [[nodiscard]] std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) override;
     [[nodiscard]] std::unique_ptr<amrex::MultiFab> computePhi (int lev) override;
+    void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
+                        int lev, int idir) override;
     [[nodiscard]] amrex::Real movingWindowX () const override;
     [[nodiscard]] bool movingWindowActive (int step) const override;
     [[nodiscard]] int numCellsShifted (amrex::Real distance, amrex::Real dx) const override;

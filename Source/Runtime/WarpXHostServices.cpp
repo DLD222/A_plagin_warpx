@@ -142,6 +142,13 @@ WarpXHostServices::computePhi (int lev)
     return std::move(phi_vec[0]);
 }
 
+void
+WarpXHostServices::applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
+                                  int lev, int idir)
+{
+    m_warpx.ApplyFilterMF(field, lev, idir);
+}
+
 amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving_window_x(); }
 bool WarpXHostServices::movingWindowActive (int step) const { return WarpX::moving_window_active(step); }
 int WarpXHostServices::numCellsShifted (amrex::Real distance, amrex::Real dx) const { return WarpX::NumCellsShifted(distance, dx); }
