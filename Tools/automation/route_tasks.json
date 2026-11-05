@@ -496,12 +496,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.6",
+   "id": "A1.6c",
    "phase": "A1",
-   "title": "Batch E3：PSATD / Hybrid-PIC 模型配置迁移",
+   "title": "PSATD context 链 + FFT 算例验收",
    "kind": "refactor",
    "depends": [
     "A1.6b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/FieldSolver/SpectralSolver/SpectralSolver.H",
+    "Source/FieldSolver/SpectralSolver/SpectralFieldData.H",
+    "tests/runtime/inputs_2d_psatd"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "PSATD 2D 算例能量守恒；SpectralFieldData 无 GetInstance；FFT 构建通过",
+   "note": "本地 FFTW 3.3.10 double+single 已编译到 third_party/fftw",
+   "verify_command": "LD_LIBRARY_PATH=$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH ctest --test-dir ${WARPX_FFT_BUILD_DIR:-build_fft} -R '^runtime_psatd' --output-on-failure"
+  },
+  {
+   "id": "A1.6",
+   "phase": "A1",
+   "title": "Batch E3b：Hybrid-PIC 模型配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.6c"
    ],
    "status": "pending",
    "outputs": [],

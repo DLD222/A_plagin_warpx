@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **54 个可执行任务**，每个任务带依赖、产出、验收和门禁。
+> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **55 个可执行任务**，每个任务带依赖、产出、验收和门禁。
 > 任务图：`Tools/automation/route_tasks.json`；运行器：`Tools/automation/route_tasks.py`；门禁：`Tools/automation/gates/`。
 
 ---
@@ -48,7 +48,7 @@
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
 | A0 审计 + 对齐层 | 8 | 8（含 A0.6 DataBus/FieldSpec/alias） |
-| A1 去单例 | 21 | 16（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram、A1.4 C6 专用诊断、A1.5a Diagnostics context、A1.5b FullDiag/Checkpoint/Plotfile、A1.5 HostServices、A1.6a Yee/FDTD、A1.6b 静电） |
+| A1 去单例 | 22 | 17（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram、A1.4 C6 专用诊断、A1.5a Diagnostics context、A1.5b FullDiag/Checkpoint/Plotfile、A1.5 HostServices、A1.6a Yee/FDTD、A1.6b 静电、A1.6c PSATD+FFTW） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 4 | 0 |
 | A4 状态 schema | 5 | 0 |

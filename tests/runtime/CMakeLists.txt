@@ -19,6 +19,11 @@ foreach(D IN LISTS WarpX_DIMS)
                      COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_psatd)
             set_tests_properties(runtime_psatd_${D} PROPERTIES
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+            add_test(NAME runtime_psatd_check_${D}
+                     COMMAND test_runtime_snapshot_${SD} ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_psatd --psatd)
+            set_tests_properties(runtime_psatd_check_${D} PROPERTIES
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
         endif()
 
         if(TARGET app_${SD})

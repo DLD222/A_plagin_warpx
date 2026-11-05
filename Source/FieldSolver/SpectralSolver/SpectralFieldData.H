@@ -24,6 +24,8 @@
 #include <AMReX_MultiFab.H>
 
 namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
+
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
 #include <AMReX_Vector.H>
 
 #include <AMReX_BaseFwd.H>
@@ -150,7 +152,8 @@ class SpectralFieldData
                            const SpectralKSpace& k_space,
                            const amrex::DistributionMapping& dm,
                            int n_field_required,
-                           bool periodic_single_box);
+                           bool periodic_single_box,
+                           const warpx::runtime::RuntimeContext* ctx = nullptr);
         SpectralFieldData() = default; // Default constructor
         ~SpectralFieldData();
 
@@ -184,6 +187,9 @@ class SpectralFieldData
                             shift2_FFTfromCell, shift2_FFTtoCell;
 
         bool m_periodic_single_box;
+
+        [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+        const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 };
 
 #endif // WARPX_SPECTRAL_FIELD_DATA_H_

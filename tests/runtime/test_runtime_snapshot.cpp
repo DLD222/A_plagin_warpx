@@ -47,6 +47,7 @@ void check_real (amrex::Real a, amrex::Real b, const std::string& what)
 int main (int argc, char* argv[])
 {
     const bool particles_mode = (argc > 2 && std::string(argv[2]) == "--particles");
+    const bool psatd_mode = (argc > 2 && std::string(argv[2]) == "--psatd");
     char* rt_argv[3] = {argv[0], argv[1], nullptr};
     warpx::runtime::Runtime runtime(2, rt_argv);
 
@@ -165,7 +166,7 @@ int main (int argc, char* argv[])
         return last;
     };
 
-    if (!particles_mode) {
+    if (!particles_mode && !psatd_mode) {
     // Numeric verification of the migrated reduced diagnostics:
     // E = 1 V/m uniform in [-1,1]^2 -> U = 0.5*eps0*E^2*volume = 1.7708...e-11 J.
     {
@@ -226,6 +227,16 @@ int main (int argc, char* argv[])
         check(std::abs(value - 1.0) <= 1.0e-14, "field_reduce Maximum(Ex)");
     }
 
+    }
+
+    if (psatd_mode) {
+        std::istringstream is(last_line("diags/reducedfiles/field_energy.txt"));
+        double step = 0, time = 0, total = 0, e = 0, b = 0;
+        is >> step >> time >> total >> e >> b;
+        constexpr double expected = 0.5 * 8.8541878188e-12 * 4.0;
+        check_eq(static_cast<int>(step), 1, "psatd step");
+        check(std::abs(total - expected) <= 1.0e-12 * expected, "psatd energy conservation");
+        check(std::abs(e - expected) <= 1.0e-12 * expected, "psatd E energy");
     }
 
     if (particles_mode) {
