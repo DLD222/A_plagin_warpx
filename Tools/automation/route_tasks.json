@@ -1333,12 +1333,31 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1c2b1",
+   "phase": "A2",
+   "title": "PML 访问器 pmlPtr(lev) 收口（63 处）",
+   "kind": "refactor",
+   "depends": [
+    "A2.1c2a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无裸 pml[lev] 读访问；PML 算例通过；所有权暂不变",
+   "note": "PML 迁入 LevelStorage 需先补 RemakeLevel 重建",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A2.1c2a"
+    "A2.1c2b1"
    ],
    "status": "pending",
    "outputs": [

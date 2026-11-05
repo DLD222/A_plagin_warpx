@@ -72,7 +72,8 @@
 | A2.1c1 | A2 | done | A2.1b | borrowing + accelerator_lattice 迁入 LevelStorage |
 | A2.1c2a | A2 | done | A2.1c1 | costs 迁入 LevelStorage + Costs API 收口 |
 | A2.1d | A2 | done | A2.1c2a | dotMask 缓存迁入 LevelStorage |
-| A2.1 | A2 | pending | A2.1c2a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
+| A2.1c2b1 | A2 | done | A2.1c2a | PML 访问器 pmlPtr(lev) 收口（63 处） |
+| A2.1 | A2 | pending | A2.1c2b1 | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
 | A2.2 | A2 | pending | A2.1 | ClearLevel 完整化 |
 | A2.3 | A2 | pending | A2.1 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
 | A2.4 | A2 | pending | A2.1 | AllocLevelData schema 化 |

@@ -3517,7 +3517,7 @@ WarpX::GetPML (int lev)
 {
     if (do_pml) {
         // This should check if pml was initialized
-        return pml[lev].get();
+        return pmlPtr(lev);
     } else {
         return nullptr;
     }

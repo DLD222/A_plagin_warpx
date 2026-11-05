@@ -1147,9 +1147,9 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
     // Evolve fields in PML
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        if (do_pml && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev)->ok())
         {
-            pml[lev]->PushPSATD(m_fields, lev);
+            pmlPtr(lev)->PushPSATD(m_fields, lev);
         }
         ApplyEfieldBoundary(lev, PatchType::fine, cur_time + dt[0]);
         if (lev > 0) { ApplyEfieldBoundary(lev, PatchType::coarse, cur_time + dt[0]); }

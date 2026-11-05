@@ -748,15 +748,15 @@ WarpX::FillBoundaryE (const int lev, const PatchType patch_type, const amrex::In
     // Fill guard cells in PML
     if (do_pml)
     {
-        if (pml[lev] && pml[lev]->ok())
+        if (pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             const std::array<amrex::MultiFab*,3> mf_pml =
                 (patch_type == PatchType::fine) ?
                 m_fields.get_alldirs(FieldType::pml_E_fp, lev) :
                 m_fields.get_alldirs(FieldType::pml_E_cp, lev);
 
-            pml[lev]->Exchange(mf_pml, mf, patch_type, do_pml_in_domain);
-            pml[lev]->FillBoundary(mf_pml, patch_type, nodal_sync);
+            pmlPtr(lev)->Exchange(mf_pml, mf, patch_type, do_pml_in_domain);
+            pmlPtr(lev)->FillBoundary(mf_pml, patch_type, nodal_sync);
         }
 
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
@@ -830,15 +830,15 @@ WarpX::FillBoundaryB (const int lev, const PatchType patch_type, const amrex::In
     // Fill guard cells in PML
     if (do_pml)
     {
-        if (pml[lev] && pml[lev]->ok())
+        if (pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             const std::array<amrex::MultiFab*,3> mf_pml =
                 (patch_type == PatchType::fine) ?
                 m_fields.get_alldirs(FieldType::pml_B_fp, lev) :
                 m_fields.get_alldirs(FieldType::pml_B_cp, lev);
 
-            pml[lev]->Exchange(mf_pml, mf, patch_type, do_pml_in_domain);
-            pml[lev]->FillBoundary(mf_pml, patch_type, nodal_sync);
+            pmlPtr(lev)->Exchange(mf_pml, mf, patch_type, do_pml_in_domain);
+            pmlPtr(lev)->FillBoundary(mf_pml, patch_type, nodal_sync);
         }
 
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
@@ -892,7 +892,7 @@ WarpX::FillBoundaryE_avg (int lev, PatchType patch_type, IntVect ng)
 
     if (patch_type == PatchType::fine)
     {
-        if (do_pml && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev)->ok())
         {
             WARPX_ABORT_WITH_MESSAGE("Averaged Galilean PSATD with PML is not yet implemented");
         }
@@ -914,7 +914,7 @@ WarpX::FillBoundaryE_avg (int lev, PatchType patch_type, IntVect ng)
     }
     else if (patch_type == PatchType::coarse)
     {
-        if (do_pml && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev)->ok())
         {
             WARPX_ABORT_WITH_MESSAGE("Averaged Galilean PSATD with PML is not yet implemented");
         }
@@ -954,7 +954,7 @@ WarpX::FillBoundaryB_avg (int lev, PatchType patch_type, IntVect ng)
 
     if (patch_type == PatchType::fine)
     {
-        if (do_pml && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev)->ok())
         {
             WARPX_ABORT_WITH_MESSAGE("Averaged Galilean PSATD with PML is not yet implemented");
         }
@@ -976,7 +976,7 @@ WarpX::FillBoundaryB_avg (int lev, PatchType patch_type, IntVect ng)
     }
     else if (patch_type == PatchType::coarse)
     {
-        if (do_pml && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev)->ok())
         {
             WARPX_ABORT_WITH_MESSAGE("Averaged Galilean PSATD with PML is not yet implemented");
         }
@@ -1010,13 +1010,13 @@ WarpX::FillBoundaryF (int lev, PatchType patch_type, IntVect ng, std::optional<b
 {
     if (patch_type == PatchType::fine)
     {
-        if (do_pml && pml[lev] && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             if (m_fields.has(FieldType::pml_F_fp, lev) && m_fields.has(FieldType::F_fp, lev)) {
-                pml[lev]->Exchange(m_fields.get(FieldType::pml_F_fp, lev), m_fields.get(FieldType::F_fp, lev), patch_type, do_pml_in_domain);
+                pmlPtr(lev)->Exchange(m_fields.get(FieldType::pml_F_fp, lev), m_fields.get(FieldType::F_fp, lev), patch_type, do_pml_in_domain);
             }
             if (m_fields.has(FieldType::pml_F_fp, lev)) {
-                pml[lev]->FillBoundary(*m_fields.get(FieldType::pml_F_fp, lev), patch_type, nodal_sync);
+                pmlPtr(lev)->FillBoundary(*m_fields.get(FieldType::pml_F_fp, lev), patch_type, nodal_sync);
             }
         }
 
@@ -1029,13 +1029,13 @@ WarpX::FillBoundaryF (int lev, PatchType patch_type, IntVect ng, std::optional<b
     }
     else if (patch_type == PatchType::coarse)
     {
-        if (do_pml && pml[lev] && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             if (m_fields.has(FieldType::pml_F_cp, lev) && m_fields.has(FieldType::F_cp, lev)) {
-                pml[lev]->Exchange(m_fields.get(FieldType::pml_F_cp, lev), m_fields.get(FieldType::F_cp, lev), patch_type, do_pml_in_domain);
+                pmlPtr(lev)->Exchange(m_fields.get(FieldType::pml_F_cp, lev), m_fields.get(FieldType::F_cp, lev), patch_type, do_pml_in_domain);
             }
             if (m_fields.has(FieldType::pml_F_cp, lev)) {
-                pml[lev]->FillBoundary(*m_fields.get(FieldType::pml_F_cp, lev), patch_type, nodal_sync);
+                pmlPtr(lev)->FillBoundary(*m_fields.get(FieldType::pml_F_cp, lev), patch_type, nodal_sync);
             }
         }
 
@@ -1062,13 +1062,13 @@ void WarpX::FillBoundaryG (int lev, PatchType patch_type, IntVect ng, std::optio
 {
     if (patch_type == PatchType::fine)
     {
-        if (do_pml && pml[lev] && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             if (m_fields.has(FieldType::pml_G_fp,lev) && m_fields.has(FieldType::G_fp,lev)) {
-                pml[lev]->Exchange(m_fields.get(FieldType::pml_G_fp, lev), m_fields.get(FieldType::G_fp, lev), patch_type, do_pml_in_domain);
+                pmlPtr(lev)->Exchange(m_fields.get(FieldType::pml_G_fp, lev), m_fields.get(FieldType::G_fp, lev), patch_type, do_pml_in_domain);
             }
             if (m_fields.has(FieldType::pml_G_fp,lev)) {
-                pml[lev]->FillBoundary(*m_fields.get(FieldType::pml_G_fp, lev), patch_type, nodal_sync);
+                pmlPtr(lev)->FillBoundary(*m_fields.get(FieldType::pml_G_fp, lev), patch_type, nodal_sync);
             }
         }
 
@@ -1082,13 +1082,13 @@ void WarpX::FillBoundaryG (int lev, PatchType patch_type, IntVect ng, std::optio
     }
     else if (patch_type == PatchType::coarse)
     {
-        if (do_pml && pml[lev] && pml[lev]->ok())
+        if (do_pml && pmlPtr(lev) && pmlPtr(lev)->ok())
         {
             if (m_fields.has(FieldType::pml_G_cp,lev) && m_fields.has(FieldType::G_cp,lev)) {
-                pml[lev]->Exchange(m_fields.get(FieldType::pml_G_cp, lev), m_fields.get(FieldType::G_cp, lev), patch_type, do_pml_in_domain);
+                pmlPtr(lev)->Exchange(m_fields.get(FieldType::pml_G_cp, lev), m_fields.get(FieldType::G_cp, lev), patch_type, do_pml_in_domain);
             }
             if (m_fields.has(FieldType::pml_G_cp, lev)) {
-                pml[lev]->FillBoundary(*m_fields.get(FieldType::pml_G_cp, lev), patch_type, nodal_sync);
+                pmlPtr(lev)->FillBoundary(*m_fields.get(FieldType::pml_G_cp, lev), patch_type, nodal_sync);
             }
         }
 

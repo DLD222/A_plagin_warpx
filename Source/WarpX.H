@@ -447,6 +447,14 @@ public:
     getFieldDotMaskPointer (warpx::fields::FieldType field_type, int lev, ablastr::fields::Direction dir) const;
 
     [[nodiscard]] bool DoPML () const {return do_pml;}
+
+    //! Non-owning PML accessor (A2.1c2b step 1).
+    [[nodiscard]] PML* pmlPtr (int lev) {
+        return (lev >= 0 && lev < static_cast<int>(pml.size())) ? pml[lev].get() : nullptr;
+    }
+    [[nodiscard]] const PML* pmlPtr (int lev) const {
+        return (lev >= 0 && lev < static_cast<int>(pml.size())) ? pml[lev].get() : nullptr;
+    }
     [[nodiscard]] bool DoFluidSpecies () const {return do_fluid_species;}
 
     /** get low-high-low-high-... vector for each direction indicating if mother grid PMLs are enabled */

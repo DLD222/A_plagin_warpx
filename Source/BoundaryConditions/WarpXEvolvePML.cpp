@@ -74,7 +74,7 @@ WarpX::DampPML (const int lev, PatchType patch_type)
                                    dt[lev], m_fields);
     }
 #endif
-    if (pml[lev]) {
+    if (pmlPtr(lev)) {
         DampPML_Cartesian (lev, patch_type);
     }
 }
@@ -85,13 +85,13 @@ WarpX::DampPML_Cartesian (const int lev, PatchType patch_type)
     const bool dive_cleaning = WarpX::do_pml_dive_cleaning;
     const bool divb_cleaning = WarpX::do_pml_divb_cleaning;
 
-    if (pml[lev]->ok())
+    if (pmlPtr(lev)->ok())
     {
         using warpx::fields::FieldType;
 
         const auto& pml_E = (patch_type == PatchType::fine) ? m_fields.get_alldirs(FieldType::pml_E_fp, lev) : m_fields.get_alldirs(FieldType::pml_E_cp, lev);
         const auto& pml_B = (patch_type == PatchType::fine) ? m_fields.get_alldirs(FieldType::pml_B_fp, lev) : m_fields.get_alldirs(FieldType::pml_B_cp, lev);
-        const auto& sigba = (patch_type == PatchType::fine) ? pml[lev]->GetMultiSigmaBox_fp() : pml[lev]->GetMultiSigmaBox_cp();
+        const auto& sigba = (patch_type == PatchType::fine) ? pmlPtr(lev)->GetMultiSigmaBox_fp() : pmlPtr(lev)->GetMultiSigmaBox_cp();
 
         const amrex::IntVect Ex_stag = pml_E[0]->ixType().toIntVect();
         const amrex::IntVect Ey_stag = pml_E[1]->ixType().toIntVect();
@@ -249,22 +249,22 @@ WarpX::DampJPML (int lev, PatchType patch_type)
 {
     if (!do_pml) { return; }
     if (!do_pml_j_damping) { return; }
-    if (!pml[lev]) { return; }
+    if (!pmlPtr(lev)) { return; }
 
     ABLASTR_PROFILE("WarpX::DampJPML()");
 
-    if (pml[lev]->ok())
+    if (pmlPtr(lev)->ok())
     {
         using warpx::fields::FieldType;
 
         const auto& pml_j = (patch_type == PatchType::fine) ? m_fields.get_alldirs(FieldType::pml_j_fp, lev) : m_fields.get_alldirs(FieldType::pml_j_cp, lev);
-        const auto& sigba = (patch_type == PatchType::fine) ? pml[lev]->GetMultiSigmaBox_fp()
-                                                            : pml[lev]->GetMultiSigmaBox_cp();
+        const auto& sigba = (patch_type == PatchType::fine) ? pmlPtr(lev)->GetMultiSigmaBox_fp()
+                                                            : pmlPtr(lev)->GetMultiSigmaBox_cp();
         // Flags indicating where the field should be updated, on the patch that is being
         // damped. The PML current has the same staggering as the PML E field, so the same
         // flags are used here.
-        const auto& eb_update_E = (patch_type == PatchType::fine) ? pml[lev]->GetEBUpdateEFlag_fp()
-                                                                  : pml[lev]->GetEBUpdateEFlag_cp();
+        const auto& eb_update_E = (patch_type == PatchType::fine) ? pmlPtr(lev)->GetEBUpdateEFlag_fp()
+                                                                  : pmlPtr(lev)->GetEBUpdateEFlag_cp();
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
@@ -358,8 +358,8 @@ WarpX::CopyJPML ()
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        if (pml[lev] && pml[lev]->ok()){
-            pml[lev]->CopyJtoPMLs(m_fields, lev);
+        if (pmlPtr(lev) && pmlPtr(lev)->ok()){
+            pmlPtr(lev)->CopyJtoPMLs(m_fields, lev);
         }
     }
 }

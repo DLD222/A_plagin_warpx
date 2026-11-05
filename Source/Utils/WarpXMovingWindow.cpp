@@ -493,7 +493,7 @@ WarpX::MoveWindow (const int step, bool move_j)
             if (move_j) {
                 ::shiftMF(*m_fields.get(FieldType::current_fp, Direction{dim}, lev), geom[lev], num_shift, dir, m_safe_guard_cells, do_single_precision_comms, cost_lev);
             }
-            if (pml[lev] && pml[lev]->ok()) {
+            if (pmlPtr(lev) && pmlPtr(lev)->ok()) {
                 amrex::MultiFab* pml_B = m_fields.get(FieldType::pml_B_fp, Direction{dim}, lev);
                 amrex::MultiFab* pml_E = m_fields.get(FieldType::pml_E_fp, Direction{dim}, lev);
                 ::shiftMF(*pml_B, geom[lev], num_shift, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);
@@ -527,7 +527,7 @@ WarpX::MoveWindow (const int step, bool move_j)
                 if (move_j) {
                     ::shiftMF(*m_fields.get(FieldType::current_cp, Direction{dim}, lev), geom[lev-1], num_shift_crse, dir, m_safe_guard_cells, do_single_precision_comms, cost_lev);
                 }
-                if (do_pml && pml[lev]->ok()) {
+                if (do_pml && pmlPtr(lev)->ok()) {
                     amrex::MultiFab* pml_B_cp = m_fields.get(FieldType::pml_B_cp, Direction{dim}, lev);
                     amrex::MultiFab* pml_E_cp = m_fields.get(FieldType::pml_E_cp, Direction{dim}, lev);
                     ::shiftMF(*pml_B_cp, geom[lev-1], num_shift_crse, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);
@@ -553,7 +553,7 @@ WarpX::MoveWindow (const int step, bool move_j)
         if (do_pml_dive_cleaning)
         {
             // Fine grid
-            if (do_pml && pml[lev]->ok())
+            if (do_pml && pmlPtr(lev)->ok())
             {
                 amrex::MultiFab* pml_F = m_fields.get(FieldType::pml_F_fp, lev);
                 ::shiftMF(*pml_F, geom[lev], num_shift, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);
@@ -561,7 +561,7 @@ WarpX::MoveWindow (const int step, bool move_j)
             if (lev > 0)
             {
                 // Coarse grid
-                if (do_pml && pml[lev]->ok())
+                if (do_pml && pmlPtr(lev)->ok())
                 {
                     amrex::MultiFab* pml_F = m_fields.get(FieldType::pml_F_cp, lev);
                     ::shiftMF(*pml_F, geom[lev-1], num_shift_crse, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);
@@ -586,7 +586,7 @@ WarpX::MoveWindow (const int step, bool move_j)
         if (do_pml_divb_cleaning)
         {
             // Fine grid
-            if (do_pml && pml[lev]->ok())
+            if (do_pml && pmlPtr(lev)->ok())
             {
                 amrex::MultiFab* pml_G = m_fields.get(FieldType::pml_G_fp, lev);
                 ::shiftMF(*pml_G, geom[lev], num_shift, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);
@@ -594,7 +594,7 @@ WarpX::MoveWindow (const int step, bool move_j)
             if (lev > 0)
             {
                 // Coarse grid
-                if (do_pml && pml[lev]->ok())
+                if (do_pml && pmlPtr(lev)->ok())
                 {
                     amrex::MultiFab* pml_G = m_fields.get(FieldType::pml_G_cp, lev);
                     ::shiftMF(*pml_G, geom[lev-1], num_shift_crse, dir, m_safe_guard_cells, do_single_precision_comms, no_cost);

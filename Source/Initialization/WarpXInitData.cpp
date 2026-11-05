@@ -1139,8 +1139,8 @@ WarpX::ComputePMLFactors ()
     {
         for (int lev = 0; lev <= max_level; ++lev)
         {
-            if (pml[lev]) {
-                pml[lev]->ComputePMLFactors(dt[lev]);
+            if (pmlPtr(lev)) {
+                pmlPtr(lev)->ComputePMLFactors(dt[lev]);
             }
         }
     }

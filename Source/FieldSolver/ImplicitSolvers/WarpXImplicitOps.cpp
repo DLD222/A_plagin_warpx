@@ -383,7 +383,7 @@ WarpX::ImplicitComputeRHSE (int lev, PatchType patch_type, amrex::Real a_dt, War
     }
 
     // Compute Efield_rhs in PML cells by calling EvolveEPML
-    if (do_pml && pml[lev]->ok()) {
+    if (do_pml && pmlPtr(lev)->ok()) {
         amrex::Abort("PML not yet implemented with implicit solvers.");
     }
 

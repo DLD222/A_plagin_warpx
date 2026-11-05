@@ -932,9 +932,9 @@ WarpX::PushPSATD (amrex::Real start_time)
     for (int lev = 0; lev <= finest_level; ++lev)
     {
         // Evolve the fields in the PML boxes
-        if (pml[lev] && pml[lev]->ok())
+        if (pmlPtr(lev) && pmlPtr(lev)->ok())
         {
-            pml[lev]->PushPSATD(m_fields, lev);
+            pmlPtr(lev)->PushPSATD(m_fields, lev);
         }
 
         amrex::Real const new_time = start_time + spectral_solver_fp[lev]->m_dt;
@@ -985,7 +985,7 @@ WarpX::EvolveB (int lev, PatchType patch_type, amrex::Real a_dt, SubcyclingHalf 
     }
 
     // Evolve B field in PML cells
-    if (do_pml && pml[lev]->ok()) {
+    if (do_pml && pmlPtr(lev)->ok()) {
         if (patch_type == PatchType::fine) {
             m_fdtd_solver_fp[lev]->EvolveBPML(
                 m_fields, patch_type, lev, a_dt, WarpX::do_dive_cleaning);
@@ -1044,22 +1044,22 @@ WarpX::EvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amrex::Real sta
     }
 
     // Evolve E field in PML cells
-    if (do_pml && pml[lev]->ok()) {
+    if (do_pml && pmlPtr(lev)->ok()) {
         if (patch_type == PatchType::fine) {
             m_fdtd_solver_fp[lev]->EvolveEPML(
                 m_fields,
                 patch_type,
                 lev,
-                pml[lev]->GetEBUpdateEFlag_fp(),
-                pml[lev]->GetMultiSigmaBox_fp(),
+                pmlPtr(lev)->GetEBUpdateEFlag_fp(),
+                pmlPtr(lev)->GetMultiSigmaBox_fp(),
                 a_dt, pml_has_particles );
         } else {
             m_fdtd_solver_cp[lev]->EvolveEPML(
                 m_fields,
                 patch_type,
                 lev,
-                pml[lev]->GetEBUpdateEFlag_cp(),
-                pml[lev]->GetMultiSigmaBox_cp(),
+                pmlPtr(lev)->GetEBUpdateEFlag_cp(),
+                pmlPtr(lev)->GetMultiSigmaBox_cp(),
                 a_dt, pml_has_particles );
         }
     }
@@ -1128,7 +1128,7 @@ WarpX::EvolveF (int lev, PatchType patch_type, amrex::Real a_dt, int const rho_c
     }
 
     // Evolve F field in PML cells
-    if (do_pml && pml[lev]->ok()) {
+    if (do_pml && pmlPtr(lev)->ok()) {
         if (patch_type == PatchType::fine) {
             m_fdtd_solver_fp[lev]->EvolveFPML(
                 m_fields.get(FieldType::pml_F_fp, lev),
@@ -1443,22 +1443,22 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
         }
     }
 
-    if (do_pml && pml[lev]->ok()) {
+    if (do_pml && pmlPtr(lev)->ok()) {
         if (patch_type == PatchType::fine) {
             m_fdtd_solver_fp[lev]->EvolveEPML(
                 m_fields,
                 patch_type,
                 lev,
-                pml[lev]->GetEBUpdateEFlag_fp(),
-                pml[lev]->GetMultiSigmaBox_fp(),
+                pmlPtr(lev)->GetEBUpdateEFlag_fp(),
+                pmlPtr(lev)->GetMultiSigmaBox_fp(),
                 a_dt, pml_has_particles );
         } else {
             m_fdtd_solver_cp[lev]->EvolveEPML(
                 m_fields,
                 patch_type,
                 lev,
-                pml[lev]->GetEBUpdateEFlag_cp(),
-                pml[lev]->GetMultiSigmaBox_cp(),
+                pmlPtr(lev)->GetEBUpdateEFlag_cp(),
+                pmlPtr(lev)->GetMultiSigmaBox_cp(),
                 a_dt, pml_has_particles );
         }
     }
