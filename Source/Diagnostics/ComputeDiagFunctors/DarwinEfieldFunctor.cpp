@@ -8,6 +8,8 @@
  */
 #include "DarwinEfieldFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Utils/TextMsg.H"
 #include "WarpX.H"
 
@@ -35,7 +37,6 @@ DarwinEfieldFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, const
         m_mf_Efield != nullptr && m_mf_dA != nullptr,
         "m_mf_Efield/m_mf_dA can't be nullptr.");
 
-    auto& warpx = WarpX::GetInstance();
 
     // SemiImplicitDarwin::OneStep() leaves Efield_fp (and therefore Efield_aux,
     // which is derived from it) holding only the electrostatic component plus
@@ -45,10 +46,10 @@ DarwinEfieldFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, const
     // which nothing overwrites before this diagnostic runs.
     amrex::MultiFab total_E(m_mf_Efield->boxArray(), m_mf_Efield->DistributionMap(),
                             m_mf_Efield->nComp(), 0);
-    const amrex::Real inv_dt = -1.0_rt / warpx.getdt(m_lev);
+    const amrex::Real inv_dt = -1.0_rt / data().dt(m_lev);
     amrex::MultiFab::LinComb(
         total_E, 1.0_rt, *m_mf_Efield, 0, inv_dt, *m_mf_dA, 0,
         0, m_mf_Efield->nComp(), 0);
 
-    InterpolateMFForDiag(mf_dst, total_E, dcomp, warpx.DistributionMap(m_lev), false);
+    InterpolateMFForDiag(mf_dst, total_E, dcomp, data().distributionMap(m_lev), false);
 }

@@ -85,6 +85,11 @@ amrex::Real WarpXHostServices::diagSnapshotDomainHi (int i, int buffer, int dim)
 int WarpXHostServices::diagFlushCounter (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_flush_counter(buffer); }
 int WarpXHostServices::diagLastValidZslice (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_last_valid_Zslice(buffer); }
 int WarpXHostServices::diagSnapshotFullFlag (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_snapshot_full_flag(buffer); }
+bool WarpXHostServices::hasHybridPICModel () const
+{
+    return m_warpx.get_pointer_HybridPICModel() != nullptr;
+}
+
 int WarpXHostServices::hybridPicSubsteps () const
 {
     auto const* hybrid = m_warpx.get_pointer_HybridPICModel();

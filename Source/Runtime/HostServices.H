@@ -82,6 +82,7 @@ public:
     [[nodiscard]] virtual int diagLastValidZslice (int i, int buffer) const = 0;
     [[nodiscard]] virtual int diagSnapshotFullFlag (int i, int buffer) const = 0;
     [[nodiscard]] virtual int hybridPicSubsteps () const = 0;
+    [[nodiscard]] virtual bool hasHybridPICModel () const = 0;
 };
 
 } // namespace warpx::runtime

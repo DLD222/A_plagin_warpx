@@ -755,12 +755,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8e",
+   "phase": "A1",
+   "title": "Jdisp/Darwin functor 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/JdispFunctor.cpp",
+    "Source/Diagnostics/ComputeDiagFunctors/DarwinEfieldFunctor.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Jdisp/Darwin 走 data()/host()；回归通过",
+   "note": "剩余 Rho/J/Phi/BTD 需更强 host services",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8d"
+    "A1.8e"
    ],
    "status": "pending",
    "outputs": [],

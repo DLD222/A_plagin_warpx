@@ -55,6 +55,7 @@ public:
     [[nodiscard]] int diagLastValidZslice (int i, int buffer) const override;
     [[nodiscard]] int diagSnapshotFullFlag (int i, int buffer) const override;
     [[nodiscard]] int hybridPicSubsteps () const override;
+    [[nodiscard]] bool hasHybridPICModel () const override;
 
 private:
     WarpX& m_warpx;
