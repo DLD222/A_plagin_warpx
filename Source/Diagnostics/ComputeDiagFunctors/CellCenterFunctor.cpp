@@ -1,5 +1,7 @@
 #include "CellCenterFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "WarpX.H"
 
 #include <AMReX.H>
@@ -17,12 +19,10 @@ CellCenterFunctor::CellCenterFunctor(amrex::MultiFab const * mf_src, int lev,
 void
 CellCenterFunctor::operator()(amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/) const
 {
-    auto& warpx = WarpX::GetInstance();
-
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mf_src != nullptr, "m_mf_src can't be a nullptr.");
     AMREX_ASSUME(m_mf_src != nullptr);
 
     InterpolateMFForDiag(
         mf_dst, *m_mf_src, dcomp,
-        warpx.DistributionMap(m_lev),m_convertRZmodes2cartesian);
+        data().distributionMap(m_lev),m_convertRZmodes2cartesian);
 }

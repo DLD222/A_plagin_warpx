@@ -693,12 +693,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8b",
+   "phase": "A1",
+   "title": "ComputeDiagFunctor context 基座 + 4 个 functor 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.8a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H",
+    "Source/Diagnostics/ComputeDiagFunctors/CellCenterFunctor.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "functor 可通过 RuntimeContext 取 DM/boxArray/particles；CellCenter/ProcessNumber/PartPerGrid/EBCovered 无 GetInstance",
+   "note": "剩余 13 个 functor 含算法/EB/hybrid，分批继续",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8a"
+    "A1.8b"
    ],
    "status": "pending",
    "outputs": [],

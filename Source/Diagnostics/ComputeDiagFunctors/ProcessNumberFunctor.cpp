@@ -1,5 +1,7 @@
 #include "ProcessNumberFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
@@ -33,8 +35,8 @@ void
 ProcessNumberFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
     // fill tmp multifab with the proc num
-    auto& warpx = WarpX::GetInstance();
-    amrex::MultiFab proc_mf(warpx.boxArray(m_lev), warpx.DistributionMap(m_lev), 1, 0);
+    
+    amrex::MultiFab proc_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, 0);
 #ifdef AMREX_USE_OMP
 #pragma omp parallel
 #endif

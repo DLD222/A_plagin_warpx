@@ -1,3 +1,4 @@
+CEXE_sources += ComputeDiagFunctor.cpp
 CEXE_sources += CellCenterFunctor.cpp
 CEXE_sources += PartPerCellFunctor.cpp
 CEXE_sources += PartPerGridFunctor.cpp

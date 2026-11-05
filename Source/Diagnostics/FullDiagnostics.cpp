@@ -1049,6 +1049,13 @@ FullDiagnostics::PrepareFieldDataForOutput ()
     // Probably overkill/unnecessary, but safe and shouldn't happen often !!
     host().prepareFieldsForDiagnostics();
 
+    // Propagate the runtime context to all field functors before computing.
+    for (auto& lev_functors : m_all_field_functors) {
+        for (auto& functor : lev_functors) {
+            if (functor) { functor->SetRuntimeContext(m_runtime_context); }
+        }
+    }
+
     // Update the RealBox used for the geometry filter in particle diags
     // Note that full diagnostics every diag has only one buffer. (m_num_buffers = 1).
     // For m_geom_output[i_buffer][lev], the first element is the buffer index, and

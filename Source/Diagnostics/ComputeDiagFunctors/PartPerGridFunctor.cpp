@@ -1,5 +1,7 @@
 #include "PartPerGridFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
@@ -32,15 +34,15 @@ PartPerGridFunctor::PartPerGridFunctor(const amrex::MultiFab * const mf_src, con
 void
 PartPerGridFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/) const
 {
-    auto& warpx = WarpX::GetInstance();
-    const amrex::Vector<amrex::Long>& npart_in_grid = warpx.GetPartContainer().NumberOfParticlesInGrid(m_lev);
+    
+    const amrex::Vector<amrex::Long>& npart_in_grid = data().particles().NumberOfParticlesInGrid(m_lev);
     // Guard cell is set to 1 for generality. However, for a cell-centered
     // output Multifab, mf_dst, the guard-cell data is not needed especially considering
     // the operations performend in the CoarsenAndInterpolate function.
     constexpr int ng = 1;
     // Temporary MultiFab containing number of particles per grid.
     // (stored as constant for all cells in each grid)
-    amrex::MultiFab ppg_mf(warpx.boxArray(m_lev), warpx.DistributionMap(m_lev), 1, ng);
+    amrex::MultiFab ppg_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, ng);
 #ifdef AMREX_USE_OMP
 #pragma omp parallel
 #endif

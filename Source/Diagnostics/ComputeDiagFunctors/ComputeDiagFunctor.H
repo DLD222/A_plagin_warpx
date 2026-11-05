@@ -9,6 +9,10 @@
 #include <AMReX.H>
 #include <AMReX_MultiFab.H>
 
+#include <memory>
+
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; }
+
 /**
  * \brief Functor to compute a diagnostic and store the result in existing
  * MultiFab
@@ -16,16 +20,16 @@
 class ComputeDiagFunctor
 {
 public:
-    ComputeDiagFunctor( int ncomp, amrex::IntVect crse_ratio) :
-                        m_ncomp(ncomp), m_crse_ratio(crse_ratio) {}
+    ComputeDiagFunctor( int ncomp, amrex::IntVect crse_ratio);
     //** Virtual Destructor to handle clean destruction of derived classes */
-    virtual ~ComputeDiagFunctor() = default;
+    virtual ~ComputeDiagFunctor();
 
-    // Default move and copy operations
-    ComputeDiagFunctor(const ComputeDiagFunctor&) = default;
-    ComputeDiagFunctor& operator=(const ComputeDiagFunctor&) = default;
-    ComputeDiagFunctor(ComputeDiagFunctor&&) = default;
-    ComputeDiagFunctor& operator=(ComputeDiagFunctor&&) = default;
+    void SetRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
+
+    ComputeDiagFunctor(const ComputeDiagFunctor&) = delete;
+    ComputeDiagFunctor& operator=(const ComputeDiagFunctor&) = delete;
+    ComputeDiagFunctor(ComputeDiagFunctor&&) = delete;
+    ComputeDiagFunctor& operator=(ComputeDiagFunctor&&) = delete;
 
     /** Compute a field and store the result in mf_dst
      *
@@ -101,6 +105,11 @@ private:
     int m_ncomp;
 
 protected:
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+
     /** Coarsening ratio used to interpolate fields from simulation MultiFabs to output MultiFab. */
     amrex::IntVect m_crse_ratio;
 };

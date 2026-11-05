@@ -1,5 +1,7 @@
 #include "EBCoveredFunctor.H"
 
+#include "Runtime/RuntimeData.H"
+
 #include "EmbeddedBoundary/Enabled.H"
 #include "WarpX.H"
 
@@ -28,8 +30,8 @@ EBCoveredFunctor::operator()(amrex::MultiFab& mf_dst, int dcomp, const int /*i_b
     if (EB::enabled()) {
         // If EB are enabled, fill the MultiFab with the volume fraction
 #if (defined AMREX_USE_EB)
-        auto& warpx = WarpX::GetInstance();
-        amrex::EBFArrayBoxFactory const& eb_fact = warpx.fieldEBFactory(m_lev);
+        
+        amrex::EBFArrayBoxFactory const& eb_fact = data().fieldEBFactory(m_lev);
         ablastr::coarsen::sample::Coarsen(mf_dst, eb_fact.getVolFrac(), dcomp, 0, nComp(), 0, m_crse_ratio);
         // The fraction of the cell that is covered by the EB is 1 - the volume fraction
         mf_dst.mult(-1.0, dcomp, nComp(), 0);
