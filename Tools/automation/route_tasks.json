@@ -1034,12 +1034,31 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8s",
+   "phase": "A1",
+   "title": "WarpXParIter 动态调度去 GetInstance",
+   "kind": "refactor",
+   "depends": [
+    "A1.8r"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/WarpXParticleContainer.cpp"
+   ],
+   "effort_days": 0.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "ParIter 用 static do_dynamic_scheduling；粒子回归通过",
+   "note": "该标志本就是 static，无需 context",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8r"
+    "A1.8s"
    ],
    "status": "pending",
    "outputs": [],
