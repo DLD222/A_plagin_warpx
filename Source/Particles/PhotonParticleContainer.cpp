@@ -147,7 +147,7 @@ PhotonParticleContainer::PushPX (WarpXParIter& pti,
     const auto GetPosition = GetParticlePosition<PIdx>(pti, offset);
     auto SetPosition = SetParticlePosition<PIdx>(pti, offset);
 
-    const auto getExternalEB = GetExternalEBField(pti, offset);
+    const auto getExternalEB = GetExternalEBField(pti, offset, runtime_context());
 
     const amrex::ParticleReal Ex_external_particle = m_E_external_particle[0];
     const amrex::ParticleReal Ey_external_particle = m_E_external_particle[1];

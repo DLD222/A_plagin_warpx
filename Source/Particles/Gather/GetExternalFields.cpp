@@ -5,6 +5,10 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Vector.H>
@@ -13,22 +17,27 @@
 
 using namespace amrex::literals;
 
-GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset) noexcept
+GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset,
+                                        const warpx::runtime::RuntimeContext* ctx) noexcept
 {
-    auto& warpx = WarpX::GetInstance();
-    auto& mypc = warpx.GetPartContainer();
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    const warpx::runtime::RuntimeData& d =
+        (ctx != nullptr && ctx->data != nullptr) ? *ctx->data : static_cast<const warpx::runtime::RuntimeData&>(legacy);
+    const auto& mypc = d.particles();
 
     const int lev = a_pti.GetLevel();
 
-    const auto& dts = warpx.getdt();
+    const auto& dts = d.dtAll();
 
-    AcceleratorLattice const & accelerator_lattice = warpx.get_accelerator_lattice(lev);
+    AcceleratorLattice const & accelerator_lattice = d.acceleratorLattice(lev);
     if (accelerator_lattice.m_lattice_defined) {
         d_lattice_element_finder = accelerator_lattice.GetFinderDeviceInstance(a_pti, static_cast<int>(a_offset), dts);
     }
 
-    m_gamma_boost = WarpX::gamma_boost;
-    m_uz_boost = std::sqrt(WarpX::gamma_boost*WarpX::gamma_boost - 1._prt)*PhysConst::c;
+    const warpx::runtime::FrameState& fr =
+        (ctx != nullptr && ctx->frame != nullptr) ? *ctx->frame : warpx::runtime::FrameState::FromLegacy();
+    m_gamma_boost = fr.gamma_boost;
+    m_uz_boost = std::sqrt(fr.gamma_boost*fr.gamma_boost - 1._prt)*PhysConst::c;
 
     m_Etype = Unknown;
     m_Btype = Unknown;
@@ -45,7 +54,7 @@ GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset
         mypc.m_E_ext_particle_s == "repeated_plasma_lens" ||
         mypc.m_B_ext_particle_s == "repeated_plasma_lens")
     {
-        m_time = warpx.gett_new(a_pti.GetLevel());
+        m_time = d.t_new(a_pti.GetLevel());
         m_get_position = GetParticlePosition<PIdx>(a_pti, a_offset);
     }
 
@@ -70,7 +79,7 @@ GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset
     {
         if (mypc.m_E_ext_particle_s == "repeated_plasma_lens") { m_Etype = RepeatedPlasmaLens; }
         if (mypc.m_B_ext_particle_s == "repeated_plasma_lens") { m_Btype = RepeatedPlasmaLens; }
-        m_dt = warpx.getdt(a_pti.GetLevel());
+        m_dt = d.dt(a_pti.GetLevel());
         const auto& attribs = a_pti.GetAttribs();
         m_ux = attribs[PIdx::ux].dataPtr() + a_offset;
         m_uy = attribs[PIdx::uy].dataPtr() + a_offset;

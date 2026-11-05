@@ -28,6 +28,7 @@
 namespace amrex { class AmrCore; class EBFArrayBoxFactory; namespace EB2 { class IndexSpace; } }
 
 class NCIGodfreyFilter;
+class AcceleratorLattice;
 class MultiParticleContainer;
 class MultiFluidContainer;
 
@@ -73,6 +74,8 @@ public:
     [[nodiscard]] virtual amrex::IntVect ngDeposJ () const = 0;
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& vGalilean () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::Real>& dtAll () const = 0;
+    [[nodiscard]] virtual const AcceleratorLattice& acceleratorLattice (int lev) const = 0;
     [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;
     [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
     nciGodfreyFilterExEyBz () const = 0;

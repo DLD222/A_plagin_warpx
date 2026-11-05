@@ -1093,12 +1093,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8v",
+   "phase": "A1",
+   "title": "GetExternalEBField context + 10 调用点",
+   "kind": "refactor",
+   "depends": [
+    "A1.8u"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Gather/GetExternalFields.cpp",
+    "Source/Particles/Gather/GetExternalFields.H"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "9 个容器调用点传 context；QED 保留 fallback；粒子/场回归通过",
+   "note": "新增 dtAll/acceleratorLattice；直接单例 56->55",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8u"
+    "A1.8v"
    ],
    "status": "pending",
    "outputs": [],

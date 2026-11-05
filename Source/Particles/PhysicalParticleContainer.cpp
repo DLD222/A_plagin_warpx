@@ -1261,7 +1261,7 @@ PhysicalParticleContainer::PushP (int lev, Real dt,
 
             const auto getPosition = GetParticlePosition<PIdx>(pti);
 
-            const auto getExternalEB = GetExternalEBField(pti);
+            const auto getExternalEB = GetExternalEBField(pti, 0, runtime_context());
 
             const amrex::ParticleReal Ex_external_particle = m_E_external_particle[0];
             const amrex::ParticleReal Ey_external_particle = m_E_external_particle[1];
@@ -1457,7 +1457,7 @@ PhysicalParticleContainer::PushPX (WarpXParIter& pti,
     const auto getPosition = GetParticlePosition<PIdx>(pti, offset);
           auto setPosition = SetParticlePosition<PIdx>(pti, offset);
 
-    const auto getExternalEB = GetExternalEBField(pti, offset);
+    const auto getExternalEB = GetExternalEBField(pti, offset, runtime_context());
 
     const amrex::ParticleReal Ex_external_particle = m_E_external_particle[0];
     const amrex::ParticleReal Ey_external_particle = m_E_external_particle[1];

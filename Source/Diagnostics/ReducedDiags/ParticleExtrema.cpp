@@ -291,7 +291,7 @@ void ParticleExtrema::ComputeDiags (int step)
                     amrex::ParticleReal* const AMREX_RESTRICT uz = pti.GetAttribs()[PIdx::uz].dataPtr();
                     // declare external fields
                     const int offset = 0;
-                    const auto getExternalEB = GetExternalEBField(pti, offset);
+                    const auto getExternalEB = GetExternalEBField(pti, offset, myspc.runtime_context());
                     const amrex::ParticleReal Ex_external_particle = myspc.m_E_external_particle[0];
                     const amrex::ParticleReal Ey_external_particle = myspc.m_E_external_particle[1];
                     const amrex::ParticleReal Ez_external_particle = myspc.m_E_external_particle[2];

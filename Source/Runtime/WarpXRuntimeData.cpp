@@ -43,6 +43,8 @@ amrex::IntVect WarpXRuntimeData::ngDeposRho () const { return m_warpx.get_ng_dep
 amrex::IntVect WarpXRuntimeData::ngDeposJ () const { return m_warpx.get_ng_depos_J(); }
 bool WarpXRuntimeData::useVerboncoeurAxisCorrection () const { return m_warpx.UseVerboncoeurAxisCorrection(); }
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::vGalilean () const { return m_warpx.m_v_galilean; }
+const amrex::Vector<amrex::Real>& WarpXRuntimeData::dtAll () const { return m_warpx.getdt(); }
+const AcceleratorLattice& WarpXRuntimeData::acceleratorLattice (int lev) const { return m_warpx.get_accelerator_lattice(lev); }
 const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const { return m_warpx.GetEBIndexSpace(lev); }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return m_warpx.nci_godfrey_filter_exeybz; }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return m_warpx.nci_godfrey_filter_bxbyez; }
