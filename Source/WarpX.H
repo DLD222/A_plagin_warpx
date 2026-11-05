@@ -450,10 +450,10 @@ public:
 
     //! Non-owning PML accessor (A2.1c2b step 1).
     [[nodiscard]] PML* pmlPtr (int lev) {
-        return (lev >= 0 && lev < static_cast<int>(pml.size())) ? pml[lev].get() : nullptr;
+        return (lev >= 0 && lev <= maxLevel()) ? m_level_resources.level(lev).pml.get() : nullptr;
     }
     [[nodiscard]] const PML* pmlPtr (int lev) const {
-        return (lev >= 0 && lev < static_cast<int>(pml.size())) ? pml[lev].get() : nullptr;
+        return (lev >= 0 && lev <= maxLevel()) ? m_level_resources.level(lev).pml.get() : nullptr;
     }
     [[nodiscard]] bool DoFluidSpecies () const {return do_fluid_species;}
 
@@ -1317,6 +1317,7 @@ private:
     void PostRestart ();
 
     void InitPML ();
+    void CreatePMLForLevel (int lev, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm);
     void ComputePMLFactors ();
 
     void InitFilter ();
@@ -1469,7 +1470,6 @@ private:
     bool do_pml_divb_cleaning; // default set in WarpX.cpp
     amrex::Vector<amrex::IntVect> do_pml_Lo;
     amrex::Vector<amrex::IntVect> do_pml_Hi;
-    amrex::Vector<std::unique_ptr<PML> > pml;
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
     amrex::Vector<std::unique_ptr<PML_RZ> > pml_rz;
 #endif

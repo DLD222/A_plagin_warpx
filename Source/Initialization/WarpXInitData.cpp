@@ -1051,6 +1051,71 @@ WarpX::InitFromScratch ()
 }
 
 void
+WarpX::CreatePMLForLevel (int lev, const BoxArray& ba, const DistributionMapping& dm)
+{
+    bool const eb_enabled = EB::enabled();
+#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
+    if (lev == 0) {
+        do_pml_Lo[0][0] = 0;
+        pml_rz[0] = std::make_unique<PML_RZ>(0, ba, dm, &Geom(0), m_fields,
+                                             pml_ncell, do_pml_in_domain);
+        return;
+    }
+#endif
+
+    if (lev > 0) {
+        do_pml_Lo[lev] = amrex::IntVect::TheUnitVector();
+        do_pml_Hi[lev] = amrex::IntVect::TheUnitVector();
+        const amrex::Box levelBox = ba.minimalBox();
+        const amrex::Box DomainBox = Geom(lev).Domain();
+        for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+            if (levelBox.smallEnd(idim) == DomainBox.smallEnd(idim)) {
+                do_pml_Lo[lev][idim] = do_pml_Lo[0][idim];
+            }
+            if (levelBox.bigEnd(idim) == DomainBox.bigEnd(idim)) {
+                do_pml_Hi[lev][idim] = do_pml_Hi[0][idim];
+            }
+        }
+#ifdef WARPX_DIM_RZ
+        if ((max_level > 0) && (fine_tag_lo[0] == 0.)) {
+            do_pml_Lo[lev][0] = 0;
+        }
+#endif
+    }
+
+    if (lev == 0) {
+        m_level_resources.level(0).pml = std::make_unique<PML>(
+            0, ba, dm, do_similar_dm_pml, &Geom(0), nullptr,
+            pml_ncell, pml_delta, amrex::IntVect::TheZeroVector(),
+            dt[0], nox_fft, noy_fft, noz_fft, grid_type,
+            do_moving_window, pml_has_particles, do_pml_in_domain,
+            m_psatd_solution_type, time_dependency_J, time_dependency_rho,
+            do_pml_dive_cleaning, do_pml_divb_cleaning,
+            amrex::IntVect(0), amrex::IntVect(0),
+            eb_enabled,
+            guard_cells.ng_FieldSolver.max(),
+            v_particle_pml,
+            m_fields,
+            do_pml_Lo[0], do_pml_Hi[0], m_runtime_context);
+    } else {
+        m_level_resources.level(lev).pml = std::make_unique<PML>(
+            lev, ba, dm, do_similar_dm_pml,
+            &Geom(lev), &Geom(lev-1),
+            pml_ncell, pml_delta, refRatio(lev-1),
+            dt[lev], nox_fft, noy_fft, noz_fft, grid_type,
+            do_moving_window, pml_has_particles, do_pml_in_domain,
+            m_psatd_solution_type, time_dependency_J, time_dependency_rho,
+            do_pml_dive_cleaning, do_pml_divb_cleaning,
+            amrex::IntVect(0), amrex::IntVect(0),
+            eb_enabled,
+            guard_cells.ng_FieldSolver.max(),
+            v_particle_pml,
+            m_fields,
+            do_pml_Lo[lev], do_pml_Hi[lev], m_runtime_context);
+    }
+}
+
+void
 WarpX::InitPML ()
 {
     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
@@ -1066,68 +1131,8 @@ WarpX::InitPML ()
     if (max_level > 0) { do_pml = 1; }
     if (do_pml)
     {
-        bool const eb_enabled = EB::enabled();
-#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
-        do_pml_Lo[0][0] = 0; // no PML at r=0, in cylindrical geometry
-        pml_rz[0] = std::make_unique<PML_RZ>(0, boxArray(0), DistributionMap(0), &Geom(0), m_fields, pml_ncell, do_pml_in_domain);
-#else
-        // Note: fill_guards_fields and fill_guards_current are both set to
-        // zero (amrex::IntVect(0)) (what we do with damping BCs does not apply
-        // to the PML, for example in the presence of mesh refinement patches)
-        pml[0] = std::make_unique<PML>(
-            0, boxArray(0), DistributionMap(0), do_similar_dm_pml, &Geom(0), nullptr,
-            pml_ncell, pml_delta, amrex::IntVect::TheZeroVector(),
-            dt[0], nox_fft, noy_fft, noz_fft, grid_type,
-            do_moving_window, pml_has_particles, do_pml_in_domain,
-            m_psatd_solution_type, time_dependency_J, time_dependency_rho,
-            do_pml_dive_cleaning, do_pml_divb_cleaning,
-            amrex::IntVect(0), amrex::IntVect(0),
-            eb_enabled,
-            guard_cells.ng_FieldSolver.max(),
-            v_particle_pml,
-            m_fields,
-            do_pml_Lo[0], do_pml_Hi[0], m_runtime_context);
-#endif
-
-        for (int lev = 1; lev <= max_level; ++lev)
-        {
-            do_pml_Lo[lev] = amrex::IntVect::TheUnitVector();
-            do_pml_Hi[lev] = amrex::IntVect::TheUnitVector();
-            // check if fine patch edges co-incide with domain boundary
-            const amrex::Box levelBox = boxArray(lev).minimalBox();
-            // Domain box at level, lev
-            const amrex::Box DomainBox = Geom(lev).Domain();
-            for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-                if (levelBox.smallEnd(idim) == DomainBox.smallEnd(idim)) {
-                    do_pml_Lo[lev][idim] = do_pml_Lo[0][idim];
-                }
-                if (levelBox.bigEnd(idim) == DomainBox.bigEnd(idim)) {
-                    do_pml_Hi[lev][idim] = do_pml_Hi[0][idim];
-                }
-            }
-
-#ifdef WARPX_DIM_RZ
-            //In cylindrical geometry, if the edge of the patch is at r=0, do not add PML
-            if ((max_level > 0) && (fine_tag_lo[0]==0.)) {
-                do_pml_Lo[lev][0] = 0;
-            }
-#endif
-            // Note: fill_guards_fields and fill_guards_current are both set to
-            // zero (amrex::IntVect(0)) (what we do with damping BCs does not apply
-            // to the PML, for example in the presence of mesh refinement patches)
-            pml[lev] = std::make_unique<PML>(
-                lev, boxArray(lev), DistributionMap(lev), do_similar_dm_pml,
-                &Geom(lev), &Geom(lev-1),
-                pml_ncell, pml_delta, refRatio(lev-1),
-                dt[lev], nox_fft, noy_fft, noz_fft, grid_type,
-                do_moving_window, pml_has_particles, do_pml_in_domain,
-                m_psatd_solution_type, time_dependency_J, time_dependency_rho, do_pml_dive_cleaning, do_pml_divb_cleaning,
-                amrex::IntVect(0), amrex::IntVect(0),
-                eb_enabled,
-                guard_cells.ng_FieldSolver.max(),
-                v_particle_pml,
-                m_fields,
-                do_pml_Lo[lev], do_pml_Hi[lev], m_runtime_context);
+        for (int lev = 0; lev <= max_level; ++lev) {
+            CreatePMLForLevel(lev, boxArray(lev), DistributionMap(lev));
         }
     }
 }

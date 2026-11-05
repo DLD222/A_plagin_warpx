@@ -18,6 +18,7 @@
 #include <vector>
 
 class AcceleratorLattice;
+class PML;
 struct FaceInfoBox;
 
 namespace warpx::runtime
@@ -42,6 +43,9 @@ struct LevelStorage
     //! Optional accelerator-lattice element finder.
     std::unique_ptr<AcceleratorLattice> accelerator_lattice;
 
+    //! Optional perfectly matched layer.
+    std::unique_ptr<PML> pml;
+
     //! Per-level load-balance costs.
     std::unique_ptr<amrex::LayoutData<amrex::Real>> costs;
 
@@ -56,6 +60,7 @@ class LevelResources
 {
 public:
     explicit LevelResources (int nlevs = 0);
+    ~LevelResources ();
 
     void resize (int nlevs);
     [[nodiscard]] int size () const noexcept { return static_cast<int>(m_levels.size()); }

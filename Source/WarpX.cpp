@@ -449,7 +449,6 @@ WarpX::WarpX ()
     current_buffer_masks.resize(nlevs_max);
     gather_buffer_masks.resize(nlevs_max);
 
-    pml.resize(nlevs_max);
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
     pml_rz.resize(nlevs_max);
 #endif

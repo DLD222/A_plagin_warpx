@@ -10,10 +10,13 @@
 #include <algorithm>
 
 #include "AcceleratorLattice/AcceleratorLattice.H"
+#include "BoundaryConditions/PML.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
 
 namespace warpx::runtime
 {
+
+LevelResources::~LevelResources () = default;
 
 LevelResources::LevelResources (int nlevs)
     : m_levels(static_cast<std::size_t>(std::max(nlevs, 0)))

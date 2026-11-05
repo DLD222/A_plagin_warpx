@@ -1352,12 +1352,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1c2b",
+   "phase": "A2",
+   "title": "PML 迁入 LevelStorage + RemakeLevel 重建",
+   "kind": "refactor",
+   "depends": [
+    "A2.1c2b1"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/Initialization/WarpXInitData.cpp",
+    "Source/Parallelization/WarpXRegrid.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 pml 向量；CreatePMLForLevel 供 Init/Remake 共用；PML/PSATD/restart 通过",
+   "note": "LevelResources 析构 out-of-line；RZ 保留 pml_rz",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A2.1c2b1"
+    "A2.1c2b"
    ],
    "status": "pending",
    "outputs": [

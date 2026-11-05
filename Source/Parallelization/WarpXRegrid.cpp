@@ -322,6 +322,10 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
             }
         }
 
+        if (do_pml) {
+            CreatePMLForLevel(lev, ba, dm);
+        }
+
         SetDistributionMap(lev, dm);
 
         if (lev > 0 && (n_field_gather_buffer > 0 || n_current_deposition_buffer > 0)) {
