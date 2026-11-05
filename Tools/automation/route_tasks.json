@@ -1525,6 +1525,25 @@
    "note": ""
   },
   {
+   "id": "A2.5a",
+   "phase": "A2",
+   "title": "A2 定向回归门（默认/FFT/ASAN）",
+   "kind": "test",
+   "depends": [
+    "A2.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A2_VALIDATION.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "默认11/11、FFT13/13、ASAN7/7；A2.4 覆盖不足需记录",
+   "note": "不替代 A2.5 全量门",
+   "verify_command": null
+  },
+  {
    "id": "A2.5",
    "phase": "A2",
    "title": "A2 回归门（多层/EB/PML/PSATD/LB）",

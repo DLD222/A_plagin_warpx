@@ -82,6 +82,7 @@
 | A2.4c | A2 | done | A2.4b | EB/ECT + averaging 字段 schema 化 |
 | A2.4d | A2 | done | A2.4c | scalar helper + rho/phi/distance/dual/current_store schema 化 |
 | A2.4 | A2 | pending | A2.4d | AllocLevelData schema 化 |
+| A2.5a | A2 | done | A2.3 | A2 定向回归门（默认/FFT/ASAN） |
 | A2.5 | A2 | pending | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1 | A3 | pending | A2.5 | InitData 阶段化 |
 | A3.2 | A3 | pending | A3.1 | Evolve/OneStep 阶段化 |
