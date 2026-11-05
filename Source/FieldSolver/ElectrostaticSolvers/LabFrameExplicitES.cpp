@@ -12,6 +12,8 @@
 #include "Fields.H"
 #include "Particles/MultiParticleContainer_fwd.H"
 #include "Python/callbacks.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -107,8 +109,8 @@ void LabFrameExplicitES::computePhiTriDiagonal (
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(num_levels == 1,
     "The tridiagonal solver cannot be used with mesh refinement");
 
-    auto field_boundary_lo0 = WarpX::field_boundary_lo[0];
-    auto field_boundary_hi0 = WarpX::field_boundary_hi[0];
+    auto field_boundary_lo0 = config().field_boundary_lo()[0];
+    auto field_boundary_hi0 = config().field_boundary_hi()[0];
 
     if (field_boundary_lo0 == FieldBoundaryType::Periodic) {
         computePhiTriDiagonal_periodic(rho, phi);

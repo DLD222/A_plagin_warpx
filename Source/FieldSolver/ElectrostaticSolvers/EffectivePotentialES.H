@@ -19,7 +19,7 @@ class EffectivePotentialES final : public ElectrostaticSolver
 {
 public:
 
-    explicit EffectivePotentialES (int nlevs_max) : ElectrostaticSolver (nlevs_max) {
+    explicit EffectivePotentialES (int nlevs_max, const warpx::runtime::RuntimeContext* ctx = nullptr) : ElectrostaticSolver (nlevs_max, ctx) {
         ReadParameters();
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             (nlevs_max == 1),

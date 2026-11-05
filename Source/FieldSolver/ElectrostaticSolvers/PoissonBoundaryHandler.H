@@ -20,13 +20,15 @@
 
 #include <array>
 #include <string>
+
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; }
 #include <utility>
 
 
 class PoissonBoundaryHandler
 {
 public:
-    PoissonBoundaryHandler (); // constructor
+    explicit PoissonBoundaryHandler (const warpx::runtime::RuntimeContext* ctx = nullptr);
 
     /** Read runtime parameters. Called in constructor. */
     void ReadParameters ();
@@ -53,6 +55,10 @@ public:
         potential_eb_str = potential;
         BuildParsersEB();
     }
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
     struct PhiCalculatorEB {
 

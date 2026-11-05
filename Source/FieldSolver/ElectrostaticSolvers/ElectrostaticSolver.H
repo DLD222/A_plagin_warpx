@@ -26,7 +26,7 @@ class ElectrostaticSolver
 {
 public:
     ElectrostaticSolver() = default;
-    explicit ElectrostaticSolver( int nlevs_max );
+    explicit ElectrostaticSolver( int nlevs_max, const warpx::runtime::RuntimeContext* ctx = nullptr );
 
     virtual ~ElectrostaticSolver();
 
@@ -140,6 +140,10 @@ public:
 
     /** Boundary handler object to set potential for EB and on the domain boundary */
     std::unique_ptr<PoissonBoundaryHandler> m_poisson_boundary_handler;
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
+public:
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
 
     /** Parameters of the MLMG Poisson solve, set from the `warpx.self_fields_*`
      *  input parameters

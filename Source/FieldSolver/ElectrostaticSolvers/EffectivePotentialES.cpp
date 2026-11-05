@@ -14,6 +14,8 @@
 #include "Particles/MultiParticleContainer_fwd.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Python/callbacks.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
@@ -287,10 +289,10 @@ void EffectivePotentialES::computePhi (
         warpx.Geom(),
         warpx.DistributionMap(),
         warpx.boxArray(),
-        WarpX::grid_type,
+        config().grid_type(),
         false,
         EB::enabled(),
-        WarpX::do_single_precision_comms,
+        config().do_single_precision_comms(),
         warpx.refRatio(),
         post_phi_calculation,
         *m_poisson_boundary_handler,

@@ -11,6 +11,8 @@
 #include "Fields.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 
@@ -18,7 +20,7 @@ using namespace amrex;
 
 void RelativisticExplicitES::InitData () {
     auto & warpx = WarpX::GetInstance();
-    bool prepare_field_solve = (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::Relativistic);
+    bool prepare_field_solve = (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::Relativistic);
     // check if any of the particle containers have initialize_self_fields = True
     for (auto const& species : warpx.GetPartContainer()) {
         prepare_field_solve |= species->initialize_self_fields;
@@ -42,7 +44,7 @@ void RelativisticExplicitES::ComputeSpaceChargeField (
     using ablastr::fields::MultiLevelVectorField;
     using warpx::fields::FieldType;
 
-    const bool always_run_solve = (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::Relativistic);
+    const bool always_run_solve = (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::Relativistic);
 
     MultiLevelVectorField Efield_fp = fields.get_mr_levels_alldirs(FieldType::Efield_fp, max_level);
     MultiLevelVectorField Bfield_fp = fields.get_mr_levels_alldirs(FieldType::Bfield_fp, max_level);
@@ -75,7 +77,7 @@ void RelativisticExplicitES::AddSpaceChargeField (
     if (pc.getCharge() == 0) { return; }
 
 #ifdef WARPX_DIM_RZ
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(WarpX::n_rz_azimuthal_modes == 1,
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().n_rz_azimuthal_modes() == 1,
                                      "Error: RZ electrostatic only implemented for a single mode");
 #endif
 

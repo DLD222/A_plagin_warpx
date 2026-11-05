@@ -476,12 +476,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
-   "id": "A1.6",
+   "id": "A1.6b",
    "phase": "A1",
-   "title": "Batch E2：PSATD / 静电 / Hybrid-PIC 场求解器配置迁移",
+   "title": "静电求解器 context + 配置/边界迁移",
    "kind": "refactor",
    "depends": [
     "A1.6a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H",
+    "Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.cpp"
+   ],
+   "effort_days": 3.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "ES 基类/边界处理器用 config()；求解器构建传 context；2D 回归通过",
+   "note": "复用 RuntimeConfig/RuntimeData，不改算法",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
+   "id": "A1.6",
+   "phase": "A1",
+   "title": "Batch E3：PSATD / Hybrid-PIC 模型配置迁移",
+   "kind": "refactor",
+   "depends": [
+    "A1.6b"
    ],
    "status": "pending",
    "outputs": [],

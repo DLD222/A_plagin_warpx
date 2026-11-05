@@ -29,7 +29,8 @@
 | A1.5b | A1 | done | A1.5a | FullDiagnostics 字段/几何 + Checkpoint/Plotfile 主体迁移 |
 | A1.5 | A1 | done | A1.5b | Batch D3：诊断 kernel services（FillBoundary/moving window/PML/in-situ） |
 | A1.6a | A1 | done | A1.5 | Yee/FDTD 求解器 context + 配置/成本迁移 |
-| A1.6 | A1 | pending | A1.6a | Batch E2：PSATD / 静电 / Hybrid-PIC 场求解器配置迁移 |
+| A1.6b | A1 | done | A1.6a | 静电求解器 context + 配置/边界迁移 |
+| A1.6 | A1 | pending | A1.6b | Batch E3：PSATD / Hybrid-PIC 模型配置迁移 |
 | A1.7 | A1 | pending | A1.6 | Batch F：粒子/流体配置迁移 |
 | A1.8 | A1 | pending | A1.5,A1.7 | 移除 WarpX::m_instance 与剩余 GetInstance |
 | A1.9 | A1 | pending | A1.8 | A1 回归门（A/B + 子系统测试） |
@@ -60,5 +61,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A1.6` — Batch E2：PSATD / 静电 / Hybrid-PIC 场求解器配置迁移
+**Next:** `A1.6` — Batch E3：PSATD / Hybrid-PIC 模型配置迁移
 

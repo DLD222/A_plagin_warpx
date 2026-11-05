@@ -11,6 +11,8 @@
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "Utils/Parser/ParserUtils.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/PoissonSolver.H>
@@ -20,11 +22,12 @@
 
 using namespace amrex;
 
-ElectrostaticSolver::ElectrostaticSolver (int nlevs_max) : num_levels{nlevs_max}
+ElectrostaticSolver::ElectrostaticSolver (int nlevs_max, const warpx::runtime::RuntimeContext* ctx)
+    : num_levels{nlevs_max}, m_runtime_context(ctx)
 {
     // Create an instance of the boundary handler to properly set boundary
     // conditions
-    m_poisson_boundary_handler = std::make_unique<PoissonBoundaryHandler>();
+    m_poisson_boundary_handler = std::make_unique<PoissonBoundaryHandler>(ctx);
 }
 
 ElectrostaticSolver::~ElectrostaticSolver () = default;
@@ -235,7 +238,7 @@ ElectrostaticSolver::computePhi (
 #endif
 
     bool const is_solver_igf_on_lev0 =
-        WarpX::poisson_solver_id == PoissonSolverAlgo::IntegratedGreenFunction;
+        config().poisson_solver_id() == PoissonSolverAlgo::IntegratedGreenFunction;
 
     ablastr::fields::computePhi(
         sorted_rho,
@@ -245,11 +248,11 @@ ElectrostaticSolver::computePhi (
         warpx.Geom(),
         warpx.DistributionMap(),
         warpx.boxArray(),
-        WarpX::grid_type,
+        config().grid_type(),
         is_solver_igf_on_lev0,
         is_igf_2d,
         EB::enabled(),
-        WarpX::do_single_precision_comms,
+        config().do_single_precision_comms(),
         warpx.refRatio(),
         post_phi_calculation,
         *m_poisson_boundary_handler,
@@ -584,4 +587,14 @@ void ElectrostaticSolver::computeB (
             }
         }
     }
+}
+
+const warpx::runtime::RuntimeConfig&
+ElectrostaticSolver::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
+        return *m_runtime_context->config;
+    }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
 }

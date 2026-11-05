@@ -415,16 +415,16 @@ WarpX::WarpX ()
     if ((WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame)
         || (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic))
     {
-        m_electrostatic_solver = std::make_unique<LabFrameExplicitES>(nlevs_max);
+        m_electrostatic_solver = std::make_unique<LabFrameExplicitES>(nlevs_max, m_runtime_context);
     }
     // Initialize the effective potential electrostatic solver if required
     else if (electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameEffectivePotential)
     {
-        m_electrostatic_solver = std::make_unique<EffectivePotentialES>(nlevs_max);
+        m_electrostatic_solver = std::make_unique<EffectivePotentialES>(nlevs_max, m_runtime_context);
     }
     else
     {
-        m_electrostatic_solver = std::make_unique<RelativisticExplicitES>(nlevs_max);
+        m_electrostatic_solver = std::make_unique<RelativisticExplicitES>(nlevs_max, m_runtime_context);
     }
 
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC)

@@ -18,7 +18,7 @@ class RelativisticExplicitES final : public ElectrostaticSolver
 {
 public:
 
-    explicit RelativisticExplicitES (int nlevs_max) : ElectrostaticSolver (nlevs_max) {
+    explicit RelativisticExplicitES (int nlevs_max, const warpx::runtime::RuntimeContext* ctx = nullptr) : ElectrostaticSolver (nlevs_max, ctx) {
         ReadParameters();
     }
 
