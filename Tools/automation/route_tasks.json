@@ -1060,6 +1060,25 @@
    "note": ""
   },
   {
+   "id": "A3.3a",
+   "phase": "A3",
+   "title": "HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A1.8_SERVICES_DESIGN.md"
+   ],
+   "effort_days": 5.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "6 个 handler 通过 DataBus 键交互；HybridPICModel 只做注册；无直接调用",
+   "note": "替代“单一 composite handler”方案；需要 IFieldInternalAccess/SpeciesHandle",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
