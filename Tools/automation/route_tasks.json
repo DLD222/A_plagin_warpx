@@ -1250,12 +1250,33 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A2.1b",
+   "phase": "A2",
+   "title": "field_factory 迁移到 LevelStorage + ClearLevel 释放",
+   "kind": "refactor",
+   "depends": [
+    "A2.1a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/LevelResources.H",
+    "Source/WarpX.cpp",
+    "Source/Parallelization/WarpXRegrid.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 m_field_factory；ClearLevel 释放 factory；EB/MR 算例通过",
+   "note": "fieldEBFactory 走 level(lev).field_factory",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A2.1",
    "phase": "A2",
    "title": "LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器）",
    "kind": "refactor",
    "depends": [
-    "A2.1a"
+    "A2.1b"
    ],
    "status": "pending",
    "outputs": [

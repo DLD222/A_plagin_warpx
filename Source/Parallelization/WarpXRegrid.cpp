@@ -217,13 +217,13 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
 #ifdef AMREX_USE_EB
             int const max_guard = guard_cells.ng_FieldSolver.max();
             auto const* eb_index_space = GetEBIndexSpace(lev);
-            m_field_factory[lev] = amrex::makeEBFabFactory(eb_index_space, Geom(lev), ba, dm,
+            m_level_resources.level(lev).field_factory = amrex::makeEBFabFactory(eb_index_space, Geom(lev), ba, dm,
                                                            {max_guard, max_guard, max_guard},
                                                            amrex::EBSupport::full);
 #endif
             InitializeEBGridData(lev);
         } else {
-            m_field_factory[lev] = std::make_unique<FArrayBoxFactory>();
+            m_level_resources.level(lev).field_factory = std::make_unique<FArrayBoxFactory>();
         }
 
 #ifdef WARPX_USE_FFT

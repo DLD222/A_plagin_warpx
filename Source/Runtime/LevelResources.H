@@ -10,6 +10,11 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 
+#include <AMReX_FabFactory.H>
+
+#include <memory>
+#include <vector>
+
 namespace warpx::runtime
 {
 
@@ -21,13 +26,25 @@ namespace warpx::runtime
  * hierarchy. Resource members (factory/PML/costs/dotMask) move here in
  * A2.1b-e.
  */
+struct LevelStorage
+{
+    //! Field factory (plain or EB); owned by this level.
+    std::unique_ptr<amrex::FabFactory<amrex::FArrayBox>> field_factory;
+};
+
 class LevelResources
 {
 public:
     explicit LevelResources (int nlevs = 0);
 
     void resize (int nlevs);
-    [[nodiscard]] int size () const noexcept { return m_size; }
+    [[nodiscard]] int size () const noexcept { return static_cast<int>(m_levels.size()); }
+
+    [[nodiscard]] LevelStorage& level (int lev) { return m_levels.at(lev); }
+    [[nodiscard]] const LevelStorage& level (int lev) const { return m_levels.at(lev); }
+
+    //! Release all per-level resources owned by this registry.
+    void clear (int lev);
 
     /** Borrow the authoritative field register. Does not take ownership. */
     void bind_fields (ablastr::fields::MultiFabRegister& fields) noexcept
@@ -43,7 +60,7 @@ public:
     [[nodiscard]] bool has_fields () const noexcept { return m_fields != nullptr; }
 
 private:
-    int m_size = 0;
+    std::vector<LevelStorage> m_levels;
     ablastr::fields::MultiFabRegister* m_fields = nullptr;
 };
 

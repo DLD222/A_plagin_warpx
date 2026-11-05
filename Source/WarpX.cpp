@@ -465,7 +465,7 @@ WarpX::WarpX ()
     costs.resize(nlevs_max);
     load_balance_efficiency.resize(nlevs_max);
 
-    m_field_factory.resize(nlevs_max);
+    m_level_resources.resize(nlevs_max);
 
     if (m_em_solver_medium == MediumForEM::Macroscopic) {
         // create object for macroscopic solver
@@ -2386,6 +2386,7 @@ void
 WarpX::ClearLevel (int lev)
 {
     m_fields.clear_level(lev);
+    m_level_resources.clear(lev);
 
     for (int i = 0; i < 3; ++i) {
         Efield_dotMask [lev][i].reset();
@@ -2455,13 +2456,13 @@ WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& d
     if (eb_enabled) {
         int const max_guard = guard_cells.ng_FieldSolver.max();
         auto const* eb_index_space = GetEBIndexSpace(lev);
-        m_field_factory[lev] = amrex::makeEBFabFactory(eb_index_space, Geom(lev), ba, dm,
+        m_level_resources.level(lev).field_factory = amrex::makeEBFabFactory(eb_index_space, Geom(lev), ba, dm,
                                                        {max_guard, max_guard, max_guard},
                                                        amrex::EBSupport::full);
     } else
 #endif
     {
-        m_field_factory[lev] = std::make_unique<FArrayBoxFactory>();
+        m_level_resources.level(lev).field_factory = std::make_unique<FArrayBoxFactory>();
     }
 
 

@@ -68,7 +68,8 @@
 | A1.9a | A1 | done | A1.8 | A1 基线回归门（build+smoke，无 A/B） |
 | A1.9 | A1 | done | A1.9a | A1 回归门（A/B + 子系统测试） |
 | A2.1a | A2 | done | A1.9a | LevelResources 空壳 + bind_fields + 层级一致性断言 |
-| A2.1 | A2 | pending | A2.1a | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
+| A2.1b | A2 | done | A2.1a | field_factory 迁移到 LevelStorage + ClearLevel 释放 |
+| A2.1 | A2 | pending | A2.1b | LevelResources 登记表（场/材料/PML/EB/诊断/成本/加速器） |
 | A2.2 | A2 | pending | A2.1 | ClearLevel 完整化 |
 | A2.3 | A2 | pending | A2.1 | RemakeLevel 完整化（PML/材料/dotMask/flag_info） |
 | A2.4 | A2 | pending | A2.1 | AllocLevelData schema 化 |

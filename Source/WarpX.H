@@ -1085,7 +1085,7 @@ public:
                                  const amrex::IArrayBox &guard_mask, int ng );
 #ifdef AMREX_USE_EB
     [[nodiscard]] amrex::EBFArrayBoxFactory const& fieldEBFactory (int lev) const noexcept {
-        return static_cast<amrex::EBFArrayBoxFactory const&>(*m_field_factory[lev]);
+        return static_cast<amrex::EBFArrayBoxFactory const&>(*m_level_resources.level(lev).field_factory);
     }
 #endif
 
@@ -1635,9 +1635,6 @@ private:
     //
     // Embedded Boundary
     //
-
-    // Factory for field data
-    amrex::Vector<std::unique_ptr<amrex::FabFactory<amrex::FArrayBox> > > m_field_factory;
 
     /** Stop the simulation at the end of the current step due to a received Unix signal?
      */
