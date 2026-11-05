@@ -90,7 +90,8 @@ class SpectralSolver
                         TimeDependencyJ time_dependency_J,
                         TimeDependencyRho time_dependency_rho,
                         bool dive_cleaning,
-                        bool divb_cleaning);
+                        bool divb_cleaning,
+                        const warpx::runtime::RuntimeContext* ctx = nullptr);
 
         /**
          * \brief Transform the component i_comp of the MultiFab mf to Fourier space,
@@ -191,6 +192,8 @@ class SpectralSolver
         // SpectralBaseAlgorithm is a base class; this pointer is meant to point
         // to an instance of a sub-class defining a specific algorithm
         std::unique_ptr<SpectralBaseAlgorithm> algorithm;
+
+        const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 };
 #endif // WARPX_USE_FFT
 #endif // WARPX_SPECTRAL_SOLVER_H_

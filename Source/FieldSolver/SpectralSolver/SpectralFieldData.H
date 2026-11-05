@@ -22,6 +22,8 @@
 #include <AMReX_FabArray.H>
 #include <AMReX_IndexType.H>
 #include <AMReX_MultiFab.H>
+
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
 #include <AMReX_Vector.H>
 
 #include <AMReX_BaseFwd.H>

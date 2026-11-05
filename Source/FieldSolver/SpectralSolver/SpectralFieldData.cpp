@@ -9,6 +9,9 @@
 
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXUtil.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <AMReX_Array4.H>
@@ -133,8 +136,10 @@ SpectralFieldData::SpectralFieldData( const amrex::BoxArray& realspace_ba,
                                       const SpectralKSpace& k_space,
                                       const amrex::DistributionMapping& dm,
                                       const int n_field_required,
-                                      const bool periodic_single_box):
-    m_periodic_single_box{periodic_single_box}
+                                      const bool periodic_single_box,
+                                      const warpx::runtime::RuntimeContext* ctx):
+    m_periodic_single_box{periodic_single_box},
+    m_runtime_context(ctx)
 {
     const BoxArray& spectralspace_ba = k_space.spectralspace_ba;
 
@@ -209,7 +214,7 @@ SpectralFieldData::ForwardTransform (const int lev,
                                      const MultiFab& mf, const int field_index,
                                      const int i_comp)
 {
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
     const bool do_costs = WarpXUtilLoadBalance::doCosts(cost, mf.boxArray(), mf.DistributionMap());
 
     // Check field index type, in order to apply proper shift in spectral space
@@ -309,7 +314,7 @@ SpectralFieldData::BackwardTransform (const int lev,
                                       const amrex::IntVect& fill_guards,
                                       const int i_comp)
 {
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
     const bool do_costs = WarpXUtilLoadBalance::doCosts(cost, mf.boxArray(), mf.DistributionMap());
 
     // Check field index type, in order to apply proper shift in spectral space
@@ -424,3 +429,13 @@ SpectralFieldData::BackwardTransform (const int lev,
 }
 
 #endif // WARPX_USE_FFT
+
+const warpx::runtime::RuntimeData&
+SpectralFieldData::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}

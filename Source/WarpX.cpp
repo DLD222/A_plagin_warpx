@@ -3329,7 +3329,8 @@ void WarpX::AllocLevelSpectralSolver (amrex::Vector<std::unique_ptr<SpectralSolv
                                                 time_dependency_J,
                                                 time_dependency_rho,
                                                 do_dive_cleaning,
-                                                do_divb_cleaning);
+                                                do_divb_cleaning,
+                                                m_runtime_context);
     spectral_solver[lev] = std::move(pss);
 }
 #   endif

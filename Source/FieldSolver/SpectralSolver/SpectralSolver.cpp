@@ -40,8 +40,9 @@ SpectralSolver::SpectralSolver (
                 const TimeDependencyJ time_dependency_J,
                 const TimeDependencyRho time_dependency_rho,
                 const bool dive_cleaning,
-                const bool divb_cleaning)
-    : m_dt(dt)
+                const bool divb_cleaning,
+                const warpx::runtime::RuntimeContext* ctx)
+    : m_dt(dt), m_runtime_context(ctx)
 {
     // Initialize all structures using the same distribution mapping dm
 
@@ -110,7 +111,7 @@ SpectralSolver::SpectralSolver (
 
     // - Initialize arrays for fields in spectral space + FFT plans
     field_data = SpectralFieldData(realspace_ba, k_space, dm,
-                                   m_spectral_index.n_fields, periodic_single_box);
+                                   m_spectral_index.n_fields, periodic_single_box, ctx);
 }
 
 void

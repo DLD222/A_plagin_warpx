@@ -60,6 +60,7 @@ public:
     [[nodiscard]] virtual const amrex::DistributionMapping& distributionMap (int lev) const = 0;
     [[nodiscard]] virtual amrex::Array<amrex::Real, 3> cellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
+    [[nodiscard]] virtual amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
