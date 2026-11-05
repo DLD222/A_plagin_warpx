@@ -2698,19 +2698,19 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
     if (electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)
     {
-        m_fields.alloc_init(FieldType::vector_potential_fp_nodal, Direction{0}, lev, amrex::convert(ba, rho_nodal_flag), dm, ncomps, ngRho, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_fp_nodal, Direction{1}, lev, amrex::convert(ba, rho_nodal_flag), dm, ncomps, ngRho, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_fp_nodal, Direction{2}, lev, amrex::convert(ba, rho_nodal_flag), dm, ncomps, ngRho, 0.0_rt);
+        AllocLevelField("vector_potential_fp_nodal_x", FieldType::vector_potential_fp_nodal, Direction{0}, lev, ba, dm, ncomps, rho_nodal_flag, ngRho);
+        AllocLevelField("vector_potential_fp_nodal_y", FieldType::vector_potential_fp_nodal, Direction{1}, lev, ba, dm, ncomps, rho_nodal_flag, ngRho);
+        AllocLevelField("vector_potential_fp_nodal_z", FieldType::vector_potential_fp_nodal, Direction{2}, lev, ba, dm, ncomps, rho_nodal_flag, ngRho);
 
         // Memory buffers for computing magnetostatic fields
         // Vector Potential A and previous step.  Time buffer needed for computing dA/dt to first order
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_e_stag, Direction{0}, lev, amrex::convert(ba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_e_stag, Direction{1}, lev, amrex::convert(ba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_e_stag, Direction{2}, lev, amrex::convert(ba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("vector_potential_grad_buf_e_stag_x", FieldType::vector_potential_grad_buf_e_stag, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
+        AllocLevelField("vector_potential_grad_buf_e_stag_y", FieldType::vector_potential_grad_buf_e_stag, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
+        AllocLevelField("vector_potential_grad_buf_e_stag_z", FieldType::vector_potential_grad_buf_e_stag, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
 
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_b_stag, Direction{0}, lev, amrex::convert(ba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_b_stag, Direction{1}, lev, amrex::convert(ba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::vector_potential_grad_buf_b_stag, Direction{2}, lev, amrex::convert(ba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelField("vector_potential_grad_buf_b_stag_x", FieldType::vector_potential_grad_buf_b_stag, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
+        AllocLevelField("vector_potential_grad_buf_b_stag_y", FieldType::vector_potential_grad_buf_b_stag, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
+        AllocLevelField("vector_potential_grad_buf_b_stag_z", FieldType::vector_potential_grad_buf_b_stag, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
     }
 
     // Allocate extra multifabs needed by the kinetic-fluid hybrid algorithm.
@@ -2882,8 +2882,8 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     // total charge is rho_particle + rho_medium.
     if (m_em_solver_medium == MediumForEM::Macroscopic)
     {
-        m_fields.alloc_init(FieldType::rho_medium_fp,
-            lev, amrex::convert(ba, rho_nodal_flag), dm, 1, ngRho, 0.0_rt);
+        AllocLevelFieldScalar("rho_medium_fp", FieldType::rho_medium_fp, lev, ba, dm,
+                              1, rho_nodal_flag, ngRho);
     }
 
     if (electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame ||
@@ -2904,16 +2904,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
     if (do_dive_cleaning)
     {
-        m_fields.alloc_init(FieldType::F_fp,
-            lev, amrex::convert(ba, F_nodal_flag), dm,
-            ncomps, ngF, 0.0_rt);
+        AllocLevelFieldScalar("F_fp", FieldType::F_fp, lev, ba, dm,
+                              ncomps, F_nodal_flag, ngF);
     }
 
     if (do_divb_cleaning)
     {
-        m_fields.alloc_init(FieldType::G_fp,
-            lev, amrex::convert(ba, G_nodal_flag), dm,
-            ncomps, ngG, 0.0_rt);
+        AllocLevelFieldScalar("G_fp", FieldType::G_fp, lev, ba, dm,
+                              ncomps, G_nodal_flag, ngG);
     }
 
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)
@@ -3033,15 +3031,15 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     // The external fields that are read from file
     if (m_p_ext_field_params->B_ext_grid_type != ExternalFieldType::default_zero && m_p_ext_field_params->B_ext_grid_type != ExternalFieldType::constant) {
         // These fields will be added directly to the grid, i.e. to fp, and need to match the index type
-        m_fields.alloc_init(FieldType::Bfield_fp_external, Direction{0}, lev,
-            amrex::convert(ba, m_fields.get(FieldType::Bfield_fp,Direction{0},lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_fp_external, Direction{1}, lev,
-            amrex::convert(ba, m_fields.get(FieldType::Bfield_fp,Direction{1},lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_fp_external, Direction{2}, lev,
-            amrex::convert(ba, m_fields.get(FieldType::Bfield_fp,Direction{2},lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Bfield_fp_external_x", FieldType::Bfield_fp_external, Direction{0}, lev,
+                           amrex::convert(ba, m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->ixType()),
+                           dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_fp_external_y", FieldType::Bfield_fp_external, Direction{1}, lev,
+                           amrex::convert(ba, m_fields.get(FieldType::Bfield_fp, Direction{1}, lev)->ixType()),
+                           dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_fp_external_z", FieldType::Bfield_fp_external, Direction{2}, lev,
+                           amrex::convert(ba, m_fields.get(FieldType::Bfield_fp, Direction{2}, lev)->ixType()),
+                           dm, ncomps, ngEB);
     }
     if (mypc->m_B_ext_particle_s == "read_from_file") {
         //  These fields will be added to the fields that the particles see, and need to match the index type
@@ -3062,12 +3060,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     }
     if (m_p_ext_field_params->E_ext_grid_type != ExternalFieldType::default_zero && m_p_ext_field_params->E_ext_grid_type != ExternalFieldType::constant) {
         // These fields will be added directly to the grid, i.e. to fp, and need to match the index type
-        m_fields.alloc_init(FieldType::Efield_fp_external, Direction{0}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_fp_external, Direction{1}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_fp_external, Direction{2}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{2}, lev)->ixType()),
-            dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Efield_fp_external_x", FieldType::Efield_fp_external, Direction{0}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->ixType()), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_fp_external_y", FieldType::Efield_fp_external, Direction{1}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->ixType()), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_fp_external_z", FieldType::Efield_fp_external, Direction{2}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{2}, lev)->ixType()), dm, ncomps, ngEB);
     }
     if (mypc->m_E_ext_particle_s == "read_from_file") {
         //  These fields will be added to the fields that the particles see, and need to match the index type
@@ -3097,14 +3092,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         const std::array<Real,3> cdx = CellSize(lev-1);
 
         // Create the MultiFabs for B
-        m_fields.alloc_init(FieldType::Bfield_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Bfield_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Bfield_cp_x", FieldType::Bfield_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_cp_y", FieldType::Bfield_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_cp_z", FieldType::Bfield_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB);
 
         // Create the MultiFabs for E
-        m_fields.alloc_init(FieldType::Efield_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
-        m_fields.alloc_init(FieldType::Efield_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt);
+        AllocLevelFieldOnBA("Efield_cp_x", FieldType::Efield_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_cp_y", FieldType::Efield_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_cp_z", FieldType::Efield_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB);
 
         // EB info are needed on the coarse patch to update the coarse-patch fields
         if (EB::enabled() &&
@@ -3137,9 +3132,9 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         }
 
         // Create the MultiFabs for the current
-        m_fields.alloc_init(FieldType::current_cp, Direction{0}, lev, amrex::convert(cba, jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_cp, Direction{1}, lev, amrex::convert(cba, jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
-        m_fields.alloc_init(FieldType::current_cp, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt);
+        AllocLevelFieldOnBA("current_cp_x", FieldType::current_cp, Direction{0}, lev, amrex::convert(cba, jx_nodal_flag), dm, ncomps, ngJ);
+        AllocLevelFieldOnBA("current_cp_y", FieldType::current_cp, Direction{1}, lev, amrex::convert(cba, jy_nodal_flag), dm, ncomps, ngJ);
+        AllocLevelFieldOnBA("current_cp_z", FieldType::current_cp, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ);
 
         if (rho_ncomps > 0) {
             m_fields.alloc_init(FieldType::rho_cp,
@@ -3225,14 +3220,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
             if (aux_is_nodal) {
                 BoxArray const& cnba = amrex::convert(cba,IntVect::TheNodeVector());
                 // Create the MultiFabs for B
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{0}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{1}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Bfield_cax, Direction{2}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelFieldOnBA("Bfield_cax_x", FieldType::Bfield_cax, Direction{0}, lev, cnba, dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Bfield_cax_y", FieldType::Bfield_cax, Direction{1}, lev, cnba, dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Bfield_cax_z", FieldType::Bfield_cax, Direction{2}, lev, cnba, dm, ncomps, ngEB);
 
                 // Create the MultiFabs for E
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{0}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{1}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
-                m_fields.alloc_init(FieldType::Efield_cax, Direction{2}, lev, cnba, dm, ncomps, ngEB, 0.0_rt);
+                AllocLevelFieldOnBA("Efield_cax_x", FieldType::Efield_cax, Direction{0}, lev, cnba, dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Efield_cax_y", FieldType::Efield_cax, Direction{1}, lev, cnba, dm, ncomps, ngEB);
+                AllocLevelFieldOnBA("Efield_cax_z", FieldType::Efield_cax, Direction{2}, lev, cnba, dm, ncomps, ngEB);
             } else {
                 // Create the MultiFabs for B
                 m_fields.alloc_init(FieldType::Bfield_cax, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt);

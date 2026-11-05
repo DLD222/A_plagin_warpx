@@ -1528,12 +1528,31 @@
    "verify_command": null
   },
   {
+   "id": "A2.4e2",
+   "phase": "A2",
+   "title": "cp/cax/vector potential/external/material 字段 schema 化",
+   "kind": "refactor",
+   "depends": [
+    "A2.4e1"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "cp/cax/vector/external/F/G/rho_medium 走 schema；MR/EB/PSATD 通过",
+   "note": "约 102/128；剩余 aliases/iMultiFab/材料",
+   "verify_command": null
+  },
+  {
    "id": "A2.4",
    "phase": "A2",
    "title": "AllocLevelData schema 化",
    "kind": "refactor",
    "depends": [
-    "A2.4e1"
+    "A2.4e2"
    ],
    "status": "pending",
    "outputs": [],

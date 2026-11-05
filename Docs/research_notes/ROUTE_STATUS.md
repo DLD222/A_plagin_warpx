@@ -82,7 +82,8 @@
 | A2.4c | A2 | done | A2.4b | EB/ECT + averaging 字段 schema 化 |
 | A2.4d | A2 | done | A2.4c | scalar helper + rho/phi/distance/dual/current_store schema 化 |
 | A2.4e1 | A2 | done | A2.4d | 显式 BA helper + Bfield_aux/Efield_aux schema 化 |
-| A2.4 | A2 | pending | A2.4e1 | AllocLevelData schema 化 |
+| A2.4e2 | A2 | done | A2.4e1 | cp/cax/vector potential/external/material 字段 schema 化 |
+| A2.4 | A2 | pending | A2.4e2 | AllocLevelData schema 化 |
 | A2.5a | A2 | done | A2.3 | A2 定向回归门（默认/FFT/ASAN） |
 | A2.5 | A2 | pending | A2.2,A2.3,A2.4 | A2 回归门（多层/EB/PML/PSATD/LB） |
 | A3.1 | A3 | pending | A2.5 | InitData 阶段化 |
