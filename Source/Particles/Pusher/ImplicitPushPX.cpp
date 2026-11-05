@@ -21,6 +21,8 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/warn_manager/WarnManager.H>
@@ -472,12 +474,10 @@ PhysicalParticleContainer::ImplicitPushXP (WarpXParIter & pti,
     const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, gather_lev, 0.0_rt);
     const amrex::Dim3 lo = lbound(box);
 
-    const WarpX& warpx = WarpX::GetInstance();
-
-    amrex::Box domain_box = warpx.Geom(0).Domain();
+    amrex::Box domain_box = data().geom(0).Domain();
     domain_box.surroundingNodes();
-    auto const & field_boundary_lo = warpx.GetFieldBoundaryLo();
-    auto const & field_boundary_hi = warpx.GetFieldBoundaryHi();
+    auto const & field_boundary_lo = config().field_boundary_lo();
+    auto const & field_boundary_hi = config().field_boundary_hi();
 
     amrex::GpuArray<amrex::GpuArray<bool,2>, AMREX_SPACEDIM> do_cropping;
     amrex::GpuArray<amrex::GpuArray<double,2>, AMREX_SPACEDIM> domain_double;
@@ -811,12 +811,10 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (WarpXParIter& pti,
     const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, gather_lev, 0.0_rt);
     const amrex::Dim3 lo = lbound(box);
 
-    const WarpX& warpx = WarpX::GetInstance();
-
-    amrex::Box domain_box = warpx.Geom(0).Domain();
+    amrex::Box domain_box = data().geom(0).Domain();
     domain_box.surroundingNodes();
-    auto const & field_boundary_lo = warpx.GetFieldBoundaryLo();
-    auto const & field_boundary_hi = warpx.GetFieldBoundaryHi();
+    auto const & field_boundary_lo = config().field_boundary_lo();
+    auto const & field_boundary_hi = config().field_boundary_hi();
 
     amrex::GpuArray<amrex::GpuArray<bool,2>, AMREX_SPACEDIM> do_cropping;
     amrex::GpuArray<amrex::GpuArray<double,2>, AMREX_SPACEDIM> domain_double;

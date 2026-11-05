@@ -479,8 +479,7 @@ void ParticleBoundaryBuffer::gatherParticlesFromEmbeddedBoundaries (
 
 
         using PIter = amrex::ParConstIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
-        const auto &warpx_instance = WarpX::GetInstance();
-        const amrex::Geometry &geom = warpx_instance.Geom(0);
+        const amrex::Geometry &geom = mypc.data().geom(0);
         auto plo = geom.ProbLoArray();
 
         auto& buffer = m_particle_containers[m_particle_containers.size()-1];
@@ -512,7 +511,7 @@ void ParticleBoundaryBuffer::gatherParticlesFromEmbeddedBoundaries (
             for (int lev = 0; lev < pc.numLevels(); ++lev)
             {
                 const auto& plevel = pc.GetParticles(lev);
-                auto dxi = warpx_instance.Geom(lev).InvCellSizeArray();
+                auto dxi = mypc.data().geom(lev).InvCellSizeArray();
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
