@@ -6,6 +6,9 @@
  */
 #include "BackgroundMCCCollision.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+
 #include "ImpactIonization.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Particles/Collision/BinaryCollision/TwoProductUtil.H"
@@ -265,7 +268,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
     auto const flvl = species1.finestLevel();
     for (int lev = 0; lev <= flvl; ++lev) {
 
-        auto *cost = WarpX::getCosts(lev);
+        auto *cost = mypc->data().costs(lev);
 
         // firstly loop over particles box by box and do all particle conserving
         // scattering
@@ -273,7 +276,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         for (WarpXParIter pti(species1, lev); pti.isValid(); ++pti) {
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -281,7 +284,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
 
             doBackgroundCollisionsWithinTile(pti, cur_time);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -444,7 +447,7 @@ void BackgroundMCCCollision::doBackgroundIonization
 #endif
     for (WarpXParIter pti(species1, lev); pti.isValid(); ++pti) {
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && species1.config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -469,7 +472,7 @@ void BackgroundMCCCollision::doBackgroundIonization
         setNewParticleIDs(elec_tile, np_elec, num_added);
         setNewParticleIDs(ion_tile, np_ion, num_added);
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && species1.config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;

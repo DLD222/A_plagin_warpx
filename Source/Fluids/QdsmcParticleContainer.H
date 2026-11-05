@@ -19,6 +19,8 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 
+namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; class RuntimeData; }
+
 
 /**
  * @brief Indexing for the QDSMC fictitious-particle SoA storage.
@@ -95,7 +97,12 @@ public:
     static constexpr int NReal = QdsmcPIdx::nattribs;
     static constexpr int NInt = 0;
 
+    const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+
     explicit QdsmcParticleContainer (amrex::AmrCore* amr_core);
+
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     ~QdsmcParticleContainer() override = default;
 
     QdsmcParticleContainer ( QdsmcParticleContainer const &)             = delete;

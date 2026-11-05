@@ -6,6 +6,9 @@
  */
 #include "CollisionHandler.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+
 #include "Particles/Collision/BackgroundMCC/BackgroundMCCCollision.H"
 #include "Particles/Collision/PulsedDecay/PulsedDecay.H"
 #include "Particles/Collision/BackgroundStopping/BackgroundStopping.H"
@@ -45,7 +48,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
     for (int i = 0; i < static_cast<int>(ncollisions); ++i) {
         const amrex::ParmParse pp_collision_name(collision_names[i]);
 
-        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(WarpX::n_rz_azimuthal_modes==1,
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(mypc->config().n_rz_azimuthal_modes()==1,
         "RZ mode `warpx.n_rz_azimuthal_modes` must be 1 when using the binary collision module.");
 
         // For legacy, pairwisecoulomb is the default

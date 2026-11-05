@@ -9,6 +9,12 @@
 
 #include "QdsmcParticleContainer.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXRuntimeData.H"
+#include "WarpX.H"
+
 #include "Particles/Deposition/ChargeDeposition.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Utils/TextMsg.H"
@@ -97,6 +103,9 @@ namespace
 QdsmcParticleContainer::QdsmcParticleContainer (amrex::AmrCore* amr_core)
     : amrex::ParticleContainerPureSoA<QdsmcPIdx::nattribs, 0>(amr_core->GetParGDB())
 {
+    if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
+        m_runtime_context = w->GetRuntimeContext();
+    }
     SetParticleSize();
 }
 
@@ -126,7 +135,7 @@ void QdsmcParticleContainer::InitParticles (int lev)
         DefineAndReturnParticleTile(lev, mfi.index(), mfi.LocalTileIndex());
     }
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     amrex::MFItInfo info;
     if (do_tiling && amrex::Gpu::notInLaunchRegion()) {
@@ -134,11 +143,11 @@ void QdsmcParticleContainer::InitParticles (int lev)
     }
 #ifdef AMREX_USE_OMP
     info.SetDynamic(true);
-#pragma omp parallel if (not WarpX::serialize_initial_conditions)
+#pragma omp parallel if (not config().serialize_initial_conditions())
 #endif
     for (amrex::MFIter mfi = MakeMFIter(lev, info); mfi.isValid(); ++mfi)
     {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -261,7 +270,7 @@ void QdsmcParticleContainer::InitParticles (int lev)
 
         amrex::Gpu::synchronize();
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
             amrex::HostDevice::Atomic::Add(&(*cost)[mfi.index()], wt);
@@ -567,7 +576,7 @@ QdsmcParticleContainer::DepositScalar (int lev, int const attr,
 {
     auto & warpx = WarpX::GetInstance();
     amrex::Periodicity const & period = warpx.Geom(lev).periodicity();
-    amrex::XDim3 const dinv = WarpX::InvCellSize(lev);
+    amrex::XDim3 const dinv = data().invCellSize(lev);
 
     field.setVal(0);
 
@@ -607,18 +616,18 @@ QdsmcParticleContainer::DepositScalar (int lev, int const attr,
         amrex::Box tilebox = pti.tilebox();
         tilebox.grow(field.nGrowVect());
         amrex::Dim3 const lo = amrex::lbound(tilebox);
-        amrex::XDim3 const xyzmin = WarpX::LowerCorner(tilebox, lev, 0.0_rt);
+        amrex::XDim3 const xyzmin = data().lowerCorner(tilebox, lev);
 
         doChargeDepositionShapeN<1>(GetPosition, attribs[attr].dataPtr(),
                                     nullptr, field[pti], np, dinv, xyzmin, lo,
-                                    scale, WarpX::n_rz_azimuthal_modes);
+                                    scale, config().n_rz_azimuthal_modes());
     }
 
     amrex::Gpu::synchronize();
 
     ablastr::utils::communication::SumBoundary(
         field, 0, field.nComp(), field.nGrowVect(), field.nGrowVect(),
-        WarpX::do_single_precision_comms, period);
+        config().do_single_precision_comms(), period);
 }
 
 
@@ -640,4 +649,20 @@ QdsmcParticleContainer::DepositField (int lev, amrex::MultiFab & Field)
     // Deposit it without a second volume normalization; QDSMCUpdateTe uses
     // the deposited entropy and count as an extensive ratio.
     DepositScalar(lev, QdsmcPIdx::np_real, 1.0_rt, Field);
+}
+
+const warpx::runtime::RuntimeConfig&
+QdsmcParticleContainer::config () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) { return *m_runtime_context->config; }
+    static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::RuntimeData&
+QdsmcParticleContainer::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
 }

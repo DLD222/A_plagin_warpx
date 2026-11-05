@@ -6,6 +6,9 @@
  */
 #include "HybridResistiveDrag.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+
 #include "Fields.H"
 #include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
 #include "Particles/Gather/FieldGather.H"
@@ -78,9 +81,9 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
     // V_s/V_e are noise rather than physical bulk velocities.
     amrex::Real const rho_floor = PhysConst::q_e * hybrid_model->m_n_floor;
 
-    int const nox = WarpX::nox;
-    int const n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
-    bool const galerkin_interpolation = WarpX::galerkin_interpolation;
+    int const nox = mypc->config().nox();
+    int const n_rz_azimuthal_modes = mypc->config().n_rz_azimuthal_modes();
+    bool const galerkin_interpolation = mypc->config().galerkin_interpolation();
 
     for (int lev = 0; lev <= species.finestLevel(); ++lev) {
         ablastr::fields::VectorField Ve_fp  = warpx.m_fields.get_alldirs("Ve_fp", lev);
@@ -99,7 +102,7 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
         amrex::MultiFab const & Te_fp       =
             *warpx.m_fields.get(FieldType::hybrid_electron_temperature_fp, lev);
 
-        amrex::XDim3 const dinv = WarpX::InvCellSize(lev);
+        amrex::XDim3 const dinv = mypc->data().invCellSize(lev);
         auto const dxi = warpx.Geom(lev).InvCellSizeArray();
         auto const plo = warpx.Geom(lev).ProbLoArray();
 
@@ -109,7 +112,7 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
         for (WarpXParIter pti(species, lev); pti.isValid(); ++pti)
         {
             amrex::Box const & box = pti.validbox();
-            amrex::XDim3 const xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+            amrex::XDim3 const xyzmin = mypc->data().lowerCorner(box, lev);
             amrex::Dim3 const lo = amrex::lbound(box);
 
             auto const Vex_arr  = Ve_fp[0]->const_array(pti);

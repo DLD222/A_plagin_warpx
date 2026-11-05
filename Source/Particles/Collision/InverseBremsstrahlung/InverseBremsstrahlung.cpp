@@ -6,6 +6,9 @@
  */
 #include "InverseBremsstrahlung.H"
 
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+
 #include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
 #include "Particles/ParticleCreation/FilterCopyTransform.H"
 #include "Particles/ParticleCreation/SmartCopy.H"
@@ -69,7 +72,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
     auto const flvl = photons.finestLevel();
     for (int lev = 0; lev <= flvl; ++lev) {
 
-        auto *cost = WarpX::getCosts(lev);
+        auto *cost = mypc->data().costs(lev);
 
         // Loop over all grids/tiles at this level
 #ifdef AMREX_USE_OMP
@@ -77,7 +80,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         for (amrex::MFIter mfi = photons.MakeMFIter(lev, info); mfi.isValid(); ++mfi){
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -85,7 +88,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
 
             doInverseBremsstrahlungWithinTile(dt, lev, mfi, photons, electrons);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -141,7 +144,7 @@ void InverseBremsstrahlung::doInverseBremsstrahlungWithinTile (
     auto const hi = ubound(cbx);
     int const nr = hi.x - lo.x + 1;
 #endif
-    amrex::XDim3 const xyzmin = WarpX::LowerCorner(cbx, lev, 0._rt);
+    amrex::XDim3 const xyzmin = mypc->data().lowerCorner(cbx, lev, 0._rt);
     amrex::Real const rmin = xyzmin.x;
     auto const dr = geom.CellSize(0);
 #endif
