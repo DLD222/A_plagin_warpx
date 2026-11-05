@@ -60,6 +60,7 @@ amrex::LayoutData<amrex::Real>* WarpXRuntimeData::costs (int lev) const { return
 amrex::Real WarpXRuntimeData::loadBalanceEfficiency (int lev) const { return m_warpx.getLoadBalanceEfficiency(lev); }
 ablastr::utils::text::IntervalsParser WarpXRuntimeData::loadBalanceIntervals () const { return m_warpx.get_load_balance_intervals(); }
 int WarpXRuntimeData::maxStep () const { return m_warpx.maxStep(); }
+amrex::Real WarpXRuntimeData::stopTime () const { return m_warpx.stopTime(); }
 bool WarpXRuntimeData::isSynchronized () const { return m_warpx.getis_synchronized(); }
 void WarpXRuntimeData::computeCostsHeuristic (
     amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const

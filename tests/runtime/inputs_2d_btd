@@ -1,0 +1,42 @@
+max_step = 1
+stop_time = 1.0e-9
+
+amr.n_cell = 16 16
+amr.max_grid_size = 16
+amr.max_level = 0
+geometry.dims = 2
+geometry.prob_lo = -1.0 -1.0
+geometry.prob_hi =  1.0  1.0
+
+warpx.cfl = 0.4
+algo.maxwell_solver = yee
+algo.particle_shape = 1
+boundary.field_lo = periodic pec
+boundary.field_hi = periodic pec
+
+particles.species_names = electrons
+electrons.species_type = electron
+electrons.injection_style = NUniformPerCell
+electrons.num_particles_per_cell_each_dim = 1 1
+electrons.xmin = -1.0
+electrons.xmax = 1.0
+electrons.zmin = -1.0
+electrons.zmax = 1.0
+electrons.profile = constant
+electrons.density = 1.0e18
+electrons.momentum_distribution_type = at_rest
+
+diagnostics.diags_names = diag1
+diag1.diag_type = BackTransformed
+diag1.do_back_transformed_fields = 1
+diag1.intervals = :1
+diag1.dt_snapshots_lab = 1.0e-12
+diag1.fields_to_plot = Ex
+diag1.format = plotfile
+diag1.buffer_size = 32
+
+warpx.gamma_boost = 2.0
+warpx.boost_direction = z
+warpx.do_moving_window = 1
+warpx.moving_window_dir = z
+warpx.moving_window_v = 1.0

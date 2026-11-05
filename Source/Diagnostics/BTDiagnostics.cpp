@@ -19,6 +19,9 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/FrameState.H"
+#include "Runtime/HostServices.H"
+#include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -70,8 +73,7 @@ BTDiagnostics::BTDiagnostics (int i, const std::string& name, DiagTypes diag_typ
 
 void BTDiagnostics::DerivedInitData ()
 {
-    auto & warpx = WarpX::GetInstance();
-    m_gamma_boost = WarpX::gamma_boost;
+    m_gamma_boost = frame().gamma_boost;
     m_beta_boost = std::sqrt( 1._rt - 1._rt/( m_gamma_boost * m_gamma_boost) );
     m_moving_window_dir = WarpX::moving_window_dir;
     m_moving_window_beta = WarpX::moving_window_v/PhysConst::c;
@@ -116,7 +118,7 @@ void BTDiagnostics::DerivedInitData ()
     }
 
     /* Allocate vector of particle buffer vectors for each snapshot */
-    MultiParticleContainer& mpc = warpx.GetPartContainer();
+    MultiParticleContainer& mpc = const_cast<MultiParticleContainer&>(data().particles());
     // If not specified, and write species is not 0, dump all species
     const amrex::ParmParse pp_diag_name(m_diag_name);
     int write_species = 1;
@@ -141,9 +143,9 @@ void BTDiagnostics::DerivedInitData ()
 
     // check that simulation can fill all BTD snapshots
     const int lev = 0;
-    const amrex::Real dt_boosted_frame = warpx.getdt(lev);
+    const amrex::Real dt_boosted_frame = data().dt(lev);
     const int moving_dir = WarpX::moving_window_dir;
-    const amrex::Real Lz_lab = warpx.Geom(lev).ProbLength(moving_dir) * WarpX::gamma_boost * (1._rt - WarpX::beta_boost*m_moving_window_beta);
+    const amrex::Real Lz_lab = data().geom(lev).ProbLength(moving_dir) * frame().gamma_boost * (1._rt - frame().beta_boost*m_moving_window_beta);
     const int ref_ratio = 1;
     const amrex::Real dz_snapshot_grid = dz_lab(dt_boosted_frame, ref_ratio);
     // Need enough buffers so the snapshot length is longer than the lab frame length
@@ -168,33 +170,33 @@ void BTDiagnostics::DerivedInitData ()
     // if j = final snapshot starting step, then we want to solve
     // j dt_boosted_frame >= t_intersect_boost = i * gamma * (1-beta*beta_mw) * dt_snapshot
     // j >= i * gamma * (1-beta*beta_mw) * dt_snapshot / dt_boosted_frame
-    const int final_snapshot_starting_step = static_cast<int>(std::ceil(final_snapshot_iteration * WarpX::gamma_boost * (1._rt - WarpX::beta_boost*m_moving_window_beta) * m_dt_snapshots_lab / dt_boosted_frame));
+    const int final_snapshot_starting_step = static_cast<int>(std::ceil(final_snapshot_iteration * frame().gamma_boost * (1._rt - frame().beta_boost*m_moving_window_beta) * m_dt_snapshots_lab / dt_boosted_frame));
     const int final_snapshot_fill_iteration = final_snapshot_starting_step + num_buffers * m_buffer_size - 1;
     const amrex::Real final_snapshot_fill_time = final_snapshot_fill_iteration * dt_boosted_frame;
     if (WarpX::compute_max_step_from_btd) {
-        if (final_snapshot_fill_iteration > warpx.maxStep()) {
-            warpx.updateMaxStep(final_snapshot_fill_iteration);
+        if (final_snapshot_fill_iteration > data().maxStep()) {
+            host().updateMaxStep(final_snapshot_fill_iteration);
             amrex::Print()<<"max_step insufficient to fill all BTD snapshots. Automatically increased to: "
                 << final_snapshot_fill_iteration << "\n";
 
         }
-        if (final_snapshot_fill_time > warpx.stopTime()) {
-            warpx.updateStopTime(final_snapshot_fill_time);
+        if (final_snapshot_fill_time > data().stopTime()) {
+            host().updateStopTime(final_snapshot_fill_time);
             amrex::Print()<<"stop_time insufficient to fill all BTD snapshots. Automatically increased to: "
                 << final_snapshot_fill_time << "\n";
 
         }
-        if (warpx.maxStep() == std::numeric_limits<int>::max() && warpx.stopTime() == std::numeric_limits<amrex::Real>::max()) {
+        if (data().maxStep() == std::numeric_limits<int>::max() && data().stopTime() == std::numeric_limits<amrex::Real>::max()) {
             amrex::Print()<<"max_step unspecified and stop time unspecified.  Setting max step to "
                 <<final_snapshot_fill_iteration<< " to fill all BTD snapshots.\n";
-            warpx.updateMaxStep(final_snapshot_fill_iteration);
+            host().updateMaxStep(final_snapshot_fill_iteration);
         }
 
-    } else if (final_snapshot_fill_iteration > warpx.maxStep() || final_snapshot_fill_time > warpx.stopTime()) {
+    } else if (final_snapshot_fill_iteration > data().maxStep() || final_snapshot_fill_time > data().stopTime()) {
         std::stringstream warn_string;
             warn_string << "\nSimulation might not run long enough to fill all BTD snapshots.\n"
-            << "Final step: " << warpx.maxStep() << "\n"
-            <<"Stop time: " << warpx.stopTime() << "\n"
+            << "Final step: " << data().maxStep() << "\n"
+            <<"Stop time: " << data().stopTime() << "\n"
             <<"Last BTD snapshot fills around step: " << final_snapshot_fill_iteration << "\n"
             <<" or time: " << final_snapshot_fill_time << "\n";
         ablastr::warn_manager::WMRecordWarning(
@@ -212,7 +214,7 @@ BTDiagnostics::ReadParameters ()
 {
     BaseReadParameters();
 
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE( WarpX::gamma_boost > 1.0_rt,
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE( frame().gamma_boost > 1.0_rt,
         "gamma_boost must be > 1 to use the back-transformed diagnostics");
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE( WarpX::boost_direction[2] == 1,
         "The back transformed diagnostics currently only works if the boost is in the z-direction");
@@ -339,7 +341,6 @@ BTDiagnostics::DoComputeAndPack (int step, bool force_flush)
 void
 BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
 {
-    auto & warpx = WarpX::GetInstance();
 
     // When restarting boosted simulations, the code below needs to take
     // into account the fact that the position of the box at the beginning
@@ -348,7 +349,7 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
                                         / (1._rt - m_beta_boost*m_moving_window_beta);
     // Lab-frame time for the i^th snapshot
     if (!restart) {
-        const amrex::Real zmax_boost = warpx.Geom(lev).ProbHi(m_moving_window_dir);
+        const amrex::Real zmax_boost = data().geom(lev).ProbHi(m_moving_window_dir);
         m_t_lab.at(i_buffer) = m_intervals.GetBTDIteration(i_buffer) * m_dt_snapshots_lab
             + m_gamma_boost*m_beta_boost*zmax_boost/PhysConst::c;
             // Note: gamma_boost*beta_boost*zmax_boost is equal to
@@ -360,10 +361,10 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim ) {
         // Setting lo-coordinate for the diag domain by taking the max of user-defined
         // lo-cordinate and lo-coordinate of the simulation domain at level, lev
-        diag_dom.setLo(idim, std::max(m_lo[idim],warpx.Geom(lev).ProbLo(idim)) );
+        diag_dom.setLo(idim, std::max(m_lo[idim],data().geom(lev).ProbLo(idim)) );
         // Setting hi-coordinate for the diag domain by taking the max of user-defined
         // hi-cordinate and hi-coordinate of the simulation domain at level, lev
-        diag_dom.setHi(idim, std::min(m_hi[idim],warpx.Geom(lev).ProbHi(idim)) );
+        diag_dom.setHi(idim, std::min(m_hi[idim],data().geom(lev).ProbHi(idim)) );
     }
     // Initializing the m_buffer_box for the i^th snapshot.
     // At initialization, the Box has the same index space as the boosted-frame
@@ -374,14 +375,14 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
         // lo index with same cell-size as simulation at level, lev.
         const int lo_index = static_cast<int>( std::floor(
-                ( diag_dom.lo(idim) - warpx.Geom(lev).ProbLo(idim) ) /
-                  warpx.Geom(lev).CellSize(idim) ) );
+                ( diag_dom.lo(idim) - data().geom(lev).ProbLo(idim) ) /
+                  data().geom(lev).CellSize(idim) ) );
         // Taking max of (0,lo_index) because lo_index must always be >=0
         lo[idim] = std::max( 0, lo_index );
         // hi index with same cell-size as simulation at level, lev.
         const int hi_index =  static_cast<int>( std::ceil(
-                ( diag_dom.hi(idim) - warpx.Geom(lev).ProbLo(idim) ) /
-                  warpx.Geom(lev).CellSize(idim) ) );
+                ( diag_dom.hi(idim) - data().geom(lev).ProbLo(idim) ) /
+                  data().geom(lev).CellSize(idim) ) );
         // Taking max of (0,hi_index) because hi_index must always be >=0
         // Subtracting by 1 because lo,hi indices are set to cell-centered staggering.
         hi[idim] = std::max( 0, hi_index) - 1;
@@ -398,21 +399,21 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     m_snapshot_box[i_buffer] = diag_box;
     // Define box array
     amrex::BoxArray diag_ba(diag_box);
-    diag_ba.maxSize( warpx.maxGridSize( lev ) );
+    diag_ba.maxSize( data().maxGridSize( lev ) );
     // Update the physical co-ordinates m_lo and m_hi using the final index values
     // from the coarsenable, cell-centered BoxArray, ba.
     for ( int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-        diag_dom.setLo( idim, warpx.Geom(lev).ProbLo(idim) +
-            diag_ba.getCellCenteredBox(0).smallEnd(idim) * warpx.Geom(lev).CellSize(idim));
-        diag_dom.setHi( idim, warpx.Geom(lev).ProbLo(idim) +
-            (diag_ba.getCellCenteredBox( static_cast<int>(diag_ba.size()-1) ).bigEnd(idim) + 1) * warpx.Geom(lev).CellSize(idim));
+        diag_dom.setLo( idim, data().geom(lev).ProbLo(idim) +
+            diag_ba.getCellCenteredBox(0).smallEnd(idim) * data().geom(lev).CellSize(idim));
+        diag_dom.setHi( idim, data().geom(lev).ProbLo(idim) +
+            (diag_ba.getCellCenteredBox( static_cast<int>(diag_ba.size()-1) ).bigEnd(idim) + 1) * data().geom(lev).CellSize(idim));
     }
 
     // Define buffer_domain in lab-frame for the i^th snapshot.
     // Replace z-dimension with lab-frame co-ordinates.
-    const amrex::Real zmin_buffer_lab = ( diag_dom.lo(m_moving_window_dir) - boosted_moving_window_v * warpx.gett_new(0) )
+    const amrex::Real zmin_buffer_lab = ( diag_dom.lo(m_moving_window_dir) - boosted_moving_window_v * data().t_new(0) )
                                 * (1.0_rt - m_beta_boost*m_moving_window_beta) * m_gamma_boost;
-    const amrex::Real zmax_buffer_lab = ( diag_dom.hi(m_moving_window_dir) - boosted_moving_window_v * warpx.gett_new(0) )
+    const amrex::Real zmax_buffer_lab = ( diag_dom.hi(m_moving_window_dir) - boosted_moving_window_v * data().t_new(0) )
                                 * (1.0_rt - m_beta_boost*m_moving_window_beta) * m_gamma_boost;
 
     // Initialize buffer counter and z-positions of the  i^th snapshot in
@@ -424,9 +425,9 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     m_old_z_boost[i_buffer] = m_current_z_boost[i_buffer];
     // Now Update Current Z Positions
     m_current_z_boost[i_buffer] = UpdateCurrentZBoostCoordinate(m_t_lab[i_buffer],
-                                                              warpx.gett_new(lev) );
+                                                              data().t_new(lev) );
     m_current_z_lab[i_buffer] = UpdateCurrentZLabCoordinate(m_t_lab[i_buffer],
-                                                              warpx.gett_new(lev) );
+                                                              data().t_new(lev) );
 
     // Compute number of cells in lab-frame required for writing Header file
     // and potentially to generate Back-Transform geometry to ensure
@@ -439,14 +440,14 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     // Number of lab-frame cells in z-direction at level, lev
     const int num_zcells_lab = static_cast<int>( std::floor (
                                    ( zmax_buffer_lab - zmin_buffer_lab)
-                                   / dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir])));
+                                   / dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir])));
     // Take the max of 0 and num_zcells_lab
     const int Nz_lab = std::max( 0, num_zcells_lab );
 #if (AMREX_SPACEDIM >= 2)
     // Number of lab-frame cells in x-direction at level, lev
     const int num_xcells_lab = static_cast<int>( std::floor (
                                   ( diag_dom.hi(0) - diag_dom.lo(0) )
-                                  / warpx.Geom(lev).CellSize(0)
+                                  / data().geom(lev).CellSize(0)
                               ) );
     // Take the max of 0 and num_ycells_lab
     const int Nx_lab = std::max( 0, num_xcells_lab);
@@ -455,7 +456,7 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     // Number of lab-frame cells in the y-direction at level, lev
     const int num_ycells_lab = static_cast<int>( std::floor (
                                    ( diag_dom.hi(1) - diag_dom.lo(1) )
-                                   / warpx.Geom(lev).CellSize(1)
+                                   / data().geom(lev).CellSize(1)
                                ) );
     // Take the max of 0 and num_xcells_lab
     const int Ny_lab = std::max( 0, num_ycells_lab );
@@ -485,11 +486,11 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
         // To prevent round off errors, moving the snapshot domain by half a cell so that all the slices
         // lie close to the cell-centers in the lab-frame grid instead of on the edge of cell.
         const amrex::Real new_hi = m_snapshot_domain_lab[i_buffer].hi(m_moving_window_dir)
-                           + 0.5_rt * dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir]);
+                           + 0.5_rt * dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir]);
         m_snapshot_domain_lab[i_buffer].setHi(m_moving_window_dir,new_hi);
         const amrex::Real new_lo = m_snapshot_domain_lab[i_buffer].hi(m_moving_window_dir) -
                              num_z_cells_in_snapshot *
-                             dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir]);
+                             dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir]);
         m_snapshot_domain_lab[i_buffer].setLo(m_moving_window_dir, new_lo);
     }
 
@@ -498,9 +499,9 @@ BTDiagnostics::InitializeBufferData ( int i_buffer , int lev, bool restart)
     const int snapshot_kindex_hi = static_cast<int>(floor(
                              ( m_snapshot_domain_lab[i_buffer].hi(m_moving_window_dir)
                                - (m_snapshot_domain_lab[i_buffer].lo(m_moving_window_dir)
-                                 + 0.5*dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir])
+                                 + 0.5*dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir])
                                  )
-                             ) / dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir]) ));
+                             ) / dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir]) ));
     m_snapshot_box[i_buffer].setBig( m_moving_window_dir, snapshot_kindex_hi);
     m_snapshot_box[i_buffer].setSmall( m_moving_window_dir,
                                        snapshot_kindex_hi - (num_z_cells_in_snapshot-1) );
@@ -516,11 +517,10 @@ BTDiagnostics::DefineCellCenteredMultiFab(int lev)
     if (!m_do_back_transformed_fields) { return; }
     // Creating MultiFab to store cell-centered data in boosted-frame for the entire-domain
     // This MultiFab will store all the user-requested fields in the boosted-frame
-    auto & warpx = WarpX::GetInstance();
     // The BoxArray is coarsened based on the user-defined coarsening ratio
-    amrex::BoxArray ba = warpx.boxArray(lev);
+    amrex::BoxArray ba = data().boxArray(lev);
     ba.coarsen(m_crse_ratio);
-    const amrex::DistributionMapping dmap = warpx.DistributionMap(lev);
+    const amrex::DistributionMapping dmap = data().distributionMap(lev);
     const int ngrow = 1;
 #ifdef WARPX_DIM_RZ
     const int ncomps = WarpX::ncomps * static_cast<int>(m_cellcenter_varnames.size());
@@ -529,7 +529,7 @@ BTDiagnostics::DefineCellCenteredMultiFab(int lev)
 #endif
     bool const remake = false;
     bool const redistribute_on_remake = false;
-    warpx.m_fields.alloc_init(m_cell_centered_data_name, lev, ba, dmap, ncomps, amrex::IntVect(ngrow), 0.0_rt,
+    const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).alloc_init(m_cell_centered_data_name, lev, ba, dmap, ncomps, amrex::IntVect(ngrow), 0.0_rt,
                               remake, redistribute_on_remake);
 
 }
@@ -550,8 +550,7 @@ BTDiagnostics::InitializeFieldFunctors (int lev)
     InitializeFieldFunctorsRZopenPMD(lev);
 #else
 
-    auto & warpx = WarpX::GetInstance();
-    auto & fields = warpx.m_fields;
+    auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
 
     // Clear any pre-existing vector to release stored data
     // This ensures that when domain is load-balanced, the functors point
@@ -613,8 +612,7 @@ void
 BTDiagnostics::UpdateVarnamesForRZopenPMD ()
 {
 #ifdef WARPX_DIM_RZ
-    auto & warpx = WarpX::GetInstance();
-    auto & fields = warpx.m_fields;
+    auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
     using ablastr::fields::Direction;
     const int ncomp_multimodefab = fields.get(FieldType::Efield_aux, Direction::r, 0)->nComp();
     const int ncomp = ncomp_multimodefab;
@@ -676,8 +674,7 @@ BTDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
 #ifdef WARPX_DIM_RZ
     using ablastr::fields::Direction;
 
-    auto & warpx = WarpX::GetInstance();
-    auto & fields = warpx.m_fields;
+    auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
     const int ncomp_multimodefab = fields.get(FieldType::Efield_aux, Direction::r, 0)->nComp();
     const int ncomp = ncomp_multimodefab;
     // Clear any pre-existing vector to release stored data
@@ -761,7 +758,6 @@ BTDiagnostics::AddRZModesToOutputNames (const std::string& field, const int ncom
 void
 BTDiagnostics::PrepareBufferData ()
 {
-    auto & warpx = WarpX::GetInstance();
     const int num_BT_functors = 1;
 
     for (int lev = 0; lev < nlev_output; ++lev)
@@ -773,9 +769,9 @@ BTDiagnostics::PrepareBufferData ()
                 m_old_z_boost[i_buffer] = m_current_z_boost[i_buffer];
                 // Update z-boost and z-lab positions
                 m_current_z_boost[i_buffer] = UpdateCurrentZBoostCoordinate(m_t_lab[i_buffer],
-                                                                      warpx.gett_new(lev) );
+                                                                      data().t_new(lev) );
                 m_current_z_lab[i_buffer] = UpdateCurrentZLabCoordinate(m_t_lab[i_buffer],
-                                                                      warpx.gett_new(lev) );
+                                                                      data().t_new(lev) );
             }
         }
     }
@@ -809,8 +805,7 @@ BTDiagnostics::PrepareFieldDataForOutput ()
     // Initialize fields functors only if do_back_transformed_fields is selected
     if (!m_do_back_transformed_fields) { return; }
 
-    auto & warpx = WarpX::GetInstance();
-    auto & fields = warpx.m_fields;
+    auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
 
     // In this function, we will get cell-centered data for every level, lev,
     // using the cell-center functors and their respective operators()
@@ -831,11 +826,11 @@ BTDiagnostics::PrepareFieldDataForOutput ()
         // the coarsest level.
         ablastr::utils::communication::FillBoundary(*fields.get(m_cell_centered_data_name, lev),
                                                     WarpX::do_single_precision_comms,
-                                                    warpx.Geom(lev).periodicity());
+                                                    data().geom(lev).periodicity());
     }
     // Flattening out MF over levels
 
-    for (int lev = warpx.finestLevel(); lev > 0; --lev) {
+    for (int lev = data().finestLevel(); lev > 0; --lev) {
         ablastr::coarsen::sample::Coarsen(*fields.get(m_cell_centered_data_name, lev - 1),
                                           *fields.get(m_cell_centered_data_name, lev), 0, 0,
                                           static_cast<int>(m_cellcenter_varnames.size()), 0, WarpX::RefRatio(lev-1) );
@@ -898,14 +893,13 @@ BTDiagnostics::dz_lab (amrex::Real dt, amrex::Real ref_ratio) const
 int
 BTDiagnostics::k_index_zlab (int i_buffer, int lev) const
 {
-    auto & warpx = WarpX::GetInstance();
     const amrex::Real prob_domain_zmin_lab = m_snapshot_domain_lab[i_buffer].lo( m_moving_window_dir );
     auto ref_ratio = amrex::IntVect(1);
     if (lev > 0 ) { ref_ratio = WarpX::RefRatio(lev-1); }
     const int k_lab = static_cast<int>(std::floor (
                           ( m_current_z_lab[i_buffer]
                             - (prob_domain_zmin_lab  ) )
-                          / dz_lab( warpx.getdt(lev), ref_ratio[m_moving_window_dir] )
+                          / dz_lab( data().dt(lev), ref_ratio[m_moving_window_dir] )
                       ) ) + m_snapshot_box[i_buffer].smallEnd(m_moving_window_dir);
     return k_lab;
 }
@@ -923,7 +917,6 @@ void
 BTDiagnostics::DefineFieldBufferMultiFab (const int i_buffer, const int lev)
 {
     if (m_field_buffer_multifab_defined[i_buffer] == 1) { return; }
-    auto & warpx = WarpX::GetInstance();
 
     const int hi_k_lab = m_buffer_k_index_hi[i_buffer];
     m_buffer_box[i_buffer].setSmall( m_moving_window_dir, hi_k_lab - m_buffer_size + 1);
@@ -947,8 +940,8 @@ BTDiagnostics::DefineFieldBufferMultiFab (const int i_buffer, const int lev)
         const int zindex = 0;
 #endif
         const amrex::Real cellsize = (idim < zindex)?
-            warpx.Geom(lev).CellSize(idim):
-            dz_lab(warpx.getdt(lev), ref_ratio[m_moving_window_dir]);
+            data().geom(lev).CellSize(idim):
+            dz_lab(data().dt(lev), ref_ratio[m_moving_window_dir]);
         const amrex::Real buffer_lo = m_snapshot_domain_lab[i_buffer].lo(idim)
                                 + ( buffer_ba.getCellCenteredBox(0).smallEnd(idim)
                                   - m_snapshot_box[i_buffer].smallEnd(idim)
@@ -1010,9 +1003,8 @@ BTDiagnostics::DefineSnapshotGeometry (const int i_buffer, const int lev)
 bool
 BTDiagnostics::GetZSliceInDomainFlag (const int i_buffer, const int lev)
 {
-    auto & warpx = WarpX::GetInstance();
-    const amrex::RealBox& boost_domain = warpx.Geom(lev).ProbDomain();
-    const amrex::Real boost_cellsize = warpx.Geom(lev).CellSize(m_moving_window_dir);
+    const amrex::RealBox& boost_domain = data().geom(lev).ProbDomain();
+    const amrex::Real boost_cellsize = data().geom(lev).CellSize(m_moving_window_dir);
     const amrex::Real buffer_zmin_lab = m_snapshot_domain_lab[i_buffer].lo( m_moving_window_dir );
     const amrex::Real buffer_zmax_lab = m_snapshot_domain_lab[i_buffer].hi( m_moving_window_dir );
 
@@ -1038,7 +1030,6 @@ BTDiagnostics::GetKIndexInSnapshotBoxFlag (const int i_buffer, const int lev)
 void
 BTDiagnostics::Flush (int i_buffer, bool force_flush)
 {
-    auto & warpx = WarpX::GetInstance();
     std::string file_name = m_file_prefix;
     if (m_format=="plotfile") {
         file_name = amrex::Concatenate(m_file_prefix, i_buffer, m_file_min_digits);
@@ -1099,7 +1090,7 @@ BTDiagnostics::Flush (int i_buffer, bool force_flush)
         }
     }
     m_flush_format->WriteToFile(
-        m_varnames, m_mf_output.at(i_buffer), m_geom_output.at(i_buffer), warpx.getistep(),
+        m_varnames, m_mf_output.at(i_buffer), m_geom_output.at(i_buffer), data().istepVector(),
         labtime,
         m_output_species.at(i_buffer), nlev_output, file_name, m_file_min_digits,
         m_plot_raw_fields, m_plot_raw_fields_guards, m_verbose,
@@ -1162,8 +1153,7 @@ void BTDiagnostics::MergeBuffersForPlotfile (int i_snapshot)
     //       to the open calls below when running at scale.
     amrex::ParallelDescriptor::Barrier();
 
-    auto & warpx = WarpX::GetInstance();
-    const amrex::Vector<int> iteration = warpx.getistep();
+    const amrex::Vector<int> iteration = data().istepVector();
     // number of digits for plotfile containing multifab data (Cell_D_XXXXX)
     // the digits here are "multifab ids" (independent of the step) and thus always small
     const int amrex_fabfile_digits = 5;
@@ -1447,8 +1437,7 @@ BTDiagnostics::InterleaveParticleDataHeader(const std::string& buffer_ParticleHd
 void
 BTDiagnostics::InitializeParticleFunctors ()
 {
-    auto & warpx = WarpX::GetInstance();
-    const MultiParticleContainer& mpc = warpx.GetPartContainer();
+    const MultiParticleContainer& mpc = const_cast<MultiParticleContainer&>(data().particles());
     // allocate with total number of species diagnostics
     m_all_particle_functors.resize(m_output_species_names.size());
     // Create an object of class BackTransformParticleFunctor

@@ -27,6 +27,11 @@ foreach(D IN LISTS WarpX_DIMS)
         endif()
 
         if(TARGET app_${SD})
+            add_test(NAME runtime_btd_${D}
+                     COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_btd)
+            set_tests_properties(runtime_btd_${D} PROPERTIES
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
             add_test(NAME runtime_es_${D}
                      COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_es)
             set_tests_properties(runtime_es_${D} PROPERTIES

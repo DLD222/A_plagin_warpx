@@ -956,12 +956,32 @@
    "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
   },
   {
+   "id": "A1.8o",
+   "phase": "A1",
+   "title": "BTDiagnostics 去 GetInstance + BTD 算例",
+   "kind": "refactor",
+   "depends": [
+    "A1.8n"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/BTDiagnostics.cpp",
+    "tests/runtime/inputs_2d_btd"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "BTD 无 GetInstance；boosted/moving-window BTD 输入跑通",
+   "note": "maxStep/stopTime 可变状态进 data/host",
+   "verify_command": "ctest --test-dir ${WARPX_BUILD_DIR:-build} -R '^runtime_' --output-on-failure"
+  },
+  {
    "id": "A1.8",
    "phase": "A1",
    "title": "Batch G2：移除 m_instance 与剩余 GetInstance 调用点",
    "kind": "refactor",
    "depends": [
-    "A1.8n"
+    "A1.8o"
    ],
    "status": "pending",
    "outputs": [],

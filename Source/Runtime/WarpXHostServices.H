@@ -51,6 +51,8 @@ public:
     [[nodiscard]] int numCellsShifted (amrex::Real distance, amrex::Real dx) const override;
     [[nodiscard]] bool doMovingWindow () const override;
     [[nodiscard]] amrex::Real timeOfLastGalileanShift () const override;
+    void updateMaxStep (int new_max_step) override;
+    void updateStopTime (amrex::Real new_stop_time) override;
     [[nodiscard]] bool doPML () const override;
     void checkpointPML (int lev, const std::string& prefix,
                         ablastr::fields::MultiFabRegister& fields) override;

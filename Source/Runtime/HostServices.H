@@ -82,6 +82,10 @@ public:
     //! Electrostatic potential on level (uses phi_fp when available).
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> computePhi (int lev) = 0;
 
+    //! Mutable run-control (BTD may extend max_step/stop_time).
+    virtual void updateMaxStep (int new_max_step) = 0;
+    virtual void updateStopTime (amrex::Real new_stop_time) = 0;
+
     //! Moving window metadata.
     [[nodiscard]] virtual amrex::Real movingWindowX () const = 0;
     [[nodiscard]] virtual bool movingWindowActive (int step) const = 0;

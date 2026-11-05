@@ -94,6 +94,7 @@ public:
     [[nodiscard]] virtual amrex::Real loadBalanceEfficiency (int lev) const = 0;
     [[nodiscard]] virtual ablastr::utils::text::IntervalsParser loadBalanceIntervals () const = 0;
     [[nodiscard]] virtual int maxStep () const = 0;
+    [[nodiscard]] virtual amrex::Real stopTime () const = 0;
     [[nodiscard]] virtual bool isSynchronized () const = 0;
     virtual void computeCostsHeuristic (
         amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const = 0;

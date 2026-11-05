@@ -64,6 +64,7 @@ public:
     [[nodiscard]] amrex::Real loadBalanceEfficiency (int lev) const override;
     [[nodiscard]] ablastr::utils::text::IntervalsParser loadBalanceIntervals () const override;
     [[nodiscard]] int maxStep () const override;
+    [[nodiscard]] amrex::Real stopTime () const override;
     [[nodiscard]] bool isSynchronized () const override;
     void computeCostsHeuristic (
         amrex::Vector<std::unique_ptr<amrex::LayoutData<amrex::Real>>>& costs) const override;
