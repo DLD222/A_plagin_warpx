@@ -28,18 +28,23 @@ MultiFluidContainer* WarpXRuntimeData::fluids () { return m_warpx.DoFluidSpecies
 int WarpXRuntimeData::finestLevel () const { return m_warpx.finestLevel(); }
 int WarpXRuntimeData::maxLevel () const { return m_warpx.maxLevel(); }
 const amrex::Geometry& WarpXRuntimeData::geom (int lev) const { return m_warpx.Geom(lev); }
+const amrex::Vector<amrex::Geometry>& WarpXRuntimeData::geomAll () const { return m_warpx.Geom(); }
 const amrex::BoxArray& WarpXRuntimeData::boxArray (int lev) const { return m_warpx.boxArray(lev); }
+const amrex::Vector<amrex::BoxArray>& WarpXRuntimeData::boxArrayAll () const { return m_warpx.boxArray(); }
 const amrex::DistributionMapping& WarpXRuntimeData::distributionMap (int lev) const { return m_warpx.DistributionMap(lev); }
+const amrex::Vector<amrex::DistributionMapping>& WarpXRuntimeData::distributionMapAll () const { return m_warpx.DistributionMap(); }
 amrex::Array<amrex::Real, 3> WarpXRuntimeData::cellSize (int lev) const { return WarpX::CellSize(lev); }
 amrex::XDim3 WarpXRuntimeData::lowerCorner (const amrex::Box& box, int lev) const { return WarpX::LowerCorner(box, lev, amrex::Real(0.0)); }
 amrex::XDim3 WarpXRuntimeData::upperCorner (const amrex::Box& box, int lev) const { return WarpX::UpperCorner(box, lev, amrex::Real(0.0)); }
 amrex::RealBox WarpXRuntimeData::realBox (const amrex::Box& box, int lev) const { return WarpX::getRealBox(box, lev); }
 amrex::XDim3 WarpXRuntimeData::invCellSize (int lev) const { return WarpX::InvCellSize(lev); }
 amrex::IntVect WarpXRuntimeData::ngEB () const { return m_warpx.getngEB(); }
+amrex::IntVect WarpXRuntimeData::ngDeposRho () const { return m_warpx.get_ng_depos_rho(); }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return m_warpx.blockingFactor(lev); }
 amrex::IntVect WarpXRuntimeData::numProcs () const { return m_warpx.get_numprocs(); }
 amrex::IntVect WarpXRuntimeData::maxGridSize (int lev) const { return m_warpx.maxGridSize(lev); }
 amrex::IntVect WarpXRuntimeData::refRatio (int lev) const { return m_warpx.refRatio(lev); }
+const amrex::Vector<amrex::IntVect>& WarpXRuntimeData::refRatioAll () const { return m_warpx.refRatio(); }
 const amrex::Vector<amrex::IntVect>& WarpXRuntimeData::refRatioVector () const { return m_warpx.refRatio(); }
 const amrex::Array<amrex::Real, 3>& WarpXRuntimeData::galileanShift () const { return m_warpx.m_galilean_shift; }
 amrex::Real WarpXRuntimeData::t_new (int lev) const { return m_warpx.gett_new(lev); }

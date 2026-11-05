@@ -33,6 +33,14 @@ public:
     [[nodiscard]] std::unique_ptr<amrex::MultiFab> computePhi (int lev) override;
     void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
                         int lev, int idir) override;
+    void syncRho (
+        ablastr::fields::MultiLevelScalarField const& rho_fp,
+        ablastr::fields::MultiLevelScalarField const& rho_cp,
+        ablastr::fields::MultiLevelScalarField const& rho_buffer) override;
+    void finalizeRhoOnLevel (int lev, amrex::MultiFab* rho,
+                             ablastr::utils::enums::PatchType patch) override;
+    void applyFilterandSumBoundaryRho (int lev_min, int lev_max,
+                                       amrex::MultiFab& rho, int scomp, int ncomp) override;
     [[nodiscard]] amrex::Real movingWindowX () const override;
     [[nodiscard]] bool movingWindowActive (int step) const override;
     [[nodiscard]] int numCellsShifted (amrex::Real distance, amrex::Real dx) const override;

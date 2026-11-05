@@ -17,6 +17,15 @@
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX_Array.H>
 
+namespace warpx::runtime {
+struct RuntimeContext;
+struct RuntimeConfig;
+class RuntimeData;
+class HostServices;
+class WarpXRuntimeData;
+class WarpXHostServices;
+}
+
 
 /**
  * \brief Base class for Electrostatic Solver
@@ -144,6 +153,8 @@ public:
 
 public:
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] warpx::runtime::HostServices& host () const;
 
     /** Parameters of the MLMG Poisson solve, set from the `warpx.self_fields_*`
      *  input parameters

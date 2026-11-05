@@ -57,18 +57,23 @@ public:
     [[nodiscard]] virtual int maxLevel () const = 0;
 
     [[nodiscard]] virtual const amrex::Geometry& geom (int lev) const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::Geometry>& geomAll () const = 0;
     [[nodiscard]] virtual const amrex::BoxArray& boxArray (int lev) const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::BoxArray>& boxArrayAll () const = 0;
     [[nodiscard]] virtual const amrex::DistributionMapping& distributionMap (int lev) const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::DistributionMapping>& distributionMapAll () const = 0;
     [[nodiscard]] virtual amrex::Array<amrex::Real, 3> cellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::RealBox realBox (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect ngEB () const = 0;
+    [[nodiscard]] virtual amrex::IntVect ngDeposRho () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect numProcs () const = 0;
     [[nodiscard]] virtual amrex::IntVect maxGridSize (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect refRatio (int lev) const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::IntVect>& refRatioAll () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::IntVect>& refRatioVector () const = 0;
     [[nodiscard]] virtual const amrex::Array<amrex::Real, 3>& galileanShift () const = 0;
 

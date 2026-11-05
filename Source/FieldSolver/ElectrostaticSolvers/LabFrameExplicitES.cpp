@@ -13,14 +13,14 @@
 #include "Particles/MultiParticleContainer_fwd.H"
 #include "Python/callbacks.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
 
 void LabFrameExplicitES::InitData() {
-    auto & warpx = WarpX::GetInstance();
-    m_poisson_boundary_handler->DefinePhiBCs(warpx.Geom(0));
+    m_poisson_boundary_handler->DefinePhiBCs(data().geom(0));
 }
 
 void LabFrameExplicitES::ComputeSpaceChargeField (
@@ -51,12 +51,11 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
 
     // Apply filter, perform MPI exchange, interpolate across levels
     const Vector<std::unique_ptr<MultiFab> > rho_buf(num_levels);
-    auto & warpx = WarpX::GetInstance();
-    warpx.SyncRho( rho_fp, rho_cp, amrex::GetVecOfPtrs(rho_buf) );
+    host().syncRho(rho_fp, rho_cp, amrex::GetVecOfPtrs(rho_buf));
 
     for (int lev = 0; lev < num_levels; lev++) {
         // Apply boundary conditions to rho_fp, and then apply volume scaling
-        warpx.FinalizeRhoOnLevel(lev, rho_fp[lev], PatchType::fine);
+        host().finalizeRhoOnLevel(lev, rho_fp[lev], ablastr::utils::enums::PatchType::fine);
     }
 
     // beta is zero in lab frame
@@ -64,7 +63,7 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     const std::array<Real, 3> beta = {0._rt};
 
     // set the boundary potentials appropriately
-    setPhiBC(phi_fp, warpx.gett_new(0));
+    setPhiBC(phi_fp, data().t_new(0));
 
     // Compute the potential phi, by solving the Poisson equation
     if (IsPythonCallbackInstalled("poissonsolver")) {
@@ -118,11 +117,10 @@ void LabFrameExplicitES::computePhiTriDiagonal (
     }
 
     const int lev = 0;
-    auto & warpx = WarpX::GetInstance();
 
-    const amrex::Real* dx = warpx.Geom(lev).CellSize();
-    const amrex::Real xmin = warpx.Geom(lev).ProbLo(0);
-    const amrex::Real xmax = warpx.Geom(lev).ProbHi(0);
+    const amrex::Real* dx = data().geom(lev).CellSize();
+    const amrex::Real xmin = data().geom(lev).ProbLo(0);
+    const amrex::Real xmax = data().geom(lev).ProbHi(0);
     const int nx_full_domain = static_cast<int>( (xmax - xmin)/dx[0] + 0.5_rt );
 
     int nx_solve_min = 1;
@@ -252,11 +250,10 @@ void LabFrameExplicitES::computePhiTriDiagonal_periodic (
     "The tridiagonal solver cannot be used with mesh refinement");
 
     const int lev = 0;
-    auto & warpx = WarpX::GetInstance();
 
-    const amrex::Real* dx = warpx.Geom(lev).CellSize();
-    const amrex::Real xmin = warpx.Geom(lev).ProbLo(0);
-    const amrex::Real xmax = warpx.Geom(lev).ProbHi(0);
+    const amrex::Real* dx = data().geom(lev).CellSize();
+    const amrex::Real xmin = data().geom(lev).ProbLo(0);
+    const amrex::Real xmax = data().geom(lev).ProbHi(0);
     const int nx = static_cast<int>( (xmax - xmin)/dx[0] + 0.5_rt );
 
 

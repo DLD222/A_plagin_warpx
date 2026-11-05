@@ -12,7 +12,11 @@
 #include "Fields.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXHostServices.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 
 #include <ablastr/fields/PoissonSolver.H>
@@ -119,12 +123,11 @@ ElectrostaticSolver::setPhiBC (
 
     auto dirichlet_flag = m_poisson_boundary_handler->dirichlet_flag;
 
-    auto & warpx = WarpX::GetInstance();
 
     // loop over all mesh refinement levels and set the boundary values
     for (int lev=0; lev < num_levels; lev++) {
 
-        amrex::Box domain = warpx.Geom(lev).Domain();
+        amrex::Box domain = data().geom(lev).Domain();
         domain.surroundingNodes();
 
 #ifdef AMREX_USE_OMP
@@ -184,7 +187,6 @@ ElectrostaticSolver::computePhi (
         sorted_phi.emplace_back(phi[lev]);
     }
 
-    auto & warpx = WarpX::GetInstance();
 
     std::optional<EBCalcEfromPhiPerLevel> post_phi_calculation;
 #ifdef AMREX_USE_EB
@@ -231,7 +233,7 @@ ElectrostaticSolver::computePhi (
             amrex::EBFArrayBoxFactory const *
         > factories;
         for (int lev = 0; lev < num_levels; ++lev) {
-            factories.push_back(&warpx.fieldEBFactory(lev));
+            factories.push_back(&data().fieldEBFactory(lev));
         }
         eb_farray_box_factory = factories;
     }
@@ -245,18 +247,18 @@ ElectrostaticSolver::computePhi (
         sorted_phi,
         beta,
         mlmg_options,
-        warpx.Geom(),
-        warpx.DistributionMap(),
-        warpx.boxArray(),
+        data().geomAll(),
+        data().distributionMapAll(),
+        data().boxArrayAll(),
         config().grid_type(),
         is_solver_igf_on_lev0,
         is_igf_2d,
         EB::enabled(),
         config().do_single_precision_comms(),
-        warpx.refRatio(),
+        data().refRatioAll(),
         post_phi_calculation,
         *m_poisson_boundary_handler,
-        warpx.gett_new(0),
+        data().t_new(0),
         eb_farray_box_factory
     );
 
@@ -268,10 +270,9 @@ ElectrostaticSolver::computeE (
     ablastr::fields::MultiLevelScalarField const& phi,
     std::array<amrex::Real, 3> beta ) const
 {
-    auto & warpx = WarpX::GetInstance();
     for (int lev = 0; lev < num_levels; lev++) {
 
-        const Real* dx = warpx.Geom(lev).CellSize();
+        const Real* dx = data().geom(lev).CellSize();
 
 #ifdef AMREX_USE_OMP
 #    pragma omp parallel if (Gpu::notInLaunchRegion())
@@ -435,10 +436,9 @@ void ElectrostaticSolver::computeB (
     // return early if beta is 0 since there will be no B-field
     if ((beta[0] == 0._rt) && (beta[1] == 0._rt) && (beta[2] == 0._rt)) { return; }
 
-    auto & warpx = WarpX::GetInstance();
     for (int lev = 0; lev < num_levels; lev++) {
 
-        const Real* dx = warpx.Geom(lev).CellSize();
+        const Real* dx = data().geom(lev).CellSize();
 
 #ifdef AMREX_USE_OMP
 #    pragma omp parallel if (Gpu::notInLaunchRegion())
@@ -596,5 +596,21 @@ ElectrostaticSolver::config () const
         return *m_runtime_context->config;
     }
     static const warpx::runtime::RuntimeConfig legacy{};
+    return legacy;
+}
+
+const warpx::runtime::RuntimeData&
+ElectrostaticSolver::data () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
+    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    return legacy;
+}
+
+warpx::runtime::HostServices&
+ElectrostaticSolver::host () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
+    static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
     return legacy;
 }

@@ -143,6 +143,29 @@ WarpXHostServices::computePhi (int lev)
 }
 
 void
+WarpXHostServices::syncRho (
+    ablastr::fields::MultiLevelScalarField const& rho_fp,
+    ablastr::fields::MultiLevelScalarField const& rho_cp,
+    ablastr::fields::MultiLevelScalarField const& rho_buffer)
+{
+    m_warpx.SyncRho(rho_fp, rho_cp, rho_buffer);
+}
+
+void
+WarpXHostServices::finalizeRhoOnLevel (int lev, amrex::MultiFab* rho,
+                                       ablastr::utils::enums::PatchType patch)
+{
+    m_warpx.FinalizeRhoOnLevel(lev, rho, patch);
+}
+
+void
+WarpXHostServices::applyFilterandSumBoundaryRho (int lev_min, int lev_max,
+                                                 amrex::MultiFab& rho, int scomp, int ncomp)
+{
+    m_warpx.ApplyFilterandSumBoundaryRho(lev_min, lev_max, rho, scomp, ncomp);
+}
+
+void
 WarpXHostServices::applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
                                   int lev, int idir)
 {

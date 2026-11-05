@@ -48,7 +48,7 @@
 | 阶段 | 任务数 | 已完成 |
 |---|---:|---:|
 | A0 审计 + 对齐层 | 8 | 8（含 A0.6 DataBus/FieldSpec/alias） |
-| A1 去单例 | 38 | 34（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram、A1.4 C6 专用诊断、A1.5a Diagnostics context、A1.5b FullDiag/Checkpoint/Plotfile、A1.5 HostServices、A1.6a Yee/FDTD、A1.6b 静电、A1.6c PSATD+FFTW、A1.6 Hybrid、A1.7a 边界缓冲、A1.7b 粒子容器配置、A1.7c 派生容器、A1.7d 流体、A1.7e Qdsmc/碰撞、A1.7f 注入、A1.7 完成、A1.8a 所有权反转、A1.8b functor context、A1.8c 粒子 functor、A1.8d Div 场代数、A1.8e Jdisp/Darwin、A1.8f Rho/J、A1.8g Phi、A1.8h BTD、A1.8i variance） |
+| A1 去单例 | 38 | 35（A1.0 facade、A1.1–A1.3 类型、A1.3a context、A1.4a Timestep、A1.4b 场三件套、A1.4c Poynting/Reduction、A1.4d 粒子统计、A1.4e Probe/Extrema/Histogram、A1.4 C6 专用诊断、A1.5a Diagnostics context、A1.5b FullDiag/Checkpoint/Plotfile、A1.5 HostServices、A1.6a Yee/FDTD、A1.6b 静电、A1.6c PSATD+FFTW、A1.6 Hybrid、A1.7a 边界缓冲、A1.7b 粒子容器配置、A1.7c 派生容器、A1.7d 流体、A1.7e Qdsmc/碰撞、A1.7f 注入、A1.7 完成、A1.8a 所有权反转、A1.8b functor context、A1.8c 粒子 functor、A1.8d Div 场代数、A1.8e Jdisp/Darwin、A1.8f Rho/J、A1.8g Phi、A1.8h BTD、A1.8i variance、A1.8j ES + 静电算例） |
 | A2 Level 资源 | 5 | 0 |
 | A3 生命周期拆包 | 5 | 0（新增 A3.3a HybridPackage 拆分） |
 | A4 状态 schema | 5 | 0 |

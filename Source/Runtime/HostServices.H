@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_HOSTSERVICES_H_
 
 #include <ablastr/fields/MultiFabRegister.H>
+#include <ablastr/utils/Enums.H>
 
 #include <AMReX_REAL.H>
 #include <AMReX_MultiFab.H>
@@ -51,6 +52,16 @@ public:
     //! Deposit/finalize charge density on level.
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) = 0;
+
+    //! Electrostatic rho synchronization and finalization.
+    virtual void syncRho (
+        ablastr::fields::MultiLevelScalarField const& rho_fp,
+        ablastr::fields::MultiLevelScalarField const& rho_cp,
+        ablastr::fields::MultiLevelScalarField const& rho_buffer) = 0;
+    virtual void finalizeRhoOnLevel (int lev, amrex::MultiFab* rho,
+                                     ablastr::utils::enums::PatchType patch) = 0;
+    virtual void applyFilterandSumBoundaryRho (int lev_min, int lev_max,
+                                               amrex::MultiFab& rho, int scomp, int ncomp) = 0;
 
     //! Apply the configured filter to one direction of a multi-level vector field.
     virtual void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,

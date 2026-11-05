@@ -15,18 +15,18 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Python/callbacks.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
 using namespace amrex;
 
 void EffectivePotentialES::InitData() {
-    auto & warpx = WarpX::GetInstance();
-    m_poisson_boundary_handler->DefinePhiBCs(warpx.Geom(0));
+    m_poisson_boundary_handler->DefinePhiBCs(data().geom(0));
 
     // Initialize "sigma" MF which stores the dressing of the Poisson equation.
     // It is a cell-centered multifab.
-    auto& fields = warpx.GetMultiFabRegister();
+    auto& fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
     auto* rho = fields.get(warpx::fields::FieldType::rho_fp, 0);
     fields.alloc_init(
         warpx::fields::FieldType::effective_potential_sigma, /*level=*/ 0,
@@ -57,10 +57,9 @@ void EffectivePotentialES::ComputeSpaceChargeField (
     const MultiLevelScalarField phi_fp = fields.get_mr_levels(FieldType::phi_fp, max_level);
     const MultiLevelVectorField Efield_fp = fields.get_mr_levels_alldirs(FieldType::Efield_fp, max_level);
 
-    auto & warpx = WarpX::GetInstance();
 
     // set the boundary potentials appropriately
-    setPhiBC(phi_fp, warpx.gett_new(0));
+    setPhiBC(phi_fp, data().t_new(0));
 
     ExecutePythonCallback("beforedeposition");
     // Calculate the mass enhancement factor - see  Appendix A of
@@ -134,15 +133,14 @@ void EffectivePotentialES::ComputeSigma (
     amrex::GpuArray<int, 3> const nodal = {1, 0, 0};
 #endif
 
-    auto& warpx = WarpX::GetInstance();
-    auto& mypc = warpx.GetPartContainer();
+    auto& mypc = const_cast<MultiParticleContainer&>(data().particles());
 
     // The effective potential dielectric function is given by
     // \varepsilon_{SI} = \varepsilon * (1 + \sum_{i in species} C_{SI}*(w_pi * dt)^2/4)
     // Note the use of the plasma frequency in rad/s (not Hz) and the factor of 1/4,
     // these choices make it so that C_SI = 1 is the marginal stability threshold.
     auto mult_factor = (
-        C_SI * warpx.getdt(lev) * warpx.getdt(lev) / (4._rt * PhysConst::epsilon_0)
+        C_SI * data().dt(lev) * data().dt(lev) / (4._rt * PhysConst::epsilon_0)
     );
 
     // if this is the first step, use the full sigma
@@ -152,7 +150,7 @@ void EffectivePotentialES::ComputeSigma (
     }
 
     // grab sigma from the multifab registry
-    auto* sigma = warpx.GetMultiFabRegister().get(warpx::fields::FieldType::effective_potential_sigma, lev);
+    auto* sigma = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(warpx::fields::FieldType::effective_potential_sigma, lev);
 
     // scale sigma down from current value for time filtering
     sigma->mult(1.0_rt - time_filter_param, 0);
@@ -168,9 +166,9 @@ void EffectivePotentialES::ComputeSigma (
         auto rho = pc->GetChargeDensityOnLevel(lev, true, /*finalize*/false);
 
         // Handle the parallel transfer of guard cells and apply filtering
-        warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
+        host().applyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
         // Apply boundary conditions to rho, and then apply volume scaling
-        warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
 
         // Add rho for this species to the total charge density MultiFab,
         // but only over the guard region that exists in both MultiFabs
@@ -226,7 +224,6 @@ void EffectivePotentialES::computePhi (
         sorted_phi.emplace_back(phi[lev]);
     }
 
-    auto & warpx = WarpX::GetInstance();
 
     std::optional<EBCalcEfromPhiPerLevel> post_phi_calculation;
 #ifdef AMREX_USE_EB
@@ -272,31 +269,31 @@ void EffectivePotentialES::computePhi (
             amrex::EBFArrayBoxFactory const *
         > factories;
         for (int lev = 0; lev < num_levels; ++lev) {
-            factories.push_back(&warpx.fieldEBFactory(lev));
+            factories.push_back(&data().fieldEBFactory(lev));
         }
         eb_farray_box_factory = factories;
 #endif
     }
 
     // grab sigma from the multifab registry
-    auto* sigma = warpx.GetMultiFabRegister().get(warpx::fields::FieldType::effective_potential_sigma, 0);
+    auto* sigma = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(warpx::fields::FieldType::effective_potential_sigma, 0);
 
     ablastr::fields::computeEffectivePotentialPhi(
         sorted_rho,
         sorted_phi,
         *sigma,
         mlmg_options,
-        warpx.Geom(),
-        warpx.DistributionMap(),
-        warpx.boxArray(),
+        data().geomAll(),
+        data().distributionMapAll(),
+        data().boxArrayAll(),
         config().grid_type(),
         false,
         EB::enabled(),
         config().do_single_precision_comms(),
-        warpx.refRatio(),
+        data().refRatioAll(),
         post_phi_calculation,
         *m_poisson_boundary_handler,
-        warpx.gett_new(0),
+        data().t_new(0),
         eb_farray_box_factory
     );
 }
