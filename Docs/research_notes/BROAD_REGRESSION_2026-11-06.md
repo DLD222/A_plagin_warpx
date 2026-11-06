@@ -231,7 +231,12 @@ LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH" \
 ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
-## 12. 待办
+## 12. 最终复验
+
+A5 完成后的默认/FFT/openPMD 数字保持不变；定向修改功能 27/27、插件 7/7、ASAN 9/9。
+详见 [VALIDATION_2026-11-06_FINAL.md](VALIDATION_2026-11-06_FINAL.md)。
+
+## 13. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；
