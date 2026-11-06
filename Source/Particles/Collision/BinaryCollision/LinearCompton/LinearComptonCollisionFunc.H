@@ -59,6 +59,12 @@ public:
      */
     LinearComptonCollisionFunc (
             const std::string& collision_name,
+            const CollisionSpeciesTable& /*table*/,
+            const bool isSameSpecies) :
+        LinearComptonCollisionFunc(collision_name, nullptr, isSameSpecies) {}
+
+    LinearComptonCollisionFunc (
+            const std::string& collision_name,
             MultiParticleContainer const * const /*mypc*/,
             const bool isSameSpecies) :
         m_isSameSpecies(isSameSpecies)

@@ -59,6 +59,12 @@ public:
      */
     LinearBreitWheelerCollisionFunc (
             const std::string& collision_name,
+            const CollisionSpeciesTable& /*table*/,
+            const bool isSameSpecies) :
+        LinearBreitWheelerCollisionFunc(collision_name, nullptr, isSameSpecies) {}
+
+    LinearBreitWheelerCollisionFunc (
+            const std::string& collision_name,
             MultiParticleContainer const * const /*mypc*/,
             const bool isSameSpecies) :
         m_isSameSpecies{isSameSpecies}

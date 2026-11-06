@@ -343,6 +343,9 @@ public:
     NoParticleCreationFunc () = default;
 
     NoParticleCreationFunc (const std::string& /*collision_name*/,
+                            const CollisionSpeciesTable& /*table*/) {}
+
+    NoParticleCreationFunc (const std::string& /*collision_name*/,
                             MultiParticleContainer const * const /*mypc*/) {}
 
     AMREX_INLINE

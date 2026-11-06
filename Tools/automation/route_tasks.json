@@ -2122,12 +2122,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f5",
+   "phase": "A3",
+   "title": "BinaryCollision 切到 SpeciesTable",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f4"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/BinaryCollision.H"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "BinaryCollision 用 table 构造；doCollisions 不再用 mypc；碰撞通过",
+   "note": "旧 mypc 入口保留委托",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f4"
+    "A3.3b8f5"
    ],
    "status": "pending",
    "outputs": [

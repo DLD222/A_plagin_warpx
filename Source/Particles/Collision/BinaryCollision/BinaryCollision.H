@@ -90,18 +90,22 @@ public:
      *
      */
     BinaryCollision (const std::string& collision_name, MultiParticleContainer const * const mypc)
-        : CollisionBase(collision_name)
+        : BinaryCollision(collision_name, CollisionSpeciesTable(*mypc))
+    {}
+
+    BinaryCollision (const std::string& collision_name, const CollisionSpeciesTable& table)
+        : CollisionBase(collision_name), m_species(table)
     {
         using namespace amrex::literals;
         if(m_species_names.size() != 2) {
             WARPX_ABORT_WITH_MESSAGE("Binary collision " + collision_name + " must have exactly two species.");
         }
 
-        const CollisionType collision_type = BinaryCollisionUtils::get_collision_type(collision_name, mypc);
+        const CollisionType collision_type = BinaryCollisionUtils::get_collision_type(collision_name, table);
 
         m_isSameSpecies = (m_species_names[0] == m_species_names[1]);
 
-        m_binary_collision_functor = CollisionFunctor(collision_name, mypc, m_isSameSpecies);
+        m_binary_collision_functor = CollisionFunctor(collision_name, table, m_isSameSpecies);
 
         m_use_global_debye_length = m_binary_collision_functor.use_global_debye_length();
 
@@ -166,7 +170,7 @@ public:
             WARPX_ABORT_WITH_MESSAGE( "Binary collision " + collision_name +
                 " does not produce species. Thus, `product_species` should not be specified in the input script." );
         }
-        m_copy_transform_functor = CopyTransformFunctor(collision_name, mypc);
+        m_copy_transform_functor = CopyTransformFunctor(collision_name, table);
     }
 
     ~BinaryCollision () override = default;
@@ -193,8 +197,9 @@ public:
     {
         amrex::ignore_unused(cur_time);
 
-        auto& species1 = mypc->GetParticleContainerFromName(m_species_names[0]);
-        auto& species2 = mypc->GetParticleContainerFromName(m_species_names[1]);
+        amrex::ignore_unused(mypc);
+        auto& species1 = *m_species.get(m_species_names[0]);
+        auto& species2 = *m_species.get(m_species_names[1]);
 
         // In case of particle creation, create the necessary vectors
         const int n_product_species = m_product_species.size();
@@ -205,7 +210,7 @@ public:
         amrex::Vector<SmartCopy> copy_species2;
         for (int i = 0; i < n_product_species; i++)
         {
-            auto& product = mypc->GetParticleContainerFromName(m_product_species[i]);
+            auto& product = *m_species.get(m_product_species[i]);
             product.defineAllParticleTiles();
             product_species_vector.push_back(&product);
             // Although the copy factories are not explicitly reused past this point, we need to
@@ -1520,6 +1525,8 @@ public:
     }
 
 private:
+
+    CollisionSpeciesTable m_species;
 
     bool m_isSameSpecies;
     bool m_have_product_species;
