@@ -119,6 +119,13 @@ int main (int argc, char* argv[])
           "FieldSchema ncomp matches register");
     check(WarpX::GetInstance().fieldSchema().contains("current_fp_z"),
           "FieldSchema declares base J field");
+
+    if (particles_mode) {
+        check(runtime.bus().has_species("electrons"), "DataBus registers electrons");
+        const auto e = runtime.bus().species("electrons");
+        check_eq(e.name(), std::string("electrons"), "SpeciesHandle keeps name");
+        check(e.numberOfParticles() > 0, "SpeciesHandle reports particles");
+    }
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 
     // RuntimeConfig must be a live view, not a value snapshot (audit D4).

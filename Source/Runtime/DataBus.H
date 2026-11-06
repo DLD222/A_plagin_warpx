@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_DATABUS_H_
 
 #include "Runtime/FieldSpec.H"
+#include "Runtime/SpeciesSpec.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 
@@ -53,9 +54,14 @@ public:
      */
     amrex::MultiFab* alias (const std::string& dst, const std::string& src, int dir, int lev);
 
+    void register_species (SpeciesSpec spec, WarpXParticleContainer* pc);
+    [[nodiscard]] bool has_species (const std::string& name) const;
+    [[nodiscard]] SpeciesHandle species (const std::string& name) const;
+
 private:
     ablastr::fields::MultiFabRegister& m_fields;
     std::map<std::string, FieldSpec> m_specs;
+    std::map<std::string, SpeciesHandle> m_species;
 };
 
 } // namespace warpx::runtime

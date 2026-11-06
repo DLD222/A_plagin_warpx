@@ -5,6 +5,7 @@ foreach(D IN LISTS WarpX_DIMS)
         Runtime.cpp
         DataBus.cpp
     LevelResources.cpp
+    SpeciesSpec.cpp
         WarpXHostServices.cpp
         RuntimeConfig.cpp
         FrameState.cpp

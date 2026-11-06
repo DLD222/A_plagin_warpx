@@ -11,6 +11,7 @@
 #include "Runtime/DataBus.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
+#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include <stdexcept>
@@ -68,6 +69,17 @@ Runtime::initialize ()
         throw std::runtime_error("Runtime::initialize() called after finalize()");
     }
     m_warpx->InitData();
+
+    auto& mpc = m_warpx->GetPartContainer();
+    for (const auto& name : mpc.GetSpeciesNames()) {
+        auto& pc = mpc.GetParticleContainerFromName(name);
+        warpx::runtime::SpeciesSpec spec;
+        spec.name = name;
+        spec.charge = pc.getCharge();
+        spec.mass = pc.getMass();
+        m_bus->register_species(spec, &pc);
+    }
+
     m_initialized = true;
     sync_state();
 }

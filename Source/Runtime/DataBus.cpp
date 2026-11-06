@@ -7,6 +7,8 @@
  */
 #include "Runtime/DataBus.H"
 
+#include "Particles/WarpXParticleContainer.H"
+
 #include <stdexcept>
 
 namespace warpx::runtime
@@ -80,6 +82,28 @@ DataBus::alias (const std::string& dst, const std::string& src, int dir, int lev
         throw std::runtime_error("DataBus::alias: missing source field " + src);
     }
     return m_fields.alias_init(dst, src, ablastr::fields::Direction{dir}, lev);
+}
+
+void
+DataBus::register_species (SpeciesSpec spec, WarpXParticleContainer* pc)
+{
+    m_species.insert_or_assign(spec.name, SpeciesHandle(spec.name, pc));
+}
+
+bool
+DataBus::has_species (const std::string& name) const
+{
+    return m_species.find(name) != m_species.end();
+}
+
+SpeciesHandle
+DataBus::species (const std::string& name) const
+{
+    const auto it = m_species.find(name);
+    if (it == m_species.end()) {
+        throw std::runtime_error("DataBus::species: unknown species " + name);
+    }
+    return it->second;
 }
 
 } // namespace warpx::runtime
