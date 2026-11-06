@@ -51,3 +51,7 @@ if(TARGET lib_2d)
     add_test(NAME plugin_loader_invalid_desc_2d
              COMMAND test_plugin_loader_reject_2d $<TARGET_FILE:warpx_invalid_desc_plugin>)
 endif()
+
+add_executable(test_plugin_loader_missing_file_2d test_plugin_loader_missing_file.cpp)
+target_link_libraries(test_plugin_loader_missing_file_2d PRIVATE lib_2d ${CMAKE_DL_LIBS})
+add_test(NAME plugin_loader_missing_file_2d COMMAND test_plugin_loader_missing_file_2d)
