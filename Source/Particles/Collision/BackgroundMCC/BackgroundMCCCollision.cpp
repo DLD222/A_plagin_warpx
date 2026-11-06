@@ -28,8 +28,14 @@
 
 #include <string>
 
-BackgroundMCCCollision::BackgroundMCCCollision (std::string const& collision_name)
-    : CollisionBase(collision_name)
+BackgroundMCCCollision::BackgroundMCCCollision (std::string const& collision_name,
+                                                const CollisionSpeciesTable& species,
+                                                const warpx::runtime::RuntimeData& data,
+                                                const warpx::runtime::RuntimeConfig& config)
+    : CollisionBase(collision_name),
+      m_species(species),
+      m_data(&data),
+      m_config(&config)
 {
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_species_names.size() == 1,
                                      "Background MCC must have exactly one species.");
@@ -195,16 +201,17 @@ BackgroundMCCCollision::get_nu_max(amrex::Vector<ScatteringProcess> const& mcc_p
 void
 BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
 {
+    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("BackgroundMCCCollision::doCollisions()");
     using namespace amrex::literals;
 
-    auto& species1 = mypc->GetParticleContainerFromName(m_species_names[0]);
+    auto& species1 = *m_species.get(m_species_names[0]);
     // this is a very ugly hack to have species2 be a reference and be
     // defined in the scope of doCollisions
-    auto& species2 = (
+    auto& species2 = *(
                       (m_species_names.size() == 2) ?
-                      mypc->GetParticleContainerFromName(m_species_names[1]) :
-                      mypc->GetParticleContainerFromName(m_species_names[0])
+                      m_species.get(m_species_names[1]) :
+                      m_species.get(m_species_names[0])
                       );
 
     if (!init_flag) {
@@ -268,7 +275,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
     auto const flvl = species1.finestLevel();
     for (int lev = 0; lev <= flvl; ++lev) {
 
-        auto *cost = mypc->data().costs(lev);
+        auto *cost = m_data->costs(lev);
 
         // firstly loop over particles box by box and do all particle conserving
         // scattering
@@ -276,7 +283,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         for (WarpXParIter pti(species1, lev); pti.isValid(); ++pti) {
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -284,7 +291,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, Mult
 
             doBackgroundCollisionsWithinTile(pti, cur_time);
 
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;

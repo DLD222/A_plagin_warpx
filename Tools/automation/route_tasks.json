@@ -1989,12 +1989,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8d",
+   "phase": "A3",
+   "title": "BackgroundMCCCollision 改用 species table/data/config",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BackgroundMCC/BackgroundMCCCollision.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "MCC 内部不再用 mypc；碰撞回归通过",
+   "note": "补 GetAndSetPosition include",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8c"
+    "A3.3b8d"
    ],
    "status": "pending",
    "outputs": [

@@ -8,6 +8,7 @@
 #define WARPX_PARTICLES_COLLISION_IMPACT_IONIZATION_H_
 
 #include "Particles/Collision/ScatteringProcess.H"
+#include "Particles/Pusher/GetAndSetPosition.H"
 
 #include "Particles/Algorithms/KineticEnergy.H"
 #include "Utils/ParticleUtils.H"

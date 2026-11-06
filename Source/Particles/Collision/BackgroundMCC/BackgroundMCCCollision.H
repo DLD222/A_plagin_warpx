@@ -7,7 +7,10 @@
 #ifndef WARPX_PARTICLES_COLLISION_BACKGROUNDMCCCOLLISION_H_
 #define WARPX_PARTICLES_COLLISION_BACKGROUNDMCCCOLLISION_H_
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Particles/WarpXParticleContainer.H"
+
+namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
 #include "Particles/Collision/ScatteringProcess.H"
 
@@ -23,7 +26,10 @@ class BackgroundMCCCollision final
     : public CollisionBase
 {
 public:
-    explicit BackgroundMCCCollision (std::string const& collision_name);
+    BackgroundMCCCollision (std::string const& collision_name,
+                            const CollisionSpeciesTable& species,
+                            const warpx::runtime::RuntimeData& data,
+                            const warpx::runtime::RuntimeConfig& config);
 
     ~BackgroundMCCCollision () override = default;
 
@@ -69,6 +75,10 @@ public:
                                  );
 
 private:
+
+    CollisionSpeciesTable m_species;
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+    const warpx::runtime::RuntimeConfig* m_config = nullptr;
 
     amrex::Vector<ScatteringProcess> m_scattering_processes;
     amrex::Vector<ScatteringProcess> m_ionization_processes;

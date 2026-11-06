@@ -66,7 +66,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
             m_use_global_debye_length |= allcollisions[i]->use_global_debye_length();
         }
         else if (type == "background_mcc") {
-            allcollisions[i] = std::make_unique<BackgroundMCCCollision>(collision_names[i]);
+            allcollisions[i] = std::make_unique<BackgroundMCCCollision>(collision_names[i], m_species, mypc->data(), mypc->config());
         }
         else if (type == "pulsed_decay") {
             allcollisions[i] = std::make_unique<PulsedDecay>(collision_names[i], m_species);
