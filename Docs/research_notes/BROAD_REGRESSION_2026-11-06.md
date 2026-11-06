@@ -72,7 +72,21 @@ tol_energy = 1e-8
 说明不是 push/finalize/field-solve handler 路径导致。该组作为独立问题继续排查，
 不能算环境缺件，也不能算通过。
 
-## 4. 本轮修复的真实 bug
+## 4. 本轮发现并修复的隐患
+
+### 4.1 StagePlan 实际未走 handler
+
+`OneStep_nosub` 的 StagePlan 分发仍直接调用 `OneStep_PushParticles/Finalize/FieldSolve`，
+没有调用 `RunPushStage/RunFinalizeStage/RunFieldSolveStage`，因此“插件 handler 已生效”
+在修复前并不成立。已改为真正走 `Run*Stage`。
+
+### 4.2 handler 忽略 StageContext 时间
+
+`PicPushHandler/PicFieldSolveHandler` 原从 `RuntimeData` 取时间，已改为 `ctx.time/dt/step`。
+
+### 4.3 用户属性初始化策略
+
+
 
 `SmartUtils::getPolicies` 对用户自定义粒子属性（如 `orig_z`）直接 abort：
 
@@ -101,7 +115,23 @@ test_2d_qed_breit_wheeler
 test_2d_qed_quantum_sync
 ```
 
-## 5. 定量结果（与解析/参考值）
+## 5. Handler A/B 逐位验证
+
+新增调试开关：
+
+```bash
+WARPX_DISABLE_PLUGIN_HANDLERS=1
+```
+
+在 `OMP_NUM_THREADS=1` + 固定 `warpx.random_seed` 下：
+
+- Langmuir Yee：Ex/Ey/Ez/Bx/By/Bz/jx/jy/jz 全部 `array_equal`；
+- Langmuir PSATD：Ex/Ey/Ez/jx/jy/jz 全部 `array_equal`；
+- 2D collision：4 个输出文件所有场 `maxdiff = 0.0`。
+
+详见 [AB_HANDLER_VERIFICATION.md](AB_HANDLER_VERIFICATION.md)。
+
+## 6. 定量结果（与解析/参考值）
 
 | 算例 | 量 | 结果 |
 |---|---|---|
@@ -114,7 +144,7 @@ test_2d_qed_quantum_sync
 | | Ey | **0.073**（tol 0.165） |
 | `test_2d_collision_xz` | 拟合残差 | **4.66e-4**（tol 1e-3） |
 
-## 6. ASAN
+## 7. ASAN
 
 ```bash
 ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
@@ -127,7 +157,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 
 无 use-after-free / 越界。
 
-## 7. 结论
+## 8. 结论
 
 - 官方 2D 算例绝大多数通过；
 - 剩余失败已分类为 **openPMD 未编译** 与 **warpx-data 缺失**，不是本架构改动引入；
@@ -135,7 +165,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 - Galilean PSATD 的 analysis 异常仍需单独排查，不能隐藏；
 - 该结果不能替代 A/B 逐位门。
 
-## 8. 复现命令
+## 9. 复现命令
 
 ```bash
 # 默认
@@ -147,9 +177,9 @@ LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH" \
 ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
-## 9. 待办
+## 10. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；
 3. Galilean PSATD analysis 的 `energy_ref` 比值异常，需与上游基线对比；
-4. 全量 A/B 逐位门仍属于 A5。
+4. 全量 A/B 逐位门仍属于 A5；本轮只覆盖 Yee/PSATD/碰撞三个代表路径。
