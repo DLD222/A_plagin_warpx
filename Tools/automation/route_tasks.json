@@ -2632,18 +2632,22 @@
   {
    "id": "A4.2",
    "phase": "A4",
-   "title": "SpeciesRegistry（粒子/流体不透明句柄）",
+   "title": "SpeciesRegistry（粒子不透明句柄）",
    "kind": "refactor",
    "depends": [
     "A4.1"
    ],
    "status": "pending",
-   "outputs": [],
-   "effort_days": 12.0,
+   "outputs": [
+    "Source/Runtime/SpeciesRegistry.H",
+    "Source/Runtime/DataBus.H"
+   ],
+   "effort_days": 2.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "统一物种创建/迁移",
-   "note": ""
+   "acceptance": "DataBus 用 SpeciesRegistry；重复物种元数据冲突；runtime 5/7",
+   "note": "tile 视图仍待 A3.3b",
+   "verify_command": null
   },
   {
    "id": "A4.3",

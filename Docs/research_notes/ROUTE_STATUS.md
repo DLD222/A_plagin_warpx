@@ -139,7 +139,7 @@
 | A3.4j | A3 | done | A3.4i | FieldSchema 冲突比较补全 checkpoint/moving_window/unit |
 | A3.4 | A3 | pending | A3.4b | A3 回归门 |
 | A4.1 | A4 | done | A3.4j | FieldRegistry（字符串键 + schema） |
-| A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |
+| A4.2 | A4 | done | A4.1 | SpeciesRegistry（粒子不透明句柄） |
 | A4.3 | A4 | pending | A4.1 | MaterialRegistry（系数 bundle） |
 | A4.4 | A4 | pending | A4.1,A4.2,A4.3 | schema 驱动 checkpoint/restart（兼容旧格式） |
 | A4.5 | A4 | pending | A4.4 | A4 回归门（重启逐位） |

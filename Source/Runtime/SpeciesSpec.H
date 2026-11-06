@@ -44,6 +44,7 @@ public:
 private:
     friend class DataBus;
     friend class CollisionSpeciesTable;
+    friend class SpeciesRegistry;
     SpeciesHandle (std::string name, WarpXParticleContainer* pc)
         : m_name(std::move(name)), m_pc(pc) {}
 

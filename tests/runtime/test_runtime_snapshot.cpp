@@ -182,6 +182,23 @@ int main (int argc, char* argv[])
         check(e.numberOfParticles() > 0, "SpeciesHandle reports particles");
         check_real(e.charge(), -PhysConst::q_e, "SpeciesHandle charge");
         check_real(e.mass(), PhysConst::m_e, "SpeciesHandle mass");
+        check(runtime.bus().speciesRegistry().contains("electrons"),
+              "SpeciesRegistry stores electrons");
+        check_eq(runtime.bus().speciesRegistry().size(),
+                 runtime.bus().speciesRegistry().names().size(),
+                 "SpeciesRegistry size matches names");
+
+        warpx::runtime::SpeciesSpec bad;
+        bad.name = "electrons";
+        bad.charge = PhysConst::q_e;
+        bad.mass = PhysConst::m_e;
+        bool threw = false;
+        try {
+            runtime.bus().register_species(bad, nullptr);
+        } catch (const std::runtime_error&) {
+            threw = true;
+        }
+        check(threw, "SpeciesRegistry rejects conflicting charge/mass");
     }
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 

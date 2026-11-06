@@ -9,7 +9,7 @@
 #define WARPX_RUNTIME_DATABUS_H_
 
 #include "Runtime/FieldRegistry.H"
-#include "Runtime/SpeciesSpec.H"
+#include "Runtime/SpeciesRegistry.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 
@@ -57,15 +57,16 @@ public:
      */
     amrex::MultiFab* alias (const std::string& dst, const std::string& src, int dir, int lev);
 
-    void register_species (SpeciesSpec spec, WarpXParticleContainer* pc);
+    void register_species (const SpeciesSpec& spec, WarpXParticleContainer* pc);
     [[nodiscard]] bool has_species (const std::string& name) const;
     [[nodiscard]] SpeciesHandle species (const std::string& name) const;
+    [[nodiscard]] const SpeciesRegistry& speciesRegistry () const { return m_species; }
 
 private:
     ablastr::fields::MultiFabRegister& m_fields;
     FieldRegistry m_owned_registry;
     FieldRegistry* m_registry = &m_owned_registry;
-    std::map<std::string, SpeciesHandle> m_species;
+    SpeciesRegistry m_species;
 };
 
 } // namespace warpx::runtime
