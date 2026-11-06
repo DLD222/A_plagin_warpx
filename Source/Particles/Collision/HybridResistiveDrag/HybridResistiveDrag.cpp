@@ -24,16 +24,21 @@
 #include <cmath>
 #include <string>
 
-HybridResistiveDrag::HybridResistiveDrag (std::string const& collision_name)
-    : CollisionBase(collision_name)
+HybridResistiveDrag::HybridResistiveDrag (std::string const& collision_name,
+                                          const CollisionSpeciesTable& species,
+                                          const warpx::runtime::RuntimeData& data,
+                                          const warpx::runtime::RuntimeConfig& config)
+    : CollisionBase(collision_name),
+      m_species(species),
+      m_data(&data),
+      m_config(&config)
 {
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(m_species_names.size() == 1,
         "hybrid_resistive_drag must have exactly one species.");
 }
 
 void
-HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
-                                   MultiParticleContainer* mypc)
+HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
 {
     ABLASTR_PROFILE("HybridResistiveDrag::doCollisions()");
     using namespace amrex::literals;
@@ -54,15 +59,14 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
     // the ions through the resistive terms of the particle-push E-field (see
     // HybridPICSolveE and the class docstring).
 
-    auto & warpx = WarpX::GetInstance();
-    auto & species = mypc->GetParticleContainerFromName(m_species_names[0]);
+    auto & species = *m_species.get(m_species_names[0]);
 
-    auto const * hybrid_model = warpx.get_pointer_HybridPICModel();
+    auto const * hybrid_model = m_data->hybridPICModel();
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(hybrid_model != nullptr,
         "HybridResistiveDrag requires the hybrid-PIC solver to be active.");
 
     auto const eta_func = hybrid_model->m_eta;
-    auto const t_now    = warpx.gett_new(0);
+    auto const t_now    = m_data->t_new(0);
 
     // Optional per-species resistivity overlay: the drag rate uses the same
     // eta_s_eff = eta_global + eta_s_per as Ohm's law and the Joule source.
@@ -81,30 +85,30 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
     // V_s/V_e are noise rather than physical bulk velocities.
     amrex::Real const rho_floor = PhysConst::q_e * hybrid_model->m_n_floor;
 
-    int const nox = mypc->config().nox();
-    int const n_rz_azimuthal_modes = mypc->config().n_rz_azimuthal_modes();
-    bool const galerkin_interpolation = mypc->config().galerkin_interpolation();
+    int const nox = m_config->nox();
+    int const n_rz_azimuthal_modes = m_config->n_rz_azimuthal_modes();
+    bool const galerkin_interpolation = m_config->galerkin_interpolation();
 
     for (int lev = 0; lev <= species.finestLevel(); ++lev) {
-        ablastr::fields::VectorField Ve_fp  = warpx.m_fields.get_alldirs("Ve_fp", lev);
+        ablastr::fields::VectorField Ve_fp  = const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get_alldirs("Ve_fp", lev);
         ablastr::fields::VectorField Vs_fp  =
-            warpx.m_fields.get_alldirs("Vs_fp_" + m_species_names[0], lev);
-        ablastr::fields::VectorField B_fp   = warpx.m_fields.get_alldirs(FieldType::Bfield_fp, lev);
+            const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get_alldirs("Vs_fp_" + m_species_names[0], lev);
+        ablastr::fields::VectorField B_fp   = const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get_alldirs(FieldType::Bfield_fp, lev);
         ablastr::fields::VectorField J_fp   =
-            warpx.m_fields.get_alldirs(FieldType::hybrid_current_fp_plasma, lev);
+            const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get_alldirs(FieldType::hybrid_current_fp_plasma, lev);
         // Per-species J_s and rho_s, plus T_e (nodal); only read in the
         // kernel when has_eta_per is true.
         ablastr::fields::VectorField Js_fp  =
-            warpx.m_fields.get_alldirs("current_fp_" + m_species_names[0], lev);
-        amrex::MultiFab const & rho_fp      = *warpx.m_fields.get(FieldType::rho_fp, lev);
+            const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get_alldirs("current_fp_" + m_species_names[0], lev);
+        amrex::MultiFab const & rho_fp      = *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get(FieldType::rho_fp, lev);
         amrex::MultiFab const & rhos_fp     =
-            *warpx.m_fields.get("rho_fp_" + m_species_names[0], lev);
+            *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get("rho_fp_" + m_species_names[0], lev);
         amrex::MultiFab const & Te_fp       =
-            *warpx.m_fields.get(FieldType::hybrid_electron_temperature_fp, lev);
+            *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get(FieldType::hybrid_electron_temperature_fp, lev);
 
-        amrex::XDim3 const dinv = mypc->data().invCellSize(lev);
-        auto const dxi = warpx.Geom(lev).InvCellSizeArray();
-        auto const plo = warpx.Geom(lev).ProbLoArray();
+        amrex::XDim3 const dinv = m_data->invCellSize(lev);
+        auto const dxi = m_data->geom(lev).InvCellSizeArray();
+        auto const plo = m_data->geom(lev).ProbLoArray();
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
@@ -112,7 +116,7 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt,
         for (WarpXParIter pti(species, lev); pti.isValid(); ++pti)
         {
             amrex::Box const & box = pti.validbox();
-            amrex::XDim3 const xyzmin = mypc->data().lowerCorner(box, lev);
+            amrex::XDim3 const xyzmin = m_data->lowerCorner(box, lev);
             amrex::Dim3 const lo = amrex::lbound(box);
 
             auto const Vex_arr  = Ve_fp[0]->const_array(pti);

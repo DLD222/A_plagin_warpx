@@ -95,9 +95,8 @@ BackgroundStopping::BackgroundStopping (std::string const& collision_name,
 }
 
 void
-BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
+BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt)
 {
-    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("BackgroundStopping::doCollisions()");
     using namespace amrex::literals;
 

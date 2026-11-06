@@ -48,7 +48,7 @@ public:
      * @param mypc Container of species involved
      *
      */
-    void doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc) override;
+    void doCollisions (amrex::Real cur_time, amrex::Real dt) override;
 
     /** Perform the stopping calculation within a tile for stopping on electrons
      *

@@ -2160,12 +2160,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8g",
+   "phase": "A3",
+   "title": "CollisionBase/Handler 去 mypc 参数 + HybridResistiveDrag 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f5"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/CollisionBase.H",
+    "Source/Particles/Collision/HybridResistiveDrag/HybridResistiveDrag.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "model doCollisions 无 mypc；Hybrid 用 table/data/config；碰撞通过",
+   "note": "CollisionHandler 仍存 m_mypc 供 RZ/QED/debye",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f"
+    "A3.3b8g"
    ],
    "status": "pending",
    "outputs": [

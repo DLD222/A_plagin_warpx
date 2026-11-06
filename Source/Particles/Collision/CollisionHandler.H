@@ -32,11 +32,12 @@ public:
     [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
 
     /* Perform all of the collisions */
-    void doCollisions (int step, amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc);
+    void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
 
 private:
 
     CollisionSpeciesTable m_species;
+    MultiParticleContainer* m_mypc = nullptr;
 
     amrex::Vector<std::string> collision_names;
     amrex::Vector<std::string> collision_types;

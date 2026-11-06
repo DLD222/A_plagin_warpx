@@ -124,7 +124,7 @@ PulsedDecay::PulsedDecay (std::string const& collision_name, const CollisionSpec
 }
 
 void
-PulsedDecay::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
+PulsedDecay::doCollisions (amrex::Real cur_time, amrex::Real dt)
 {
     ABLASTR_PROFILE("PulsedDecay::doCollisions()");
 

@@ -199,9 +199,8 @@ BackgroundMCCCollision::get_nu_max(amrex::Vector<ScatteringProcess> const& mcc_p
 }
 
 void
-BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
+BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt)
 {
-    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("BackgroundMCCCollision::doCollisions()");
     using namespace amrex::literals;
 

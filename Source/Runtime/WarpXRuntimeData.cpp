@@ -45,6 +45,7 @@ bool WarpXRuntimeData::useVerboncoeurAxisCorrection () const { return m_warpx.Us
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::vGalilean () const { return m_warpx.m_v_galilean; }
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::dtAll () const { return m_warpx.getdt(); }
 const AcceleratorLattice& WarpXRuntimeData::acceleratorLattice (int lev) const { return m_warpx.get_accelerator_lattice(lev); }
+HybridPICModel* WarpXRuntimeData::hybridPICModel () const { return m_warpx.get_pointer_HybridPICModel(); }
 const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const { return m_warpx.GetEBIndexSpace(lev); }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return m_warpx.nci_godfrey_filter_exeybz; }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return m_warpx.nci_godfrey_filter_bxbyez; }

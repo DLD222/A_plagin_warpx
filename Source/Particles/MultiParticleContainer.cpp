@@ -1225,7 +1225,7 @@ void
 MultiParticleContainer::doCollisions ( int step, Real cur_time, amrex::Real dt )
 {
     ABLASTR_PROFILE("MultiParticleContainer::doCollisions()");
-    collisionhandler->doCollisions(step, cur_time, dt, this);
+    collisionhandler->doCollisions(step, cur_time, dt);
 }
 
 void MultiParticleContainer::doResampling (

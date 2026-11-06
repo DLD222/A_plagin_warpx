@@ -7,7 +7,10 @@
 #ifndef WARPX_PARTICLES_COLLISION_HYBRIDRESISTIVEDRAG_H_
 #define WARPX_PARTICLES_COLLISION_HYBRIDRESISTIVEDRAG_H_
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Particles/WarpXParticleContainer.H"
+
+namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
 
 #include <AMReX_REAL.H>
@@ -38,7 +41,10 @@ class HybridResistiveDrag final
     : public CollisionBase
 {
 public:
-    explicit HybridResistiveDrag (const std::string& collision_name);
+    HybridResistiveDrag (const std::string& collision_name,
+                         const CollisionSpeciesTable& species,
+                         const warpx::runtime::RuntimeData& data,
+                         const warpx::runtime::RuntimeConfig& config);
 
     ~HybridResistiveDrag () override = default;
 
@@ -47,8 +53,12 @@ public:
     HybridResistiveDrag ( HybridResistiveDrag&& )                  = delete;
     HybridResistiveDrag& operator= ( HybridResistiveDrag&& )       = delete;
 
-    void doCollisions (amrex::Real cur_time, amrex::Real dt,
-                       MultiParticleContainer* mypc) override;
+    void doCollisions (amrex::Real cur_time, amrex::Real dt) override;
+
+private:
+    CollisionSpeciesTable m_species;
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+    const warpx::runtime::RuntimeConfig* m_config = nullptr;
 };
 
 #endif // WARPX_PARTICLES_COLLISION_HYBRIDRESISTIVEDRAG_H_

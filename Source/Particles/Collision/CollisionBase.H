@@ -24,7 +24,7 @@ public:
 
     virtual void AllocData () {}
 
-    virtual void doCollisions (amrex::Real /*cur_time*/, amrex::Real /*dt*/, MultiParticleContainer* /*mypc*/ ){}
+    virtual void doCollisions (amrex::Real /*cur_time*/, amrex::Real /*dt*/ ){}
 
     CollisionBase(CollisionBase const &) = delete;
     CollisionBase(CollisionBase &&) = delete;

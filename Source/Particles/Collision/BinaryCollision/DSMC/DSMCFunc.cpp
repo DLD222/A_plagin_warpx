@@ -20,14 +20,14 @@
  */
 DSMCFunc::DSMCFunc (
     const std::string& collision_name,
-    const CollisionSpeciesTable& /*table*/,
-    const bool isSameSpecies ): DSMCFunc(collision_name, nullptr, isSameSpecies)
+    MultiParticleContainer const * const mypc,
+    const bool isSameSpecies ): DSMCFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies)
 {
 }
 
 DSMCFunc::DSMCFunc (
     const std::string& collision_name,
-    [[maybe_unused]] MultiParticleContainer const * const mypc,
+    const CollisionSpeciesTable& table,
     const bool isSameSpecies ): m_isSameSpecies{isSameSpecies}
 {
     using namespace amrex::literals;
@@ -60,7 +60,7 @@ DSMCFunc::DSMCFunc (
             amrex::Vector<std::string> product_species_names;
             pp_collision_name.getarr("product_species", product_species_names);
             // Check that the charge is consistent with an electron species
-            auto& species1 = mypc->GetParticleContainerFromName(product_species_names[0]);
+            auto& species1 = *table.get(product_species_names[0]);
             if( species1.getCharge() >= 0._prt ) {
                 amrex::Abort("The first species in " + collision_name + ".product_species must be an electron.");
             }
@@ -74,12 +74,12 @@ DSMCFunc::DSMCFunc (
             // This check verifies that the user did not swap the product_species in the input file.
             amrex::Vector<std::string> species_names;
             pp_collision_name.getarr("species", species_names);
-            auto& species1 = mypc->GetParticleContainerFromName(species_names[0]);
-            auto& species2 = mypc->GetParticleContainerFromName(species_names[1]);
+            auto& species1 = *table.get(species_names[0]);
+            auto& species2 = *table.get(species_names[1]);
             amrex::Vector<std::string> product_species_name;
             pp_collision_name.getarr("product_species", product_species_name);
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             amrex::ParticleReal constexpr q_e = PhysConst::q_e;
             const amrex::ParticleReal delta_charge1 = species1.getCharge() - product_species1.getCharge();
             const amrex::ParticleReal delta_charge2 = species2.getCharge() - product_species2.getCharge();

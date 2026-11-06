@@ -37,7 +37,8 @@
 CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
     : m_species(*mypc, [mypc](const std::string& name) {
           const_cast<MultiParticleContainer*>(mypc)->CalculateNuei(name);
-      })
+      }),
+      m_mypc(const_cast<MultiParticleContainer*>(mypc))
 {
 
     // Read in collision input
@@ -77,7 +78,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
             allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i], m_species, mypc->data(), mypc->config());
         }
         else if (type == "hybrid_resistive_drag") {
-            allcollisions[i] = std::make_unique<HybridResistiveDrag>(collision_names[i]);
+            allcollisions[i] = std::make_unique<HybridResistiveDrag>(collision_names[i], m_species, mypc->data(), mypc->config());
         }
         else if (type == "dsmc") {
             allcollisions[i] =
@@ -137,7 +138,7 @@ void CollisionHandler::AllocData ()
  * @param mypc MultiParticleContainer calling this method
  *
  */
-void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
+void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Real dt)
 {
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
@@ -150,22 +151,22 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
      * the momentum of the macroparticles to the curvilinear frame, equivalent to the x-axis.
      * (This is only valid if we use only the m=0 azimuthal mode in the simulation;
      * there is a corresponding assert statement at initialization.) */
-    mypc->TransformMomentumToCurvilinear(/*forward*/true);
+    m_mypc->TransformMomentumToCurvilinear(/*forward*/true);
 #endif
 
 #ifdef WARPX_QED
     // For QED incoherent processes (e.g. Bethe-Heitler, Landau-Lifschitz), the process is mediated by virtual photons.
     // The virtual photons are newly generated here and participate in the collisions.
     // Here, the virtual photons are regenerated from scratch, i.e. they are overwritten by new ones at each time step.
-    if(mypc->nSpecies() > 0) {
-        collision::binarycollision::virtualphotons::GenerateVirtualPhotons(mypc);
+    if(m_mypc->nSpecies() > 0) {
+        collision::binarycollision::virtualphotons::GenerateVirtualPhotons(m_mypc);
     }
 #endif
 
     if (m_use_global_debye_length) {
         // This will calculate the temperature, Vbar, and particle number that are needed by
         // the various collision algorithms
-        mypc->GenerateGlobalDebyeLength();
+        m_mypc->GenerateGlobalDebyeLength();
     }
 
     for (auto& collision : allcollisions) {
@@ -181,20 +182,20 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
             const amrex::Real dt_sub = dt / ndt;
             for (int i_sub = 0; i_sub < ndt; ++i_sub) {
                 const amrex::Real sub_time = cur_time + i_sub * dt_sub;
-                collision->doCollisions(sub_time, dt_sub, mypc);
+                collision->doCollisions(sub_time, dt_sub);
             }
         } else {
             // Supercycle: run once every ndt PIC steps (counted from start_step),
             // with dt_collision = dt * ndt
             if ( (step - start_step) % ndt == 0 ) {
-                collision->doCollisions(cur_time, dt*ndt, mypc);
+                collision->doCollisions(cur_time, dt*ndt);
             }
         }
     }
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     // Undo the rotation above
-    mypc->TransformMomentumToCurvilinear(/*forward*/false);
+    m_mypc->TransformMomentumToCurvilinear(/*forward*/false);
 #endif
 
 }

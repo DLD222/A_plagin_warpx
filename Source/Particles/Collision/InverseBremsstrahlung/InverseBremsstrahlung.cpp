@@ -60,9 +60,8 @@ InverseBremsstrahlung::InverseBremsstrahlung (std::string const& collision_name,
 }
 
 void
-InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, MultiParticleContainer* mypc)
+InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
 {
-    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("InverseBremsstrahlung::doCollisions()");
     using namespace amrex::literals;
 
