@@ -2027,12 +2027,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f",
+   "phase": "A3",
+   "title": "BinaryCollision functor 链去 MultiParticleContainer",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8e"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3.3B_BINARY_DECOUPLING.md"
+   ],
+   "effort_days": 6.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "BinaryCollision 无 mypc；碰撞数值 4.66e-4",
+   "note": "按 f1-f5 分步",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8e"
+    "A3.3b8f"
    ],
    "status": "pending",
    "outputs": [
