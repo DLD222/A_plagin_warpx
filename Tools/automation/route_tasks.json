@@ -2496,6 +2496,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4i",
+   "phase": "A3",
+   "title": "仅针对已修改功能的定向验证",
+   "kind": "test",
+   "depends": [
+    "A3.4h"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/MODIFIED_FEATURE_VALIDATION.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "23/23定向测试；EB/电离/碰撞 A/B 逐位",
+   "note": "不涵盖未修改功能",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
