@@ -2065,12 +2065,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.4a",
+   "phase": "A3",
+   "title": "A3 定向回归门（默认/FFT/ASAN）",
+   "kind": "test",
+   "depends": [
+    "A3.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3_VALIDATION.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "默认13/13、FFT13/13、ASAN7/7；P0/E3 基线未跑",
+   "note": "不替代 A3.4 完整门",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
    "kind": "test",
    "depends": [
-    "A3.3"
+    "A3.4a"
    ],
    "status": "pending",
    "outputs": [],
