@@ -2770,7 +2770,7 @@
    "depends": [
     "A4.5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Plugin/PluginHost.H"
    ],
@@ -2788,13 +2788,13 @@
    "depends": [
     "A5.1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "稳定排序；环/写冲突 abort",
-   "note": ""
+   "note": "Kahn topological sort + cycle throw"
   },
   {
    "id": "A5.3",

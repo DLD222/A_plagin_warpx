@@ -106,6 +106,27 @@ int main (int argc, char* argv[])
             threw = true;
         }
         check(threw, "PluginHost rejects two writers of the same field at one StagePoint");
+
+        warpx::runtime::PluginHost deps;
+        deps.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "reader", {warpx::runtime::Stage::FieldSolve, 0}, {"X"}, {}, {}, {}, 0}));
+        deps.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "writer", {warpx::runtime::Stage::FieldSolve, 0}, {}, {"X"}, {}, {}, 0}));
+        check_eq(deps.ordered().front()->spec().name, std::string("writer"),
+                 "PluginHost orders writer before reader");
+
+        warpx::runtime::PluginHost cyclic;
+        cyclic.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "a", {warpx::runtime::Stage::FieldSolve, 0}, {"Y"}, {"X"}, {}, {}, 0}));
+        cyclic.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "b", {warpx::runtime::Stage::FieldSolve, 0}, {"X"}, {"Y"}, {}, {}, 0}));
+        bool cycle = false;
+        try {
+            cyclic.ordered();
+        } catch (const std::runtime_error&) {
+            cycle = true;
+        }
+        check(cycle, "PluginHost rejects a dependency cycle");
     }
 
     {
