@@ -14,6 +14,7 @@
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
 #include "Runtime/StagePoint.H"
+#include "Utils/WarpXConst.H"
 #include "WarpX.H"
 
 #include <algorithm>
@@ -144,6 +145,8 @@ int main (int argc, char* argv[])
         const auto e = runtime.bus().species("electrons");
         check_eq(e.name(), std::string("electrons"), "SpeciesHandle keeps name");
         check(e.numberOfParticles() > 0, "SpeciesHandle reports particles");
+        check_real(e.charge(), -PhysConst::q_e, "SpeciesHandle charge");
+        check_real(e.mass(), PhysConst::m_e, "SpeciesHandle mass");
     }
     check(WarpX::GetInstance().GetRuntimeContext() == installed, "context survives InitData");
 

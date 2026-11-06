@@ -122,6 +122,7 @@
 | A3.3b9 | A3 | done | A3.3b8i | Runtime 持有 CollisionHandler；MPC 改为非拥有指针 |
 | A3.3b10 | A3 | done | A3.3b9 | CollisionHandlerAdapter 注册到 PluginHost，碰撞走 Stage::Collisions |
 | A3.3b11 | A3 | done | A3.3b10 | 删除 MPC 碰撞所有权，迁移到 WarpX/Runtime legacy |
+| A3.3b12 | A3 | done | A3.3b11 | SpeciesHandle 元数据（charge/mass） |
 | A3.3b | A3 | pending | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
 | A3.4b | A3 | done | A3.4a | 2D 全量官方算例回归 + 失败分类 |

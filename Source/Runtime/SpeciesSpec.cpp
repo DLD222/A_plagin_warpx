@@ -12,6 +12,18 @@
 namespace warpx::runtime
 {
 
+amrex::Real
+SpeciesHandle::charge () const
+{
+    return m_pc != nullptr ? m_pc->getCharge() : amrex::Real(0.0);
+}
+
+amrex::Real
+SpeciesHandle::mass () const
+{
+    return m_pc != nullptr ? m_pc->getMass() : amrex::Real(0.0);
+}
+
 std::int64_t
 SpeciesHandle::numberOfParticles () const
 {

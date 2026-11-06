@@ -2305,6 +2305,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b12",
+   "phase": "A3",
+   "title": "SpeciesHandle 元数据（charge/mass）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b11"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/SpeciesSpec.H"
+   ],
+   "effort_days": 0.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "charge/mass 可读；runtime 5/5",
+   "note": "tile 视图仍未完成",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",

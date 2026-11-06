@@ -38,9 +38,12 @@ public:
 
     [[nodiscard]] const std::string& name () const { return m_name; }
     [[nodiscard]] std::int64_t numberOfParticles () const;
+    [[nodiscard]] amrex::Real charge () const;
+    [[nodiscard]] amrex::Real mass () const;
 
 private:
     friend class DataBus;
+    friend class CollisionSpeciesTable;
     SpeciesHandle (std::string name, WarpXParticleContainer* pc)
         : m_name(std::move(name)), m_pc(pc) {}
 
