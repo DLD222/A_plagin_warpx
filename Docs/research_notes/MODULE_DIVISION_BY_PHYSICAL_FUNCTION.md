@@ -29,12 +29,12 @@
 | **L0 原子单元** | 一个可命名的物理/数学动作，不可再分 | 只做一件事 | `UpdateMomentumBoris`、`ChargeDeposition`、`DivBFunctor`、单个 `ReducedDiag` | 密集 |
 | **L1 模块** | 一组原子单元 + 一个契约 + 一个选择/生命周期入口，对外提供**一个能力**，可独立替换 | 单一能力域、契约可校验、可替换、可独立构建、参数自包含 | 场求解、碰撞、激光注入、诊断输出 | **隐式存在，无显式层** |
 | **L2 子系统** | 一组模块，按物理域聚合 | 依赖单向、无环 | `Particles/`、`FieldSolver/`、`Diagnostics/`、`BoundaryConditions/` | 18 个目录 |
-| **L3 编排** | 决定模块的执行顺序与时机 | 调度确定、冲突可检 | `Runtime` 的 14 个阶段槽位 / 4 个 handler | 1 层 |
+| **L3 编排** | 决定模块的执行顺序与时机 | 调度确定、冲突可检 | `Runtime` 的 14 个阶段槽位 / 4 个 PluginHost handler（9 个阶段有实现） | 1 层 |
 
 层级关系：
 
 ```
-L3 编排    Runtime 阶段调度（14 个槽位，4 个已实现）
+L3 编排    Runtime 阶段调度（14 个槽位，9 个阶段有实现，4 个 PluginHost handler）
               ↓ 每个槽位调用
 L2 子系统  Particles / FieldSolver / Diagnostics / BoundaryConditions / Laser ...（18 个）
               ↓ 每个子系统内聚合
@@ -131,10 +131,10 @@ L1 达标也不代表 L3 达标（模块可以很干净而调度仍是硬编码�
 
 | 子系统 | 模块选择机制 | 抽象基类 | 注册/工厂 | 观察到的形态 |
 |---|---|---|---|---|
-| 推进 | `WarpX::particle_pusher_algo`（[WarpX.H:215](file:///workspace/Source/WarpX.H#L215)）+ [PushSelector.H:89](file:///workspace/Source/Particles/Pusher/PushSelector.H#L89) 的 if/else 链 | ✗（header-only 模板） | ✗ | **L0 集合**，未升为模块 |
-| 沉积 | `current_deposition_algo` / `charge_deposition_algo`（[WarpX.H:209-211](file:///workspace/Source/WarpX.H#L209-L211)） | ✗（模板 + 枚举分派） | ✗ | **L0 集合** |
+| 推进 | `WarpX::particle_pusher_algo`（[WarpX.H:215](../../Source/WarpX.H#L215)）+ [PushSelector.H:89](../../Source/Particles/Pusher/PushSelector.H#L89) 的 if/else 链 | ✗（header-only 模板） | ✗ | **L0 集合**，未升为模块 |
+| 沉积 | `current_deposition_algo` / `charge_deposition_algo`（[WarpX.H:209-211](../../Source/WarpX.H#L209-L211)） | ✗（模板 + 枚举分派） | ✗ | **L0 集合** |
 | 场求解 | 6 个子目录 + 工厂枚举 | ✓ | ✓ | 接近 L1 |
-| 碰撞 | `CollisionType`（[BinaryCollisionUtils.H:21](file:///workspace/Source/Particles/Collision/BinaryCollision/BinaryCollisionUtils.H#L21)）+ `CollisionBase` 派生 | ✓ | ✓（具名解析） | 接近 L1 |
+| 碰撞 | `CollisionType`（[BinaryCollisionUtils.H:21](../../Source/Particles/Collision/BinaryCollision/BinaryCollisionUtils.H#L21)）+ `CollisionBase` 派生 | ✓ | ✓（具名解析） | 接近 L1 |
 | 诊断 | 名字解析 → 派生类 | ✓ | ✓（名字 → 类） | 接近 L1 |
 | 激光注入 | `LaserProfile` 派生 + 工厂 | ✓ | ✓ | 接近 L1 |
 
@@ -158,37 +158,37 @@ L1 达标也不代表 L3 达标（模块可以很干净而调度仍是硬编码�
 Source/ 下 .H/.cpp 共约 171,121 行
 ```
 
-实现文件数（`.cpp`）：`FieldSolver` 60、`ReducedDiags` 24、`ComputeDiagFunctors` 18、`Particles` 10。
+实现文件数（`.cpp`）：`FieldSolver` 递归 60、`ReducedDiags` 24、`ComputeDiagFunctors` 18、`Particles` 顶层 10（递归 44）。
 一个子系统内通常有 3–8 个 L1 模块；因此以目录做插件边界偏粗。
 
 最大文件（L2 内部仍混合多个 L1 模块的间接信号）：
 
 | 文件 | 行数 | 文件内可辨认的职责 |
 |---|---|---|
-| [WarpX.cpp](file:///workspace/Source/WarpX.cpp) | 3844 | 输入解析、几何、场管理、边界、诊断、AMR、重启 |
-| [WarpXParticleContainer.cpp](file:///workspace/Source/Particles/WarpXParticleContainer.cpp) | 3234 | 容器、排序、通信、沉积入口、边界、IO |
-| [HybridPICModel.cpp](file:///workspace/Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.cpp) | 3002 | 求解器、粒子容器、10+ 场分配 |
-| [PhysicalParticleContainer.cpp](file:///workspace/Source/Particles/PhysicalParticleContainer.cpp) | 2287 | 推进、收集、沉积、初始化、边界 |
-| [MultiParticleContainer.cpp](file:///workspace/Source/Particles/MultiParticleContainer.cpp) | 2031 | 物种容器、碰撞、边界、物理属性 |
+| [WarpX.cpp](../../Source/WarpX.cpp) | 3844 | 输入解析、几何、场管理、边界、诊断、AMR、重启 |
+| [WarpXParticleContainer.cpp](../../Source/Particles/WarpXParticleContainer.cpp) | 3234 | 容器、排序、通信、沉积入口、边界、IO |
+| [HybridPICModel.cpp](../../Source/FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.cpp) | 3002 | 求解器、粒子容器、10+ 场分配 |
+| [PhysicalParticleContainer.cpp](../../Source/Particles/PhysicalParticleContainer.cpp) | 2287 | 推进、收集、沉积、初始化、边界 |
+| [MultiParticleContainer.cpp](../../Source/Particles/MultiParticleContainer.cpp) | 2031 | 物种容器、碰撞、边界、物理属性 |
 
 ### 4.5 L3：编排层已存在，但槽位不是模块
 
-[StagePoint.H](file:///workspace/Source/Runtime/StagePoint.H) 定义 14 个阶段：
+[StagePoint.H](../../Source/Runtime/StagePoint.H) 定义 14 个阶段：
 `BeforeInit / Init / AfterInit / BeforePush / Push / AfterPush / BeforeCollisions / Collisions /
 AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics / Finalize`。
 
-实际注册的 handler（[Runtime.cpp:62-64](file:///workspace/Source/Runtime/Runtime.cpp#L62-L64)、[:83](file:///workspace/Source/Runtime/Runtime.cpp#L83)）：
+实际注册的 handler（[Runtime.cpp:62-64](../../Source/Runtime/Runtime.cpp#L62-L64)、[:83](../../Source/Runtime/Runtime.cpp#L83)）：
 
 | Handler | 阶段 | 一次 `apply()` 覆盖的物理操作 | 操作种类数 |
 |---|---|---|---|
-| [PicPushHandler](file:///workspace/Source/Runtime/PicPushHandler.H#L40-L46) | `Push` | 粒子推进 + 电流/电荷沉积（`pushParticlesAndDeposit`） | 2 |
-| [PicFinalizeHandler](file:///workspace/Source/Runtime/PicFinalizeHandler.H) | `AfterPush` | 沉积收尾（同步、滤波、边界和） | 1（内部含多步） |
-| [PicFieldSolveHandler](file:///workspace/Source/Runtime/PicFieldSolveHandler.H) | `FieldSolve` | 按运行期枚举分发到 Yee / CKC / ECT / Hybrid / PSATD / 隐式 / 静电 / 静磁 / Moments | 6+ 类算法 |
-| [CollisionHandlerAdapter](file:///workspace/Source/Runtime/CollisionHandlerAdapter.H) | `Collisions` | 按 `CollisionType` 分发到全部碰撞模型 | 多类算法 |
+| [PicPushHandler](../../Source/Runtime/PicPushHandler.H#L40-L46) | `Push` | 粒子推进 + 电流/电荷沉积 + 碰撞入口（内部调用 `RunCollisionStage`） | 3 |
+| [PicFinalizeHandler](../../Source/Runtime/PicFinalizeHandler.H) | `AfterPush` | 沉积收尾（同步、滤波、边界和） | 1（内部含多步） |
+| [PicFieldSolveHandler](../../Source/Runtime/PicFieldSolveHandler.H) | `FieldSolve` | 按运行期枚举分发到 Yee / CKC / ECT / Hybrid / PSATD / 隐式 / 静电 / 静磁 / Moments | 6+ 类算法 |
+| [CollisionHandlerAdapter](../../Source/Runtime/CollisionHandlerAdapter.H) | `Collisions` | 按 `CollisionType` 分发到全部碰撞模型；由 `RunCollisionStage` 在 `Push` 内及显式碰撞点查找，不由 `StagePlan` 直接调度 | 多类算法 |
 
-按 M1：4 个执行单元中 1 个单操作、3 个多操作；剩余 10 个阶段无实现。
-按 K2：`HandlerSpec` 的读/写字段**20 处声明、0 处消费**（[HandlerSpec.H:29-38](file:///workspace/Source/Runtime/HandlerSpec.H#L29-L38)；
-`PluginHost` 仅按 `StagePoint` + `priority` 排序，见 [:83-105](file:///workspace/Source/Runtime/HandlerSpec.H#L83-L105)），
+按 M1：PluginHost 注册 4 个 handler，其中 1 个单操作、3 个多操作。14 个阶段中，5 个由 `InitData()` 内的 `StagePlan` 分发（`BeforeInit/Init/AfterInit/FieldSolve/Diagnostics`）；`Push/AfterPush/FieldSolve` 由 `Run*Stage` 直接调度；`Collisions` 不是独立 `StagePlan` 项，而是 `RunCollisionStage` 在 `Push` 内及显式碰撞点查找。6 个阶段未使用（`BeforePush/BeforeCollisions/AfterCollisions/BeforeFieldSolve/AfterFieldSolve/Finalize`）。
+按 K2：`HandlerSpec` 的读/写字段共 **44 处出现（4 处成员声明 + 40 处 spec 初始化，含已注册 handler 与 PicEm/Collision package 声明）、0 处消费**（[HandlerSpec.H:29-38](../../Source/Runtime/HandlerSpec.H#L29-L38)；
+`PluginHost` 仅按 `StagePoint` + `priority` 排序，见 [:83-105](../../Source/Runtime/HandlerSpec.H#L83-L105)），
 调度顺序可复现，但冲突不可检。
 
 值得注意的一点：`HandlerSpec` 描述的是"槽位"的读写，属于**L3 编排**的语义，
@@ -199,10 +199,10 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 
 | 接口 | `virtual` 声明条数 | 覆盖的域 |
 |---|---|---|
-| [HostServices.H](file:///workspace/Source/Runtime/HostServices.H) | 53 | 场准备、沉积、静电、滤波、EB、RZ、推进、求解、碰撞、时间、moving window、PML、BTD、诊断元数据、in-situ、输出 |
-| [RuntimeData.H](file:///workspace/Source/Runtime/RuntimeData.H) | 51 | 场、物种、几何、时间、网格、PML、粒子边界、诊断 |
+| [HostServices.H](../../Source/Runtime/HostServices.H) | 53 | 场准备、沉积、静电、滤波、EB、RZ、推进、求解、碰撞、时间、moving window、PML、BTD、诊断元数据、in-situ、输出 |
+| [RuntimeData.H](../../Source/Runtime/RuntimeData.H) | 51 | 场、物种、几何、时间、网格、PML、粒子边界、诊断 |
 
-唯一实现 [WarpXHostServices.cpp](file:///workspace/Source/Runtime/WarpXHostServices.cpp) 为 308 行、实现全部 53 项。
+唯一实现 [WarpXHostServices.cpp](../../Source/Runtime/WarpXHostServices.cpp) 为 308 行、实现全部 53 项。
 按 N1：单次调用对应一个能力，但**一个实现者必须同时承担全部域**——调用侧收敛、实现侧发散（门面模式特征）。
 
 ### 4.7 全局入口残留（M5）
@@ -242,7 +242,7 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | 层 | 判据 | 度量结果 | 备注 |
 |---|---|---|---|
 | L0 | M1 单一执行单元 | 4 个执行槽位中 1 个单操作、3 个多操作 | 数值本身不构成评价 |
-| L0 | M2 契约可校验 | 20 处声明 / 0 处消费 | 机制已存在，校验逻辑未接入 |
+| L0 | M2 契约可校验 | 44 处出现（4 声明 + 40 初始化）/ 0 处消费 | 机制已存在，校验逻辑未接入 |
 | L0 | M3 独立替换 | 替换单一 `Push` 需同时换推进与沉积 | 取决于是否把二者视为一个能力 |
 | L0 | M4 单一所有权 | 主要资源 1 个持有者 | 访问路径另计 |
 | L0 | M5 依赖单向 | 111 处全局入口 | 63 处在物理模块内 |
@@ -369,7 +369,7 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | 手段 | 适用层级 | 说明 |
 |---|---|---|
 | `WARPX_DISABLE_PLUGIN_HANDLERS` A/B 逐位对比 | L1/L3 | 现有开关，可验证"改结构不改结果" |
-| `ctest -R '^runtime_'` | L1/L3 | 现有 6 个算例；注意当前构建树路径与 ctest 注册不一致，需重新 configure |
+| `ctest -R '^runtime_'` | L1/L3 | 现有 5 个算例（默认）/ 7 个（FFT）；注意当前构建树路径与 ctest 注册不一致，需重新 configure |
 | 契约冲突单测 | L1/L3 | 构造"两个 handler 写同一字段"的最小用例 |
 | 构建矩阵（1D/2D/3D/RZ × CPU/GPU） | 全部 | 拆分常引入维度相关编译分支 |
 | 内核启动计数 / 内存峰值 | L0/L1 | 拆分可能增减一次 kernel；不逐位时用它解释差异 |
