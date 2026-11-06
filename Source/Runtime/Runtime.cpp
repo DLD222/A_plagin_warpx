@@ -28,7 +28,7 @@ namespace warpx::runtime
 namespace
 {
 
-TimeState make_time (const WarpX& warpx)
+TimeState make_time (const WarpX& warpx, bool valid)
 {
     TimeState t;
     t.step = warpx.getistep(0);
@@ -39,6 +39,7 @@ TimeState make_time (const WarpX& warpx)
     t.dt = warpx.getdt();
     t.t_new = warpx.gett_new();
     t.t_old = warpx.gett_old();
+    t.valid = valid;
     return t;
 }
 
@@ -47,6 +48,7 @@ TimeState make_time (const WarpX& warpx)
 Runtime::Runtime (int argc, char* argv[])
 {
     warpx::initialization::initialize_external_libraries(argc, argv);
+    m_external_libraries_initialized = true;
 
     // Construct WarpX (reads parameters) before InitData, so diagnostics and
     // other setup-time consumers can see a config snapshot.
@@ -67,8 +69,8 @@ Runtime::Runtime (int argc, char* argv[])
     m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();
     sync_time();
-    m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
-                               m_host.get(), [this] { sync_time(); }};
+    m_context = RuntimeContext(&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
+                               m_host.get(), [this] { sync_time(); });
     warpx.SetRuntimeContext(&m_context);
 
     auto& mpc = warpx.GetPartContainer();
@@ -87,7 +89,10 @@ Runtime::Runtime (int argc, char* argv[])
 Runtime::~Runtime ()
 {
     finalize();
-    warpx::initialization::finalize_external_libraries();
+    if (m_external_libraries_initialized) {
+        warpx::initialization::finalize_external_libraries();
+        m_external_libraries_initialized = false;
+    }
 }
 
 void
@@ -96,6 +101,7 @@ Runtime::initialize ()
     if (m_finalized) {
         throw std::runtime_error("Runtime::initialize() called after finalize()");
     }
+    if (m_initialized) { return; }
     m_warpx->InitData();
     m_collision_handler->AllocData();
 
@@ -226,7 +232,7 @@ Runtime::sync_config ()
 void
 Runtime::sync_time ()
 {
-    m_time = make_time(*m_warpx);
+    m_time = make_time(*m_warpx, m_initialized);
     m_frame = FrameState::FromLegacy();
 }
 

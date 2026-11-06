@@ -7,9 +7,9 @@
 
 #include "FieldEnergy.H"
 
+#include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Fields.H"
 #include "Runtime/RuntimeData.H"
-#include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"

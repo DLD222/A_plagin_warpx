@@ -19,7 +19,7 @@ namespace warpx::runtime
 
 /** RuntimeData adapter over a WarpX instance (transitional, not for plugins).
  *  Unlike an earlier version, this adapter does NOT hold a WarpX reference —
- *  every method reaches WarpX::GetInstance() on demand.  The adapter is
+ *  every method reaches the injected WarpX pointer (legacy fallback only).  The adapter is
  *  stateless w.r.t. WarpX lifetime, so there is no unordered-static
  *  destruction-order hazard when the singleton is torn down.
  */

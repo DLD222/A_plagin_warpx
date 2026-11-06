@@ -10,7 +10,6 @@
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 

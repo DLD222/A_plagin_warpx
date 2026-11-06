@@ -87,4 +87,4 @@ for dp,_,fs in os.walk(ROOT):
                 'is_template':bool(re.search(r'template\s*<', text[max(0,m.start()-120):m.start()])),
                 'has_virtual':('virtual' in body),'has_pure':('= 0' in body or '=0' in body)})
 print('classes/structs:',len(classes),'public methods:',sum(c['n_public_methods'] for c in classes))
-json.dump(classes,open('/tmp/header_catalog.json','w'),indent=1)
+json.dump(classes,open('Tools/A0/header_catalog.json','w'),indent=1)

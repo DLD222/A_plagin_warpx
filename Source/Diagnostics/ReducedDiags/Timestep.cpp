@@ -18,6 +18,7 @@
 #include <AMReX_Print.H> // TODO: remove this
 #include <AMReX_REAL.H>
 
+#include <algorithm>
 #include <ostream>
 
 using namespace amrex::literals;
@@ -63,17 +64,15 @@ void Timestep::ComputeDiags (int step) {
     if (!m_intervals.contains(step+1)) { return; }
 
     const auto* ctx = runtime_context();
-    int max_level = 0;
-    amrex::Vector<amrex::Real> dt;
+    // Use maxLevel here, matching the header and m_data size written by the
+    // constructor. On AMR finest_level may be smaller than maxLevel.
+    const int max_level = data().maxLevel();
+    amrex::Vector<amrex::Real> dt(max_level + 1, 0.0_rt);
     if (ctx != nullptr && ctx->time != nullptr) {
-        max_level = ctx->time->finest_level;
-        dt = ctx->time->dt;
+        const int n = std::min<int>(max_level + 1, static_cast<int>(ctx->time->dt.size()));
+        for (int lev = 0; lev < n; ++lev) { dt[lev] = ctx->time->dt[lev]; }
     } else {
-        max_level = data().maxLevel();
-        dt.resize(max_level + 1);
-        for (int lev = 0; lev <= max_level; ++lev) {
-            dt[lev] = data().dt(lev);
-        }
+        for (int lev = 0; lev <= max_level; ++lev) { dt[lev] = data().dt(lev); }
     }
 
     for (int lev = 0; lev <= max_level; lev++) {

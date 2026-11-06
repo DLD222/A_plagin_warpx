@@ -50,7 +50,6 @@ electrons.profile = constant
 electrons.density = 1.0e18
 electrons.momentum_distribution_type = at_rest
 
-warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce part_num part_energy part_mom rho_max lb_eff extrema
 part_num.type = ParticleNumber
 part_num.intervals = 1
 part_energy.type = ParticleEnergy

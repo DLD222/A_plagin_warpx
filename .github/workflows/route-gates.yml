@@ -3,9 +3,9 @@ name: route-gates
 
 on:
   push:
-    branches: [main]
+    branches: [main, development, "trae/*"]
   pull_request:
-    branches: [main]
+    branches: [main, development, "trae/*"]
   workflow_dispatch:
 
 permissions:

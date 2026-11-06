@@ -177,9 +177,13 @@ def cmd_run(spec, state, args):
             if not run_step(["bash", "-lc", t["verify_command"]], log):
                 ok = False
 
-    if ok and (t["kind"] != "refactor" or args.accept or t.get("automation_command")):
+    if ok and (t["kind"] != "refactor" or args.accept):
         state[t["id"]] = {"status": "done", "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "log": str(log_path)}
         save_state(state)
+        # Keep the human-readable task spec in sync with the state file so
+        # ROUTE_STATUS/route_tasks.json cannot disagree about done-ness.
+        t["status"] = "done"
+        SPEC.write_text(json.dumps(spec, indent=1, ensure_ascii=False) + "\n")
         print(f"{t['id']}: marked done")
     elif ok and t["kind"] == "refactor":
         print(f"{t['id']}: gate passed; not marked done (pass --accept after reviewing the diff)")

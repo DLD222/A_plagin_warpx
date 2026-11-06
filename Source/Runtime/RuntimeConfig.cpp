@@ -225,7 +225,11 @@ RuntimeConfig::filter_npass_each_dir () const
 int
 RuntimeConfig::n_rz_azimuthal_modes () const
 {
+#ifdef WARPX_DIM_RZ
     return WarpX::n_rz_azimuthal_modes;
+#else
+    return 1;
+#endif
 }
 
 int

@@ -17,6 +17,7 @@ namespace warpx::runtime
 /** Read-only snapshot of the clock/level state (A1 replacement target). */
 struct TimeState
 {
+    bool valid = false;
     int step = 0;
     int finest_level = 0;
     amrex::Real time = 0.0;

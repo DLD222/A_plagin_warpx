@@ -41,7 +41,7 @@ class FieldRegistry;
 /**
  * \brief Narrow, read-mostly view of the kernel state used by diagnostics.
  *
- * This is the A1.4 replacement target for `WarpX::GetInstance()` in the
+ * This is the A1.4 replacement target for global singleton access in the
  * reduced diagnostics. It deliberately exposes data (fields, particles,
  * geometry, clock), not algorithms.
  */

@@ -12,7 +12,6 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 

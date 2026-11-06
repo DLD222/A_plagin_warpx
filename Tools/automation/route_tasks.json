@@ -102,7 +102,7 @@
    "depends": [
     "A0.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeConfig.H",
     "Source/Runtime/RuntimeConfig.cpp",
@@ -124,7 +124,7 @@
    "depends": [
     "A0.6a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeConfig.H",
     "Source/Runtime/RuntimeData.H"
@@ -144,7 +144,7 @@
    "depends": [
     "A0.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/STAGE_POINTS.md"
    ],
@@ -204,7 +204,7 @@
    "depends": [
     "A1.0"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeConfig.H"
    ],
@@ -223,7 +223,7 @@
    "depends": [
     "A1.0"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/TimeState.H",
     "Source/Runtime/FrameState.H"
@@ -243,7 +243,7 @@
    "depends": [
     "A1.0"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/Services.H"
    ],
@@ -281,7 +281,7 @@
    "depends": [
     "A1.3a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ReducedDiags/ReducedDiags.H",
     "Source/Diagnostics/ReducedDiags/Timestep.cpp"
@@ -301,7 +301,7 @@
    "depends": [
     "A1.4a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ReducedDiags/FieldEnergy.cpp",
     "Source/Diagnostics/ReducedDiags/FieldMaximum.cpp",
@@ -322,7 +322,7 @@
    "depends": [
     "A1.4b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ReducedDiags/FieldPoyntingFlux.cpp",
     "Source/Diagnostics/ReducedDiags/FieldReduction.H"
@@ -342,7 +342,7 @@
    "depends": [
     "A1.4c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ReducedDiags/ParticleNumber.cpp",
     "Source/Diagnostics/ReducedDiags/ParticleEnergy.cpp",
@@ -365,7 +365,7 @@
    "depends": [
     "A1.4d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ReducedDiags/FieldProbe.cpp",
     "Source/Diagnostics/ReducedDiags/ParticleExtrema.cpp",
@@ -388,7 +388,7 @@
     "A0.6",
     "A0.7"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 5.0,
    "gate": "build+smoke",
@@ -404,7 +404,7 @@
    "depends": [
     "A1.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/Diagnostics.H",
     "Source/Diagnostics/Diagnostics.cpp",
@@ -425,7 +425,7 @@
    "depends": [
     "A1.5a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/FullDiagnostics.cpp",
     "Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp",
@@ -446,7 +446,7 @@
    "depends": [
     "A1.5b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
@@ -462,7 +462,7 @@
    "depends": [
     "A1.5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H",
     "Source/FieldSolver/FiniteDifferenceSolver/EvolveE.cpp",
@@ -483,7 +483,7 @@
    "depends": [
     "A1.6a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H",
     "Source/FieldSolver/ElectrostaticSolvers/PoissonBoundaryHandler.cpp"
@@ -503,7 +503,7 @@
    "depends": [
     "A1.6b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/FieldSolver/SpectralSolver/SpectralSolver.H",
     "Source/FieldSolver/SpectralSolver/SpectralFieldData.H",
@@ -524,7 +524,7 @@
    "depends": [
     "A1.6c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
@@ -540,7 +540,7 @@
    "depends": [
     "A1.6"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/ParticleBoundaryBuffer.H",
     "Source/Particles/ParticleBoundaryBuffer.cpp"
@@ -560,7 +560,7 @@
    "depends": [
     "A1.7a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/WarpXParticleContainer.H",
     "Source/Particles/MultiParticleContainer.cpp"
@@ -580,7 +580,7 @@
    "depends": [
     "A1.7b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/PhysicalParticleContainer.cpp",
     "Source/Particles/LaserParticleContainer.cpp",
@@ -602,7 +602,7 @@
    "depends": [
     "A1.7c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Fluids/MultiFluidContainer.H",
     "Source/Fluids/WarpXFluidContainer.cpp"
@@ -622,7 +622,7 @@
    "depends": [
     "A1.7d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Fluids/QdsmcParticleContainer.cpp",
     "Source/Particles/Collision/BackgroundMCC/BackgroundMCCCollision.cpp"
@@ -642,7 +642,7 @@
    "depends": [
     "A1.7e"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/ParticleCreation/AddParticles.cpp",
     "Source/Particles/ParticleCreation/SmartUtils.cpp"
@@ -662,7 +662,7 @@
    "depends": [
     "A1.7f"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
@@ -678,7 +678,7 @@
    "depends": [
     "A1.7"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.H",
     "Source/WarpX.cpp",
@@ -700,7 +700,7 @@
    "depends": [
     "A1.8a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H",
     "Source/Diagnostics/ComputeDiagFunctors/CellCenterFunctor.cpp"
@@ -720,7 +720,7 @@
    "depends": [
     "A1.8b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/PartPerCellFunctor.cpp",
     "Source/Diagnostics/ComputeDiagFunctors/ParticleReductionFunctor.cpp",
@@ -741,7 +741,7 @@
    "depends": [
     "A1.8c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/DivBFunctor.cpp",
     "Source/Diagnostics/ComputeDiagFunctors/DivEFunctor.cpp",
@@ -762,7 +762,7 @@
    "depends": [
     "A1.8d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/JdispFunctor.cpp",
     "Source/Diagnostics/ComputeDiagFunctors/DarwinEfieldFunctor.cpp"
@@ -782,7 +782,7 @@
    "depends": [
     "A1.8e"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp",
     "Source/Diagnostics/ComputeDiagFunctors/JFunctor.cpp",
@@ -803,7 +803,7 @@
    "depends": [
     "A1.8f"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/PhiFunctor.cpp",
     "Source/Runtime/HostServices.H"
@@ -823,7 +823,7 @@
    "depends": [
     "A1.8g"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ComputeDiagFunctors/BackTransformFunctor.cpp",
     "Source/Diagnostics/ComputeDiagFunctors/BackTransformParticleFunctor.cpp",
@@ -844,7 +844,7 @@
    "depends": [
     "A1.8h"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Deposition/VarianceAccumulationBuffer.H",
     "Source/Particles/Deposition/VarianceAccumulationBuffer.cpp"
@@ -864,7 +864,7 @@
    "depends": [
     "A1.8i"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A1.8_SERVICES_DESIGN.md",
     "Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.cpp"
@@ -884,7 +884,7 @@
    "depends": [
     "A1.8j"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Fluids/WarpXFluidContainer.cpp",
     "Source/Fluids/QdsmcParticleContainer.cpp"
@@ -904,7 +904,7 @@
    "depends": [
     "A1.8k"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/WarpXParticleContainer.cpp",
     "Source/Runtime/HostServices.H"
@@ -924,7 +924,7 @@
    "depends": [
     "A1.8l"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/MultiParticleContainer.cpp"
    ],
@@ -943,7 +943,7 @@
    "depends": [
     "A1.8m"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/PhysicalParticleContainer.cpp",
     "Source/Particles/WarpXParticleContainer.H"
@@ -963,7 +963,7 @@
    "depends": [
     "A1.8n"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/BTDiagnostics.cpp",
     "tests/runtime/inputs_2d_btd"
@@ -983,7 +983,7 @@
    "depends": [
     "A1.8o"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Initialization/DivCleaner/ProjectionDivCleaner.cpp"
    ],
@@ -1002,7 +1002,7 @@
    "depends": [
     "A1.8p"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp"
    ],
@@ -1021,7 +1021,7 @@
    "depends": [
     "A1.8q"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/BoundaryConditions/PML.cpp",
     "Source/Initialization/WarpXInitData.cpp"
@@ -1041,7 +1041,7 @@
    "depends": [
     "A1.8r"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/WarpXParticleContainer.cpp"
    ],
@@ -1060,7 +1060,7 @@
    "depends": [
     "A1.8s"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Pusher/ImplicitPushPX.cpp",
     "Source/Particles/ParticleBoundaryBuffer.cpp"
@@ -1080,7 +1080,7 @@
    "depends": [
     "A1.8t"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Resampling/ResamplingTrigger.cpp",
     "Source/Particles/Resampling/Resampling.cpp"
@@ -1100,7 +1100,7 @@
    "depends": [
     "A1.8u"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Gather/GetExternalFields.cpp",
     "Source/Particles/Gather/GetExternalFields.H"
@@ -1120,7 +1120,7 @@
    "depends": [
     "A1.8v"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/ParticleCreation/AddParticles.cpp",
     "Source/Particles/ParticleCreation/DefaultInitialization.H",
@@ -1141,7 +1141,7 @@
    "depends": [
     "A1.8w"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/BoundaryScrapingDiagnostics.cpp",
     "Source/FieldSolver/WarpXPushFieldsHybridPIC.cpp",
@@ -1162,7 +1162,7 @@
    "depends": [
     "A1.8x"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/ParticleIO.cpp",
     "Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp"
@@ -1182,7 +1182,7 @@
    "depends": [
     "A1.8y"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
@@ -1201,7 +1201,7 @@
    "depends": [
     "A1.8"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 1.0,
    "gate": "full",
@@ -1218,7 +1218,7 @@
    "depends": [
     "A1.9a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 2.0,
    "gate": "full",
@@ -1237,7 +1237,7 @@
    "depends": [
     "A1.9a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/Runtime/LevelResources.cpp"
@@ -1257,7 +1257,7 @@
    "depends": [
     "A2.1a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/WarpX.cpp",
@@ -1278,7 +1278,7 @@
    "depends": [
     "A2.1b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/WarpX.cpp",
@@ -1299,7 +1299,7 @@
    "depends": [
     "A2.1c1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/Parallelization/WarpXRegrid.cpp",
@@ -1320,7 +1320,7 @@
    "depends": [
     "A2.1c2a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/WarpX.cpp"
@@ -1340,7 +1340,7 @@
    "depends": [
     "A2.1c2a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.H"
    ],
@@ -1359,7 +1359,7 @@
    "depends": [
     "A2.1c2b1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/LevelResources.H",
     "Source/Initialization/WarpXInitData.cpp",
@@ -1380,7 +1380,7 @@
    "depends": [
     "A2.1c2b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A2.1_LEVEL_RESOURCES_DESIGN.md",
     "Source/Runtime/LevelResources.H"
@@ -1402,7 +1402,7 @@
    "depends": [
     "A2.1c2b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1421,7 +1421,7 @@
    "depends": [
     "A2.2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
@@ -1440,7 +1440,7 @@
    "depends": [
     "A2.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A2.4_ALLOC_SCHEMA.md"
    ],
@@ -1459,7 +1459,7 @@
    "depends": [
     "A2.4a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1478,7 +1478,7 @@
    "depends": [
     "A2.4b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1497,7 +1497,7 @@
    "depends": [
     "A2.4c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1516,7 +1516,7 @@
    "depends": [
     "A2.4d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1535,7 +1535,7 @@
    "depends": [
     "A2.4e1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1554,7 +1554,7 @@
    "depends": [
     "A2.4e2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp"
    ],
@@ -1573,7 +1573,7 @@
    "depends": [
     "A2.4e3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 12.0,
    "gate": "build+smoke",
@@ -1592,7 +1592,7 @@
    "depends": [
     "A2.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A2_VALIDATION.md"
    ],
@@ -1613,7 +1613,7 @@
     "A2.3",
     "A2.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 3.0,
    "gate": "full",
@@ -1632,7 +1632,7 @@
    "depends": [
     "A2.5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3.1_INITDATA_PHASES.md"
    ],
@@ -1651,7 +1651,7 @@
    "depends": [
     "A3.1a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Initialization/WarpXInitData.cpp"
    ],
@@ -1670,7 +1670,7 @@
    "depends": [
     "A3.1b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Initialization/WarpXInitData.cpp"
    ],
@@ -1689,7 +1689,7 @@
    "depends": [
     "A3.1c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
@@ -1708,7 +1708,7 @@
    "depends": [
     "A3.1c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3.2_EVOLVE_PHASES.md"
    ],
@@ -1727,7 +1727,7 @@
    "depends": [
     "A3.2a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Evolve/WarpXEvolve.cpp",
     "Source/Runtime/StagePoint.H"
@@ -1747,7 +1747,7 @@
    "depends": [
     "A3.2b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 15.0,
    "gate": "build+smoke",
@@ -1766,7 +1766,7 @@
    "depends": [
     "A3.3a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/PicEmPackage.H"
    ],
@@ -1785,7 +1785,7 @@
    "depends": [
     "A3.3b1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3.3B_STATE_BOUNDARY.md"
    ],
@@ -1804,7 +1804,7 @@
    "depends": [
     "A3.3b2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/PicPushHandler.H",
     "Source/Runtime/HostServices.H"
@@ -1824,7 +1824,7 @@
    "depends": [
     "A3.3b3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Evolve/WarpXEvolve.cpp",
     "Source/Runtime/Runtime.cpp"
@@ -1844,7 +1844,7 @@
    "depends": [
     "A3.3b4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/PicFinalizeHandler.H"
    ],
@@ -1863,7 +1863,7 @@
    "depends": [
     "A3.3b5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/PicFieldSolveHandler.H"
    ],
@@ -1882,7 +1882,7 @@
    "depends": [
     "A3.3b6"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
@@ -1901,7 +1901,7 @@
    "depends": [
     "A3.2b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A1.8_SERVICES_DESIGN.md"
    ],
@@ -1920,7 +1920,7 @@
    "depends": [
     "A3.3b6"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/CollisionPackage.H"
    ],
@@ -1939,7 +1939,7 @@
    "depends": [
     "A3.3b7"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/CollisionSpeciesTable.H"
    ],
@@ -1958,7 +1958,7 @@
    "depends": [
     "A3.3b8a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/PulsedDecay/PulsedDecay.cpp"
    ],
@@ -1977,7 +1977,7 @@
    "depends": [
     "A3.3b8b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BackgroundStopping/BackgroundStopping.cpp"
    ],
@@ -1996,7 +1996,7 @@
    "depends": [
     "A3.3b8c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BackgroundMCC/BackgroundMCCCollision.cpp"
    ],
@@ -2015,7 +2015,7 @@
    "depends": [
     "A3.3b8d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/InverseBremsstrahlung/InverseBremsstrahlung.cpp"
    ],
@@ -2034,7 +2034,7 @@
    "depends": [
     "A3.3b8e"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/BinaryCollisionUtils.cpp"
    ],
@@ -2053,7 +2053,7 @@
    "depends": [
     "A3.3b8f1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H"
    ],
@@ -2072,7 +2072,7 @@
    "depends": [
     "A3.3b8f2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.cpp"
    ],
@@ -2091,7 +2091,7 @@
    "depends": [
     "A3.3b8f3a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.cpp"
    ],
@@ -2110,7 +2110,7 @@
    "depends": [
     "A3.3b8f3b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H"
    ],
@@ -2129,7 +2129,7 @@
    "depends": [
     "A3.3b8f4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/BinaryCollision/BinaryCollision.H"
    ],
@@ -2148,7 +2148,7 @@
    "depends": [
     "A3.3b8f5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3.3B_BINARY_DECOUPLING.md"
    ],
@@ -2170,7 +2170,7 @@
    "depends": [
     "A3.3b8f5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/CollisionBase.H",
     "Source/Particles/Collision/HybridResistiveDrag/HybridResistiveDrag.cpp"
@@ -2190,7 +2190,7 @@
    "depends": [
     "A3.3b8g"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/HostServices.H",
     "Source/Particles/Collision/CollisionHandler.cpp"
@@ -2210,7 +2210,7 @@
    "depends": [
     "A3.3b8h"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/CollisionHandler.H",
     "Source/Particles/MultiParticleContainer.cpp"
@@ -2230,7 +2230,7 @@
    "depends": [
     "A3.3b8i"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3.3B_COLLISION_DECOUPLING.md"
    ],
@@ -2252,7 +2252,7 @@
    "depends": [
     "A3.3b8i"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/Runtime.cpp",
     "Source/Particles/MultiParticleContainer.H"
@@ -2272,7 +2272,7 @@
    "depends": [
     "A3.3b9"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/CollisionHandlerAdapter.H",
     "Source/Evolve/WarpXEvolve.cpp"
@@ -2292,7 +2292,7 @@
    "depends": [
     "A3.3b10"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/MultiParticleContainer.H",
     "Source/WarpX.H"
@@ -2312,7 +2312,7 @@
    "depends": [
     "A3.3b11"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/SpeciesSpec.H"
    ],
@@ -2331,7 +2331,7 @@
    "depends": [
     "A3.3b12"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Particles/Collision/CollisionSpeciesTable.H"
    ],
@@ -2350,7 +2350,7 @@
    "depends": [
     "A3.3b10"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/MODULARITY_AUDIT.md"
    ],
@@ -2369,7 +2369,7 @@
    "depends": [
     "A3.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/A3_VALIDATION.md"
    ],
@@ -2388,7 +2388,7 @@
    "depends": [
     "A3.4a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
    ],
@@ -2407,7 +2407,7 @@
    "depends": [
     "A3.4b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/AB_HANDLER_VERIFICATION.md"
    ],
@@ -2426,7 +2426,7 @@
    "depends": [
     "A3.4c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
    ],
@@ -2445,7 +2445,7 @@
    "depends": [
     "A3.4d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/GALILEAN_PSATD_REGRESSION.md"
    ],
@@ -2464,7 +2464,7 @@
    "depends": [
     "A3.4e"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeData.H",
     "Source/Particles/WarpXParticleContainer.cpp"
@@ -2484,7 +2484,7 @@
    "depends": [
     "A3.4f"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
    ],
@@ -2503,7 +2503,7 @@
    "depends": [
     "A3.4g"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
    ],
@@ -2522,7 +2522,7 @@
    "depends": [
     "A3.4h"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Docs/research_notes/MODIFIED_FEATURE_VALIDATION.md"
    ],
@@ -2541,7 +2541,7 @@
    "depends": [
     "A3.3b12"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/HandlerSpec.H",
     "tests/runtime/test_runtime_snapshot.cpp"
@@ -2561,7 +2561,7 @@
    "depends": [
     "A3.3c"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/RuntimeContext.H",
     "tests/runtime/CMakeLists.txt"
@@ -2581,7 +2581,7 @@
    "depends": [
     "A3.3d"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/WarpXRuntimeData.H",
     "Source/Runtime/WarpXRuntimeData.cpp"
@@ -2601,7 +2601,7 @@
    "depends": [
     "A3.4i"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/FieldSchema.H"
    ],
@@ -2620,7 +2620,7 @@
    "depends": [
     "A3.4b"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 3.0,
    "gate": "full",
@@ -2636,7 +2636,7 @@
    "depends": [
     "A3.4j"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/FieldRegistry.H",
     "Source/Runtime/DataBus.H"
@@ -2656,7 +2656,7 @@
    "depends": [
     "A4.1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/SpeciesRegistry.H",
     "Source/Runtime/DataBus.H"
@@ -2676,7 +2676,7 @@
    "depends": [
     "A4.2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Runtime/MaterialSpec.H",
     "Source/Runtime/MaterialRegistry.H"
@@ -2696,7 +2696,7 @@
    "depends": [
     "A4.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/WarpX.cpp",
     "Source/Runtime/FieldRegistry.H"
@@ -2716,7 +2716,7 @@
    "depends": [
     "A4.4a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp",
     "Docs/research_notes/A4.4_CHECKPOINT_SCHEMA.md"
@@ -2738,7 +2738,7 @@
     "A4.2",
     "A4.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 12.0,
    "gate": "build+smoke",
@@ -2754,7 +2754,7 @@
    "depends": [
     "A4.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 3.0,
    "gate": "full",

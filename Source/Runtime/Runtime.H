@@ -86,6 +86,7 @@ public:
 
 private:
     bool m_initialized = false;
+    bool m_external_libraries_initialized = false;
     bool m_finalized = false;
     RuntimeConfig m_config{};
     TimeState m_time{};

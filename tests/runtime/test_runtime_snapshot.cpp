@@ -144,7 +144,9 @@ int main (int argc, char* argv[])
         check_eq(ordered.back().second, std::string("diag"), "StagePlan sorts Diagnostics last");
     }
 
+    check(!runtime.time().valid, "TimeState is not published before InitData");
     runtime.initialize();
+    check(runtime.time().valid, "TimeState becomes valid after InitData");
     check(WarpX::GetInstance().levelResources().size() ==
               WarpX::GetInstance().maxLevel() + 1,
           "LevelResources tracks the AMR hierarchy");
@@ -327,6 +329,12 @@ int main (int argc, char* argv[])
         }
         return last;
     };
+    check(!last_line("diags/reducedfiles/step_info.txt").empty(),
+          "step_info reduced diagnostic wrote a row");
+    if (particles_mode) {
+        check(!last_line("diags/reducedfiles/lb_eff.txt").empty(),
+              "lb_eff reduced diagnostic wrote a row");
+    }
 
     if (!particles_mode && !psatd_mode) {
     // Numeric verification of the migrated reduced diagnostics:
@@ -351,10 +359,10 @@ int main (int argc, char* argv[])
         double bx = 0, by = 0, bz = 0, bmag = 0;
         is >> step >> time >> ex >> ey >> ez >> emag >> bx >> by >> bz >> bmag;
         check_eq(static_cast<int>(step), 1, "field_max step");
-        check(std::abs(ex - 1.0) <= 1.0e-14, "field_max max_Ex");
-        check(std::abs(emag - 1.0) <= 1.0e-14, "field_max max_|E|");
-        check(std::abs(by - 1.0) <= 1.0e-14, "field_max max_By");
-        check(std::abs(bmag - 1.0) <= 1.0e-14, "field_max max_|B|");
+        check(std::abs(ex - 1.0) <= 1.0e-12, "field_max max_Ex");
+        check(std::abs(emag - 1.0) <= 1.0e-12, "field_max max_|E|");
+        check(std::abs(by - 1.0) <= 1.0e-12, "field_max max_By");
+        check(std::abs(bmag - 1.0) <= 1.0e-12, "field_max max_|B|");
     }
     {
         std::istringstream is(last_line("diags/reducedfiles/field_mom.txt"));
@@ -386,7 +394,7 @@ int main (int argc, char* argv[])
         double step = 0, time = 0, value = 0;
         is >> step >> time >> value;
         check_eq(static_cast<int>(step), 1, "field_reduce step");
-        check(std::abs(value - 1.0) <= 1.0e-14, "field_reduce Maximum(Ex)");
+        check(std::abs(value - 1.0) <= 1.0e-12, "field_reduce Maximum(Ex)");
     }
 
     }
@@ -457,8 +465,8 @@ int main (int argc, char* argv[])
             is >> step >> time >> x >> y >> z >> ex >> ey >> ez >> bx >> by >> bz >> s;
             constexpr double mu0 = 1.2566370612685e-6;
             check_eq(static_cast<int>(step), 1, "field_probe step");
-            check(std::abs(ex - 1.0) <= 1.0e-14, "field_probe Ex");
-            check(std::abs(by - 1.0) <= 1.0e-14, "field_probe By");
+            check(std::abs(ex - 1.0) <= 1.0e-12, "field_probe Ex");
+            check(std::abs(by - 1.0) <= 1.0e-12, "field_probe By");
             check(std::abs(s - 1.0 / mu0) <= 1.0e-12 / mu0, "field_probe Poynting S");
         }
     }

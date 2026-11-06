@@ -30,6 +30,18 @@ class RuntimeData;
  */
 struct RuntimeContext
 {
+    RuntimeContext () = default;
+    RuntimeContext (const RuntimeConfig* config_, const TimeState* time_,
+                    const FrameState* frame_, RuntimeData* data_, DataBus* bus_,
+                    HostServices* host_, std::function<void()> refresh_time_)
+        : config(config_), time(time_), frame(frame_), data(data_), bus(bus_),
+          host(host_), refresh_time(std::move(refresh_time_)) {}
+
+    RuntimeContext (const RuntimeContext&) = delete;
+    RuntimeContext& operator= (const RuntimeContext&) = delete;
+    RuntimeContext (RuntimeContext&&) = default;
+    RuntimeContext& operator= (RuntimeContext&&) = default;
+
     const RuntimeConfig* config = nullptr;
     const TimeState* time = nullptr;
     const FrameState* frame = nullptr;
