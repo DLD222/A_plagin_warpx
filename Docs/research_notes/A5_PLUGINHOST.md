@@ -100,12 +100,20 @@ CollisionPackage::register_handler(*m_plugin_host, m_collision_handler.get());
 
 A/B 结果仍为逐位一致（先前记录）。
 
-## 尚未完成
+## A5 收口
 
-- A5.3 内置插件适配的逐位 A/B；
-- A5.4 外挂插件示例；
-- A5.5 运行期 .so 加载；
-- A5.6 A5 回归门。
+| 项 | 状态 |
+|---|---|
+| A5.1 PluginHost | ✅ |
+| A5.2 拓扑/冲突 | ✅ |
+| A5.3 内置适配 | ✅ PIC/Collision/Diagnostics |
+| A5.3a 包注册 | ✅ |
+| A5.3b 诊断包 | ✅ |
+| A5.4 外挂示例 | ✅ |
+| A5.5 动态加载 | ✅ |
+| A5.6 A/B 门 | ✅ |
+
+medium/PEC 已确认属于 FieldSolve 内部，不再强行作为独立 handler。
 
 ## A5.6 自动 A/B 门
 

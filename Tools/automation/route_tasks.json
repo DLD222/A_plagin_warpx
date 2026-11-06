@@ -2844,13 +2844,13 @@
    "depends": [
     "A5.2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 15.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "旧实现包一层；A/B 逐位",
-   "note": ""
+   "acceptance": "PIC/Collision/Diagnostics 包化；medium/PEC 确认为 FieldSolve 内部，不作为独立插件",
+   "note": "medium/PEC 边界已确认；见 A5_PLUGINHOST.md"
   },
   {
    "id": "A5.4",

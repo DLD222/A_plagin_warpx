@@ -150,7 +150,7 @@
 | A5.2 | A5 | done | A5.1 | 数据依赖拓扑排序与冲突检测 |
 | A5.3a | A5 | done | A5.2 | 内置包注册集中化（PIC/Collision） |
 | A5.3b | A5 | done | A5.3a | 诊断包化（Stage::Diagnostics handler） |
-| A5.3 | A5 | pending | A5.2 | 内置插件适配（yee/pic/medium/pec/diag） |
+| A5.3 | A5 | done | A5.2 | 内置插件适配（yee/pic/medium/pec/diag） |
 | A5.4 | A5 | done | A5.3a | 外挂插件示例（1 个 .cpp） |
 | A5.5 | A5 | done | A5.4 | 运行期 .so 加载（可选） |
 | A5.6 | A5 | done | A5.4,A5.5 | A5 回归门（A/B + 外挂） |
@@ -160,5 +160,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A5.3` — 内置插件适配（yee/pic/medium/pec/diag）
+**Next:** `A6a` — 动态 regrid 基础设施（MakeNewLevelFromCoarse + AmrCore::regrid）
 
