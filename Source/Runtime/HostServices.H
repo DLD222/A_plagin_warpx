@@ -93,6 +93,9 @@ public:
     //! Advance E/B for one explicit PIC step.
     virtual void fieldSolve (amrex::Real cur_time) = 0;
 
+    //! Fill the "nuei_<species>" field used by inverse bremsstrahlung.
+    virtual void calculateNuei (const std::string& species) = 0;
+
     //! Global collision helpers.
     virtual void transformMomentumToCurvilinear (bool forward) = 0;
     virtual void generateGlobalDebyeLength () = 0;

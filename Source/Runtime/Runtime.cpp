@@ -62,6 +62,15 @@ Runtime::Runtime (int argc, char* argv[])
     m_context = RuntimeContext{&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
                                m_host.get(), nullptr, [this] { sync_time(); }};
     warpx.SetRuntimeContext(&m_context);
+
+    auto& mpc = warpx.GetPartContainer();
+    auto* host = m_host.get();
+    CollisionSpeciesTable species(mpc, [host](const std::string& name) {
+        host->calculateNuei(name);
+    });
+    m_collision_handler = std::make_unique<CollisionHandler>(
+        species, *m_data, m_config, host);
+    mpc.setCollisionHandler(m_collision_handler.get());
 }
 
 Runtime::~Runtime ()
@@ -107,6 +116,10 @@ Runtime::finalize ()
 {
     if (m_finalized) { return; }
     m_host.reset();
+    if (m_warpx != nullptr) {
+        m_warpx->GetPartContainer().setCollisionHandler(nullptr);
+    }
+    m_collision_handler.reset();
     m_bus.reset();
     m_plugin_host.reset();
     m_data.reset();

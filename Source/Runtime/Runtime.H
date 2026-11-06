@@ -20,6 +20,8 @@
 
 class WarpX;
 
+class CollisionHandler;
+
 namespace warpx::runtime
 {
 
@@ -95,6 +97,7 @@ private:
     std::unique_ptr<DataBus> m_bus;
     std::unique_ptr<WarpXHostServices> m_host;
     std::unique_ptr<PluginHost> m_plugin_host;
+    std::unique_ptr<CollisionHandler> m_collision_handler;
 
     void sync_config ();
     void sync_time ();

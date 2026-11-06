@@ -57,6 +57,7 @@ public:
     void transformMomentumToCurvilinear (bool forward) override;
     void generateGlobalDebyeLength () override;
     void generateVirtualPhotons () override;
+    void calculateNuei (const std::string& species) override;
     void fieldSolve (amrex::Real cur_time) override;
     void updateMaxStep (int new_max_step) override;
     void updateStopTime (amrex::Real new_stop_time) override;

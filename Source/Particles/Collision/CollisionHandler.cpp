@@ -36,11 +36,11 @@
 
 #include <vector>
 
-CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
-    : m_species(*mypc, [mypc](const std::string& name) {
-          const_cast<MultiParticleContainer*>(mypc)->CalculateNuei(name);
-      }),
-      m_mypc(const_cast<MultiParticleContainer*>(mypc))
+CollisionHandler::CollisionHandler(const CollisionSpeciesTable& species,
+                                  const warpx::runtime::RuntimeData& data,
+                                  const warpx::runtime::RuntimeConfig& config,
+                                  warpx::runtime::HostServices* host)
+    : m_species(species), m_data(&data), m_config(&config), m_host(host)
 {
 
     // Read in collision input
@@ -54,7 +54,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
     for (int i = 0; i < static_cast<int>(ncollisions); ++i) {
         const amrex::ParmParse pp_collision_name(collision_names[i]);
 
-        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(mypc->config().n_rz_azimuthal_modes()==1,
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_config->n_rz_azimuthal_modes()==1,
         "RZ mode `warpx.n_rz_azimuthal_modes` must be 1 when using the binary collision module.");
 
         // For legacy, pairwisecoulomb is the default
@@ -66,54 +66,54 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
         if (type == "pairwisecoulomb") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<PairWiseCoulombCollisionFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                 );
             m_use_global_debye_length |= allcollisions[i]->use_global_debye_length();
         }
         else if (type == "background_mcc") {
-            allcollisions[i] = std::make_unique<BackgroundMCCCollision>(collision_names[i], m_species, mypc->data(), mypc->config());
+            allcollisions[i] = std::make_unique<BackgroundMCCCollision>(collision_names[i], m_species, *m_data, *m_config);
         }
         else if (type == "pulsed_decay") {
             allcollisions[i] = std::make_unique<PulsedDecay>(collision_names[i], m_species);
         }
         else if (type == "background_stopping") {
-            allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i], m_species, mypc->data(), mypc->config());
+            allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i], m_species, *m_data, *m_config);
         }
         else if (type == "hybrid_resistive_drag") {
-            allcollisions[i] = std::make_unique<HybridResistiveDrag>(collision_names[i], m_species, mypc->data(), mypc->config());
+            allcollisions[i] = std::make_unique<HybridResistiveDrag>(collision_names[i], m_species, *m_data, *m_config);
         }
         else if (type == "dsmc") {
             allcollisions[i] =
                 std::make_unique<BinaryCollision<DSMCFunc, SplitAndScatterFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                 );
         }
         else if (type == "nuclearfusion") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<NuclearFusionFunc, ParticleCreationFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                 );
         }
         else if (type == "bremsstrahlung") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<BremsstrahlungFunc, PhotonCreationFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                 );
         }
         else if (type == "inverse_bremsstrahlung") {
-            allcollisions[i] = std::make_unique<InverseBremsstrahlung>(collision_names[i], m_species, mypc->data(), mypc->config());
+            allcollisions[i] = std::make_unique<InverseBremsstrahlung>(collision_names[i], m_species, *m_data, *m_config);
             m_use_global_debye_length = true;
         }
         else if (type == "linear_breit_wheeler") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<LinearBreitWheelerCollisionFunc, ParticleCreationFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                );
         }
         else if (type == "linear_compton") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<LinearComptonCollisionFunc, ParticleCreationFunc>>(
-                    collision_names[i], mypc
+                    collision_names[i], m_species
                );
         }
         else{
@@ -153,24 +153,22 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
      * the momentum of the macroparticles to the curvilinear frame, equivalent to the x-axis.
      * (This is only valid if we use only the m=0 azimuthal mode in the simulation;
      * there is a corresponding assert statement at initialization.) */
-    (m_host != nullptr ? m_host->transformMomentumToCurvilinear(true)
-                       : m_mypc->TransformMomentumToCurvilinear(true));
+    if (m_host != nullptr) { m_host->transformMomentumToCurvilinear(true); }
 #endif
 
 #ifdef WARPX_QED
     // For QED incoherent processes (e.g. Bethe-Heitler, Landau-Lifschitz), the process is mediated by virtual photons.
     // The virtual photons are newly generated here and participate in the collisions.
     // Here, the virtual photons are regenerated from scratch, i.e. they are overwritten by new ones at each time step.
-    if (m_mypc->nSpecies() > 0) {
-        if (m_host != nullptr) { m_host->generateVirtualPhotons(); }
+    if (m_species.size() > 0 && m_host != nullptr) {
+        m_host->generateVirtualPhotons();
     }
 #endif
 
     if (m_use_global_debye_length) {
         // This will calculate the temperature, Vbar, and particle number that are needed by
         // the various collision algorithms
-        (m_host != nullptr ? m_host->generateGlobalDebyeLength()
-                           : m_mypc->GenerateGlobalDebyeLength());
+        if (m_host != nullptr) { m_host->generateGlobalDebyeLength(); }
     }
 
     for (auto& collision : allcollisions) {
@@ -199,8 +197,7 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     // Undo the rotation above
-    (m_host != nullptr ? m_host->transformMomentumToCurvilinear(false)
-                       : m_mypc->TransformMomentumToCurvilinear(false));
+    if (m_host != nullptr) { m_host->transformMomentumToCurvilinear(false); }
 #endif
 
 }

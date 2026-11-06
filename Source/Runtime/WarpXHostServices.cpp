@@ -222,6 +222,12 @@ WarpXHostServices::finalizeDeposition ()
 }
 
 void
+WarpXHostServices::calculateNuei (const std::string& species)
+{
+    m_warpx.GetPartContainer().CalculateNuei(species);
+}
+
+void
 WarpXHostServices::transformMomentumToCurvilinear (bool forward)
 {
     m_warpx.GetPartContainer().TransformMomentumToCurvilinear(forward);

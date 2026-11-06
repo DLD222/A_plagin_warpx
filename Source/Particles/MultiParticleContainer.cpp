@@ -131,9 +131,6 @@ MultiParticleContainer::MultiParticleContainer (AmrCore* amr_core)
         allcontainers[i]->m_deposit_on_main_grid = m_laser_deposit_on_main_grid[i-nspecies];
     }
 
-    // Setup particle collisions
-    collisionhandler = std::make_unique<CollisionHandler>(this);
-
 }
 
 void
@@ -439,6 +436,13 @@ MultiParticleContainer::TransformMomentumToCurvilinear (bool forward) {
     }
 }
 
+CollisionHandler*
+MultiParticleContainer::activeCollisionHandler () const
+{
+    return m_collision_handler_external != nullptr
+        ? m_collision_handler_external : collisionhandler.get();
+}
+
 void
 MultiParticleContainer::AllocData ()
 {
@@ -446,7 +450,17 @@ MultiParticleContainer::AllocData ()
         pc->AllocData();
     }
 
-    collisionhandler->AllocData();
+    if (m_collision_handler_external == nullptr && collisionhandler == nullptr &&
+        m_runtime_context != nullptr && m_runtime_context->data != nullptr &&
+        m_runtime_context->config != nullptr) {
+        auto* host = m_runtime_context->host;
+        CollisionSpeciesTable species(*this, [host](const std::string& name) {
+            if (host != nullptr) { host->calculateNuei(name); }
+        });
+        collisionhandler = std::make_unique<CollisionHandler>(
+            species, *m_runtime_context->data, *m_runtime_context->config, host);
+    }
+    if (auto* handler = activeCollisionHandler()) { handler->AllocData(); }
 }
 
 void
@@ -1222,16 +1236,12 @@ MultiParticleContainer::doFieldIonization (int lev,
 }
 
 void
-MultiParticleContainer::setCollisionHostServices (warpx::runtime::HostServices* host)
-{
-    if (collisionhandler != nullptr) { collisionhandler->setHostServices(host); }
-}
-
-void
 MultiParticleContainer::doCollisions ( int step, Real cur_time, amrex::Real dt )
 {
     ABLASTR_PROFILE("MultiParticleContainer::doCollisions()");
-    collisionhandler->doCollisions(step, cur_time, dt);
+    if (auto* handler = activeCollisionHandler()) {
+        handler->doCollisions(step, cur_time, dt);
+    }
 }
 
 void MultiParticleContainer::doResampling (

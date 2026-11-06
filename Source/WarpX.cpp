@@ -3836,7 +3836,5 @@ void
 WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
 {
     m_runtime_context = context;
-    if (mypc != nullptr) {
-        mypc->setCollisionHostServices(context != nullptr ? context->host : nullptr);
-    }
+    if (mypc != nullptr) { mypc->setRuntimeContext(context); }
 }

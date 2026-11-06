@@ -2157,7 +2157,10 @@
    "automation_command": null,
    "acceptance": "BinaryCollision 无 mypc；碰撞数值 4.66e-4",
    "note": "按 f1-f5 分步",
-   "verify_command": null
+   "verify_command": null,
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A3.3b8g",
@@ -2200,12 +2203,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8i",
+   "phase": "A3",
+   "title": "CollisionHandler 去 MultiParticleContainer + 懒创建",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8h"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/CollisionHandler.H",
+    "Source/Particles/MultiParticleContainer.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Handler 无 m_mypc；AllocData 时用 context 建；碰撞/ES/LB 通过",
+   "note": "MPC 仍持有 handler，包化下一步",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8h"
+    "A3.3b8i"
    ],
    "status": "pending",
    "outputs": [
@@ -2216,6 +2239,29 @@
    "automation_command": null,
    "acceptance": "handler 不再接收 MPC；碰撞数值不变",
    "note": "分步替换 8 个 model",
+   "verify_command": null,
+   "state": {
+    "status": "pending"
+   }
+  },
+  {
+   "id": "A3.3b9",
+   "phase": "A3",
+   "title": "Runtime 持有 CollisionHandler；MPC 改为非拥有指针",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8i"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/Runtime.cpp",
+    "Source/Particles/MultiParticleContainer.H"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "MPC 不再 unique_ptr 拥有；Runtime 生命周期；碰撞通过",
+   "note": "尚未注册 Collisions handler 到 PluginHost",
    "verify_command": null
   },
   {
@@ -2224,7 +2270,7 @@
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
    "kind": "refactor",
    "depends": [
-    "A3.3b8"
+    "A3.3b9"
    ],
    "status": "pending",
    "outputs": [

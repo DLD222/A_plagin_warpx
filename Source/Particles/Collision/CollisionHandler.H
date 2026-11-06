@@ -12,7 +12,9 @@
 
 namespace warpx::runtime { class HostServices; }
 
-#include "Particles/MultiParticleContainer_fwd.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+
+namespace warpx::runtime { class HostServices; class RuntimeData; class RuntimeConfig; }
 
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
@@ -26,14 +28,17 @@ namespace warpx::runtime { class HostServices; }
 class CollisionHandler
 {
 public:
-    explicit CollisionHandler (const MultiParticleContainer*  mypc);
+    CollisionHandler (const CollisionSpeciesTable& species,
+                      const warpx::runtime::RuntimeData& data,
+                      const warpx::runtime::RuntimeConfig& config,
+                      warpx::runtime::HostServices* host);
 
     /* Allocate data needed for collision */
     void AllocData ();
 
     [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
 
-    void setHostServices (warpx::runtime::HostServices* host) { m_host = host; }
+
 
     /* Perform all of the collisions */
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
@@ -41,7 +46,8 @@ public:
 private:
 
     CollisionSpeciesTable m_species;
-    MultiParticleContainer* m_mypc = nullptr;
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+    const warpx::runtime::RuntimeConfig* m_config = nullptr;
     warpx::runtime::HostServices* m_host = nullptr;
 
     amrex::Vector<std::string> collision_names;

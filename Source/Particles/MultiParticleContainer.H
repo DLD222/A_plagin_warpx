@@ -53,7 +53,9 @@
 #include <vector>
 
 /**
- * The class MultiParticleContainer holds multiple instances of the polymorphic
+ * The class CollisionHandler;
+
+class MultiParticleContainer holds multiple instances of the polymorphic
  * class WarpXParticleContainer, stored in its member variable "allcontainers".
  * The class WarpX typically has a single (pointer to an) instance of
  * MultiParticleContainer.
@@ -243,7 +245,9 @@ public:
                             const amrex::MultiFab& Bx, const amrex::MultiFab& By, const amrex::MultiFab& Bz);
 
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
-    void setCollisionHostServices (warpx::runtime::HostServices* host);
+    void setRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
+    void setCollisionHandler (CollisionHandler* handler) { m_collision_handler_external = handler; }
+    [[nodiscard]] CollisionHandler* activeCollisionHandler () const;
 
     /**
     * \brief This function loops over all species and performs resampling if appropriate.
@@ -572,6 +576,7 @@ protected:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    CollisionHandler* m_collision_handler_external = nullptr;
 
     // physical particles (+ laser)
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>> allcontainers;
