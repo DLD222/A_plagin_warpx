@@ -1932,12 +1932,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8",
+   "phase": "A3",
+   "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b7"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3.3B_COLLISION_DECOUPLING.md"
+   ],
+   "effort_days": 4.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "handler 不再接收 MPC；碰撞数值不变",
+   "note": "分步替换 8 个 model",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
    "kind": "refactor",
    "depends": [
-    "A3.3b7"
+    "A3.3b8"
    ],
    "status": "pending",
    "outputs": [
