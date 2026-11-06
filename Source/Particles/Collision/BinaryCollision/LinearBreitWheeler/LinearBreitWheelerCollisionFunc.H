@@ -8,6 +8,7 @@
 #ifndef LINEAR_BREIT_WHEELER_COLLISION_FUNC_H_
 #define LINEAR_BREIT_WHEELER_COLLISION_FUNC_H_
 
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "SingleLinearBreitWheelerCollisionEvent.H"
 
 #include "Particles/Collision/CollisionFuncBase.H"

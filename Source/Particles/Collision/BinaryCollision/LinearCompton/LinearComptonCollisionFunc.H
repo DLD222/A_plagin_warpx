@@ -8,6 +8,7 @@
 #ifndef LINEAR_COMPTON_COLLISION_FUNC_H_
 #define LINEAR_COMPTON_COLLISION_FUNC_H_
 
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "SingleLinearComptonCollisionEvent.H"
 
 #include "Particles/Collision/CollisionFuncBase.H"

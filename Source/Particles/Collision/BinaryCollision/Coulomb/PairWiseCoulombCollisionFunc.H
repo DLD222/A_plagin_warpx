@@ -8,6 +8,7 @@
 #ifndef WARPX_PAIRWISE_COULOMB_COLLISION_FUNC_H_
 #define WARPX_PAIRWISE_COULOMB_COLLISION_FUNC_H_
 
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "ElasticCollisionPerez.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
@@ -48,6 +49,11 @@ public:
      * @param[in] mypc the particle container (unused)
      * @param[in] isSameSpecies true if this is an intra-species colission
      */
+    PairWiseCoulombCollisionFunc (const std::string& collision_name,
+                                  const CollisionSpeciesTable& /*table*/,
+                                  const bool isSameSpecies) :
+        PairWiseCoulombCollisionFunc(collision_name, nullptr, isSameSpecies) {}
+
     PairWiseCoulombCollisionFunc (const std::string& collision_name,
                                   [[maybe_unused]] MultiParticleContainer const * const mypc,
                                   const bool isSameSpecies):

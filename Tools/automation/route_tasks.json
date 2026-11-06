@@ -2046,12 +2046,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f2",
+   "phase": "A3",
+   "title": "无状态 functor 增加 SpeciesTable 构造重载",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f1"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Coulomb/Linear* 可用 table 构造；旧入口保留；碰撞通过",
+   "note": "Binary 切换在 f5",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f1"
+    "A3.3b8f2"
    ],
    "status": "pending",
    "outputs": [

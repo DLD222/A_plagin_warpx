@@ -109,7 +109,8 @@
 | A3.3b8d | A3 | done | A3.3b8c | BackgroundMCCCollision 改用 species table/data/config |
 | A3.3b8e | A3 | done | A3.3b8d | InverseBremsstrahlung 去 MPC/WarpX 单例（Nuei 回调） |
 | A3.3b8f1 | A3 | done | A3.3b8e | BinaryCollisionUtils 增加 SpeciesTable 重载 |
-| A3.3b8f | A3 | pending | A3.3b8f1 | BinaryCollision functor 链去 MultiParticleContainer |
+| A3.3b8f2 | A3 | done | A3.3b8f1 | 无状态 functor 增加 SpeciesTable 构造重载 |
+| A3.3b8f | A3 | pending | A3.3b8f2 | BinaryCollision functor 链去 MultiParticleContainer |
 | A3.3b8 | A3 | pending | A3.3b8f | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
 | A3.3b | A3 | pending | A3.3b8 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
