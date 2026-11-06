@@ -900,6 +900,15 @@ FullDiagnostics::ResizeLevels (int new_finest)
 }
 
 void
+FullDiagnostics::RemakeLevel (int lev)
+{
+    for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
+        InitializeBufferData(i_buffer, lev);
+    }
+    InitializeFieldFunctors(lev);
+}
+
+void
 FullDiagnostics::InitializeFieldFunctors (int lev)
 {
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)

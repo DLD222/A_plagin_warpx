@@ -107,4 +107,3 @@ algo.current_deposition = direct
 
 warpx.random_seed = 12345
 
-diag1.write_species = 0

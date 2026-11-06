@@ -83,6 +83,7 @@ private:
       */
     void InitializeBufferData ( int i_buffer, int lev, bool restart=false ) override;
     void ResizeLevels (int new_finest) override;
+    void RemakeLevel (int lev) override;
     /** Initialize functors that store pointers to the RZ fields requested by the user.
      * \param[in] lev level on which the vector of unique_ptrs to field functors is initialized.
      */

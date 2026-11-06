@@ -41,6 +41,12 @@ MultiDiagnostics::InitData (const MultiParticleContainer& mpc)
 }
 
 void
+MultiDiagnostics::RemakeLevel ( int lev )
+{
+    for (auto& diag : alldiags) { diag->RemakeLevel(lev); }
+}
+
+void
 MultiDiagnostics::ResizeLevels ( int new_finest )
 {
     for (auto& diag : alldiags) { diag->ResizeLevels(new_finest); }

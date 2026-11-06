@@ -8,4 +8,5 @@ assert ds.max_level == 1, f"level 1 missing: max_level={ds.max_level}"
 grid = ds.covering_grid(0, ds.domain_left_edge, ds.domain_dimensions)
 ex = np.array(grid[("boxlib", "Ex")])
 assert np.all(np.isfinite(ex)), "non-finite Ex after RemakeLevel"
-print("dynamic regrid RemakeLevel fields finite")
+assert len(ds.particle_types) > 0, "no particle types after RemakeLevel"
+print("dynamic regrid RemakeLevel fields finite; particles readable")

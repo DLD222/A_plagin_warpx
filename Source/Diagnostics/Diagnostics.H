@@ -227,6 +227,7 @@ protected:
      */
     virtual void InitializeBufferData (int i_buffer, int lev, bool restart=false) = 0;
     virtual void ResizeLevels (int /*new_finest*/) {}
+    virtual void RemakeLevel (int /*lev*/) {}
     /** Initialize member variables and arrays specific to the diagnostics in the
      *  derived classes.(FullDiagnostics, BTDiagnostics)
      */

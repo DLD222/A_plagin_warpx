@@ -406,10 +406,15 @@ WarpX::Evolve (int numsteps)
         if (regrid_int > 0 && (step + 1) % regrid_int == 0 && max_level > 0) {
             regrid(0, cur_time);
             RunRegridStage(istep[0]);
+            for (int lev = 0; lev <= finest_level; ++lev) {
+                multi_diags->RemakeLevel(lev);
+            }
             multi_diags->ResizeLevels(finest_level);
             for (int lev = 0; lev <= finest_level; ++lev) {
-                auto pba = GetParGDB()->ParticleBoxArray(lev);
-                auto pdm = GetParGDB()->ParticleDistributionMap(lev);
+                auto pba = boxArray(lev);
+                auto pdm = DistributionMap(lev);
+                GetParGDB()->SetParticleBoxArray(lev, pba);
+                GetParGDB()->SetParticleDistributionMap(lev, pdm);
                 mypc->SetParticleBoxArray(lev, pba);
                 mypc->SetParticleDistributionMap(lev, pdm);
             }

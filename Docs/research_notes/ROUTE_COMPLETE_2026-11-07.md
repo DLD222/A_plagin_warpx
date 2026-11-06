@@ -72,8 +72,6 @@ ASAN:         15 / 15 PASS
 
 ## 已知限制
 
-- `dynamic_regrid_remake` 关闭粒子输出：
-  - 已有 level 改变 BoxArray 时，旧 particle tile 的 grid id 未重建；
 - BTD 的 `ResizeLevels` 仍为 no-op；
 - `MakeNewLevelFromCoarse` 只插值 E/B/J/rho；
 - IAmrPolicy 无外部 `.so` ABI；
