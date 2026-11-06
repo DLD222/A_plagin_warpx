@@ -549,6 +549,9 @@ WarpX::RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
                                          m_runtime_context->host, m_runtime_context->data};
+        ctx.step = a_step;
+        ctx.time = a_cur_time;
+        ctx.dt = a_dt;
         const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Push);
         if (!handlers.empty()) {
             for (auto* handler : handlers) { handler->apply(ctx); }
@@ -593,6 +596,7 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
                                          m_runtime_context->host, m_runtime_context->data};
+        ctx.time = a_cur_time;
         const auto handlers = m_plugin_host->at(warpx::runtime::Stage::FieldSolve);
         if (!handlers.empty()) {
             for (auto* handler : handlers) { handler->apply(ctx); }
@@ -813,11 +817,11 @@ WarpX::OneStep_nosub (
     for (const auto& [point, name] : plan.sorted()) {
         amrex::ignore_unused(point);
         if (name == "Push") {
-            OneStep_PushParticles(a_cur_time, a_dt, a_step);
+            RunPushStage(a_cur_time, a_dt, a_step);
         } else if (name == "FinalizeDeposition") {
-            OneStep_FinalizeDeposition();
+            RunFinalizeStage();
         } else if (name == "FieldSolve") {
-            OneStep_FieldSolve(a_cur_time);
+            RunFieldSolveStage(a_cur_time);
         }
     }
 

@@ -25,10 +25,10 @@ PolicyVec getPolicies (std::vector<std::string> const & names_vec)
     for (const auto& kv : names)
     {
         const auto policy_it = ::initialization_policies.find(kv.first);
-        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-            policy_it != ::initialization_policies.end(),
-            "No initialization policy registered for particle component '" + kv.first + "'");
-        h_policies[kv.second] = policy_it->second;
+        // User-defined runtime attributes (e.g. orig_z) are not in the static
+        // table; they are initialized to zero by default.
+        h_policies[kv.second] = (policy_it != ::initialization_policies.end())
+            ? policy_it->second : InitializationPolicy::Zero;
     }
 
     // host-to-device copy

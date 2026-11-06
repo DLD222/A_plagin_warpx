@@ -38,8 +38,7 @@ public:
         if (ctx.host == nullptr || ctx.data == nullptr) {
             throw std::runtime_error("PicFieldSolveHandler: missing StageContext services");
         }
-        constexpr int lev = 0;
-        ctx.host->fieldSolve(ctx.data->t_new(lev));
+        ctx.host->fieldSolve(ctx.time);
     }
 };
 

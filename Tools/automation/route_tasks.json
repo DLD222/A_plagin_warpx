@@ -2323,12 +2323,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.4b",
+   "phase": "A3",
+   "title": "2D 全量官方算例回归 + 失败分类",
+   "kind": "test",
+   "depends": [
+    "A3.4a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "默认71/83、FFT95/107；失败分类；修复 SmartUtils 属性策略",
+   "note": "Galilean PSATD 异常单列",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
    "kind": "test",
    "depends": [
-    "A3.4a"
+    "A3.4b"
    ],
    "status": "pending",
    "outputs": [],

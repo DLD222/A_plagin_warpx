@@ -42,9 +42,7 @@ public:
         if (ctx.host == nullptr || ctx.data == nullptr) {
             throw std::runtime_error("PicPushHandler: missing StageContext services");
         }
-        constexpr int lev = 0;
-        ctx.host->pushParticlesAndDeposit(ctx.data->t_new(lev), ctx.data->dt(lev),
-                                          ctx.data->istep(lev));
+        ctx.host->pushParticlesAndDeposit(ctx.time, ctx.dt, ctx.step);
     }
 };
 

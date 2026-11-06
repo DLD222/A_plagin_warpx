@@ -123,7 +123,8 @@
 | A3.3b10 | A3 | done | A3.3b9 | CollisionHandlerAdapter 注册到 PluginHost，碰撞走 Stage::Collisions |
 | A3.3b | A3 | pending | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
-| A3.4 | A3 | pending | A3.4a | A3 回归门 |
+| A3.4b | A3 | done | A3.4a | 2D 全量官方算例回归 + 失败分类 |
+| A3.4 | A3 | pending | A3.4b | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |
 | A4.3 | A4 | pending | A4.1 | MaterialRegistry（系数 bundle） |
