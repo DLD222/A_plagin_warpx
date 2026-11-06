@@ -2760,7 +2760,7 @@
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
    "acceptance": "restart 前后逐位",
-   "note": ""
+   "note": "Yee Langmuir 40->80 restart 全字段 array_equal"
   },
   {
    "id": "A5.1",
