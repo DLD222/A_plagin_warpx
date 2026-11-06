@@ -65,7 +65,18 @@ cmake -S . -B build_opmd -DWarpX_OPENPMD=ON ...
 - 6 个 MCC/embedded run 已通过（补 `warpx-data` 后）；
 - 安装 `openpmd-viewer` 后，3 个 absorption analysis 已通过；
 - `qed_breit_wheeler_opmd` / `rigid_injection_btd` / `laser_ion_acc`：
-  本机 C++ openPMD 构建无 HDF5 backend，只有 JSON/ADIOS2。
+  本机 C++ openPMD 构建无 HDF5 backend。
+
+已尝试安装 conda HDF5 并重配 openPMD：
+
+```
+h5cc 存在，HDF5 C 库存在
+但为 serial HDF5
+openPMD 出错：Found MPI but only serial version of HDF5
+```
+
+WarpX 是 MPI 构建，openPMD 要求 parallel HDF5，因此该 3 个测试仍无法运行。
+这不是代码问题。
 
 ## 4. FFT 构建
 
