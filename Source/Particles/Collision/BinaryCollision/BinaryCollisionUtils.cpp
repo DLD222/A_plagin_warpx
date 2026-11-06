@@ -26,7 +26,7 @@ using namespace amrex::literals;
 namespace BinaryCollisionUtils{
 
     CollisionType get_collision_type (const std::string& collision_name,
-                                      MultiParticleContainer const * const mypc)
+                                      const CollisionSpeciesTable& table)
     {
         const amrex::ParmParse pp_collision_name(collision_name);
         // For legacy, pairwisecoulomb is the default
@@ -36,7 +36,7 @@ namespace BinaryCollisionUtils{
             return CollisionType::PairwiseCoulomb;
         }
         else if (type == "nuclearfusion") {
-            const NuclearFusionType fusion_type = get_nuclear_fusion_type(collision_name, mypc);
+            const NuclearFusionType fusion_type = get_nuclear_fusion_type(collision_name, table);
             return nuclear_fusion_type_to_collision_type(fusion_type);
         }
         else if (type == "bremsstrahlung") {
@@ -52,8 +52,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 species_name.size() == 2u,
                 "Linear Breit-Wheeler collisions must involve exactly two species");
-            auto& species1 = mypc->GetParticleContainerFromName(species_name[0]);
-            auto& species2 = mypc->GetParticleContainerFromName(species_name[1]);
+            auto& species1 = *table.get(species_name[0]);
+            auto& species2 = *table.get(species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 species1.AmIA<PhysicalSpecies::photon>() && species2.AmIA<PhysicalSpecies::photon>(),
                 "Species involved in linear Breit-Wheeler collisions must be of type photon.");
@@ -63,8 +63,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
                 "Linear Breit-Wheeler collisions must contain exactly two product species");
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 (product_species1.AmIA<PhysicalSpecies::electron>() && product_species2.AmIA<PhysicalSpecies::positron>())
                 ||
@@ -79,8 +79,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 species_name.size() == 2u,
                 "Linear Compton collisions must involve exactly two species");
-            auto& species1 = mypc->GetParticleContainerFromName(species_name[0]);
-            auto& species2 = mypc->GetParticleContainerFromName(species_name[1]);
+            auto& species1 = *table.get(species_name[0]);
+            auto& species2 = *table.get(species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species1.AmIA<PhysicalSpecies::photon>(),
                 "The first species in linear Compton collisions must be a photon");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species2.AmIA<PhysicalSpecies::electron>() || species2.AmIA<PhysicalSpecies::positron>(),
@@ -91,8 +91,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
                 "Linear Compton collisions must contain exactly two product species");
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species1.AmIA<PhysicalSpecies::photon>(),
                 "The first product species in linear Compton collisions must be a photon");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species2.AmIA<PhysicalSpecies::electron>() || product_species2.AmIA<PhysicalSpecies::positron>(),
@@ -165,15 +165,15 @@ namespace BinaryCollisionUtils{
     }
 
     NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
-                                               MultiParticleContainer const * const mypc)
+                                               const CollisionSpeciesTable& table)
     {
         using namespace amrex::literals;
 
         const amrex::ParmParse pp_collision_name(collision_name);
         amrex::Vector<std::string> species_names;
         pp_collision_name.getarr("species", species_names);
-        auto& species1 = mypc->GetParticleContainerFromName(species_names[0]);
-        auto& species2 = mypc->GetParticleContainerFromName(species_names[1]);
+        auto& species1 = *table.get(species_names[0]);
+        auto& species2 = *table.get(species_names[1]);
 
         // Compute the total mass before and after collision to check the fusion energy
         const amrex::ParticleReal mass_before = species1.getMass() + species2.getMass();
@@ -191,8 +191,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
                 "ERROR: Deuterium-tritium fusion must contain exactly two product species");
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 (product_species1.AmIA<PhysicalSpecies::helium4>() && product_species2.AmIA<PhysicalSpecies::neutron>())
@@ -206,8 +206,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
                 "ERROR: Deuterium-deuterium fusion must contain exactly two product species");
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             if (
                 (product_species1.AmIA<PhysicalSpecies::helium3>() && product_species2.AmIA<PhysicalSpecies::neutron>())
@@ -229,8 +229,8 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
                 "ERROR: Deuterium-helium fusion must contain exactly two product species");
-            auto& product_species1 = mypc->GetParticleContainerFromName(product_species_name[0]);
-            auto& product_species2 = mypc->GetParticleContainerFromName(product_species_name[1]);
+            auto& product_species1 = *table.get(product_species_name[0]);
+            auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 (product_species1.AmIA<PhysicalSpecies::helium4>() && product_species2.AmIA<PhysicalSpecies::proton>())
@@ -247,7 +247,7 @@ namespace BinaryCollisionUtils{
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 1,
                 "ERROR: Proton-boron must contain exactly one product species");
-            auto& product_species = mypc->GetParticleContainerFromName(product_species_name[0]);
+            auto& product_species = *table.get(product_species_name[0]);
             mass_after = 3.0_prt*product_species.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species.AmIA<PhysicalSpecies::helium4>(),
@@ -314,5 +314,20 @@ namespace BinaryCollisionUtils{
             error_msg.str()
         );
 
+    }
+}
+namespace BinaryCollisionUtils {
+    CollisionType get_collision_type (const std::string& collision_name,
+                                      MultiParticleContainer const * const mypc)
+    {
+        const CollisionSpeciesTable table(*mypc);
+        return get_collision_type(collision_name, table);
+    }
+
+    NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
+                                               MultiParticleContainer const * const mypc)
+    {
+        const CollisionSpeciesTable table(*mypc);
+        return get_nuclear_fusion_type(collision_name, table);
     }
 }

@@ -2027,12 +2027,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f1",
+   "phase": "A3",
+   "title": "BinaryCollisionUtils 增加 SpeciesTable 重载",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8e"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/BinaryCollisionUtils.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "table 重载可用；旧 mypc 入口保留；碰撞回归通过",
+   "note": "后续 functor 改表后删除旧入口",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8e"
+    "A3.3b8f1"
    ],
    "status": "pending",
    "outputs": [
