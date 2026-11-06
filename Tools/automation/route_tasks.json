@@ -2380,6 +2380,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4e",
+   "phase": "A3",
+   "title": "Galilean PSATD 回归定位（基线对照 + 首步发散）",
+   "kind": "test",
+   "depends": [
+    "A3.4d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/GALILEAN_PSATD_REGRESSION.md"
+   ],
+   "effort_days": 2.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "确认基线通过；当前首步发散；非 handler/初始化",
+   "note": "下一步 bisect 粒子推进",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
