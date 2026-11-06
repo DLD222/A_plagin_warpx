@@ -15,6 +15,7 @@
 #include "BoundaryConditions/PEC_Insulator_fwd.H"
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
+#include "Runtime/IAmrPolicy.H"
 #include "Diagnostics/MultiDiagnostics_fwd.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags_fwd.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
@@ -148,6 +149,12 @@ public:
 
     void Evolve (int numsteps = -1);
     void RunPicPush (amrex::Real cur_time, amrex::Real dt, int step);
+
+    /** Install an optional AMR decision policy. */
+    void SetAmrPolicy (std::shared_ptr<warpx::runtime::IAmrPolicy> policy)
+    {
+        m_amr_policy = std::move(policy);
+    }
     void RunPicFinalizeDeposition ();
     void RunPicFieldSolve (amrex::Real cur_time);
     void SetPluginHost (warpx::runtime::PluginHost* host) { m_plugin_host = host; }
@@ -1451,6 +1458,7 @@ private:
     // Particle container
     std::unique_ptr<MultiParticleContainer> mypc;
     std::unique_ptr<MultiDiagnostics> multi_diags;
+    std::shared_ptr<warpx::runtime::IAmrPolicy> m_amr_policy;
 
     // Particle thermalizer configuration (constructed from inputs)
     ParticleThermalizer m_particle_thermalizer;

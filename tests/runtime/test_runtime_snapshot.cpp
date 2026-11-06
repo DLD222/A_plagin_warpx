@@ -10,6 +10,7 @@
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/FieldRegistry.H"
+#include "Runtime/IAmrPolicy.H"
 #include "Runtime/MaterialRegistry.H"
 #include "Runtime/PicEmPackage.H"
 #include "Runtime/PicFieldSolveHandler.H"
@@ -18,6 +19,8 @@
 #include "Runtime/StagePoint.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"
+
+#include <AMReX_TagBox.H>
 
 #include <algorithm>
 #include <cctype>
@@ -52,6 +55,34 @@ void check_real (amrex::Real a, amrex::Real b, const std::string& what)
     check(std::abs(a - b) <= 1.0e-15 * std::max<amrex::Real>(1.0, std::abs(b)), what);
 }
 
+struct FakeAmrPolicy final : warpx::runtime::IAmrPolicy
+{
+    int tag_calls = 0;
+    int dm_calls = 0;
+    int base_calls = 0;
+
+    void tag (int, amrex::TagBoxArray& tags, amrex::Real, int) override
+    {
+        ++tag_calls;
+        for (amrex::MFIter mfi(tags); mfi.isValid(); ++mfi) {
+            tags[mfi].setVal(amrex::TagBox::SET);
+        }
+    }
+
+    [[nodiscard]] amrex::DistributionMapping
+    makeDistributionMap (int, amrex::BoxArray const& ba) override
+    {
+        ++dm_calls;
+        return amrex::DistributionMapping(ba);
+    }
+
+    void postProcessBaseGrids (amrex::BoxArray& ba0) const override
+    {
+        ++const_cast<FakeAmrPolicy*>(this)->base_calls;
+        ba0 = amrex::BoxArray(ba0.minimalBox());
+    }
+};
+
 } // namespace
 
 int main (int argc, char* argv[])
@@ -74,6 +105,8 @@ int main (int argc, char* argv[])
     check(runtime.context().bus == &runtime.bus(), "context.bus points at Runtime::bus()");
     check(WarpX::GetInstance().levelResources().fields() == &runtime.fields(),
           "LevelResources borrows the same field registry");
+
+
 
     {
         struct FakeHandler final : warpx::runtime::IHandler {
@@ -175,6 +208,31 @@ int main (int argc, char* argv[])
 
     check(!runtime.time().valid, "TimeState is not published before InitData");
     runtime.initialize();
+
+    {
+        auto policy = std::make_shared<FakeAmrPolicy>();
+        WarpX::GetInstance().SetAmrPolicy(policy);
+        auto const& ba = WarpX::GetInstance().boxArray(0);
+        check(!ba.empty(), "base level has boxes before AMR policy test");
+        if (!ba.empty()) {
+        auto const dm = policy->makeDistributionMap(0, ba);
+        check_eq(static_cast<int>(dm.size()), static_cast<int>(ba.size()),
+                 "AMR policy controls DistributionMapping");
+        check_eq(policy->dm_calls, 1, "AMR policy DM called once");
+
+        amrex::BoxArray base = ba;
+        WarpX::GetInstance().PostProcessBaseGrids(base);
+        check_eq(policy->base_calls, 1, "AMR policy base grid called once");
+        check_eq(static_cast<int>(base.size()), 1, "AMR policy rewrote base grids");
+
+        if (!ba.empty()) {
+            amrex::TagBoxArray tags(ba, dm, 1);
+            WarpX::GetInstance().ErrorEst(0, tags, 0.0, 0);
+            check_eq(policy->tag_calls, 1, "AMR policy tagging called once");
+        }
+        }
+        WarpX::GetInstance().SetAmrPolicy(nullptr);
+    }
     check(runtime.time().valid, "TimeState becomes valid after InitData");
     check(WarpX::GetInstance().levelResources().size() ==
               WarpX::GetInstance().maxLevel() + 1,

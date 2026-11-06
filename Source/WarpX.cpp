@@ -3657,8 +3657,9 @@ WarpX::getLoadBalanceEfficiency (const int lev)
 
 
 void
-WarpX::ErrorEst (int lev, TagBoxArray& tags, Real time, int /*ngrow*/)
+WarpX::ErrorEst (int lev, TagBoxArray& tags, Real time, int ngrow)
 {
+    if (m_amr_policy != nullptr) { m_amr_policy->tag(lev, tags, time, ngrow); return; }
     if (refine_start_time >= 0.0_rt && time < refine_start_time) { return; }
     if (refine_stop_time >= 0.0_rt && time > refine_stop_time) { return; }
     const auto problo = Geom(lev).ProbLoArray();
@@ -3816,6 +3817,7 @@ WarpX::AllocInitMultiFab (
 amrex::DistributionMapping
 WarpX::MakeDistributionMap (int lev, amrex::BoxArray const& ba)
 {
+    if (m_amr_policy != nullptr) { return m_amr_policy->makeDistributionMap(lev, ba); }
     bool roundrobin_sfc = false;
     bool split_high_density_boxes = false;
     const ParmParse pp("warpx");

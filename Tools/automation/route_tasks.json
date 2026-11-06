@@ -2960,13 +2960,13 @@
    "depends": [
     "A6.2"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "只决策，不碰机制",
-   "note": ""
+   "note": "IAmrPolicy 注入 tagging/DM/base grids; runtime test"
   },
   {
    "id": "A6.4",

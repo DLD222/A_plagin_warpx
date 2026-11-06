@@ -329,6 +329,7 @@ namespace
 void
 WarpX::PostProcessBaseGrids (BoxArray& ba0) const
 {
+    if (m_amr_policy != nullptr) { m_amr_policy->postProcessBaseGrids(ba0); return; }
     if (numprocs != 0) {
         const Box& dom = Geom(0).Domain();
         const IntVect& domlo = dom.smallEnd();
