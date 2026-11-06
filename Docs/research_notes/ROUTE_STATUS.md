@@ -156,9 +156,9 @@
 | A5.6 | A5 | done | A5.4,A5.5 | A5 回归门（A/B + 外挂） |
 | A6a | A6 | done | A5.6 | 动态 regrid 基础设施（MakeNewLevelFromCoarse + AmrCore::regrid） |
 | A6.1 | A6 | done | A6a | 动态 regrid 事务（AmrCore::regrid） |
-| A6.2 | A6 | pending | A6.1 | 通用 RemakeLevel（任意 BoxArray） |
+| A6.2 | A6 | done | A6.1 | 通用 RemakeLevel（任意 BoxArray） |
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A6.2` — 通用 RemakeLevel（任意 BoxArray）
+**Next:** `A6.3` — IAmrPolicy（tagging/LB/base grid）
 

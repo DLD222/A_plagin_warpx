@@ -2944,13 +2944,13 @@
    "depends": [
     "A6.1"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "按 LevelResources 遍历",
-   "note": ""
+   "note": "A6.1 的 RecreateLevelResources + 任意 BA 已覆盖；LevelResources 仍逐步迁移"
   },
   {
    "id": "A6.3",
