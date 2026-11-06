@@ -12,6 +12,7 @@
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Runtime/CollisionHandlerAdapter.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
@@ -71,6 +72,7 @@ Runtime::Runtime (int argc, char* argv[])
     m_collision_handler = std::make_unique<CollisionHandler>(
         species, *m_data, m_config, host);
     mpc.setCollisionHandler(m_collision_handler.get());
+    m_plugin_host->add(std::make_shared<CollisionHandlerAdapter>(m_collision_handler.get()));
 }
 
 Runtime::~Runtime ()

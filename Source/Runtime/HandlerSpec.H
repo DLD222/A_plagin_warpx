@@ -10,6 +10,8 @@
 
 #include "Runtime/StagePoint.H"
 
+#include <AMReX_REAL.H>
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -42,6 +44,9 @@ struct StageContext
     DataBus* bus = nullptr;
     HostServices* host = nullptr;
     const RuntimeData* data = nullptr;
+    int step = 0;
+    amrex::Real time = 0.0;
+    amrex::Real dt = 0.0;
 };
 
 class IHandler

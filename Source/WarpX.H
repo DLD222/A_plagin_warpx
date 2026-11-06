@@ -1270,6 +1270,7 @@ private:
 
     void RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void RunFinalizeStage ();
+    void RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt);
     void RunFieldSolveStage (amrex::Real a_cur_time);
     void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void OneStep_FinalizeDeposition ();

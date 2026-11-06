@@ -299,7 +299,7 @@ WarpX::Evolve (int numsteps)
 
         if (m_implicit_solver) {
             ExecutePythonCallback("beforecollisions");
-            mypc->doCollisions(step, cur_time, dt[0]);
+            RunCollisionStage(step, cur_time, dt[0]);
             ExecutePythonCallback("aftercollisions");
         }
 
@@ -458,7 +458,7 @@ void WarpX::OneStep (
 
                 // perform particle collisions
                 ExecutePythonCallback("beforecollisions");
-                mypc->doCollisions(a_step, a_cur_time, a_dt);
+                RunCollisionStage(a_step, a_cur_time, a_dt);
                 ExecutePythonCallback("aftercollisions");
 
                 // push particles (full position and half momentum)
@@ -473,7 +473,7 @@ void WarpX::OneStep (
             else {
                 // perform particle collisions
                 ExecutePythonCallback("beforecollisions");
-                mypc->doCollisions(a_step, a_cur_time, a_dt);
+                RunCollisionStage(a_step, a_cur_time, a_dt);
                 ExecutePythonCallback("aftercollisions");
 
                 // push particles (full position and full momentum)
@@ -502,7 +502,7 @@ void WarpX::OneStep (
                     );
                     // perform particle collisions
                     ExecutePythonCallback("beforecollisions");
-                    mypc->doCollisions(a_step, a_cur_time, a_dt);
+                    RunCollisionStage(a_step, a_cur_time, a_dt);
                     ExecutePythonCallback("aftercollisions");
 
                     OneStep_JRhom(a_cur_time);
@@ -527,7 +527,7 @@ void WarpX::OneStep (
                     );
                     // perform particle collisions
                     ExecutePythonCallback("beforecollisions");
-                    mypc->doCollisions(a_step, a_cur_time, a_dt);
+                    RunCollisionStage(a_step, a_cur_time, a_dt);
                     ExecutePythonCallback("aftercollisions");
 
                     OneStep_sub1(a_cur_time);
@@ -603,6 +603,25 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
 }
 
 void
+WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
+{
+    if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
+        m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
+        warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                         m_runtime_context->host, m_runtime_context->data};
+        ctx.step = step;
+        ctx.time = cur_time;
+        ctx.dt = dt;
+        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Collisions);
+        if (!handlers.empty()) {
+            for (auto* handler : handlers) { handler->apply(ctx); }
+            return;
+        }
+    }
+    mypc->doCollisions(step, cur_time, dt);
+}
+
+void
 WarpX::RunPicPush (amrex::Real cur_time, amrex::Real dt, int step)
 {
     OneStep_PushParticles(cur_time, dt, step);
@@ -624,7 +643,7 @@ WarpX::OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_st
         );
         // perform particle collisions
         ExecutePythonCallback("beforecollisions");
-        mypc->doCollisions(a_step, a_cur_time, a_dt);
+        RunCollisionStage(a_step, a_cur_time, a_dt);
         ExecutePythonCallback("aftercollisions");
 
         // push particles (full position and half momentum)
@@ -638,7 +657,7 @@ WarpX::OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_st
     else {
         // perform particle collisions
         ExecutePythonCallback("beforecollisions");
-        mypc->doCollisions(a_step, a_cur_time, a_dt);
+        RunCollisionStage(a_step, a_cur_time, a_dt);
         ExecutePythonCallback("aftercollisions");
 
         // push particles (full position and full momentum)

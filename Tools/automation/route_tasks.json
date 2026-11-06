@@ -2265,12 +2265,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b10",
+   "phase": "A3",
+   "title": "CollisionHandlerAdapter 注册到 PluginHost，碰撞走 Stage::Collisions",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b9"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/CollisionHandlerAdapter.H",
+    "Source/Evolve/WarpXEvolve.cpp"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "碰撞调用经 PluginHost；split/push 位置不变；碰撞/ASAN 通过",
+   "note": "MPC legacy fallback 保留",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
    "kind": "refactor",
    "depends": [
-    "A3.3b9"
+    "A3.3b10"
    ],
    "status": "pending",
    "outputs": [

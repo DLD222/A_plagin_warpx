@@ -120,7 +120,8 @@
 | A3.3b8i | A3 | done | A3.3b8h | CollisionHandler 去 MultiParticleContainer + 懒创建 |
 | A3.3b8 | A3 | done | A3.3b8i | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
 | A3.3b9 | A3 | done | A3.3b8i | Runtime 持有 CollisionHandler；MPC 改为非拥有指针 |
-| A3.3b | A3 | pending | A3.3b9 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
+| A3.3b10 | A3 | done | A3.3b9 | CollisionHandlerAdapter 注册到 PluginHost，碰撞走 Stage::Collisions |
+| A3.3b | A3 | pending | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
 | A3.4 | A3 | pending | A3.4a | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
