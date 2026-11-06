@@ -72,7 +72,7 @@ ASAN:         15 / 15 PASS
 
 ## 已知限制
 
-- BTD 的 `ResizeLevels` 仍为 no-op；
+- BTD 只输出 `nlev_output=1` 的 coarse level，level0 的 BoxArray 不随动态 regrid 改变，因此 `ResizeLevels` no-op 是正确行为；
 - IAmrPolicy 无外部 `.so` ABI；
 - 未覆盖 GPU。
 
