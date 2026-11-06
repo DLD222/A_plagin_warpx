@@ -71,5 +71,8 @@ WARPX_PLUGIN_PATH=<so> runtime_snapshot_particles_2d PASS
 - ABI 仅在同一编译器/标准库/构建配置内保证；
 - 使用 `RTLD_NODELETE`，防止拒绝插件时 `dlclose` 卸载运行中的符号；
 - 未实现插件卸载；
+- 未实现外部 `IAmrPolicy` ABI：试验表明插件链接静态 `lib_2d` 会带入第二份 AMReX
+  状态，policy 调 `DistributionMapping` 会 segfault；需要共享运行时或纯 C 数据接口；
+
 - 未实现签名/路径白名单；
 - `PluginHost` 跨库传递依赖相同的 C++ ABI。
