@@ -1,4 +1,4 @@
-# Galilean PSATD 回归定位
+# Galilean PSATD 回归定位与修复
 
 > 日期：2026-11-06  
 > 结论：这是本分支引入的真实回归，不是环境问题，也不是 handler 路径问题。
@@ -100,13 +100,53 @@ v_galilean = (0,0,-298289729.4)
 
 两版一致，因此不是输入解析问题。
 
-## 6. 当前处理
+## 6. 根因
 
-- **不把该测试标记为通过**；
-- 不修改 analysis 容差；
-- 下一步用逐提交 bisect 或对 `PhysicalParticleContainer` 做逐函数 A/B。
+`WarpX::LowerCorner(box, lev, time_shift_delta)` 的第三参数用于补偿
+Galilean 坐标系在半个时间步内的平移。
 
-## 7. 复现
+迁移到 `RuntimeData::lowerCorner(box, lev)` 时把该参数**硬编码成 0**，
+导致电流/电荷沉积使用错误的坐标原点：
+
+```cpp
+// 错误
+data().lowerCorner(tilebox, depos_lev)
+
+// 正确
+data().lowerCorner(tilebox, depos_lev, 0.5_rt*dt)
+```
+
+影响 4 处：
+
+| 位置 | 原第三参数 |
+|---|---|
+| `DepositCurrent` | `0.5*dt` |
+| `DepositMassMatrices` | `0.5*dt` |
+| `DepositCharge`（两次） | `time_shift_delta` |
+
+非 Galilean 算例 `v_galilean=0`，该参数无影响；高漂移 Galilean 算例第一步即出错。
+
+## 7. 修复
+
+- `RuntimeData::lowerCorner` 增加 `delta` 参数，默认 0；
+- 适配器透传给 `WarpX::LowerCorner`；
+- 上述 4 处按原语义传 `0.5*dt` / `time_shift_delta`。
+
+修复后固定 seed `12345`：
+
+```
+energy / energy_ref = 6.574721591095739e-9
+```
+
+与基线一致；Galilean 家族 10/10 通过。
+
+## 8. 当前处理
+
+- 已修复并验收；
+- 未修改 analysis 容差；
+- 已跑 Galilean 家族、FFT 全量、默认构建、ASAN。
+
+## 9. 复现
 
 ```bash
 cd build_fft/bin/test_2d_galilean_psatd

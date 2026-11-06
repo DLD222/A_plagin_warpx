@@ -617,7 +617,7 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
     // Note that this includes guard cells since it is after tilebox.ngrow
     const Dim3 lo = lbound(tilebox);
     // Take into account Galilean shift
-    const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
+    const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev, 0.5_rt*dt);
 
     amrex::Box domain_box = data().geom(depos_lev).Domain();
 
@@ -1155,7 +1155,7 @@ WarpXParticleContainer::DepositMassMatrices (WarpXParIter& pti, const RealVector
     // Note that this includes guard cells since it is after tilebox.ngrow
     const Dim3 lo = lbound(tilebox);
     // Take into account Galilean shift
-    const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
+    const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev, 0.5_rt*dt);
 
     amrex::Box domain_box = data().geom(depos_lev).Domain();
 
@@ -1671,7 +1671,7 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
         // Take into account Galilean shift
         const Real dt = data().dt(lev);
         const amrex::Real time_shift_delta = (icomp == 0 ? 0.0_rt : dt);
-        const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
+        const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev, time_shift_delta);
 
         // Indices of the lower bound
         const Dim3 lo = lbound(tilebox);
@@ -1841,7 +1841,7 @@ WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
         // Take into account Galilean shift
         const amrex::Real dt = data().dt(lev);
         const amrex::Real time_shift_delta = (icomp == 0 ? 0.0_rt : dt);
-        const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev);
+        const amrex::XDim3 xyzmin = data().lowerCorner(tilebox, depos_lev, time_shift_delta);
         const amrex::XDim3 dinv = data().invCellSize(std::max(depos_lev,0));
 
         AMREX_ALWAYS_ASSERT(config().nox() == config().noy());

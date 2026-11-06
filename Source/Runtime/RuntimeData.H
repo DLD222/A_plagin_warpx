@@ -66,7 +66,7 @@ public:
     [[nodiscard]] virtual const amrex::DistributionMapping& distributionMap (int lev) const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::DistributionMapping>& distributionMapAll () const = 0;
     [[nodiscard]] virtual amrex::Array<amrex::Real, 3> cellSize (int lev) const = 0;
-    [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const = 0;
+    [[nodiscard]] virtual amrex::XDim3 lowerCorner (const amrex::Box& box, int lev, amrex::Real delta = 0.0) const = 0;
     [[nodiscard]] virtual amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::RealBox realBox (const amrex::Box& box, int lev) const = 0;
     [[nodiscard]] virtual amrex::XDim3 invCellSize (int lev) const = 0;

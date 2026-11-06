@@ -76,12 +76,12 @@ ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
 ```
-95 / 107 PASS
+100 / 107 PASS
 ```
 
 12 个失败仍是同一组环境缺件（openPMD/MCC 数据）。
 
-FFT analysis 还存在一组 **Galilean PSATD** 失败：
+FFT analysis 的 **Galilean PSATD** 一组曾失败，已定位并修复：
 
 ```
 test_2d_galilean_psatd

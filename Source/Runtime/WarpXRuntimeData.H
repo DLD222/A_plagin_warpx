@@ -36,7 +36,7 @@ public:
     [[nodiscard]] const amrex::DistributionMapping& distributionMap (int lev) const override;
     [[nodiscard]] const amrex::Vector<amrex::DistributionMapping>& distributionMapAll () const override;
     [[nodiscard]] amrex::Array<amrex::Real, 3> cellSize (int lev) const override;
-    [[nodiscard]] amrex::XDim3 lowerCorner (const amrex::Box& box, int lev) const override;
+    [[nodiscard]] amrex::XDim3 lowerCorner (const amrex::Box& box, int lev, amrex::Real delta = 0.0) const override;
     [[nodiscard]] amrex::XDim3 upperCorner (const amrex::Box& box, int lev) const override;
     [[nodiscard]] amrex::RealBox realBox (const amrex::Box& box, int lev) const override;
     [[nodiscard]] amrex::XDim3 invCellSize (int lev) const override;

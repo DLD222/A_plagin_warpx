@@ -2399,6 +2399,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.4f",
+   "phase": "A3",
+   "title": "修复 Galilean 沉积 LowerCorner 时间偏移",
+   "kind": "fix",
+   "depends": [
+    "A3.4e"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeData.H",
+    "Source/Particles/WarpXParticleContainer.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "Galilean 6.57e-9；家族10/10；FFT100/107",
+   "note": "根因：lowerCorner 第三参数丢失",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
