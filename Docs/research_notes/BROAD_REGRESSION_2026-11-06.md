@@ -60,13 +60,13 @@ cmake -S . -B build_opmd -DWarpX_OPENPMD=ON ...
 对原先 12 个 openPMD/MCC 失败测试：
 
 ```
-13 / 22 PASS
+16 / 22 PASS
 ```
 
 - 6 个 MCC/embedded run 已通过（补 `warpx-data` 后）；
-- 3 个 absorption analysis 失败：缺少 Python `openpmd_viewer`；
+- 安装 `openpmd-viewer` 后，3 个 absorption analysis 已通过；
 - `qed_breit_wheeler_opmd` / `rigid_injection_btd` / `laser_ion_acc`：
-  本机 openPMD 构建无 HDF5 backend，只有 JSON/ADIOS2。
+  本机 C++ openPMD 构建无 HDF5 backend，只有 JSON/ADIOS2。
 
 ## 4. FFT 构建
 
@@ -99,8 +99,8 @@ err_energy = 15.906565729487289
 tol_energy = 1e-8
 ```
 
-已用 `if (false)` 临时禁用所有 PluginHost handler 复跑，**误差不变**，
-说明不是 push/finalize/field-solve handler 路径导致。该组作为独立问题继续排查，
+已在修复 StagePlan 分发后，用 `WARPX_DISABLE_PLUGIN_HANDLERS=1` 再次复跑，
+`energy_ref` 比值仍为 15.9066，说明不是 push/finalize/field-solve handler 路径导致。该组作为独立问题继续排查，
 不能算环境缺件，也不能算通过。
 
 ## 5. 本轮发现并修复的隐患
