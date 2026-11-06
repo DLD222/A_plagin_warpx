@@ -22,14 +22,10 @@ CollisionSpeciesTable::CollisionSpeciesTable (const MultiParticleContainer& mypc
     }
 }
 
-WarpXParticleContainer*
+CollisionSpeciesView
 CollisionSpeciesTable::get (const std::string& name) const
 {
-    const auto it = m_species.find(name);
-    if (it == m_species.end()) {
-        throw std::runtime_error("CollisionSpeciesTable: unknown species " + name);
-    }
-    return it->second;
+    return view(name);
 }
 
 CollisionSpeciesView

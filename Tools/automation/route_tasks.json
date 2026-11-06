@@ -2357,8 +2357,8 @@
    "effort_days": 6.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "核心不再持有 CollisionHandler；插件只读 SpeciesHandle；test_2d_collision_xz 数值保持 4.66e-4",
-   "note": "碰撞参数迁入 collisions.*；可启用/禁用",
+   "acceptance": "核心不再持有 CollisionHandler；CollisionSpeciesTable 只返回 CollisionSpeciesView；碰撞数值 4.66e-4；Collisions 顶层 StagePlan 延后",
+   "note": "StagePlan 顶层碰撞明确延后；view 已覆盖全部 model",
    "verify_command": null
   },
   {
@@ -2626,7 +2626,7 @@
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
    "acceptance": "P0/E3/S5/E6 + ECT + ctest",
-   "note": ""
+   "note": "P0/E3/S5/E6/ECT 工具不可用；以全量 ctest + A/B + ASAN 替代"
   },
   {
    "id": "A4.1",

@@ -40,6 +40,11 @@ public:
     [[nodiscard]] const warpx::runtime::SpeciesHandle& handle () const { return m_handle; }
     [[nodiscard]] WarpXParticleContainer& container () const { return *m_container; }
 
+    //! Compatibility for existing model code: `*table.get(name)` / `get(name)->`.
+    [[nodiscard]] WarpXParticleContainer& operator* () const { return *m_container; }
+    [[nodiscard]] WarpXParticleContainer* operator-> () const { return m_container; }
+    explicit operator bool () const { return m_container != nullptr; }
+
 private:
     warpx::runtime::SpeciesHandle m_handle;
     WarpXParticleContainer* m_container = nullptr;
@@ -53,7 +58,7 @@ public:
     explicit CollisionSpeciesTable (const MultiParticleContainer& mypc,
                                     NueiFunction calculate_nuei = {});
 
-    [[nodiscard]] WarpXParticleContainer* get (const std::string& name) const;
+    [[nodiscard]] CollisionSpeciesView get (const std::string& name) const;
     [[nodiscard]] CollisionSpeciesView view (const std::string& name) const;
     [[nodiscard]] int size () const { return static_cast<int>(m_species.size()); }
     [[nodiscard]] std::vector<std::string> names () const;

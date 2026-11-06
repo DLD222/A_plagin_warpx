@@ -124,7 +124,7 @@
 | A3.3b11 | A3 | done | A3.3b10 | 删除 MPC 碰撞所有权，迁移到 WarpX/Runtime legacy |
 | A3.3b12 | A3 | done | A3.3b11 | SpeciesHandle 元数据（charge/mass） |
 | A3.3b13 | A3 | done | A3.3b12 | CollisionSpeciesView + PulsedDecay 迁移 |
-| A3.3b | A3 | pending | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
+| A3.3b | A3 | done | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
 | A3.4b | A3 | done | A3.4a | 2D 全量官方算例回归 + 失败分类 |
 | A3.4c | A3 | done | A3.4b | Handler 路径 A/B 逐位验证（Yee/PSATD/碰撞） |
@@ -138,7 +138,7 @@
 | A3.3d | A3 | done | A3.3c | 删除空服务接口与隔离 runtime 测试工作目录 |
 | A3.3e | A3 | done | A3.3d | WarpXRuntimeData 去 45 处 GetInstance，保留 legacy 刷新 |
 | A3.4j | A3 | done | A3.4i | FieldSchema 冲突比较补全 checkpoint/moving_window/unit |
-| A3.4 | A3 | pending | A3.4b | A3 回归门 |
+| A3.4 | A3 | done | A3.4b | A3 回归门 |
 | A4.1 | A4 | done | A3.4j | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | done | A4.1 | SpeciesRegistry（粒子不透明句柄） |
 | A4.3 | A4 | done | A4.2 | MaterialRegistry（系数 bundle 快照） |
@@ -156,5 +156,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A3.3b` — CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）
+**Next:** `A4.4` — schema 驱动 checkpoint/restart（兼容旧格式）
 
