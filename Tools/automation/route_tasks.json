@@ -2709,6 +2709,26 @@
    "verify_command": null
   },
   {
+   "id": "A4.4b",
+   "phase": "A4",
+   "title": "checkpoint schema manifest（兼容旧格式）",
+   "kind": "refactor",
+   "depends": [
+    "A4.4a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp",
+    "Docs/research_notes/A4.4_CHECKPOINT_SCHEMA.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "写出 field_schema.txt；旧 restart 通过",
+   "note": "尚未驱动写出",
+   "verify_command": null
+  },
+  {
    "id": "A4.4",
    "phase": "A4",
    "title": "schema 驱动 checkpoint/restart（兼容旧格式）",

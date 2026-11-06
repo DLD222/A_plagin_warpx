@@ -71,6 +71,7 @@ const amrex::Vector<amrex::Real>& WarpXRuntimeData::vGalilean () const { return 
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::dtAll () const { return w().getdt(); }
 const AcceleratorLattice& WarpXRuntimeData::acceleratorLattice (int lev) const { return w().get_accelerator_lattice(lev); }
 HybridPICModel* WarpXRuntimeData::hybridPICModel () const { return w().get_pointer_HybridPICModel(); }
+const FieldRegistry& WarpXRuntimeData::fieldRegistry () const { return w().fieldSchema(); }
 const MaterialRegistry& WarpXRuntimeData::materials () const
 {
     if (const auto* macroscopic = w().get_pointer_MacroscopicProperties()) {

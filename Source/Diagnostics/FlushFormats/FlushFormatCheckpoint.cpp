@@ -25,6 +25,8 @@
 #include <AMReX_Utility.H>
 #include <AMReX_VisMF.H>
 
+#include <fstream>
+
 #ifndef WARPX_UNITY_ID
 #define WARPX_UNITY_ID
 #endif
@@ -78,6 +80,15 @@ FlushFormatCheckpoint::WriteToFile (
     WriteWarpXHeader(checkpointname, geom, /*is_checkpoint=*/true);
 
     WriteJobInfo(checkpointname);
+
+    // Additive schema manifest: old readers ignore it, new readers can
+    // validate the checkpoint field list against the live FieldRegistry.
+    {
+        std::ofstream schema_file(checkpointname + "/field_schema.txt");
+        for (const auto& name : data().fieldRegistry().checkpointNames()) {
+            schema_file << name << "\n";
+        }
+    }
 
     for (int lev = 0; lev < nlev; ++lev)
     {

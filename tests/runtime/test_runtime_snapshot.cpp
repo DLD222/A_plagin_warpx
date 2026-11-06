@@ -159,6 +159,8 @@ int main (int argc, char* argv[])
           "FieldSchema marks Efield_fp_x for checkpoint");
     check(WarpX::GetInstance().fieldSchema().get("current_fp_x").checkpoint,
           "FieldSchema marks current_fp_x for checkpoint");
+    check(runtime.bus().registry().checkpointNames().size() > 0,
+          "FieldRegistry exposes checkpoint fields");
     check_eq(runtime.bus().registry().size(),
              WarpX::GetInstance().fieldSchema().size(),
              "DataBus and FieldSchema share one FieldRegistry");

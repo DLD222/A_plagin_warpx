@@ -62,6 +62,7 @@ public:
     [[nodiscard]] const AcceleratorLattice& acceleratorLattice (int lev) const override;
     [[nodiscard]] HybridPICModel* hybridPICModel () const override;
     [[nodiscard]] const MaterialRegistry& materials () const override;
+    [[nodiscard]] const FieldRegistry& fieldRegistry () const override;
     [[nodiscard]] const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const override;
     [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
     nciGodfreyFilterExEyBz () const override;

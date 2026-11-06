@@ -60,6 +60,15 @@ public:
 
     [[nodiscard]] std::size_t size () const { return m_specs.size(); }
 
+    [[nodiscard]] std::vector<std::string> checkpointNames () const
+    {
+        std::vector<std::string> out;
+        for (const auto& [name, spec] : m_specs) {
+            if (spec.checkpoint) { out.push_back(name); }
+        }
+        return out;
+    }
+
     [[nodiscard]] std::vector<std::string> names () const
     {
         std::vector<std::string> out;
