@@ -95,6 +95,7 @@
 #include <AMReX_Random.H>
 #include <AMReX_SPACE.H>
 #include <AMReX_TagBox.H>
+#include <AMReX_FillPatchUtil.H>
 #include <AMReX_VisMF.H>
 
 #include <algorithm>
@@ -754,6 +755,8 @@ WarpX::ReadParameters ()
         pp_warpx.query("verbose", verbose);
         pp_warpx.query("limit_verbose_step", m_limit_verbose_step);
         utils::parser::queryWithParser(pp_warpx, "regrid_int", regrid_int);
+        utils::parser::queryWithParser(pp_warpx, "refine_start_time", refine_start_time);
+        utils::parser::queryWithParser(pp_warpx, "refine_stop_time", refine_stop_time);
         pp_warpx.query("do_subcycling", m_do_subcycling);
         pp_warpx.query("use_hybrid_QED", use_hybrid_QED);
         pp_warpx.query("safe_guard_cells", m_safe_guard_cells);
@@ -2372,10 +2375,42 @@ WarpX::MakeNewLevelFromScratch (int lev, Real time, const BoxArray& new_grids,
 
 // This is a virtual function.
 void
-WarpX::MakeNewLevelFromCoarse (int /*lev*/, amrex::Real /*time*/, const amrex::BoxArray& /*ba*/,
-                                         const amrex::DistributionMapping& /*dm*/)
+WarpX::MakeNewLevelFromCoarse (int lev, amrex::Real time, const amrex::BoxArray& ba,
+                                         const amrex::DistributionMapping& dm)
 {
-    WARPX_ABORT_WITH_MESSAGE("MakeNewLevelFromCoarse: To be implemented");
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
+    if (m_level_resources.size() <= lev) { m_level_resources.resize(lev + 1); }
+    AllocLevelData(lev, ba, dm);
+    InitLevelData(lev, time);
+    if (lev == 0) { return; }
+    const IntVect ratio = refRatio(lev - 1);
+    auto interpolate = [&](FieldType type, Direction dir) {
+        if (!m_fields.has(type, dir, lev) || !m_fields.has(type, dir, lev - 1)) { return; }
+        auto* fine = m_fields.get(type, dir, lev);
+        const auto* coarse = m_fields.get(type, dir, lev - 1);
+        const int ncomp = fine->nComp();
+        amrex::Vector<amrex::BCRec> bcs(ncomp);
+        amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
+                                     *coarse, 0, 0, ncomp,
+                                     Geom(lev - 1), Geom(lev), ratio,
+                                     &amrex::cell_cons_interp, bcs, 0);
+    };
+    for (int idim = 0; idim < 3; ++idim) {
+        const Direction dir{idim};
+        interpolate(FieldType::Efield_fp, dir);
+        interpolate(FieldType::Bfield_fp, dir);
+        interpolate(FieldType::current_fp, dir);
+    }
+    if (m_fields.has(FieldType::rho_fp, lev) && m_fields.has(FieldType::rho_fp, lev - 1)) {
+        auto* fine = m_fields.get(FieldType::rho_fp, lev);
+        const auto* coarse = m_fields.get(FieldType::rho_fp, lev - 1);
+        amrex::Vector<amrex::BCRec> bcs(fine->nComp());
+        amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
+                                     *coarse, 0, 0, fine->nComp(),
+                                     Geom(lev - 1), Geom(lev), ratio,
+                                     &amrex::cell_cons_interp, bcs, 0);
+    }
 }
 
 void
@@ -2465,7 +2500,7 @@ WarpX::AllocLevelFieldScalar (const std::string& key, FieldType type, int lev,
 void
 WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& dm)
 {
-    m_level_resources.resize(maxLevel() + 1);
+    m_level_resources.resize(std::max(maxLevel(), lev) + 1);
     if (!m_level_resources.has_fields()) { m_level_resources.bind_fields(m_fields); }
     const bool aux_is_nodal = (field_gathering_algo == GatheringAlgo::MomentumConserving);
 
@@ -3614,8 +3649,10 @@ WarpX::getLoadBalanceEfficiency (const int lev)
 
 
 void
-WarpX::ErrorEst (int lev, TagBoxArray& tags, Real /*time*/, int /*ngrow*/)
+WarpX::ErrorEst (int lev, TagBoxArray& tags, Real time, int /*ngrow*/)
 {
+    if (refine_start_time >= 0.0_rt && time < refine_start_time) { return; }
+    if (refine_stop_time >= 0.0_rt && time > refine_stop_time) { return; }
     const auto problo = Geom(lev).ProbLoArray();
     const auto dx = Geom(lev).CellSizeArray();
 

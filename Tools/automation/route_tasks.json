@@ -2911,13 +2911,13 @@
    "depends": [
     "A5.6"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 10.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "新 level 创建/销毁；非 abort",
-   "note": "审计 D5：新增能力，不是迁移保真",
+   "note": "MakeNewLevelFromCoarse + diag ResizeLevels + regrid_int; creation/removal tests",
    "verify_command": null
   },
   {

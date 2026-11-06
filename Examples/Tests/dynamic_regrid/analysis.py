@@ -1,0 +1,12 @@
+import sys
+import numpy as np
+import yt
+
+yt.funcs.mylog.setLevel(50)
+ds = yt.load(sys.argv[1])
+assert ds.max_level == 1, f"dynamic regrid did not create level 1: max_level={ds.max_level}"
+grid = ds.covering_grid(0, ds.domain_left_edge, ds.domain_dimensions)
+ex = np.array(grid[("boxlib", "Ex")])
+assert np.all(np.isfinite(ex)), "non-finite Ex after dynamic regrid"
+assert np.max(np.abs(ex)) > 0.0, "Ex is identically zero after dynamic regrid"
+print("dynamic regrid level1 created, Ex finite and nonzero")

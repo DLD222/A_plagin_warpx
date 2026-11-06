@@ -403,6 +403,14 @@ WarpX::Evolve (int numsteps)
                       << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n\n";
         }
 
+        if (regrid_int > 0 && (step + 1) % regrid_int == 0 && max_level > 0) {
+            regrid(0, cur_time);
+            multi_diags->ResizeLevels(finest_level);
+            mypc->AllocData();
+            mypc->Redistribute();
+            mypc->defineAllParticleTiles();
+        }
+
         if (checkStopSimulation(cur_time)) {
             break;
         }

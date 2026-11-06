@@ -1,5 +1,8 @@
 # A6a 动态 regrid 试验记录
 
+> 后续：A6a 已实现并通过测试，见 [A6_DYNAMIC_REGRID.md](A6_DYNAMIC_REGRID.md)。
+> 本文保留失败过程记录。
+
 ## 目的
 
 验证 `amr.max_level=1`、`warpx.regrid_int=1` 时能否从单层动态加密到两层。

@@ -38,8 +38,11 @@ enum struct DiagTypes {Full, BackTransformed, BoundaryScraping, TimeAveraged};
  *
  * Each specific diagnostics derives from this class.
  */
+class MultiDiagnostics;
+
 class Diagnostics
 {
+    friend class MultiDiagnostics;
 public:
     /** Constructor
      *
@@ -223,6 +226,7 @@ protected:
      * \param[in] restart whether this is called upon restarting a previous simulation
      */
     virtual void InitializeBufferData (int i_buffer, int lev, bool restart=false) = 0;
+    virtual void ResizeLevels (int /*new_finest*/) {}
     /** Initialize member variables and arrays specific to the diagnostics in the
      *  derived classes.(FullDiagnostics, BTDiagnostics)
      */

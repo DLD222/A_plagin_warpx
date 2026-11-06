@@ -38,6 +38,7 @@ public:
       * \param[in] lev level at this the field functors are initialized.
       */
     void InitializeFieldFunctors (int lev);
+    void ResizeLevels (int new_finest);
     /** Start a new iteration, i.e., dump has not been done yet. */
     void NewIteration ();
     Diagnostics& GetDiag(int idiag) {return *alldiags[idiag]; }

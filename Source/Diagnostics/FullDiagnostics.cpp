@@ -886,6 +886,20 @@ FullDiagnostics::InitializeBufferData (int i_buffer, int lev, bool restart ) {
 
 
 void
+FullDiagnostics::ResizeLevels (int new_finest)
+{
+    if (new_finest + 1 <= nlev) { return; }
+    for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
+        for (int lev = nlev; lev <= new_finest; ++lev) {
+            InitializeBufferData(i_buffer, lev);
+            InitializeFieldFunctors(lev);
+        }
+    }
+    nlev = new_finest + 1;
+    nlev_output = nlev;
+}
+
+void
 FullDiagnostics::InitializeFieldFunctors (int lev)
 {
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)

@@ -1643,6 +1643,8 @@ private:
     std::optional<amrex::Real> m_zmax_plasma_to_compute_max_step = std::nullopt;
 
     int regrid_int = -1;
+    amrex::Real refine_start_time = -1.0;
+    amrex::Real refine_stop_time = -1.0;
 
     amrex::Real cfl = amrex::Real(0.999);
 
