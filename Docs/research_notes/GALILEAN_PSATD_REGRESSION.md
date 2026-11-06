@@ -10,6 +10,13 @@
 | 基线 `7bcb44a`（上游快照） | `test_2d_galilean_psatd` **run + analysis 通过** |
 | 当前 `ded1e56` | run 通过，analysis `err_energy = 15.906565729487289` |
 
+固定 `warpx.random_seed = 12345`、`OMP_NUM_THREADS=1` 后：
+
+| 版本 | energy / energy_ref |
+|---|---:|
+| 基线 `7bcb44a` | **6.57e-9** |
+| 当前 | **16.62** |
+
 基线用同一 AMReX commit：
 
 ```
@@ -56,6 +63,17 @@ Ex Ey Ez Bx By Bz  maxdiff = 0.0
 | 2 | **7.76** | **5.42** |
 
 说明问题发生在**第一个时间步的推进**，不是长期累积。
+
+固定 seed 后第 1 步：
+
+```
+jx maxdiff = 0.0299
+jz maxdiff = 0.0101
+Ex maxdiff = 5.84
+Ez maxdiff = 2.40
+```
+
+因此差异首先出现在粒子推进/电流沉积，而不是纯场推进。
 
 ## 5. 排查方向
 
