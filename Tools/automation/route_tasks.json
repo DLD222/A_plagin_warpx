@@ -2838,9 +2838,9 @@
    "title": "外挂插件示例（1 个 .cpp）",
    "kind": "test",
    "depends": [
-    "A5.3"
+    "A5.3a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [
     "examples/plugins/my_field.cpp"
    ],
@@ -2848,7 +2848,7 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "不改内核、可编可跑",
-   "note": ""
+   "note": "示例模块独立 .cpp；运行期 .so 属 A5.5"
   },
   {
    "id": "A5.5",

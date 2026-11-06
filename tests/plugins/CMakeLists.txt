@@ -1,0 +1,12 @@
+foreach(D IN LISTS WarpX_DIMS)
+    if(NOT D STREQUAL 2)
+        continue()
+    endif()
+    warpx_set_suffix_dims(SD ${D})
+    if(TARGET lib_${SD})
+        add_executable(test_plugin_example_${SD}
+            test_plugin_example.cpp example_plugin.cpp)
+        target_link_libraries(test_plugin_example_${SD} PRIVATE lib_${SD})
+        add_test(NAME plugin_example_${D} COMMAND test_plugin_example_${SD})
+    endif()
+endforeach()

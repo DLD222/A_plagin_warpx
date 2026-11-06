@@ -857,6 +857,7 @@ if(BUILD_TESTING)
         add_subdirectory(tests/unit)
     endif()
     add_subdirectory(tests/runtime)
+    add_subdirectory(tests/plugins)
 endif()
 
 
