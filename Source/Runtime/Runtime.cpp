@@ -53,7 +53,7 @@ Runtime::Runtime (int argc, char* argv[])
     m_warpx = WarpX::Create();
     auto& warpx = *m_warpx;
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
-    m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
+    m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister(), warpx.fieldSchema());
     m_plugin_host = std::make_unique<PluginHost>();
     // A/B switch for regression: with handlers disabled the legacy direct
     // phase calls are used, which must be bitwise identical.

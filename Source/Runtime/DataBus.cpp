@@ -17,23 +17,13 @@ namespace warpx::runtime
 void
 DataBus::declare (FieldSpec spec)
 {
-    const auto it = m_specs.find(spec.name);
-    if (it != m_specs.end()) {
-        const auto& old = it->second;
-        if (old.ncomp != spec.ncomp || old.nodal != spec.nodal || old.ngrow != spec.ngrow ||
-            old.checkpoint != spec.checkpoint || old.alias_of != spec.alias_of) {
-            throw std::runtime_error("DataBus: conflicting FieldSpec for " + spec.name);
-        }
-        return;
-    }
-    m_specs.emplace(spec.name, std::move(spec));
+    m_registry->declare(spec);
 }
 
 const FieldSpec*
 DataBus::spec (const std::string& name) const
 {
-    const auto it = m_specs.find(name);
-    return it == m_specs.end() ? nullptr : &it->second;
+    return m_registry->find(name);
 }
 
 bool

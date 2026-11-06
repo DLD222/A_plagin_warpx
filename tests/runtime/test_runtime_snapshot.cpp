@@ -9,6 +9,7 @@
 #include "Runtime/Runtime.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/FieldRegistry.H"
 #include "Runtime/PicEmPackage.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
@@ -153,6 +154,26 @@ int main (int argc, char* argv[])
           "FieldSchema ncomp matches register");
     check(WarpX::GetInstance().fieldSchema().contains("current_fp_z"),
           "FieldSchema declares base J field");
+    check_eq(runtime.bus().registry().size(),
+             WarpX::GetInstance().fieldSchema().size(),
+             "DataBus and FieldSchema share one FieldRegistry");
+
+    {
+        warpx::runtime::FieldRegistry registry;
+        warpx::runtime::FieldSpec spec;
+        spec.name = "probe";
+        spec.checkpoint = false;
+        registry.declare(spec);
+        check(registry.contains("probe"), "FieldRegistry stores schema by name");
+        spec.checkpoint = true;
+        bool threw = false;
+        try {
+            registry.declare(spec);
+        } catch (const std::runtime_error&) {
+            threw = true;
+        }
+        check(threw, "FieldRegistry rejects conflicting checkpoint metadata");
+    }
 
     if (particles_mode) {
         check(runtime.bus().has_species("electrons"), "DataBus registers electrons");

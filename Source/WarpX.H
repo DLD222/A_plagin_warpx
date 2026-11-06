@@ -1150,6 +1150,7 @@ public:
     ablastr::fields::MultiFabRegister& GetMultiFabRegister() {return m_fields;}
     [[nodiscard]] const warpx::runtime::LevelResources& levelResources () const { return m_level_resources; }
     [[nodiscard]] const warpx::runtime::FieldSchema& fieldSchema () const { return m_field_schema; }
+    [[nodiscard]] warpx::runtime::FieldSchema& fieldSchema () { return m_field_schema; }
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context);

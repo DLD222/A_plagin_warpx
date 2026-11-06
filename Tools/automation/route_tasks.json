@@ -2615,15 +2615,19 @@
    "title": "FieldRegistry（字符串键 + schema）",
    "kind": "refactor",
    "depends": [
-    "A3.4"
+    "A3.4j"
    ],
    "status": "pending",
-   "outputs": [],
-   "effort_days": 10.0,
+   "outputs": [
+    "Source/Runtime/FieldRegistry.H",
+    "Source/Runtime/DataBus.H"
+   ],
+   "effort_days": 2.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "替换 FieldType 的 kernel 依赖",
-   "note": ""
+   "acceptance": "FieldSchema 是 FieldRegistry 别名；DataBus 与 WarpX 共享同一 registry；runtime 5/7",
+   "note": "A4.1 独立于 A3.4 形式门",
+   "verify_command": null
   },
   {
    "id": "A4.2",

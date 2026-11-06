@@ -8,7 +8,7 @@
 #ifndef WARPX_RUNTIME_DATABUS_H_
 #define WARPX_RUNTIME_DATABUS_H_
 
-#include "Runtime/FieldSpec.H"
+#include "Runtime/FieldRegistry.H"
 #include "Runtime/SpeciesSpec.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -32,9 +32,12 @@ class DataBus
 {
 public:
     explicit DataBus (ablastr::fields::MultiFabRegister& fields) : m_fields(fields) {}
+    DataBus (ablastr::fields::MultiFabRegister& fields, FieldRegistry& registry)
+        : m_fields(fields), m_registry(&registry) {}
 
     void declare (FieldSpec spec);
     [[nodiscard]] const FieldSpec* spec (const std::string& name) const;
+    [[nodiscard]] const FieldRegistry& registry () const { return *m_registry; }
 
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () { return m_fields; }
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const { return m_fields; }
@@ -60,7 +63,8 @@ public:
 
 private:
     ablastr::fields::MultiFabRegister& m_fields;
-    std::map<std::string, FieldSpec> m_specs;
+    FieldRegistry m_owned_registry;
+    FieldRegistry* m_registry = &m_owned_registry;
     std::map<std::string, SpeciesHandle> m_species;
 };
 
