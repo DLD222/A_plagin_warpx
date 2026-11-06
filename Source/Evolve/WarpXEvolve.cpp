@@ -541,6 +541,12 @@ void WarpX::OneStep (
  * for the field advance and particle pusher.
  */
 void
+WarpX::RunPicPush (amrex::Real cur_time, amrex::Real dt, int step)
+{
+    OneStep_PushParticles(cur_time, dt, step);
+}
+
+void
 WarpX::OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
 {
     ExecutePythonCallback("beforedeposition");

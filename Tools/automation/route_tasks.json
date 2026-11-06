@@ -1797,6 +1797,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b3",
+   "phase": "A3",
+   "title": "HostServices push + PicPushHandler（不持 WarpX 指针）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b2"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/PicPushHandler.H",
+    "Source/Runtime/HostServices.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "handler 只拿 StageContext；spec 正确；默认/FFT 回归通过",
+   "note": "尚未替换 OneStep 执行路径",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",

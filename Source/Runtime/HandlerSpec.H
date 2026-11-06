@@ -19,6 +19,8 @@ namespace warpx::runtime
 {
 
 class DataBus;
+class HostServices;
+class RuntimeData;
 struct RuntimeContext;
 
 /** Per-handler data contract. Declarations only; the bus owns no storage. */
@@ -38,6 +40,8 @@ struct StageContext
 {
     const RuntimeContext* context = nullptr;
     DataBus* bus = nullptr;
+    HostServices* host = nullptr;
+    const RuntimeData* data = nullptr;
 };
 
 class IHandler

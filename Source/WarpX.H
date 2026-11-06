@@ -145,6 +145,7 @@ public:
     void InitData_Diagnostics ();
 
     void Evolve (int numsteps = -1);
+    void RunPicPush (amrex::Real cur_time, amrex::Real dt, int step);
 
     /** Push momentum one half step forward to synchronize with position.
      *  Also sets m_is_synchronized to `true`.
