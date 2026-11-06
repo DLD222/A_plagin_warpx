@@ -35,7 +35,9 @@
 #include <vector>
 
 CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
-    : m_species(*mypc)
+    : m_species(*mypc, [mypc](const std::string& name) {
+          const_cast<MultiParticleContainer*>(mypc)->CalculateNuei(name);
+      })
 {
 
     // Read in collision input
@@ -96,7 +98,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
                 );
         }
         else if (type == "inverse_bremsstrahlung") {
-            allcollisions[i] = std::make_unique<InverseBremsstrahlung>(collision_names[i], mypc);
+            allcollisions[i] = std::make_unique<InverseBremsstrahlung>(collision_names[i], m_species, mypc->data(), mypc->config());
             m_use_global_debye_length = true;
         }
         else if (type == "linear_breit_wheeler") {

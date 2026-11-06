@@ -7,7 +7,10 @@
 #ifndef WARPX_PARTICLES_COLLISION_INVERSEBREMSSTRAHLUNG_H_
 #define WARPX_PARTICLES_COLLISION_INVERSEBREMSSTRAHLUNG_H_
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Particles/WarpXParticleContainer.H"
+
+namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
 #include "Particles/Collision/ScatteringProcess.H"
 
@@ -29,7 +32,10 @@ class InverseBremsstrahlung final
     using index_type = ParticleBins::index_type;
 
 public:
-    InverseBremsstrahlung (std::string const& collision_name, MultiParticleContainer const* mypc);
+    InverseBremsstrahlung (std::string const& collision_name,
+                          const CollisionSpeciesTable& species,
+                          const warpx::runtime::RuntimeData& data,
+                          const warpx::runtime::RuntimeConfig& config);
 
     ~InverseBremsstrahlung () override = default;
 
@@ -61,6 +67,10 @@ public:
                                             WarpXParticleContainer& electrons) const;
 
 private:
+
+    CollisionSpeciesTable m_species;
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+    const warpx::runtime::RuntimeConfig* m_config = nullptr;
 
     amrex::ParticleReal m_energy_fraction = 0.05;
 

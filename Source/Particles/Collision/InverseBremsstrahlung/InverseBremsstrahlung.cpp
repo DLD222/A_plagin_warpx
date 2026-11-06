@@ -25,13 +25,19 @@
 
 #include <string>
 
-InverseBremsstrahlung::InverseBremsstrahlung (std::string const& collision_name, MultiParticleContainer const* mypc)
-    : CollisionBase(collision_name)
+InverseBremsstrahlung::InverseBremsstrahlung (std::string const& collision_name,
+                                              const CollisionSpeciesTable& species,
+                                              const warpx::runtime::RuntimeData& data,
+                                              const warpx::runtime::RuntimeConfig& config)
+    : CollisionBase(collision_name),
+      m_species(species),
+      m_data(&data),
+      m_config(&config)
 {
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_species_names.size() == 2,
                                      "Inverse Bremsstrahlung must have exactly two species.");
 
-    auto& species_1 = mypc->GetParticleContainerFromName(m_species_names[0]);
+    auto& species_1 = *m_species.get(m_species_names[0]);
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(species_1.AmIA<PhysicalSpecies::photon>(),
                                      "InverseBremsstrahlung: The first species must be photons");
 
@@ -56,13 +62,14 @@ InverseBremsstrahlung::InverseBremsstrahlung (std::string const& collision_name,
 void
 InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, MultiParticleContainer* mypc)
 {
+    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("InverseBremsstrahlung::doCollisions()");
     using namespace amrex::literals;
 
-    auto& photons = mypc->GetParticleContainerFromName(m_species_names[0]);
-    auto& electrons = mypc->GetParticleContainerFromName(m_species_names[1]);
+    auto& photons = *m_species.get(m_species_names[0]);
+    auto& electrons = *m_species.get(m_species_names[1]);
 
-    mypc->CalculateNuei(m_species_names[1]);
+    m_species.calculateNuei(m_species_names[1]);
 
     // Enable tiling
     amrex::MFItInfo info;
@@ -72,7 +79,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
     auto const flvl = photons.finestLevel();
     for (int lev = 0; lev <= flvl; ++lev) {
 
-        auto *cost = mypc->data().costs(lev);
+        auto *cost = m_data->costs(lev);
 
         // Loop over all grids/tiles at this level
 #ifdef AMREX_USE_OMP
@@ -80,7 +87,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         for (amrex::MFIter mfi = photons.MakeMFIter(lev, info); mfi.isValid(); ++mfi){
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -88,7 +95,7 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt, M
 
             doInverseBremsstrahlungWithinTile(dt, lev, mfi, photons, electrons);
 
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -126,16 +133,17 @@ void InverseBremsstrahlung::doInverseBremsstrahlungWithinTile (
 
     const amrex::ParticleReal m_electrons = electrons.getMass();
 
-    WarpX & warpx = WarpX::GetInstance();
-    amrex::MultiFab const & nuei = *warpx.m_fields.get("nuei_" + electrons.getName(), lev);
+    amrex::MultiFab const & nuei =
+        *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields())
+             .get("nuei_" + electrons.getName(), lev);
     amrex::FArrayBox const & nuei_fab = nuei[mfi];
     amrex::Real const * nuei_data = nuei_fab.dataPtr();
 
-    amrex::MultiFab const & N_e = *warpx.m_fields.get("N_" + electrons.getName(), lev);
+    amrex::MultiFab const & N_e = *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get("N_" + electrons.getName(), lev);
     amrex::FArrayBox const & N_e_fab = N_e[mfi];
     amrex::Real const * N_e_data = N_e_fab.dataPtr();
 
-    amrex::Geometry const& geom = warpx.Geom(lev);
+    amrex::Geometry const& geom = m_data->geom(lev);
     auto const dV = AMREX_D_TERM(geom.CellSize(0), *geom.CellSize(1), *geom.CellSize(2));
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     amrex::Box const& cbx = mfi.tilebox(amrex::IntVect::TheZeroVector()); //Cell-centered box
@@ -144,7 +152,7 @@ void InverseBremsstrahlung::doInverseBremsstrahlungWithinTile (
     auto const hi = ubound(cbx);
     int const nr = hi.x - lo.x + 1;
 #endif
-    amrex::XDim3 const xyzmin = mypc->data().lowerCorner(cbx, lev, 0._rt);
+    amrex::XDim3 const xyzmin = m_data->lowerCorner(cbx, lev, 0._rt);
     amrex::Real const rmin = xyzmin.x;
     auto const dr = geom.CellSize(0);
 #endif

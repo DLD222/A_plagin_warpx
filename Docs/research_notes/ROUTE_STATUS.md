@@ -107,7 +107,8 @@
 | A3.3b8b | A3 | done | A3.3b8a | PulsedDecay 改用 CollisionSpeciesTable |
 | A3.3b8c | A3 | done | A3.3b8b | BackgroundStopping 改用 CollisionSpeciesTable/Data/Config |
 | A3.3b8d | A3 | done | A3.3b8c | BackgroundMCCCollision 改用 species table/data/config |
-| A3.3b8 | A3 | pending | A3.3b8d | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
+| A3.3b8e | A3 | done | A3.3b8d | InverseBremsstrahlung 去 MPC/WarpX 单例（Nuei 回调） |
+| A3.3b8 | A3 | pending | A3.3b8e | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
 | A3.3b | A3 | pending | A3.3b8 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |

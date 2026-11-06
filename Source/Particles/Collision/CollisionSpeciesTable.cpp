@@ -11,7 +11,9 @@
 
 #include <stdexcept>
 
-CollisionSpeciesTable::CollisionSpeciesTable (const MultiParticleContainer& mypc)
+CollisionSpeciesTable::CollisionSpeciesTable (const MultiParticleContainer& mypc,
+                                              NueiFunction calculate_nuei)
+    : m_calculate_nuei(std::move(calculate_nuei))
 {
     for (const auto& name : mypc.GetSpeciesNames()) {
         m_species.emplace(name, &mypc.GetParticleContainerFromName(name));

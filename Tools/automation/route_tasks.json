@@ -2008,12 +2008,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8e",
+   "phase": "A3",
+   "title": "InverseBremsstrahlung 去 MPC/WarpX 单例（Nuei 回调）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/InverseBremsstrahlung/InverseBremsstrahlung.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "IB 内部无 mypc/GetInstance；碰撞回归通过",
+   "note": "Nuei 通过 CollisionSpeciesTable 回调",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8d"
+    "A3.3b8e"
    ],
    "status": "pending",
    "outputs": [
