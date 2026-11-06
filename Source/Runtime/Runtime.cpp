@@ -53,9 +53,14 @@ Runtime::Runtime (int argc, char* argv[])
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
     m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
     m_plugin_host = std::make_unique<PluginHost>();
-    m_plugin_host->add(std::make_shared<PicPushHandler>());
-    m_plugin_host->add(std::make_shared<PicFinalizeHandler>());
-    m_plugin_host->add(std::make_shared<PicFieldSolveHandler>());
+    // A/B switch for regression: with handlers disabled the legacy direct
+    // phase calls are used, which must be bitwise identical.
+    const bool disable_handlers = std::getenv("WARPX_DISABLE_PLUGIN_HANDLERS") != nullptr;
+    if (!disable_handlers) {
+        m_plugin_host->add(std::make_shared<PicPushHandler>());
+        m_plugin_host->add(std::make_shared<PicFinalizeHandler>());
+        m_plugin_host->add(std::make_shared<PicFieldSolveHandler>());
+    }
     warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();
@@ -72,7 +77,9 @@ Runtime::Runtime (int argc, char* argv[])
     m_collision_handler = std::make_unique<CollisionHandler>(
         species, *m_data, m_config, host);
     mpc.setCollisionHandler(m_collision_handler.get());
-    m_plugin_host->add(std::make_shared<CollisionHandlerAdapter>(m_collision_handler.get()));
+    if (!disable_handlers) {
+        m_plugin_host->add(std::make_shared<CollisionHandlerAdapter>(m_collision_handler.get()));
+    }
 }
 
 Runtime::~Runtime ()

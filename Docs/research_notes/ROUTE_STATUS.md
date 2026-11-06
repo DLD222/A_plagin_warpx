@@ -124,6 +124,7 @@
 | A3.3b | A3 | pending | A3.3b10 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
 | A3.4b | A3 | done | A3.4a | 2D 全量官方算例回归 + 失败分类 |
+| A3.4c | A3 | done | A3.4b | Handler 路径 A/B 逐位验证（Yee/PSATD/碰撞） |
 | A3.4 | A3 | pending | A3.4b | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |

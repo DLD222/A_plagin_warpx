@@ -2342,6 +2342,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4c",
+   "phase": "A3",
+   "title": "Handler 路径 A/B 逐位验证（Yee/PSATD/碰撞）",
+   "kind": "test",
+   "depends": [
+    "A3.4b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/AB_HANDLER_VERIFICATION.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "OMP1+固定 seed 下 on/off 全部 array_equal",
+   "note": "非全量 A/B；A5 再做全量",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
