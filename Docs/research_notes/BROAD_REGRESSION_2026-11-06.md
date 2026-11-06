@@ -236,7 +236,12 @@ ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 A5 完成后的默认/FFT/openPMD 数字保持不变；定向修改功能 27/27、插件 7/7、ASAN 9/9。
 详见 [VALIDATION_2026-11-06_FINAL.md](VALIDATION_2026-11-06_FINAL.md)。
 
-## 13. 待办
+## 13. A6.1 后复验
+
+默认 75/86、61/71；FFT 99/110、83/93；openPMD 16/22；修改功能 33/33；插件 7/7；ASAN 15/15。
+详见 [VALIDATION_2026-11-07_FINAL.md](VALIDATION_2026-11-07_FINAL.md)。
+
+## 14. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；
