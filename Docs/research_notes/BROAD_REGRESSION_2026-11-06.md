@@ -246,7 +246,12 @@ A5 完成后的默认/FFT/openPMD 数字保持不变；定向修改功能 27/27�
 默认 76/87、62/72；FFT 100/111、84/94；动态 regrid 4/4。
 详见 [VALIDATION_2026-11-07_FINAL2.md](VALIDATION_2026-11-07_FINAL2.md)。
 
-## 15. 待办
+## 15. ABI 加固后复验
+
+默认 76/87、62/72；FFT 100/111、84/94；修改功能 35/35；插件 11/11；ASAN 26/26。
+详见 [VALIDATION_2026-11-07_FINAL3.md](VALIDATION_2026-11-07_FINAL3.md)。
+
+## 16. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；
