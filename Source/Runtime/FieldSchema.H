@@ -32,7 +32,9 @@ public:
             const FieldSpec& old = it->second;
             AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
                 old.ncomp == spec.ncomp && old.nodal == spec.nodal &&
-                old.ngrow == spec.ngrow && old.alias_of == spec.alias_of,
+                old.ngrow == spec.ngrow && old.checkpoint == spec.checkpoint &&
+                old.moving_window_shift == spec.moving_window_shift &&
+                old.unit == spec.unit && old.alias_of == spec.alias_of,
                 "FieldSchema: conflicting declaration for " + spec.name);
         }
     }

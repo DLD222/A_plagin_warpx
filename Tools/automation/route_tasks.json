@@ -2575,6 +2575,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4j",
+   "phase": "A3",
+   "title": "FieldSchema 冲突比较补全 checkpoint/moving_window/unit",
+   "kind": "fix",
+   "depends": [
+    "A3.4i"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/FieldSchema.H"
+   ],
+   "effort_days": 0.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "重复声明不同元数据可检测；runtime 5/5",
+   "note": "此前漏比 3 字段",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
