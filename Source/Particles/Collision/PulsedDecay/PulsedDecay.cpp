@@ -27,8 +27,9 @@
 #include <cmath>
 #include <string>
 
-PulsedDecay::PulsedDecay (std::string const& collision_name, MultiParticleContainer const * mypc)
-    : CollisionBase(collision_name)
+PulsedDecay::PulsedDecay (std::string const& collision_name, const CollisionSpeciesTable& species)
+    : CollisionBase(collision_name),
+      m_species(species)
 {
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_species_names.size() == 1,
         "PulsedDecay: pulsed_decay must have exactly one species.");
@@ -50,9 +51,9 @@ PulsedDecay::PulsedDecay (std::string const& collision_name, MultiParticleContai
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE( m_product_species.size() == 2,
         "PulsedDecay: product_species size must be equal to two");
 
-    auto& parent_species = mypc->GetParticleContainerFromName(m_species_names[0]);
-    auto& productA = mypc->GetParticleContainerFromName(m_product_species[0]);
-    auto& productB = mypc->GetParticleContainerFromName(m_product_species[1]);
+    auto& parent_species = *m_species.get(m_species_names[0]);
+    auto& productA = *m_species.get(m_product_species[0]);
+    auto& productB = *m_species.get(m_product_species[1]);
 
     // Verify that the total charge of the product species matches the charge of the parent species
     const int Z_P = static_cast<int>(amrex::Math::round(parent_species.getCharge() / PhysConst::q_e));
@@ -136,9 +137,9 @@ PulsedDecay::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleCo
     using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
 
     // Get handles to species particle containters
-    auto& species1 = mypc->GetParticleContainerFromName(m_species_names[0]);
-    auto& productA = mypc->GetParticleContainerFromName(m_product_species[0]);
-    auto& productB = mypc->GetParticleContainerFromName(m_product_species[1]);
+    auto& species1 = *m_species.get(m_species_names[0]);
+    auto& productA = *m_species.get(m_product_species[0]);
+    auto& productB = *m_species.get(m_product_species[1]);
 
     const SmartCopyFactory copy_factory_A(species1, productA);
     const SmartCopyFactory copy_factory_B(species1, productB);

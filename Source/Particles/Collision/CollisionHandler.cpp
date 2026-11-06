@@ -69,7 +69,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
             allcollisions[i] = std::make_unique<BackgroundMCCCollision>(collision_names[i]);
         }
         else if (type == "pulsed_decay") {
-            allcollisions[i] = std::make_unique<PulsedDecay>(collision_names[i], mypc);
+            allcollisions[i] = std::make_unique<PulsedDecay>(collision_names[i], m_species);
         }
         else if (type == "background_stopping") {
             allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i]);

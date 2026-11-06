@@ -1951,12 +1951,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8b",
+   "phase": "A3",
+   "title": "PulsedDecay 改用 CollisionSpeciesTable",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/PulsedDecay/PulsedDecay.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "PulsedDecay 不再接收 MPC；碰撞回归通过",
+   "note": "其余 model 仍用 MPC",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8a"
+    "A3.3b8b"
    ],
    "status": "pending",
    "outputs": [

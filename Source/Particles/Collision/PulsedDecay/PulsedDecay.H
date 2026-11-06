@@ -7,7 +7,7 @@
 #ifndef WARPX_PULSED_DECAY_H
 #define WARPX_PULSED_DECAY_H
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/CollisionBase.H"
 
 #include <AMReX_Parser.H>
@@ -33,7 +33,7 @@ class PulsedDecay final
     : public CollisionBase
 {
 public:
-    PulsedDecay (std::string const& collision_name, MultiParticleContainer const * mypc);
+    PulsedDecay (std::string const& collision_name, const CollisionSpeciesTable& species);
 
     ~PulsedDecay () override = default;
 
@@ -52,6 +52,8 @@ public:
     void doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc) override;
 
 private:
+
+    CollisionSpeciesTable m_species;
 
     amrex::Vector<std::string> m_product_species;
 
