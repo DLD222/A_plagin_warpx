@@ -20,7 +20,6 @@ namespace warpx::runtime
 class DataBus;
 class HostServices;
 class RuntimeData;
-class Services;
 
 /**
  * \brief Non-owning view of the runtime state handed to kernel/plugin code.
@@ -37,7 +36,6 @@ struct RuntimeContext
     RuntimeData* data = nullptr;
     DataBus* bus = nullptr;
     HostServices* host = nullptr;
-    Services* services = nullptr;
 
     //! Transitional live-clock hook: WarpX calls this at step boundaries and
     //! after InitData so TimeState is fresh when diagnostics run.

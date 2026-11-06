@@ -2535,6 +2535,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.3d",
+   "phase": "A3",
+   "title": "删除空服务接口与隔离 runtime 测试工作目录",
+   "kind": "fix",
+   "depends": [
+    "A3.3c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/RuntimeContext.H",
+    "tests/runtime/CMakeLists.txt"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "无 Services 空指针；每测试独立目录；runtime 5/7 通过",
+   "note": "修复 H4/H5",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",
