@@ -115,6 +115,14 @@ int main (int argc, char* argv[])
         check_eq(deps.ordered().front()->spec().name, std::string("writer"),
                  "PluginHost orders writer before reader");
 
+        warpx::runtime::PluginHost aggregate;
+        aggregate.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "component_reader", {warpx::runtime::Stage::FieldSolve, 0}, {"Efield_fp_x"}, {}, {}, {}, 0}));
+        aggregate.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "aggregate_writer", {warpx::runtime::Stage::FieldSolve, 0}, {}, {"Efield_fp"}, {}, {}, 0}));
+        check_eq(aggregate.ordered().front()->spec().name, std::string("aggregate_writer"),
+                 "PluginHost matches aggregate field names to components");
+
         warpx::runtime::PluginHost cyclic;
         cyclic.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
             "a", {warpx::runtime::Stage::FieldSolve, 0}, {"Y"}, {"X"}, {}, {}, 0}));

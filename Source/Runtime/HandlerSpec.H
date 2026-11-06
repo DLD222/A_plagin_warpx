@@ -104,10 +104,18 @@ public:
             return m_specs[a].priority < m_specs[b].priority;
         });
 
-        auto intersects = [](const std::vector<std::string>& a,
-                             const std::vector<std::string>& b) {
+        auto field_matches = [](const std::string& a, const std::string& b) {
+            if (a == b) { return true; }
+            // A spec may declare an aggregate name ("Efield_fp") while the
+            // registry stores components ("Efield_fp_x").
+            if (b.size() > a.size() && b.compare(0, a.size(), a) == 0 && b[a.size()] == '_') { return true; }
+            if (a.size() > b.size() && a.compare(0, b.size(), b) == 0 && a[b.size()] == '_') { return true; }
+            return false;
+        };
+        auto intersects = [&field_matches](const std::vector<std::string>& a,
+                                           const std::vector<std::string>& b) {
             for (const auto& x : a) {
-                for (const auto& y : b) { if (x == y) { return true; } }
+                for (const auto& y : b) { if (field_matches(x, y)) { return true; } }
             }
             return false;
         };

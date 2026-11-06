@@ -43,6 +43,22 @@ FFT runtime 7/7 PASS
 ASAN runtime 5/5 PASS
 ```
 
+### 聚合字段名匹配
+
+spec 中可能声明聚合名（`Efield_fp`），registry 中存分量（`Efield_fp_x`）。
+拓扑边现在把二者视为同一依赖：
+
+```cpp
+a == b
+|| b starts with a + "_"
+|| a starts with b + "_"
+```
+
+否则 `PicFieldSolveHandler` 的 `writes_fields={"Efield_fp"}` 无法和
+读取 `Efield_fp_x` 的 handler 建立顺序。
+
+测试覆盖该情况。
+
 ## A5.3a 内置包注册集中化
 
 Runtime 不再直接 `make_shared`：
