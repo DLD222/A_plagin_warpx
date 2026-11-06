@@ -725,6 +725,12 @@ namespace ablastr::fields
         }
         //@}
 
+        [[nodiscard]] amrex::MultiFab* get_internal (std::string const & name)
+        {
+            auto it = m_mf_register.find(name);
+            return it == m_mf_register.end() ? nullptr : &it->second.m_mf;
+        }
+
         /** List the internal names of all registered fields.
          *
          * @return all currently allocated and registered fields

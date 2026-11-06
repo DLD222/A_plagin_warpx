@@ -17,3 +17,13 @@ add_warpx_test(
     "analysis_removed.py diags/diag1000004"
     OFF
 )
+
+add_warpx_test(
+    test_2d_dynamic_regrid_remake
+    2
+    1
+    inputs_test_2d_dynamic_regrid_remake
+    "analysis_remake.py diags/diag1000008"
+    "analysis_remake.py diags/diag1000008"
+    OFF
+)

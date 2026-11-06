@@ -37,6 +37,9 @@
 #include <AMReX_MFIter.H>
 #include <AMReX_MakeType.H>
 #include <AMReX_MultiFab.H>
+
+#include <map>
+#include <string>
 #include <AMReX_ParIter.H>
 #include <AMReX_ParallelContext.H>
 #include <AMReX_ParallelDescriptor.H>
@@ -195,6 +198,88 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
 
         m_fields.remake_level(lev, dm);
 
+        RecreateLevelResources(lev, ba, dm);
+
+    } else
+    {
+        std::map<std::string, amrex::MultiFab> old_fields;
+        const std::string level_tag = "[level=" + std::to_string(lev) + "]";
+        for (const auto& name : m_fields.list()) {
+            if (name.find(level_tag) == std::string::npos) { continue; }
+            auto* mf = m_fields.get_internal(name);
+            if (mf == nullptr) { continue; }
+            amrex::MultiFab copy(mf->boxArray(), mf->DistributionMap(),
+                                 mf->nComp(), mf->nGrowVect());
+            copy.ParallelCopy(*mf);
+            old_fields.emplace(name, std::move(copy));
+        }
+
+        ClearLevel(lev);
+        if (m_level_resources.size() <= lev) { m_level_resources.resize(lev + 1); }
+        AllocLevelData(lev, ba, dm);
+        InitLevelData(lev, gett_new(lev));
+
+        if (lev > 0) {
+            const IntVect ratio = refRatio(lev - 1);
+            auto coarse_fill = [&](FieldType type, Direction dir) {
+                if (!m_fields.has(type, dir, lev) || !m_fields.has(type, dir, lev - 1)) { return; }
+                auto* fine = m_fields.get(type, dir, lev);
+                const auto* coarse = m_fields.get(type, dir, lev - 1);
+                amrex::Vector<amrex::BCRec> bcs(fine->nComp());
+                amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
+                                             *coarse, 0, 0, fine->nComp(),
+                                             Geom(lev - 1), Geom(lev), ratio,
+                                             &amrex::cell_cons_interp, bcs, 0);
+            };
+            for (int idim = 0; idim < 3; ++idim) {
+                const Direction dir{idim};
+                coarse_fill(FieldType::Efield_fp, dir);
+                coarse_fill(FieldType::Bfield_fp, dir);
+                coarse_fill(FieldType::current_fp, dir);
+            }
+            if (m_fields.has(FieldType::rho_fp, lev) && m_fields.has(FieldType::rho_fp, lev - 1)) {
+                auto* fine = m_fields.get(FieldType::rho_fp, lev);
+                const auto* coarse = m_fields.get(FieldType::rho_fp, lev - 1);
+                amrex::Vector<amrex::BCRec> bcs(fine->nComp());
+                amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
+                                             *coarse, 0, 0, fine->nComp(),
+                                             Geom(lev - 1), Geom(lev), ratio,
+                                             &amrex::cell_cons_interp, bcs, 0);
+            }
+        }
+
+        for (auto& [name, old_mf] : old_fields) {
+            auto* new_mf = m_fields.get_internal(name);
+            if (new_mf != nullptr) {
+                new_mf->ParallelCopy(old_mf, Geom(lev).periodicity());
+            }
+        }
+
+        RecreateLevelResources(lev, ba, dm);
+    }
+
+    // Re-initialize diagnostic functors that stores pointers to the user-requested fields at level, lev.
+    multi_diags->InitializeFieldFunctors( lev );
+
+    // Reduced diagnostics
+    // not needed yet
+}
+
+void
+WarpX::RecreateLevelResources (int lev, const BoxArray& ba, const DistributionMapping& dm)
+{
+    using ablastr::fields::Direction;
+    using warpx::fields::FieldType;
+
+    const auto RemakeMultiFab = [&](auto& mf){
+        if (mf == nullptr) { return; }
+        const IntVect& ng = mf->nGrowVect();
+        auto pmf = std::remove_reference_t<decltype(mf)>{};
+        AllocInitMultiFab(pmf, mf->boxArray(), dm, mf->nComp(), ng, lev, mf->tags()[0]);
+        *mf = std::move(*pmf);
+    };
+
+    bool const eb_enabled = EB::enabled();
         // Fine patch
         ablastr::fields::MultiLevelVectorField const& Bfield_fp = m_fields.get_mr_levels_alldirs(FieldType::Bfield_fp, finest_level);
         for (int idim=0; idim < 3; ++idim)
@@ -342,16 +427,6 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
             }
         }
 
-    } else
-    {
-        WARPX_ABORT_WITH_MESSAGE("RemakeLevel: to be implemented");
-    }
-
-    // Re-initialize diagnostic functors that stores pointers to the user-requested fields at level, lev.
-    multi_diags->InitializeFieldFunctors( lev );
-
-    // Reduced diagnostics
-    // not needed yet
 }
 
 void

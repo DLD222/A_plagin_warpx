@@ -1222,6 +1222,8 @@ protected:
     //! data.  Called by AmrCore::regrid.
     void RemakeLevel (int lev, amrex::Real time, const amrex::BoxArray& ba,
                               const amrex::DistributionMapping& dm) final;
+    void RecreateLevelResources (int lev, const amrex::BoxArray& ba,
+                                 const amrex::DistributionMapping& dm);
 
     //! Delete level data.  Called by AmrCore::regrid.
     void ClearLevel (int lev) final;
@@ -1663,6 +1665,9 @@ private:
 
     amrex::RealVect fine_tag_lo;
     amrex::RealVect fine_tag_hi;
+    amrex::RealVect fine_tag_lo2;
+    amrex::RealVect fine_tag_hi2;
+    amrex::Real refine_region_change_time = -1.0;
     //! User-defined parser to define refinement patches
     std::unique_ptr<amrex::Parser> ref_patch_parser;
 

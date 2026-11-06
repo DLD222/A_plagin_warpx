@@ -1185,6 +1185,14 @@ WarpX::ReadParameters ()
             if (fine_tag_lo_specified && fine_tag_hi_specified) {
                 fine_tag_lo = RealVect{lo};
                 fine_tag_hi = RealVect{hi};
+                Vector<Real> lo2, hi2;
+                if (utils::parser::queryArrWithParser(pp_warpx, "fine_tag_lo_2", lo2) &&
+                    utils::parser::queryArrWithParser(pp_warpx, "fine_tag_hi_2", hi2)) {
+                    fine_tag_lo2 = RealVect{lo2};
+                    fine_tag_hi2 = RealVect{hi2};
+                    utils::parser::queryWithParser(pp_warpx, "refine_region_change_time",
+                                                   refine_region_change_time);
+                }
             } else {
                 utils::parser::Store_parserString(pp_warpx, "ref_patch_function(x,y,z)", ref_patch_function);
                 ref_patch_parser = std::make_unique<amrex::Parser>(
@@ -3658,8 +3666,9 @@ WarpX::ErrorEst (int lev, TagBoxArray& tags, Real time, int /*ngrow*/)
 
     amrex::ParserExecutor<3> ref_parser;
     if (ref_patch_parser) { ref_parser = ref_patch_parser->compile<3>(); }
-    const auto ftlo = fine_tag_lo;
-    const auto fthi = fine_tag_hi;
+    const bool use_second = refine_region_change_time >= 0.0_rt && time >= refine_region_change_time;
+    const auto ftlo = use_second ? fine_tag_lo2 : fine_tag_lo;
+    const auto fthi = use_second ? fine_tag_hi2 : fine_tag_hi;
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif

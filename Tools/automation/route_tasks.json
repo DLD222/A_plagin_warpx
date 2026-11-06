@@ -2928,13 +2928,13 @@
    "depends": [
     "A6a"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 15.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "新 level 创建/销毁",
-   "note": ""
+   "note": "RecreateLevelResources + ParallelCopy; remake test"
   },
   {
    "id": "A6.2",
