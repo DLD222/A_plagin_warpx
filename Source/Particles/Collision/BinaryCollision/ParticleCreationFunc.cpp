@@ -138,7 +138,13 @@ void ParticleCreationFunc::RecordEnergyRangeWarnings (
 
 ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,
                                             MultiParticleContainer const * const mypc):
-    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, mypc)}
+    ParticleCreationFunc(collision_name, CollisionSpeciesTable(*mypc))
+{
+}
+
+ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,
+                                            const CollisionSpeciesTable& table):
+    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, table)}
 {
     const amrex::ParmParse pp_collision_name(collision_name);
 
@@ -238,8 +244,8 @@ ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,
             pp_collision_name.getarr("species", species_names);
             amrex::Vector<std::string> product_species_names;
             pp_collision_name.getarr("product_species", product_species_names);
-            auto const& first_species = mypc->GetParticleContainerFromName(species_names[0]);
-            auto const& first_product = mypc->GetParticleContainerFromName(product_species_names[0]);
+            auto const& first_species = *table.get(species_names[0]);
+            auto const& first_product = *table.get(product_species_names[0]);
 
             bool valid_species_order = true;
             bool valid_product_species_order = false;

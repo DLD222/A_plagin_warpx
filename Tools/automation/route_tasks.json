@@ -2065,12 +2065,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f3a",
+   "phase": "A3",
+   "title": "ParticleCreationFunc 增加 SpeciesTable 构造",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f2"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/ParticleCreationFunc.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "table 构造可用；旧入口委托；碰撞通过",
+   "note": "其他 creation functor 同模式",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f2"
+    "A3.3b8f3a"
    ],
    "status": "pending",
    "outputs": [

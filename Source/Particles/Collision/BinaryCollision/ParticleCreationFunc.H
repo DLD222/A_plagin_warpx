@@ -57,6 +57,8 @@ public:
      */
     ParticleCreationFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
 
+    ParticleCreationFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
+
     /**
      * \brief operator() of the ParticleCreationFunc class. It creates new particles from binary
      * collisions.
