@@ -29,7 +29,11 @@ size()
 PluginHost: dependency cycle at StagePoint (...)
 ```
 
-`ordered()` / `ordered_specs()` / `at()` 都使用该顺序。
+`ordered()` / `at()` 只对**已注册 handler** 做拓扑排序；
+`ordered_specs()` 在存在 handler 时返回 handler 的 spec 顺序，
+无 handler 时返回 `declare()` 的声明顺序。
+
+这样 `PicEmPackage::register_specs()` 这类“只声明”的包不会被误映射到 handler 下标。
 
 ## 测试
 
