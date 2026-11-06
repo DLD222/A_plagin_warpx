@@ -11,6 +11,8 @@
 #include "Runtime/DataBus.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
+#include "Particles/Collision/CollisionHandler.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionHandlerAdapter.H"
 #include "Runtime/PicFieldSolveHandler.H"
@@ -76,7 +78,7 @@ Runtime::Runtime (int argc, char* argv[])
     });
     m_collision_handler = std::make_unique<CollisionHandler>(
         species, *m_data, m_config, host);
-    mpc.setCollisionHandler(m_collision_handler.get());
+    warpx.SetCollisionHandler(m_collision_handler.get());
     if (!disable_handlers) {
         m_plugin_host->add(std::make_shared<CollisionHandlerAdapter>(m_collision_handler.get()));
     }
@@ -95,6 +97,7 @@ Runtime::initialize ()
         throw std::runtime_error("Runtime::initialize() called after finalize()");
     }
     m_warpx->InitData();
+    m_collision_handler->AllocData();
 
     auto& mpc = m_warpx->GetPartContainer();
     for (const auto& name : mpc.GetSpeciesNames()) {
@@ -126,7 +129,7 @@ Runtime::finalize ()
     if (m_finalized) { return; }
     m_host.reset();
     if (m_warpx != nullptr) {
-        m_warpx->GetPartContainer().setCollisionHandler(nullptr);
+        m_warpx->SetCollisionHandler(nullptr);
     }
     m_collision_handler.reset();
     m_bus.reset();

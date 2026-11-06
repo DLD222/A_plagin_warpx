@@ -10,6 +10,9 @@
 #include <string>
 
 #include "Particles/Collision/ScatteringProcess.H"
+#include "Utils/TextMsg.H"
+#include "Utils/WarpXConst.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
 
 #include <AMReX_Math.H>

@@ -31,6 +31,12 @@
 #include "FieldSolver/ImplicitSolvers/ImplicitSolver.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionHandler.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
+#include "Runtime/WarpXHostServices.H"
+#include "Runtime/WarpXRuntimeData.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
 #include "Particles/ParticleBoundaryBuffer.H"
@@ -622,7 +628,24 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
             return;
         }
     }
-    mypc->doCollisions(step, cur_time, dt);
+    if (m_collision_handler == nullptr) {
+        if (!m_legacy_data) {
+            m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(*this);
+            m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(*this);
+            m_legacy_config = std::make_unique<warpx::runtime::RuntimeConfig>();
+        }
+        auto* host = m_legacy_host.get();
+        CollisionSpeciesTable species(GetPartContainer(), [host](const std::string& name) {
+            host->calculateNuei(name);
+        });
+        m_legacy_collision_handler = std::make_unique<CollisionHandler>(
+            species, *m_legacy_data, *m_legacy_config, host);
+        m_collision_handler = m_legacy_collision_handler.get();
+        m_collision_handler->AllocData();
+    }
+    if (m_collision_handler != nullptr) {
+        m_collision_handler->doCollisions(step, cur_time, dt);
+    }
 }
 
 void

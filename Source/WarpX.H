@@ -87,7 +87,9 @@
 #include <memory>
 #include <vector>
 
-namespace warpx::runtime { class PluginHost; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
+class CollisionHandler;
+
+namespace warpx::runtime { class PluginHost; class WarpXRuntimeData; class WarpXHostServices; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
 
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
@@ -1151,6 +1153,7 @@ public:
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context);
+    void SetCollisionHandler (CollisionHandler* handler) { m_collision_handler = handler; }
     [[nodiscard]] warpx::runtime::RuntimeContext* GetRuntimeContext () const { return m_runtime_context; }
     [[nodiscard]] const warpx::runtime::RuntimeConfig& runtime_config () const;
 
@@ -1243,6 +1246,11 @@ private:
     // Non-owning compatibility accessor; ownership is Runtime or the Python fallback.
     static WarpX* m_instance;
     warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
+    CollisionHandler* m_collision_handler = nullptr;
+    std::unique_ptr<CollisionHandler> m_legacy_collision_handler;
+    std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+    std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
+    std::unique_ptr<warpx::runtime::RuntimeConfig> m_legacy_config;
 
     //! Complete the asynchronous broadcast of signal flags, and initiate a checkpoint if requested
     void HandleSignals ();

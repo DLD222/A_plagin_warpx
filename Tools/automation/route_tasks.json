@@ -2285,6 +2285,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b11",
+   "phase": "A3",
+   "title": "删除 MPC 碰撞所有权，迁移到 WarpX/Runtime legacy",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b10"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/MultiParticleContainer.H",
+    "Source/WarpX.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "MPC 无 CollisionHandler；碰撞/FFT/ASAN 通过；fallback A/B 逐位",
+   "note": "SpeciesHandle 仍未完成",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",

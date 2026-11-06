@@ -14,7 +14,6 @@
 #include "MultiParticleContainer_fwd.H"
 #include "FieldSolver/ImplicitSolvers/ImplicitOptions.H"
 
-#include "Particles/Collision/CollisionHandler.H"
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper_fwd.H"
 #   include "Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper_fwd.H"
@@ -244,10 +243,7 @@ public:
                             const amrex::MultiFab& Ex, const amrex::MultiFab& Ey, const amrex::MultiFab& Ez,
                             const amrex::MultiFab& Bx, const amrex::MultiFab& By, const amrex::MultiFab& Bz);
 
-    void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
     void setRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
-    void setCollisionHandler (CollisionHandler* handler) { m_collision_handler_external = handler; }
-    [[nodiscard]] CollisionHandler* activeCollisionHandler () const;
 
     /**
     * \brief This function loops over all species and performs resampling if appropriate.
@@ -456,7 +452,6 @@ protected:
 
     std::vector<std::string> lasers_names;
 
-    std::unique_ptr<CollisionHandler> collisionhandler;
 
     //! instead of depositing (current, charge) on the finest patch level, deposit to the coarsest grid
     std::vector<bool> m_deposit_on_main_grid;
@@ -576,7 +571,6 @@ protected:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    CollisionHandler* m_collision_handler_external = nullptr;
 
     // physical particles (+ laser)
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>> allcontainers;
