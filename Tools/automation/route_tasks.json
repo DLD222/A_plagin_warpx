@@ -2103,12 +2103,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f4",
+   "phase": "A3",
+   "title": "DSMCFunc/NuclearFusion 增加 SpeciesTable 构造",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f3b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "table 构造可用；碰撞通过",
+   "note": "operator 无需 table；旧入口委托",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f3b"
+    "A3.3b8f4"
    ],
    "status": "pending",
    "outputs": [

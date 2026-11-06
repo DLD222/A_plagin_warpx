@@ -12,6 +12,7 @@
 
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
@@ -59,10 +60,14 @@ public:
      */
     NuclearFusionFunc (const std::string& collision_name, MultiParticleContainer const * const mypc,
                        const bool isSameSpecies):
+        NuclearFusionFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies) {}
+
+    NuclearFusionFunc (const std::string& collision_name, const CollisionSpeciesTable& table,
+                       const bool isSameSpecies):
         m_fusion_multiplier{amrex::ParticleReal{1.0}}, // default fusion multiplier
         m_probability_threshold{amrex::ParticleReal{0.02}}, // default fusion probability threshold
         m_probability_target_value{amrex::ParticleReal{0.002}}, // default fusion probability target_value
-        m_fusion_type{BinaryCollisionUtils::get_nuclear_fusion_type(collision_name, mypc)},
+        m_fusion_type{BinaryCollisionUtils::get_nuclear_fusion_type(collision_name, table)},
         m_isSameSpecies{isSameSpecies}
     {
 

@@ -14,6 +14,7 @@
 
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
 #include "Particles/Collision/CollisionBase.H"
 #include "Particles/Collision/ScatteringProcess.H"
@@ -62,6 +63,10 @@ public:
      */
     DSMCFunc ( const std::string& collision_name,
                [[maybe_unused]] MultiParticleContainer const * mypc,
+               bool isSameSpecies );
+
+    DSMCFunc ( const std::string& collision_name,
+               const CollisionSpeciesTable& /*table*/,
                bool isSameSpecies );
 
     struct Executor {
