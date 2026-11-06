@@ -19,15 +19,14 @@ ctest --test-dir build -R '\.run$' -j 4 --output-on-failure
 ```
 
 ```
-71 / 83 PASS
+72 / 83 PASS
 ```
 
-12 个失败全部为环境缺件：
+11 个失败全部为 openPMD 输出缺件：
 
 | 类别 | 测试 |
 |---|---|
-| 缺少 `warpx-data/MCC_cross_sections` | `charge_exchange_dsmc`, `embedded_boundary_em_particle_absorption_sh_factor_1/2/3`, `embedded_circle`, `background_mcc` |
-| openPMD 未编译 | `collisions_split_momentum_push_electrostatic`, `..._electromagnetic`, `..._electromagnetic_vay`, `qed_breit_wheeler_opmd`, `rigid_injection_btd`, `laser_ion_acc` |
+| openPMD 未编译 | `charge_exchange_dsmc`, `embedded_boundary_em_particle_absorption_sh_factor_1/2/3`, `embedded_circle`, `collisions_split_momentum_push_electrostatic`, `..._electromagnetic`, `..._electromagnetic_vay`, `qed_breit_wheeler_opmd`, `rigid_injection_btd`, `laser_ion_acc` |
 
 ### analysis 测试
 
@@ -35,7 +34,7 @@ ctest --test-dir build -R '\.run$' -j 4 --output-on-failure
 58 / 68 PASS
 ```
 
-10 个失败与上表一一对应（`embedded_circle`、`background_mcc` 无 analysis 或对应 run 已失败）。
+10 个失败与上表 openPMD 缺件对应（`embedded_circle` 无 analysis）。
 
 ## 3. openPMD 构建
 
