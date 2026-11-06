@@ -43,6 +43,21 @@ FFT runtime 7/7 PASS
 ASAN runtime 5/5 PASS
 ```
 
+## A5.3a 内置包注册集中化
+
+Runtime 不再直接 `make_shared`：
+
+```cpp
+PicEmPackage::register_handlers(*m_plugin_host);
+CollisionPackage::register_handler(*m_plugin_host, m_collision_handler.get());
+```
+
+`PicEmPackage` 拥有 PIC 三个 handler 的构造；
+`CollisionPackage` 拥有 CollisionHandlerAdapter 的构造。
+包之外只传 context/handler 指针。
+
+A/B 结果仍为逐位一致（先前记录）。
+
 ## 尚未完成
 
 - A5.3 内置插件适配的逐位 A/B；

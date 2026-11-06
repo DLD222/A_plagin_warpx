@@ -9,6 +9,9 @@
 #define WARPX_RUNTIME_PICEMPACKAGE_H_
 
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/PicPushHandler.H"
+#include "Runtime/PicFinalizeHandler.H"
+#include "Runtime/PicFieldSolveHandler.H"
 
 namespace warpx::runtime
 {
@@ -23,6 +26,13 @@ namespace warpx::runtime
 class PicEmPackage
 {
 public:
+    static void register_handlers (PluginHost& host)
+    {
+        host.add(std::make_shared<PicPushHandler>());
+        host.add(std::make_shared<PicFinalizeHandler>());
+        host.add(std::make_shared<PicFieldSolveHandler>());
+    }
+
     static void register_specs (PluginHost& host)
     {
         host.declare(HandlerSpec{

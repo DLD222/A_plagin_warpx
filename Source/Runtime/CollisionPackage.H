@@ -10,6 +10,8 @@
 
 #include "Runtime/HandlerSpec.H"
 
+class CollisionHandler;
+
 namespace warpx::runtime
 {
 
@@ -23,6 +25,8 @@ namespace warpx::runtime
 class CollisionPackage
 {
 public:
+    static void register_handler (PluginHost& host, CollisionHandler* handler);
+
     static void register_specs (PluginHost& host)
     {
         host.declare(HandlerSpec{

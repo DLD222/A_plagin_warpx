@@ -2797,6 +2797,26 @@
    "note": "Kahn topological sort + cycle throw"
   },
   {
+   "id": "A5.3a",
+   "phase": "A5",
+   "title": "内置包注册集中化（PIC/Collision）",
+   "kind": "refactor",
+   "depends": [
+    "A5.2"
+   ],
+   "status": "done",
+   "outputs": [
+    "Source/Runtime/PicEmPackage.H",
+    "Source/Runtime/CollisionPackage.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Runtime 不直接构造 handler；runtime 5/7；碰撞通过",
+   "note": "medium/pec/diag 尚未包化",
+   "verify_command": null
+  },
+  {
    "id": "A5.3",
    "phase": "A5",
    "title": "内置插件适配（yee/pic/medium/pec/diag）",

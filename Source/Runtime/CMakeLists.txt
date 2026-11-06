@@ -3,6 +3,7 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(lib_${SD}
       PRIVATE
         Runtime.cpp
+        CollisionPackage.cpp
         DataBus.cpp
     LevelResources.cpp
     SpeciesSpec.cpp

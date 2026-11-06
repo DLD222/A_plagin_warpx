@@ -14,7 +14,8 @@
 #include "Particles/Collision/CollisionHandler.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
-#include "Runtime/CollisionHandlerAdapter.H"
+#include "Runtime/CollisionPackage.H"
+#include "Runtime/PicEmPackage.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
@@ -61,9 +62,7 @@ Runtime::Runtime (int argc, char* argv[])
     // phase calls are used, which must be bitwise identical.
     const bool disable_handlers = std::getenv("WARPX_DISABLE_PLUGIN_HANDLERS") != nullptr;
     if (!disable_handlers) {
-        m_plugin_host->add(std::make_shared<PicPushHandler>());
-        m_plugin_host->add(std::make_shared<PicFinalizeHandler>());
-        m_plugin_host->add(std::make_shared<PicFieldSolveHandler>());
+        PicEmPackage::register_handlers(*m_plugin_host);
     }
     warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
@@ -82,7 +81,7 @@ Runtime::Runtime (int argc, char* argv[])
         species, *m_data, m_config, host);
     warpx.SetCollisionHandler(m_collision_handler.get());
     if (!disable_handlers) {
-        m_plugin_host->add(std::make_shared<CollisionHandlerAdapter>(m_collision_handler.get()));
+        CollisionPackage::register_handler(*m_plugin_host, m_collision_handler.get());
     }
 }
 

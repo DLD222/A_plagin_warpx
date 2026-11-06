@@ -148,6 +148,7 @@
 | A4.5 | A4 | done | A4.4 | A4 回归门（重启逐位） |
 | A5.1 | A5 | done | A4.5 | Stage/Handler/PluginHost 骨架 |
 | A5.2 | A5 | done | A5.1 | 数据依赖拓扑排序与冲突检测 |
+| A5.3a | A5 | done | A5.2 | 内置包注册集中化（PIC/Collision） |
 | A5.3 | A5 | pending | A5.2 | 内置插件适配（yee/pic/medium/pec/diag） |
 | A5.4 | A5 | pending | A5.3 | 外挂插件示例（1 个 .cpp） |
 | A5.5 | A5 | pending | A5.3 | 运行期 .so 加载（可选） |
