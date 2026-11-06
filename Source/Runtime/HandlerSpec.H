@@ -55,6 +55,9 @@ public:
     virtual ~IHandler () = default;
     [[nodiscard]] virtual HandlerSpec spec () const = 0;
     virtual void apply (StageContext&) = 0;
+
+    /** Optional callback after a successful AMR regrid. */
+    virtual void on_regrid (StageContext& /*ctx*/) {}
 };
 
 /**
@@ -184,6 +187,11 @@ public:
             return a.priority < b.priority;
         });
         return out;
+    }
+
+    void notify_regrid (StageContext& ctx) const
+    {
+        for (auto* handler : ordered()) { handler->on_regrid(ctx); }
     }
 
     [[nodiscard]] std::vector<IHandler*> ordered () const

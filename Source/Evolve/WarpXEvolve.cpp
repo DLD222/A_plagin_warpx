@@ -405,6 +405,7 @@ WarpX::Evolve (int numsteps)
 
         if (regrid_int > 0 && (step + 1) % regrid_int == 0 && max_level > 0) {
             regrid(0, cur_time);
+            RunRegridStage(istep[0]);
             multi_diags->ResizeLevels(finest_level);
             for (int lev = 0; lev <= finest_level; ++lev) {
                 auto pba = GetParGDB()->ParticleBoxArray(lev);
@@ -630,6 +631,17 @@ void
 WarpX::FlushDiagnostics (int step)
 {
     multi_diags->FilterComputePackFlush(step);
+}
+
+void
+WarpX::RunRegridStage (int step)
+{
+    if (m_plugin_host == nullptr || m_runtime_context == nullptr ||
+        m_runtime_context->host == nullptr) { return; }
+    warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                     m_runtime_context->host, m_runtime_context->data};
+    ctx.step = step;
+    m_plugin_host->notify_regrid(ctx);
 }
 
 void

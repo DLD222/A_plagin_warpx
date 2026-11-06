@@ -3,8 +3,8 @@ add_warpx_test(
     2  # dims
     1  # nprocs
     inputs_test_2d_dynamic_regrid  # inputs
-    "analysis.py diags/diag1000080"  # analysis
-    "analysis.py diags/diag1000080"  # checksum
+    "analysis.py diags/diag1000015"  # analysis
+    "analysis.py diags/diag1000015"  # checksum
     OFF  # dependency
 )
 

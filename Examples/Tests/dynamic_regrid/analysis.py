@@ -1,12 +1,27 @@
+import os
 import sys
 import numpy as np
 import yt
 
 yt.funcs.mylog.setLevel(50)
-ds = yt.load(sys.argv[1])
+path = sys.argv[1]
+ds = yt.load(path)
 assert ds.max_level == 1, f"dynamic regrid did not create level 1: max_level={ds.max_level}"
-grid = ds.covering_grid(0, ds.domain_left_edge, ds.domain_dimensions)
-ex = np.array(grid[("boxlib", "Ex")])
-assert np.all(np.isfinite(ex)), "non-finite Ex after dynamic regrid"
-assert np.max(np.abs(ex)) > 0.0, "Ex is identically zero after dynamic regrid"
-print("dynamic regrid level1 created, Ex finite and nonzero")
+
+before_path = os.path.join(os.path.dirname(path), "diag1000014")
+ds_before = yt.load(before_path)
+assert ds_before.max_level == 0, "level 1 existed before regrid step"
+
+def level0_field(dataset, name):
+    grid = dataset.covering_grid(0, dataset.domain_left_edge, dataset.domain_dimensions)
+    return np.array(grid[("boxlib", name)])
+
+for name in ("Ex", "Ey", "Ez"):
+    before = level0_field(ds_before, name)
+    after = level0_field(ds, name)
+    denom = max(float(np.max(np.abs(before))), 1.0e-30)
+    rel = float(np.max(np.abs(after - before))) / denom
+    assert rel < 5.0e-2, f"{name} changed across regrid: rel={rel}"
+    assert np.all(np.isfinite(after)), f"non-finite {name} after dynamic regrid"
+
+print("dynamic regrid level1 created; level0 fields continuous")

@@ -2976,13 +2976,13 @@
    "depends": [
     "A6.3"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 3.0,
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
    "acceptance": "加密前后物理门",
-   "note": ""
+   "note": "on_regrid callback + dynamic physics gate"
   }
  ]
 }

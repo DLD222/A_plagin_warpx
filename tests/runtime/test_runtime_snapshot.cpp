@@ -210,6 +210,29 @@ int main (int argc, char* argv[])
     runtime.initialize();
 
     {
+        struct RegridProbe final : warpx::runtime::IHandler
+        {
+            int calls = 0;
+            [[nodiscard]] warpx::runtime::HandlerSpec spec () const override
+            {
+                return warpx::runtime::HandlerSpec{
+                    .name = "regrid_probe",
+                    .point = {warpx::runtime::Stage::Finalize, 0},
+                    .reads_fields = {}, .writes_fields = {},
+                    .reads_species = {}, .writes_species = {}, .priority = 0};
+            }
+            void apply (warpx::runtime::StageContext&) override {}
+            void on_regrid (warpx::runtime::StageContext&) override { ++calls; }
+        };
+        auto probe = std::make_shared<RegridProbe>();
+        runtime.plugins().add(probe);
+        warpx::runtime::StageContext ctx{&runtime.context(), &runtime.bus(),
+                                         &runtime.host(), runtime.context().data};
+        runtime.plugins().notify_regrid(ctx);
+        check_eq(probe->calls, 1, "plugin on_regrid callback invoked");
+    }
+
+    {
         auto policy = std::make_shared<FakeAmrPolicy>();
         WarpX::GetInstance().SetAmrPolicy(policy);
         auto const& ba = WarpX::GetInstance().boxArray(0);

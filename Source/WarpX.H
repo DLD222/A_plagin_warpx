@@ -1291,6 +1291,7 @@ private:
     friend class warpx::runtime::WarpXHostServices;
     void RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt);
     void RunDiagnosticsStage (int step);
+    void RunRegridStage (int step);
     void FlushDiagnostics (int step);
     void RunFieldSolveStage (amrex::Real a_cur_time);
     void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
