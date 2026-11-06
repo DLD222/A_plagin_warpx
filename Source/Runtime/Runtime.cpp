@@ -12,6 +12,7 @@
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Runtime/PicPushHandler.H"
 #include "WarpX.H"
 
 #include <stdexcept>
@@ -48,6 +49,9 @@ Runtime::Runtime (int argc, char* argv[])
     auto& warpx = *m_warpx;
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
     m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
+    m_plugin_host = std::make_unique<PluginHost>();
+    m_plugin_host->add(std::make_shared<PicPushHandler>());
+    warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();
     sync_time();
@@ -100,6 +104,7 @@ Runtime::finalize ()
     if (m_finalized) { return; }
     m_host.reset();
     m_bus.reset();
+    m_plugin_host.reset();
     m_data.reset();
     m_warpx.reset();
     WarpX::ResetInstance();
@@ -158,6 +163,12 @@ const DataBus&
 Runtime::bus () const
 {
     return *m_bus;
+}
+
+PluginHost&
+Runtime::plugins ()
+{
+    return *m_plugin_host;
 }
 
 HostServices&

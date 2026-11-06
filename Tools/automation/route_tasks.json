@@ -1817,12 +1817,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b4",
+   "phase": "A3",
+   "title": "OneStep push 路径改由 PluginHost 执行",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Evolve/WarpXEvolve.cpp",
+    "Source/Runtime/Runtime.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Runtime 注册 PicPushHandler；push 经 handler；Langmuir/PSATD 数值不变",
+   "note": "无 handler 时回退直接调用",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.3b2"
+    "A3.3b4"
    ],
    "status": "pending",
    "outputs": [],

@@ -8,6 +8,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/HandlerSpec.H"
+#include "Runtime/RuntimeContext.H"
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
@@ -540,6 +542,22 @@ void WarpX::OneStep (
  * i.e. all levels/patches use the same timestep (that of the finest level)
  * for the field advance and particle pusher.
  */
+void
+WarpX::RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
+{
+    if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
+        m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
+        warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                         m_runtime_context->host, m_runtime_context->data};
+        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Push);
+        if (!handlers.empty()) {
+            for (auto* handler : handlers) { handler->apply(ctx); }
+            return;
+        }
+    }
+    OneStep_PushParticles(a_cur_time, a_dt, a_step);
+}
+
 void
 WarpX::RunPicPush (amrex::Real cur_time, amrex::Real dt, int step)
 {

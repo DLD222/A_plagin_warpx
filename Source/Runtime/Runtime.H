@@ -25,6 +25,7 @@ namespace warpx::runtime
 
 class WarpXRuntimeData;
 class DataBus;
+class PluginHost;
 class WarpXHostServices;
 
 /**
@@ -79,6 +80,7 @@ public:
 
     //! Kernel services (FillBoundary/moving window/PML/in-situ metadata).
     [[nodiscard]] HostServices& host ();
+    [[nodiscard]] PluginHost& plugins ();
     [[nodiscard]] const HostServices& host () const;
 
 private:
@@ -92,6 +94,7 @@ private:
     std::unique_ptr<WarpXRuntimeData> m_data;
     std::unique_ptr<DataBus> m_bus;
     std::unique_ptr<WarpXHostServices> m_host;
+    std::unique_ptr<PluginHost> m_plugin_host;
 
     void sync_config ();
     void sync_time ();

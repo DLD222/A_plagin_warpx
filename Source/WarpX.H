@@ -87,7 +87,7 @@
 #include <memory>
 #include <vector>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeConfig; class Runtime; }
+namespace warpx::runtime { class PluginHost; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
 
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
@@ -146,6 +146,7 @@ public:
 
     void Evolve (int numsteps = -1);
     void RunPicPush (amrex::Real cur_time, amrex::Real dt, int step);
+    void SetPluginHost (warpx::runtime::PluginHost* host) { m_plugin_host = host; }
 
     /** Push momentum one half step forward to synchronize with position.
      *  Also sets m_is_synchronized to `true`.
@@ -1136,6 +1137,9 @@ public:
     //! A2.1 per-level resource registry (borrows m_fields; does not own it).
     warpx::runtime::LevelResources m_level_resources;
 
+    //! A3.3 plugin host; nullptr means legacy direct calls.
+    warpx::runtime::PluginHost* m_plugin_host = nullptr;
+
     //! A2.4 field allocation schema (descriptions only; no storage).
     warpx::runtime::FieldSchema m_field_schema;
 
@@ -1262,6 +1266,7 @@ private:
         bool verbose_step
     );
 
+    void RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void OneStep_FinalizeDeposition ();
     void OneStep_FieldSolve (amrex::Real a_cur_time);
