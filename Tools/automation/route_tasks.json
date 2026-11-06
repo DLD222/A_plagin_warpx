@@ -2324,6 +2324,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b13",
+   "phase": "A3",
+   "title": "CollisionSpeciesView + PulsedDecay 迁移",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b12"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/CollisionSpeciesTable.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "view 可用；PulsedDecay 迁移；碰撞回归",
+   "note": "其余 model 未迁移",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
