@@ -130,6 +130,7 @@
 | A3.4e | A3 | done | A3.4d | Galilean PSATD 回归定位（基线对照 + 首步发散） |
 | A3.4f | A3 | done | A3.4e | 修复 Galilean 沉积 LowerCorner 时间偏移 |
 | A3.4g | A3 | done | A3.4f | Galilean 修复后全量复验 |
+| A3.4h | A3 | done | A3.4g | 所有权收口后的最终全量复验 |
 | A3.4 | A3 | pending | A3.4b | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |

@@ -2458,6 +2458,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4h",
+   "phase": "A3",
+   "title": "所有权收口后的最终全量复验",
+   "kind": "test",
+   "depends": [
+    "A3.4g"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "默认72/83、FFT96/107、openPMD16/22、ASAN7/7",
+   "note": "Galilean 6.69e-9",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",

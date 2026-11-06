@@ -75,10 +75,10 @@ ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
 ```
-100 / 107 PASS
+96 / 107 PASS
 ```
 
-12 个失败仍是同一组环境缺件（openPMD/MCC 数据）。
+11 个失败仍是同一组环境缺件（openPMD 输出未编译）。
 
 FFT analysis 的 **Galilean PSATD** 一组曾失败，已定位并修复：
 
@@ -145,7 +145,20 @@ test_2d_qed_breit_wheeler
 test_2d_qed_quantum_sync
 ```
 
-## 6. Handler A/B 逐位验证
+## 6. 所有权收口后的最终复验
+
+碰撞所有权从 `MultiParticleContainer` 迁到 `Runtime`/`WarpX` 后重跑：
+
+| 构建 | run | analysis |
+|---|---:|---:|
+| 默认 | **72 / 83** | **58 / 68** |
+| FFT | **96 / 107** | **80 / 90** |
+| openPMD | **16 / 22** | — |
+| ASAN | **7 / 7**（runtime + collision） | — |
+
+默认/FFT 的失败仍全部是 openPMD 未编译；openPMD 构建只剩 3 个 HDF5 backend 测试。
+
+## 7. Handler A/B 逐位验证
 
 新增调试开关：
 
@@ -161,7 +174,7 @@ WARPX_DISABLE_PLUGIN_HANDLERS=1
 
 详见 [AB_HANDLER_VERIFICATION.md](AB_HANDLER_VERIFICATION.md)。
 
-## 7. 定量结果（与解析/参考值）
+## 8. 定量结果（与解析/参考值）
 
 | 算例 | 量 | 结果 |
 |---|---|---|
@@ -174,7 +187,7 @@ WARPX_DISABLE_PLUGIN_HANDLERS=1
 | | Ey | **0.073**（tol 0.165） |
 | `test_2d_collision_xz` | 拟合残差 | **4.66e-4**（tol 1e-3） |
 
-## 8. ASAN
+## 9. ASAN
 
 ```bash
 ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
@@ -187,7 +200,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 
 无 use-after-free / 越界。
 
-## 9. 结论
+## 10. 结论
 
 - 官方 2D 算例绝大多数通过；
 - 剩余失败已分类为 **openPMD 未编译** 与 **warpx-data 缺失**，不是本架构改动引入；
@@ -195,7 +208,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 - Galilean PSATD 的 analysis 异常仍需单独排查，不能隐藏；
 - 该结果不能替代 A/B 逐位门。
 
-## 10. 复现命令
+## 11. 复现命令
 
 ```bash
 # 默认
@@ -207,7 +220,7 @@ LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH" \
 ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
-## 11. 待办
+## 12. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；
