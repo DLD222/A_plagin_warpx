@@ -581,6 +581,28 @@ WarpX::RunFinalizeStage ()
 }
 
 void
+WarpX::RunPicFieldSolve (amrex::Real cur_time)
+{
+    OneStep_FieldSolve(cur_time);
+}
+
+void
+WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
+{
+    if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
+        m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
+        warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                         m_runtime_context->host, m_runtime_context->data};
+        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::FieldSolve);
+        if (!handlers.empty()) {
+            for (auto* handler : handlers) { handler->apply(ctx); }
+            return;
+        }
+    }
+    OneStep_FieldSolve(a_cur_time);
+}
+
+void
 WarpX::RunPicPush (amrex::Real cur_time, amrex::Real dt, int step)
 {
     OneStep_PushParticles(cur_time, dt, step);

@@ -217,6 +217,12 @@ WarpXHostServices::finalizeDeposition ()
     m_warpx.RunPicFinalizeDeposition();
 }
 
+void
+WarpXHostServices::fieldSolve (amrex::Real cur_time)
+{
+    m_warpx.RunPicFieldSolve(cur_time);
+}
+
 void WarpXHostServices::updateMaxStep (int new_max_step) { m_warpx.updateMaxStep(new_max_step); }
 void WarpXHostServices::updateStopTime (amrex::Real new_stop_time) { m_warpx.updateStopTime(new_stop_time); }
 

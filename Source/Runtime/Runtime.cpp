@@ -12,6 +12,7 @@
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
 #include "WarpX.H"
@@ -53,6 +54,7 @@ Runtime::Runtime (int argc, char* argv[])
     m_plugin_host = std::make_unique<PluginHost>();
     m_plugin_host->add(std::make_shared<PicPushHandler>());
     m_plugin_host->add(std::make_shared<PicFinalizeHandler>());
+    m_plugin_host->add(std::make_shared<PicFieldSolveHandler>());
     warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();

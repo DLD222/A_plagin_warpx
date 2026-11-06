@@ -90,6 +90,9 @@ public:
     //! Advance particles and deposit J/rho for one explicit PIC step.
     virtual void pushParticlesAndDeposit (amrex::Real cur_time, amrex::Real dt, int step) = 0;
 
+    //! Advance E/B for one explicit PIC step.
+    virtual void fieldSolve (amrex::Real cur_time) = 0;
+
     //! Finalize current/rho after deposition (sync/finalize, moment fluid).
     virtual void finalizeDeposition () = 0;
 

@@ -99,7 +99,8 @@
 | A3.3b3 | A3 | done | A3.3b2 | HostServices push + PicPushHandler（不持 WarpX 指针） |
 | A3.3b4 | A3 | done | A3.3b3 | OneStep push 路径改由 PluginHost 执行 |
 | A3.3b5 | A3 | done | A3.3b4 | FinalizeDepositionHandler 经 PluginHost 执行 |
-| A3.3 | A3 | pending | A3.3b5 | PicEmPackage（schema + stages + plugins） |
+| A3.3b6 | A3 | done | A3.3b5 | FieldSolve handler 经 PluginHost 执行 |
+| A3.3 | A3 | done | A3.3b6 | PicEmPackage（schema + stages + plugins） |
 | A3.3a | A3 | done | A3.2b | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
 | A3.3b | A3 | pending | A3.3 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
@@ -120,5 +121,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A3.3` — PicEmPackage（schema + stages + plugins）
+**Next:** `A3.3b` — CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）
 

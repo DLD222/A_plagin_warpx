@@ -1856,12 +1856,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b6",
+   "phase": "A3",
+   "title": "FieldSolve handler 经 PluginHost 执行",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b5"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/PicFieldSolveHandler.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "FieldSolve 由 handler 执行；Langmuir/PML/PSATD 数值不变",
+   "note": "无 handler 回退",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.3b5"
+    "A3.3b6"
    ],
    "status": "pending",
    "outputs": [],
@@ -1869,7 +1888,10 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "WarpX 降为包实现体",
-   "note": ""
+   "note": "",
+   "state": {
+    "status": "pending"
+   }
   },
   {
    "id": "A3.3a",
