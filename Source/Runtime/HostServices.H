@@ -101,6 +101,9 @@ public:
     virtual void generateGlobalDebyeLength () = 0;
     virtual void generateVirtualPhotons () = 0;
 
+    //! Flush multi-diagnostics for one step.
+    virtual void computeDiagnostics (int step) = 0;
+
     //! Finalize current/rho after deposition (sync/finalize, moment fluid).
     virtual void finalizeDeposition () = 0;
 

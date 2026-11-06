@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
-> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **152 个可执行任务**，每个任务带依赖、产出、验收和门禁。
+> 把 [`最终的技术路线.md`](最终的技术路线.md) 的 A0–A6 拆成 **153 个可执行任务**，每个任务带依赖、产出、验收和门禁。
 > 任务图：`Tools/automation/route_tasks.json`；运行器：`Tools/automation/route_tasks.py`；门禁：`Tools/automation/gates/`。
 
 ---
@@ -52,7 +52,7 @@
 | A2 Level 资源 | 20 | 20 |
 | A3 生命周期拆包 | 52 | 52（A3.1 InitData、A3.2 PIC stage、A3.3 PIC/碰撞包） |
 | A4 状态 schema | 5 | 5（含 A4.4a/b 子项） |
-| A5 调度器/插件 | 6 | 6（含 A/B 门） |
+| A5 调度器/插件 | 6 | 7（含 A5.3a/b 子项与 A/B 门） |
 | A6 动态 regrid | 5 | 0（新增 A6a 基础设施） |
 
 ---

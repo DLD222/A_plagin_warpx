@@ -222,6 +222,12 @@ WarpXHostServices::finalizeDeposition ()
 }
 
 void
+WarpXHostServices::computeDiagnostics (int step)
+{
+    m_warpx.FlushDiagnostics(step);
+}
+
+void
 WarpXHostServices::calculateNuei (const std::string& species)
 {
     m_warpx.GetPartContainer().CalculateNuei(species);

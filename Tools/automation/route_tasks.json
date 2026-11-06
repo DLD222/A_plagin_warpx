@@ -2817,6 +2817,26 @@
    "verify_command": null
   },
   {
+   "id": "A5.3b",
+   "phase": "A5",
+   "title": "诊断包化（Stage::Diagnostics handler）",
+   "kind": "refactor",
+   "depends": [
+    "A5.3a"
+   ],
+   "status": "done",
+   "outputs": [
+    "Source/Runtime/DiagnosticsPackage.H",
+    "Source/Runtime/DiagnosticsHandler.H"
+   ],
+   "effort_days": 2.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "诊断经 handler；runtime/restart 通过",
+   "note": "medium/pec 仍未包化",
+   "verify_command": null
+  },
+  {
    "id": "A5.3",
    "phase": "A5",
    "title": "内置插件适配（yee/pic/medium/pec/diag）",

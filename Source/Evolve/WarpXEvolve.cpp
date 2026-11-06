@@ -378,7 +378,7 @@ WarpX::Evolve (int numsteps)
             reduced_diags->ComputeDiags(step);
             reduced_diags->WriteToFile(step);
         }
-        multi_diags->FilterComputePackFlush( step );
+        RunDiagnosticsStage(step);
 
         // execute afterdiagnostic callbacks
         ExecutePythonCallback("afterdiagnostics");
@@ -610,6 +610,29 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
         }
     }
     OneStep_FieldSolve(a_cur_time);
+}
+
+void
+WarpX::FlushDiagnostics (int step)
+{
+    multi_diags->FilterComputePackFlush(step);
+}
+
+void
+WarpX::RunDiagnosticsStage (int step)
+{
+    if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
+        m_runtime_context->host != nullptr) {
+        warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                         m_runtime_context->host, m_runtime_context->data};
+        ctx.step = step;
+        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Diagnostics);
+        if (!handlers.empty()) {
+            for (auto* handler : handlers) { handler->apply(ctx); }
+            return;
+        }
+    }
+    FlushDiagnostics(step);
 }
 
 void

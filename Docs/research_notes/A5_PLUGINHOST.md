@@ -59,6 +59,32 @@ a == b
 
 测试覆盖该情况。
 
+## A5.3b 诊断包
+
+新增：
+
+```text
+DiagnosticsHandler   Stage::Diagnostics
+DiagnosticsPackage   register_handlers()
+```
+
+执行：
+
+```text
+RunDiagnosticsStage(step)
+  -> PluginHost::at(Diagnostics)
+  -> DiagnosticsHandler
+  -> HostServices::computeDiagnostics(step)
+  -> WarpX::FlushDiagnostics(step)
+```
+
+`WarpXEvolve` 原来直接调用 `multi_diags->FilterComputePackFlush(step)`，
+现在改走 `RunDiagnosticsStage`。
+
+禁用 handler 时回退到原来的直接调用。
+
+runtime / restart 测试通过。
+
 ## A5.3a 内置包注册集中化
 
 Runtime 不再直接 `make_shared`：

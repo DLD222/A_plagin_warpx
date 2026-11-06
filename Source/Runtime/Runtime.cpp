@@ -16,6 +16,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/PicEmPackage.H"
+#include "Runtime/DiagnosticsPackage.H"
 #include "Runtime/PluginLoader.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
@@ -64,6 +65,7 @@ Runtime::Runtime (int argc, char* argv[])
     const bool disable_handlers = std::getenv("WARPX_DISABLE_PLUGIN_HANDLERS") != nullptr;
     if (!disable_handlers) {
         PicEmPackage::register_handlers(*m_plugin_host);
+        DiagnosticsPackage::register_handlers(*m_plugin_host);
     }
     warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
