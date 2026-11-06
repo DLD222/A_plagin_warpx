@@ -1913,12 +1913,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b7",
+   "phase": "A3",
+   "title": "CollisionPackage 声明 Collisions 阶段 specs",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b6"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/CollisionPackage.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "binary/mcc/dsmc specs 注册；碰撞数值不变；不持 WarpX",
+   "note": "执行 handler 待 CollisionHandler 解耦",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b",
    "phase": "A3",
    "title": "CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage）",
    "kind": "refactor",
    "depends": [
-    "A3.3"
+    "A3.3b7"
    ],
    "status": "pending",
    "outputs": [

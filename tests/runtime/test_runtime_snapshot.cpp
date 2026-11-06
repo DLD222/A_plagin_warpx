@@ -7,6 +7,7 @@
  */
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
+#include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/PicEmPackage.H"
 #include "Runtime/PicFieldSolveHandler.H"
@@ -103,12 +104,17 @@ int main (int argc, char* argv[])
         check_eq(field_handler.spec().name, std::string("pic_field_solve"),
                  "PicFieldSolveHandler declares pic_field_solve");
 
+        warpx::runtime::CollisionPackage::register_specs(host);
         const auto specs = host.ordered_specs();
-        check_eq(specs.size(), std::size_t(3), "PicEmPackage declares three specs");
+        check_eq(specs.size(), std::size_t(6), "PIC + collision packages declare six specs");
         check_eq(specs.front().name, std::string("pic_push"),
                  "PicEmPackage Push comes first");
-        check_eq(specs.back().name, std::string("pic_field_solve"),
-                 "PicEmPackage FieldSolve comes last");
+        bool has_binary = false;
+        for (const auto& spec : specs) {
+            has_binary |= (spec.name == "binary_collision" &&
+                           spec.point.stage == warpx::runtime::Stage::Collisions);
+        }
+        check(has_binary, "CollisionPackage declares binary collision at Collisions");
     }
 
     {

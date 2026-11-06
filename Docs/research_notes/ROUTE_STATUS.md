@@ -102,7 +102,8 @@
 | A3.3b6 | A3 | done | A3.3b5 | FieldSolve handler 经 PluginHost 执行 |
 | A3.3 | A3 | done | A3.3b6 | PicEmPackage（schema + stages + plugins） |
 | A3.3a | A3 | done | A3.2b | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
-| A3.3b | A3 | pending | A3.3 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
+| A3.3b7 | A3 | done | A3.3b6 | CollisionPackage 声明 Collisions 阶段 specs |
+| A3.3b | A3 | pending | A3.3b7 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |
