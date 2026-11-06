@@ -27,11 +27,13 @@ public:
     void register_species (const SpeciesSpec& spec, WarpXParticleContainer* pc)
     {
         const SpeciesHandle handle(spec.name, pc);
-        auto [it, inserted] = m_species.emplace(spec.name, handle);
+        auto [it, inserted] = m_species.emplace(spec.name, Entry{handle, pc});
         if (inserted) { return; }
-        if (it->second.charge() != handle.charge() || it->second.mass() != handle.mass()) {
+        if (it->second.pc != pc ||
+            it->second.handle.charge() != handle.charge() ||
+            it->second.handle.mass() != handle.mass()) {
             throw std::runtime_error(
-                "SpeciesRegistry: conflicting metadata for species '" + spec.name + "'");
+                "SpeciesRegistry: conflicting registration for species '" + spec.name + "'");
         }
     }
 
@@ -46,7 +48,7 @@ public:
         if (it == m_species.end()) {
             throw std::runtime_error("SpeciesRegistry: unknown species " + name);
         }
-        return it->second;
+        return it->second.handle;
     }
 
     [[nodiscard]] std::size_t size () const { return m_species.size(); }
@@ -55,15 +57,21 @@ public:
     {
         std::vector<std::string> out;
         out.reserve(m_species.size());
-        for (const auto& [name, handle] : m_species) {
-            (void)handle;
+        for (const auto& [name, entry] : m_species) {
+            (void)entry;
             out.push_back(name);
         }
         return out;
     }
 
 private:
-    std::map<std::string, SpeciesHandle> m_species;
+    struct Entry
+    {
+        SpeciesHandle handle;
+        WarpXParticleContainer* pc = nullptr;
+    };
+
+    std::map<std::string, Entry> m_species;
 };
 
 } // namespace warpx::runtime
