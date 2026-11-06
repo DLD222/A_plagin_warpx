@@ -2432,13 +2432,14 @@ void
 WarpX::AllocLevelFieldOnBA (const std::string& key, FieldType type,
                             ablastr::fields::Direction dir, int lev,
                             const BoxArray& alloc_ba, const DistributionMapping& dm,
-                            int ncomp, const IntVect& ngrow, Real initial)
+                            int ncomp, const IntVect& ngrow, Real initial, bool checkpoint)
 {
     warpx::runtime::FieldSpec spec;
     spec.name = key;
     spec.ncomp = ncomp;
     spec.nodal = IntVect(alloc_ba.ixType().toIntVect());
     spec.ngrow = ngrow;
+    spec.checkpoint = checkpoint;
     m_field_schema.declare(spec);
 
     m_fields.alloc_init(type, dir, lev, alloc_ba, dm, ncomp, ngrow, initial);
@@ -2746,13 +2747,13 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
     if (fft_do_time_averaging)
     {
-        AllocLevelField("Bfield_avg_fp_x", FieldType::Bfield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
-        AllocLevelField("Bfield_avg_fp_y", FieldType::Bfield_avg_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
-        AllocLevelField("Bfield_avg_fp_z", FieldType::Bfield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
+        AllocLevelField("Bfield_avg_fp_x", FieldType::Bfield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("Bfield_avg_fp_y", FieldType::Bfield_avg_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("Bfield_avg_fp_z", FieldType::Bfield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB, 0.0_rt, true);
 
-        AllocLevelField("Efield_avg_fp_x", FieldType::Efield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
-        AllocLevelField("Efield_avg_fp_y", FieldType::Efield_avg_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
-        AllocLevelField("Efield_avg_fp_z", FieldType::Efield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
+        AllocLevelField("Efield_avg_fp_x", FieldType::Efield_avg_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("Efield_avg_fp_y", FieldType::Efield_avg_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("Efield_avg_fp_z", FieldType::Efield_avg_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB, 0.0_rt, true);
     }
 
     if (EB::enabled()) {
@@ -3097,14 +3098,14 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         const std::array<Real,3> cdx = CellSize(lev-1);
 
         // Create the MultiFabs for B
-        AllocLevelFieldOnBA("Bfield_cp_x", FieldType::Bfield_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB);
-        AllocLevelFieldOnBA("Bfield_cp_y", FieldType::Bfield_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB);
-        AllocLevelFieldOnBA("Bfield_cp_z", FieldType::Bfield_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Bfield_cp_x", FieldType::Bfield_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+        AllocLevelFieldOnBA("Bfield_cp_y", FieldType::Bfield_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+        AllocLevelFieldOnBA("Bfield_cp_z", FieldType::Bfield_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
 
         // Create the MultiFabs for E
-        AllocLevelFieldOnBA("Efield_cp_x", FieldType::Efield_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB);
-        AllocLevelFieldOnBA("Efield_cp_y", FieldType::Efield_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB);
-        AllocLevelFieldOnBA("Efield_cp_z", FieldType::Efield_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB);
+        AllocLevelFieldOnBA("Efield_cp_x", FieldType::Efield_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+        AllocLevelFieldOnBA("Efield_cp_y", FieldType::Efield_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+        AllocLevelFieldOnBA("Efield_cp_z", FieldType::Efield_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
 
         // EB info are needed on the coarse patch to update the coarse-patch fields
         if (EB::enabled() &&
@@ -3127,19 +3128,19 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
 
         if (fft_do_time_averaging)
         {
-            AllocLevelFieldOnBA("Bfield_avg_cp_x", FieldType::Bfield_avg_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB);
-            AllocLevelFieldOnBA("Bfield_avg_cp_y", FieldType::Bfield_avg_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB);
-            AllocLevelFieldOnBA("Bfield_avg_cp_z", FieldType::Bfield_avg_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Bfield_avg_cp_x", FieldType::Bfield_avg_cp, Direction{0}, lev, amrex::convert(cba, Bx_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+            AllocLevelFieldOnBA("Bfield_avg_cp_y", FieldType::Bfield_avg_cp, Direction{1}, lev, amrex::convert(cba, By_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+            AllocLevelFieldOnBA("Bfield_avg_cp_z", FieldType::Bfield_avg_cp, Direction{2}, lev, amrex::convert(cba, Bz_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
 
-            AllocLevelFieldOnBA("Efield_avg_cp_x", FieldType::Efield_avg_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB);
-            AllocLevelFieldOnBA("Efield_avg_cp_y", FieldType::Efield_avg_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB);
-            AllocLevelFieldOnBA("Efield_avg_cp_z", FieldType::Efield_avg_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB);
+            AllocLevelFieldOnBA("Efield_avg_cp_x", FieldType::Efield_avg_cp, Direction{0}, lev, amrex::convert(cba, Ex_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+            AllocLevelFieldOnBA("Efield_avg_cp_y", FieldType::Efield_avg_cp, Direction{1}, lev, amrex::convert(cba, Ey_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
+            AllocLevelFieldOnBA("Efield_avg_cp_z", FieldType::Efield_avg_cp, Direction{2}, lev, amrex::convert(cba, Ez_nodal_flag), dm, ncomps, ngEB, 0.0_rt, true);
         }
 
         // Create the MultiFabs for the current
-        AllocLevelFieldOnBA("current_cp_x", FieldType::current_cp, Direction{0}, lev, amrex::convert(cba, jx_nodal_flag), dm, ncomps, ngJ);
-        AllocLevelFieldOnBA("current_cp_y", FieldType::current_cp, Direction{1}, lev, amrex::convert(cba, jy_nodal_flag), dm, ncomps, ngJ);
-        AllocLevelFieldOnBA("current_cp_z", FieldType::current_cp, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ);
+        AllocLevelFieldOnBA("current_cp_x", FieldType::current_cp, Direction{0}, lev, amrex::convert(cba, jx_nodal_flag), dm, ncomps, ngJ, 0.0_rt, true);
+        AllocLevelFieldOnBA("current_cp_y", FieldType::current_cp, Direction{1}, lev, amrex::convert(cba, jy_nodal_flag), dm, ncomps, ngJ, 0.0_rt, true);
+        AllocLevelFieldOnBA("current_cp_z", FieldType::current_cp, Direction{2}, lev, amrex::convert(cba, jz_nodal_flag), dm, ncomps, ngJ, 0.0_rt, true);
 
         if (rho_ncomps > 0) {
             AllocLevelFieldScalar("rho_cp", FieldType::rho_cp, lev, cba, dm,

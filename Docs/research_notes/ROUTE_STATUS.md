@@ -144,7 +144,7 @@
 | A4.3 | A4 | done | A4.2 | MaterialRegistry（系数 bundle 快照） |
 | A4.4a | A4 | done | A4.3 | checkpoint 字段 schema 元数据标记 |
 | A4.4b | A4 | done | A4.4a | checkpoint schema manifest（兼容旧格式） |
-| A4.4 | A4 | pending | A4.1,A4.2,A4.3 | schema 驱动 checkpoint/restart（兼容旧格式） |
+| A4.4 | A4 | done | A4.1,A4.2,A4.3 | schema 驱动 checkpoint/restart（兼容旧格式） |
 | A4.5 | A4 | pending | A4.4 | A4 回归门（重启逐位） |
 | A5.1 | A5 | pending | A4.5 | Stage/Handler/PluginHost 骨架 |
 | A5.2 | A5 | pending | A5.1 | 数据依赖拓扑排序与冲突检测 |
@@ -158,5 +158,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A4.4` — schema 驱动 checkpoint/restart（兼容旧格式）
+**Next:** `A4.5` — A4 回归门（重启逐位）
 

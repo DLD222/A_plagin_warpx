@@ -2744,7 +2744,7 @@
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "双读旧 WarpXHeader",
-   "note": ""
+   "note": "registry 枚举 + 旧文件名映射；WarpXHeader 未变"
   },
   {
    "id": "A4.5",

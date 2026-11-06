@@ -1393,7 +1393,8 @@ private:
                               int lev, const amrex::BoxArray& alloc_ba,
                               const amrex::DistributionMapping& dm,
                               int ncomp, const amrex::IntVect& ngrow,
-                              amrex::Real initial = 0.0);
+                              amrex::Real initial = 0.0,
+                              bool checkpoint = false);
 
     void AllocLevelFieldScalar (const std::string& key,
                                 warpx::fields::FieldType type,
