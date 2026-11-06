@@ -3831,3 +3831,12 @@ WarpX::runtime_config () const
     static const warpx::runtime::RuntimeConfig legacy{};
     return legacy;
 }
+
+void
+WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
+{
+    m_runtime_context = context;
+    if (mypc != nullptr) {
+        mypc->setCollisionHostServices(context != nullptr ? context->host : nullptr);
+    }
+}

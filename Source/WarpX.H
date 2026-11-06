@@ -1150,7 +1150,7 @@ public:
     [[nodiscard]] const warpx::runtime::FieldSchema& fieldSchema () const { return m_field_schema; }
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
-    void SetRuntimeContext (warpx::runtime::RuntimeContext* context) { m_runtime_context = context; }
+    void SetRuntimeContext (warpx::runtime::RuntimeContext* context);
     [[nodiscard]] warpx::runtime::RuntimeContext* GetRuntimeContext () const { return m_runtime_context; }
     [[nodiscard]] const warpx::runtime::RuntimeConfig& runtime_config () const;
 

@@ -10,6 +10,8 @@
 #include "CollisionBase.H"
 #include "CollisionSpeciesTable.H"
 
+namespace warpx::runtime { class HostServices; }
+
 #include "Particles/MultiParticleContainer_fwd.H"
 
 #include <AMReX_REAL.H>
@@ -31,6 +33,8 @@ public:
 
     [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
 
+    void setHostServices (warpx::runtime::HostServices* host) { m_host = host; }
+
     /* Perform all of the collisions */
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
 
@@ -38,6 +42,7 @@ private:
 
     CollisionSpeciesTable m_species;
     MultiParticleContainer* m_mypc = nullptr;
+    warpx::runtime::HostServices* m_host = nullptr;
 
     amrex::Vector<std::string> collision_names;
     amrex::Vector<std::string> collision_types;

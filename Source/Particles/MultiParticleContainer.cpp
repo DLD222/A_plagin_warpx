@@ -1222,6 +1222,12 @@ MultiParticleContainer::doFieldIonization (int lev,
 }
 
 void
+MultiParticleContainer::setCollisionHostServices (warpx::runtime::HostServices* host)
+{
+    if (collisionhandler != nullptr) { collisionhandler->setHostServices(host); }
+}
+
+void
 MultiParticleContainer::doCollisions ( int step, Real cur_time, amrex::Real dt )
 {
     ABLASTR_PROFILE("MultiParticleContainer::doCollisions()");

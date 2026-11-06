@@ -6,6 +6,8 @@
  */
 #include "CollisionHandler.H"
 
+#include "Runtime/HostServices.H"
+
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 
@@ -151,22 +153,24 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
      * the momentum of the macroparticles to the curvilinear frame, equivalent to the x-axis.
      * (This is only valid if we use only the m=0 azimuthal mode in the simulation;
      * there is a corresponding assert statement at initialization.) */
-    m_mypc->TransformMomentumToCurvilinear(/*forward*/true);
+    (m_host != nullptr ? m_host->transformMomentumToCurvilinear(true)
+                       : m_mypc->TransformMomentumToCurvilinear(true));
 #endif
 
 #ifdef WARPX_QED
     // For QED incoherent processes (e.g. Bethe-Heitler, Landau-Lifschitz), the process is mediated by virtual photons.
     // The virtual photons are newly generated here and participate in the collisions.
     // Here, the virtual photons are regenerated from scratch, i.e. they are overwritten by new ones at each time step.
-    if(m_mypc->nSpecies() > 0) {
-        collision::binarycollision::virtualphotons::GenerateVirtualPhotons(m_mypc);
+    if (m_mypc->nSpecies() > 0) {
+        if (m_host != nullptr) { m_host->generateVirtualPhotons(); }
     }
 #endif
 
     if (m_use_global_debye_length) {
         // This will calculate the temperature, Vbar, and particle number that are needed by
         // the various collision algorithms
-        m_mypc->GenerateGlobalDebyeLength();
+        (m_host != nullptr ? m_host->generateGlobalDebyeLength()
+                           : m_mypc->GenerateGlobalDebyeLength());
     }
 
     for (auto& collision : allcollisions) {
@@ -195,7 +199,8 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     // Undo the rotation above
-    m_mypc->TransformMomentumToCurvilinear(/*forward*/false);
+    (m_host != nullptr ? m_host->transformMomentumToCurvilinear(false)
+                       : m_mypc->TransformMomentumToCurvilinear(false));
 #endif
 
 }

@@ -2180,12 +2180,32 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8h",
+   "phase": "A3",
+   "title": "碰撞全局操作服务化（RZ/QED/debye）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8g"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/HostServices.H",
+    "Source/Particles/Collision/CollisionHandler.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "Handler 通过 HostServices 调全局操作；碰撞通过",
+   "note": "m_mypc 保留 Python legacy fallback",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8g"
+    "A3.3b8h"
    ],
    "status": "pending",
    "outputs": [

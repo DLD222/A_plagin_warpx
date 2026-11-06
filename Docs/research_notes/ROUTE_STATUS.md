@@ -116,7 +116,8 @@
 | A3.3b8f5 | A3 | done | A3.3b8f4 | BinaryCollision 切到 SpeciesTable |
 | A3.3b8f | A3 | pending | A3.3b8f5 | BinaryCollision functor 链去 MultiParticleContainer |
 | A3.3b8g | A3 | done | A3.3b8f5 | CollisionBase/Handler 去 mypc 参数 + HybridResistiveDrag 迁移 |
-| A3.3b8 | A3 | pending | A3.3b8g | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
+| A3.3b8h | A3 | done | A3.3b8g | 碰撞全局操作服务化（RZ/QED/debye） |
+| A3.3b8 | A3 | pending | A3.3b8h | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
 | A3.3b | A3 | pending | A3.3b8 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4a | A3 | done | A3.3 | A3 定向回归门（默认/FFT/ASAN） |
 | A3.4 | A3 | pending | A3.4a | A3 回归门 |

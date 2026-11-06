@@ -18,6 +18,10 @@
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
+#ifdef WARPX_QED
+#include "Particles/Collision/BinaryCollision/VirtualPhotonCreation.H"
+#endif
+
 #include <memory>
 #include <ostream>
 
@@ -215,6 +219,27 @@ void
 WarpXHostServices::finalizeDeposition ()
 {
     m_warpx.RunPicFinalizeDeposition();
+}
+
+void
+WarpXHostServices::transformMomentumToCurvilinear (bool forward)
+{
+    m_warpx.GetPartContainer().TransformMomentumToCurvilinear(forward);
+}
+
+void
+WarpXHostServices::generateGlobalDebyeLength ()
+{
+    m_warpx.GetPartContainer().GenerateGlobalDebyeLength();
+}
+
+void
+WarpXHostServices::generateVirtualPhotons ()
+{
+#if defined(WARPX_QED)
+    collision::binarycollision::virtualphotons::GenerateVirtualPhotons(
+        &m_warpx.GetPartContainer());
+#endif
 }
 
 void

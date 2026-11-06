@@ -93,6 +93,11 @@ public:
     //! Advance E/B for one explicit PIC step.
     virtual void fieldSolve (amrex::Real cur_time) = 0;
 
+    //! Global collision helpers.
+    virtual void transformMomentumToCurvilinear (bool forward) = 0;
+    virtual void generateGlobalDebyeLength () = 0;
+    virtual void generateVirtualPhotons () = 0;
+
     //! Finalize current/rho after deposition (sync/finalize, moment fluid).
     virtual void finalizeDeposition () = 0;
 

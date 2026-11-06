@@ -243,6 +243,7 @@ public:
                             const amrex::MultiFab& Bx, const amrex::MultiFab& By, const amrex::MultiFab& Bz);
 
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
+    void setCollisionHostServices (warpx::runtime::HostServices* host);
 
     /**
     * \brief This function loops over all species and performs resampling if appropriate.
