@@ -13,6 +13,8 @@
 
 #include "Diagnostics/ParticleDiag/ParticleDiag_fwd.H"
 
+namespace warpx::runtime { class RuntimeData; }
+
 #include <AMReX_AmrParticles.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_GpuAllocators.H>
@@ -122,6 +124,7 @@ public:
 
   void WriteOpenPMDParticles (
               const amrex::Vector<ParticleDiag>& particle_diags,
+              const warpx::runtime::RuntimeData& data,
               amrex::Real time,
               bool use_pinned_pc = false,
               bool isBTD = false,

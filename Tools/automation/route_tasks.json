@@ -2361,6 +2361,25 @@
    "verify_command": null
   },
   {
+   "id": "A3.4d",
+   "phase": "A3",
+   "title": "openPMD 构建修复与官方测试",
+   "kind": "test",
+   "depends": [
+    "A3.4c"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/BROAD_REGRESSION_2026-11-06.md"
+   ],
+   "effort_days": 1.0,
+   "gate": "full",
+   "automation_command": null,
+   "acceptance": "build_opmd 编译；runtime 5/5；13/22 原 openPMD 测试通过",
+   "note": "HDF5 backend/openpmd_viewer 缺失",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",

@@ -530,6 +530,7 @@ WarpXOpenPMDPlot::Init (openPMD::Access access, bool isBTD)
 
 void
 WarpXOpenPMDPlot::WriteOpenPMDParticles (const amrex::Vector<ParticleDiag>& particle_diags,
+                  const warpx::runtime::RuntimeData& data,
                   const amrex::Real time,
                   const bool use_pinned_pc,
                   const bool isBTD,
@@ -595,11 +596,11 @@ for (const auto & particle_diag : particle_diags) {
 
     // Gather the electrostatic potential (phi) on the macroparticles
     if ( particle_diag.m_plot_phi ) {
-        storePhiOnParticles(tmp, data(), WarpX::electrostatic_solver_id, !use_pinned_pc);
+        storePhiOnParticles(tmp, data, WarpX::electrostatic_solver_id, !use_pinned_pc);
     }
     if (particle_diag.m_plot_Ex || particle_diag.m_plot_Ey || particle_diag.m_plot_Ez ||
         particle_diag.m_plot_Bx || particle_diag.m_plot_By || particle_diag.m_plot_Bz) {
-        storeFieldOnParticles(tmp, data(), !use_pinned_pc,
+        storeFieldOnParticles(tmp, data, !use_pinned_pc,
                               particle_diag.m_plot_Ex, particle_diag.m_plot_Ey, particle_diag.m_plot_Ez,
                               particle_diag.m_plot_Bx, particle_diag.m_plot_By, particle_diag.m_plot_Bz);
     }

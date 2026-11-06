@@ -37,7 +37,38 @@ ctest --test-dir build -R '\.run$' -j 4 --output-on-failure
 
 10 个失败与上表一一对应（`embedded_circle`、`background_mcc` 无 analysis 或对应 run 已失败）。
 
-## 3. FFT 构建
+## 3. openPMD 构建
+
+此前所有 openPMD 测试因 `WarpX_OPENPMD=OFF` 无法运行。本轮新建：
+
+```bash
+cmake -S . -B build_opmd -DWarpX_OPENPMD=ON ...
+```
+
+### 修复的编译错误
+
+1. `WarpXOpenPMDPlot::WriteOpenPMDParticles` 缺少 `RuntimeData` 参数，
+   且函数内 `data()` 与局部变量 `data` 冲突；
+2. `ParticleHistogram2D` / `DifferentialLuminosity2D` 中
+   `data().t_new(0)` 被局部 `openPMD::MeshRecordComponent data` 遮蔽，
+   改为 `this->data().t_new(0)`。
+
+修复后 `build_opmd` 编译成功，runtime 5/5 通过。
+
+### 测试结果
+
+对原先 12 个 openPMD/MCC 失败测试：
+
+```
+13 / 22 PASS
+```
+
+- 6 个 MCC/embedded run 已通过（补 `warpx-data` 后）；
+- 3 个 absorption analysis 失败：缺少 Python `openpmd_viewer`；
+- `qed_breit_wheeler_opmd` / `rigid_injection_btd` / `laser_ion_acc`：
+  本机 openPMD 构建无 HDF5 backend，只有 JSON/ADIOS2。
+
+## 4. FFT 构建
 
 ```bash
 LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH" \
@@ -72,19 +103,19 @@ tol_energy = 1e-8
 说明不是 push/finalize/field-solve handler 路径导致。该组作为独立问题继续排查，
 不能算环境缺件，也不能算通过。
 
-## 4. 本轮发现并修复的隐患
+## 5. 本轮发现并修复的隐患
 
-### 4.1 StagePlan 实际未走 handler
+### 5.1 StagePlan 实际未走 handler
 
 `OneStep_nosub` 的 StagePlan 分发仍直接调用 `OneStep_PushParticles/Finalize/FieldSolve`，
 没有调用 `RunPushStage/RunFinalizeStage/RunFieldSolveStage`，因此“插件 handler 已生效”
 在修复前并不成立。已改为真正走 `Run*Stage`。
 
-### 4.2 handler 忽略 StageContext 时间
+### 5.2 handler 忽略 StageContext 时间
 
 `PicPushHandler/PicFieldSolveHandler` 原从 `RuntimeData` 取时间，已改为 `ctx.time/dt/step`。
 
-### 4.3 用户属性初始化策略
+### 5.3 用户属性初始化策略
 
 
 
@@ -115,7 +146,7 @@ test_2d_qed_breit_wheeler
 test_2d_qed_quantum_sync
 ```
 
-## 5. Handler A/B 逐位验证
+## 6. Handler A/B 逐位验证
 
 新增调试开关：
 
@@ -131,7 +162,7 @@ WARPX_DISABLE_PLUGIN_HANDLERS=1
 
 详见 [AB_HANDLER_VERIFICATION.md](AB_HANDLER_VERIFICATION.md)。
 
-## 6. 定量结果（与解析/参考值）
+## 7. 定量结果（与解析/参考值）
 
 | 算例 | 量 | 结果 |
 |---|---|---|
@@ -144,7 +175,7 @@ WARPX_DISABLE_PLUGIN_HANDLERS=1
 | | Ey | **0.073**（tol 0.165） |
 | `test_2d_collision_xz` | 拟合残差 | **4.66e-4**（tol 1e-3） |
 
-## 7. ASAN
+## 8. ASAN
 
 ```bash
 ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
@@ -157,7 +188,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 
 无 use-after-free / 越界。
 
-## 8. 结论
+## 9. 结论
 
 - 官方 2D 算例绝大多数通过；
 - 剩余失败已分类为 **openPMD 未编译** 与 **warpx-data 缺失**，不是本架构改动引入；
@@ -165,7 +196,7 @@ ASAN_OPTIONS=detect_leaks=0 ctest --test-dir build_asan \
 - Galilean PSATD 的 analysis 异常仍需单独排查，不能隐藏；
 - 该结果不能替代 A/B 逐位门。
 
-## 9. 复现命令
+## 10. 复现命令
 
 ```bash
 # 默认
@@ -177,7 +208,7 @@ LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:$LD_LIBRARY_PATH" \
 ctest --test-dir build_fft -R '\.run$' -j 3 --output-on-failure
 ```
 
-## 10. 待办
+## 11. 待办
 
 1. `warpx-data` 子模块缺失导致 6 个 MCC/embedded 测试无法运行；
 2. `WarpX_OPENPMD=OFF` 导致 6 个 openPMD 输出测试无法运行；

@@ -3,6 +3,7 @@
 #include "Utils/TextMsg.H"
 #include "Diagnostics/OpenPMDHelpFunction.H"
 #include "WarpX.H"
+#include "Runtime/HostServices.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <ablastr/warn_manager/WarnManager.H>
@@ -177,7 +178,7 @@ FlushFormatOpenPMD::WriteToFile (
 
     // particles: all (reside only on locally finest level)
     m_OpenPMDPlotWriter->WriteOpenPMDParticles(
-        particle_diags, static_cast<amrex::Real>(time), use_pinned_pc, isBTD, isLastBTDFlush);
+        particle_diags, data(), static_cast<amrex::Real>(time), use_pinned_pc, isBTD, isLastBTDFlush);
 
     if (isBTD  && (bufferID % m_NumAggBTDBufferToFlush == 0) ) {
         m_OpenPMDPlotWriter->FlushBTDToDisk();

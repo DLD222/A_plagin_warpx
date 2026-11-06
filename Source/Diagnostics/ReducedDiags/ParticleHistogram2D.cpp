@@ -314,7 +314,7 @@ void ParticleHistogram2D::WriteToFile (int step) const
     // UNIT DIMENSION IS NOT SET ON THE VALUES
 
     // Get time at level 0
-    auto const time = data().t_new(0);
+    auto const time = this->data().t_new(0);
     i.setTime(time);
 
     auto const& h_table_data = m_h_data_2D.table();
