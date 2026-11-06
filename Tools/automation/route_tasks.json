@@ -2689,6 +2689,26 @@
    "verify_command": null
   },
   {
+   "id": "A4.4a",
+   "phase": "A4",
+   "title": "checkpoint 字段 schema 元数据标记",
+   "kind": "refactor",
+   "depends": [
+    "A4.3"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/WarpX.cpp",
+    "Source/Runtime/FieldRegistry.H"
+   ],
+   "effort_days": 0.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "E/B/J/E_old 标记 checkpoint；runtime 5/7",
+   "note": "尚未驱动写出",
+   "verify_command": null
+  },
+  {
    "id": "A4.4",
    "phase": "A4",
    "title": "schema 驱动 checkpoint/restart（兼容旧格式）",

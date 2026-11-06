@@ -2414,13 +2414,14 @@ WarpX::AllocLevelField (const std::string& key, FieldType type,
                         ablastr::fields::Direction dir, int lev,
                         const BoxArray& ba, const DistributionMapping& dm,
                         int ncomp, const IntVect& nodal, const IntVect& ngrow,
-                        Real initial)
+                        Real initial, bool checkpoint)
 {
     warpx::runtime::FieldSpec spec;
     spec.name = key;
     spec.ncomp = ncomp;
     spec.nodal = nodal;
     spec.ngrow = ngrow;
+    spec.checkpoint = checkpoint;
     m_field_schema.declare(spec);
 
     m_fields.alloc_init(type, dir, lev, amrex::convert(ba, nodal), dm,
@@ -2662,42 +2663,42 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     //
     const std::array<Real,3> dx = CellSize(lev);
 
-    AllocLevelField("Bfield_fp_x", FieldType::Bfield_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
-    AllocLevelField("Bfield_fp_y", FieldType::Bfield_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
-    AllocLevelField("Bfield_fp_z", FieldType::Bfield_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
+    AllocLevelField("Bfield_fp_x", FieldType::Bfield_fp, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB, 0.0_rt, true);
+    AllocLevelField("Bfield_fp_y", FieldType::Bfield_fp, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB, 0.0_rt, true);
+    AllocLevelField("Bfield_fp_z", FieldType::Bfield_fp, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB, 0.0_rt, true);
 
-    AllocLevelField("Efield_fp_x", FieldType::Efield_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
-    AllocLevelField("Efield_fp_y", FieldType::Efield_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
-    AllocLevelField("Efield_fp_z", FieldType::Efield_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
+    AllocLevelField("Efield_fp_x", FieldType::Efield_fp, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB, 0.0_rt, true);
+    AllocLevelField("Efield_fp_y", FieldType::Efield_fp, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB, 0.0_rt, true);
+    AllocLevelField("Efield_fp_z", FieldType::Efield_fp, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB, 0.0_rt, true);
 
-    AllocLevelField("current_fp_x", FieldType::current_fp, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ);
-    AllocLevelField("current_fp_y", FieldType::current_fp, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ);
-    AllocLevelField("current_fp_z", FieldType::current_fp, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ);
+    AllocLevelField("current_fp_x", FieldType::current_fp, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ, 0.0_rt, true);
+    AllocLevelField("current_fp_y", FieldType::current_fp, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ, 0.0_rt, true);
+    AllocLevelField("current_fp_z", FieldType::current_fp, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ, 0.0_rt, true);
 
     if (m_implicit_solver) {
         // Current from suborbit particles are deposited to the standard current_fp container.
         // Current from non-suborbit particles are deposited to current_fp_non_suborbit.
-        AllocLevelField("current_fp_non_suborbit_x", FieldType::current_fp_non_suborbit, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ);
-        AllocLevelField("current_fp_non_suborbit_y", FieldType::current_fp_non_suborbit, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ);
-        AllocLevelField("current_fp_non_suborbit_z", FieldType::current_fp_non_suborbit, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ);
+        AllocLevelField("current_fp_non_suborbit_x", FieldType::current_fp_non_suborbit, Direction{0}, lev, ba, dm, ncomps, jx_nodal_flag, ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_non_suborbit_y", FieldType::current_fp_non_suborbit, Direction{1}, lev, ba, dm, ncomps, jy_nodal_flag, ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_non_suborbit_z", FieldType::current_fp_non_suborbit, Direction{2}, lev, ba, dm, ncomps, jz_nodal_flag, ngJ, 0.0_rt, true);
 
-        AllocLevelField("E_old_x", FieldType::E_old, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
-        AllocLevelField("E_old_y", FieldType::E_old, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
-        AllocLevelField("E_old_z", FieldType::E_old, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
+        AllocLevelField("E_old_x", FieldType::E_old, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("E_old_y", FieldType::E_old, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB, 0.0_rt, true);
+        AllocLevelField("E_old_z", FieldType::E_old, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB, 0.0_rt, true);
     }
 
     if (do_current_centering)
     {
-        AllocLevelField("current_fp_nodal_x", FieldType::current_fp_nodal, Direction{0}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ);
-        AllocLevelField("current_fp_nodal_y", FieldType::current_fp_nodal, Direction{1}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ);
-        AllocLevelField("current_fp_nodal_z", FieldType::current_fp_nodal, Direction{2}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ);
+        AllocLevelField("current_fp_nodal_x", FieldType::current_fp_nodal, Direction{0}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_nodal_y", FieldType::current_fp_nodal, Direction{1}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_nodal_z", FieldType::current_fp_nodal, Direction{2}, lev, ba, dm, ncomps, amrex::IntVect::TheNodeVector(), ngJ, 0.0_rt, true);
     }
 
     if (WarpX::current_deposition_algo == CurrentDepositionAlgo::Vay)
     {
-        AllocLevelField("current_fp_vay_x", FieldType::current_fp_vay, Direction{0}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ);
-        AllocLevelField("current_fp_vay_y", FieldType::current_fp_vay, Direction{1}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ);
-        AllocLevelField("current_fp_vay_z", FieldType::current_fp_vay, Direction{2}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ);
+        AllocLevelField("current_fp_vay_x", FieldType::current_fp_vay, Direction{0}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_vay_y", FieldType::current_fp_vay, Direction{1}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ, 0.0_rt, true);
+        AllocLevelField("current_fp_vay_z", FieldType::current_fp_vay, Direction{2}, lev, ba, dm, ncomps, rho_nodal_flag, ngJ, 0.0_rt, true);
     }
 
     if (electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)

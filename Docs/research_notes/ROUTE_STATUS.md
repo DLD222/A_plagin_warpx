@@ -142,6 +142,7 @@
 | A4.1 | A4 | done | A3.4j | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | done | A4.1 | SpeciesRegistry（粒子不透明句柄） |
 | A4.3 | A4 | done | A4.2 | MaterialRegistry（系数 bundle 快照） |
+| A4.4a | A4 | done | A4.3 | checkpoint 字段 schema 元数据标记 |
 | A4.4 | A4 | pending | A4.1,A4.2,A4.3 | schema 驱动 checkpoint/restart（兼容旧格式） |
 | A4.5 | A4 | pending | A4.4 | A4 回归门（重启逐位） |
 | A5.1 | A5 | pending | A4.5 | Stage/Handler/PluginHost 骨架 |

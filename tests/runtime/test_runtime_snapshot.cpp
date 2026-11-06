@@ -155,6 +155,10 @@ int main (int argc, char* argv[])
           "FieldSchema ncomp matches register");
     check(WarpX::GetInstance().fieldSchema().contains("current_fp_z"),
           "FieldSchema declares base J field");
+    check(WarpX::GetInstance().fieldSchema().get("Efield_fp_x").checkpoint,
+          "FieldSchema marks Efield_fp_x for checkpoint");
+    check(WarpX::GetInstance().fieldSchema().get("current_fp_x").checkpoint,
+          "FieldSchema marks current_fp_x for checkpoint");
     check_eq(runtime.bus().registry().size(),
              WarpX::GetInstance().fieldSchema().size(),
              "DataBus and FieldSchema share one FieldRegistry");

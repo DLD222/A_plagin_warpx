@@ -1384,7 +1384,8 @@ private:
                           const amrex::DistributionMapping& dm,
                           int ncomp, const amrex::IntVect& nodal,
                           const amrex::IntVect& ngrow,
-                          amrex::Real initial = 0.0);
+                          amrex::Real initial = 0.0,
+                          bool checkpoint = false);
 
     void AllocLevelFieldOnBA (const std::string& key,
                               warpx::fields::FieldType type,
