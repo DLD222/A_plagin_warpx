@@ -19,8 +19,14 @@
 
 #include <string>
 
-BackgroundStopping::BackgroundStopping (std::string const& collision_name)
-    : CollisionBase(collision_name)
+BackgroundStopping::BackgroundStopping (std::string const& collision_name,
+                                        const CollisionSpeciesTable& species,
+                                        const warpx::runtime::RuntimeData& data,
+                                        const warpx::runtime::RuntimeConfig& config)
+    : CollisionBase(collision_name),
+      m_species(species),
+      m_data(&data),
+      m_config(&config)
 {
     using namespace amrex::literals;
 
@@ -91,10 +97,11 @@ BackgroundStopping::BackgroundStopping (std::string const& collision_name)
 void
 BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc)
 {
+    amrex::ignore_unused(mypc);
     ABLASTR_PROFILE("BackgroundStopping::doCollisions()");
     using namespace amrex::literals;
 
-    auto& species = mypc->GetParticleContainerFromName(m_species_names[0]);
+    auto& species = *m_species.get(m_species_names[0]);
     amrex::ParticleReal const species_mass = species.getMass();
     amrex::ParticleReal const species_charge = species.getCharge();
 
@@ -107,14 +114,14 @@ BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiPar
     auto const flvl = species.finestLevel();
     for (int lev = 0; lev <= flvl; ++lev) {
 
-        auto *cost = mypc->data().costs(lev);
+        auto *cost = m_data->costs(lev);
 
         // loop over particles box by box
 #ifdef _OPENMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         for (WarpXParIter pti(species, lev); pti.isValid(); ++pti) {
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -126,7 +133,7 @@ BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt, MultiPar
                 doBackgroundStoppingOnIonsWithinTile(pti, dt, cur_time, species_mass, species_charge);
             }
 
-            if (cost && mypc->config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;

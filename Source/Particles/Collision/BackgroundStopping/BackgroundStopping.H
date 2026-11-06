@@ -7,7 +7,12 @@
 #ifndef WARPX_PARTICLES_COLLISION_BACKGROUNSTOPPING_H_
 #define WARPX_PARTICLES_COLLISION_BACKGROUNSTOPPING_H_
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Particles/WarpXParticleContainer.H"
+
+#include <AMReX_Parser.H>
+
+namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
 
 #include <AMReX_REAL.H>
@@ -24,7 +29,10 @@ class BackgroundStopping final
     : public CollisionBase
 {
 public:
-    explicit BackgroundStopping (const std::string& collision_name);
+    BackgroundStopping (const std::string& collision_name,
+                        const CollisionSpeciesTable& species,
+                        const warpx::runtime::RuntimeData& data,
+                        const warpx::runtime::RuntimeConfig& config);
 
     ~BackgroundStopping () override = default;
 
@@ -70,6 +78,10 @@ private:
 
     amrex::ParticleReal m_background_mass;
     amrex::ParticleReal m_background_charge_state;
+    CollisionSpeciesTable m_species;
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+    const warpx::runtime::RuntimeConfig* m_config = nullptr;
+
     BackgroundStoppingType m_background_type;
 
     amrex::Parser m_background_density_parser;

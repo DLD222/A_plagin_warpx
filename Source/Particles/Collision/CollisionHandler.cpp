@@ -72,7 +72,7 @@ CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
             allcollisions[i] = std::make_unique<PulsedDecay>(collision_names[i], m_species);
         }
         else if (type == "background_stopping") {
-            allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i]);
+            allcollisions[i] = std::make_unique<BackgroundStopping>(collision_names[i], m_species, mypc->data(), mypc->config());
         }
         else if (type == "hybrid_resistive_drag") {
             allcollisions[i] = std::make_unique<HybridResistiveDrag>(collision_names[i]);

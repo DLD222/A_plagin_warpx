@@ -105,7 +105,8 @@
 | A3.3b7 | A3 | done | A3.3b6 | CollisionPackage 声明 Collisions 阶段 specs |
 | A3.3b8a | A3 | done | A3.3b7 | CollisionSpeciesTable 建立并接入 CollisionHandler |
 | A3.3b8b | A3 | done | A3.3b8a | PulsedDecay 改用 CollisionSpeciesTable |
-| A3.3b8 | A3 | pending | A3.3b8b | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
+| A3.3b8c | A3 | done | A3.3b8b | BackgroundStopping 改用 CollisionSpeciesTable/Data/Config |
+| A3.3b8 | A3 | pending | A3.3b8c | CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer |
 | A3.3b | A3 | pending | A3.3b8 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |

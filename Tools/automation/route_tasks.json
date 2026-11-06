@@ -1970,12 +1970,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8c",
+   "phase": "A3",
+   "title": "BackgroundStopping 改用 CollisionSpeciesTable/Data/Config",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8b"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BackgroundStopping/BackgroundStopping.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "BackgroundStopping 内部不再用 mypc；碰撞回归通过",
+   "note": "doCollisions 签名仍保留",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8b"
+    "A3.3b8c"
    ],
    "status": "pending",
    "outputs": [
