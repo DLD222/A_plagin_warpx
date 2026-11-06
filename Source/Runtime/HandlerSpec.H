@@ -68,7 +68,22 @@ class PluginHost
 public:
     void add (std::shared_ptr<IHandler> handler)
     {
+        const HandlerSpec spec = handler->spec();
+        for (const auto& existing : m_specs) {
+            if (!(existing.point == spec.point)) { continue; }
+            for (const auto& w : spec.writes_fields) {
+                for (const auto& ew : existing.writes_fields) {
+                    if (w == ew) {
+                        throw std::runtime_error(
+                            "PluginHost: handlers '" + existing.name + "' and '" +
+                            spec.name + "' both write field '" + w +
+                            "' at the same StagePoint");
+                    }
+                }
+            }
+        }
         m_handlers.push_back(std::move(handler));
+        m_specs.push_back(spec);
     }
 
     void declare (HandlerSpec spec)

@@ -187,13 +187,13 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | [CollisionHandlerAdapter](../../Source/Runtime/CollisionHandlerAdapter.H) | `Collisions` | 按 `CollisionType` 分发到全部碰撞模型；由 `RunCollisionStage` 在 `Push` 内及显式碰撞点查找，不由 `StagePlan` 直接调度 | 多类算法 |
 
 按 M1：PluginHost 注册 4 个 handler，其中 1 个单操作、3 个多操作。14 个阶段中，5 个由 `InitData()` 内的 `StagePlan` 分发（`BeforeInit/Init/AfterInit/FieldSolve/Diagnostics`）；`Push/AfterPush/FieldSolve` 由 `Run*Stage` 直接调度；`Collisions` 不是独立 `StagePlan` 项，而是 `RunCollisionStage` 在 `Push` 内及显式碰撞点查找。6 个阶段未使用（`BeforePush/BeforeCollisions/AfterCollisions/BeforeFieldSolve/AfterFieldSolve/Finalize`）。
-按 K2：`HandlerSpec` 的读/写字段共 **44 处出现（4 处成员声明 + 40 处 spec 初始化，含已注册 handler 与 PicEm/Collision package 声明）、0 处消费**（[HandlerSpec.H:29-38](../../Source/Runtime/HandlerSpec.H#L29-L38)；
+按 K2：`HandlerSpec` 的读/写字段共 **44 处出现（4 处成员声明 + 40 处 spec 初始化，含已注册 handler 与 PicEm/Collision package 声明）；消费点只有 `PluginHost::add` 记录 spec 并拒绝同一 StagePoint 的双写**（[HandlerSpec.H:29-38](../../Source/Runtime/HandlerSpec.H#L29-L38)；
 `PluginHost` 仅按 `StagePoint` + `priority` 排序，见 [:83-105](../../Source/Runtime/HandlerSpec.H#L83-L105)），
-调度顺序可复现，但冲突不可检。
+调度顺序可复现；双写冲突可检，但读/写依赖顺序仍未校验。
 
 值得注意的一点：`HandlerSpec` 描述的是"槽位"的读写，属于**L3 编排**的语义，
 却被用作模块契约的载体；而 L1 模块本身没有契约对象。两个层级共用同一个数据结构，
-这也是它难以被消费的原因之一。
+这也是它尚未承载模块依赖排序的原因之一。
 
 ### 4.6 宽接口（L1/L3 之间的服务边界）
 
@@ -242,7 +242,7 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | 层 | 判据 | 度量结果 | 备注 |
 |---|---|---|---|
 | L0 | M1 单一执行单元 | 4 个执行槽位中 1 个单操作、3 个多操作 | 数值本身不构成评价 |
-| L0 | M2 契约可校验 | 44 处出现（4 声明 + 40 初始化）/ 0 处消费 | 机制已存在，校验逻辑未接入 |
+| L0 | M2 契约可校验 | 44 处出现（4 声明 + 40 初始化）；`add` 记录并拒绝双写 | 读/写依赖排序未接入 |
 | L0 | M3 独立替换 | 替换单一 `Push` 需同时换推进与沉积 | 取决于是否把二者视为一个能力 |
 | L0 | M4 单一所有权 | 主要资源 1 个持有者 | 访问路径另计 |
 | L0 | M5 依赖单向 | 111 处全局入口 | 63 处在物理模块内 |
@@ -288,7 +288,8 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 
 ### P3 — 契约落地（层级：L1 + L3）
 
-- **做法**：让读/写声明真正被消费：同阶段内做拓扑排序；检测两个 handler 写同一字段且无先后声明；
+- **现状（已实现部分）**：`PluginHost::add` 已记录每个 handler 的 spec，并拒绝同一 `StagePoint` 上两个 writer 写同一字段；单测已覆盖。
+- **剩余做法**：让读/写声明真正驱动调度：同阶段内做拓扑排序；检测两个 handler 写同一字段且无先后声明；
   未声明却访问的字段在调试构建下告警。同时把"模块能力契约"从 `HandlerSpec` 中拆出，
   成为 L1 模块自身的对象（模块提供什么、需要什么、参数 schema）。
 - **触及面**：`HandlerSpec.H` 的 `PluginHost`、新增模块契约类型、各 handler 与模块的声明。
@@ -360,7 +361,7 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | P7 + P2 | 独立层级：P2 是 L3 槽位粒度，P7 是 L1 能力粒度；都做才同时满足"可编排"与"可替换" |
 
 若只允许做一件事，按工作量/覆盖面衡量，`P5` 成本最低（S 级，且能产出全层度量基线），
-`P3` 在 L3 侧可直接让"契约从 0 到 1"。但这一判断仍取决于目标优先级——本文不代为决定。
+`P3` 在 L3 侧已完成"双写拒绝"，但尚未完成"读/写依赖排序"；是否继续取决于目标优先级——本文不代为决定。
 
 ---
 

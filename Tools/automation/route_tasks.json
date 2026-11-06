@@ -2515,6 +2515,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.3c",
+   "phase": "A3",
+   "title": "HandlerSpec 双写冲突校验与 spec 自动登记",
+   "kind": "fix",
+   "depends": [
+    "A3.3b12"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/HandlerSpec.H",
+    "tests/runtime/test_runtime_snapshot.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "add 记录 spec；同 StagePoint 双写抛错；runtime/ASAN 通过",
+   "note": "拓扑排序仍未做",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",

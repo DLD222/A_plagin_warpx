@@ -90,6 +90,20 @@ int main (int argc, char* argv[])
         check_eq(ordered.size(), std::size_t(2), "PluginHost stores handlers");
         check_eq(ordered.front()->spec().name, std::string("push"),
                  "PluginHost orders Push before Diagnostics");
+        check_eq(host.specs().size(), std::size_t(2),
+                 "PluginHost records specs on add");
+
+        warpx::runtime::PluginHost conflict;
+        conflict.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+            "writer_a", {warpx::runtime::Stage::FieldSolve, 0}, {}, {"Efield_fp"}, {}, {}, 0}));
+        bool threw = false;
+        try {
+            conflict.add(std::make_shared<FakeHandler>(warpx::runtime::HandlerSpec{
+                "writer_b", {warpx::runtime::Stage::FieldSolve, 0}, {}, {"Efield_fp"}, {}, {}, 1}));
+        } catch (const std::runtime_error&) {
+            threw = true;
+        }
+        check(threw, "PluginHost rejects two writers of the same field at one StagePoint");
     }
 
     {
