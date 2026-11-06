@@ -2872,15 +2872,16 @@
    "title": "A5 回归门（A/B + 外挂）",
    "kind": "test",
    "depends": [
-    "A5.4"
+    "A5.4",
+    "A5.5"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 3.0,
    "gate": "full",
    "automation_command": "bash Tools/automation/gates/full_gate.sh",
    "acceptance": "A/B 逐位",
-   "note": ""
+   "note": "a5_ab.py: langmuir/collision/eb_cube array_equal"
   },
   {
    "id": "A6a",

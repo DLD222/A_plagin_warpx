@@ -80,3 +80,30 @@ A/B 结果仍为逐位一致（先前记录）。
 - A5.4 外挂插件示例；
 - A5.5 运行期 .so 加载；
 - A5.6 A5 回归门。
+
+## A5.6 自动 A/B 门
+
+新增：
+
+```text
+Tools/automation/gates/a5_ab.py
+```
+
+对以下算例在 `OMP_NUM_THREADS=1` + 固定 seed 下比较
+启用/禁用 PluginHost：
+
+```text
+langmuir (diag1000080)
+collision (diag1000150)
+embedded_boundary_cube (diag1000114)
+```
+
+字段 `Ex/Ey/Ez/Bx/By/Bz` 必须全部 `array_equal`。
+
+实跑：
+
+```text
+A/B PASS langmuir
+A/B PASS collision
+A/B PASS eb_cube
+```
