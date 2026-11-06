@@ -1837,12 +1837,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b5",
+   "phase": "A3",
+   "title": "FinalizeDepositionHandler 经 PluginHost 执行",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b4"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/PicFinalizeHandler.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "AfterPush 由 handler 执行；Langmuir/PSATD 数值不变",
+   "note": "无 handler 时回退",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.3b4"
+    "A3.3b5"
    ],
    "status": "pending",
    "outputs": [],

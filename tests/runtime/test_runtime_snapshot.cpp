@@ -9,6 +9,7 @@
 #include "Runtime/Runtime.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/PicEmPackage.H"
+#include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
@@ -94,6 +95,9 @@ int main (int argc, char* argv[])
         warpx::runtime::PicPushHandler push_handler;
         check_eq(push_handler.spec().name, std::string("pic_push"),
                  "PicPushHandler declares pic_push");
+        warpx::runtime::PicFinalizeHandler finalize_handler;
+        check_eq(finalize_handler.spec().name, std::string("pic_finalize_deposition"),
+                 "PicFinalizeHandler declares pic_finalize_deposition");
 
         const auto specs = host.ordered_specs();
         check_eq(specs.size(), std::size_t(3), "PicEmPackage declares three specs");

@@ -90,6 +90,9 @@ public:
     //! Advance particles and deposit J/rho for one explicit PIC step.
     virtual void pushParticlesAndDeposit (amrex::Real cur_time, amrex::Real dt, int step) = 0;
 
+    //! Finalize current/rho after deposition (sync/finalize, moment fluid).
+    virtual void finalizeDeposition () = 0;
+
     //! Mutable run-control (BTD may extend max_step/stop_time).
     virtual void updateMaxStep (int new_max_step) = 0;
     virtual void updateStopTime (amrex::Real new_stop_time) = 0;

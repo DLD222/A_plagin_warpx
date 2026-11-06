@@ -146,6 +146,7 @@ public:
 
     void Evolve (int numsteps = -1);
     void RunPicPush (amrex::Real cur_time, amrex::Real dt, int step);
+    void RunPicFinalizeDeposition ();
     void SetPluginHost (warpx::runtime::PluginHost* host) { m_plugin_host = host; }
 
     /** Push momentum one half step forward to synchronize with position.
@@ -1267,6 +1268,7 @@ private:
     );
 
     void RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
+    void RunFinalizeStage ();
     void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void OneStep_FinalizeDeposition ();
     void OneStep_FieldSolve (amrex::Real a_cur_time);

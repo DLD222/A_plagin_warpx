@@ -211,6 +211,12 @@ WarpXHostServices::pushParticlesAndDeposit (amrex::Real cur_time, amrex::Real dt
     m_warpx.RunPicPush(cur_time, dt, step);
 }
 
+void
+WarpXHostServices::finalizeDeposition ()
+{
+    m_warpx.RunPicFinalizeDeposition();
+}
+
 void WarpXHostServices::updateMaxStep (int new_max_step) { m_warpx.updateMaxStep(new_max_step); }
 void WarpXHostServices::updateStopTime (amrex::Real new_stop_time) { m_warpx.updateStopTime(new_stop_time); }
 

@@ -12,6 +12,7 @@
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Particles/MultiParticleContainer.H"
+#include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
 #include "WarpX.H"
 
@@ -51,6 +52,7 @@ Runtime::Runtime (int argc, char* argv[])
     m_bus = std::make_unique<DataBus>(warpx.GetMultiFabRegister());
     m_plugin_host = std::make_unique<PluginHost>();
     m_plugin_host->add(std::make_shared<PicPushHandler>());
+    m_plugin_host->add(std::make_shared<PicFinalizeHandler>());
     warpx.SetPluginHost(m_plugin_host.get());
     m_host = std::make_unique<WarpXHostServices>(warpx);
     sync_config();
