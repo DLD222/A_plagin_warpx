@@ -2555,6 +2555,26 @@
    "verify_command": null
   },
   {
+   "id": "A3.3e",
+   "phase": "A3",
+   "title": "WarpXRuntimeData 去 45 处 GetInstance，保留 legacy 刷新",
+   "kind": "refactor",
+   "depends": [
+    "A3.3d"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Runtime/WarpXRuntimeData.H",
+    "Source/Runtime/WarpXRuntimeData.cpp"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "GetInstance 110->67；runtime 5/7；ASAN 通过",
+   "note": "pointer + Legacy refresh",
+   "verify_command": null
+  },
+  {
    "id": "A3.4",
    "phase": "A3",
    "title": "A3 回归门",

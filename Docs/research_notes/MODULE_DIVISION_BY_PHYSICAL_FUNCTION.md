@@ -109,7 +109,7 @@ L1 达标也不代表 L3 达标（模块可以很干净而调度仍是硬编码�
 | 层 | 切分依据 | 单元数量 | 观察到的边界性质 |
 |---|---|---|---|
 | 顶层目录（L2） | 物理域 | 18 个目录 | 是"域"：`Particles/` 同时含推进、收集、沉积、碰撞、IO |
-| Runtime 文件（L3 及其服务） | 职责 | 30 个 `.H/.cpp`，共 2797 行 | 文件级普遍单一职责；接口级存在两个宽接口（见 4.3） |
+| Runtime 文件（L3 及其服务） | 职责 | 30 个 `.H/.cpp`，共 2810 行 | 文件级普遍单一职责；接口级存在两个宽接口（见 4.3） |
 | 执行调度（L3） | 生命周期阶段 | 14 个阶段枚举，**4 个**实际注册 | 粒度是"阶段"，非"能力" |
 
 ### 4.2 L0：原子单元密集且可辨认
@@ -207,11 +207,11 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 
 ### 4.7 全局入口残留（M5）
 
-`WarpX::GetInstance()` 共 **110** 处，分布：
+`WarpX::GetInstance()` 共 **67** 处，分布：
 
 | 目录 | 处数 |
 |---|---|
-| `Runtime/` | 47 |
+| `Runtime/` | 4 |
 | `FieldSolver/` | 36 |
 | `Particles/` | 13 |
 | `Diagnostics/` | 6 |
@@ -220,8 +220,8 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | `Initialization/` | 1 |
 | `BoundaryConditions/` | 1 |
 
-`Runtime/` 内的 47 处主要集中在两个适配器（`WarpXHostServices`、`WarpXRuntimeData`），
-属过渡期设计；其余 63 处位于物理模块内部。
+`Runtime/` 内仅剩 4 处，集中在两个适配器的 legacy fallback（`WarpXHostServices`、`WarpXRuntimeData`）；
+其余 63 处位于物理模块内部。
 
 ### 4.8 资源所有权（M4）
 
@@ -245,7 +245,7 @@ AfterCollisions / BeforeFieldSolve / FieldSolve / AfterFieldSolve / Diagnostics 
 | L0 | M2 契约可校验 | 44 处出现（4 声明 + 40 初始化）；`add` 记录并拒绝双写 | 读/写依赖排序未接入 |
 | L0 | M3 独立替换 | 替换单一 `Push` 需同时换推进与沉积 | 取决于是否把二者视为一个能力 |
 | L0 | M4 单一所有权 | 主要资源 1 个持有者 | 访问路径另计 |
-| L0 | M5 依赖单向 | 110 处全局入口 | 63 处在物理模块内 |
+| L0 | M5 依赖单向 | 67 处全局入口 | 63 处在物理模块内 |
 | **L1** | **N1 单一能力域** | 6 个子系统中 4 个有基类/工厂、2 个（推进、沉积）仅 enum+模板 | 成熟度不均 |
 | **L1** | **N2 契约** | 无模块级契约对象；`HandlerSpec` 属 L3 |  |
 | **L1** | **N3 可替换** | 推进/沉积新增实现需改 `PushSelector.H` 或枚举；求解器需改工厂 |  |

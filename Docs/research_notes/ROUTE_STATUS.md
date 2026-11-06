@@ -135,6 +135,7 @@
 | A3.4i | A3 | done | A3.4h | 仅针对已修改功能的定向验证 |
 | A3.3c | A3 | done | A3.3b12 | HandlerSpec 双写冲突校验与 spec 自动登记 |
 | A3.3d | A3 | done | A3.3c | 删除空服务接口与隔离 runtime 测试工作目录 |
+| A3.3e | A3 | done | A3.3d | WarpXRuntimeData 去 45 处 GetInstance，保留 legacy 刷新 |
 | A3.4 | A3 | pending | A3.4b | A3 回归门 |
 | A4.1 | A4 | pending | A3.4 | FieldRegistry（字符串键 + schema） |
 | A4.2 | A4 | pending | A4.1 | SpeciesRegistry（粒子/流体不透明句柄） |

@@ -27,7 +27,7 @@ class WarpXRuntimeData final : public RuntimeData
 {
 public:
     WarpXRuntimeData () = default;
-    explicit WarpXRuntimeData (WarpX&) {}  // kept for compatibility; argument is ignored
+    explicit WarpXRuntimeData (WarpX& warpx) : m_warpx(&warpx) {}
 
     //! Legacy fallback (WarpX singleton); used when no RuntimeContext is installed.
     //! Thread-local unique_ptr — no static destruction-order hazard because
@@ -87,7 +87,11 @@ public:
     void computeCostsHeuristic () const override;
     [[nodiscard]] const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const override;
 
-    // No m_warpx member — stateless w.r.t. WarpX lifetime.
+private:
+    //! Non-owning; Legacy() refreshes it on every call.
+    WarpX* m_warpx = nullptr;
+
+    [[nodiscard]] WarpX& w () const;
 };
 
 } // namespace warpx::runtime
