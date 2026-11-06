@@ -2084,12 +2084,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8f3b",
+   "phase": "A3",
+   "title": "PhotonCreation/Bremsstrahlung/SplitAndScatter table 构造",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b8f3a"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.cpp"
+   ],
+   "effort_days": 1.5,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "三个 functor table 构造；旧入口委托；碰撞通过",
+   "note": "f4 DSMC/Nuclear operator",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8f",
    "phase": "A3",
    "title": "BinaryCollision functor 链去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b8f3a"
+    "A3.3b8f3b"
    ],
    "status": "pending",
    "outputs": [

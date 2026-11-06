@@ -9,6 +9,7 @@
 #define WARPX_PHOTON_CREATION_FUNC_H_
 
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/MultiParticleContainer.H"
@@ -51,6 +52,8 @@ public:
      * @param[in] mypc pointer to the MultiParticleContainer
      */
     PhotonCreationFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
+
+    PhotonCreationFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
 
     /**
      * \brief operator() of the PhotonCreationFunc class. It creates new photon particles from binary

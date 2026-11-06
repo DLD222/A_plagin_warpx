@@ -11,7 +11,13 @@
 
 SplitAndScatterFunc::SplitAndScatterFunc (const std::string& collision_name,
                                           MultiParticleContainer const * const mypc):
-    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, mypc)}
+    SplitAndScatterFunc(collision_name, CollisionSpeciesTable(*mypc))
+{
+}
+
+SplitAndScatterFunc::SplitAndScatterFunc (const std::string& collision_name,
+                                          const CollisionSpeciesTable& table):
+    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, table)}
 {
     if (m_collision_type == CollisionType::DSMC)
     {

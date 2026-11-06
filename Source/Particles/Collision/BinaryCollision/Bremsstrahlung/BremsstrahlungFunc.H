@@ -10,6 +10,7 @@
 
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
@@ -56,6 +57,9 @@ public:
      * @param[in] isSameSpecies whether the two colliding species are the same (should always be false)
      */
     BremsstrahlungFunc (std::string const& collision_name, MultiParticleContainer const * mypc,
+                        bool /*isSameSpecies*/);
+
+    BremsstrahlungFunc (std::string const& collision_name, const CollisionSpeciesTable& table,
                         bool /*isSameSpecies*/);
 
     struct Executor {

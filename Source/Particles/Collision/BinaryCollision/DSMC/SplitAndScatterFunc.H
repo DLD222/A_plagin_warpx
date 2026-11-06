@@ -11,6 +11,7 @@
 
 #include "Particles/Collision/BinaryCollision/TwoProductUtil.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/WarpXParticleContainer.H"
@@ -47,6 +48,8 @@ public:
      * @param[in] mypc pointer to the MultiParticleContainer
      */
     SplitAndScatterFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
+
+    SplitAndScatterFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
 
     /**
      * \brief Function that performs binary collision between macroparticle pairs

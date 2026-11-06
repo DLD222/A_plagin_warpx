@@ -13,6 +13,13 @@
 using namespace amrex::literals;
 
 BremsstrahlungFunc::BremsstrahlungFunc (std::string const& collision_name, MultiParticleContainer const * const mypc,
+                                        bool isSameSpecies):
+    BremsstrahlungFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies)
+{
+}
+
+BremsstrahlungFunc::BremsstrahlungFunc (std::string const& collision_name,
+                                        const CollisionSpeciesTable& table,
                                         bool isSameSpecies)
 {
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(!isSameSpecies,
@@ -26,7 +33,7 @@ BremsstrahlungFunc::BremsstrahlungFunc (std::string const& collision_name, Multi
 
     std::string product_species_name;
     pp_collision_name.get("product_species", product_species_name);
-    auto& product_species = mypc->GetParticleContainerFromName(product_species_name);
+    auto& product_species = *table.get(product_species_name);
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(product_species.AmIA<PhysicalSpecies::photon>(),
                                      "BremsstrahlungFunc: The product species must be photons");

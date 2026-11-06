@@ -19,7 +19,13 @@
 
 PhotonCreationFunc::PhotonCreationFunc (const std::string& collision_name,
                                         MultiParticleContainer const * const mypc):
-    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, mypc)}
+    PhotonCreationFunc(collision_name, CollisionSpeciesTable(*mypc))
+{
+}
+
+PhotonCreationFunc::PhotonCreationFunc (const std::string& collision_name,
+                                        const CollisionSpeciesTable& table):
+    m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, table)}
 {
 
     if (m_collision_type == CollisionType::Bremsstrahlung)
