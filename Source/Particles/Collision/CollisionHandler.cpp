@@ -35,6 +35,7 @@
 #include <vector>
 
 CollisionHandler::CollisionHandler(MultiParticleContainer const * const mypc)
+    : m_species(*mypc)
 {
 
     // Read in collision input

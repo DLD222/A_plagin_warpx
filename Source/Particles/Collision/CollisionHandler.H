@@ -8,6 +8,7 @@
 #define WARPX_PARTICLES_COLLISION_COLLISIONHANDLER_H_
 
 #include "CollisionBase.H"
+#include "CollisionSpeciesTable.H"
 
 #include "Particles/MultiParticleContainer_fwd.H"
 
@@ -28,10 +29,14 @@ public:
     /* Allocate data needed for collision */
     void AllocData ();
 
+    [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
+
     /* Perform all of the collisions */
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt, MultiParticleContainer* mypc);
 
 private:
+
+    CollisionSpeciesTable m_species;
 
     amrex::Vector<std::string> collision_names;
     amrex::Vector<std::string> collision_types;

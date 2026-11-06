@@ -1932,12 +1932,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b8a",
+   "phase": "A3",
+   "title": "CollisionSpeciesTable 建立并接入 CollisionHandler",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b7"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Source/Particles/Collision/CollisionSpeciesTable.H"
+   ],
+   "effort_days": 1.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "表集中 get(names)；碰撞数值不变；model 尚未替换",
+   "note": "下一步 b8b 替换 model",
+   "verify_command": null
+  },
+  {
    "id": "A3.3b8",
    "phase": "A3",
    "title": "CollisionSpeciesTable + CollisionHandler 去 MultiParticleContainer",
    "kind": "refactor",
    "depends": [
-    "A3.3b7"
+    "A3.3b8a"
    ],
    "status": "pending",
    "outputs": [

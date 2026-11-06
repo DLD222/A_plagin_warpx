@@ -1,4 +1,5 @@
 CEXE_sources += CollisionHandler.cpp
+CEXE_sources += CollisionSpeciesTable.cpp
 CEXE_sources += CollisionBase.cpp
 CEXE_sources += ScatteringProcess.cpp
 
