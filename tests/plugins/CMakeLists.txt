@@ -42,3 +42,12 @@ if(TARGET lib_2d)
     add_test(NAME plugin_loader_missing_entry_2d
              COMMAND test_plugin_loader_reject_2d $<TARGET_FILE:warpx_no_entry_plugin>)
 endif()
+
+if(TARGET lib_2d)
+    add_library(warpx_invalid_desc_plugin SHARED invalid_desc_plugin.cpp)
+    target_link_libraries(warpx_invalid_desc_plugin PRIVATE lib_2d)
+    set_target_properties(warpx_invalid_desc_plugin PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+    add_test(NAME plugin_loader_invalid_desc_2d
+             COMMAND test_plugin_loader_reject_2d $<TARGET_FILE:warpx_invalid_desc_plugin>)
+endif()
