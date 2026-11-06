@@ -95,7 +95,8 @@
 | A3.2b | A3 | done | A3.2a | 显式 PIC 通过 StagePlan 执行 |
 | A3.2 | A3 | done | A3.2b | Evolve/OneStep 阶段化 |
 | A3.3b1 | A3 | done | A3.3a | PicEmPackage 声明 3 个 HandlerSpec（不执行） |
-| A3.3 | A3 | pending | A3.3b1 | PicEmPackage（schema + stages + plugins） |
+| A3.3b2 | A3 | pending | A3.3b1 | SpeciesSpec + SpeciesHandle（不透明物种访问） |
+| A3.3 | A3 | pending | A3.3b2 | PicEmPackage（schema + stages + plugins） |
 | A3.3a | A3 | done | A3.2b | HybridPackage 功能拆分（ExternalFields/Ampere/Ohm/Closure/Energy/Boundary） |
 | A3.3b | A3 | pending | A3.3 | CollisionPackage 独立插件模块（model 注册 + SpeciesHandle + Collisions stage） |
 | A3.4 | A3 | pending | A3.3 | A3 回归门 |
@@ -116,5 +117,5 @@
 | A6.3 | A6 | pending | A6.2 | IAmrPolicy（tagging/LB/base grid） |
 | A6.4 | A6 | pending | A6.3 | A6 回归门（动态加密 + 插件 on_regrid） |
 
-**Next:** `A3.3` — PicEmPackage（schema + stages + plugins）
+**Next:** `A3.3b2` — SpeciesSpec + SpeciesHandle（不透明物种访问）
 

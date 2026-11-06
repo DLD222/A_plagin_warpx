@@ -1778,12 +1778,31 @@
    "verify_command": null
   },
   {
+   "id": "A3.3b2",
+   "phase": "A3",
+   "title": "SpeciesSpec + SpeciesHandle（不透明物种访问）",
+   "kind": "refactor",
+   "depends": [
+    "A3.3b1"
+   ],
+   "status": "pending",
+   "outputs": [
+    "Docs/research_notes/A3.3B_STATE_BOUNDARY.md"
+   ],
+   "effort_days": 4.0,
+   "gate": "build+smoke",
+   "automation_command": null,
+   "acceptance": "DataBus 注册物种；handle 不暴露 WarpXParticleContainer；单测通过",
+   "note": "执行 handler 的前置",
+   "verify_command": null
+  },
+  {
    "id": "A3.3",
    "phase": "A3",
    "title": "PicEmPackage（schema + stages + plugins）",
    "kind": "refactor",
    "depends": [
-    "A3.3b1"
+    "A3.3b2"
    ],
    "status": "pending",
    "outputs": [],
