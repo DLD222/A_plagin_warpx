@@ -2383,6 +2383,32 @@ WarpX::MakeNewLevelFromScratch (int lev, Real time, const BoxArray& new_grids,
 
 // This is a virtual function.
 void
+WarpX::InterpolateCoarseToFine (int lev)
+{
+    if (lev <= 0) { return; }
+    const IntVect ratio = refRatio(lev - 1);
+    const std::string fine_tag = "[level=" + std::to_string(lev) + "]";
+    const std::string coarse_tag = "[level=" + std::to_string(lev - 1) + "]";
+    for (const auto& fine_name : m_fields.list()) {
+        if (fine_name.size() < fine_tag.size() ||
+            fine_name.compare(fine_name.size() - fine_tag.size(), fine_tag.size(), fine_tag) != 0) {
+            continue;
+        }
+        std::string coarse_name = fine_name.substr(0, fine_name.size() - fine_tag.size()) + coarse_tag;
+        auto* fine = m_fields.get_internal(fine_name);
+        auto* coarse = m_fields.get_internal(coarse_name);
+        if (fine == nullptr || coarse == nullptr) { continue; }
+        if (fine->ixType() != coarse->ixType()) { continue; }
+        if (fine->nComp() != coarse->nComp()) { continue; }
+        amrex::Vector<amrex::BCRec> bcs(fine->nComp());
+        amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
+                                     *coarse, 0, 0, fine->nComp(),
+                                     Geom(lev - 1), Geom(lev), ratio,
+                                     &amrex::cell_cons_interp, bcs, 0);
+    }
+}
+
+void
 WarpX::MakeNewLevelFromCoarse (int lev, amrex::Real time, const amrex::BoxArray& ba,
                                          const amrex::DistributionMapping& dm)
 {
@@ -2391,34 +2417,7 @@ WarpX::MakeNewLevelFromCoarse (int lev, amrex::Real time, const amrex::BoxArray&
     if (m_level_resources.size() <= lev) { m_level_resources.resize(lev + 1); }
     AllocLevelData(lev, ba, dm);
     InitLevelData(lev, time);
-    if (lev == 0) { return; }
-    const IntVect ratio = refRatio(lev - 1);
-    auto interpolate = [&](FieldType type, Direction dir) {
-        if (!m_fields.has(type, dir, lev) || !m_fields.has(type, dir, lev - 1)) { return; }
-        auto* fine = m_fields.get(type, dir, lev);
-        const auto* coarse = m_fields.get(type, dir, lev - 1);
-        const int ncomp = fine->nComp();
-        amrex::Vector<amrex::BCRec> bcs(ncomp);
-        amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
-                                     *coarse, 0, 0, ncomp,
-                                     Geom(lev - 1), Geom(lev), ratio,
-                                     &amrex::cell_cons_interp, bcs, 0);
-    };
-    for (int idim = 0; idim < 3; ++idim) {
-        const Direction dir{idim};
-        interpolate(FieldType::Efield_fp, dir);
-        interpolate(FieldType::Bfield_fp, dir);
-        interpolate(FieldType::current_fp, dir);
-    }
-    if (m_fields.has(FieldType::rho_fp, lev) && m_fields.has(FieldType::rho_fp, lev - 1)) {
-        auto* fine = m_fields.get(FieldType::rho_fp, lev);
-        const auto* coarse = m_fields.get(FieldType::rho_fp, lev - 1);
-        amrex::Vector<amrex::BCRec> bcs(fine->nComp());
-        amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
-                                     *coarse, 0, 0, fine->nComp(),
-                                     Geom(lev - 1), Geom(lev), ratio,
-                                     &amrex::cell_cons_interp, bcs, 0);
-    }
+    if (lev > 0) { InterpolateCoarseToFine(lev); }
 }
 
 void

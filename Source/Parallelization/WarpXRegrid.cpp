@@ -219,34 +219,7 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
         AllocLevelData(lev, ba, dm);
         InitLevelData(lev, gett_new(lev));
 
-        if (lev > 0) {
-            const IntVect ratio = refRatio(lev - 1);
-            auto coarse_fill = [&](FieldType type, Direction dir) {
-                if (!m_fields.has(type, dir, lev) || !m_fields.has(type, dir, lev - 1)) { return; }
-                auto* fine = m_fields.get(type, dir, lev);
-                const auto* coarse = m_fields.get(type, dir, lev - 1);
-                amrex::Vector<amrex::BCRec> bcs(fine->nComp());
-                amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
-                                             *coarse, 0, 0, fine->nComp(),
-                                             Geom(lev - 1), Geom(lev), ratio,
-                                             &amrex::cell_cons_interp, bcs, 0);
-            };
-            for (int idim = 0; idim < 3; ++idim) {
-                const Direction dir{idim};
-                coarse_fill(FieldType::Efield_fp, dir);
-                coarse_fill(FieldType::Bfield_fp, dir);
-                coarse_fill(FieldType::current_fp, dir);
-            }
-            if (m_fields.has(FieldType::rho_fp, lev) && m_fields.has(FieldType::rho_fp, lev - 1)) {
-                auto* fine = m_fields.get(FieldType::rho_fp, lev);
-                const auto* coarse = m_fields.get(FieldType::rho_fp, lev - 1);
-                amrex::Vector<amrex::BCRec> bcs(fine->nComp());
-                amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
-                                             *coarse, 0, 0, fine->nComp(),
-                                             Geom(lev - 1), Geom(lev), ratio,
-                                             &amrex::cell_cons_interp, bcs, 0);
-            }
-        }
+        if (lev > 0) { InterpolateCoarseToFine(lev); }
 
         for (auto& [name, old_mf] : old_fields) {
             auto* new_mf = m_fields.get_internal(name);

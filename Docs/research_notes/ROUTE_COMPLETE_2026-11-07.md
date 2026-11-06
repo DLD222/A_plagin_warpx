@@ -73,7 +73,6 @@ ASAN:         15 / 15 PASS
 ## 已知限制
 
 - BTD 的 `ResizeLevels` 仍为 no-op；
-- `MakeNewLevelFromCoarse` 只插值 E/B/J/rho；
 - IAmrPolicy 无外部 `.so` ABI；
 - 未覆盖 GPU。
 

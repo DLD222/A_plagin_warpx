@@ -1231,6 +1231,7 @@ protected:
                               const amrex::DistributionMapping& dm) final;
     void RecreateLevelResources (int lev, const amrex::BoxArray& ba,
                                  const amrex::DistributionMapping& dm);
+    void InterpolateCoarseToFine (int lev);
 
     //! Delete level data.  Called by AmrCore::regrid.
     void ClearLevel (int lev) final;
