@@ -1,4 +1,10 @@
 foreach(D IN LISTS WarpX_DIMS)
+    # All input files under tests/runtime/inputs_* hard-code
+    # geometry.dims = 2 (Cartesian 2D).  Only register tests for the 2D build;
+    # 1D/3D/RZ variants would fail to parse the input file at runtime.
+    if(NOT D STREQUAL 2)
+        continue()
+    endif()
     warpx_set_suffix_dims(SD ${D})
     if(TARGET lib_${SD})
         add_executable(test_runtime_snapshot_${SD} test_runtime_snapshot.cpp)

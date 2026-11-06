@@ -295,8 +295,9 @@ void ParticleHistogram2D::WriteToFile (int step) const
     f_mesh.setAttribute("function_ordinate", function_string_ord);
     f_mesh.setAttribute("filter", filter_string);
 
-    // record components
-    auto data = f_mesh[io::RecordComponent::SCALAR];
+    // record components (named rc so it does not shadow the inherited
+    // ReducedDiags::data() member method used later in this function).
+    auto rc = f_mesh[io::RecordComponent::SCALAR];
 
     // meta data
     f_mesh.setAxisLabels({function_string_ord, function_string_abs}); // ordinate, abscissa
@@ -304,12 +305,12 @@ void ParticleHistogram2D::WriteToFile (int step) const
     f_mesh.setGridGlobalOffset(gridGlobalOffset);
     f_mesh.setGridSpacing<amrex::Real>({m_bin_size_ord, m_bin_size_abs});
 
-    data.setPosition<amrex::Real>({0.5, 0.5});
+    rc.setPosition<amrex::Real>({0.5, 0.5});
 
     auto dataset = io::Dataset(
             io::determineDatatype<amrex::ParticleReal>(),
             {static_cast<unsigned long>(m_bin_num_ord), static_cast<unsigned long>(m_bin_num_abs)});
-    data.resetDataset(dataset);
+    rc.resetDataset(dataset);
 
     // UNIT DIMENSION IS NOT SET ON THE VALUES
 
@@ -318,7 +319,7 @@ void ParticleHistogram2D::WriteToFile (int step) const
     i.setTime(time);
 
     auto const& h_table_data = m_h_data_2D.table();
-    data.storeChunkRaw(
+    rc.storeChunkRaw(
             h_table_data.p,
             {0, 0},
             {static_cast<unsigned long>(m_bin_num_ord), static_cast<unsigned long>(m_bin_num_abs)});

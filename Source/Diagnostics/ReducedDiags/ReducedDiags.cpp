@@ -183,8 +183,11 @@ ReducedDiags::config () const
     if (m_runtime_context != nullptr && m_runtime_context->config != nullptr) {
         return *m_runtime_context->config;
     }
-    static const warpx::runtime::RuntimeConfig legacy =
-        warpx::runtime::RuntimeConfig::FromLegacy();
+    // thread_local refreshed each call — symmetric with data() which reaches
+    // WarpX on demand via WarpXRuntimeData::Legacy(); a static const snapshot
+    // would go stale after the first init (moving_window_v, dt, finestLevel…).
+    thread_local warpx::runtime::RuntimeConfig legacy;
+    legacy = warpx::runtime::RuntimeConfig::FromLegacy();
     return legacy;
 }
 
@@ -194,7 +197,7 @@ ReducedDiags::frame () const
     if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
         return *m_runtime_context->frame;
     }
-    static const warpx::runtime::FrameState legacy =
-        warpx::runtime::FrameState::FromLegacy();
+    thread_local warpx::runtime::FrameState legacy;
+    legacy = warpx::runtime::FrameState::FromLegacy();
     return legacy;
 }

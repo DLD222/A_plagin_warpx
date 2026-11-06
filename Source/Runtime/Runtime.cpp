@@ -127,6 +127,11 @@ void
 Runtime::finalize ()
 {
     if (m_finalized) { return; }
+    // Clear the WarpX→RuntimeContext back-pointer before tearing anything
+    // down, so no concurrent path can dereference a destroyed object.
+    if (m_warpx) {
+        m_warpx->SetRuntimeContext(nullptr);
+    }
     m_host.reset();
     if (m_warpx != nullptr) {
         m_warpx->SetCollisionHandler(nullptr);

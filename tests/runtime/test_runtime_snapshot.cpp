@@ -370,15 +370,19 @@ int main (int argc, char* argv[])
     }
 
     {
-        std::istringstream is(last_line("diags/reducedfiles/field_probe.txt"));
-        double step = 0, time = 0, x = 0, y = 0, z = 0;
-        double ex = 0, ey = 0, ez = 0, bx = 0, by = 0, bz = 0, s = 0;
-        is >> step >> time >> x >> y >> z >> ex >> ey >> ez >> bx >> by >> bz >> s;
-        constexpr double mu0 = 1.2566370612685e-6;
-        check_eq(static_cast<int>(step), 1, "field_probe step");
-        check(std::abs(ex - 1.0) <= 1.0e-14, "field_probe Ex");
-        check(std::abs(by - 1.0) <= 1.0e-14, "field_probe By");
-        check(std::abs(s - 1.0 / mu0) <= 1.0e-12 / mu0, "field_probe Poynting S");
+        // field_probe is only configured on the fields-only input file;
+        // particles/psatd modes do not configure it, so skip.
+        if (!particles_mode && !psatd_mode) {
+            std::istringstream is(last_line("diags/reducedfiles/field_probe.txt"));
+            double step = 0, time = 0, x = 0, y = 0, z = 0;
+            double ex = 0, ey = 0, ez = 0, bx = 0, by = 0, bz = 0, s = 0;
+            is >> step >> time >> x >> y >> z >> ex >> ey >> ez >> bx >> by >> bz >> s;
+            constexpr double mu0 = 1.2566370612685e-6;
+            check_eq(static_cast<int>(step), 1, "field_probe step");
+            check(std::abs(ex - 1.0) <= 1.0e-14, "field_probe Ex");
+            check(std::abs(by - 1.0) <= 1.0e-14, "field_probe By");
+            check(std::abs(s - 1.0 / mu0) <= 1.0e-12 / mu0, "field_probe Poynting S");
+        }
     }
 
     if (failures == 0) {

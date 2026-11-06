@@ -10,16 +10,29 @@
 
 #include "Runtime/RuntimeData.H"
 
+#include <memory>
+
 class WarpX;
 
 namespace warpx::runtime
 {
 
-/** RuntimeData adapter over a WarpX instance (transitional, not for plugins). */
+/** RuntimeData adapter over a WarpX instance (transitional, not for plugins).
+ *  Unlike an earlier version, this adapter does NOT hold a WarpX reference —
+ *  every method reaches WarpX::GetInstance() on demand.  The adapter is
+ *  stateless w.r.t. WarpX lifetime, so there is no unordered-static
+ *  destruction-order hazard when the singleton is torn down.
+ */
 class WarpXRuntimeData final : public RuntimeData
 {
 public:
-    explicit WarpXRuntimeData (WarpX& warpx) : m_warpx(warpx) {}
+    WarpXRuntimeData () = default;
+    explicit WarpXRuntimeData (WarpX&) {}  // kept for compatibility; argument is ignored
+
+    //! Legacy fallback (WarpX singleton); used when no RuntimeContext is installed.
+    //! Thread-local unique_ptr — no static destruction-order hazard because
+    //! the adapter itself does not capture WarpX lifetime.
+    static WarpXRuntimeData& Legacy ();
 
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override;
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
@@ -74,8 +87,7 @@ public:
     void computeCostsHeuristic () const override;
     [[nodiscard]] const amrex::EBFArrayBoxFactory& fieldEBFactory (int lev) const override;
 
-private:
-    WarpX& m_warpx;
+    // No m_warpx member — stateless w.r.t. WarpX lifetime.
 };
 
 } // namespace warpx::runtime
