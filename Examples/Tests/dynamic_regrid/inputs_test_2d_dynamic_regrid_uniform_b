@@ -1,0 +1,69 @@
+# Maximum number of time steps
+max_step = 40
+
+# number of grid points
+amr.n_cell =   64  64
+
+# Maximum allowable size of each subdomain in the problem domain;
+#    this is used to decompose the domain for parallel calculations.
+amr.max_grid_size = 64
+
+# Maximum level in hierarchy (for now must be 0, i.e., one level in total)
+amr.max_level = 1
+amr.ref_ratio = 2
+amr.blocking_factor = 32
+warpx.regrid_int = 1
+warpx.refine_start_time = 1.0e-14
+warpx.fine_tag_lo = -1.0e-5 -1.0e-5
+warpx.fine_tag_hi = 1.0e-5 1.0e-5
+warpx.fine_tag_lo = -1.0e-5 -1.0e-5
+warpx.fine_tag_hi = 1.0e-5 1.0e-5
+
+# Geometry
+geometry.dims = 2
+geometry.prob_lo     = -20.e-6   -20.e-6    # physical domain
+geometry.prob_hi     =  20.e-6    20.e-6
+
+# Boundary condition
+boundary.field_lo = periodic periodic
+boundary.field_hi = periodic periodic
+
+warpx.serialize_initial_conditions = 1
+
+# Verbosity
+warpx.verbose = 1
+
+# Algorithms
+algo.field_gathering = energy-conserving
+warpx.use_filter = 0
+
+# Order of particle shape factors
+
+# CFL
+warpx.cfl = 1.0
+
+# Parameters for the plasma wave
+# Note: kp is calculated in SI for a density of 4e24 (i.e. 2e24 electrons + 2e24 positrons)
+# k is calculated so as to have 2 periods within the 40e-6 wide box.
+
+# Particles
+
+
+
+
+
+# Diagnostics
+diagnostics.diags_names = diag1
+diag1.intervals = 1
+diag1.diag_type = Full
+
+# base input parameters
+
+# test input parameters
+algo.current_deposition = direct
+
+warpx.random_seed = 12345
+warpx.B_ext_grid_init_style = constant
+warpx.B_external_grid = 0.0 0.0 1.0
+warpx.E_ext_grid_init_style = constant
+warpx.E_external_grid = 0.0 0.0 0.0

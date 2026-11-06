@@ -27,3 +27,13 @@ add_warpx_test(
     "analysis_remake.py diags/diag1000008"
     OFF
 )
+
+add_warpx_test(
+    test_2d_dynamic_regrid_uniform_b
+    2
+    1
+    inputs_test_2d_dynamic_regrid_uniform_b
+    "analysis_uniform_b.py diags/diag1000040"
+    "analysis_uniform_b.py diags/diag1000040"
+    OFF
+)
