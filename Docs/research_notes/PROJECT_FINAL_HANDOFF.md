@@ -52,7 +52,7 @@ IHandler::on_regrid(StageContext&)
 
 ```cpp
 struct WarpXPluginDesc {
-    uint32_t abi_version;   // 3? 当前 2
+    uint32_t abi_version;   // 2
     uint32_t struct_size;
     const char* name;
     const char* version;
