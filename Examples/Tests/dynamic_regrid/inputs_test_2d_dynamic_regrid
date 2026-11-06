@@ -105,8 +105,3 @@ diag1.electrons.variables = x z w ux uy uz
 diag1.positrons.variables = x z w ux uy uz
 
 warpx.random_seed = 12345
-
-warpx.reduced_diags_names = field_energy
-reduced_diags.intervals = 1
-field_energy.type = FieldEnergy
-field_energy.path = diags/reduced_files/

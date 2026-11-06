@@ -2401,10 +2401,16 @@ WarpX::InterpolateCoarseToFine (int lev)
         if (fine->ixType() != coarse->ixType()) { continue; }
         if (fine->nComp() != coarse->nComp()) { continue; }
         amrex::Vector<amrex::BCRec> bcs(fine->nComp());
+        amrex::Interpolater* interp = &amrex::cell_cons_interp;
+        if (fine->ixType().nodeCentered()) {
+            interp = &amrex::node_bilinear_interp;
+        } else if (!fine->ixType().cellCentered()) {
+            interp = &amrex::face_linear_interp;
+        }
         amrex::InterpFromCoarseLevel(*fine, fine->nGrowVect(), IntVect{0},
                                      *coarse, 0, 0, fine->nComp(),
                                      Geom(lev - 1), Geom(lev), ratio,
-                                     &amrex::cell_cons_interp, bcs, 0);
+                                     interp, bcs, 0);
     }
 }
 
