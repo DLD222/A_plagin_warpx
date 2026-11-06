@@ -10,6 +10,7 @@
 #include "Fluids/MultiFluidContainer.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
+#include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H"
 
 #include <AMReX_EBFabFactory.H>
 
@@ -70,6 +71,14 @@ const amrex::Vector<amrex::Real>& WarpXRuntimeData::vGalilean () const { return 
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::dtAll () const { return w().getdt(); }
 const AcceleratorLattice& WarpXRuntimeData::acceleratorLattice (int lev) const { return w().get_accelerator_lattice(lev); }
 HybridPICModel* WarpXRuntimeData::hybridPICModel () const { return w().get_pointer_HybridPICModel(); }
+const MaterialRegistry& WarpXRuntimeData::materials () const
+{
+    if (const auto* macroscopic = w().get_pointer_MacroscopicProperties()) {
+        return macroscopic->materials();
+    }
+    static const MaterialRegistry empty;
+    return empty;
+}
 const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const { return w().GetEBIndexSpace(lev); }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return w().nci_godfrey_filter_exeybz; }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return w().nci_godfrey_filter_bxbyez; }

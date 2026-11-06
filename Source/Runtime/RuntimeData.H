@@ -35,6 +35,7 @@ class MultiFluidContainer;
 
 namespace warpx::runtime
 {
+class MaterialRegistry;
 
 /**
  * \brief Narrow, read-mostly view of the kernel state used by diagnostics.
@@ -78,6 +79,7 @@ public:
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& dtAll () const = 0;
     [[nodiscard]] virtual const AcceleratorLattice& acceleratorLattice (int lev) const = 0;
     [[nodiscard]] virtual HybridPICModel* hybridPICModel () const = 0;
+    [[nodiscard]] virtual const MaterialRegistry& materials () const = 0;
     [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;
     [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
     nciGodfreyFilterExEyBz () const = 0;

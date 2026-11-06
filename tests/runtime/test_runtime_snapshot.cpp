@@ -10,6 +10,7 @@
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/FieldRegistry.H"
+#include "Runtime/MaterialRegistry.H"
 #include "Runtime/PicEmPackage.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
@@ -157,6 +158,8 @@ int main (int argc, char* argv[])
     check_eq(runtime.bus().registry().size(),
              WarpX::GetInstance().fieldSchema().size(),
              "DataBus and FieldSchema share one FieldRegistry");
+    check_eq(installed->data->materials().size(), std::size_t(0),
+             "RuntimeData exposes an empty MaterialRegistry without a macroscopic medium");
 
     {
         warpx::runtime::FieldRegistry registry;
@@ -173,6 +176,23 @@ int main (int argc, char* argv[])
             threw = true;
         }
         check(threw, "FieldRegistry rejects conflicting checkpoint metadata");
+    }
+
+    {
+        warpx::runtime::MaterialRegistry materials;
+        warpx::runtime::MaterialSpec mat;
+        mat.name = "default";
+        mat.epsilon = 2.0;
+        materials.declare(mat);
+        check(materials.contains("default"), "MaterialRegistry stores coefficients");
+        mat.epsilon = 3.0;
+        bool threw = false;
+        try {
+            materials.declare(mat);
+        } catch (const std::runtime_error&) {
+            threw = true;
+        }
+        check(threw, "MaterialRegistry rejects conflicting coefficients");
     }
 
     if (particles_mode) {

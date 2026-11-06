@@ -31,6 +31,7 @@ using namespace amrex;
 MacroscopicProperties::MacroscopicProperties ()
 {
     ReadParameters();
+    refreshMaterials();
 }
 
 void
@@ -284,6 +285,25 @@ MacroscopicProperties::ReadParameters ()
                    << "\n";
     amrex::Print() << "[MACRO]  conduction: matrix exponential M1/M2 (tensor capable)" << "\n";
 
+}
+
+void
+MacroscopicProperties::refreshMaterials ()
+{
+    warpx::runtime::MaterialSpec spec;
+    spec.name = "default";
+    spec.epsilon = m_epsilon;
+    spec.sigma = m_sigma;
+    spec.mu = m_mu;
+    spec.epsilon2 = m_epsilon2;
+    spec.has_interface = m_has_interface;
+    spec.has_eps_tensor = m_has_eps_tensor;
+    spec.has_eps2_tensor = m_has_eps2_tensor;
+    spec.has_sigma_tensor = m_has_sig_tensor;
+    spec.eps_tensor = m_eps_tensor;
+    spec.eps2_tensor = m_eps2_tensor;
+    spec.sigma_tensor = m_sig_tensor;
+    m_materials.declare(spec);
 }
 
 void

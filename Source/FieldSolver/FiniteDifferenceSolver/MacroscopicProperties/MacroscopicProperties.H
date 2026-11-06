@@ -9,6 +9,7 @@
 #define WARPX_MACROSCOPICPROPERTIES_H_
 
 #include "MacroscopicProperties_fwd.H"
+#include "Runtime/MaterialRegistry.H"
 
 #include "Utils/WarpXConst.H"
 
@@ -36,6 +37,7 @@ public:
     MacroscopicProperties (); // constructor
     /** Read user-defined macroscopic properties. Called in constructor. */
     void ReadParameters ();
+    [[nodiscard]] const warpx::runtime::MaterialRegistry& materials () const { return m_materials; }
 
     /**
      * \brief Allocate multifabs storing macroscopic multifabs
@@ -173,6 +175,9 @@ public:
     amrex::GpuArray<int, 3> macro_cr_ratio;
 
 private:
+    //! Coefficient snapshot; owns no MultiFab (A4.3).
+    warpx::runtime::MaterialRegistry m_materials;
+    void refreshMaterials ();
 
     /** Conductivity, sigma, of the medium */
     amrex::Real m_sigma = 0.0;

@@ -1568,6 +1568,15 @@ private:
 
     // Macroscopic properties
     std::unique_ptr<MacroscopicProperties> m_macroscopic_properties;
+
+public:
+    [[nodiscard]] MacroscopicProperties* get_pointer_MacroscopicProperties () {
+        return m_macroscopic_properties.get();
+    }
+    [[nodiscard]] const MacroscopicProperties* get_pointer_MacroscopicProperties () const {
+        return m_macroscopic_properties.get();
+    }
+private:
     /** Optional 5-moment fluid current source (fluids.moment.enabled = 1). */
     std::unique_ptr<MomentFluidSolver> m_moment_fluid;
 

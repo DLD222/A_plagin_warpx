@@ -2671,18 +2671,22 @@
   {
    "id": "A4.3",
    "phase": "A4",
-   "title": "MaterialRegistry（系数 bundle）",
+   "title": "MaterialRegistry（系数 bundle 快照）",
    "kind": "refactor",
    "depends": [
-    "A4.1"
+    "A4.2"
    ],
    "status": "pending",
-   "outputs": [],
-   "effort_days": 6.0,
+   "outputs": [
+    "Source/Runtime/MaterialSpec.H",
+    "Source/Runtime/MaterialRegistry.H"
+   ],
+   "effort_days": 2.0,
    "gate": "build+smoke",
    "automation_command": null,
-   "acceptance": "eps/sigma/mu/jcond",
-   "note": ""
+   "acceptance": "MacroscopicProperties 注册 default 材料；RuntimeData 暴露 registry；macroscopic 算例通过",
+   "note": "不拥有 MultiFab",
+   "verify_command": null
   },
   {
    "id": "A4.4",
