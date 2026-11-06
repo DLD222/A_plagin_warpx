@@ -7,6 +7,7 @@
 ```cpp
 struct WarpXPluginDesc {
     std::uint32_t abi_version;
+    std::uint32_t struct_size;
     const char* name;
     const char* version;
     void (*register_handlers)(PluginHost*);
@@ -28,7 +29,8 @@ extern "C" const WarpXPluginDesc* warpx_plugin_entry();
 1. `dlopen(RTLD_NOW | RTLD_LOCAL)`；
 2. `dlsym("warpx_plugin_entry")`；
 3. 校验 descriptor 非空、name/register 非空；
-4. 校验 `abi_version == 1`；
+4. 校验 `struct_size == sizeof(WarpXPluginDesc)`；
+5. 校验 `abi_version == 2`；
 5. 调用 `register_handlers(&host)`；
 6. 不 `dlclose`，handler 代码仍在库内。
 
@@ -67,6 +69,7 @@ WARPX_PLUGIN_PATH=<so> runtime_snapshot_particles_2d PASS
 ## 限制
 
 - ABI 仅在同一编译器/标准库/构建配置内保证；
+- 使用 `RTLD_NODELETE`，防止拒绝插件时 `dlclose` 卸载运行中的符号；
 - 未实现插件卸载；
 - 未实现签名/路径白名单；
 - `PluginHost` 跨库传递依赖相同的 C++ ABI。

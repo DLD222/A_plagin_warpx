@@ -37,6 +37,7 @@ void register_handlers (warpx::runtime::PluginHost* host)
 
 const WarpXPluginDesc desc{
     warpx_plugin_abi_version,
+    sizeof(WarpXPluginDesc),
     "dynamic_example_plugin",
     "1.0",
     &register_handlers

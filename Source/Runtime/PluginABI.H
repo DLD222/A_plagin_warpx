@@ -16,13 +16,14 @@ namespace warpx::runtime { class PluginHost; }
 struct WarpXPluginDesc
 {
     std::uint32_t abi_version = 0;
+    std::uint32_t struct_size = 0;
     const char* name = nullptr;
     const char* version = nullptr;
     void (*register_handlers)(warpx::runtime::PluginHost*) = nullptr;
 };
 
 //! Current ABI version. Bump on any layout/signature change.
-inline constexpr std::uint32_t warpx_plugin_abi_version = 1;
+inline constexpr std::uint32_t warpx_plugin_abi_version = 2;
 
 extern "C" {
 using WarpXPluginEntry = const WarpXPluginDesc* (*)();

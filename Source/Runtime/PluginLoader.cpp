@@ -21,7 +21,7 @@ namespace warpx::runtime
 void
 PluginLoader::load (const std::string& path, PluginHost& host)
 {
-    void* handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
+    void* handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
     if (handle == nullptr) {
         throw std::runtime_error(
             "PluginLoader: dlopen failed for '" + path + "': " + dlerror());
@@ -38,6 +38,13 @@ PluginLoader::load (const std::string& path, PluginHost& host)
     if (desc == nullptr || desc->name == nullptr || desc->register_handlers == nullptr) {
         dlclose(handle);
         throw std::runtime_error("PluginLoader: invalid plugin descriptor in '" + path + "'");
+    }
+    if (desc->struct_size != sizeof(WarpXPluginDesc)) {
+        dlclose(handle);
+        throw std::runtime_error(
+            "PluginLoader: descriptor size mismatch in '" + path + "' (plugin " +
+            std::to_string(desc->struct_size) + ", host " +
+            std::to_string(sizeof(WarpXPluginDesc)) + ")");
     }
     if (desc->abi_version != warpx_plugin_abi_version) {
         dlclose(handle);
