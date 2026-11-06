@@ -2856,15 +2856,15 @@
    "title": "运行期 .so 加载（可选）",
    "kind": "refactor",
    "depends": [
-    "A5.3"
+    "A5.4"
    ],
-   "status": "pending",
+   "status": "done",
    "outputs": [],
    "effort_days": 8.0,
    "gate": "build+smoke",
    "automation_command": null,
    "acceptance": "C ABI + 版本校验；host 角色",
-   "note": ""
+   "note": "dlopen + C ABI + version check; test plugin loader"
   },
   {
    "id": "A5.6",

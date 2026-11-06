@@ -1,5 +1,6 @@
 CEXE_sources += Runtime.cpp
 CEXE_sources += CollisionPackage.cpp
+CEXE_sources += PluginLoader.cpp
 CEXE_sources += DataBus.cpp
 CEXE_sources += LevelResources.cpp
 CEXE_sources += SpeciesSpec.cpp

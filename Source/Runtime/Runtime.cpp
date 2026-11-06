@@ -16,6 +16,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/PicEmPackage.H"
+#include "Runtime/PluginLoader.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
@@ -82,6 +83,10 @@ Runtime::Runtime (int argc, char* argv[])
     warpx.SetCollisionHandler(m_collision_handler.get());
     if (!disable_handlers) {
         CollisionPackage::register_handler(*m_plugin_host, m_collision_handler.get());
+    }
+
+    if (const char* plugin_path = std::getenv("WARPX_PLUGIN_PATH")) {
+        PluginLoader::load(plugin_path, *m_plugin_host);
     }
 }
 

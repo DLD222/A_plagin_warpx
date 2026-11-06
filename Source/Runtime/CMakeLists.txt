@@ -4,6 +4,7 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         Runtime.cpp
         CollisionPackage.cpp
+        PluginLoader.cpp
         DataBus.cpp
     LevelResources.cpp
     SpeciesSpec.cpp
@@ -12,4 +13,5 @@ foreach(D IN LISTS WarpX_DIMS)
         FrameState.cpp
         WarpXRuntimeData.cpp
     )
+    target_link_libraries(lib_${SD} PRIVATE ${CMAKE_DL_LIBS})
 endforeach()
