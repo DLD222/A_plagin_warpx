@@ -18,7 +18,6 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IAmrPolicy.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
-#include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
@@ -88,6 +87,7 @@
 #include <string>
 #include <variant>
 #include <memory>
+class ElectrostaticSolver;
 #include <vector>
 
 class CollisionHandler;
