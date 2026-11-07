@@ -8,6 +8,8 @@
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
 #include "Runtime/RuntimeData.H"
+#include "Particles/MultiParticleContainer.H"
+#include "Runtime/ISpeciesContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/FieldRegistry.H"
@@ -102,6 +104,9 @@ int main (int argc, char* argv[])
           "context.config_snapshot points at RuntimeConfigSnapshot");
     check(runtime.context().time == &runtime.time(), "context.time points at TimeState");
     check(runtime.context().frame == &runtime.frame(), "context.frame points at FrameState");
+    check(runtime.context().data->species().nSpecies() ==
+              WarpX::GetInstance().GetPartContainer().nSpecies(),
+          "RuntimeData species() matches MultiParticleContainer");
     check(&runtime.fields() == &WarpX::GetInstance().GetMultiFabRegister(),
           "Runtime::fields() is the authoritative MultiFabRegister (no DataBus copy)");
     check(&runtime.bus().fields() == &runtime.fields(), "DataBus forwards to the same Register");

@@ -32,7 +32,7 @@ ParticleNumber::ParticleNumber (const std::string& rd_name)
 : ReducedDiags{rd_name}
 {
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -88,7 +88,7 @@ void ParticleNumber::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();

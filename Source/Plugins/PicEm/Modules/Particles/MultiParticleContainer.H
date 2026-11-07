@@ -21,6 +21,7 @@
 #include "PhysicalParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
+#include "Runtime/ISpeciesContainer.H"
 #include "WarpXParticleContainer.H"
 #include "ParticleBoundaries.H"
 #include "ExternalParticleFields.H"
@@ -52,9 +53,7 @@
 #include <vector>
 
 /**
- * The class CollisionHandler;
-
-class MultiParticleContainer holds multiple instances of the polymorphic
+ * The class MultiParticleContainer holds multiple instances of the polymorphic
  * class WarpXParticleContainer, stored in its member variable "allcontainers".
  * The class WarpX typically has a single (pointer to an) instance of
  * MultiParticleContainer.
@@ -67,7 +66,7 @@ class MultiParticleContainer holds multiple instances of the polymorphic
  * - Functions that specifically handle multiple species (for instance
  *   ReadParameters or mapSpeciesProduct).
  */
-class MultiParticleContainer
+class MultiParticleContainer : public warpx::runtime::ISpeciesContainer
 {
 
 public:

@@ -35,6 +35,7 @@ class MultiFluidContainer;
 
 namespace warpx::runtime
 {
+class ISpeciesContainer;
 class MaterialRegistry;
 class FieldRegistry;
 
@@ -55,7 +56,9 @@ public:
 
     [[nodiscard]] virtual amrex::AmrCore& amrCore () const = 0;
     [[nodiscard]] virtual MultiParticleContainer& particles () = 0;
+    [[nodiscard]] virtual ISpeciesContainer& species () = 0;
     [[nodiscard]] virtual const MultiParticleContainer& particles () const = 0;
+    [[nodiscard]] virtual const ISpeciesContainer& species () const = 0;
     [[nodiscard]] virtual MultiFluidContainer* fluids () = 0;
 
     [[nodiscard]] virtual int finestLevel () const = 0;
