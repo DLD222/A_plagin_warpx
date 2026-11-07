@@ -8,6 +8,8 @@
 #ifndef WARPX_RUNTIME_ISPECIESCONTAINER_H_
 #define WARPX_RUNTIME_ISPECIESCONTAINER_H_
 
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include <AMReX_MultiFab.H>
 #include <AMReX_Vector.H>
 
@@ -21,12 +23,9 @@ namespace warpx::runtime
 {
 
 /** \brief Stable species-registry view for modules (A7.1 transitional). */
-class ISpeciesContainer
+class ISpeciesContainer : public ISpeciesMetadata, public IParticleContainerAccess
 {
 public:
-    using SpeciesVector = amrex::Vector<std::unique_ptr<WarpXParticleContainer>>;
-    using iterator = SpeciesVector::iterator;
-    using const_iterator = SpeciesVector::const_iterator;
     virtual ~ISpeciesContainer () = default;
 
     [[nodiscard]] virtual int nSpecies () const = 0;

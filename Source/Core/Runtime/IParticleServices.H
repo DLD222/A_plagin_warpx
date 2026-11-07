@@ -12,6 +12,9 @@ public:
     virtual ~IParticleServices () = default;
     virtual void depositCurrent (int, amrex::Real) = 0;
     virtual std::unique_ptr<amrex::MultiFab> computeRho (int, int, bool) = 0;
+    virtual std::unique_ptr<amrex::MultiFab> computeRho (int lev, int species, bool filter,
+                                                         int ncomp, const amrex::IntVect& nodal,
+                                                         const amrex::IntVect& ngrow) = 0;
     virtual void syncRho (ablastr::fields::MultiLevelScalarField const&, ablastr::fields::MultiLevelScalarField const&, ablastr::fields::MultiLevelScalarField const&) = 0;
     virtual void finalizeRhoOnLevel (int, amrex::MultiFab*, ablastr::utils::enums::PatchType) = 0;
     virtual void applyFilterandSumBoundaryRho (int, int, amrex::MultiFab&, int, int) = 0;

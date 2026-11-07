@@ -32,7 +32,8 @@ ParticleNumber::ParticleNumber (const std::string& rd_name)
 : ReducedDiags{rd_name}
 {
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & mypc = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -88,7 +89,8 @@ void ParticleNumber::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & mypc = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -110,7 +112,7 @@ void ParticleNumber::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // get WarpXParticleContainer class object
-        auto & myspc = mypc.GetParticleContainer(i_s);
+        auto & myspc = access.GetParticleContainer(i_s);
 
         // Save total number of macroparticles for this species
         m_data[idx_first_species_macroparticles + i_s] = myspc.TotalNumberOfParticles();

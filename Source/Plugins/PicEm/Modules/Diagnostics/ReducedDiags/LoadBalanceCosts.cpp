@@ -47,7 +47,8 @@ namespace
 {
     amrex::Long
     countBoxMacroParticles (amrex::MFIter const & mfi, int const lev,
-                            warpx::runtime::ISpeciesContainer const & mpc)
+                            warpx::runtime::ISpeciesMetadata const & mpc,
+                            warpx::runtime::IParticleContainerAccess const & access)
     {
         const int gid = mfi.index();
         const int tid = mfi.LocalTileIndex();
@@ -58,7 +59,7 @@ namespace
         amrex::Long num_macro_particles = 0;
         for (int i_s = 0; i_s < nSpecies; ++i_s)
         {
-            WarpXParticleContainer const & pc = mpc.GetParticleContainer(i_s);
+            WarpXParticleContainer const & pc = access.GetParticleContainer(i_s);
             auto const & plev  = pc.GetParticles(lev);
 
             auto const & ptile = plev.at(box_index);
@@ -153,7 +154,7 @@ void LoadBalanceCosts::ComputeDiags (int step)
             m_data[shift_m_data + mfi.index()*m_nDataFields + 5] = 0.;
 #endif
             m_data[shift_m_data + mfi.index()*m_nDataFields + 6] = static_cast<amrex::Real>(tbx.d_numPts()); // note: difference to volume
-            m_data[shift_m_data + mfi.index()*m_nDataFields + 7] = countBoxMacroParticles(mfi, lev, data().species());
+            m_data[shift_m_data + mfi.index()*m_nDataFields + 7] = countBoxMacroParticles(mfi, lev, data().speciesMetadata(), data().particleAccess());
 #ifdef AMREX_USE_GPU
             m_data[shift_m_data + mfi.index()*m_nDataFields + 8] = amrex::Gpu::Device::deviceId();
 #endif

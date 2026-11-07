@@ -228,7 +228,7 @@ Diagnostics::BaseReadParameters ()
     }
 
     // Names of all species in the simulation
-    m_all_species_names = data().species().GetSpeciesNames();
+    m_all_species_names = data().speciesMetadata().GetSpeciesNames();
 
     // Get names of species to average at each grid point
     const bool pfield_species_specified = pp_diag_name.queryarr("particle_fields_species", m_pfield_species);

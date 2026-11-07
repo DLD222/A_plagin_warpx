@@ -51,6 +51,10 @@ public:
     void depositCurrent (int lev, amrex::Real dt) override;
     [[nodiscard]] std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) override;
+    std::unique_ptr<amrex::MultiFab>
+    computeRho (int lev, int species_index, bool apply_rz_psatd_filter,
+                int ncomp, const amrex::IntVect& nodal,
+                const amrex::IntVect& ngrow) override;
     [[nodiscard]] std::unique_ptr<amrex::MultiFab> computePhi (int lev) override;
     [[nodiscard]] const amrex::Vector<std::unique_ptr<amrex::iMultiFab>>&
     ebReduceParticleShapeFlag () const override;

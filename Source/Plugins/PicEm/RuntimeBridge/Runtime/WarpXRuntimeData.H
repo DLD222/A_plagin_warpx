@@ -1,5 +1,7 @@
 #include "Runtime/IFilterBank.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesContainer.H"
+#include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.
@@ -11,7 +13,9 @@
 #define WARPX_RUNTIME_WARPXRUNTIMEDATA_H_
 
 #include "Runtime/IFilterBank.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesContainer.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeData.H"
 
 #ifdef AMREX_USE_EB
@@ -48,7 +52,11 @@ public:
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
     [[nodiscard]] amrex::AmrCore& amrCore () const override;
     [[nodiscard]] ISpeciesContainer& species () override;
+    [[nodiscard]] ISpeciesMetadata& speciesMetadata () override;
+    [[nodiscard]] IParticleContainerAccess& particleAccess () override;
     [[nodiscard]] const ISpeciesContainer& species () const override;
+    [[nodiscard]] const ISpeciesMetadata& speciesMetadata () const override;
+    [[nodiscard]] const IParticleContainerAccess& particleAccess () const override;
     [[nodiscard]] MultiFluidContainer* fluids () override;
     [[nodiscard]] int finestLevel () const override;
     [[nodiscard]] int maxLevel () const override;
