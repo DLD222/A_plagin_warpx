@@ -7,6 +7,8 @@
 #ifndef Implicit_Solver_H_
 #define Implicit_Solver_H_
 
+#include "Runtime/IImplicitSolver.H"
+
 #include "ImplicitSolver_fwd.H"
 
 #include "FieldSolver/Implicit/ImplicitOptions.H"
@@ -34,7 +36,7 @@
 
 class WarpX;
 enum class FieldBoundaryType;
-class ImplicitSolver
+class ImplicitSolver : public warpx::runtime::IImplicitSolver
 {
 public:
 
