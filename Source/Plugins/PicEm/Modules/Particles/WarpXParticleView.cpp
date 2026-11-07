@@ -17,9 +17,9 @@ std::pair<amrex::Real, amrex::Real>
 WarpXParticleView::sumParticleWeightAndEnergy (bool local) const
 { return m_pc->sumParticleWeightAndEnergy(local); }
 bool WarpXParticleView::isPhoton () const { return m_pc->AmIA<PhysicalSpecies::photon>(); }
-bool WarpXParticleView::DoQED () const { return m_pc->DoQED(); }
+int WarpXParticleView::DoQED () const { return m_pc->DoQED(); }
 
-warpx::runtime::ParticleMomentumSum WarpXParticleView::sumParticleMomentum () const
+warpx::runtime::IParticleContainer::MomentumSum WarpXParticleView::sumParticleMomentum () const
 {
     using PType = typename WarpXParticleContainer::SuperParticleType;
     const amrex::Real m = isPhoton() ? PhysConst::m_e : m_pc->getMass();

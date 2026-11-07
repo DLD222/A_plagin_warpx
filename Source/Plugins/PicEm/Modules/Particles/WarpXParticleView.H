@@ -14,8 +14,8 @@ public:
     [[nodiscard]] std::pair<amrex::Real, amrex::Real>
     sumParticleWeightAndEnergy (bool local) const override;
     [[nodiscard]] bool isPhoton () const override;
-    [[nodiscard]] bool DoQED () const override;
-    [[nodiscard]] warpx::runtime::ParticleMomentumSum sumParticleMomentum () const override;
+    [[nodiscard]] int DoQED () const override;
+    [[nodiscard]] warpx::runtime::IParticleContainer::MomentumSum sumParticleMomentum () const override;
 private:
     WarpXParticleContainer* m_pc;
 };

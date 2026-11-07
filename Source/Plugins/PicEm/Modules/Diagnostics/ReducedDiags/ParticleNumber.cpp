@@ -112,7 +112,7 @@ void ParticleNumber::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // get WarpXParticleContainer class object
-        auto & myspc = access.GetParticleView(i_s);
+        auto & myspc = access.GetParticleInterface(i_s);
 
         // Save total number of macroparticles for this species
         m_data[idx_first_species_macroparticles + i_s] = myspc.totalNumberOfParticles();

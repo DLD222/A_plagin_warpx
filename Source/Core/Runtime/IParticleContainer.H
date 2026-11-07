@@ -1,15 +1,22 @@
 #ifndef WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #define WARPX_RUNTIME_IPARTICLECONTAINER_H_
+#include "Modules/Particles/ParticleAttributes.H"
+#include <AMReX_ParticleContainer.H>
 #include <AMReX_REAL.H>
 #include <cstdint>
 #include <string>
 #include <utility>
 namespace warpx::runtime {
-struct ParticleMomentumSum { amrex::Real Px{0}, Py{0}, Pz{0}, W{0}; };
-/** \brief Native particle-container view for modules (A7.1). */
-class IParticleContainer {
+/** \brief Project particle-container module base (AMReX-backed). */
+class IParticleContainer
+    : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
+{
 public:
-    virtual ~IParticleContainer () = default;
+    using Base = amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
+    using Base::Base;
+    ~IParticleContainer () override = default;
+
+    struct MomentumSum { amrex::Real Px{0}, Py{0}, Pz{0}, W{0}; };
     [[nodiscard]] virtual const std::string& getName () const = 0;
     [[nodiscard]] virtual amrex::Real getCharge () const = 0;
     [[nodiscard]] virtual amrex::Real getMass () const = 0;
@@ -19,8 +26,8 @@ public:
     [[nodiscard]] virtual std::pair<amrex::Real, amrex::Real>
     sumParticleWeightAndEnergy (bool local) const = 0;
     [[nodiscard]] virtual bool isPhoton () const = 0;
-    [[nodiscard]] virtual bool DoQED () const = 0;
-    [[nodiscard]] virtual ParticleMomentumSum sumParticleMomentum () const = 0;
+    [[nodiscard]] virtual int DoQED () const = 0;
+    [[nodiscard]] virtual MomentumSum sumParticleMomentum () const = 0;
 };
 }
 #endif

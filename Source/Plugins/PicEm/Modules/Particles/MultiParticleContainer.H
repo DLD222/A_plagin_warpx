@@ -94,6 +94,9 @@ public:
     GetParticleContainerPtr (int index) const {return allcontainers[index].get();}
 
     [[nodiscard]] warpx::runtime::IParticleContainer&
+    GetParticleInterface (int index) const override { return *allcontainers[index]; }
+
+    [[nodiscard]] warpx::runtime::IParticleContainer&
     GetParticleView (int index) const override
     {
         if (!m_views[index]) { m_views[index] = std::make_unique<WarpXParticleView>(allcontainers[index].get()); }

@@ -10,6 +10,8 @@
 #ifndef WARPX_WarpXParticleContainer_H_
 #define WARPX_WarpXParticleContainer_H_
 
+#include "Modules/Particles/ParticleAttributes.H"
+#include "Runtime/IParticleContainer.H"
 #include "WarpXParticleContainer_fwd.H"
 #include "FieldSolver/Implicit/ImplicitOptions.H"
 
@@ -64,32 +66,7 @@ namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; struct F
  *  phi      : polar angle, relative to the x-y plane
  *  nattribs : number of compile-time attributes
  */
-struct PIdx
-{
-#if defined(WARPX_DIM_1D_Z)
-    enum                          { z ,  w ,  ux ,  uy ,  uz,                      nattribs};
-    static constexpr auto names = {"z", "w", "ux", "uy", "uz"};
-#elif defined(WARPX_DIM_XZ)
-    enum                          { x ,  z ,  w ,  ux ,  uy ,  uz,                 nattribs};
-    static constexpr auto names = {"x", "z", "w", "ux", "uy", "uz"};
-#elif defined(WARPX_DIM_RZ)
-    enum                          { r ,  z ,  w ,  ux ,  uy ,  uz ,  theta,        nattribs};
-    static constexpr auto names = {"r", "z", "w", "ux", "uy", "uz", "theta"};
-#elif defined(WARPX_DIM_RCYLINDER)
-    enum                          { r ,  w ,  ux ,  uy ,  uz ,  theta,             nattribs};
-    static constexpr auto names = {"r", "w", "ux", "uy", "uz", "theta"};
-#elif defined(WARPX_DIM_RSPHERE)
-    enum                          { r ,  w ,  ux ,  uy ,  uz ,  theta ,  phi,      nattribs};
-    static constexpr auto names = {"r", "w", "ux", "uy", "uz", "theta", "phi"};
-#elif defined(WARPX_DIM_3D)
-    enum                          { x ,  y,   z,   w,   ux,   uy,   uz,            nattribs};
-    static constexpr auto names = {"x", "y", "z", "w", "ux", "uy", "uz"};
-#else
-  #error WarpX dimension is not correctly set!
-#endif
 
-    static_assert(names.size() == nattribs);
-};
 
 
 struct IntIdx {
@@ -208,13 +185,18 @@ struct FieldGatherOrders
  * Note: many functions are pure virtual (meaning they MUST be defined in
  * derived classes, e.g., Evolve) or actual functions (e.g. CurrentDeposition).
  */
-class WarpXParticleContainer
-    : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
+class WarpXParticleContainer : public warpx::runtime::IParticleContainer
 {
 public:
     friend MultiParticleContainer;
 
     using Base = amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
+    [[nodiscard]] const std::string& getName () const override { return species_name; }
+    [[nodiscard]] int finestLevel () const override { return m_amr_core->finestLevel(); }
+    [[nodiscard]] std::int64_t totalNumberOfParticles () const override
+    { return static_cast<std::int64_t>(TotalNumberOfParticles(false)); }
+    [[nodiscard]] bool isPhoton () const override { return AmIA<PhysicalSpecies::photon>(); }
+    [[nodiscard]] MomentumSum sumParticleMomentum () const override;
 
     // amrex::StructOfArrays with DiagIdx::nattribs amrex::ParticleReal components
     // and 0 int components for the particle data.

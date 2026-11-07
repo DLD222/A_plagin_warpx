@@ -151,7 +151,7 @@ WarpXParIter::WarpXParIter (ContainerType& pc, int level, MFItInfo& info)
 WarpXParticleContainer::~WarpXParticleContainer () = default;
 
 WarpXParticleContainer::WarpXParticleContainer (AmrCore* amr_core, int ispecies, const std::string& name)
-    : amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(amr_core->GetParGDB())
+    : IParticleContainer(amr_core->GetParGDB())
     , species_id(ispecies), species_name(name), m_amr_core(amr_core)
 {
     if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
@@ -3231,4 +3231,24 @@ WarpXParticleContainer::host () const
     if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
     if (!m_legacy_host) { m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance()); }
     return *m_legacy_host;
+}
+
+warpx::runtime::IParticleContainer::MomentumSum
+WarpXParticleContainer::sumParticleMomentum () const
+{
+    using PType = typename WarpXParticleContainer::SuperParticleType;
+    const amrex::Real m = isPhoton() ? PhysConst::m_e : getMass();
+    amrex::ReduceOps<amrex::ReduceOpSum, amrex::ReduceOpSum,
+                     amrex::ReduceOpSum, amrex::ReduceOpSum> reduce_ops;
+    auto r = amrex::ParticleReduce<amrex::ReduceData<amrex::Real, amrex::Real,
+                                                      amrex::Real, amrex::Real>>(
+        *this,
+        [=] AMREX_GPU_DEVICE(const PType& p) noexcept
+            -> amrex::GpuTuple<amrex::Real, amrex::Real, amrex::Real, amrex::Real>
+        {
+            const amrex::Real w = p.rdata(PIdx::w);
+            return {w*m*p.rdata(PIdx::ux), w*m*p.rdata(PIdx::uy),
+                    w*m*p.rdata(PIdx::uz), w};
+        }, reduce_ops);
+    return {amrex::get<0>(r), amrex::get<1>(r), amrex::get<2>(r), amrex::get<3>(r)};
 }

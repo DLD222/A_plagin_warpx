@@ -132,7 +132,7 @@ void ParticleMomentum::ComputeDiags (int step)
         // Get WarpXParticleContainer class object
         const auto & myspc = access.GetParticleContainer(i_s);
 
-        const auto & view = access.GetParticleView(i_s);
+        const auto & view = access.GetParticleInterface(i_s);
         const auto sum = view.sumParticleMomentum();
         amrex::Real Px = sum.Px;
         amrex::Real Py = sum.Py;
