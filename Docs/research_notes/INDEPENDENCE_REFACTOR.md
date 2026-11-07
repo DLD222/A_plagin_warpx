@@ -15,8 +15,9 @@ Source/
     PicEm/           原 WarpX 物理与应用层
       WarpX.H/.cpp
       Evolve/
-      FieldSolver/
-      Particles/
+      Modules/
+        FieldSolver/
+        Particles/
       Diagnostics/
       BoundaryConditions/
       EmbeddedBoundary/

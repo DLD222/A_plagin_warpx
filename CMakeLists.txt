@@ -355,7 +355,8 @@ foreach(D IN LISTS WarpX_DIMS)
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
     )
@@ -364,7 +365,8 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
         )
@@ -503,20 +505,20 @@ endif()
 add_subdirectory(Source/Core/ablastr)
 
 if(WarpX_LIB)
-    add_subdirectory(Source/Plugins/PicEm/AcceleratorLattice)
-    add_subdirectory(Source/Plugins/PicEm/BoundaryConditions)
-    add_subdirectory(Source/Plugins/PicEm/Diagnostics)
-    add_subdirectory(Source/Plugins/PicEm/EmbeddedBoundary)
-    add_subdirectory(Source/Plugins/PicEm/Evolve)
-    add_subdirectory(Source/Plugins/PicEm/FieldSolver)
-    add_subdirectory(Source/Plugins/PicEm/Filter)
-    add_subdirectory(Source/Plugins/PicEm/Fluids)
-    add_subdirectory(Source/Plugins/PicEm/Initialization)
-    add_subdirectory(Source/Plugins/PicEm/Laser)
-    add_subdirectory(Source/Plugins/PicEm/NonlinearSolvers)
-    add_subdirectory(Source/Plugins/PicEm/Parallelization)
-    add_subdirectory(Source/Plugins/PicEm/Particles)
-    add_subdirectory(Source/Plugins/PicEm/Python)
+    add_subdirectory(Source/Plugins/PicEm/Modules/AcceleratorLattice)
+    add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Diagnostics)
+    add_subdirectory(Source/Plugins/PicEm/Modules/EmbeddedBoundary)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Evolve)
+    add_subdirectory(Source/Plugins/PicEm/Modules/FieldSolver)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Filter)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Fluids)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Initialization)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Laser)
+    add_subdirectory(Source/Plugins/PicEm/Modules/NonlinearSolvers)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Parallelization)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Particles)
+    add_subdirectory(Source/Plugins/PicEm/Modules/Python)
     add_subdirectory(Source/Core/Runtime)
     add_subdirectory(Source/Core/Utils)
 endif()
