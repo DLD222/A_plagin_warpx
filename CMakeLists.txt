@@ -356,6 +356,7 @@ foreach(D IN LISTS WarpX_DIMS)
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
@@ -366,6 +367,7 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>

@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_DIAGNOSTICSHANDLER_H_
 
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/HostServices.H"
 
 #include <stdexcept>
 

@@ -1,4 +1,5 @@
 CEXE_sources += Runtime.cpp
+CEXE_sources += ../Plugins/PicEm/WarpXKernel.cpp
 CEXE_sources += Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
 CEXE_sources += Modules/PicEm/Deposition/DepositionHandler.cpp
 CEXE_sources += Modules/PicEm/ParticlePush/ParticlePushHandler.cpp

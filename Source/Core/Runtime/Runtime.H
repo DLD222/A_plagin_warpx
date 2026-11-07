@@ -8,6 +8,9 @@
 #ifndef WARPX_RUNTIME_RUNTIME_H_
 #define WARPX_RUNTIME_RUNTIME_H_
 
+#include "Runtime/DataBus.H"
+#include "Runtime/HandlerSpec.H"
+#include "Runtime/IPicKernel.H"
 #include "Runtime/FrameState.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -18,17 +21,13 @@
 
 #include <memory>
 
-class WarpX;
-
-class CollisionHandler;
-
 namespace warpx::runtime
 {
 
-class WarpXRuntimeData;
+class IPicKernel;
 class DataBus;
 class PluginHost;
-class WarpXHostServices;
+class HostServices;
 
 /**
  * \brief Process-level owner of the simulation lifetime.
@@ -86,6 +85,7 @@ public:
     //! Kernel services (FillBoundary/moving window/PML/in-situ metadata).
     [[nodiscard]] HostServices& host ();
     [[nodiscard]] PluginHost& plugins ();
+    [[nodiscard]] const PluginHost& plugins () const;
     [[nodiscard]] const HostServices& host () const;
 
 private:
@@ -97,12 +97,9 @@ private:
     TimeState m_time{};
     FrameState m_frame{};
     RuntimeContext m_context{};
-    std::unique_ptr<WarpX> m_warpx;
-    std::unique_ptr<WarpXRuntimeData> m_data;
+    std::unique_ptr<IPicKernel> m_kernel;
     std::unique_ptr<DataBus> m_bus;
-    std::unique_ptr<WarpXHostServices> m_host;
     std::unique_ptr<PluginHost> m_plugin_host;
-    std::unique_ptr<CollisionHandler> m_collision_handler;
 
     void sync_config ();
     void sync_time ();
