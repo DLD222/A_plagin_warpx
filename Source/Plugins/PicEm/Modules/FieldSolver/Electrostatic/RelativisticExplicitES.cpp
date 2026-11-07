@@ -116,13 +116,13 @@ void RelativisticExplicitES::AddSpaceChargeField (
 
     // Apply filter, perform MPI exchange, interpolate across levels
     const Vector<std::unique_ptr<MultiFab>> rho_buf(num_levels);
-    host().syncRho(
+    host().particleServices().syncRho(
         amrex::GetVecOfPtrs(rho),
         amrex::GetVecOfPtrs(rho_coarse),
         amrex::GetVecOfPtrs(rho_buf));
 
     for (int lev = 0; lev < num_levels; ++lev) {
-        host().finalizeRhoOnLevel(lev, rho[lev].get(), ablastr::utils::enums::PatchType::fine);
+        host().particleServices().finalizeRhoOnLevel(lev, rho[lev].get(), ablastr::utils::enums::PatchType::fine);
     }
 
     // Get the particle beta vector

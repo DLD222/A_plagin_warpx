@@ -52,7 +52,7 @@ DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_
 
     const amrex::BoxArray& ba = amrex::convert(data().boxArray(m_lev), cell_type);
     amrex::MultiFab divE(ba, data().distributionMap(m_lev), config_snapshot().ncomps, ng );
-    host().computeDivE(divE, m_lev);
+    host().fieldAlgebra().computeDivE(divE, m_lev);
 
 #ifdef WARPX_DIM_RZ
     if (m_convertRZmodes2cartesian) {

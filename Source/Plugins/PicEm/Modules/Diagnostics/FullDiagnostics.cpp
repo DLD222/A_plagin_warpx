@@ -1075,7 +1075,7 @@ FullDiagnostics::PrepareFieldDataForOutput ()
 {
     // First, make sure all guard cells are properly filled
     // Probably overkill/unnecessary, but safe and shouldn't happen often !!
-    host().prepareFieldsForDiagnostics();
+    host().diagnosticsMetadata().prepareFieldsForDiagnostics();
 
     // Propagate the runtime context to all field functors before computing.
     for (auto& lev_functors : m_all_field_functors) {
@@ -1144,14 +1144,14 @@ FullDiagnostics::MovingWindowAndGalileanDomainShift (int step)
         m_geom_output[0][lev].ProbDomain( amrex::RealBox(new_lo, new_hi) );
     }
     // For Moving Window Shift
-    if (host().movingWindowActive(step+1)) {
+    if (host().movingWindow().movingWindowActive(step+1)) {
         const int moving_dir = frame().moving_window_dir;
-        const amrex::Real moving_window_x = host().movingWindowX();
+        const amrex::Real moving_window_x = host().movingWindow().movingWindowX();
         // Get the updated lo and hi of the geom domain
         const amrex::Real* cur_lo = m_geom_output[0][0].ProbLo();
         const amrex::Real* cur_hi = m_geom_output[0][0].ProbHi();
         const amrex::Real* geom_dx = m_geom_output[0][0].CellSize();
-        const int num_shift_base = host().numCellsShifted(moving_window_x - cur_lo[moving_dir],
+        const int num_shift_base = host().movingWindow().numCellsShifted(moving_window_x - cur_lo[moving_dir],
                                                            geom_dx[moving_dir]);
         // Update the diagnostic geom domain. Note that this is done only for the
         // base level 0 because m_geom_output[0][lev] share the same static RealBox

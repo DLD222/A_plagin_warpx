@@ -756,7 +756,7 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
 
                 amrex::Array4<const int> eb_reduce_particle_shape;
                 if (EB::enabled()) {
-                    eb_reduce_particle_shape = (*host().ebReduceParticleShapeFlag()[lev])[pti].array();
+                    eb_reduce_particle_shape = (*host().diagnosticsMetadata().ebReduceParticleShapeFlag()[lev])[pti].array();
                 }
 
                 if      (particle_shape == 1){
@@ -1539,12 +1539,12 @@ void WarpXParticleContainer::DepositCurrentOnLevel (
     DepositCurrent(current, dt, relative_time);
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        host().applyInverseVolumeScalingToCurrentDensity(
+        host().particleServices().applyInverseVolumeScalingToCurrentDensity(
             current[lev][0], current[lev][1], current[lev][2], lev);
 #endif
 
     // Sum guard cells
-    host().syncCurrent(mf_name);
+    host().particleServices().syncCurrent(mf_name);
 }
 
 /* \brief Charge Deposition for thread thread_num
@@ -1976,7 +1976,7 @@ WarpXParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
         AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
             !local,
             "GetChargeDensityOnLevel requires local=false when finalize=true.");
-        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
+        host().particleServices().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
     }
     return rho;
 }

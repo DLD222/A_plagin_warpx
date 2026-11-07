@@ -51,11 +51,11 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
 
     // Apply filter, perform MPI exchange, interpolate across levels
     const Vector<std::unique_ptr<MultiFab> > rho_buf(num_levels);
-    host().syncRho(rho_fp, rho_cp, amrex::GetVecOfPtrs(rho_buf));
+    host().particleServices().syncRho(rho_fp, rho_cp, amrex::GetVecOfPtrs(rho_buf));
 
     for (int lev = 0; lev < num_levels; lev++) {
         // Apply boundary conditions to rho_fp, and then apply volume scaling
-        host().finalizeRhoOnLevel(lev, rho_fp[lev], ablastr::utils::enums::PatchType::fine);
+        host().particleServices().finalizeRhoOnLevel(lev, rho_fp[lev], ablastr::utils::enums::PatchType::fine);
     }
 
     // beta is zero in lab frame

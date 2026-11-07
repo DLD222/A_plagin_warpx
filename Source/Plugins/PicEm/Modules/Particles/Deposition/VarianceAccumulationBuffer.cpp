@@ -108,7 +108,7 @@ VarianceAccumulationBuffer::ConvertVarianceToTemperatureAndFilter (
             if (apply_filter) {
                 amrex::Gpu::streamSynchronize();
 
-                host().applyFilterMF(var_vf, lev, idir);
+                host().fieldAlgebra().applyFilterMF(var_vf, lev, idir);
 
                 amrex::Gpu::streamSynchronize();
 

@@ -37,7 +37,7 @@ void
 RhoFunctor::operator() ( amrex::MultiFab& mf_dst, const int dcomp, const int /*i_buffer*/ ) const
 {
     std::unique_ptr<amrex::MultiFab> rho =
-        host().computeRho(m_lev, m_species_index, m_apply_rz_psatd_filter);
+        host().particleServices().computeRho(m_lev, m_species_index, m_apply_rz_psatd_filter);
 
     InterpolateMFForDiag(mf_dst, *rho, dcomp, data().distributionMap(m_lev),
                          m_convertRZmodes2cartesian);

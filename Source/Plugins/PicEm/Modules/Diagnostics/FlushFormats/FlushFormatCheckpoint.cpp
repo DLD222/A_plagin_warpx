@@ -155,8 +155,8 @@ FlushFormatCheckpoint::WriteToFile (
                 amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, info->file));
         }
 
-        if (host().doPML()) {
-            host().checkpointPML(
+        if (host().pml().doPML()) {
+            host().pml().checkpointPML(
                 lev,
                 amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "pml"),
                 fields());
@@ -268,6 +268,6 @@ void
 FlushFormatCheckpoint::WriteReducedDiagsData (std::string const & dir) const
 {
     if (ParallelDescriptor::IOProcessor()) {
-        host().writeReducedDiagCheckpoint(dir);
+        host().checkpoint().writeReducedDiagCheckpoint(dir);
     }
 }

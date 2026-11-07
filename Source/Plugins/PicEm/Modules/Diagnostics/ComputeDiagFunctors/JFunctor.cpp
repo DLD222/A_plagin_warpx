@@ -44,7 +44,7 @@ JFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/
     // Deposit current if no solver or the electrostatic solver is being used
     if (m_deposit_current)
     {
-        host().depositCurrent(m_lev, data().dt(m_lev));
+        host().particleServices().depositCurrent(m_lev, data().dt(m_lev));
     }
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mf_src != nullptr, "m_mf_src can't be a nullptr.");

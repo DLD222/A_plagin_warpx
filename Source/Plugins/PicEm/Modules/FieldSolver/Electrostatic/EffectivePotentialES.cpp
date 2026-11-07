@@ -166,9 +166,9 @@ void EffectivePotentialES::ComputeSigma (
         auto rho = pc->GetChargeDensityOnLevel(lev, true, /*finalize*/false);
 
         // Handle the parallel transfer of guard cells and apply filtering
-        host().applyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
+        host().particleServices().applyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
         // Apply boundary conditions to rho, and then apply volume scaling
-        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
+        host().particleServices().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
 
         // Add rho for this species to the total charge density MultiFab,
         // but only over the guard region that exists in both MultiFabs

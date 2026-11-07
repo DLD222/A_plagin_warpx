@@ -8,6 +8,14 @@
 #ifndef WARPX_RUNTIME_HOSTSERVICES_H_
 #define WARPX_RUNTIME_HOSTSERVICES_H_
 
+#include "Runtime/ICheckpoint.H"
+#include "Runtime/IDiagnosticsMetadata.H"
+#include "Runtime/IFieldAlgebra.H"
+#include "Runtime/IMovingWindow.H"
+#include "Runtime/IPML.H"
+#include "Runtime/IParticleServices.H"
+#include "Runtime/IRunControl.H"
+
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/utils/Enums.H>
 
@@ -39,6 +47,14 @@ class HostServices
 {
 public:
     virtual ~HostServices () = default;
+
+    virtual IFieldAlgebra& fieldAlgebra () = 0;
+    virtual IParticleServices& particleServices () = 0;
+    virtual IMovingWindow& movingWindow () = 0;
+    virtual IPML& pml () = 0;
+    virtual IDiagnosticsMetadata& diagnosticsMetadata () = 0;
+    virtual ICheckpoint& checkpoint () = 0;
+    virtual IRunControl& runControl () = 0;
 
     //! Fill E/B guards, update auxiliary data and its guards (diagnostics only).
     virtual void prepareFieldsForDiagnostics () = 0;

@@ -16,10 +16,25 @@ namespace warpx::runtime
 {
 
 /** HostServices adapter over WarpX (transitional, not for external plugins). */
-class WarpXHostServices final : public HostServices
+class WarpXHostServices final : public HostServices,
+                              public IFieldAlgebra,
+                              public IParticleServices,
+                              public IMovingWindow,
+                              public IPML,
+                              public IDiagnosticsMetadata,
+                              public ICheckpoint,
+                              public IRunControl
 {
 public:
     explicit WarpXHostServices (WarpX& warpx) : m_warpx(warpx) {}
+
+    IFieldAlgebra& fieldAlgebra () override { return *this; }
+    IParticleServices& particleServices () override { return *this; }
+    IMovingWindow& movingWindow () override { return *this; }
+    IPML& pml () override { return *this; }
+    IDiagnosticsMetadata& diagnosticsMetadata () override { return *this; }
+    ICheckpoint& checkpoint () override { return *this; }
+    IRunControl& runControl () override { return *this; }
 
     void prepareFieldsForDiagnostics () override;
     void computeDivB (amrex::MultiFab& divB, int dcomp,

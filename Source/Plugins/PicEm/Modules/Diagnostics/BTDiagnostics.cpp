@@ -175,13 +175,13 @@ void BTDiagnostics::DerivedInitData ()
     const amrex::Real final_snapshot_fill_time = final_snapshot_fill_iteration * dt_boosted_frame;
     if (WarpX::compute_max_step_from_btd) {
         if (final_snapshot_fill_iteration > data().maxStep()) {
-            host().updateMaxStep(final_snapshot_fill_iteration);
+            host().runControl().updateMaxStep(final_snapshot_fill_iteration);
             amrex::Print()<<"max_step insufficient to fill all BTD snapshots. Automatically increased to: "
                 << final_snapshot_fill_iteration << "\n";
 
         }
         if (final_snapshot_fill_time > data().stopTime()) {
-            host().updateStopTime(final_snapshot_fill_time);
+            host().runControl().updateStopTime(final_snapshot_fill_time);
             amrex::Print()<<"stop_time insufficient to fill all BTD snapshots. Automatically increased to: "
                 << final_snapshot_fill_time << "\n";
 
@@ -189,7 +189,7 @@ void BTDiagnostics::DerivedInitData ()
         if (data().maxStep() == std::numeric_limits<int>::max() && data().stopTime() == std::numeric_limits<amrex::Real>::max()) {
             amrex::Print()<<"max_step unspecified and stop time unspecified.  Setting max step to "
                 <<final_snapshot_fill_iteration<< " to fill all BTD snapshots.\n";
-            host().updateMaxStep(final_snapshot_fill_iteration);
+            host().runControl().updateMaxStep(final_snapshot_fill_iteration);
         }
 
     } else if (final_snapshot_fill_iteration > data().maxStep() || final_snapshot_fill_time > data().stopTime()) {

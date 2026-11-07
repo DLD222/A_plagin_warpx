@@ -35,7 +35,7 @@ JdispFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buff
 {
     using ablastr::fields::Direction;
 
-    auto* hybrid_pic_model = host().hasHybridPICModel() ? this : nullptr;
+    auto* hybrid_pic_model = host().diagnosticsMetadata().hasHybridPICModel() ? this : nullptr;
 
     /** pointer to total simulation current (J) multifab */
     amrex::MultiFab* mf_j = const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(FieldType::current_fp, Direction{m_dir}, m_lev);

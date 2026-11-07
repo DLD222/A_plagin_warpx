@@ -1830,7 +1830,7 @@ PhysicalParticleContainer::findRefinedInjectionBox (amrex::Box& a_fine_injection
     static bool refine_injection = false;
     static Box fine_injection_box;
     static amrex::IntVect rrfac(AMREX_D_DECL(1,1,1));
-    if (!refine_injection and host().movingWindowActive(data().istep(0)+1) and config().refine_plasma() and do_continuous_injection and numLevels() == 2) {
+    if (!refine_injection and host().movingWindow().movingWindowActive(data().istep(0)+1) and config().refine_plasma() and do_continuous_injection and numLevels() == 2) {
         refine_injection = true;
         fine_injection_box = ParticleBoxArray(1).minimalBox();
         fine_injection_box.setSmall(frame().moving_window_dir, std::numeric_limits<int>::lowest()/2);

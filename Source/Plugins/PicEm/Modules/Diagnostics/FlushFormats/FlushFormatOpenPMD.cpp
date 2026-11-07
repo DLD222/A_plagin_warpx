@@ -120,8 +120,8 @@ FlushFormatOpenPMD::FlushFormatOpenPMD (const std::string& diag_name,
         encoding, openpmd_backend,
         operator_type, operator_parameters,
         engine_type, engine_parameters,
-        host().pmlDirections(),
-        host().authors()
+        host().pml().pmlDirections(),
+        host().diagnosticsMetadata().authors()
     );
 }
 

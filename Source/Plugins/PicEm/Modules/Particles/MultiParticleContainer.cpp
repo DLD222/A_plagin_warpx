@@ -617,7 +617,7 @@ MultiParticleContainer::DepositCurrent (
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     for (int lev = 0; lev < J.size(); ++lev)
     {
-        host().applyInverseVolumeScalingToCurrentDensity(
+        host().particleServices().applyInverseVolumeScalingToCurrentDensity(
             J[lev][0], J[lev][1], J[lev][2], lev);
     }
 #endif
@@ -706,7 +706,7 @@ MultiParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
         AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
             !local,
             "GetChargeDensityOnLevel requires local=false when finalize=true.");
-        host().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
+        host().particleServices().finalizeRhoOnLevel(lev, rho.get(), ablastr::utils::enums::PatchType::fine);
     }
     return rho;
 }

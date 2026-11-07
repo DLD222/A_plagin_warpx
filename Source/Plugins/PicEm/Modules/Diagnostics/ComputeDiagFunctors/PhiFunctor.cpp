@@ -30,7 +30,7 @@ PhiFunctor::PhiFunctor (const int lev,
 void
 PhiFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/) const
 {
-    auto phi = host().computePhi(m_lev);
+    auto phi = host().fieldAlgebra().computePhi(m_lev);
     InterpolateMFForDiag(
         mf_dst, *phi, dcomp, data().distributionMap(m_lev),
         m_convertRZmodes2cartesian

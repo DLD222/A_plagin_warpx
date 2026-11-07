@@ -274,27 +274,27 @@ FlushFormatPlotfile::WriteWarpXHeader(
         }
         HeaderFile << "\n";
 
-        for (int i = 0; i < host().nsubsteps().size(); ++i) {
-            HeaderFile << host().nsubsteps()[i] << " ";
+        for (int i = 0; i < host().diagnosticsMetadata().nsubsteps().size(); ++i) {
+            HeaderFile << host().diagnosticsMetadata().nsubsteps()[i] << " ";
         }
         HeaderFile << "\n";
 
-        for (int i = 0; i < host().tNew().size(); ++i) {
-            HeaderFile << host().tNew()[i] << " ";
+        for (int i = 0; i < host().diagnosticsMetadata().tNew().size(); ++i) {
+            HeaderFile << host().diagnosticsMetadata().tNew()[i] << " ";
         }
         HeaderFile << "\n";
 
-        for (int i = 0; i < host().tOld().size(); ++i) {
-            HeaderFile << host().tOld()[i] << " ";
+        for (int i = 0; i < host().diagnosticsMetadata().tOld().size(); ++i) {
+            HeaderFile << host().diagnosticsMetadata().tOld()[i] << " ";
         }
         HeaderFile << "\n";
 
-        for (int i = 0; i < host().dt().size(); ++i) {
-            HeaderFile << host().dt()[i] << " ";
+        for (int i = 0; i < host().diagnosticsMetadata().dt().size(); ++i) {
+            HeaderFile << host().diagnosticsMetadata().dt()[i] << " ";
         }
         HeaderFile << "\n";
 
-        HeaderFile << host().movingWindowX() << "\n";
+        HeaderFile << host().movingWindow().movingWindowX() << "\n";
 
         HeaderFile << data().isSynchronized() << "\n";
 
@@ -314,7 +314,7 @@ FlushFormatPlotfile::WriteWarpXHeader(
             HeaderFile << '\n';
         }
 
-        host().writeParticleHeader(HeaderFile);
+        host().checkpoint().writeParticleHeader(HeaderFile);
 
         const warpx::runtime::ISpeciesContainer& mypc = data().species();
         const int n_species = mypc.nSpecies();
@@ -323,34 +323,34 @@ FlushFormatPlotfile::WriteWarpXHeader(
              HeaderFile << mypc.GetParticleContainer(i).m_current_injection_position << "\n";
         }
 
-        HeaderFile << host().doMovingWindow() << "\n";
+        HeaderFile << host().movingWindow().doMovingWindow() << "\n";
 
-        HeaderFile << host().timeOfLastGalileanShift() << "\n";
+        HeaderFile << host().movingWindow().timeOfLastGalileanShift() << "\n";
 
-        for (int idiag = 0; idiag < host().totalDiags(); ++idiag)
+        for (int idiag = 0; idiag < host().diagnosticsMetadata().totalDiags(); ++idiag)
         {
-            if( host().isDiagBackTransformed(idiag) )
+            if( host().diagnosticsMetadata().isDiagBackTransformed(idiag) )
             {
                 
-                for (int i_buffer=0; i_buffer<host().diagNumBuffers(idiag); ++i_buffer){
-                    HeaderFile << host().diagTlab(idiag, i_buffer) << "\n";
-                    HeaderFile << host().diagBufferKIndexHi(idiag, i_buffer) << "\n";
+                for (int i_buffer=0; i_buffer<host().diagnosticsMetadata().diagNumBuffers(idiag); ++i_buffer){
+                    HeaderFile << host().diagnosticsMetadata().diagTlab(idiag, i_buffer) << "\n";
+                    HeaderFile << host().diagnosticsMetadata().diagBufferKIndexHi(idiag, i_buffer) << "\n";
                     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-                        HeaderFile << host().diagSnapshotDomainLo(idiag, i_buffer, idim) << "\n";
+                        HeaderFile << host().diagnosticsMetadata().diagSnapshotDomainLo(idiag, i_buffer, idim) << "\n";
                     }
                     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
-                        HeaderFile << host().diagSnapshotDomainHi(idiag, i_buffer, idim) << "\n";
+                        HeaderFile << host().diagnosticsMetadata().diagSnapshotDomainHi(idiag, i_buffer, idim) << "\n";
                     }
-                    HeaderFile << host().diagFlushCounter(idiag, i_buffer) << "\n";
-                    HeaderFile << host().diagLastValidZslice(idiag, i_buffer) << "\n";
-                    HeaderFile << host().diagSnapshotFullFlag(idiag, i_buffer) << "\n";
+                    HeaderFile << host().diagnosticsMetadata().diagFlushCounter(idiag, i_buffer) << "\n";
+                    HeaderFile << host().diagnosticsMetadata().diagLastValidZslice(idiag, i_buffer) << "\n";
+                    HeaderFile << host().diagnosticsMetadata().diagSnapshotFullFlag(idiag, i_buffer) << "\n";
                 }
             }
         }
 
         // Keep the plotfile header compatible with readers such as yt, which
         // interpret trailing multi-value lines as numeric species metadata.
-        if (const int hybrid_substeps = host().hybridPicSubsteps();
+        if (const int hybrid_substeps = host().diagnosticsMetadata().hybridPicSubsteps();
             is_checkpoint && hybrid_substeps >= 0) {
             // This learned count is distinct from the AMR nsubsteps above.
             HeaderFile << "hybrid_pic_substeps " << hybrid_substeps << '\n';
