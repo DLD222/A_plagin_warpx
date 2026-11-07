@@ -16,6 +16,8 @@ foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
     if(TARGET lib_${SD})
         add_executable(test_runtime_snapshot_${SD} test_runtime_snapshot.cpp)
+        add_executable(test_field_solver_interface_${SD} test_field_solver_interface.cpp)
+        target_link_libraries(test_field_solver_interface_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_runtime_snapshot_${SD} PRIVATE lib_${SD})
 
         warpx_runtime_test_workdir(runtime_snapshot_${D} runtime_snapshot_${D}_dir)

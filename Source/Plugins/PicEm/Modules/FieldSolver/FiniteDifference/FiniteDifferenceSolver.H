@@ -12,6 +12,7 @@
 #define WARPX_FINITE_DIFFERENCE_SOLVER_H_
 
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "FiniteDifferenceSolver_fwd.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
@@ -38,7 +39,7 @@ namespace warpx::runtime { struct RuntimeContext; class RuntimeData; struct Runt
  * Stores the coefficients of the finite-difference stencils,
  * and has member functions to update fields over one time step.
  */
-class FiniteDifferenceSolver
+class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
 {
     public:
 
