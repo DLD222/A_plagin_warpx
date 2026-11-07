@@ -574,7 +574,8 @@ WarpX::RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
     if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                         m_runtime_context->host, m_runtime_context->data};
+                                         m_runtime_context->host, m_runtime_context->data,
+                                         m_runtime_context->config_snapshot};
         ctx.step = a_step;
         ctx.time = a_cur_time;
         ctx.dt = a_dt;
@@ -599,7 +600,8 @@ WarpX::RunFinalizeStage ()
     if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                         m_runtime_context->host, m_runtime_context->data};
+                                         m_runtime_context->host, m_runtime_context->data,
+                                         m_runtime_context->config_snapshot};
         const auto handlers = m_plugin_host->at(warpx::runtime::Stage::AfterPush);
         if (!handlers.empty()) {
             for (auto* handler : handlers) { handler->apply(ctx); }
@@ -621,7 +623,8 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
     if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                         m_runtime_context->host, m_runtime_context->data};
+                                         m_runtime_context->host, m_runtime_context->data,
+                                         m_runtime_context->config_snapshot};
         ctx.time = a_cur_time;
         const auto handlers = m_plugin_host->at(warpx::runtime::Stage::FieldSolve);
         if (!handlers.empty()) {
@@ -644,7 +647,8 @@ WarpX::RunRegridStage (int step)
     if (m_plugin_host == nullptr || m_runtime_context == nullptr ||
         m_runtime_context->host == nullptr) { return; }
     warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                     m_runtime_context->host, m_runtime_context->data};
+                                     m_runtime_context->host, m_runtime_context->data,
+                                     m_runtime_context->config_snapshot};
     ctx.step = step;
     m_plugin_host->notify_regrid(ctx);
 }
@@ -655,7 +659,8 @@ WarpX::RunDiagnosticsStage (int step)
     if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
         m_runtime_context->host != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                         m_runtime_context->host, m_runtime_context->data};
+                                         m_runtime_context->host, m_runtime_context->data,
+                                         m_runtime_context->config_snapshot};
         ctx.step = step;
         const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Diagnostics);
         if (!handlers.empty()) {
@@ -672,7 +677,8 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
     if (m_plugin_host != nullptr && m_runtime_context != nullptr &&
         m_runtime_context->host != nullptr && m_runtime_context->data != nullptr) {
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
-                                         m_runtime_context->host, m_runtime_context->data};
+                                         m_runtime_context->host, m_runtime_context->data,
+                                         m_runtime_context->config_snapshot};
         ctx.step = step;
         ctx.time = cur_time;
         ctx.dt = dt;

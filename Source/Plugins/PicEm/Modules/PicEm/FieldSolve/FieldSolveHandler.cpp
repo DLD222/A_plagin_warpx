@@ -31,7 +31,7 @@ FieldSolveHandler::spec () const
 void
 FieldSolveHandler::apply (StageContext& ctx)
 {
-    if (ctx.host == nullptr || ctx.data == nullptr) {
+    if (ctx.host == nullptr || ctx.data == nullptr || ctx.config == nullptr) {
         throw std::runtime_error("FieldSolveHandler: missing StageContext services");
     }
     ctx.host->fieldSolve(ctx.time);

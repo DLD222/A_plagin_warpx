@@ -23,6 +23,7 @@ namespace warpx::runtime
 class DataBus;
 class HostServices;
 class RuntimeData;
+struct RuntimeConfigSnapshot;
 struct RuntimeContext;
 
 /** Per-handler data contract. Declarations only; the bus owns no storage. */
@@ -44,6 +45,7 @@ struct StageContext
     DataBus* bus = nullptr;
     HostServices* host = nullptr;
     const RuntimeData* data = nullptr;
+    const RuntimeConfigSnapshot* config = nullptr;
     int step = 0;
     amrex::Real time = 0.0;
     amrex::Real dt = 0.0;

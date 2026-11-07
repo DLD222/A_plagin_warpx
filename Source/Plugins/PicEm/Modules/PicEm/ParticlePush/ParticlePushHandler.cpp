@@ -31,7 +31,7 @@ ParticlePushHandler::spec () const
 void
 ParticlePushHandler::apply (StageContext& ctx)
 {
-    if (ctx.host == nullptr || ctx.data == nullptr) {
+    if (ctx.host == nullptr || ctx.data == nullptr || ctx.config == nullptr) {
         throw std::runtime_error("ParticlePushHandler: missing StageContext services");
     }
     ctx.host->pushParticlesAndDeposit(ctx.time, ctx.dt, ctx.step);

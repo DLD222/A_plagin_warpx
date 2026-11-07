@@ -31,7 +31,7 @@ DepositionHandler::spec () const
 void
 DepositionHandler::apply (StageContext& ctx)
 {
-    if (ctx.host == nullptr || ctx.data == nullptr) {
+    if (ctx.host == nullptr || ctx.data == nullptr || ctx.config == nullptr) {
         throw std::runtime_error("DepositionHandler: missing StageContext services");
     }
     ctx.host->finalizeDeposition();
