@@ -18,6 +18,7 @@
 #include "Runtime/PicEmPackage.H"
 #include "Runtime/DiagnosticsPackage.H"
 #include "Runtime/PluginLoader.H"
+#include "Utils/WarpXAlgorithmSelection.H"
 #include "Runtime/PicFieldSolveHandler.H"
 #include "Runtime/PicFinalizeHandler.H"
 #include "Runtime/PicPushHandler.H"
@@ -30,6 +31,22 @@ namespace warpx::runtime
 
 namespace
 {
+
+std::string field_solver_module_name (const RuntimeConfig& config)
+{
+    if (config.electrostatic_solver_id() != ElectrostaticSolverAlgo::None) {
+        return "field_solve.electrostatic";
+    }
+    switch (config.electromagnetic_solver_id()) {
+        case ElectromagneticSolverAlgo::Yee:      return "field_solve.yee";
+        case ElectromagneticSolverAlgo::CKC:      return "field_solve.ckc";
+        case ElectromagneticSolverAlgo::PSATD:    return "field_solve.psatd";
+        case ElectromagneticSolverAlgo::ECT:      return "field_solve.ect";
+        case ElectromagneticSolverAlgo::HybridPIC:return "field_solve.hybrid_pic";
+        case ElectromagneticSolverAlgo::None:     return "field_solve.none";
+        default:                                  return "field_solve.unknown";
+    }
+}
 
 TimeState make_time (const WarpX& warpx, bool valid)
 {
@@ -64,7 +81,7 @@ Runtime::Runtime (int argc, char* argv[])
     // phase calls are used, which must be bitwise identical.
     const bool disable_handlers = std::getenv("WARPX_DISABLE_PLUGIN_HANDLERS") != nullptr;
     if (!disable_handlers) {
-        PicEmPackage::register_handlers(*m_plugin_host);
+        PicEmPackage::register_handlers(*m_plugin_host, field_solver_module_name(m_config));
         DiagnosticsPackage::register_handlers(*m_plugin_host);
     }
     warpx.SetPluginHost(m_plugin_host.get());

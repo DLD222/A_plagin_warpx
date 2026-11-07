@@ -23,7 +23,7 @@ public:
     [[nodiscard]] HandlerSpec spec () const override
     {
         return HandlerSpec{
-            .name = "pic_finalize_deposition",
+            .name = "deposition.charge_current",
             .point = {Stage::AfterPush, 0},
             .reads_fields = {"current_fp", "rho_fp"},
             .writes_fields = {"current_fp", "rho_fp"},

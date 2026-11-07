@@ -28,7 +28,7 @@ public:
     [[nodiscard]] HandlerSpec spec () const override
     {
         return HandlerSpec{
-            .name = "pic_push",
+            .name = "particle_push",
             .point = {Stage::Push, 0},
             .reads_fields = {},
             .writes_fields = {"current_fp", "rho_fp"},

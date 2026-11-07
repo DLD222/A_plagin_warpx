@@ -26,17 +26,18 @@ namespace warpx::runtime
 class PicEmPackage
 {
 public:
-    static void register_handlers (PluginHost& host)
+    static void register_handlers (PluginHost& host, const std::string& field_solver_module)
     {
         host.add(std::make_shared<PicPushHandler>());
         host.add(std::make_shared<PicFinalizeHandler>());
-        host.add(std::make_shared<PicFieldSolveHandler>());
+        host.add(std::make_shared<PicFieldSolveHandler>(field_solver_module));
     }
 
-    static void register_specs (PluginHost& host)
+    static void register_specs (PluginHost& host,
+                                const std::string& field_solver_module = "field_solve.yee")
     {
         host.declare(HandlerSpec{
-            .name = "pic_push",
+            .name = "particle_push",
             .point = {Stage::Push, 0},
             .reads_fields = {},
             .writes_fields = {"current_fp", "rho_fp"},
@@ -45,7 +46,7 @@ public:
             .priority = 0});
 
         host.declare(HandlerSpec{
-            .name = "pic_finalize_deposition",
+            .name = "deposition.charge_current",
             .point = {Stage::AfterPush, 0},
             .reads_fields = {"current_fp", "rho_fp"},
             .writes_fields = {"current_fp", "rho_fp"},
@@ -54,7 +55,7 @@ public:
             .priority = 0});
 
         host.declare(HandlerSpec{
-            .name = "pic_field_solve",
+            .name = field_solver_module,
             .point = {Stage::FieldSolve, 0},
             .reads_fields = {"current_fp", "rho_fp"},
             .writes_fields = {"Efield_fp", "Bfield_fp"},

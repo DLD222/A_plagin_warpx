@@ -174,19 +174,19 @@ int main (int argc, char* argv[])
         warpx::runtime::PluginHost host;
         warpx::runtime::PicEmPackage::register_specs(host);
         warpx::runtime::PicPushHandler push_handler;
-        check_eq(push_handler.spec().name, std::string("pic_push"),
-                 "PicPushHandler declares pic_push");
+        check_eq(push_handler.spec().name, std::string("particle_push"),
+                 "PicPushHandler declares particle_push");
         warpx::runtime::PicFinalizeHandler finalize_handler;
-        check_eq(finalize_handler.spec().name, std::string("pic_finalize_deposition"),
-                 "PicFinalizeHandler declares pic_finalize_deposition");
-        warpx::runtime::PicFieldSolveHandler field_handler;
-        check_eq(field_handler.spec().name, std::string("pic_field_solve"),
-                 "PicFieldSolveHandler declares pic_field_solve");
+        check_eq(finalize_handler.spec().name, std::string("deposition.charge_current"),
+                 "PicFinalizeHandler declares deposition.charge_current");
+        warpx::runtime::PicFieldSolveHandler field_handler("field_solve.yee");
+        check_eq(field_handler.spec().name, std::string("field_solve.yee"),
+                 "PicFieldSolveHandler declares field_solve.yee");
 
         warpx::runtime::CollisionPackage::register_specs(host);
         const auto specs = host.ordered_specs();
         check_eq(specs.size(), std::size_t(6), "PIC + collision packages declare six specs");
-        check_eq(specs.front().name, std::string("pic_push"),
+        check_eq(specs.front().name, std::string("particle_push"),
                  "PicEmPackage Push comes first");
         bool has_binary = false;
         for (const auto& spec : specs) {
@@ -208,6 +208,16 @@ int main (int argc, char* argv[])
 
     check(!runtime.time().valid, "TimeState is not published before InitData");
     runtime.initialize();
+
+    {
+        const auto specs = runtime.plugins().ordered_specs();
+        const std::string expected_solver = psatd_mode ? "field_solve.psatd" : "field_solve.yee";
+        bool found_solver = false;
+        for (const auto& spec : specs) {
+            if (spec.name == expected_solver) { found_solver = true; }
+        }
+        check(found_solver, "runtime registers the selected field-solve module");
+    }
 
     {
         struct RegridProbe final : warpx::runtime::IHandler

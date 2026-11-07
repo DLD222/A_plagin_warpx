@@ -114,7 +114,18 @@ ASAN:          15 / 15 PASS
 - 默认/FFT 未编译 openPMD；
 - openPMD 缺 parallel HDF5。
 
-## 6. 已知限制
+## 6. L1 模块命名
+
+```text
+particle_push
+deposition.charge_current
+field_solve.yee / ckc / psatd / ect / hybrid_pic / electrostatic
+```
+
+详见 [MODULE_L1_REPORT.md](MODULE_L1_REPORT.md)。当前只完成命名/选择，
+实现仍在 WarpX 内部分派。
+
+## 7. 已知限制
 
 1. 外部 `IAmrPolicy` ABI 不支持：
    - 插件链接静态 `lib_2d` 会带入第二份 AMReX 状态；

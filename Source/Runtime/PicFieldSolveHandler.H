@@ -13,6 +13,8 @@
 #include "Runtime/RuntimeData.H"
 
 #include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace warpx::runtime
 {
@@ -21,10 +23,12 @@ namespace warpx::runtime
 class PicFieldSolveHandler final : public IHandler
 {
 public:
+    explicit PicFieldSolveHandler (std::string name) : m_name(std::move(name)) {}
+
     [[nodiscard]] HandlerSpec spec () const override
     {
         return HandlerSpec{
-            .name = "pic_field_solve",
+            .name = m_name,
             .point = {Stage::FieldSolve, 0},
             .reads_fields = {"current_fp", "rho_fp"},
             .writes_fields = {"Efield_fp", "Bfield_fp"},
@@ -40,6 +44,9 @@ public:
         }
         ctx.host->fieldSolve(ctx.time);
     }
+
+private:
+    std::string m_name;
 };
 
 } // namespace warpx::runtime
