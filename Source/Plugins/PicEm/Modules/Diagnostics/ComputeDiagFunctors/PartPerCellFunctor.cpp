@@ -41,10 +41,10 @@ PartPerCellFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const i
     ppc_mf.setVal(0._rt);
     if (m_species_index == -1) {
         // Compute ppc which includes a summation over all species.
-        const_cast<warpx::runtime::ISpeciesContainer&>(data().species()).Increment(ppc_mf, m_lev);
+        const_cast<warpx::runtime::IParticleContainerAccess&>(data().particleAccess()).Increment(ppc_mf, m_lev);
     } else {
         // Compute ppc for the specified species
-        auto& mypc = data().species().GetParticleContainer(m_species_index);
+        auto& mypc = data().particleAccess().GetParticleContainer(m_species_index);
         mypc.Increment(ppc_mf, m_lev);
     }
     // Coarsen and interpolate from ppc_mf to the output diagnostic MultiFab, mf_dst.

@@ -118,13 +118,14 @@ void BTDiagnostics::DerivedInitData ()
     }
 
     /* Allocate vector of particle buffer vectors for each snapshot */
-    warpx::runtime::ISpeciesContainer& mpc = const_cast<warpx::runtime::ISpeciesContainer&>(data().species());
+    warpx::runtime::ISpeciesMetadata& meta = const_cast<warpx::runtime::ISpeciesMetadata&>(data().speciesMetadata());
+    warpx::runtime::IParticleContainerAccess& access = const_cast<warpx::runtime::IParticleContainerAccess&>(data().particleAccess());
     // If not specified, and write species is not 0, dump all species
     const amrex::ParmParse pp_diag_name(m_diag_name);
     int write_species = 1;
     pp_diag_name.query("write_species", write_species);
     if ((m_output_species_names.empty()) && (write_species == 1)) {
-        m_output_species_names = mpc.GetSpeciesNames();
+        m_output_species_names = meta.GetSpeciesNames();
     }
 
     m_do_back_transformed_particles =
@@ -133,9 +134,9 @@ void BTDiagnostics::DerivedInitData ()
     // Turn on do_back_transformed_particles in the particle containers so as
     // the data of the corresponding species is stored in before particles are pushed.
     if (m_do_back_transformed_particles) {
-        mpc.SetDoBackTransformedParticles(m_do_back_transformed_particles);
+        access.SetDoBackTransformedParticles(m_do_back_transformed_particles);
         for (auto const& species : m_output_species_names){
-            mpc.SetDoBackTransformedParticles(species, m_do_back_transformed_particles);
+            access.SetDoBackTransformedParticles(species, m_do_back_transformed_particles);
         }
     }
     m_particles_buffer.resize(m_num_buffers);
@@ -1437,15 +1438,16 @@ BTDiagnostics::InterleaveParticleDataHeader(const std::string& buffer_ParticleHd
 void
 BTDiagnostics::InitializeParticleFunctors ()
 {
-    const warpx::runtime::ISpeciesContainer& mpc = const_cast<warpx::runtime::ISpeciesContainer&>(data().species());
+    const warpx::runtime::ISpeciesMetadata& meta = const_cast<warpx::runtime::ISpeciesMetadata&>(data().speciesMetadata());
+    warpx::runtime::IParticleContainerAccess& access = const_cast<warpx::runtime::IParticleContainerAccess&>(data().particleAccess());
     // allocate with total number of species diagnostics
     m_all_particle_functors.resize(m_output_species_names.size());
     // Create an object of class BackTransformParticleFunctor
     for (int i = 0; i < m_all_particle_functors.size(); ++i)
     {
         // species id corresponding to ith diag species
-        const int idx = mpc.getSpeciesID(m_output_species_names[i]);
-        m_all_particle_functors[i] = std::make_unique<BackTransformParticleFunctor>(mpc.GetParticleContainerPtr(idx), m_output_species_names[i], m_num_buffers);
+        const int idx = meta.getSpeciesID(m_output_species_names[i]);
+        m_all_particle_functors[i] = std::make_unique<BackTransformParticleFunctor>(access.GetParticleContainerPtr(idx), m_output_species_names[i], m_num_buffers);
         m_all_particle_functors[i]->SetRuntimeContext(m_runtime_context);
     }
 
@@ -1454,18 +1456,22 @@ BTDiagnostics::InitializeParticleFunctors ()
 void
 BTDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
 {
+    const warpx::runtime::ISpeciesMetadata& meta =
+        const_cast<warpx::runtime::ISpeciesMetadata&>(data().speciesMetadata());
+    const warpx::runtime::IParticleContainerAccess& access =
+        const_cast<warpx::runtime::IParticleContainerAccess&>(data().particleAccess());
     for (int i = 0; i < m_num_buffers; ++i) {
         m_particles_buffer[i].resize(m_output_species_names.size());
         m_totalParticles_in_buffer[i].resize(m_output_species_names.size());
         for (int isp = 0; isp < m_particles_buffer[i].size(); ++isp) {
             m_totalParticles_in_buffer[i][isp] = 0;
-            const int idx = mpc.getSpeciesID(m_output_species_names[isp]);
-            m_particles_buffer[i][isp] = std::make_unique<WarpXParticleContainer::Base>(mpc.GetParticleContainer(idx).make_alike<>());
+            const int idx = meta.getSpeciesID(m_output_species_names[isp]);
+            m_particles_buffer[i][isp] = std::make_unique<WarpXParticleContainer::Base>(access.GetParticleContainer(idx).make_alike<>());
             m_particles_buffer[i][isp]->SetArena(amrex::The_Pinned_Arena());
 
             // SoA component names
             {
-                auto &pc = mpc.GetParticleContainer(idx);
+                auto &pc = access.GetParticleContainer(idx);
                 auto rn = pc.GetRealSoANames();
                 rn.resize(WarpXParticleContainer::NArrayReal);  // strip runtime comps
                 auto in = pc.GetRealSoANames();
@@ -1475,7 +1481,7 @@ BTDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
 
             m_output_species[i].push_back(ParticleDiag(m_diag_name,
                                                        m_output_species_names[isp],
-                                                       mpc.GetParticleContainerPtr(idx),
+                                                       access.GetParticleContainerPtr(idx),
                                                        m_particles_buffer[i][isp].get()));
         }
     }

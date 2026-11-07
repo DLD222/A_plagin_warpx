@@ -1,6 +1,5 @@
 #include "Runtime/IFilterBank.H"
 #include "Runtime/IParticleContainerAccess.H"
-#include "Runtime/ISpeciesContainer.H"
 #include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2026 DLD222
  *
@@ -14,7 +13,6 @@
 
 #include "Runtime/IFilterBank.H"
 #include "Runtime/IParticleContainerAccess.H"
-#include "Runtime/ISpeciesContainer.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeData.H"
 
@@ -51,10 +49,8 @@ public:
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override;
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override;
     [[nodiscard]] amrex::AmrCore& amrCore () const override;
-    [[nodiscard]] ISpeciesContainer& species () override;
     [[nodiscard]] ISpeciesMetadata& speciesMetadata () override;
     [[nodiscard]] IParticleContainerAccess& particleAccess () override;
-    [[nodiscard]] const ISpeciesContainer& species () const override;
     [[nodiscard]] const ISpeciesMetadata& speciesMetadata () const override;
     [[nodiscard]] const IParticleContainerAccess& particleAccess () const override;
     [[nodiscard]] MultiFluidContainer* fluids () override;

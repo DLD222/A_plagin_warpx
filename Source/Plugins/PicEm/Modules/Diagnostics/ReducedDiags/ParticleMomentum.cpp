@@ -37,16 +37,17 @@ ParticleMomentum::ParticleMomentum (const std::string& rd_name)
     : ReducedDiags{rd_name}
 {
     // Get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // Get number of species
-    const int nSpecies = mypc.nSpecies();
+    const int nSpecies = meta.nSpecies();
 
     // Resize data array
     m_data.resize(6*nSpecies+6, 0.0_rt);
 
     // Get species names
-    const std::vector<std::string> species_names = mypc.GetSpeciesNames();
+    const std::vector<std::string> species_names = meta.GetSpeciesNames();
 
     if (ParallelDescriptor::IOProcessor())
     {
@@ -117,10 +118,11 @@ void ParticleMomentum::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // Get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // Get number of species
-    const int nSpecies = mypc.nSpecies();
+    const int nSpecies = meta.nSpecies();
 
     amrex::Real Wtot = 0.0_rt;
 
@@ -128,7 +130,7 @@ void ParticleMomentum::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // Get WarpXParticleContainer class object
-        const auto & myspc = mypc.GetParticleContainer(i_s);
+        const auto & myspc = access.GetParticleContainer(i_s);
 
         // Get mass
         // (photons must be treated as a special case: they have zero mass,

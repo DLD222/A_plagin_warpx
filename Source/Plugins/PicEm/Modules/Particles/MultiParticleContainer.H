@@ -21,7 +21,8 @@
 #include "PhysicalParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "Runtime/ISpeciesContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "WarpXParticleContainer.H"
 #include "ParticleBoundaries.H"
 #include "ExternalParticleFields.H"
@@ -66,7 +67,8 @@
  * - Functions that specifically handle multiple species (for instance
  *   ReadParameters or mapSpeciesProduct).
  */
-class MultiParticleContainer : public warpx::runtime::ISpeciesContainer
+class MultiParticleContainer : public warpx::runtime::ISpeciesMetadata,
+                            public warpx::runtime::IParticleContainerAccess
 {
 
 public:
@@ -377,8 +379,8 @@ public:
 
     void ScrapeParticlesAtEB (ablastr::fields::MultiLevelScalarField const& distance_to_eb);
 
-    [[nodiscard]] const std::string& E_ext_particle_s () const override { return m_E_ext_particle_s; }
-    [[nodiscard]] const std::string& B_ext_particle_s () const override { return m_B_ext_particle_s; }
+    [[nodiscard]] const std::string& E_ext_particle_s () const { return m_E_ext_particle_s; }
+    [[nodiscard]] const std::string& B_ext_particle_s () const { return m_B_ext_particle_s; }
 
     std::string m_B_ext_particle_s = "none";
     std::string m_E_ext_particle_s = "none";

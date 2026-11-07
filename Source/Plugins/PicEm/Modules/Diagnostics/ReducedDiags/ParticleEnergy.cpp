@@ -39,16 +39,17 @@ ParticleEnergy::ParticleEnergy (const std::string& rd_name)
 : ReducedDiags{rd_name}
 {
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get number of species (int)
-    const auto nSpecies = mypc.nSpecies();
+    const auto nSpecies = meta.nSpecies();
 
     // resize data array
     m_data.resize(2*nSpecies+2, 0.0_rt);
 
     // get species names (std::vector<std::string>)
-    const auto species_names = mypc.GetSpeciesNames();
+    const auto species_names = meta.GetSpeciesNames();
 
     if (ParallelDescriptor::IOProcessor())
     {
@@ -89,10 +90,11 @@ void ParticleEnergy::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // Get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // Get number of species
-    const int nSpecies = mypc.nSpecies();
+    const int nSpecies = meta.nSpecies();
 
     amrex::ParticleReal Wtot = 0.0_rt;
 
@@ -100,7 +102,7 @@ void ParticleEnergy::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // Get WarpXParticleContainer class object
-        const auto & myspc = mypc.GetParticleContainer(i_s);
+        const auto & myspc = access.GetParticleContainer(i_s);
 
         auto [Etot, Ws] = myspc.sumParticleWeightAndEnergy(false);
 

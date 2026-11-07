@@ -68,13 +68,14 @@ ParticleExtrema::ParticleExtrema (const std::string& rd_name)
     pp_rd_name.get("species",m_species_name);
 
     // get MultiParticleContainer class object
-    auto & mypc = data().species();
+    auto & meta = data().speciesMetadata();
+    auto & access = data().particleAccess();
 
     // get number of species (int)
-    const auto nSpecies = mypc.nSpecies();
+    const auto nSpecies = meta.nSpecies();
 
     // get species names (std::vector<std::string>)
-    const auto species_names = mypc.GetSpeciesNames();
+    const auto species_names = meta.GetSpeciesNames();
 
     // loop over species
     for (int i_s = 0; i_s < nSpecies; ++i_s)
@@ -83,7 +84,7 @@ ParticleExtrema::ParticleExtrema (const std::string& rd_name)
         if (species_names[i_s] != m_species_name) { continue; }
 
         // get WarpXParticleContainer class object
-        auto & myspc = mypc.GetParticleContainer(i_s);
+        auto & myspc = access.GetParticleContainer(i_s);
 
         auto all_diag_names = std::vector<std::string> {};
         auto add_diag = [&,c=0] (
@@ -158,13 +159,14 @@ void ParticleExtrema::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    auto const & mypc = data().species();
+    auto const & meta = data().speciesMetadata();
+    auto const & access = data().particleAccess();
 
     // get number of species (int)
-    const auto nSpecies = mypc.nSpecies();
+    const auto nSpecies = meta.nSpecies();
 
     // get species names (std::vector<std::string>)
-    const auto species_names = mypc.GetSpeciesNames();
+    const auto species_names = meta.GetSpeciesNames();
 
     // inverse of speed of light squared
     amrex::Real constexpr inv_c2 = PhysConst::inv_c2;
@@ -176,7 +178,7 @@ void ParticleExtrema::ComputeDiags (int step)
         if (species_names[i_s] != m_species_name) { continue; }
 
         // get WarpXParticleContainer class object
-        auto & myspc = mypc.GetParticleContainer(i_s);
+        auto & myspc = access.GetParticleContainer(i_s);
 
         // get mass (Real)
         auto m = myspc.getMass();

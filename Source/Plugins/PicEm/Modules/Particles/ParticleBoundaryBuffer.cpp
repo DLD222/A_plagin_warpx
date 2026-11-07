@@ -589,7 +589,7 @@ int ParticleBoundaryBuffer::getNumParticlesInContainer(
         const std::string& species_name, int boundary, bool local) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = data().species().getSpeciesID(species_name);
+    auto index = data().speciesMetadata().getSpeciesID(species_name);
 
     if (buffer[index].isDefined()){
         return static_cast<int>(buffer[index].TotalNumberOfParticles(false, local));
@@ -603,7 +603,7 @@ WarpXParticleContainer::Base &
 ParticleBoundaryBuffer::getParticleBuffer(const std::string& species_name, int boundary) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = data().species().getSpeciesID(species_name);
+    auto index = data().speciesMetadata().getSpeciesID(species_name);
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_do_boundary_buffer[boundary][index],
                                      "Attempted to get particle buffer for boundary "
@@ -618,7 +618,7 @@ WarpXParticleContainer::Base *
 ParticleBoundaryBuffer::getParticleBufferPointer(const std::string& species_name, int boundary) {
 
     auto& buffer = m_particle_containers[boundary];
-    auto index = data().species().getSpeciesID(species_name);
+    auto index = data().speciesMetadata().getSpeciesID(species_name);
 
     return &buffer[index];
 }

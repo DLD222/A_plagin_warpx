@@ -51,13 +51,11 @@ WarpXRuntimeData::w () const
 ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () { return w().GetMultiFabRegister(); }
 const ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () const { return w().GetMultiFabRegister(); }
 amrex::AmrCore& WarpXRuntimeData::amrCore () const { return w(); }
-ISpeciesContainer& WarpXRuntimeData::species () { return w().GetPartContainer(); }
 ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () { return w().GetPartContainer(); }
 IParticleContainerAccess& WarpXRuntimeData::particleAccess () { return w().GetPartContainer(); }
 const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return w().GetPartContainer(); }
 const IParticleContainerAccess& WarpXRuntimeData::particleAccess () const { return w().GetPartContainer(); }
 
-const ISpeciesContainer& WarpXRuntimeData::species () const { return w().GetPartContainer(); }
 MultiFluidContainer* WarpXRuntimeData::fluids () { auto& warpx = w(); return warpx.DoFluidSpecies() ? &warpx.GetFluidContainer() : nullptr; }
 int WarpXRuntimeData::finestLevel () const { return w().finestLevel(); }
 int WarpXRuntimeData::maxLevel () const { return w().maxLevel(); }

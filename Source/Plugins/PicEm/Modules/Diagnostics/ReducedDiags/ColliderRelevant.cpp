@@ -95,7 +95,7 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
         ablastr::warn_manager::WarnPriority::low);
 
     // get MultiParticleContainer class object
-    const warpx::runtime::ISpeciesContainer& mypc = data().species();
+    const warpx::runtime::IParticleContainerAccess& mypc = data().particleAccess();
 
     // loop over species
     for (int i_s = 0; i_s < 2; ++i_s)
@@ -199,7 +199,7 @@ void ColliderRelevant::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    const warpx::runtime::ISpeciesContainer& mypc = data().species();
+    const warpx::runtime::IParticleContainerAccess& mypc = data().particleAccess();
 
     // get cell volume
     amrex::Geometry const & geom = data().geom(0);

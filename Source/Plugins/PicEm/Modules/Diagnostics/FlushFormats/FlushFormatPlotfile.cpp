@@ -316,11 +316,12 @@ FlushFormatPlotfile::WriteWarpXHeader(
 
         host().checkpoint().writeParticleHeader(HeaderFile);
 
-        const warpx::runtime::ISpeciesContainer& mypc = data().species();
+        const warpx::runtime::ISpeciesMetadata& mypc = data().speciesMetadata();
+        const warpx::runtime::IParticleContainerAccess& access = data().particleAccess();
         const int n_species = mypc.nSpecies();
         for (int i=0; i<n_species; i++)
         {
-             HeaderFile << mypc.GetParticleContainer(i).m_current_injection_position << "\n";
+             HeaderFile << access.GetParticleContainer(i).m_current_injection_position << "\n";
         }
 
         HeaderFile << host().movingWindow().doMovingWindow() << "\n";

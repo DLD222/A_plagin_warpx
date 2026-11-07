@@ -56,10 +56,11 @@ RhoMaximum::RhoMaximum (const std::string& rd_name)
     }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get number of species (int)
-    const auto nSpecies = mypc.nSpecies();
+    const auto nSpecies = meta.nSpecies();
 
     // A vector to store the indices of charges species in mypc
     amrex::Vector<int> indices_charged_species;
@@ -70,7 +71,7 @@ RhoMaximum::RhoMaximum (const std::string& rd_name)
     for (int i = 0; i < nSpecies; ++i)
     {
         // Only charged species are relevant for this diag
-        if (mypc.GetParticleContainer(i).getCharge() != 0.0_rt)
+        if (access.GetParticleContainer(i).getCharge() != 0.0_rt)
         {
             indices_charged_species.push_back(i);
             n_charged_species += 1;
@@ -83,7 +84,7 @@ RhoMaximum::RhoMaximum (const std::string& rd_name)
     }
 
     // get species names (std::vector<std::string>)
-    const auto species_names = mypc.GetSpeciesNames();
+    const auto species_names = meta.GetSpeciesNames();
 
     // Min and max of total rho + max of |rho| for each species
     const int noutputs_per_level = 2+n_charged_species;

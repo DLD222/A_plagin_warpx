@@ -97,11 +97,12 @@ ParticleHistogram::ParticleHistogram (const std::string& rd_name)
     }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
     // get species names (std::vector<std::string>)
-    auto const species_names = mypc.GetSpeciesNames();
+    auto const species_names = meta.GetSpeciesNames();
     // select species
-    for ( int i = 0; i < mypc.nSpecies(); ++i )
+    for ( int i = 0; i < meta.nSpecies(); ++i )
     {
         if ( selected_species_name == species_names[i] ){
             m_selected_species_id = i;
@@ -165,10 +166,11 @@ void ParticleHistogram::ComputeDiags (int step)
     auto const t = data().t_new(0);
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get WarpXParticleContainer class object
-    auto & myspc = mypc.GetParticleContainer(m_selected_species_id);
+    auto & myspc = access.GetParticleContainer(m_selected_species_id);
 
     // get parser
     auto fun_partparser =

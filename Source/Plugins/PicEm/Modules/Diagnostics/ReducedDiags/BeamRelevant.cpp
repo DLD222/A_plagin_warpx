@@ -196,13 +196,14 @@ void BeamRelevant::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().species();
+    const auto & meta = data().speciesMetadata();
+    const auto & access = data().particleAccess();
 
     // get number of species
-    int const nSpecies = mypc.nSpecies();
+    int const nSpecies = meta.nSpecies();
 
     // get species names (std::vector<std::string>)
-    auto const species_names = mypc.GetSpeciesNames();
+    auto const species_names = meta.GetSpeciesNames();
 
     // inverse of speed of light squared
     Real constexpr inv_c2 = PhysConst::inv_c2;
@@ -214,7 +215,7 @@ void BeamRelevant::ComputeDiags (int step)
         if (species_names[i_s] != m_beam_name) { continue; }
 
         // get WarpXParticleContainer class object
-        auto const & myspc = mypc.GetParticleContainer(i_s);
+        auto const & myspc = access.GetParticleContainer(i_s);
 
         // get mass and charge
         ParticleReal const m = myspc.getMass();

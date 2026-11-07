@@ -133,7 +133,7 @@ void EffectivePotentialES::ComputeSigma (
     amrex::GpuArray<int, 3> const nodal = {1, 0, 0};
 #endif
 
-    auto& mypc = const_cast<warpx::runtime::ISpeciesContainer&>(data().species());
+    auto& mypc = const_cast<warpx::runtime::IParticleContainerAccess&>(data().particleAccess());
 
     // The effective potential dielectric function is given by
     // \varepsilon_{SI} = \varepsilon * (1 + \sum_{i in species} C_{SI}*(w_pi * dt)^2/4)

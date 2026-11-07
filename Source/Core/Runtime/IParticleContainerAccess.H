@@ -1,5 +1,6 @@
 #ifndef WARPX_RUNTIME_IPARTICLECONTAINERACCESS_H_
 #define WARPX_RUNTIME_IPARTICLECONTAINERACCESS_H_
+#include <AMReX_MultiFab.H>
 #include <AMReX_Vector.H>
 #include <memory>
 #include <string>
@@ -18,6 +19,9 @@ public:
     virtual iterator end () = 0;
     virtual const_iterator begin () const = 0;
     virtual const_iterator end () const = 0;
+    virtual void Increment (amrex::MultiFab& mf, int lev) = 0;
+    virtual void SetDoBackTransformedParticles (bool) = 0;
+    virtual void SetDoBackTransformedParticles (const std::string&, bool) = 0;
 };
 }
 #endif
