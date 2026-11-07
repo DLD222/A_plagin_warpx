@@ -944,7 +944,7 @@ WarpX::InitData_FieldSolve ()
         for (auto const& species : *mypc) {
             has_initialize_self_fields |= species->initialize_self_fields;
         }
-        const bool has_boundary_potential = m_electrostatic_solver->m_poisson_boundary_handler->m_boundary_potential_specified;
+        const bool has_boundary_potential = m_electrostatic_solver->boundaryPotentialSpecified();
         if( (electrostatic_solver_id != ElectrostaticSolverAlgo::None ||
              has_initialize_self_fields ||
              has_boundary_potential)

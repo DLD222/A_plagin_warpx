@@ -103,7 +103,7 @@ public:
         ablastr::fields::MLMGOptions const & mlmg_options,
         bool is_igf_2d_slices,
         std::optional<ablastr::fields::MultiLevelVectorField> efield = std::nullopt // only used for EB
-    ) const;
+    ) const override;
 
     /**
      * \brief Compute the electric field that corresponds to `phi`, and
@@ -152,6 +152,9 @@ public:
     /** Boundary handler object to set potential for EB and on the domain boundary */
     [[nodiscard]] bool boundaryPotentialSpecified () const override
     { return m_poisson_boundary_handler && m_poisson_boundary_handler->m_boundary_potential_specified; }
+
+    void definePhiBCs (const amrex::Geometry& geom) override
+    { m_poisson_boundary_handler->DefinePhiBCs(geom); }
 
     std::unique_ptr<PoissonBoundaryHandler> m_poisson_boundary_handler;
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;

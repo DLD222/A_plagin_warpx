@@ -19,6 +19,7 @@
 #include "Runtime/IAmrPolicy.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
+#include "Runtime/IElectrostaticSolver.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver_fwd.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
@@ -190,7 +191,8 @@ public:
     MultiParticleContainer& GetPartContainer () { return *mypc; }
     warpx::runtime::IParticleContainerAccess& GetPartContainerAccess ();
     MultiFluidContainer& GetFluidContainer () { return *myfl; }
-    ElectrostaticSolver& GetElectrostaticSolver () {return *m_electrostatic_solver;}
+    warpx::runtime::IElectrostaticSolver& GetElectrostaticSolver () {return *m_electrostatic_solver;}
+    ElectrostaticSolver* GetElectrostaticSolverConcrete ();
     [[nodiscard]] HybridPICModel * get_pointer_HybridPICModel () const { return m_hybrid_pic_model.get(); }
     /** Return the implicit solver, or nullptr when the evolve scheme is explicit */
     [[nodiscard]] ImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
@@ -1600,7 +1602,7 @@ private:
     std::unique_ptr<MomentFluidSolver> m_moment_fluid;
 
     // Electrostatic solver
-    std::unique_ptr<ElectrostaticSolver> m_electrostatic_solver;
+    std::unique_ptr<warpx::runtime::IElectrostaticSolver> m_electrostatic_solver;
 
     // Hybrid PIC algorithm parameters
     std::unique_ptr<HybridPICModel> m_hybrid_pic_model;

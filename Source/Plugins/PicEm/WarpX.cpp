@@ -3898,3 +3898,6 @@ WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
 
 warpx::runtime::IParticleContainerAccess&
 WarpX::GetPartContainerAccess () { return *mypc; }
+
+ElectrostaticSolver* WarpX::GetElectrostaticSolverConcrete ()
+{ return dynamic_cast<ElectrostaticSolver*>(m_electrostatic_solver.get()); }

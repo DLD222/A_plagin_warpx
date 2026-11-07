@@ -153,11 +153,11 @@ WarpXHostServices::computePhi (int lev)
     phi_vec[0]->setVal(0.);
 
     auto& es_solver = m_warpx.GetElectrostaticSolver();
-    es_solver.m_poisson_boundary_handler->DefinePhiBCs(m_warpx.Geom(0));
+    es_solver.definePhiBCs(m_warpx.Geom(0));
     const std::array<amrex::Real, 3> beta = {0.0};
     es_solver.computePhi(
         amrex::GetVecOfPtrs(rho_vec), amrex::GetVecOfPtrs(phi_vec),
-        beta, es_solver.m_mlmg_options, /*is_igf_2d_slices*/ false);
+        beta, m_warpx.GetElectrostaticSolverConcrete()->m_mlmg_options, /*is_igf_2d_slices*/ false);
 
     return std::move(phi_vec[0]);
 }
