@@ -9,6 +9,8 @@
 #ifndef WARPX_ELECTROSTATICSOLVER_H_
 #define WARPX_ELECTROSTATICSOLVER_H_
 
+#include "Runtime/IElectrostaticSolver.H"
+
 #include "PoissonBoundaryHandler.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Particles/MultiParticleContainer.H"
@@ -31,7 +33,7 @@ class WarpXHostServices;
  * \brief Base class for Electrostatic Solver
  *
  */
-class ElectrostaticSolver
+class ElectrostaticSolver : public warpx::runtime::IElectrostaticSolver
 {
 public:
     ElectrostaticSolver() = default;
@@ -47,7 +49,7 @@ public:
 
     void ReadParameters ();
 
-    virtual void InitData () {}
+    void InitData () override {}
 
     /**
      * \brief Computes charge density, rho, and solves Poisson's equation
@@ -148,6 +150,9 @@ public:
     int num_levels;
 
     /** Boundary handler object to set potential for EB and on the domain boundary */
+    [[nodiscard]] bool boundaryPotentialSpecified () const override
+    { return m_poisson_boundary_handler && m_poisson_boundary_handler->m_boundary_potential_specified; }
+
     std::unique_ptr<PoissonBoundaryHandler> m_poisson_boundary_handler;
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
