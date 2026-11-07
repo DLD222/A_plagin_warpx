@@ -18,8 +18,8 @@ class ParticleDiag
 {
 public:
     ParticleDiag(const std::string& diag_name, const std::string& name,
-        WarpXParticleContainer* pc, WarpXParticleContainer::Base *pinned_pc = nullptr);
-    [[nodiscard]] WarpXParticleContainer* getParticleContainer() const { return m_pc; }
+        warpx::runtime::IParticleContainer* pc, WarpXParticleContainer::Base *pinned_pc = nullptr);
+    [[nodiscard]] warpx::runtime::IParticleContainer* getParticleContainer() const { return m_pc; }
     [[nodiscard]] WarpXParticleContainer::Base* getPinnedParticleContainer() const { return m_pinned_pc; }
     [[nodiscard]] std::string getSpeciesName() const { return m_name; }
     amrex::Vector<int> m_plot_flags;
@@ -44,7 +44,7 @@ public:
 private:
     std::string m_diag_name;
     std::string m_name;
-    WarpXParticleContainer* m_pc;
+    warpx::runtime::IParticleContainer* m_pc;
     WarpXParticleContainer::Base* m_pinned_pc;
 };
 

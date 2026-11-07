@@ -182,7 +182,7 @@ FlushFormatCheckpoint::CheckpointParticles (
     const amrex::Vector<ParticleDiag>& particle_diags) const
 {
     for (const auto& part_diag: particle_diags) {
-        WarpXParticleContainer* pc = part_diag.getParticleContainer();
+        warpx::runtime::IParticleContainer* pc = part_diag.getParticleContainer();
 
         Vector<std::string> real_names;
         Vector<std::string> int_names;

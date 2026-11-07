@@ -366,7 +366,7 @@ FlushFormatPlotfile::WriteParticles(const std::string& dir,
                                     bool isBTD) const
 {
     for (const auto& part_diag : particle_diags) {
-        WarpXParticleContainer* pc = part_diag.getParticleContainer();
+        warpx::runtime::IParticleContainer* pc = part_diag.getParticleContainer();
         WarpXParticleContainer::Base* pinned_pc = part_diag.getPinnedParticleContainer();
         auto tmp = isBTD ?
             pinned_pc->make_alike<>() :

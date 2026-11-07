@@ -22,6 +22,10 @@ public:
     using Base::Base;
     ~IParticleContainer () override = default;
 
+    [[nodiscard]] int NumRealComps () const { return Base::NumRealComps(); }
+    bool HasRealComp (const std::string& n) { return Base::HasRealComp(n); }
+    int GetRealCompIndex (const std::string& n) { return Base::GetRealCompIndex(n); }
+
     struct MomentumSum { amrex::Real Px{0}, Py{0}, Pz{0}, W{0}; };
     [[nodiscard]] virtual const std::string& getName () const = 0;
     [[nodiscard]] virtual amrex::Real getCharge () const = 0;

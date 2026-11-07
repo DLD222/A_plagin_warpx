@@ -464,7 +464,7 @@ public:
 
     void DepositTotalNGPTemperature (int lev);
     void CalculateNuei(amrex::MultiFab & species_nuei,
-                       WarpXParticleContainer const & electron_species, int lev);
+                       warpx::runtime::IParticleContainer const & electron_species, int lev);
     std::unique_ptr<amrex::MultiFab> GetDebyeLength (int lev);
 
     void DepositNumberDensity (amrex::MultiFab* number_density, int lev);

@@ -108,7 +108,7 @@ FullDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         for (auto const& species : m_output_species_names){
             const int idx = mpc.getSpeciesID(species);
-            m_output_species[i_buffer].push_back(ParticleDiag(m_diag_name, species, static_cast<WarpXParticleContainer*>(mpc.GetParticleContainerPtr(idx))));
+            m_output_species[i_buffer].push_back(ParticleDiag(m_diag_name, species, mpc.GetParticleContainerPtr(idx)));
         }
     }
 }

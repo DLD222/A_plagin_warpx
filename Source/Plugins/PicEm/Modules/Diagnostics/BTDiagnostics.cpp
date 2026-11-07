@@ -1481,7 +1481,7 @@ BTDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
 
             m_output_species[i].push_back(ParticleDiag(m_diag_name,
                                                        m_output_species_names[isp],
-                                                       static_cast<WarpXParticleContainer*>(access.GetParticleContainerPtr(idx)),
+                                                       access.GetParticleContainerPtr(idx),
                                                        m_particles_buffer[i][isp].get()));
         }
     }

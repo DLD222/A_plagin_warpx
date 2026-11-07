@@ -2298,7 +2298,7 @@ WarpXParticleContainer::GetDebyeLength (int lev)
  */
 void
 WarpXParticleContainer::CalculateNuei(amrex::MultiFab & species_nuei,
-                                      WarpXParticleContainer const & electron_species, int lev)
+                                      warpx::runtime::IParticleContainer const & electron_species, int lev)
 {
     using ablastr::fields::Direction;
 
@@ -2310,13 +2310,13 @@ WarpXParticleContainer::CalculateNuei(amrex::MultiFab & species_nuei,
     amrex::MultiFab const & uxi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{0}, lev);
     amrex::MultiFab const & uyi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{1}, lev);
     amrex::MultiFab const & uzi_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + species_name, Direction{2}, lev);
-    amrex::MultiFab const & uxe_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{0}, lev);
-    amrex::MultiFab const & uye_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{1}, lev);
-    amrex::MultiFab const & uze_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.species_name, Direction{2}, lev);
+    amrex::MultiFab const & uxe_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.getName(), Direction{0}, lev);
+    amrex::MultiFab const & uye_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.getName(), Direction{1}, lev);
+    amrex::MultiFab const & uze_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("u_" + electron_species.getName(), Direction{2}, lev);
     amrex::MultiFab const & Ti_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + species_name, lev);
-    amrex::MultiFab const & Te_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + electron_species.species_name, lev);
+    amrex::MultiFab const & Te_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("T_" + electron_species.getName(), lev);
     amrex::MultiFab const & Ni_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + species_name, lev);
-    amrex::MultiFab const & Ne_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + electron_species.species_name, lev);
+    amrex::MultiFab const & Ne_mf = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get("N_" + electron_species.getName(), lev);
     amrex::MultiFab const & global_debye_length = *const_cast<ablastr::fields::MultiFabRegister&>(data().fields()).get(warpx::fields::FieldType::global_debye_length, lev);
 
     auto const rimass = static_cast<amrex::Real>(m_mass);
