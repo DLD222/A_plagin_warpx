@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "BackTransformFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Utils/WarpXConst.H"

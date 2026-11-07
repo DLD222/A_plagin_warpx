@@ -4,11 +4,8 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         Diagnostics.cpp
         DiagnosticsServiceFactory.cpp
-        FieldIO.cpp
         FullDiagnostics.cpp
         MultiDiagnostics.cpp
-        ParticleIO.cpp
-        WarpXIO.cpp
         WarpXOpenPMD.cpp
         BTDiagnostics.cpp
         BoundaryScrapingDiagnostics.cpp

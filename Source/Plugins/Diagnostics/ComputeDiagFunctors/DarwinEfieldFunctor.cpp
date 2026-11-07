@@ -7,6 +7,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "DarwinEfieldFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 

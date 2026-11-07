@@ -1,4 +1,6 @@
 #include "FullDiagnostics.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "ComputeDiagFunctors/CellCenterFunctor.H"
@@ -19,7 +21,6 @@
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
 #include "Fields.H"
 #include "FlushFormats/FlushFormat.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/Algorithms/IsIn.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

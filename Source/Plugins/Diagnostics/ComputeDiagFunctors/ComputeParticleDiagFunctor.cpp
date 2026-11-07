@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "ComputeParticleDiagFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"

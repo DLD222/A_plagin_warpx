@@ -6,8 +6,9 @@
  */
 
 #include "ParticleMomentum.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"

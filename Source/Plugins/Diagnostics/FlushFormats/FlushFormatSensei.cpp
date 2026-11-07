@@ -1,4 +1,6 @@
 #include "FlushFormatSensei.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #ifdef AMREX_USE_SENSEI_INSITU

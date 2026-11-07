@@ -6,6 +6,8 @@
  */
 
 #include "ChargeOnEB.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "EmbeddedBoundary/Enabled.H"

@@ -1,4 +1,6 @@
 #include "RhoFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include <stdexcept>
 #include <string>
@@ -9,7 +11,6 @@
     #include "FieldSolver/PSATD/SpectralSolverRZ.H"
     #include "Utils/WarpXAlgorithmSelection.H"
 #endif
-#include "Particles/MultiParticleContainer.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
 #include "Particles/WarpXParticleContainer.H"

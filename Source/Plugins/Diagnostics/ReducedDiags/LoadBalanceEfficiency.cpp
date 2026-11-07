@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "LoadBalanceEfficiency.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Runtime/RuntimeData.H"

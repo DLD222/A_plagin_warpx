@@ -6,6 +6,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "OpenPMDHelpFunction.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Utils/TextMsg.H"
 

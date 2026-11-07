@@ -1,4 +1,6 @@
 #include "FlushFormatPlotfile.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Fields.H"
 #include "Diagnostics/MultiDiagnostics.H"

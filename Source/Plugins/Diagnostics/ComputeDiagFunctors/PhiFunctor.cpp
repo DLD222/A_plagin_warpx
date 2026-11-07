@@ -7,6 +7,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "PhiFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"

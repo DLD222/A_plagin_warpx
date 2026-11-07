@@ -1,10 +1,11 @@
 
 #include "TemperatureFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "WarpX.H"

@@ -8,7 +8,7 @@
 #ifndef WARPX_OPEN_PMD_H_
 #define WARPX_OPEN_PMD_H_
 
-#include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 #include "Diagnostics/FlushFormats/FlushFormat.H"
 
 #include "Diagnostics/ParticleDiag/ParticleDiag_fwd.H"
@@ -42,7 +42,7 @@ namespace warpx::runtime { class RuntimeData; }
 class WarpXParticleCounter
 {
 public:
-  using ParticleContainer = typename WarpXParticleContainer::ContainerLike<amrex::PolymorphicArenaAllocator>;
+  using ParticleContainer = typename warpx::runtime::IParticleContainer::ContainerLike<amrex::PolymorphicArenaAllocator>;
   using ParticleIter = typename amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
 
   explicit WarpXParticleCounter (ParticleContainer* pc);
@@ -78,7 +78,7 @@ private:
 class WarpXOpenPMDPlot
 {
 public:
-  using ParticleContainer = typename WarpXParticleContainer::ContainerLike<amrex::PolymorphicArenaAllocator>;
+  using ParticleContainer = typename warpx::runtime::IParticleContainer::ContainerLike<amrex::PolymorphicArenaAllocator>;
   using ParticleIter = typename amrex::ParConstIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
 
   /** Initialize openPMD I/O routines

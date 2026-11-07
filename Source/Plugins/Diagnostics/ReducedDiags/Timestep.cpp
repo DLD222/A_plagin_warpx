@@ -8,6 +8,8 @@
  */
 
 #include "Timestep.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"

@@ -6,10 +6,11 @@
  */
 
 #include "RhoMaximum.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ComputeDiagFunctors/RhoFunctor.H"
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeData.H"

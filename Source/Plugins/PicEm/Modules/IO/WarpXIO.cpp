@@ -1,3 +1,4 @@
+#include "Particles/MultiParticleContainer.H"
 /* Copyright 2019-2020 Andrew Myers, Ann Almgren, Axel Huebl
  * Burlen Loring, David Grote, Gunther H. Weber
  * Junmin Gu, Maxence Thevenet, Remi Lehe
@@ -9,6 +10,8 @@
  */
 
 #include "WarpX.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 
 #include "BoundaryConditions/PML.H"
@@ -23,7 +26,6 @@
 #include "FieldIO.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"

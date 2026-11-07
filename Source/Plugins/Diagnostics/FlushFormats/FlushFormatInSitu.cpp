@@ -1,4 +1,6 @@
 #include "FlushFormatInSitu.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Utils/TextMsg.H"
 

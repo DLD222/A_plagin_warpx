@@ -1,7 +1,8 @@
 #include "ParticleDiag.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
-#include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 

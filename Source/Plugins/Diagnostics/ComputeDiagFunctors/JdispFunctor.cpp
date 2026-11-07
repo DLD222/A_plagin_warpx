@@ -7,6 +7,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "JdispFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
@@ -14,7 +16,6 @@
 #include "WarpX.H"
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
-#include "Particles/MultiParticleContainer.H"
 
 #include <AMReX.H>
 #include <AMReX_Extension.H>

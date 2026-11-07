@@ -6,6 +6,8 @@
  */
 
 #include "ParticleExtrema.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
@@ -15,7 +17,6 @@
 #include "Fields.H"
 #include "Particles/Gather/FieldGather.H"
 #include "Particles/Gather/GetExternalFields.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"

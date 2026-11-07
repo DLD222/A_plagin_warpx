@@ -6,10 +6,11 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "DifferentialLuminosity.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"

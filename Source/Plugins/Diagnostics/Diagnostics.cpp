@@ -1,4 +1,6 @@
 #include "Runtime/RuntimeConfigSnapshot.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Diagnostics.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
@@ -13,7 +15,6 @@
 #endif
 #include "FlushFormats/FlushFormatPlotfile.H"
 #include "FlushFormats/FlushFormatSensei.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/Algorithms/IsIn.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

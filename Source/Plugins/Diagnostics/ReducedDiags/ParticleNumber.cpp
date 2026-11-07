@@ -6,9 +6,10 @@
  */
 
 #include "ParticleNumber.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"

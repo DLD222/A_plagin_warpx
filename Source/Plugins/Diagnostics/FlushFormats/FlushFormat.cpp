@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "FlushFormat.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeConfig.H"

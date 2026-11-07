@@ -10,7 +10,6 @@
 #include "Diagnostics.H"
 
 namespace warpx::runtime { struct RuntimeContext; }
-#include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/utils/text/IntervalsParser.H>
 

@@ -1,4 +1,6 @@
 #include "Runtime/RuntimeConfigSnapshot.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2019-2020 Maxence Thevenet, Yinjian Zhao
  *
  * This file is part of WarpX.

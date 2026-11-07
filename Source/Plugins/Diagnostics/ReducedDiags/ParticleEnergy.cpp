@@ -6,10 +6,11 @@
  */
 
 #include "ParticleEnergy.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Particles/Algorithms/KineticEnergy.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Runtime/RuntimeData.H"

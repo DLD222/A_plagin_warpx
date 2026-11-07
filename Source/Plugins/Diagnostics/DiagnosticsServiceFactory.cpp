@@ -1,4 +1,6 @@
 #include "Runtime/IDiagnosticsService.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IReducedDiagsService.H"
 
 #include "Diagnostics/MultiDiagnostics.H"

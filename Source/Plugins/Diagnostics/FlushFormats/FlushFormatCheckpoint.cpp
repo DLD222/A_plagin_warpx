@@ -1,4 +1,6 @@
 #include "FlushFormatCheckpoint.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "BoundaryConditions/PML.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)

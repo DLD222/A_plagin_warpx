@@ -4,7 +4,6 @@
 #include "FlushFormat_fwd.H"
 
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
-#include "Particles/MultiParticleContainer.H"
 
 #include "Runtime/RuntimeContext.H"
 

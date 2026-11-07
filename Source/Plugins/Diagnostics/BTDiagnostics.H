@@ -11,7 +11,6 @@
 
 namespace warpx::runtime { struct RuntimeContext; }
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/Parser/BTDIntervalsParser.H"
 

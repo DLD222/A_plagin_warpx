@@ -1,4 +1,6 @@
 #include "EBCoveredFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 

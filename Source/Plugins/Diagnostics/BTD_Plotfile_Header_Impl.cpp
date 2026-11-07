@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "BTD_Plotfile_Header_Impl.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Utils/TextMsg.H"
 

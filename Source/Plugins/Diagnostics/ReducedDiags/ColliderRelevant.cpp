@@ -6,6 +6,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "ColliderRelevant.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
@@ -15,13 +17,11 @@
 #endif
 #include "Particles/Gather/FieldGather.H"
 #include "Particles/Gather/GetExternalFields.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"

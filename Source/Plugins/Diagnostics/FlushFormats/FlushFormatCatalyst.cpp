@@ -1,4 +1,6 @@
 #include "FlushFormatCatalyst.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "WarpX.H"
 #include "Utils/TextMsg.H"

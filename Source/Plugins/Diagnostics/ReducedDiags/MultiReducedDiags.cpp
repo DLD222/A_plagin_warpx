@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "MultiReducedDiags.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "WarpX.H"
 

@@ -6,10 +6,11 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "ParticleHistogram2D.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Diagnostics/OpenPMDHelpFunction.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"

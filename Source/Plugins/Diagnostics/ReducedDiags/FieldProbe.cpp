@@ -6,6 +6,8 @@
  */
 
 #include "FieldProbe.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 #include "FieldProbeParticleContainer.H"
 #include "Fields.H"

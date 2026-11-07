@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "WarpXOpenPMD.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Particles/ParticleIO.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
@@ -540,15 +542,15 @@ WarpXOpenPMDPlot::WriteOpenPMDParticles (const amrex::Vector<ParticleDiag>& part
 ABLASTR_PROFILE("WarpXOpenPMDPlot::WriteOpenPMDParticles()");
 
 for (const auto & particle_diag : particle_diags) {
-    WarpXParticleContainer* pc = particle_diag.getParticleContainer();
-    WarpXParticleContainer::Base* pinned_pc = particle_diag.getPinnedParticleContainer();
+    warpx::runtime::IParticleContainer* pc = particle_diag.getParticleContainer();
+    warpx::runtime::IParticleContainer::Base* pinned_pc = particle_diag.getPinnedParticleContainer();
     if (isBTD || use_pinned_pc) {
         if (!pinned_pc->isDefined()) {
             continue;  // Skip to the next particle container
         }
     }
 
-    WarpXParticleContainer::Base tmp = (isBTD || use_pinned_pc) ?
+    warpx::runtime::IParticleContainer::Base tmp = (isBTD || use_pinned_pc) ?
         pinned_pc->make_alike<>() :
         pc->make_alike<>();
     tmp.SetArena(amrex::The_Pinned_Arena());
@@ -568,7 +570,7 @@ for (const auto & particle_diag : particle_diags) {
 
     if (isBTD || use_pinned_pc) {
         particlesConvertUnits(ConvertDirection::WarpX_to_SI, pinned_pc, mass);
-        using SrcData = WarpXParticleContainer::ParticleTileType::ConstParticleTileDataType;
+        using SrcData = warpx::runtime::IParticleContainer::ParticleTileType::ConstParticleTileDataType;
         tmp.copyParticles(*pinned_pc,
             [random_filter,uniform_filter,parser_filter,geometry_filter]
             AMREX_GPU_HOST_DEVICE
@@ -581,7 +583,7 @@ for (const auto & particle_diag : particle_diags) {
         particlesConvertUnits(ConvertDirection::SI_to_WarpX, pinned_pc, mass);
     } else {
         particlesConvertUnits(ConvertDirection::WarpX_to_SI, pc, mass);
-        using SrcData = WarpXParticleContainer::ParticleTileType::ConstParticleTileDataType;
+        using SrcData = warpx::runtime::IParticleContainer::ParticleTileType::ConstParticleTileDataType;
         tmp.copyParticles(*pc,
             [random_filter,uniform_filter,parser_filter,geometry_filter]
             AMREX_GPU_HOST_DEVICE

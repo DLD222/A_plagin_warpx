@@ -6,6 +6,8 @@
  */
 
 #include "BTDiagnostics.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "BTD_Plotfile_Header_Impl.H"
 #include "ComputeDiagFunctors/BackTransformFunctor.H"
 #include "ComputeDiagFunctors/CellCenterFunctor.H"

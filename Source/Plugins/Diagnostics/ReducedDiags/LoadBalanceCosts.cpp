@@ -5,11 +5,12 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "LoadBalanceCosts.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Fields.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Runtime/RuntimeConfig.H"

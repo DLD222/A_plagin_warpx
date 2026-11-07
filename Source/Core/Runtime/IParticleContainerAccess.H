@@ -2,6 +2,7 @@
 #define WARPX_RUNTIME_IPARTICLECONTAINERACCESS_H_
 #include <AMReX_MultiFab.H>
 #include <AMReX_Vector.H>
+#include <iosfwd>
 #include <memory>
 #include <string>
 class WarpXParticleContainer;
@@ -25,6 +26,10 @@ public:
     virtual const_iterator begin () const = 0;
     virtual const_iterator end () const = 0;
     virtual void Increment (amrex::MultiFab& mf, int lev) = 0;
+    virtual void AllocData () = 0;
+    virtual void ReadHeader (std::istream&) = 0;
+    virtual void WriteHeader (std::ostream&) const = 0;
+    virtual void Restart (const std::string&) = 0;
     virtual void SetDoBackTransformedParticles (bool) = 0;
     virtual void SetDoBackTransformedParticles (const std::string&, bool) = 0;
 };

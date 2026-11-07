@@ -6,6 +6,8 @@
  */
 
 #include "FieldPoyntingFlux.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Fields.H"

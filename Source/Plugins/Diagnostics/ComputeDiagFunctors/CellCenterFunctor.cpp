@@ -1,4 +1,6 @@
 #include "CellCenterFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 

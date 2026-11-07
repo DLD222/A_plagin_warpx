@@ -5,6 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "BackTransformParticleFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"

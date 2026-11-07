@@ -5,10 +5,11 @@
  */
 
 #include "JFunctor.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Fields.H"
 #include "Parallelization/WarpXSumGuardCells.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"

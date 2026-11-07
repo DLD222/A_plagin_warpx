@@ -6,6 +6,8 @@
  */
 
 #include "BoundaryScrapingDiagnostics.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Diagnostics/Diagnostics.H"
 #include "Runtime/HostServices.H"

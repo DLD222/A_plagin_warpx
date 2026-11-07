@@ -6,6 +6,8 @@
  */
 
 #include "FieldMomentum.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/ISpeciesMetadata.H"
 
 #include "Fields.H"
 #include "Utils/TextMsg.H"

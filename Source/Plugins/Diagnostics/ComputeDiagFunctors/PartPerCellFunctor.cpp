@@ -1,9 +1,10 @@
 #include "PartPerCellFunctor.H"
+#include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IParticleContainerAccess.H"
 
 #include "Runtime/RuntimeData.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
