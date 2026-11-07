@@ -417,6 +417,8 @@ public:
 
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::iterator begin() {return allcontainers.begin();}
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::iterator end() {return allcontainers.end();}
+    amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::const_iterator begin() const {return allcontainers.begin();}
+    amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::const_iterator end() const {return allcontainers.end();}
 
 protected:
 

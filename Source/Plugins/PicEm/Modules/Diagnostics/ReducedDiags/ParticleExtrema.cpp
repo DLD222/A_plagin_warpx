@@ -68,7 +68,7 @@ ParticleExtrema::ParticleExtrema (const std::string& rd_name)
     pp_rd_name.get("species",m_species_name);
 
     // get MultiParticleContainer class object
-    auto & mypc = data().particles();
+    auto & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -158,7 +158,7 @@ void ParticleExtrema::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // get MultiParticleContainer class object
-    auto const & mypc = data().particles();
+    auto const & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();

@@ -56,7 +56,7 @@ RhoMaximum::RhoMaximum (const std::string& rd_name)
     }
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();

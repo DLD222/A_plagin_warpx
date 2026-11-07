@@ -37,7 +37,7 @@ ParticleMomentum::ParticleMomentum (const std::string& rd_name)
     : ReducedDiags{rd_name}
 {
     // Get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // Get number of species
     const int nSpecies = mypc.nSpecies();
@@ -117,7 +117,7 @@ void ParticleMomentum::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // Get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // Get number of species
     const int nSpecies = mypc.nSpecies();

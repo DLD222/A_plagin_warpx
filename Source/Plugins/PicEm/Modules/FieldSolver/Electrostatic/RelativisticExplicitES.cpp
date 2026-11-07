@@ -22,7 +22,7 @@ using namespace amrex;
 void RelativisticExplicitES::InitData () {
     bool prepare_field_solve = (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::Relativistic);
     // check if any of the particle containers have initialize_self_fields = True
-    for (auto const& species : const_cast<MultiParticleContainer&>(data().particles())) {
+    for (auto const& species : const_cast<warpx::runtime::ISpeciesContainer&>(data().species())) {
         prepare_field_solve |= species->initialize_self_fields;
     }
     prepare_field_solve |= m_poisson_boundary_handler->m_boundary_potential_specified;

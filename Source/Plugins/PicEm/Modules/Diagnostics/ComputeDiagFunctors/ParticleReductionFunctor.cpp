@@ -53,7 +53,7 @@ ParticleReductionFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, 
     constexpr int ng = 1;
     // Temporary cell-centered, multi-component MultiFab for storing particles per cell.
     amrex::MultiFab red_mf(data().boxArray(m_lev), data().distributionMap(m_lev), 1, ng);
-    auto& pc = const_cast<MultiParticleContainer&>(data().particles()).GetParticleContainer(m_ispec);
+    auto& pc = data().species().GetParticleContainer(m_ispec);
     // Copy over member variables so they can be captured in the lambda
     auto map_fn = m_map_fn;
     auto filter_fn = m_filter_fn;

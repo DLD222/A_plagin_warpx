@@ -93,7 +93,7 @@ ParticleHistogram2D::ParticleHistogram2D (const std::string& rd_name)
             utils::parser::makeParser(function_string_ord,{"t","x","y","z","ux","uy","uz","w"}));
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
     // get species names (std::vector<std::string>)
     auto const species_names = mypc.GetSpeciesNames();
     // select species
@@ -158,7 +158,7 @@ void ParticleHistogram2D::ComputeDiags (int step)
     auto const t = data().t_new(0);
 
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // get WarpXParticleContainer class object
     auto & myspc = mypc.GetParticleContainer(m_selected_species_id);

@@ -30,7 +30,7 @@ TemperatureFunctor::operator() (amrex::MultiFab& mf_dst, const int dcomp, const 
 {
     using namespace amrex::literals;
 
-    auto& pc = const_cast<MultiParticleContainer&>(data().particles()).GetParticleContainer(m_ispec);
+    auto& pc = data().species().GetParticleContainer(m_ispec);
     amrex::Real const mass = pc.getMass();  // Note, implicit conversion from ParticleReal
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(mass > 0.,

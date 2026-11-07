@@ -39,7 +39,7 @@ ParticleEnergy::ParticleEnergy (const std::string& rd_name)
 : ReducedDiags{rd_name}
 {
     // get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // get number of species (int)
     const auto nSpecies = mypc.nSpecies();
@@ -89,7 +89,7 @@ void ParticleEnergy::ComputeDiags (int step)
     if (!m_intervals.contains(step+1)) { return; }
 
     // Get MultiParticleContainer class object
-    const auto & mypc = data().particles();
+    const auto & mypc = data().species();
 
     // Get number of species
     const int nSpecies = mypc.nSpecies();
