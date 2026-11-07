@@ -11,9 +11,9 @@
 #include "Runtime/RuntimeConfigSnapshot.H"
 #include "FieldProbeParticleContainer.H"
 #include "Fields.H"
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
 
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

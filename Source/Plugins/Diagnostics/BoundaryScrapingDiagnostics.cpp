@@ -13,7 +13,6 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "Diagnostics/FlushFormats/FlushFormat.H"
-#include "Particles/ParticleBoundaryBuffer.H"
 #include "Utils/TextMsg.H"
 #include "WarpX.H"
 

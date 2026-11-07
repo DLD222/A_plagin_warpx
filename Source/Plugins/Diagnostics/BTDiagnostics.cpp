@@ -1468,16 +1468,16 @@ BTDiagnostics::InitializeParticleBuffer (const warpx::runtime::IParticleContaine
         for (int isp = 0; isp < m_particles_buffer[i].size(); ++isp) {
             m_totalParticles_in_buffer[i][isp] = 0;
             const int idx = meta.getSpeciesID(m_output_species_names[isp]);
-            m_particles_buffer[i][isp] = std::make_unique<WarpXParticleContainer::Base>(access.GetParticleContainer(idx).make_alike<>());
+            m_particles_buffer[i][isp] = std::make_unique<warpx::runtime::IParticleContainer::Base>(access.GetParticleContainer(idx).make_alike<>());
             m_particles_buffer[i][isp]->SetArena(amrex::The_Pinned_Arena());
 
             // SoA component names
             {
                 auto &pc = access.GetParticleContainer(idx);
                 auto rn = pc.GetRealSoANames();
-                rn.resize(WarpXParticleContainer::NArrayReal);  // strip runtime comps
+                rn.resize(warpx::runtime::IParticleContainer::NArrayReal);  // strip runtime comps
                 auto in = pc.GetRealSoANames();
-                in.resize(WarpXParticleContainer::NArrayInt);  // strip runtime comps
+                in.resize(warpx::runtime::IParticleContainer::NArrayInt);  // strip runtime comps
                 m_particles_buffer[i][isp]->SetSoACompileTimeNames(rn, in);
             }
 

@@ -1,4 +1,3 @@
-#include "Particles/MultiParticleContainer.H"
 /* Copyright 2019-2020 Andrew Myers, Ann Almgren, Axel Huebl
  * Burlen Loring, David Grote, Gunther H. Weber
  * Junmin Gu, Maxence Thevenet, Remi Lehe
@@ -26,7 +25,7 @@
 #include "FieldIO.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"
 
@@ -221,17 +220,17 @@ WarpX::InitFromCheckpoint ()
         // Initialize MultiFabs associated with the particle species
         // Do this here so that the MultiFabs can be included in the diagnostics
         // and can be read in from the restart data.
-        mypc->AllocData();
+        GetPartContainerAccess().AllocData();
 
         ExecutePythonCallback("allocdata");
 
-        mypc->ReadHeader(is);
-        const int n_species = mypc->nSpecies();
+        GetPartContainerAccess().ReadHeader(is);
+        const int n_species = GetPartContainerAccess().nSpecies();
         for (int i=0; i<n_species; i++)
         {
              amrex::Real injection_position = 0.0;
              is >> injection_position;
-             mypc->GetParticleContainer(i).setCurrentInjectionPosition(injection_position);
+             GetPartContainerAccess().GetParticleContainer(i).setCurrentInjectionPosition(injection_position);
              ablastr::utils::text::goto_next_line(is);
         }
 
@@ -286,12 +285,12 @@ WarpX::InitFromCheckpoint ()
                         diag.set_snapshot_full(i_buffer, snapshot_full_flag);
 
                     }
-                    diag.InitDataAfterRestart(*mypc);
+                    diag.InitDataAfterRestart(GetPartContainerAccess());
                 } else {
-                    diag.InitData(*mypc);
+                    diag.InitData(GetPartContainerAccess());
                 }
             } else {
-                md.GetDiag(idiag).InitData(*mypc);
+                md.GetDiag(idiag).InitData(GetPartContainerAccess());
             }
         }
 
@@ -453,7 +452,7 @@ WarpX::InitFromCheckpoint ()
     dynamic_cast<MultiReducedDiags&>(*reduced_diags).ReadCheckpointData(restart_chkfile);
 
     // Initialize particles
-    mypc->Restart(restart_chkfile);
+    GetPartContainerAccess().Restart(restart_chkfile);
 
     if (m_implicit_solver) {
         m_implicit_solver->Define(this, /*from_restart=*/true);

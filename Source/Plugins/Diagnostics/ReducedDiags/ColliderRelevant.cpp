@@ -15,11 +15,11 @@
 #if (defined WARPX_QED)
 #   include "Particles/ElementaryProcess/QEDInternals/QedChiFunctions.H"
 #endif
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Gather/GetExternalFields.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/SpeciesPhysicalProperties.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
@@ -100,7 +100,7 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
     // loop over species
     for (int i_s = 0; i_s < 2; ++i_s)
     {
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         const warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
 
         // get charge
@@ -131,7 +131,7 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
     // loop over species
     for (int i_s = 0; i_s < 2; ++i_s)
     {
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         const warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
 
         if (myspc.DoQED()){
@@ -214,12 +214,12 @@ void ColliderRelevant::ComputeDiags (int step)
     // loop over species
     for (int i_s = 0; i_s < 2; ++i_s)
     {
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
         // get charge
         amrex::ParticleReal const q = myspc.getCharge();
 
-        using PType = typename WarpXParticleContainer::SuperParticleType;
+        using PType = typename warpx::runtime::IParticleContainer::SuperParticleType;
 
         num_dens[i_s] = myspc.GetChargeDensityOnLevel(/*lev=*/0,/*local=*/false,/*finalize=*/true);
         num_dens[i_s]->mult(1._prt/q);

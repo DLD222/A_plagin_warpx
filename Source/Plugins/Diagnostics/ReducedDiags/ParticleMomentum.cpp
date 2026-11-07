@@ -9,8 +9,8 @@
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "Particles/SpeciesPhysicalProperties.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
@@ -130,7 +130,7 @@ void ParticleMomentum::ComputeDiags (int step)
     // Loop over species
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
-        // Get WarpXParticleContainer class object
+        // Get warpx::runtime::IParticleContainer class object
         const auto & myspc = access.GetParticleContainer(i_s);
 
         const auto & view = access.GetParticleInterface(i_s);

@@ -8,7 +8,7 @@
 #define WARPX_BACKTRANSFORMPARTICLEFUNCTOR_H_
 
 #include "ComputeParticleDiagFunctor.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include <AMReX.H>
 #include <AMReX_AmrParticles.H>
@@ -208,7 +208,7 @@ class BackTransformParticleFunctor final : public ComputeParticleDiagFunctor
 public:
     BackTransformParticleFunctor(warpx::runtime::IParticleContainer *pc_src, std::string species_name, int num_buffers);
     /** Computes the Lorentz transform of source particles to obtain lab-frame data in pc_dst*/
-    void operator () (WarpXParticleContainer::Base& pc_dst, int &TotalParticleCounter, int i_buffer) const override;
+    void operator () (warpx::runtime::IParticleContainer::Base& pc_dst, int &TotalParticleCounter, int i_buffer) const override;
     void InitData() override;
     /** \brief Prepare data required to back-transform particle attributes for lab-frame snapshot, i_buffer
      *

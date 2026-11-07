@@ -8,8 +8,8 @@
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
@@ -83,7 +83,7 @@ BackTransformParticleFunctor::BackTransformParticleFunctor (
 
 
 void
-BackTransformParticleFunctor::operator () (WarpXParticleContainer::Base& pc_dst, int &totalParticleCounter, int i_buffer) const
+BackTransformParticleFunctor::operator () (warpx::runtime::IParticleContainer::Base& pc_dst, int &totalParticleCounter, int i_buffer) const
 {
     if (m_perform_backtransform[i_buffer] == 0) { return; }
     // get particle slice

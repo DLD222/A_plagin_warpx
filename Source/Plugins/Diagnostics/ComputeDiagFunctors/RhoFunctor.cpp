@@ -13,7 +13,7 @@
 #endif
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"

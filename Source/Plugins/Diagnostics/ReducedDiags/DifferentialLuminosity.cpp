@@ -10,11 +10,11 @@
 #include "Runtime/IParticleContainerAccess.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/SpeciesPhysicalProperties.H"
-#include "Particles/WarpXParticleContainer.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/Collision/ParticleShufflers.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
@@ -138,7 +138,7 @@ void DifferentialLuminosity::ComputeDiags (int step)
     ABLASTR_PROFILE("DifferentialLuminosity::ComputeDiags");
 
     using namespace amrex;
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;

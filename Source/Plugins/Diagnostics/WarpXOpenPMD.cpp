@@ -8,10 +8,10 @@
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "Particles/ParticleIO.H"
+#include "Modules/Particles/ParticleIO.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
 #include "FieldIO.H"
-#include "Particles/Filter/FilterFunctors.H"
+#include "Modules/Particles/Filter/FilterFunctors.H"
 #include "Utils/TextMsg.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"

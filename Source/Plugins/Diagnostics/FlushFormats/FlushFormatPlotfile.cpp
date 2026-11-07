@@ -6,9 +6,9 @@
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
-#include "Particles/Filter/FilterFunctors.H"
-#include "Particles/ParticleIO.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Filter/FilterFunctors.H"
+#include "Modules/Particles/ParticleIO.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/Interpolate.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
@@ -369,7 +369,7 @@ FlushFormatPlotfile::WriteParticles(const std::string& dir,
 {
     for (const auto& part_diag : particle_diags) {
         warpx::runtime::IParticleContainer* pc = part_diag.getParticleContainer();
-        WarpXParticleContainer::Base* pinned_pc = part_diag.getPinnedParticleContainer();
+        warpx::runtime::IParticleContainer::Base* pinned_pc = part_diag.getPinnedParticleContainer();
         auto tmp = isBTD ?
             pinned_pc->make_alike<>() :
             pc->make_alike<>();
@@ -448,7 +448,7 @@ FlushFormatPlotfile::WriteParticles(const std::string& dir,
 
         if (!isBTD) {
             particlesConvertUnits(ConvertDirection::WarpX_to_SI, pc, mass);
-            using SrcData = WarpXParticleContainer::ParticleTileType::ConstParticleTileDataType;
+            using SrcData = warpx::runtime::IParticleContainer::ParticleTileType::ConstParticleTileDataType;
             tmp.copyParticles(*pc,
                               [random_filter,uniform_filter,parser_filter,geometry_filter]
                               AMREX_GPU_HOST_DEVICE
@@ -461,7 +461,7 @@ FlushFormatPlotfile::WriteParticles(const std::string& dir,
             particlesConvertUnits(ConvertDirection::SI_to_WarpX, pc, mass);
         } else {
             particlesConvertUnits(ConvertDirection::WarpX_to_SI, pinned_pc, mass);
-            using SrcData = WarpXParticleContainer::ParticleTileType::ConstParticleTileDataType;
+            using SrcData = warpx::runtime::IParticleContainer::ParticleTileType::ConstParticleTileDataType;
             tmp.copyParticles(*pinned_pc,
                               [random_filter,uniform_filter,parser_filter,geometry_filter]
                               AMREX_GPU_HOST_DEVICE

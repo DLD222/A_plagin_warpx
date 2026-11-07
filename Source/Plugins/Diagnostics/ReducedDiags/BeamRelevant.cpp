@@ -9,7 +9,7 @@
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
@@ -215,14 +215,14 @@ void BeamRelevant::ComputeDiags (int step)
         // only beam species does
         if (species_names[i_s] != m_beam_name) { continue; }
 
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         auto const & myspc = access.GetParticleContainer(i_s);
 
         // get mass and charge
         ParticleReal const m = myspc.getMass();
         ParticleReal const q = myspc.getCharge();
 
-        using PType = typename WarpXParticleContainer::SuperParticleType;
+        using PType = typename warpx::runtime::IParticleContainer::SuperParticleType;
 
         // number of reduction operations in first concurrent batch
         constexpr size_t num_red_ops_1 = 8;

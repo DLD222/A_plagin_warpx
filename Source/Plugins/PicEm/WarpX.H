@@ -15,6 +15,7 @@
 #include "BoundaryConditions/PEC_Insulator_fwd.H"
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
+#include "FieldSolver/Implicit/ImplicitOptions.H"
 #include "Runtime/IAmrPolicy.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
@@ -187,6 +188,7 @@ public:
     void ImplicitComputeRHSE (int lev, PatchType patch_type, amrex::Real dt, WarpXSolverVec& a_Erhs_vec);
 
     MultiParticleContainer& GetPartContainer () { return *mypc; }
+    warpx::runtime::IParticleContainerAccess& GetPartContainerAccess ();
     MultiFluidContainer& GetFluidContainer () { return *myfl; }
     ElectrostaticSolver& GetElectrostaticSolver () {return *m_electrostatic_solver;}
     [[nodiscard]] HybridPICModel * get_pointer_HybridPICModel () const { return m_hybrid_pic_model.get(); }

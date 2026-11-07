@@ -6,7 +6,7 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "WarpX.H"
 

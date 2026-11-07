@@ -10,9 +10,9 @@
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/Algorithms/KineticEnergy.H"
-#include "Particles/SpeciesPhysicalProperties.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Algorithms/KineticEnergy.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
@@ -102,7 +102,7 @@ void ParticleEnergy::ComputeDiags (int step)
     // Loop over species
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
-        // Get WarpXParticleContainer class object
+        // Get warpx::runtime::IParticleContainer class object
         const auto & myspc = access.GetParticleInterface(i_s);
 
         auto [Etot, Ws] = myspc.sumParticleWeightAndEnergy(false);

@@ -35,24 +35,24 @@ FlushFormatInSitu::WriteParticles(const amrex::Vector<ParticleDiag>& particle_di
 
         // Get pc for species
         // auto& pc = mypc->GetParticleContainer(i);
-        WarpXParticleContainer* pc = particle_diag.getParticleContainer();
+        warpx::runtime::IParticleContainer* pc = particle_diag.getParticleContainer();
 
         // get names of real comps
         std::vector<std::string> real_comps_map = pc->GetRealSoANames();
 
-        // WarpXParticleContainer compile-time extra AoS attributes (Real): 0
-        // WarpXParticleContainer compile-time extra AoS attributes (int): 0
+        // warpx::runtime::IParticleContainer compile-time extra AoS attributes (Real): 0
+        // warpx::runtime::IParticleContainer compile-time extra AoS attributes (int): 0
 
-        // WarpXParticleContainer compile-time extra SoA attributes (Real): PIdx::nattribs
+        // warpx::runtime::IParticleContainer compile-time extra SoA attributes (Real): PIdx::nattribs
         // not an efficient search, but N is small...
         for(int j = 0; j < PIdx::nattribs; ++j)
         {
             std::string varname = real_comps_map.at(j);
             particle_varnames.push_back(prefix + "_" + varname);
         }
-        // WarpXParticleContainer compile-time extra SoA attributes (int): 0
+        // warpx::runtime::IParticleContainer compile-time extra SoA attributes (int): 0
 
-        // WarpXParticleContainer "runtime" SoA attributes (Real), e.g QED: to do
+        // warpx::runtime::IParticleContainer "runtime" SoA attributes (Real), e.g QED: to do
 
         // wrap pc for current species into a blueprint topology
         amrex::ParticleContainerToBlueprint(*pc,

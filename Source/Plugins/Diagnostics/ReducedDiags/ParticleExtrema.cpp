@@ -15,11 +15,11 @@
 #   include "Particles/ElementaryProcess/QEDInternals/QedChiFunctions.H"
 #endif
 #include "Fields.H"
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Gather/GetExternalFields.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/SpeciesPhysicalProperties.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
@@ -84,7 +84,7 @@ ParticleExtrema::ParticleExtrema (const std::string& rd_name)
         // only chosen species does
         if (species_names[i_s] != m_species_name) { continue; }
 
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         auto & myspc = access.GetParticleContainer(i_s);
 
         auto all_diag_names = std::vector<std::string> {};
@@ -178,7 +178,7 @@ void ParticleExtrema::ComputeDiags (int step)
         // only chosen species does
         if (species_names[i_s] != m_species_name) { continue; }
 
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         auto & myspc = access.GetParticleContainer(i_s);
 
         // get mass (Real)
@@ -188,7 +188,7 @@ void ParticleExtrema::ComputeDiags (int step)
             m = PhysConst::m_e;
         }
 
-        using PType = typename WarpXParticleContainer::SuperParticleType;
+        using PType = typename warpx::runtime::IParticleContainer::SuperParticleType;
         using OpMin = amrex::ReduceOpMin;
         using OpMax = amrex::ReduceOpMax;
 

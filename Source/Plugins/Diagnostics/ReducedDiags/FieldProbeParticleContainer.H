@@ -74,7 +74,7 @@ public:
     //! amrex iterator for our number of attributes (read-only)
     using const_iterator = amrex::ParConstIterSoA<FieldProbePIdx::nattribs, 0>;
 
-    //! similar to WarpXParticleContainer::AddNParticles but does not include u(x,y,z)
+    //! similar to warpx::runtime::IParticleContainer::AddNParticles but does not include u(x,y,z)
     void AddNParticles (int lev, amrex::Vector<amrex::ParticleReal> const & x, amrex::Vector<amrex::ParticleReal> const & y, amrex::Vector<amrex::ParticleReal> const & z);
 };
 

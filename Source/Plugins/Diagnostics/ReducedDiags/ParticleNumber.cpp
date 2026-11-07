@@ -10,7 +10,7 @@
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Runtime/RuntimeData.H"
 #include "WarpX.H"
 
@@ -112,7 +112,7 @@ void ParticleNumber::ComputeDiags (int step)
     // loop over species
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
-        // get WarpXParticleContainer class object
+        // get warpx::runtime::IParticleContainer class object
         auto & myspc = access.GetParticleInterface(i_s);
 
         // Save total number of macroparticles for this species

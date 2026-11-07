@@ -3895,3 +3895,6 @@ WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
     m_runtime_context = context;
     if (mypc != nullptr) { mypc->setRuntimeContext(context); }
 }
+
+warpx::runtime::IParticleContainerAccess&
+WarpX::GetPartContainerAccess () { return *mypc; }

@@ -6,7 +6,7 @@
 #include "ComputeDiagFunctors/ComputeDiagFunctor_fwd.H"
 #include "ComputeDiagFunctors/ComputeParticleDiagFunctor.H"
 #include "FlushFormats/FlushFormat_fwd.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/WarpXParIter.H"
 
 #include <AMReX_IntVect.H>
 #include <AMReX_REAL.H>
@@ -357,7 +357,7 @@ protected:
     /** Array of species indices that dump part_per_cell per species */
     amrex::Vector<int> m_part_per_cell_per_species_index;
     /** Vector of particle buffer vectors for each snapshot */
-    amrex::Vector< amrex::Vector<std::unique_ptr<WarpXParticleContainer::Base> > > m_particles_buffer;
+    amrex::Vector< amrex::Vector<std::unique_ptr<warpx::runtime::IParticleContainer::Base> > > m_particles_buffer;
     /** Vector of pointers to functors to compute particle output per species*/
     amrex::Vector< std::unique_ptr<ComputeParticleDiagFunctor> > m_all_particle_functors;
 

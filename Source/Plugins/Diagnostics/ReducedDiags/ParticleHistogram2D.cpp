@@ -11,8 +11,8 @@
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Diagnostics/OpenPMDHelpFunction.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
@@ -163,7 +163,7 @@ void ParticleHistogram2D::ComputeDiags (int step)
     const auto & meta = data().speciesMetadata();
     const auto & access = data().particleAccess();
 
-    // get WarpXParticleContainer class object
+    // get warpx::runtime::IParticleContainer class object
     auto & myspc = access.GetParticleContainer(m_selected_species_id);
 
     // get parser
