@@ -265,7 +265,7 @@ langmuir / collision / EB / ionization
 
 ```text
 A7.0 829/829
-A7.1 Core 无 WarpX + 插件边界
+A7.1 Core 无 WarpX
 A7.2 Kernel 拆分
 A7.3-A7.7 每个物理功能一个 Unit CPP
 A7.8 插件 ABI
@@ -276,8 +276,8 @@ A7.9 删除 WarpX 后四维 A/B
 
 ```text
 A7.0 完成
-A7.1 Core 无 WarpX + 插件边界 完成；插件独立未完成
-A7.2-A7.7 仅目录/骨架
+A7.1 Core 无 WarpX 完成；插件独立未完成
+A7.2 细化见 A7.2_SUBSTEPS；A7.3-A7.7 仅目录/骨架
 A7.8 部分
 A7.9 未开始
 ```
