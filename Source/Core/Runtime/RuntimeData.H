@@ -36,6 +36,7 @@ class MultiFluidContainer;
 namespace warpx::runtime
 {
 class ISpeciesContainer;
+class IFilterBank;
 class MaterialRegistry;
 class FieldRegistry;
 
@@ -84,10 +85,8 @@ public:
     [[nodiscard]] virtual const MaterialRegistry& materials () const = 0;
     [[nodiscard]] virtual const FieldRegistry& fieldRegistry () const = 0;
     [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;
-    [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
-    nciGodfreyFilterExEyBz () const = 0;
-    [[nodiscard]] virtual const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
-    nciGodfreyFilterBxByEz () const = 0;
+    [[nodiscard]] virtual IFilterBank& filterBank () = 0;
+    [[nodiscard]] virtual const IFilterBank& filterBank () const = 0;
     [[nodiscard]] virtual amrex::IntVect blockingFactor (int lev) const = 0;
     [[nodiscard]] virtual amrex::IntVect numProcs () const = 0;
     [[nodiscard]] virtual amrex::IntVect maxGridSize (int lev) const = 0;

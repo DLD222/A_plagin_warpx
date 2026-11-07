@@ -1,3 +1,4 @@
+#include "Filter/NCIGodfreyFilter.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.
@@ -92,8 +93,22 @@ const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const
     return nullptr;
 #endif
 }
-const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return w().nci_godfrey_filter_exeybz; }
-const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return w().nci_godfrey_filter_bxbyez; }
+IFilterBank& WarpXRuntimeData::filterBank () { return *this; }
+const IFilterBank& WarpXRuntimeData::filterBank () const { return *this; }
+
+void WarpXRuntimeData::applyExEyBz (int lev, amrex::FArrayBox& dst,
+                                    const amrex::FArrayBox& src,
+                                    const amrex::Box& box) const
+{
+    w().nci_godfrey_filter_exeybz[lev]->ApplyStencil(dst, src, box);
+}
+
+void WarpXRuntimeData::applyBxByEz (int lev, amrex::FArrayBox& dst,
+                                    const amrex::FArrayBox& src,
+                                    const amrex::Box& box) const
+{
+    w().nci_godfrey_filter_bxbyez[lev]->ApplyStencil(dst, src, box);
+}
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return w().blockingFactor(lev); }
 amrex::IntVect WarpXRuntimeData::numProcs () const { return w().get_numprocs(); }
 amrex::IntVect WarpXRuntimeData::maxGridSize (int lev) const { return w().maxGridSize(lev); }

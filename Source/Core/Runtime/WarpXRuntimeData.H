@@ -1,3 +1,4 @@
+#include "Runtime/IFilterBank.H"
 #include "Runtime/ISpeciesContainer.H"
 /* Copyright 2026 DLD222
  *
@@ -9,6 +10,7 @@
 #ifndef WARPX_RUNTIME_WARPXRUNTIMEDATA_H_
 #define WARPX_RUNTIME_WARPXRUNTIMEDATA_H_
 
+#include "Runtime/IFilterBank.H"
 #include "Runtime/ISpeciesContainer.H"
 #include "Runtime/RuntimeData.H"
 
@@ -31,7 +33,7 @@ namespace warpx::runtime
  *  stateless w.r.t. WarpX lifetime, so there is no unordered-static
  *  destruction-order hazard when the singleton is torn down.
  */
-class WarpXRuntimeData final : public RuntimeData
+class WarpXRuntimeData final : public RuntimeData, public IFilterBank
 {
 public:
     WarpXRuntimeData () = default;
@@ -72,10 +74,15 @@ public:
     [[nodiscard]] const MaterialRegistry& materials () const override;
     [[nodiscard]] const FieldRegistry& fieldRegistry () const override;
     [[nodiscard]] const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const override;
-    [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
-    nciGodfreyFilterExEyBz () const override;
-    [[nodiscard]] const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>&
-    nciGodfreyFilterBxByEz () const override;
+    [[nodiscard]] IFilterBank& filterBank () override;
+    [[nodiscard]] const IFilterBank& filterBank () const override;
+
+    void applyExEyBz (int lev, amrex::FArrayBox& dst,
+                      const amrex::FArrayBox& src,
+                      const amrex::Box& box) const override;
+    void applyBxByEz (int lev, amrex::FArrayBox& dst,
+                      const amrex::FArrayBox& src,
+                      const amrex::Box& box) const override;
     [[nodiscard]] amrex::IntVect blockingFactor (int lev) const override;
     [[nodiscard]] amrex::IntVect numProcs () const override;
     [[nodiscard]] amrex::IntVect maxGridSize (int lev) const override;

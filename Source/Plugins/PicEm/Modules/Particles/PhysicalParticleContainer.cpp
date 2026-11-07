@@ -1,3 +1,4 @@
+#include "Runtime/IFilterBank.H"
 /* Copyright 2019-2020 Andrew Myers, Aurore Blelly, Axel Huebl
  * David Grote, Glenn Richardson, Jean-Luc Vay
  * Ligia Diana Amorim, Luca Fedeli, Maxence Thevenet
@@ -965,8 +966,7 @@ PhysicalParticleContainer::applyNCIFilter (
 {
 
     // Get instances of NCI Godfrey filters
-    const auto& nci_godfrey_filter_exeybz = data().nciGodfreyFilterExEyBz();
-    const auto& nci_godfrey_filter_bxbyez = data().nciGodfreyFilterBxByEz();
+    const auto& filter_bank = data().filterBank();
 
 #if defined(WARPX_DIM_1D_Z)
     const Box& tbox = amrex::grow(box, static_cast<int>(config().noz()));
@@ -987,33 +987,33 @@ PhysicalParticleContainer::applyNCIFilter (
     filtered_Ex.resize(amrex::convert(tbox,Ex.box().ixType()), 1, amrex::The_Async_Arena());
     // Apply filter on Ex, result stored in filtered_Ex
 
-    nci_godfrey_filter_exeybz[lev]->ApplyStencil(filtered_Ex, Ex, filtered_Ex.box());
+    filter_bank.applyExEyBz(lev, filtered_Ex, Ex, filtered_Ex.box());
     // Update ex_ptr reference
     ex_ptr = &filtered_Ex;
 
     // Filter Ez
     filtered_Ez.resize(amrex::convert(tbox,Ez.box().ixType()), 1, amrex::The_Async_Arena());
-    nci_godfrey_filter_bxbyez[lev]->ApplyStencil(filtered_Ez, Ez, filtered_Ez.box());
+    filter_bank.applyBxByEz(lev, filtered_Ez, Ez, filtered_Ez.box());
     ez_ptr = &filtered_Ez;
 
     // Filter By
     filtered_By.resize(amrex::convert(tbox,By.box().ixType()), 1, amrex::The_Async_Arena());
-    nci_godfrey_filter_bxbyez[lev]->ApplyStencil(filtered_By, By, filtered_By.box());
+    filter_bank.applyBxByEz(lev, filtered_By, By, filtered_By.box());
     by_ptr = &filtered_By;
 #if defined(WARPX_DIM_3D)
     // Filter Ey
     filtered_Ey.resize(amrex::convert(tbox,Ey.box().ixType()), 1, amrex::The_Async_Arena());
-    nci_godfrey_filter_exeybz[lev]->ApplyStencil(filtered_Ey, Ey, filtered_Ey.box());
+    filter_bank.applyExEyBz(lev, filtered_Ey, Ey, filtered_Ey.box());
     ey_ptr = &filtered_Ey;
 
     // Filter Bx
     filtered_Bx.resize(amrex::convert(tbox,Bx.box().ixType()), 1, amrex::The_Async_Arena());
-    nci_godfrey_filter_bxbyez[lev]->ApplyStencil(filtered_Bx, Bx, filtered_Bx.box());
+    filter_bank.applyBxByEz(lev, filtered_Bx, Bx, filtered_Bx.box());
     bx_ptr = &filtered_Bx;
 
     // Filter Bz
     filtered_Bz.resize(amrex::convert(tbox,Bz.box().ixType()), 1, amrex::The_Async_Arena());
-    nci_godfrey_filter_exeybz[lev]->ApplyStencil(filtered_Bz, Bz, filtered_Bz.box());
+    filter_bank.applyExEyBz(lev, filtered_Bz, Bz, filtered_Bz.box());
     bz_ptr = &filtered_Bz;
 #else
     amrex::ignore_unused(filtered_Ey, filtered_Bx, filtered_Bz,
