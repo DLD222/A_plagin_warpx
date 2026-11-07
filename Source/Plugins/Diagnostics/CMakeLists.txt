@@ -3,6 +3,8 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(lib_${SD}
       PRIVATE
         Diagnostics.cpp
+        WarpXIO.cpp
+        FieldIO.cpp
         DiagnosticsServiceFactory.cpp
         FullDiagnostics.cpp
         MultiDiagnostics.cpp
