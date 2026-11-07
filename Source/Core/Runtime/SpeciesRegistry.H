@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-class WarpXParticleContainer;
-
 namespace warpx::runtime
 {
 
@@ -24,16 +22,15 @@ namespace warpx::runtime
 class SpeciesRegistry
 {
 public:
-    void register_species (const SpeciesSpec& spec, WarpXParticleContainer* pc)
+    void register_species (const SpeciesSpec& spec)
     {
-        const SpeciesHandle handle(spec.name, pc);
-        auto [it, inserted] = m_species.emplace(spec.name, Entry{handle, pc});
+        const SpeciesHandle handle(spec);
+        auto [it, inserted] = m_species.emplace(spec.name(), Entry{handle});
         if (inserted) { return; }
-        if (it->second.pc != pc ||
-            it->second.handle.charge() != handle.charge() ||
+        if (it->second.handle.charge() != handle.charge() ||
             it->second.handle.mass() != handle.mass()) {
             throw std::runtime_error(
-                "SpeciesRegistry: conflicting registration for species '" + spec.name + "'");
+                "SpeciesRegistry: conflicting registration for species '" + spec.name() + "'");
         }
     }
 
@@ -68,7 +65,6 @@ private:
     struct Entry
     {
         SpeciesHandle handle;
-        WarpXParticleContainer* pc = nullptr;
     };
 
     std::map<std::string, Entry> m_species;

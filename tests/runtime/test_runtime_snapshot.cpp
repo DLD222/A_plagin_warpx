@@ -345,12 +345,12 @@ int main (int argc, char* argv[])
                  "SpeciesRegistry size matches names");
 
         warpx::runtime::SpeciesSpec bad;
-        bad.name = "electrons";
-        bad.charge = PhysConst::q_e;
-        bad.mass = PhysConst::m_e;
+        bad.species_name = "electrons";
+        bad.species_charge = PhysConst::q_e;
+        bad.species_mass = PhysConst::m_e;
         bool threw = false;
         try {
-            runtime.bus().register_species(bad, nullptr);
+            runtime.bus().register_species(bad);
         } catch (const std::runtime_error&) {
             threw = true;
         }

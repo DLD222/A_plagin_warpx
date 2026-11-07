@@ -104,10 +104,11 @@ void WarpXKernel::register_species (DataBus& bus)
     for (const auto& name : mpc.GetSpeciesNames()) {
         auto& pc = mpc.GetParticleContainerFromName(name);
         SpeciesSpec spec;
-        spec.name = name;
-        spec.charge = pc.getCharge();
-        spec.mass = pc.getMass();
-        bus.register_species(spec, &pc);
+        spec.species_name = name;
+        spec.species_charge = pc.getCharge();
+        spec.species_mass = pc.getMass();
+        spec.count = static_cast<std::int64_t>(pc.TotalNumberOfParticles(false));
+        bus.register_species(spec);
     }
 }
 

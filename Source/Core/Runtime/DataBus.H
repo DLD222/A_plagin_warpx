@@ -57,7 +57,7 @@ public:
      */
     amrex::MultiFab* alias (const std::string& dst, const std::string& src, int dir, int lev);
 
-    void register_species (const SpeciesSpec& spec, WarpXParticleContainer* pc);
+    void register_species (const SpeciesSpec& spec);
     [[nodiscard]] bool has_species (const std::string& name) const;
     [[nodiscard]] SpeciesHandle species (const std::string& name) const;
     [[nodiscard]] const SpeciesRegistry& speciesRegistry () const { return m_species; }

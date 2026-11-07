@@ -13,7 +13,6 @@ foreach(D IN LISTS WarpX_DIMS)
         PluginLoader.cpp
         DataBus.cpp
     LevelResources.cpp
-    SpeciesSpec.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/WarpXRuntimeData.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/RuntimeConfig.cpp

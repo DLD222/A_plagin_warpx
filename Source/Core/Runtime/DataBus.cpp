@@ -7,7 +7,6 @@
  */
 #include "Runtime/DataBus.H"
 
-#include "Particles/WarpXParticleContainer.H"
 
 #include <stdexcept>
 
@@ -75,9 +74,9 @@ DataBus::alias (const std::string& dst, const std::string& src, int dir, int lev
 }
 
 void
-DataBus::register_species (const SpeciesSpec& spec, WarpXParticleContainer* pc)
+DataBus::register_species (const SpeciesSpec& spec)
 {
-    m_species.register_species(spec, pc);
+    m_species.register_species(spec);
 }
 
 bool

@@ -8,22 +8,30 @@
 #ifndef WARPX_RUNTIME_SPECIESSPEC_H_
 #define WARPX_RUNTIME_SPECIESSPEC_H_
 
+#include "Runtime/IParticleSpecies.H"
+
 #include <AMReX_REAL.H>
 
 #include <cstdint>
 #include <string>
 
-class WarpXParticleContainer;
+
 class CollisionSpeciesTable;
 
 namespace warpx::runtime
 {
 
-struct SpeciesSpec
+struct SpeciesSpec : public IParticleSpecies
 {
-    std::string name;
-    amrex::Real charge = 0.0;
-    amrex::Real mass = 0.0;
+    std::string species_name;
+    amrex::Real species_charge = 0.0;
+    amrex::Real species_mass = 0.0;
+    std::int64_t count = 0;
+
+    [[nodiscard]] const std::string& name () const override { return species_name; }
+    [[nodiscard]] std::int64_t numberOfParticles () const override { return count; }
+    [[nodiscard]] amrex::Real charge () const override { return species_charge; }
+    [[nodiscard]] amrex::Real mass () const override { return species_mass; }
 };
 
 /**
@@ -36,21 +44,15 @@ class SpeciesHandle
 {
 public:
     SpeciesHandle () = default;
+    explicit SpeciesHandle (SpeciesSpec spec) : m_spec(std::move(spec)) {}
 
-    [[nodiscard]] const std::string& name () const { return m_name; }
-    [[nodiscard]] std::int64_t numberOfParticles () const;
-    [[nodiscard]] amrex::Real charge () const;
-    [[nodiscard]] amrex::Real mass () const;
+    [[nodiscard]] const std::string& name () const { return m_spec.name(); }
+    [[nodiscard]] std::int64_t numberOfParticles () const { return m_spec.numberOfParticles(); }
+    [[nodiscard]] amrex::Real charge () const { return m_spec.charge(); }
+    [[nodiscard]] amrex::Real mass () const { return m_spec.mass(); }
 
 private:
-    friend class DataBus;
-    friend class ::CollisionSpeciesTable;
-    friend class SpeciesRegistry;
-    SpeciesHandle (std::string name, WarpXParticleContainer* pc)
-        : m_name(std::move(name)), m_pc(pc) {}
-
-    std::string m_name;
-    WarpXParticleContainer* m_pc = nullptr;
+    SpeciesSpec m_spec;
 };
 
 } // namespace warpx::runtime

@@ -8,7 +8,6 @@ CEXE_sources += CollisionPackage.cpp
 CEXE_sources += PluginLoader.cpp
 CEXE_sources += DataBus.cpp
 CEXE_sources += LevelResources.cpp
-CEXE_sources += SpeciesSpec.cpp
 CEXE_sources += WarpXHostServices.cpp
 CEXE_sources += RuntimeConfig.cpp
 CEXE_sources += ../Plugins/PicEm/Modules/PicEm/RuntimeConfigSnapshotBridge.cpp
