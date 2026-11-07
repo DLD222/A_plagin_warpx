@@ -1,4 +1,8 @@
 CEXE_sources += Runtime.cpp
+CEXE_sources += Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
+CEXE_sources += Modules/PicEm/Deposition/DepositionHandler.cpp
+CEXE_sources += Modules/PicEm/ParticlePush/ParticlePushHandler.cpp
+CEXE_sources += Modules/PicEm/PicEmPackage.cpp
 CEXE_sources += CollisionPackage.cpp
 CEXE_sources += PluginLoader.cpp
 CEXE_sources += DataBus.cpp

@@ -7,15 +7,16 @@
  */
 #include "Runtime/DataBus.H"
 #include "Runtime/Runtime.H"
+#include "Runtime/RuntimeData.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/FieldRegistry.H"
 #include "Runtime/IAmrPolicy.H"
 #include "Runtime/MaterialRegistry.H"
-#include "Runtime/PicEmPackage.H"
-#include "Runtime/PicFieldSolveHandler.H"
-#include "Runtime/PicFinalizeHandler.H"
-#include "Runtime/PicPushHandler.H"
+#include "Modules/PicEm/PicEmPackage.H"
+#include "Modules/PicEm/FieldSolve/FieldSolveHandler.H"
+#include "Modules/PicEm/Deposition/DepositionHandler.H"
+#include "Modules/PicEm/ParticlePush/ParticlePushHandler.H"
 #include "Runtime/StagePoint.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"
@@ -173,15 +174,15 @@ int main (int argc, char* argv[])
     {
         warpx::runtime::PluginHost host;
         warpx::runtime::PicEmPackage::register_specs(host);
-        warpx::runtime::PicPushHandler push_handler;
+        warpx::runtime::ParticlePushHandler push_handler;
         check_eq(push_handler.spec().name, std::string("particle_push"),
-                 "PicPushHandler declares particle_push");
-        warpx::runtime::PicFinalizeHandler finalize_handler;
+                 "ParticlePushHandler declares particle_push");
+        warpx::runtime::DepositionHandler finalize_handler;
         check_eq(finalize_handler.spec().name, std::string("deposition.charge_current"),
-                 "PicFinalizeHandler declares deposition.charge_current");
-        warpx::runtime::PicFieldSolveHandler field_handler("field_solve.yee");
+                 "DepositionHandler declares deposition.charge_current");
+        warpx::runtime::FieldSolveHandler field_handler("field_solve.yee");
         check_eq(field_handler.spec().name, std::string("field_solve.yee"),
-                 "PicFieldSolveHandler declares field_solve.yee");
+                 "FieldSolveHandler declares field_solve.yee");
 
         warpx::runtime::CollisionPackage::register_specs(host);
         const auto specs = host.ordered_specs();

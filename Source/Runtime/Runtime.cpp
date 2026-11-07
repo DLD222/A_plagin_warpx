@@ -15,13 +15,10 @@
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
-#include "Runtime/PicEmPackage.H"
+#include "Modules/PicEm/PicEmPackage.H"
 #include "Runtime/DiagnosticsPackage.H"
 #include "Runtime/PluginLoader.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "Runtime/PicFieldSolveHandler.H"
-#include "Runtime/PicFinalizeHandler.H"
-#include "Runtime/PicPushHandler.H"
 #include "WarpX.H"
 
 #include <stdexcept>
@@ -81,7 +78,16 @@ Runtime::Runtime (int argc, char* argv[])
     // phase calls are used, which must be bitwise identical.
     const bool disable_handlers = std::getenv("WARPX_DISABLE_PLUGIN_HANDLERS") != nullptr;
     if (!disable_handlers) {
-        PicEmPackage::register_handlers(*m_plugin_host, field_solver_module_name(m_config));
+        std::set<std::string> disabled;
+        if (const char* names = std::getenv("WARPX_DISABLE_BUILTIN_MODULES")) {
+            std::stringstream stream(names);
+            std::string item;
+            while (std::getline(stream, item, ',')) {
+                if (!item.empty()) { disabled.insert(item); }
+            }
+        }
+        PicEmPackage::register_handlers(*m_plugin_host,
+                                        field_solver_module_name(m_config), disabled);
         DiagnosticsPackage::register_handlers(*m_plugin_host);
     }
     warpx.SetPluginHost(m_plugin_host.get());
