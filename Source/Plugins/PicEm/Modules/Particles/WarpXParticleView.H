@@ -15,6 +15,7 @@ public:
     sumParticleWeightAndEnergy (bool local) const override;
     [[nodiscard]] bool isPhoton () const override;
     [[nodiscard]] bool DoQED () const override;
+    [[nodiscard]] warpx::runtime::ParticleMomentumSum sumParticleMomentum () const override;
 private:
     WarpXParticleContainer* m_pc;
 };

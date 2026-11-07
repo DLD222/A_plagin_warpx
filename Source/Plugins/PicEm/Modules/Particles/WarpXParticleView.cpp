@@ -18,3 +18,22 @@ WarpXParticleView::sumParticleWeightAndEnergy (bool local) const
 { return m_pc->sumParticleWeightAndEnergy(local); }
 bool WarpXParticleView::isPhoton () const { return m_pc->AmIA<PhysicalSpecies::photon>(); }
 bool WarpXParticleView::DoQED () const { return m_pc->DoQED(); }
+
+warpx::runtime::ParticleMomentumSum WarpXParticleView::sumParticleMomentum () const
+{
+    using PType = typename WarpXParticleContainer::SuperParticleType;
+    const amrex::Real m = isPhoton() ? PhysConst::m_e : m_pc->getMass();
+    amrex::ReduceOps<amrex::ReduceOpSum, amrex::ReduceOpSum,
+                     amrex::ReduceOpSum, amrex::ReduceOpSum> reduce_ops;
+    auto r = amrex::ParticleReduce<amrex::ReduceData<amrex::Real, amrex::Real,
+                                                      amrex::Real, amrex::Real>>(
+        *m_pc,
+        [=] AMREX_GPU_DEVICE(const PType& p) noexcept
+            -> amrex::GpuTuple<amrex::Real, amrex::Real, amrex::Real, amrex::Real>
+        {
+            const amrex::Real w = p.rdata(PIdx::w);
+            return {w*m*p.rdata(PIdx::ux), w*m*p.rdata(PIdx::uy),
+                    w*m*p.rdata(PIdx::uz), w};
+        }, reduce_ops);
+    return {amrex::get<0>(r), amrex::get<1>(r), amrex::get<2>(r), amrex::get<3>(r)};
+}

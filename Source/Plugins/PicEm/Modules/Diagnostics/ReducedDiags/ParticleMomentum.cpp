@@ -132,33 +132,12 @@ void ParticleMomentum::ComputeDiags (int step)
         // Get WarpXParticleContainer class object
         const auto & myspc = access.GetParticleContainer(i_s);
 
-        // Get mass
-        // (photons must be treated as a special case: they have zero mass,
-        // but ux, uy, uz are calculated assuming a mass equal to the electron mass)
-        const amrex::Real m = (myspc.AmIA<PhysicalSpecies::photon>()) ? PhysConst::m_e : myspc.getMass();
-
-        using PType = typename WarpXParticleContainer::SuperParticleType;
-
-        // Use amrex::ParticleReduce to compute the sum of the momenta and weights of all particles
-        // held by the current MPI rank for this species (loop over all boxes held by this MPI rank):
-        // the result r is the tuple (Px, Py, Pz, Ws)
-        amrex::ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_ops;
-        auto r = amrex::ParticleReduce<amrex::ReduceData<Real, Real, Real, Real>>(
-            myspc,
-            [=] AMREX_GPU_DEVICE(const PType& p) noexcept -> amrex::GpuTuple<Real, Real, Real, Real>
-            {
-                const amrex::Real w  = p.rdata(PIdx::w);
-                const amrex::Real ux = p.rdata(PIdx::ux);
-                const amrex::Real uy = p.rdata(PIdx::uy);
-                const amrex::Real uz = p.rdata(PIdx::uz);
-                return {w*m*ux, w*m*uy, w*m*uz, w};
-            },
-            reduce_ops);
-
-        amrex::Real Px = amrex::get<0>(r);
-        amrex::Real Py = amrex::get<1>(r);
-        amrex::Real Pz = amrex::get<2>(r);
-        amrex::Real Ws = amrex::get<3>(r);
+        const auto & view = access.GetParticleView(i_s);
+        const auto sum = view.sumParticleMomentum();
+        amrex::Real Px = sum.Px;
+        amrex::Real Py = sum.Py;
+        amrex::Real Pz = sum.Pz;
+        amrex::Real Ws = sum.W;
 
         // Reduced sum over MPI ranks
         ParallelDescriptor::ReduceRealSum({Px,Py,Pz,Ws}, ParallelDescriptor::IOProcessorNumber());

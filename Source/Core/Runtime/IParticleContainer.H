@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 namespace warpx::runtime {
+struct ParticleMomentumSum { amrex::Real Px{0}, Py{0}, Pz{0}, W{0}; };
 /** \brief Native particle-container view for modules (A7.1). */
 class IParticleContainer {
 public:
@@ -19,6 +20,7 @@ public:
     sumParticleWeightAndEnergy (bool local) const = 0;
     [[nodiscard]] virtual bool isPhoton () const = 0;
     [[nodiscard]] virtual bool DoQED () const = 0;
+    [[nodiscard]] virtual ParticleMomentumSum sumParticleMomentum () const = 0;
 };
 }
 #endif
