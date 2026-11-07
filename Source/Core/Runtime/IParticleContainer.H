@@ -1,12 +1,16 @@
 #ifndef WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #define WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #include "Modules/Particles/ParticleAttributes.H"
+#include <ablastr/fields/MultiFabRegister.H>
+
 #include <AMReX_ParticleContainer.H>
 #include <AMReX_REAL.H>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <utility>
 namespace warpx::runtime {
+class RuntimeContext;
 /** \brief Project particle-container module base (AMReX-backed). */
 class IParticleContainer
     : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
@@ -28,6 +32,11 @@ public:
     [[nodiscard]] virtual bool isPhoton () const = 0;
     [[nodiscard]] virtual int DoQED () const = 0;
     [[nodiscard]] virtual MomentumSum sumParticleMomentum () const = 0;
+    [[nodiscard]] virtual const RuntimeContext* runtime_context () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const = 0;
+    [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& BExternalParticle () const = 0;
+    [[nodiscard]] virtual amrex::Real currentInjectionPosition () const = 0;
+    [[nodiscard]] virtual int doNotDeposit () const = 0;
 };
 }
 #endif

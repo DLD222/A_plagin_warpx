@@ -197,6 +197,13 @@ public:
     { return static_cast<std::int64_t>(TotalNumberOfParticles(false)); }
     [[nodiscard]] bool isPhoton () const override { return AmIA<PhysicalSpecies::photon>(); }
     [[nodiscard]] MomentumSum sumParticleMomentum () const override;
+    [[nodiscard]] const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const override
+    { return m_E_external_particle; }
+    [[nodiscard]] const amrex::Vector<amrex::ParticleReal>& BExternalParticle () const override
+    { return m_B_external_particle; }
+    [[nodiscard]] amrex::Real currentInjectionPosition () const override
+    { return m_current_injection_position; }
+    [[nodiscard]] int doNotDeposit () const override { return do_not_deposit; }
 
     // amrex::StructOfArrays with DiagIdx::nattribs amrex::ParticleReal components
     // and 0 int components for the particle data.
@@ -213,7 +220,7 @@ public:
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
-    [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const { return m_runtime_context; }
+    [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const override { return m_runtime_context; }
     [[nodiscard]] amrex::AmrCore* amrCore () const { return m_amr_core; }
     ~WarpXParticleContainer() override;
 

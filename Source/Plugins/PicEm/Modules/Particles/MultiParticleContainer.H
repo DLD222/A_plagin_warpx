@@ -21,7 +21,6 @@
 #include "PhysicalParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "Particles/WarpXParticleView.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "WarpXParticleContainer.H"
@@ -97,11 +96,7 @@ public:
     GetParticleInterface (int index) const override { return *allcontainers[index]; }
 
     [[nodiscard]] warpx::runtime::IParticleContainer&
-    GetParticleView (int index) const override
-    {
-        if (!m_views[index]) { m_views[index] = std::make_unique<WarpXParticleView>(allcontainers[index].get()); }
-        return *m_views[index];
-    }
+    GetParticleView (int index) const override { return *allcontainers[index]; }
     [[nodiscard]] warpx::runtime::IParticleContainer&
     GetParticleView (const std::string& name) const override
     {
@@ -596,7 +591,6 @@ private:
 
     // physical particles (+ laser)
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>> allcontainers;
-    mutable amrex::Vector<std::unique_ptr<WarpXParticleView>> m_views;
 
     void ReadParameters ();
 
