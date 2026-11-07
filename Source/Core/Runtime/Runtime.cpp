@@ -95,7 +95,8 @@ Runtime::Runtime (int argc, char* argv[])
     sync_config();
     sync_time();
     m_context = RuntimeContext(&m_config, &m_time, &m_frame, m_data.get(), m_bus.get(),
-                               m_host.get(), [this] { sync_time(); });
+                               m_host.get(), [this] { sync_time(); },
+                               &m_config_snapshot);
     warpx.SetRuntimeContext(&m_context);
 
     auto& mpc = warpx.GetPartContainer();
@@ -192,6 +193,12 @@ Runtime::config () const
     return m_config;
 }
 
+const RuntimeConfigSnapshot&
+Runtime::config_snapshot () const
+{
+    return m_config_snapshot;
+}
+
 const TimeState&
 Runtime::time () const
 {
@@ -256,6 +263,7 @@ void
 Runtime::sync_config ()
 {
     m_config = RuntimeConfig::FromLegacy();
+    m_config_snapshot = RuntimeConfigSnapshot::FromLegacy();
 }
 
 void

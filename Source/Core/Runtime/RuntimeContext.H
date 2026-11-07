@@ -20,6 +20,7 @@ namespace warpx::runtime
 class DataBus;
 class HostServices;
 class RuntimeData;
+struct RuntimeConfigSnapshot;
 
 /**
  * \brief Non-owning view of the runtime state handed to kernel/plugin code.
@@ -33,9 +34,11 @@ struct RuntimeContext
     RuntimeContext () = default;
     RuntimeContext (const RuntimeConfig* config_, const TimeState* time_,
                     const FrameState* frame_, RuntimeData* data_, DataBus* bus_,
-                    HostServices* host_, std::function<void()> refresh_time_)
+                    HostServices* host_, std::function<void()> refresh_time_,
+                    const RuntimeConfigSnapshot* config_snapshot_ = nullptr)
         : config(config_), time(time_), frame(frame_), data(data_), bus(bus_),
-          host(host_), refresh_time(std::move(refresh_time_)) {}
+          host(host_), refresh_time(std::move(refresh_time_)),
+          config_snapshot(config_snapshot_) {}
 
     RuntimeContext (const RuntimeContext&) = delete;
     RuntimeContext& operator= (const RuntimeContext&) = delete;
@@ -48,6 +51,7 @@ struct RuntimeContext
     RuntimeData* data = nullptr;
     DataBus* bus = nullptr;
     HostServices* host = nullptr;
+    const RuntimeConfigSnapshot* config_snapshot = nullptr;
 
     //! Transitional live-clock hook: WarpX calls this at step boundaries and
     //! after InitData so TimeState is fresh when diagnostics run.

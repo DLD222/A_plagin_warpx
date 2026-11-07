@@ -10,6 +10,7 @@ CEXE_sources += LevelResources.cpp
 CEXE_sources += SpeciesSpec.cpp
 CEXE_sources += WarpXHostServices.cpp
 CEXE_sources += RuntimeConfig.cpp
+CEXE_sources += ../Plugins/PicEm/Modules/PicEm/RuntimeConfigSnapshotBridge.cpp
 CEXE_sources += FrameState.cpp
 CEXE_sources += WarpXRuntimeData.cpp
 VPATH_LOCATIONS += $(WARPX_HOME)/Source/Runtime

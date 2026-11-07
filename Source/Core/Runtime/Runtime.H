@@ -12,6 +12,7 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/TimeState.H"
 
@@ -62,6 +63,9 @@ public:
     //! Read-only configuration snapshot (populated after initialize()).
     [[nodiscard]] const RuntimeConfig& config () const;
 
+    //! Stable value snapshot for modules (A7.1 transitional).
+    [[nodiscard]] const RuntimeConfigSnapshot& config_snapshot () const;
+
     //! Read-only clock/level snapshot.
     [[nodiscard]] const TimeState& time () const;
 
@@ -89,6 +93,7 @@ private:
     bool m_external_libraries_initialized = false;
     bool m_finalized = false;
     RuntimeConfig m_config{};
+    RuntimeConfigSnapshot m_config_snapshot{};
     TimeState m_time{};
     FrameState m_frame{};
     RuntimeContext m_context{};

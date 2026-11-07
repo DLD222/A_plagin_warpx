@@ -98,6 +98,8 @@ int main (int argc, char* argv[])
     check(installed != nullptr, "WarpX has a runtime context before InitData");
     check(installed == &runtime.context(), "installed context is Runtime::context()");
     check(runtime.context().config == &runtime.config(), "context.config points at RuntimeConfig");
+    check(runtime.context().config_snapshot == &runtime.config_snapshot(),
+          "context.config_snapshot points at RuntimeConfigSnapshot");
     check(runtime.context().time == &runtime.time(), "context.time points at TimeState");
     check(runtime.context().frame == &runtime.frame(), "context.frame points at FrameState");
     check(&runtime.fields() == &WarpX::GetInstance().GetMultiFabRegister(),
@@ -357,6 +359,15 @@ int main (int argc, char* argv[])
         WarpX::nox = nox_before + 1;
         check_eq(runtime.config().nox(), nox_before + 1, "RuntimeConfig is live (nox)");
         WarpX::nox = nox_before;
+    }
+
+    {
+        const auto& snap = runtime.config_snapshot();
+        check_eq(snap.electromagnetic_solver_id, WarpX::electromagnetic_solver_id,
+                 "config snapshot solver");
+        check_eq(snap.grid_type, WarpX::grid_type, "config snapshot grid type");
+        check_eq(snap.nox, WarpX::nox, "config snapshot nox");
+        check_eq(snap.ncomps, WarpX::ncomps, "config snapshot ncomps");
     }
 
     const auto& c = runtime.config();

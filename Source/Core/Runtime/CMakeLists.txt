@@ -16,6 +16,7 @@ foreach(D IN LISTS WarpX_DIMS)
     SpeciesSpec.cpp
         WarpXHostServices.cpp
         RuntimeConfig.cpp
+        ../../Plugins/PicEm/Modules/PicEm/RuntimeConfigSnapshotBridge.cpp
         FrameState.cpp
         WarpXRuntimeData.cpp
     )
