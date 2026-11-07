@@ -145,4 +145,7 @@ LD_LIBRARY_PATH=$HOME/third_party/fftw/lib ctest --test-dir build_fft ...
 
 正式技术路线 153/153 完成。
 
+注意：本文件描述的是当前状态；与用户“删除 WarpX 后仍可运行”的目标差异见
+[ARCHITECTURE_CLAIM_AUDIT.md](ARCHITECTURE_CLAIM_AUDIT.md)。
+
 剩余项是增强/兼容性工作，不是未完成任务。

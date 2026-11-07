@@ -16,6 +16,11 @@
 #include <AMReX_Array.H>
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>
+#ifdef AMREX_USE_EB
+#include <AMReX_EBFabFactory.H>
+#else
+namespace amrex { class EBFArrayBoxFactory; }
+#endif
 #include <AMReX_Extension.H>
 #include <AMReX_GpuQualifiers.H>
 #include <AMReX_IntVect.H>

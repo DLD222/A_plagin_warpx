@@ -570,14 +570,16 @@ FullDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
             }
         } else if ( m_varnames_fields[comp] == "divB" ){
             m_all_field_functors[lev][comp] = std::make_unique<DivBFunctor>(
-                data().fields().get_alldirs(FieldType::Bfield_aux, lev),
+                const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+                    .get_alldirs(FieldType::Bfield_aux, lev),
                 lev, m_crse_ratio, false, ncomp);
             if (update_varnames) {
                 AddRZModesToOutputNames(std::string("divB"), ncomp);
             }
         } else if ( m_varnames_fields[comp] == "divE" ){
             m_all_field_functors[lev][comp] = std::make_unique<DivEFunctor>(
-                data().fields().get_alldirs(FieldType::Efield_aux, lev),
+                const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+                    .get_alldirs(FieldType::Efield_aux, lev),
                 lev, m_crse_ratio, false, ncomp);
             if (update_varnames) {
                 AddRZModesToOutputNames(std::string("divE"), ncomp);
@@ -589,7 +591,8 @@ FullDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
                 AddRZModesToOutputNames(std::string("eb_covered"), 1);
             }
         } else if ( data().fields().has(m_varnames_fields[comp], lev) ) {
-            amrex::MultiFab * mf = data().fields().get(m_varnames_fields[comp], lev);
+            auto* mf = const_cast<amrex::MultiFab*>(
+                data().fields().get(m_varnames_fields[comp], lev));
             const int mf_ncomp = mf->nComp();
             m_all_field_functors[lev][comp] = std::make_unique<CellCenterFunctor>(mf, lev, m_crse_ratio, false, mf_ncomp);
             if (mf_ncomp == ncomp) {
@@ -704,7 +707,8 @@ FullDiagnostics::AddRZModesToDiags (int lev)
     // divE
     if (divE_requested) {
         m_all_field_functors[lev].push_back(std::make_unique<DivEFunctor>(
-            data().fields().get_alldirs(FieldType::Efield_aux, lev),
+            const_cast<ablastr::fields::MultiFabRegister&>(data().fields())
+                .get_alldirs(FieldType::Efield_aux, lev),
             lev, m_crse_ratio, false, ncomp_multimodefab));
         AddRZModesToOutputNames(std::string("divE"), ncomp_multimodefab);
     }

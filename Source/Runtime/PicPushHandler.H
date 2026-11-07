@@ -32,8 +32,8 @@ public:
             .point = {Stage::Push, 0},
             .reads_fields = {},
             .writes_fields = {"current_fp", "rho_fp"},
-            .reads_species = {"electrons", "ions", "photons"},
-            .writes_species = {"electrons", "ions", "photons"},
+            .reads_species = {},
+            .writes_species = {},
             .priority = 0};
     }
 
