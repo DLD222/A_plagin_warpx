@@ -153,7 +153,7 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
      * the momentum of the macroparticles to the curvilinear frame, equivalent to the x-axis.
      * (This is only valid if we use only the m=0 azimuthal mode in the simulation;
      * there is a corresponding assert statement at initialization.) */
-    if (m_host != nullptr) { m_host->transformMomentumToCurvilinear(true); }
+    if (m_host != nullptr) { m_host->particleServices().transformMomentumToCurvilinear(true); }
 #endif
 
 #ifdef WARPX_QED
@@ -161,14 +161,14 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
     // The virtual photons are newly generated here and participate in the collisions.
     // Here, the virtual photons are regenerated from scratch, i.e. they are overwritten by new ones at each time step.
     if (m_species.size() > 0 && m_host != nullptr) {
-        m_host->generateVirtualPhotons();
+        m_host->particleServices().generateVirtualPhotons();
     }
 #endif
 
     if (m_use_global_debye_length) {
         // This will calculate the temperature, Vbar, and particle number that are needed by
         // the various collision algorithms
-        if (m_host != nullptr) { m_host->generateGlobalDebyeLength(); }
+        if (m_host != nullptr) { m_host->particleServices().generateGlobalDebyeLength(); }
     }
 
     for (auto& collision : allcollisions) {
@@ -197,7 +197,7 @@ void CollisionHandler::doCollisions ( int step, amrex::Real cur_time, amrex::Rea
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
     // Undo the rotation above
-    if (m_host != nullptr) { m_host->transformMomentumToCurvilinear(false); }
+    if (m_host != nullptr) { m_host->particleServices().transformMomentumToCurvilinear(false); }
 #endif
 
 }

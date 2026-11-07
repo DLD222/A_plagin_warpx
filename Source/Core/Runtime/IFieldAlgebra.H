@@ -11,6 +11,7 @@ public:
     virtual void computeDivE (amrex::MultiFab&, int) = 0;
     virtual std::unique_ptr<amrex::MultiFab> computePhi (int) = 0;
     virtual void applyFilterMF (ablastr::fields::MultiLevelVectorField const&, int, int) = 0;
+    virtual void fieldSolve (amrex::Real) = 0;
 };
 }
 #endif

@@ -696,7 +696,7 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
         }
         auto* host = m_legacy_host.get();
         CollisionSpeciesTable species(GetPartContainer(), [host](const std::string& name) {
-            host->calculateNuei(name);
+            host->particleServices().calculateNuei(name);
         });
         m_legacy_collision_handler = std::make_unique<CollisionHandler>(
             species, *m_legacy_data, *m_legacy_config, host);

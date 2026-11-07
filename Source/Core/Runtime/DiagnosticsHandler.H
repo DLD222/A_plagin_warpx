@@ -35,7 +35,7 @@ public:
         if (ctx.host == nullptr) {
             throw std::runtime_error("DiagnosticsHandler: missing host services");
         }
-        ctx.host->computeDiagnostics(ctx.step);
+        ctx.host->diagnosticsMetadata().computeDiagnostics(ctx.step);
     }
 };
 

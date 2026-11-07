@@ -34,7 +34,7 @@ FieldSolveHandler::apply (StageContext& ctx)
     if (ctx.host == nullptr || ctx.data == nullptr || ctx.config == nullptr) {
         throw std::runtime_error("FieldSolveHandler: missing StageContext services");
     }
-    ctx.host->fieldSolve(ctx.time);
+    ctx.host->fieldAlgebra().fieldSolve(ctx.time);
 }
 
 } // namespace warpx::runtime

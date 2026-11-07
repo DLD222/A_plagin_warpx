@@ -20,6 +20,9 @@ public:
     virtual void calculateNuei (const std::string&) = 0;
     virtual void syncCurrent (const std::string&) = 0;
     virtual void applyInverseVolumeScalingToCurrentDensity (amrex::MultiFab*, amrex::MultiFab*, amrex::MultiFab*, int) = 0;
+    virtual void transformMomentumToCurvilinear (bool) = 0;
+    virtual void generateGlobalDebyeLength () = 0;
+    virtual void generateVirtualPhotons () = 0;
 };
 }
 #endif

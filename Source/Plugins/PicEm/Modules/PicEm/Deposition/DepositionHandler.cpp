@@ -34,7 +34,7 @@ DepositionHandler::apply (StageContext& ctx)
     if (ctx.host == nullptr || ctx.data == nullptr || ctx.config == nullptr) {
         throw std::runtime_error("DepositionHandler: missing StageContext services");
     }
-    ctx.host->finalizeDeposition();
+    ctx.host->particleServices().finalizeDeposition();
 }
 
 } // namespace warpx::runtime

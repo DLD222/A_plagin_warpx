@@ -1,3 +1,4 @@
+#include "Particles/ParticleBoundaryBuffer.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.
@@ -203,12 +204,6 @@ amrex::Real WarpXHostServices::movingWindowX () const { return m_warpx.getmoving
 bool WarpXHostServices::movingWindowActive (int step) const { return WarpX::moving_window_active(step); }
 int WarpXHostServices::numCellsShifted (amrex::Real distance, amrex::Real dx) const { return WarpX::NumCellsShifted(distance, dx); }
 bool WarpXHostServices::doMovingWindow () const { return m_warpx.getdo_moving_window(); }
-ParticleBoundaryBuffer&
-WarpXHostServices::particleBoundaryBuffer ()
-{
-    return m_warpx.GetParticleBoundaryBuffer();
-}
-
 void
 WarpXHostServices::pushParticlesAndDeposit (amrex::Real cur_time, amrex::Real dt, int step)
 {
@@ -280,7 +275,6 @@ WarpXHostServices::checkpointPML (int lev, const std::string& prefix,
 #endif
 }
 
-amrex::AmrMesh* WarpXHostServices::amrMesh () { return &m_warpx; }
 std::vector<bool> WarpXHostServices::pmlDirections () const { return m_warpx.getPMLdirections(); }
 std::string WarpXHostServices::authors () const { return m_warpx.GetAuthors(); }
 void WarpXHostServices::writeParticleHeader (std::ostream& os) { m_warpx.GetPartContainer().WriteHeader(os); }
@@ -312,3 +306,23 @@ int WarpXHostServices::hybridPicSubsteps () const
 }
 
 } // namespace warpx::runtime
+
+namespace warpx::runtime
+{
+int WarpXHostServices::getNumParticlesInContainer (const std::string& species, int boundary, bool local)
+{
+    return m_warpx.GetParticleBoundaryBuffer().getNumParticlesInContainer(species, boundary, local);
+}
+std::string WarpXHostServices::boundaryName (int boundary)
+{
+    return m_warpx.GetParticleBoundaryBuffer().boundaryName(boundary);
+}
+void* WarpXHostServices::getParticleBufferPointer (const std::string& species, int boundary)
+{
+    return static_cast<void*>(m_warpx.GetParticleBoundaryBuffer().getParticleBufferPointer(species, boundary));
+}
+void WarpXHostServices::clearParticles (int boundary)
+{
+    m_warpx.GetParticleBoundaryBuffer().clearParticles(boundary);
+}
+}

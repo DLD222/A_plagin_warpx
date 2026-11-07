@@ -23,7 +23,8 @@ class WarpXHostServices final : public HostServices,
                               public IPML,
                               public IDiagnosticsMetadata,
                               public ICheckpoint,
-                              public IRunControl
+                              public IRunControl,
+                              public IParticleBoundaryBuffer
 {
 public:
     explicit WarpXHostServices (WarpX& warpx) : m_warpx(warpx) {}
@@ -35,6 +36,11 @@ public:
     IDiagnosticsMetadata& diagnosticsMetadata () override { return *this; }
     ICheckpoint& checkpoint () override { return *this; }
     IRunControl& runControl () override { return *this; }
+    IParticleBoundaryBuffer& particleBoundaryBufferService () override { return *this; }
+    int getNumParticlesInContainer (const std::string& s, int b, bool l) override;
+    std::string boundaryName (int b) override;
+    void* getParticleBufferPointer (const std::string& s, int b) override;
+    void clearParticles (int b) override;
 
     void prepareFieldsForDiagnostics () override;
     void computeDivB (amrex::MultiFab& divB, int dcomp,
@@ -66,7 +72,6 @@ public:
     [[nodiscard]] int numCellsShifted (amrex::Real distance, amrex::Real dx) const override;
     [[nodiscard]] bool doMovingWindow () const override;
     [[nodiscard]] amrex::Real timeOfLastGalileanShift () const override;
-    ParticleBoundaryBuffer& particleBoundaryBuffer () override;
     void pushParticlesAndDeposit (amrex::Real cur_time, amrex::Real dt, int step) override;
     void finalizeDeposition () override;
     void transformMomentumToCurvilinear (bool forward) override;
@@ -80,7 +85,6 @@ public:
     [[nodiscard]] bool doPML () const override;
     void checkpointPML (int lev, const std::string& prefix,
                         ablastr::fields::MultiFabRegister& fields) override;
-    [[nodiscard]] amrex::AmrMesh* amrMesh () override;
     [[nodiscard]] std::vector<bool> pmlDirections () const override;
     [[nodiscard]] std::string authors () const override;
     void writeParticleHeader (std::ostream& os) override;

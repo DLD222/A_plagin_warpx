@@ -102,7 +102,7 @@ Runtime::Runtime (int argc, char* argv[])
     auto& mpc = warpx.GetPartContainer();
     auto* host = m_host.get();
     CollisionSpeciesTable species(mpc, [host](const std::string& name) {
-        host->calculateNuei(name);
+        host->particleServices().calculateNuei(name);
     });
     m_collision_handler = std::make_unique<CollisionHandler>(
         species, *m_data, m_config, host);

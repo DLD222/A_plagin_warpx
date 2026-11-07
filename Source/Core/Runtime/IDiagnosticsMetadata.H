@@ -30,6 +30,7 @@ public:
     virtual int hybridPicSubsteps () const = 0;
     virtual bool hasHybridPICModel () const = 0;
     virtual std::string authors () const = 0;
+    virtual void computeDiagnostics (int) = 0;
 };
 }
 #endif
