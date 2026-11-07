@@ -36,6 +36,14 @@ RuntimeConfigSnapshot::FromLegacy ()
 #else
     snapshot.n_rz_azimuthal_modes = 1;
 #endif
+    snapshot.galerkin_interpolation = WarpX::galerkin_interpolation;
+    snapshot.do_dive_cleaning = WarpX::do_dive_cleaning;
+    snapshot.do_divb_cleaning = WarpX::do_divb_cleaning;
+    snapshot.do_single_precision_comms = WarpX::do_single_precision_comms;
+    snapshot.fft_do_time_averaging = WarpX::fft_do_time_averaging;
+    snapshot.start_moving_window_step = WarpX::start_moving_window_step;
+    snapshot.end_moving_window_step = WarpX::end_moving_window_step;
+    snapshot.load_balance_costs_update_algo = WarpX::load_balance_costs_update_algo;
     return snapshot;
 }
 

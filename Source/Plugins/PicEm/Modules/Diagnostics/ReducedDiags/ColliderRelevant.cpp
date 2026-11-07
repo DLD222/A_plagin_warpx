@@ -6,6 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "ColliderRelevant.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Fields.H"
@@ -431,9 +432,9 @@ void ColliderRelevant::ComputeDiags (int step)
         if (myspc.DoQED())
         {
             // define variables in preparation for field gatheeduce_data.value()ring
-            const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
-            const int nox = config().nox();
-            const bool galerkin_interpolation = config().galerkin_interpolation();
+            const int n_rz_azimuthal_modes = config_snapshot().n_rz_azimuthal_modes;
+            const int nox = config_snapshot().nox;
+            const bool galerkin_interpolation = config_snapshot().galerkin_interpolation;
             const amrex::IntVect ngEB = data().ngEB();
 
             // TODO loop over refinement levels: for (int lev = 0; lev <= level_number; ++lev)

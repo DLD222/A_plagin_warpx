@@ -1,4 +1,5 @@
 #include "FullDiagnostics.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "ComputeDiagFunctors/CellCenterFunctor.H"
 #include "ComputeDiagFunctors/DarwinEfieldFunctor.H"
@@ -61,8 +62,8 @@ FullDiagnostics::FullDiagnostics (int i, const std::string& name, DiagTypes diag
                                   const warpx::runtime::RuntimeContext* ctx):
     Diagnostics{i, name, diag_type, ctx},
     m_solver_deposits_current{
-        (config().electromagnetic_solver_id() != ElectromagneticSolverAlgo::None) ||
-        (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)}
+        (config_snapshot().electromagnetic_solver_id != ElectromagneticSolverAlgo::None) ||
+        (config_snapshot().electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic)}
 {
     ReadParameters();
     BackwardCompatibility();
@@ -513,7 +514,7 @@ FullDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
             // QDSMC electron-energy-equation state variable when that
             // equation is solved.
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::HybridPIC,
+                config_snapshot().electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC,
                 "The 'Te' diagnostic output requires the hybrid-PIC solver "
                 "(algo.maxwell_solver = hybrid).");
             m_all_field_functors[lev][comp] = std::make_unique<CellCenterFunctor>(
@@ -525,7 +526,7 @@ FullDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
         } else if ( m_varnames_fields[comp] == "Pe" ){
             // Electron pressure [Pa] consumed by the Ohm's-law E-solve.
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::HybridPIC,
+                config_snapshot().electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC,
                 "The 'Pe' diagnostic output requires the hybrid-PIC solver "
                 "(algo.maxwell_solver = hybrid).");
             m_all_field_functors[lev][comp] = std::make_unique<CellCenterFunctor>(
@@ -1013,7 +1014,7 @@ FullDiagnostics::InitializeFieldFunctors (int lev)
             // QDSMC electron-energy-equation state variable when that
             // equation is solved.
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::HybridPIC,
+                config_snapshot().electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC,
                 "The 'Te' diagnostic output requires the hybrid-PIC solver "
                 "(algo.maxwell_solver = hybrid).");
             m_all_field_functors[lev][comp] = std::make_unique<CellCenterFunctor>(
@@ -1022,7 +1023,7 @@ FullDiagnostics::InitializeFieldFunctors (int lev)
         } else if ( m_varnames[comp] == "Pe" ){
             // Electron pressure [Pa] consumed by the Ohm's-law E-solve.
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::HybridPIC,
+                config_snapshot().electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC,
                 "The 'Pe' diagnostic output requires the hybrid-PIC solver "
                 "(algo.maxwell_solver = hybrid).");
             m_all_field_functors[lev][comp] = std::make_unique<CellCenterFunctor>(

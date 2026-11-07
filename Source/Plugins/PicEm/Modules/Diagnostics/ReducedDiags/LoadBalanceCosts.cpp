@@ -5,6 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "LoadBalanceCosts.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Fields.H"
@@ -114,7 +115,7 @@ void LoadBalanceCosts::ComputeDiags (int step)
         costs[lev] = std::make_unique<LayoutData<Real>>(*data().costs(lev));
     }
 
-    if (config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Heuristic)
+    if (config_snapshot().load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Heuristic)
     {
         data().computeCostsHeuristic();
         for (int lev = 0; lev < nLevels; ++lev)

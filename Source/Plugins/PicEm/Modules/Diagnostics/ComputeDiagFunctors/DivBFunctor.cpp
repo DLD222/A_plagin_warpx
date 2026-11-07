@@ -1,4 +1,5 @@
 #include "DivBFunctor.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeConfig.H"
@@ -31,7 +32,7 @@ DivBFunctor::operator()(amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer
     constexpr int ng = 1;
     // A cell-centered divB multifab spanning the entire domain is generated
     // and divB is computed on the cell-center, with ng=1.
-    amrex::MultiFab divB( data().boxArray(m_lev), data().distributionMap(m_lev), config().ncomps(), ng );
+    amrex::MultiFab divB( data().boxArray(m_lev), data().distributionMap(m_lev), config_snapshot().ncomps, ng );
     host().computeDivB(divB, 0, m_arr_mf_src, data().cellSize(m_lev));
     // // Coarsen and Interpolate from divB to coarsened/reduced_domain mf_dst
     // ablastr::coarsen::sample::Coarsen( mf_dst, divB, dcomp, 0, nComp(), 0, m_crse_ratio);

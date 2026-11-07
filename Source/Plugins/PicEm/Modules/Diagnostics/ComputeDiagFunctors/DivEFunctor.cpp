@@ -1,4 +1,5 @@
 #include "DivEFunctor.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeConfig.H"
@@ -45,12 +46,12 @@ DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_
 #else
     // For RZ spectral, all quantities are cell centered
     const auto cell_type =
-        (config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::PSATD)?
+        (config_snapshot().electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)?
         amrex::IntVect::TheCellVector():amrex::IntVect::TheNodeVector();
 #endif
 
     const amrex::BoxArray& ba = amrex::convert(data().boxArray(m_lev), cell_type);
-    amrex::MultiFab divE(ba, data().distributionMap(m_lev), config().ncomps(), ng );
+    amrex::MultiFab divE(ba, data().distributionMap(m_lev), config_snapshot().ncomps, ng );
     host().computeDivE(divE, m_lev);
 
 #ifdef WARPX_DIM_RZ

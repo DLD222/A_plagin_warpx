@@ -1,3 +1,4 @@
+#include "Runtime/RuntimeConfigSnapshot.H"
 #include "Diagnostics.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
@@ -52,6 +53,16 @@ Diagnostics::Diagnostics (int i, std::string name, DiagTypes diag_type,
 }
 
 Diagnostics::~Diagnostics () = default;
+
+const warpx::runtime::RuntimeConfigSnapshot&
+Diagnostics::config_snapshot () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config_snapshot != nullptr) {
+        return *m_runtime_context->config_snapshot;
+    }
+    static const warpx::runtime::RuntimeConfigSnapshot legacy{};
+    return legacy;
+}
 
 const warpx::runtime::RuntimeConfig&
 Diagnostics::config () const

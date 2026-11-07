@@ -26,7 +26,7 @@ class RuntimeData;
 class WarpXRuntimeData;
 class HostServices;
 class WarpXHostServices;
-struct RuntimeConfig;
+struct RuntimeConfig; struct RuntimeConfigSnapshot;
 struct FrameState;
 }
 
@@ -57,6 +57,7 @@ public:
     virtual ~Diagnostics ();
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfigSnapshot& config_snapshot () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     [[nodiscard]] warpx::runtime::HostServices& host () const;

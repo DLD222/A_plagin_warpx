@@ -46,6 +46,14 @@ struct RuntimeConfigSnapshot
     int noz{0};
     int ncomps{1};
     int n_rz_azimuthal_modes{1};
+    bool galerkin_interpolation{false};
+    bool do_dive_cleaning{false};
+    bool do_divb_cleaning{false};
+    bool do_single_precision_comms{false};
+    bool fft_do_time_averaging{false};
+    int start_moving_window_step{-1};
+    int end_moving_window_step{-1};
+    LoadBalanceCostsUpdateAlgo load_balance_costs_update_algo{LoadBalanceCostsUpdateAlgo::Default};
 
     //! Filled by the PicEm plugin adapter.
     [[nodiscard]] static RuntimeConfigSnapshot FromLegacy ();

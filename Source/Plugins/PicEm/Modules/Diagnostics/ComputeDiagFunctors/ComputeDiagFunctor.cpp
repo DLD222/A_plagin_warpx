@@ -7,6 +7,8 @@
  */
 #include "ComputeDiagFunctor.H"
 
+#include "Runtime/RuntimeConfigSnapshot.H"
+
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/HostServices.H"
@@ -45,6 +47,16 @@ ComputeDiagFunctor::host () const
         m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance());
     }
     return *m_legacy_host;
+}
+
+const warpx::runtime::RuntimeConfigSnapshot&
+ComputeDiagFunctor::config_snapshot () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config_snapshot != nullptr) {
+        return *m_runtime_context->config_snapshot;
+    }
+    static const warpx::runtime::RuntimeConfigSnapshot legacy{};
+    return legacy;
 }
 
 const warpx::runtime::RuntimeConfig&

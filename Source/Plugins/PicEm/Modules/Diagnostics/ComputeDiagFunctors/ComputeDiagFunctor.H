@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; class HostServices; class WarpXHostServices; struct RuntimeConfig; struct FrameState; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; class HostServices; class WarpXHostServices; struct RuntimeConfig; struct RuntimeConfigSnapshot; struct FrameState; }
 
 /**
  * \brief Functor to compute a diagnostic and store the result in existing
@@ -108,6 +108,7 @@ protected:
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfigSnapshot& config_snapshot () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;

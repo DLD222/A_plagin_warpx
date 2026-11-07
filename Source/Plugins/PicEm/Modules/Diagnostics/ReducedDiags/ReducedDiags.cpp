@@ -1,3 +1,4 @@
+#include "Runtime/RuntimeConfigSnapshot.H"
 /* Copyright 2019-2020 Maxence Thevenet, Yinjian Zhao
  *
  * This file is part of WarpX.
@@ -175,6 +176,16 @@ ReducedDiags::data () const
         m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
     }
     return *m_legacy_data;
+}
+
+const warpx::runtime::RuntimeConfigSnapshot&
+ReducedDiags::config_snapshot () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->config_snapshot != nullptr) {
+        return *m_runtime_context->config_snapshot;
+    }
+    static const warpx::runtime::RuntimeConfigSnapshot legacy{};
+    return legacy;
 }
 
 const warpx::runtime::RuntimeConfig&

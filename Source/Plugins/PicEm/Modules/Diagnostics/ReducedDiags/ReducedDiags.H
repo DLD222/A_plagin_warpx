@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; struct RuntimeConfig; struct FrameState; }
+namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; struct RuntimeConfig; struct RuntimeConfigSnapshot; struct FrameState; }
 #include <vector>
 
 /**
@@ -60,6 +60,7 @@ protected:
     //! Kernel data view (RuntimeContext when installed, legacy WarpX otherwise).
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfigSnapshot& config_snapshot () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
 
 private:
