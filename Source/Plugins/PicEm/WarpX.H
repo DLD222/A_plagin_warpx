@@ -20,7 +20,7 @@
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
 #include "Runtime/IElectrostaticSolver.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver_fwd.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
 #include "FieldSolver/Implicit/ImplicitSolver_fwd.H"
@@ -1144,7 +1144,7 @@ public:
     auto&  get_spectral_solver_fp (int lev) {return *spectral_solver_fp[lev];}
 #endif
 
-    FiniteDifferenceSolver * get_pointer_fdtd_solver_fp (int lev) { return m_fdtd_solver_fp[lev].get(); }
+    warpx::runtime::IFiniteDifferenceSolver * get_pointer_fdtd_solver_fp (int lev) { return m_fdtd_solver_fp[lev].get(); }
 
     // Field container
     ablastr::fields::MultiFabRegister m_fields;
@@ -1891,8 +1891,8 @@ private:
 
 #endif
 
-    amrex::Vector<std::unique_ptr<FiniteDifferenceSolver>> m_fdtd_solver_fp;
-    amrex::Vector<std::unique_ptr<FiniteDifferenceSolver>> m_fdtd_solver_cp;
+    amrex::Vector<std::unique_ptr<warpx::runtime::IFiniteDifferenceSolver>> m_fdtd_solver_fp;
+    amrex::Vector<std::unique_ptr<warpx::runtime::IFiniteDifferenceSolver>> m_fdtd_solver_cp;
 
     // implicit solver object
     std::unique_ptr<ImplicitSolver> m_implicit_solver;

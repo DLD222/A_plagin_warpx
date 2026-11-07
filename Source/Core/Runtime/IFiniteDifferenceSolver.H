@@ -102,3 +102,11 @@ public:
 
 } // namespace warpx::runtime
 #endif
+
+namespace warpx::runtime {
+class RuntimeContext;
+struct FieldSolverRequest;
+std::unique_ptr<IFiniteDifferenceSolver> create_finite_difference_solver (
+    ElectromagneticSolverAlgo algo, std::array<amrex::Real,3> cell_size,
+    ablastr::utils::enums::GridType grid_type, const RuntimeContext* context);
+}
