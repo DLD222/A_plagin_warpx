@@ -9,6 +9,7 @@
 #define WARPX_MACROSCOPICPROPERTIES_H_
 
 #include "MacroscopicProperties_fwd.H"
+#include "Runtime/IMacroscopicProperties.H"
 #include "Runtime/MaterialRegistry.H"
 
 #include "Utils/WarpXConst.H"
@@ -36,13 +37,13 @@ namespace amrex { class EBFArrayBoxFactory; }
  * \brief This class contains the macroscopic properties of the medium needed to
  * evaluate macroscopic Maxwell equation.
  */
-class MacroscopicProperties
+class MacroscopicProperties : public warpx::runtime::IMacroscopicProperties
 {
 public:
     MacroscopicProperties (); // constructor
     /** Read user-defined macroscopic properties. Called in constructor. */
     void ReadParameters ();
-    [[nodiscard]] const warpx::runtime::MaterialRegistry& materials () const { return m_materials; }
+    [[nodiscard]] const warpx::runtime::MaterialRegistry& materials () const override { return m_materials; }
 
     /**
      * \brief Allocate multifabs storing macroscopic multifabs
