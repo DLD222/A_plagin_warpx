@@ -357,6 +357,7 @@ foreach(D IN LISTS WarpX_DIMS)
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
+            $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
     )
     if(WarpX_LIB)
         target_include_directories(lib_${SD} PUBLIC
@@ -365,6 +366,7 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
+            $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
         )
     endif()
 

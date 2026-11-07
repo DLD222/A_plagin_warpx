@@ -10,6 +10,12 @@
 
 #include "Runtime/RuntimeData.H"
 
+#ifdef AMREX_USE_EB
+#include <AMReX_EBFabFactory.H>
+#else
+namespace amrex { class EBFArrayBoxFactory; }
+#endif
+
 #include <memory>
 
 class WarpX;

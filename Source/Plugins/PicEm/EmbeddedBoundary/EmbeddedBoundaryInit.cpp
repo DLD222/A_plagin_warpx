@@ -348,7 +348,12 @@ web::MarkUpdateECellsECT (
         // z is degenerate in 2D: keep the loop at k = 0, whatever ghost the
         // iMultiFab carries in 3D (otherwise the EB arrays are indexed at k < 0).
         amrex::IntVect const ngZ = eb_update_E[0]->nGrowVect();
+#if AMREX_SPACEDIM == 2
         amrex::IntVect const ng2dZ(ngZ[0], ngZ[1]);
+#else
+        amrex::IntVect ng2dZ = ngZ;
+        ng2dZ[2] = 0;
+#endif
         const amrex::Box& tbx = mfi.tilebox( eb_update_E[0]->ixType().toIntVect(), ng2dZ );
         const amrex::Box& tby = mfi.tilebox( eb_update_E[1]->ixType().toIntVect(), ng2dZ );
         const amrex::Box& tbz = mfi.tilebox( eb_update_E[2]->ixType().toIntVect(), ng2dZ );
@@ -435,7 +440,12 @@ web::MarkUpdateBCellsECT (
         // z is degenerate in 2D: keep the loop at k = 0, whatever ghost the
         // iMultiFab carries in 3D (otherwise the EB arrays are indexed at k < 0).
         amrex::IntVect const ngZ = eb_update_B[0]->nGrowVect();
+#if AMREX_SPACEDIM == 2
         amrex::IntVect const ng2dZ(ngZ[0], ngZ[1]);
+#else
+        amrex::IntVect ng2dZ = ngZ;
+        ng2dZ[2] = 0;
+#endif
         const amrex::Box& tbx = mfi.tilebox( eb_update_B[0]->ixType().toIntVect(), ng2dZ );
         const amrex::Box& tby = mfi.tilebox( eb_update_B[1]->ixType().toIntVect(), ng2dZ );
         const amrex::Box& tbz = mfi.tilebox( eb_update_B[2]->ixType().toIntVect(), ng2dZ );

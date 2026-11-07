@@ -12,7 +12,9 @@
 #include "WarpX.H"
 #include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H"
 
+#ifdef AMREX_USE_EB
 #include <AMReX_EBFabFactory.H>
+#endif
 
 #include <stdexcept>
 
@@ -80,7 +82,15 @@ const MaterialRegistry& WarpXRuntimeData::materials () const
     static const MaterialRegistry empty;
     return empty;
 }
-const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const { return w().GetEBIndexSpace(lev); }
+const amrex::EB2::IndexSpace* WarpXRuntimeData::ebIndexSpace (int lev) const
+{
+#if defined(AMREX_USE_EB)
+    return w().GetEBIndexSpace(lev);
+#else
+    amrex::ignore_unused(lev);
+    return nullptr;
+#endif
+}
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterExEyBz () const { return w().nci_godfrey_filter_exeybz; }
 const amrex::Vector<std::unique_ptr<NCIGodfreyFilter>>& WarpXRuntimeData::nciGodfreyFilterBxByEz () const { return w().nci_godfrey_filter_bxbyez; }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return w().blockingFactor(lev); }
