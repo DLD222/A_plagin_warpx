@@ -354,6 +354,7 @@ foreach(D IN LISTS WarpX_DIMS)
         # future: own directory root
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
@@ -365,6 +366,7 @@ foreach(D IN LISTS WarpX_DIMS)
         target_include_directories(lib_${SD} PUBLIC
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>

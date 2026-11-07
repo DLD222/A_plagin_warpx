@@ -24,7 +24,7 @@ namespace warpx::runtime
 /**
  * \brief Thin schema + forwarding layer over the authoritative MultiFabRegister.
  *
- * There is exactly one storage: `WarpX::GetMultiFabRegister()`. DataBus only
+ * There is exactly one storage: `the runtime field register`. DataBus only
  * stores `FieldSpec` declarations and forwards field access/alias creation.
  * It must never copy or re-allocate a field (audit D1/D9).
  */

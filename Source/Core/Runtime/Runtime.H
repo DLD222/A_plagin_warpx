@@ -48,7 +48,7 @@ public:
     Runtime (Runtime &&) = delete;
     Runtime& operator= (Runtime &&) = delete;
 
-    /** Allocate state and run the package initialization (currently WarpX::InitData). */
+    /** Allocate state and run the package initialization (currently the kernel initialize()). */
     void initialize ();
 
     /** Advance the simulation. */

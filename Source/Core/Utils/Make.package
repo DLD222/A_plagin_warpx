@@ -1,6 +1,3 @@
-CEXE_sources += WarpXMovingWindow.cpp
-CEXE_sources += WarpXUtil.cpp
-CEXE_sources += WarpXVersion.cpp
 CEXE_sources += Interpolate.cpp
 CEXE_sources += ParticleUtils.cpp
 CEXE_sources += SpeciesUtils.cpp
@@ -11,3 +8,6 @@ include $(WARPX_HOME)/Source/Utils/Parser/Make.package
 include $(WARPX_HOME)/Source/Utils/Physics/Make.package
 
 VPATH_LOCATIONS   += $(WARPX_HOME)/Source/Utils
+CEXE_sources += ../Plugins/PicEm/RuntimeBridge/Utils/WarpXMovingWindow.cpp
+CEXE_sources += ../Plugins/PicEm/RuntimeBridge/Utils/WarpXUtil.cpp
+CEXE_sources += ../Plugins/PicEm/RuntimeBridge/Utils/WarpXVersion.cpp
