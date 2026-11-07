@@ -10,9 +10,22 @@
 #include <AMReX.H>
 #include <AMReX_MultiFab.H>
 
+#include "Runtime/RuntimeContext.H"
+
+#include "Runtime/RuntimeData.H"
+
+#include "Runtime/HostServices.H"
+
+#include "Runtime/RuntimeConfig.H"
+
+#include "Runtime/FrameState.H"
+
+#include "Runtime/IParticleContainer.H"
+
+#include "Runtime/IParticleContainerAccess.H"
+
 #include <memory>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; class HostServices; class WarpXHostServices; struct RuntimeConfig; struct RuntimeConfigSnapshot; struct FrameState; }
 
 /**
  * \brief Functor to compute a diagnostic and store the result in existing

@@ -13,7 +13,6 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXRuntimeData.H"
 
 ComputeParticleDiagFunctor::ComputeParticleDiagFunctor () = default;
 

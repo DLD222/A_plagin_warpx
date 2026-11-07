@@ -26,9 +26,7 @@
 namespace warpx::runtime { class IParticleContainerAccess;
 struct RuntimeContext;
 class RuntimeData;
-class WarpXRuntimeData;
 class HostServices;
-class WarpXHostServices;
 struct RuntimeConfig; struct RuntimeConfigSnapshot;
 struct FrameState;
 }

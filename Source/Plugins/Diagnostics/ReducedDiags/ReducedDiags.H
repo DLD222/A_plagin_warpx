@@ -12,10 +12,23 @@
 
 #include <AMReX_REAL.H>
 
+#include "Runtime/RuntimeContext.H"
+
+#include "Runtime/RuntimeData.H"
+
+#include "Runtime/HostServices.H"
+
+#include "Runtime/RuntimeConfig.H"
+
+#include "Runtime/FrameState.H"
+
+#include "Runtime/IParticleContainer.H"
+
+#include "Runtime/IParticleContainerAccess.H"
+
 #include <memory>
 #include <string>
 
-namespace warpx::runtime { struct RuntimeContext; class RuntimeData; class WarpXRuntimeData; struct RuntimeConfig; struct RuntimeConfigSnapshot; struct FrameState; }
 #include <vector>
 
 /**

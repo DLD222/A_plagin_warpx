@@ -18,8 +18,6 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
-#include "Runtime/WarpXHostServices.H"
-#include "Runtime/WarpXRuntimeData.H"
 
 ComputeDiagFunctor::ComputeDiagFunctor (int ncomp, amrex::IntVect crse_ratio)
     : m_ncomp(ncomp), m_crse_ratio(crse_ratio)

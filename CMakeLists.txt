@@ -359,6 +359,7 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
@@ -373,6 +374,7 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
@@ -516,6 +518,7 @@ if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm/Modules/AcceleratorLattice)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
     add_subdirectory(Source/Plugins/Diagnostics)
+    add_subdirectory(Source/Plugins/IO)
     add_subdirectory(Source/Plugins/PicEm/Modules/EmbeddedBoundary)
     add_subdirectory(Source/Plugins/PicEm/Modules/Evolve)
     add_subdirectory(Source/Plugins/PicEm/Modules/FieldSolver)

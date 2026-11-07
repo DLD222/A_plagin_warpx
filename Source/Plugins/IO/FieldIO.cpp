@@ -6,7 +6,16 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "FieldIO.H"
-#include "Diagnostics/DiagnosticsDependencies.H"
+#include "Fields.H"
+#include "Runtime/FieldRegistry.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
+#include "Runtime/RuntimeContext.H"
+#include "Utils/TextMsg.H"
+#include "Utils/WarpXConst.H"
+#include "ablastr/fields/MultiFabRegister.H"
+#include "ablastr/warn_manager/WarnManager.H"
+#include <AMReX_AmrParGDB.H>
+#include <AMReX_MultiFab.H>
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
