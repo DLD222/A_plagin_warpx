@@ -41,6 +41,9 @@ public:
     virtual void setCurrentInjectionPosition (amrex::Real) = 0;
     [[nodiscard]] virtual int doNotDeposit () const = 0;
     [[nodiscard]] virtual bool getTemperatureDepositionFlag () const noexcept = 0;
+    [[nodiscard]] virtual std::string getSpeciesTypeName () const = 0;
+    virtual void deleteInvalidParticles () = 0;
+    virtual void defineAllParticleTiles () noexcept = 0;
     [[nodiscard]] virtual bool has_virtual_photons () const = 0;
     [[nodiscard]] virtual bool has_virtual_photons_beam_size_effect () const = 0;
     [[nodiscard]] virtual int getVirtualPhotonSpeciesIndex () const = 0;

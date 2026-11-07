@@ -252,24 +252,24 @@ ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,
             std::string required_order;
             if (m_collision_type == CollisionType::DeuteriumTritiumToNeutronHeliumFusion)
             {
-                valid_species_order = first_species.AmIA<PhysicalSpecies::hydrogen2>();
-                valid_product_species_order = first_product.AmIA<PhysicalSpecies::neutron>();
+                valid_species_order = first_species.isPhoton();
+                valid_product_species_order = first_product.isPhoton();
                 required_order = "deuterium tritium -> neutron helium4";
             }
             else if (m_collision_type == CollisionType::DeuteriumDeuteriumToNeutronHeliumFusion)
             {
-                valid_product_species_order = first_product.AmIA<PhysicalSpecies::neutron>();
+                valid_product_species_order = first_product.isPhoton();
                 required_order = "deuterium deuterium -> neutron helium3";
             }
             else if (m_collision_type == CollisionType::DeuteriumDeuteriumToProtonTritiumFusion)
             {
-                valid_product_species_order = first_product.AmIA<PhysicalSpecies::proton>();
+                valid_product_species_order = first_product.isPhoton();
                 required_order = "deuterium deuterium -> proton tritium";
             }
             else if (m_collision_type == CollisionType::DeuteriumHeliumToProtonHeliumFusion)
             {
-                valid_species_order = first_species.AmIA<PhysicalSpecies::hydrogen2>();
-                valid_product_species_order = first_product.AmIA<PhysicalSpecies::proton>();
+                valid_species_order = first_species.isPhoton();
+                valid_product_species_order = first_product.isPhoton();
                 required_order = "deuterium helium3 -> proton helium4";
             }
 

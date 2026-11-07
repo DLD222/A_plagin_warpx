@@ -17,7 +17,7 @@
 #include <AMReX_BaseFwd.H>
 
 SelectParticles::SelectParticles (
-    const WarpXParticleContainer& /*pc*/,
+    const warpx::runtime::IParticleContainer& /*pc*/,
     WarpXParIter& a_pti,
     amrex::Real current_z_boost,
     amrex::Real old_z_boost,
@@ -32,7 +32,7 @@ SelectParticles::SelectParticles (
 
 
 LorentzTransformParticles::LorentzTransformParticles (
-    const WarpXParticleContainer& /*pc*/,
+    const warpx::runtime::IParticleContainer& /*pc*/,
     WarpXParIter& a_pti,
     amrex::Real t_boost,
     amrex::Real dt,
@@ -71,7 +71,7 @@ LorentzTransformParticles::LorentzTransformParticles (
  * particle buffers
  */
 BackTransformParticleFunctor::BackTransformParticleFunctor (
-                              WarpXParticleContainer *pc_src,
+                              warpx::runtime::IParticleContainer *pc_src,
                               std::string species_name,
                               int num_buffers)
     : m_pc_src{pc_src}, m_species_name{std::move(species_name)}, m_num_buffers{num_buffers}

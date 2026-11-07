@@ -431,7 +431,7 @@ FlushFormatPlotfile::WriteParticles(const std::string& dir,
             int_flags[index] = tmp.h_redistribute_int_comp[i0_redist + index];
         }
 
-        const auto mass = pc->AmIA<PhysicalSpecies::photon>() ? PhysConst::m_e : pc->getMass();
+        const auto mass = pc->isPhoton() ? PhysConst::m_e : pc->getMass();
         RandomFilter const random_filter(part_diag.m_do_random_filter,
                                          part_diag.m_random_fraction);
         UniformFilter const uniform_filter(part_diag.m_do_uniform_filter,

@@ -667,7 +667,7 @@ public:
     /**
     * \brief This function returns a string containing the name of the species type
     */
-    std::string getSpeciesTypeName () const {return species::get_name(physical_species);}
+    std::string getSpeciesTypeName () const override {return species::get_name(physical_species);}
 
     /**
      * \brief Virtual method to resample the species. Overriden by PhysicalParticleContainer only.

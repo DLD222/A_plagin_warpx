@@ -1447,7 +1447,7 @@ BTDiagnostics::InitializeParticleFunctors ()
     {
         // species id corresponding to ith diag species
         const int idx = meta.getSpeciesID(m_output_species_names[i]);
-        m_all_particle_functors[i] = std::make_unique<BackTransformParticleFunctor>(static_cast<WarpXParticleContainer*>(access.GetParticleContainerPtr(idx)), m_output_species_names[i], m_num_buffers);
+        m_all_particle_functors[i] = std::make_unique<BackTransformParticleFunctor>(access.GetParticleContainerPtr(idx), m_output_species_names[i], m_num_buffers);
         m_all_particle_functors[i]->SetRuntimeContext(m_runtime_context);
     }
 

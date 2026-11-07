@@ -30,7 +30,7 @@ struct SelectParticles
      * @param[in] old_z_boost        previous z-position of the slice in boosted frame
      * @param[in] a_offset           index offset for particles to be selected
      */
-    SelectParticles (const WarpXParticleContainer& pc,
+    SelectParticles (const warpx::runtime::IParticleContainer& pc,
                      WarpXParIter& a_pti,
                      amrex::Real current_z_boost, amrex::Real old_z_boost,
                      int a_offset = 0);
@@ -86,7 +86,7 @@ struct LorentzTransformParticles
      * @param[in] t_lab              time in lab-frame
      * @param[in] a_offset           index offset for particles to be transformed
      */
-    LorentzTransformParticles (const WarpXParticleContainer& pc,
+    LorentzTransformParticles (const warpx::runtime::IParticleContainer& pc,
                                WarpXParIter& a_pti,
                                amrex::Real t_boost, amrex::Real dt,
                                amrex::Real t_lab, int a_offset = 0);
@@ -206,7 +206,7 @@ struct LorentzTransformParticles
 class BackTransformParticleFunctor final : public ComputeParticleDiagFunctor
 {
 public:
-    BackTransformParticleFunctor(WarpXParticleContainer *pc_src, std::string species_name, int num_buffers);
+    BackTransformParticleFunctor(warpx::runtime::IParticleContainer *pc_src, std::string species_name, int num_buffers);
     /** Computes the Lorentz transform of source particles to obtain lab-frame data in pc_dst*/
     void operator () (WarpXParticleContainer::Base& pc_dst, int &TotalParticleCounter, int i_buffer) const override;
     void InitData() override;
@@ -228,7 +228,7 @@ public:
                               int snapshot_full) override;
 private:
     /** Source particle container */
-    WarpXParticleContainer* m_pc_src = nullptr;
+    warpx::runtime::IParticleContainer* m_pc_src = nullptr;
     /** String containing species name of particles being transformed*/
     std::string m_species_name;
     /** Number of buffers or snapshots*/

@@ -8,6 +8,7 @@
 #ifndef WARPX_COLLISION_SPECIESTABLE_H_
 #define WARPX_COLLISION_SPECIESTABLE_H_
 
+#include "Runtime/IParticleContainer.H"
 #include "Runtime/SpeciesSpec.H"
 
 #include <functional>
