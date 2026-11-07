@@ -67,8 +67,7 @@
  * - Functions that specifically handle multiple species (for instance
  *   ReadParameters or mapSpeciesProduct).
  */
-class MultiParticleContainer : public warpx::runtime::ISpeciesMetadata,
-                            public warpx::runtime::IParticleContainerAccess
+class MultiParticleContainer : public warpx::runtime::IParticleContainerAccess
 {
 
 public:

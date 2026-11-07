@@ -6,7 +6,6 @@
  */
 #include "Fields.H"
 #include "StrangImplicitSpectralEM.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "WarpX.H"
 
 using namespace warpx::fields;

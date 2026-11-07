@@ -10,6 +10,7 @@ public:
     [[nodiscard]] virtual int nSpecies () const = 0;
     [[nodiscard]] virtual std::vector<std::string> GetSpeciesNames () const = 0;
     [[nodiscard]] virtual int getSpeciesID (const std::string& name) const = 0;
+    [[nodiscard]] virtual std::vector<std::string> GetSpeciesAndLasersNames () const = 0;
     [[nodiscard]] virtual amrex::Vector<amrex::Long> NumberOfParticlesInGrid (int lev) const = 0;
 };
 }

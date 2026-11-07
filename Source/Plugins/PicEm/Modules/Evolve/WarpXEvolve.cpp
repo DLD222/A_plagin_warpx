@@ -1,3 +1,4 @@
+#include <AMReX_AmrParGDB.H>
 /* Copyright 2019-2020 Andrew Myers, Ann Almgren, Aurore Blelly
  *                     Axel Huebl, Burlen Loring, David Grote
  *                     Glenn Richardson, Jean-Luc Vay, Luca Fedeli
@@ -16,8 +17,6 @@
 #include "Runtime/RuntimeContext.H"
 
 #include "BoundaryConditions/PML.H"
-#include "Diagnostics/MultiDiagnostics.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
@@ -372,7 +371,7 @@ WarpX::Evolve (int numsteps)
         ExecutePythonCallback("afterstep");
 
         /// reduced diags
-        if (reduced_diags->m_plot_rd != 0)
+        if (reduced_diags->plotReducedDiags() != 0)
         {
             reduced_diags->LoadBalance();
             reduced_diags->ComputeDiags(step);

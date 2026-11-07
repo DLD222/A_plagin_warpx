@@ -6,7 +6,6 @@
  */
 #include "Fields.H"
 #include "SemiImplicitEM.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "WarpX.H"
 
 using warpx::fields::FieldType;

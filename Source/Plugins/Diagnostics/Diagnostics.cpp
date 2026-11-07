@@ -439,7 +439,7 @@ Diagnostics::InitDataBeforeRestart ()
 }
 
 void
-Diagnostics::InitDataAfterRestart (const MultiParticleContainer& mpc)
+Diagnostics::InitDataAfterRestart (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         // loop over all levels
@@ -508,7 +508,7 @@ Diagnostics::InitDataAfterRestart (const MultiParticleContainer& mpc)
 
 
 void
-Diagnostics::InitData (const MultiParticleContainer& mpc)
+Diagnostics::InitData (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     // Get current finest level available
     const int finest_level = data().finestLevel();

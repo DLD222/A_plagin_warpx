@@ -11,14 +11,15 @@
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
+#include <cstdlib>
+
+#include "Runtime/NullDiagnosticsService.H"
 #include "Runtime/RuntimeContext.H"
 
 #include "BoundaryConditions/PML.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
 #   include "BoundaryConditions/PML_RZ.H"
 #endif
-#include "Diagnostics/MultiDiagnostics.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "EmbeddedBoundary/Enabled.H"
 #ifdef AMREX_USE_EB
 #   include "EmbeddedBoundary/EmbeddedBoundaryInit.H"
@@ -820,10 +821,18 @@ WarpX::InitData_BeforeInit ()
     Print() << utils::logo::get_logo();
 
     // Diagnostics
-    multi_diags = std::make_unique<MultiDiagnostics>(m_runtime_context);
+    if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
+        multi_diags = std::make_unique<warpx::runtime::NullDiagnosticsService>();
+    } else {
+        multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
+    }
 
     /** create object for reduced diagnostics */
-    reduced_diags = std::make_unique<MultiReducedDiags>(m_runtime_context);
+    if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
+        reduced_diags = std::make_unique<warpx::runtime::NullReducedDiagsService>();
+    } else {
+        reduced_diags = warpx::runtime::create_reduced_diags_service(m_runtime_context);
+    }
 
     // Set the header for the file saving dt_update data
     WriteDtUpdateFileHeader();
@@ -979,7 +988,7 @@ WarpX::InitData_Diagnostics ()
         multi_diags->FilterComputePackFlush(istep[0] - 1);
 
         // Write reduced diagnostics before the first iteration.
-        if (reduced_diags->m_plot_rd != 0)
+        if (reduced_diags->plotReducedDiags() != 0)
         {
             reduced_diags->ComputeDiags(istep[0] - 1);
             reduced_diags->WriteToFile(istep[0] - 1);

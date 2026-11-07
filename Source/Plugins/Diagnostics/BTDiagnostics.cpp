@@ -1454,7 +1454,7 @@ BTDiagnostics::InitializeParticleFunctors ()
 }
 
 void
-BTDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
+BTDiagnostics::InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     const warpx::runtime::ISpeciesMetadata& meta =
         const_cast<warpx::runtime::ISpeciesMetadata&>(data().speciesMetadata());

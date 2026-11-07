@@ -1,5 +1,6 @@
 /* Copyright 2019-2020 Maxence Thevenet, Yinjian Zhao
  *
+#include "Runtime/IReducedDiagsService.H"
  * This file is part of WarpX.
  *
  * License: BSD-3-Clause-LBNL
@@ -7,6 +8,8 @@
 
 #ifndef WARPX_DIAGNOSTICS_REDUCEDDIAGS_MULTIREDUCEDDIAGS_H_
 #define WARPX_DIAGNOSTICS_REDUCEDDIAGS_MULTIREDUCEDDIAGS_H_
+
+#include "Runtime/IReducedDiagsService.H"
 
 #include "MultiReducedDiags_fwd.H"
 
@@ -23,7 +26,7 @@ namespace warpx::runtime { struct RuntimeContext; }
  * general functions to initialize, compute, and write these diagnostics
  * to file.
  */
-class MultiReducedDiags
+class MultiReducedDiags : public warpx::runtime::IReducedDiagsService
 {
 public:
 
@@ -44,35 +47,36 @@ public:
 
     /** Loop over all ReducedDiags and call their InitData
      */
-    void InitData ();
+    void InitData () override;
 
     /** Redistribute parallel data structures during load balance
      */
-    void LoadBalance ();
+    void LoadBalance () override;
 
     /** Loop over all ReducedDiags and call their ComputeDiags
      *  @param[in] step current iteration time */
-    void ComputeDiags (int step);
+    void ComputeDiags (int step) override;
 
     /** Loop over all ReducedDiags and call their ComputeDiagsMidStep
      *  @param[in] step current iteration time
      *  @param[in] dt time step size */
-    void ComputeDiagsMidStep (int step, amrex::Real dt);
+    void ComputeDiagsMidStep (int step, amrex::Real dt) override;
 
     /** Loop over all ReducedDiags and call their WriteToFile
      *  @param[in] step current iteration time */
-    void WriteToFile (int step);
+    void WriteToFile (int step) override;
 
     /** Check if any diagnostics will be done */
-    bool DoDiags(int step);
+    bool DoDiags(int step) override;
 
     /** \brief Loop over all ReducedDiags and call their WriteCheckpointData
      *  @param[in] dir checkpoint directory */
-    void WriteCheckpointData (std::string const & dir);
+    void WriteCheckpointData (std::string const & dir) override;
 
     /** \brief Loop over all ReducedDiags and call their ReadCheckpointData
      *  @param[in] dir checkpoint directory */
-    void ReadCheckpointData (std::string const & dir);
+    void ReadCheckpointData (std::string const & dir) override;
+    [[nodiscard]] int plotReducedDiags () const override { return m_plot_rd; }
 };
 
 #endif

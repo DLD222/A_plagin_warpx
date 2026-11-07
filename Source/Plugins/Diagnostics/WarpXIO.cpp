@@ -244,11 +244,12 @@ WarpX::InitFromCheckpoint ()
         is >> time_of_last_gal_shift;
         ablastr::utils::text::goto_next_line(is);
 
-        for (int idiag = 0; idiag < multi_diags->GetTotalDiags(); ++idiag)
+        auto& md = dynamic_cast<MultiDiagnostics&>(*multi_diags);
+        for (int idiag = 0; idiag < md.GetTotalDiags(); ++idiag)
         {
-            if( multi_diags->diagstypes(idiag) == DiagTypes::BackTransformed )
+            if( md.diagstypes(idiag) == DiagTypes::BackTransformed )
             {
-                auto& diag = multi_diags->GetDiag(idiag);
+                auto& diag = md.GetDiag(idiag);
                 if (diag.getnumbuffers() > 0) {
                     diag.InitDataBeforeRestart();
                     for (int i_buffer=0; i_buffer<diag.getnumbuffers(); ++i_buffer){
@@ -288,7 +289,7 @@ WarpX::InitFromCheckpoint ()
                     diag.InitData(*mypc);
                 }
             } else {
-                multi_diags->GetDiag(idiag).InitData(*mypc);
+                md.GetDiag(idiag).InitData(*mypc);
             }
         }
 
@@ -447,7 +448,7 @@ WarpX::InitFromCheckpoint ()
 
     if (EB::enabled()) { InitializeEBGridData(maxLevel()); }
 
-    reduced_diags->ReadCheckpointData(restart_chkfile);
+    dynamic_cast<MultiReducedDiags&>(*reduced_diags).ReadCheckpointData(restart_chkfile);
 
     // Initialize particles
     mypc->Restart(restart_chkfile);

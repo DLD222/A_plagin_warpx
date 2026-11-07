@@ -6,8 +6,9 @@
 #include <string>
 class WarpXParticleContainer;
 #include "Runtime/IParticleContainer.H"
+#include "Runtime/ISpeciesMetadata.H"
 namespace warpx::runtime {
-class IParticleContainerAccess {
+class IParticleContainerAccess : public ISpeciesMetadata {
 public:
     virtual ~IParticleContainerAccess () = default;
     using SpeciesVector = amrex::Vector<std::unique_ptr<WarpXParticleContainer>>;

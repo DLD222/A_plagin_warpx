@@ -89,7 +89,7 @@ BoundaryScrapingDiagnostics::InitializeBufferData (int /*i_buffer*/, int /*lev*/
 }
 
 void
-BoundaryScrapingDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
+BoundaryScrapingDiagnostics::InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     // If the user does not specify any species, dump all species
     if (m_output_species_names.empty()) {

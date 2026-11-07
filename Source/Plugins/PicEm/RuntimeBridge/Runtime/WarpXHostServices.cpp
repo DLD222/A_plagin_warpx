@@ -10,9 +10,6 @@
 
 #include "BoundaryConditions/PML.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
-#include "Diagnostics/MultiDiagnostics.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
-#include "Diagnostics/Diagnostics.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
@@ -302,16 +299,16 @@ amrex::Vector<amrex::Real> WarpXHostServices::tNew () const { return m_warpx.get
 amrex::Vector<amrex::Real> WarpXHostServices::tOld () const { return m_warpx.gett_old(); }
 amrex::Vector<amrex::Real> WarpXHostServices::dt () const { return m_warpx.getdt(); }
 int WarpXHostServices::totalDiags () const { return m_warpx.GetMultiDiags().GetTotalDiags(); }
-std::string WarpXHostServices::diagName (int i) const { return m_warpx.GetMultiDiags().GetDiag(i).GetName(); }
-bool WarpXHostServices::isDiagBackTransformed (int i) const { return m_warpx.GetMultiDiags().diagstypes(i) == DiagTypes::BackTransformed; }
-int WarpXHostServices::diagNumBuffers (int i) const { return m_warpx.GetMultiDiags().GetDiag(i).getnumbuffers(); }
-amrex::Real WarpXHostServices::diagTlab (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).gettlab(buffer); }
-int WarpXHostServices::diagBufferKIndexHi (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_buffer_k_index_hi(buffer); }
-amrex::Real WarpXHostServices::diagSnapshotDomainLo (int i, int buffer, int dim) const { return m_warpx.GetMultiDiags().GetDiag(i).get_snapshot_domain_lo(buffer, dim); }
-amrex::Real WarpXHostServices::diagSnapshotDomainHi (int i, int buffer, int dim) const { return m_warpx.GetMultiDiags().GetDiag(i).get_snapshot_domain_hi(buffer, dim); }
-int WarpXHostServices::diagFlushCounter (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_flush_counter(buffer); }
-int WarpXHostServices::diagLastValidZslice (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_last_valid_Zslice(buffer); }
-int WarpXHostServices::diagSnapshotFullFlag (int i, int buffer) const { return m_warpx.GetMultiDiags().GetDiag(i).get_snapshot_full_flag(buffer); }
+std::string WarpXHostServices::diagName (int i) const { return m_warpx.GetMultiDiags().diagName(i); }
+bool WarpXHostServices::isDiagBackTransformed (int i) const { return m_warpx.GetMultiDiags().isDiagBackTransformed(i); }
+int WarpXHostServices::diagNumBuffers (int i) const { return m_warpx.GetMultiDiags().diagNumBuffers(i); }
+amrex::Real WarpXHostServices::diagTlab (int i, int buffer) const { return m_warpx.GetMultiDiags().diagTlab(i, buffer); }
+int WarpXHostServices::diagBufferKIndexHi (int i, int buffer) const { return m_warpx.GetMultiDiags().diagBufferKIndexHi(i, buffer); }
+amrex::Real WarpXHostServices::diagSnapshotDomainLo (int i, int buffer, int dim) const { return m_warpx.GetMultiDiags().diagSnapshotDomainLo(i, buffer, dim); }
+amrex::Real WarpXHostServices::diagSnapshotDomainHi (int i, int buffer, int dim) const { return m_warpx.GetMultiDiags().diagSnapshotDomainHi(i, buffer, dim); }
+int WarpXHostServices::diagFlushCounter (int i, int buffer) const { return m_warpx.GetMultiDiags().diagFlushCounter(i, buffer); }
+int WarpXHostServices::diagLastValidZslice (int i, int buffer) const { return m_warpx.GetMultiDiags().diagLastValidZslice(i, buffer); }
+int WarpXHostServices::diagSnapshotFullFlag (int i, int buffer) const { return m_warpx.GetMultiDiags().diagSnapshotFullFlag(i, buffer); }
 bool WarpXHostServices::hasHybridPICModel () const
 {
     return m_warpx.get_pointer_HybridPICModel() != nullptr;

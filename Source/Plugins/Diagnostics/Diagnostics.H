@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-namespace warpx::runtime {
+namespace warpx::runtime { class IParticleContainerAccess;
 struct RuntimeContext;
 class RuntimeData;
 class WarpXRuntimeData;
@@ -94,9 +94,9 @@ public:
     virtual void Flush (int i_buffer, bool force_flush) = 0;
 
     /** Initialize pointers to main fields and allocate output multifab m_mf_output. */
-    void InitData (const MultiParticleContainer& mpc);
+    void InitData (const warpx::runtime::IParticleContainerAccess& mpc);
     void InitDataBeforeRestart ();
-    void InitDataAfterRestart (const MultiParticleContainer& mpc);
+    void InitDataAfterRestart (const warpx::runtime::IParticleContainerAccess& mpc);
 
     /** Initialize functors that store pointers to the fields requested by the user.
      *
@@ -237,7 +237,7 @@ protected:
     /** This function initialized particle buffers (not implemented in diagnostics, yet)
      *  \param[in] mpc a constant reference to the multi-particle container.
      */
-    virtual void InitializeParticleBuffer (const MultiParticleContainer& mpc) = 0;
+    virtual void InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc) = 0;
 
     /** This function prepares buffer data as required for fields and particles. For back-transformed diagnostics,
      *  this function prepares the z coordinate in the boosted-frame and lab-frame.

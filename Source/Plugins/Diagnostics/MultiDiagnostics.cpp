@@ -33,7 +33,7 @@ MultiDiagnostics::MultiDiagnostics (const warpx::runtime::RuntimeContext* ctx)
 }
 
 void
-MultiDiagnostics::InitData (const MultiParticleContainer& mpc)
+MultiDiagnostics::InitData (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     for( auto& diag : alldiags ){
         diag->InitData(mpc);

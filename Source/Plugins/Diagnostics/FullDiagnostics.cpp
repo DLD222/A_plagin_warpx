@@ -90,7 +90,7 @@ FullDiagnostics::DerivedInitData() {
 }
 
 void
-FullDiagnostics::InitializeParticleBuffer (const MultiParticleContainer& mpc)
+FullDiagnostics::InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc)
 {
     // When particle buffers are included, the vector of particle containers
     // must be allocated in this function.

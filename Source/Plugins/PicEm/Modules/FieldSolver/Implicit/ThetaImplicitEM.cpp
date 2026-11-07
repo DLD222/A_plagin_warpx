@@ -6,7 +6,6 @@
  */
 #include "Fields.H"
 #include "ThetaImplicitEM.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "WarpX.H"
 
 using warpx::fields::FieldType;

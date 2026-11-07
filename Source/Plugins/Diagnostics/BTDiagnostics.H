@@ -99,7 +99,7 @@ private:
     /** This function allocates and initializes particle buffers for all the snapshots.
      *  \param[in] mpc a constant reference to the multi-particle container.
      */
-    void InitializeParticleBuffer (const MultiParticleContainer& mpc) override;
+    void InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc) override;
 
     /** This function prepares the current z coordinate in the boosted-frame and lab-frame as required by
         the particle and fields.

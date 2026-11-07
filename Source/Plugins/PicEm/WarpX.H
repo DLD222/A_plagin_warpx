@@ -16,8 +16,6 @@
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
 #include "Runtime/IAmrPolicy.H"
-#include "Diagnostics/MultiDiagnostics_fwd.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags_fwd.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver_fwd.H"
@@ -44,6 +42,8 @@
 #include "AcceleratorLattice/AcceleratorLattice.H"
 #include "Fields.H"
 #include "Runtime/FieldSchema.H"
+#include "Runtime/IDiagnosticsService.H"
+#include "Runtime/IReducedDiagsService.H"
 #include "Runtime/LevelResources.H"
 #include "FieldSolver/Magnetostatic/MagnetostaticSolver.H"
 #include "FieldSolver/Implicit/WarpXSolverVec.H"
@@ -192,7 +192,7 @@ public:
     [[nodiscard]] HybridPICModel * get_pointer_HybridPICModel () const { return m_hybrid_pic_model.get(); }
     /** Return the implicit solver, or nullptr when the evolve scheme is explicit */
     [[nodiscard]] ImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
-    MultiDiagnostics& GetMultiDiags () {return *multi_diags;}
+    warpx::runtime::IDiagnosticsService& GetMultiDiags () {return *multi_diags;}
     ParticleBoundaryBuffer& GetParticleBoundaryBuffer () { return *m_particle_boundary_buffer; }
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > >& GetEBUpdateEFlag_fp() { return m_eb_update_E_fp; }
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > >& GetEBUpdateBFlag_fp() { return m_eb_update_B_fp; }
@@ -497,7 +497,7 @@ public:
     amrex::Vector<amrex::Real> m_v_comoving = amrex::Vector<amrex::Real>(3, amrex::Real(0.));
 
     /// object with all reduced diagnostics, similar to MultiParticleContainer for species.
-    std::unique_ptr<MultiReducedDiags> reduced_diags;
+    std::unique_ptr<warpx::runtime::IReducedDiagsService> reduced_diags;
 
     void applyMirrors(amrex::Real time);
 
@@ -1459,7 +1459,7 @@ private:
 
     // Particle container
     std::unique_ptr<MultiParticleContainer> mypc;
-    std::unique_ptr<MultiDiagnostics> multi_diags;
+    std::unique_ptr<warpx::runtime::IDiagnosticsService> multi_diags;
     std::shared_ptr<warpx::runtime::IAmrPolicy> m_amr_policy;
 
     // Particle thermalizer configuration (constructed from inputs)

@@ -98,7 +98,7 @@ private:
       */
     void InitializeFieldFunctors (int lev) override;
 
-    void InitializeParticleBuffer (const MultiParticleContainer& mpc) override;
+    void InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc) override;
 
     /** Prepare field data to be used for diagnostics */
     void PrepareFieldDataForOutput () override;

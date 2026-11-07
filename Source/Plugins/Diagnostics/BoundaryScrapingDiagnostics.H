@@ -68,7 +68,7 @@ private:
      * that correspond to the species requested by the user.
      * \param[in] mpc a constant reference to the multi-particle container.
      */
-    void InitializeParticleBuffer (const MultiParticleContainer& mpc) override;
+    void InitializeParticleBuffer (const warpx::runtime::IParticleContainerAccess& mpc) override;
 
 };
 #endif // WARPX_BOUNDARYSCRAPINGDIAGNOSTICS_H_

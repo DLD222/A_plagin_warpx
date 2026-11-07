@@ -7,8 +7,6 @@
 #include "WarpX.H"
 
 #include "BoundaryConditions/PML.H"
-#include "Diagnostics/MultiDiagnostics.H"
-#include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
 #include "FieldSolver/Implicit/ImplicitOptions.H"
