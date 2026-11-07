@@ -821,17 +821,16 @@ WarpX::InitData_BeforeInit ()
     Print() << utils::logo::get_logo();
 
     // Diagnostics
+    multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
     if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
+        multi_diags->InitData(*mypc);
         multi_diags = std::make_unique<warpx::runtime::NullDiagnosticsService>();
-    } else {
-        multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
     }
 
     /** create object for reduced diagnostics */
+    reduced_diags = warpx::runtime::create_reduced_diags_service(m_runtime_context);
     if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
         reduced_diags = std::make_unique<warpx::runtime::NullReducedDiagsService>();
-    } else {
-        reduced_diags = warpx::runtime::create_reduced_diags_service(m_runtime_context);
     }
 
     // Set the header for the file saving dt_update data
