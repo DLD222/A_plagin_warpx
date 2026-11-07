@@ -104,3 +104,27 @@ Modules/Particles/Push/
 ```
 
 每个单位模块一个 CPP，包只注册。
+
+## 7. 第一个完整模块文件夹：Yee
+
+已新增：
+
+```text
+Source/Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/
+  YeePackage.H/.cpp
+  YeeFieldSolveHandler.H/.cpp
+```
+
+- `YeePackage` 只注册；
+- `YeeFieldSolveHandler` 一个 CPP，一个单位功能；
+- `PicEmPackage` 在 `field_solve.yee` 时调用 `YeePackage`；
+- 其他算法仍走通用 `FieldSolveHandler`。
+
+验证：
+
+```text
+默认 runtime + dynamic + plugin 23/23 PASS
+```
+
+这是“一个完整模块文件夹 + 单位 CPP”的第一个物理求解器骨架；
+内部仍调用 `WarpX` 的 Yee 实现，尚未把 Yee kernel 复制进该文件夹。

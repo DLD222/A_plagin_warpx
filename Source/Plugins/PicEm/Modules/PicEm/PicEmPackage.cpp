@@ -10,6 +10,7 @@
 #include "Modules/PicEm/ParticlePush/ParticlePushHandler.H"
 #include "Modules/PicEm/Deposition/DepositionHandler.H"
 #include "Modules/PicEm/FieldSolve/FieldSolveHandler.H"
+#include "Modules/PicEm/FieldSolve/Yee/YeePackage.H"
 
 #include <memory>
 
@@ -28,7 +29,11 @@ PicEmPackage::register_handlers (PluginHost& host,
         host.add(std::make_shared<DepositionHandler>());
     }
     if (!disabled.contains(field_solver_module)) {
-        host.add(std::make_shared<FieldSolveHandler>(field_solver_module));
+        if (field_solver_module == "field_solve.yee") {
+            YeePackage::register_handlers(host);
+        } else {
+            host.add(std::make_shared<FieldSolveHandler>(field_solver_module));
+        }
     }
 }
 

@@ -4,6 +4,8 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         Runtime.cpp
         ../../Plugins/PicEm/Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
+        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/YeePackage.cpp
+        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/YeeFieldSolveHandler.cpp
         ../../Plugins/PicEm/Modules/PicEm/Deposition/DepositionHandler.cpp
         ../../Plugins/PicEm/Modules/PicEm/ParticlePush/ParticlePushHandler.cpp
         ../../Plugins/PicEm/Modules/PicEm/PicEmPackage.cpp
