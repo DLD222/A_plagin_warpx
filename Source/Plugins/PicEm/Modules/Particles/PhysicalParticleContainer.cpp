@@ -35,7 +35,7 @@
 #include "Particles/SpeciesPhysicalProperties.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/Physics/IonizationEnergiesTable.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

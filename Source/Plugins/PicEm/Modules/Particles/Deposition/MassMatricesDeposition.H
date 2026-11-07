@@ -14,7 +14,7 @@
 #include "Particles/Gather/FieldGather.H"
 #include "Particles/Gather/GetExternalFields.H"
 #include "Particles/ShapeFactors.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"

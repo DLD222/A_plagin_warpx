@@ -22,7 +22,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "WarpX.H"

@@ -11,7 +11,7 @@
 #include "Fluids/WarpXFluidContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXUtil.H"
-#include "Utils/SpeciesUtils.H"
+#include "Particles/SpeciesUtils.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeConfig.H"

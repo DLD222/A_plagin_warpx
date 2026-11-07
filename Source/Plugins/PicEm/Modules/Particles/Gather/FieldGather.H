@@ -12,7 +12,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/ShapeFactors.H"
 #include "Utils/WarpX_Complex.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 
 #include <AMReX.H>
 

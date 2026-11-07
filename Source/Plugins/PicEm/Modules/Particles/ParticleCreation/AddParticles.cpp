@@ -18,7 +18,7 @@
 #include "Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 #include "EmbeddedBoundary/Enabled.H"
 #ifdef AMREX_USE_EB

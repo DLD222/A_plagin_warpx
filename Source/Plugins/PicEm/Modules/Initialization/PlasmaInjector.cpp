@@ -16,7 +16,7 @@
 #include "Initialization/InjectorMomentum.H"
 #include "Initialization/InjectorPosition.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/SpeciesUtils.H"
+#include "Particles/SpeciesUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"

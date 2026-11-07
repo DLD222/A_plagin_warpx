@@ -23,7 +23,7 @@
 #include "Particles/ParticleCreation/SmartUtils.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX_DenseBins.H>

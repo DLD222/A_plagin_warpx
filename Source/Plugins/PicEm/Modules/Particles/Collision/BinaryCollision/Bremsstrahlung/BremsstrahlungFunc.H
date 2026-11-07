@@ -15,7 +15,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 
 #include <AMReX_Algorithm.H>

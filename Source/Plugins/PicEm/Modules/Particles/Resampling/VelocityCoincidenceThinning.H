@@ -12,7 +12,7 @@
 #include "Particles/Algorithms/KineticEnergy.H"
 #include "Resampling.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 
 #include <AMReX_Algorithm.H>
 #include <AMReX_Geometry.H>

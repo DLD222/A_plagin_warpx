@@ -11,7 +11,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 
 #include "Particles/Algorithms/KineticEnergy.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
 

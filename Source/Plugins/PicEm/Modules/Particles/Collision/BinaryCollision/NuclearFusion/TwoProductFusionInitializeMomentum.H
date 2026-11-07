@@ -11,7 +11,7 @@
 #include "Particles/Collision/BinaryCollision/TwoProductUtil.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXConst.H"
 

@@ -10,7 +10,7 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

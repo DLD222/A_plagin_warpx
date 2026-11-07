@@ -6,8 +6,6 @@ foreach(D IN LISTS WarpX_DIMS)
         ../../Plugins/PicEm/RuntimeBridge/Utils/WarpXUtil.cpp
         ../../Plugins/PicEm/RuntimeBridge/Utils/WarpXVersion.cpp
         Interpolate.cpp
-        ParticleUtils.cpp
-        SpeciesUtils.cpp
     )
 endforeach()
 

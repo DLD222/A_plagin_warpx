@@ -8,7 +8,7 @@
 
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 
 #include <ablastr/warn_manager/WarnManager.H>

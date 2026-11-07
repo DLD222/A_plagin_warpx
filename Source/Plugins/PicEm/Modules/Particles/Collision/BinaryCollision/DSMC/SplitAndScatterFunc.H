@@ -15,7 +15,7 @@
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 

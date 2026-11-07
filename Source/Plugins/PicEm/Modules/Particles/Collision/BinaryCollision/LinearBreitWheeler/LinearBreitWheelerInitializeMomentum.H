@@ -10,7 +10,7 @@
 
 #include "LinearBreitWheelerUtil.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 
 #include <AMReX_DenseBins.H>

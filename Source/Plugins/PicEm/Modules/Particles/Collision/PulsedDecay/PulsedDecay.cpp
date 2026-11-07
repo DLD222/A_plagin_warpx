@@ -13,7 +13,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

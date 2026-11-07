@@ -19,7 +19,7 @@
 #include "Particles/Gather/FieldGather.H"
 #include "Particles/Gather/GetExternalFields.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "Utils/ParticleUtils.H"
+#include "Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
