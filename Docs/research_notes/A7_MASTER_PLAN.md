@@ -277,7 +277,7 @@ A7.9 删除 WarpX 后四维 A/B
 ```text
 A7.0 完成
 A7.1 Core 无 WarpX 完成；插件独立未完成
-A7.2 细化见 A7.2_SUBSTEPS；A7.3-A7.7 仅目录/骨架
+A7.2 细化见 A7.2_SUBSTEPS；A7.3 细化见 A7.3_FIELD_SOLVER_PLAN；A7.4-A7.7 仅目录/骨架
 A7.8 部分
 A7.9 未开始
 ```
