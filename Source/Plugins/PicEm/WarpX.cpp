@@ -24,20 +24,20 @@
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
-#include "FieldSolver/ElectrostaticSolvers/LabFrameExplicitES.H"
-#include "FieldSolver/ElectrostaticSolvers/RelativisticExplicitES.H"
-#include "FieldSolver/ElectrostaticSolvers/EffectivePotentialES.H"
-#include "FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H"
-#include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
+#include "FieldSolver/Electrostatic/LabFrameExplicitES.H"
+#include "FieldSolver/Electrostatic/RelativisticExplicitES.H"
+#include "FieldSolver/Electrostatic/EffectivePotentialES.H"
+#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #ifdef WARPX_USE_FFT
-#   include "FieldSolver/SpectralSolver/SpectralKSpace.H"
+#   include "FieldSolver/PSATD/SpectralKSpace.H"
 #   ifdef WARPX_DIM_RZ
-#       include "FieldSolver/SpectralSolver/SpectralSolverRZ.H"
+#       include "FieldSolver/PSATD/SpectralSolverRZ.H"
 #       include "BoundaryConditions/PML_RZ.H"
 #   else
-#       include "FieldSolver/SpectralSolver/SpectralSolver.H"
+#       include "FieldSolver/PSATD/SpectralSolver.H"
 #   endif // RZ ifdef
 #endif // use PSATD ifdef
 #include "FieldSolver/WarpX_FDTD.H"
@@ -55,7 +55,7 @@
 #include "Utils/WarpXConst.H"
 #include "Utils/WarpXUtil.H"
 
-#include "FieldSolver/ImplicitSolvers/ImplicitSolverLibrary.H"
+#include "FieldSolver/Implicit/ImplicitSolverLibrary.H"
 
 #include <ablastr/math/FiniteDifference.H>
 #include <ablastr/math/RandomSeed.H>

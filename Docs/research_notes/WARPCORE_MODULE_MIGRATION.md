@@ -128,3 +128,38 @@ Source/Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/
 
 这是“一个完整模块文件夹 + 单位 CPP”的第一个物理求解器骨架；
 内部仍调用 `WarpX` 的 Yee 实现，尚未把 Yee kernel 复制进该文件夹。
+
+## 8. FieldSolver 物理分组
+
+`FieldSolver/` 已按算法族分组：
+
+```text
+Modules/FieldSolver/
+  FiniteDifference/    // 有限差分（含 EvolveE/EvolveB、Yee/CKC/ECT/Nodal）
+  Electrostatic/       // 静电
+  PSATD/               // 谱方法
+  Implicit/            // 隐式
+  Magnetostatic/       // 静磁
+```
+
+`FiniteDifference/` 中的 `EvolveE.cpp` / `EvolveB.cpp` 按你的说明保留为文件夹内的
+“多算法单位文件”，不再强行拆成 Yee 单独文件。
+
+验证：
+
+```text
+2D runtime + dynamic + plugin 23/23 PASS
+FFT runtime + dynamic + plugin 25/25 PASS
+ASAN runtime + dynamic + plugin 23/23 PASS
+1D/3D/RZ smoke 8/8 PASS
+```
+
+## 9. 当前模块化层级
+
+```text
+Modules/<Domain>/<Module>/
+  一个 Module = 一个物理/算法族
+  内部 CPP = 该族的一个实现文件（EvolveE/EvolveB 允许作为多算法单位）
+```
+
+下一步按同样方式整理 `Particles`、`Diagnostics` 的叶子目录。

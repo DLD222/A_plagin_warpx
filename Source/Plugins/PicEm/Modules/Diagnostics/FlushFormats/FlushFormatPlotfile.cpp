@@ -3,7 +3,7 @@
 #include "Fields.H"
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Particles/Filter/FilterFunctors.H"
 #include "Particles/ParticleIO.H"
 #include "Particles/WarpXParticleContainer.H"

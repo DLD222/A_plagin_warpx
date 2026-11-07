@@ -5,7 +5,7 @@
  */
 #include "Python/pyWarpX.H"
 
-#include <FieldSolver/ImplicitSolvers/ImplicitSolver.H>
+#include <FieldSolver/Implicit/ImplicitSolver.H>
 
 #include <ablastr/fields/MultiFabRegister.H>
 

@@ -10,7 +10,7 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Fields.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Particles/Gather/FieldGather.H"
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"

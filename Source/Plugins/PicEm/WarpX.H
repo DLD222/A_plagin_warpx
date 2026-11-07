@@ -19,11 +19,11 @@
 #include "Diagnostics/MultiDiagnostics_fwd.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags_fwd.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver_fwd.H"
-#include "FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver_fwd.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel_fwd.H"
-#include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties_fwd.H"
-#include "FieldSolver/ImplicitSolvers/ImplicitSolver_fwd.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"
+#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver_fwd.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
+#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
+#include "FieldSolver/Implicit/ImplicitSolver_fwd.H"
 #include "Filter/NCIGodfreyFilter_fwd.H"
 #include "Fluids/MultiFluidContainer_fwd.H"
 #include "Fluids/WarpXFluidContainer_fwd.H"
@@ -35,9 +35,9 @@
 #ifdef WARPX_USE_FFT
 #   ifdef WARPX_DIM_RZ
 #       include "BoundaryConditions/PML_RZ_fwd.H"
-#       include "FieldSolver/SpectralSolver/SpectralSolverRZ_fwd.H"
+#       include "FieldSolver/PSATD/SpectralSolverRZ_fwd.H"
 #   else
-#       include "FieldSolver/SpectralSolver/SpectralSolver_fwd.H"
+#       include "FieldSolver/PSATD/SpectralSolver_fwd.H"
 #   endif
 #endif
 
@@ -45,8 +45,8 @@
 #include "Fields.H"
 #include "Runtime/FieldSchema.H"
 #include "Runtime/LevelResources.H"
-#include "FieldSolver/MagnetostaticSolver/MagnetostaticSolver.H"
-#include "FieldSolver/ImplicitSolvers/WarpXSolverVec.H"
+#include "FieldSolver/Magnetostatic/MagnetostaticSolver.H"
+#include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "Filter/BilinearFilter.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/ParticleThermalizer/ParticleThermalizer.H"

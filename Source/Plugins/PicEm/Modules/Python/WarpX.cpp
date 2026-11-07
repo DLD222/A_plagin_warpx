@@ -12,17 +12,17 @@
 #include <Diagnostics/MultiDiagnostics.H>
 #include <Diagnostics/ReducedDiags/MultiReducedDiags.H>
 #include <EmbeddedBoundary/WarpXFaceInfoBox.H>
-#include <FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H>
-#include <FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H>
-#include <FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H>
-#include <FieldSolver/ImplicitSolvers/ImplicitSolver.H>
+#include <FieldSolver/FiniteDifference/FiniteDifferenceSolver.H>
+#include <FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H>
+#include <FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H>
+#include <FieldSolver/Implicit/ImplicitSolver.H>
 #ifdef WARPX_USE_FFT
-#   include <FieldSolver/SpectralSolver/SpectralKSpace.H>
+#   include <FieldSolver/PSATD/SpectralKSpace.H>
 #   ifdef WARPX_DIM_RZ
-#       include <FieldSolver/SpectralSolver/SpectralSolverRZ.H>
+#       include <FieldSolver/PSATD/SpectralSolverRZ.H>
 #       include <BoundaryConditions/PML_RZ.H>
 #   else
-#       include <FieldSolver/SpectralSolver/SpectralSolver.H>
+#       include <FieldSolver/PSATD/SpectralSolver.H>
 #   endif // RZ ifdef
 #endif // use PSATD ifdef
 #include <FieldSolver/WarpX_FDTD.H>
@@ -37,7 +37,7 @@
 #include <Utils/WarpXAlgorithmSelection.H>
 #include <Utils/WarpXConst.H>
 #include <Utils/WarpXUtil.H>
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 

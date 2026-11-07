@@ -5,8 +5,8 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "FieldSolver/ImplicitSolvers/ImplicitSolver.H"
-#include "FieldSolver/ImplicitSolvers/WarpXSolverVec.H"
+#include "FieldSolver/Implicit/ImplicitSolver.H"
+#include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "NewtonSolverParams.H"
 #include "NonlinearSolver.H"
 #include "Preconditioner.H"

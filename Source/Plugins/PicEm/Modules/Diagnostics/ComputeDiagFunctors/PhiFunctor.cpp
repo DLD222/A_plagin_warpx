@@ -15,7 +15,7 @@
 
 #include "WarpX.H"
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 
 
 using warpx::fields::FieldType;

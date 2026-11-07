@@ -16,7 +16,7 @@
 namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
 
 #ifdef WARPX_USE_FFT
-#   include "FieldSolver/SpectralSolver/SpectralSolver.H"
+#   include "FieldSolver/PSATD/SpectralSolver.H"
 #endif
 
 #include <ablastr/fields/MultiFabRegister.H>

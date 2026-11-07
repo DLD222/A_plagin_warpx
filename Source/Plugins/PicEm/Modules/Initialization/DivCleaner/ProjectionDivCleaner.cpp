@@ -19,12 +19,12 @@
 
 #include <WarpX.H>
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
-    #include <FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H>
+    #include <FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H>
 #elif defined(WARPX_DIM_RSPHERE)
-    #include <FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H>
+    #include <FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H>
 #else
-    #include <FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H>
-    #include <FieldSolver/FiniteDifferenceSolver/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H>
+    #include <FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H>
+    #include <FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H>
 #endif
 #include "Fields.H"
 #include <Initialization/ExternalField.H>

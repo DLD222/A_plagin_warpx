@@ -11,7 +11,7 @@
 #define WARPX_WarpXParticleContainer_H_
 
 #include "WarpXParticleContainer_fwd.H"
-#include "FieldSolver/ImplicitSolvers/ImplicitOptions.H"
+#include "FieldSolver/Implicit/ImplicitOptions.H"
 
 #include "Initialization/PlasmaInjector.H"
 #include "Particles/Algorithms/KineticEnergy.H"

@@ -8,11 +8,11 @@
 #include "Runtime/WarpXHostServices.H"
 
 #include "BoundaryConditions/PML.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "Diagnostics/Diagnostics.H"
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"

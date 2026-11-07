@@ -13,7 +13,7 @@
 
 #include "WarpX.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Particles/MultiParticleContainer.H"
 
 #include <AMReX.H>

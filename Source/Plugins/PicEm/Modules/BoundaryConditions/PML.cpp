@@ -15,7 +15,7 @@
 #   include "EmbeddedBoundary/EmbeddedBoundaryInit.H"
 #endif
 #ifdef WARPX_USE_FFT
-#   include "FieldSolver/SpectralSolver/SpectralFieldData.H"
+#   include "FieldSolver/PSATD/SpectralFieldData.H"
 #endif
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

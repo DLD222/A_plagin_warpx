@@ -2,8 +2,8 @@
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
-    #include "FieldSolver/SpectralSolver/SpectralFieldData.H"
-    #include "FieldSolver/SpectralSolver/SpectralSolverRZ.H"
+    #include "FieldSolver/PSATD/SpectralFieldData.H"
+    #include "FieldSolver/PSATD/SpectralSolverRZ.H"
     #include "Utils/WarpXAlgorithmSelection.H"
 #endif
 #include "Particles/MultiParticleContainer.H"

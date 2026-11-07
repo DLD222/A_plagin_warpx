@@ -6,7 +6,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H"
+#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 
 #include "Fields.H"
 #include "WarpX.H"

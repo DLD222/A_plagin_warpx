@@ -20,15 +20,15 @@
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifferenceSolver/HybridPICModel/HybridPICModel.H"
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #ifdef WARPX_USE_FFT
 #   ifdef WARPX_DIM_RZ
-#       include "FieldSolver/SpectralSolver/SpectralSolverRZ.H"
+#       include "FieldSolver/PSATD/SpectralSolverRZ.H"
 #   else
-#       include "FieldSolver/SpectralSolver/SpectralSolver.H"
+#       include "FieldSolver/PSATD/SpectralSolver.H"
 #   endif
 #endif
-#include "FieldSolver/ImplicitSolvers/ImplicitSolver.H"
+#include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/Collision/CollisionHandler.H"

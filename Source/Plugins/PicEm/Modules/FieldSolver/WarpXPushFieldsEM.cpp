@@ -6,19 +6,19 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H"
+#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
 #include "WarpX.H"
 
 #include "BoundaryConditions/PML.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H"
+#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
 #if defined(WARPX_USE_FFT)
-#   include "FieldSolver/SpectralSolver/SpectralFieldData.H"
+#   include "FieldSolver/PSATD/SpectralFieldData.H"
 #   ifdef WARPX_DIM_RZ
-#       include "FieldSolver/SpectralSolver/SpectralSolverRZ.H"
+#       include "FieldSolver/PSATD/SpectralSolverRZ.H"
 #       include "BoundaryConditions/PML_RZ.H"
 #   else
-#       include "FieldSolver/SpectralSolver/SpectralSolver.H"
+#       include "FieldSolver/PSATD/SpectralSolver.H"
 #   endif
 #endif
 #include "Python/callbacks.H"

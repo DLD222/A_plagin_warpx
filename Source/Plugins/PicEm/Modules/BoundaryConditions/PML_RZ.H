@@ -13,7 +13,7 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 
 #ifdef WARPX_USE_FFT
-#   include "FieldSolver/SpectralSolver/SpectralSolverRZ.H"
+#   include "FieldSolver/PSATD/SpectralSolverRZ.H"
 #endif
 
 #include <ablastr/fields/MultiFabRegister.H>

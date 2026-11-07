@@ -10,7 +10,7 @@
 #include "Fluids/MultiFluidContainer.H"
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
-#include "FieldSolver/FiniteDifferenceSolver/MacroscopicProperties/MacroscopicProperties.H"
+#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
 
 #ifdef AMREX_USE_EB
 #include <AMReX_EBFabFactory.H>

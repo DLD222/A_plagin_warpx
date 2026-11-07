@@ -12,7 +12,7 @@
 #include "PhysicalParticleContainer.H"
 
 #include "WarpXParticleContainer_fwd.H"
-#include "FieldSolver/ImplicitSolvers/ImplicitOptions.H"
+#include "FieldSolver/Implicit/ImplicitOptions.H"
 
 #include <AMReX_Enum.H>
 #include <AMReX_REAL.H>
