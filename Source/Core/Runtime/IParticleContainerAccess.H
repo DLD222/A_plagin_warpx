@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 class WarpXParticleContainer;
+#include "Runtime/IParticleContainer.H"
 namespace warpx::runtime {
 class IParticleContainerAccess {
 public:
@@ -15,6 +16,8 @@ public:
     [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainer (int index) const = 0;
     [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainerFromName (const std::string& name) const = 0;
     [[nodiscard]] virtual WarpXParticleContainer* GetParticleContainerPtr (int index) const = 0;
+    [[nodiscard]] virtual IParticleContainer& GetParticleView (int index) const = 0;
+    [[nodiscard]] virtual IParticleContainer& GetParticleView (const std::string& name) const = 0;
     virtual iterator begin () = 0;
     virtual iterator end () = 0;
     virtual const_iterator begin () const = 0;

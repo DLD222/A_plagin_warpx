@@ -112,10 +112,10 @@ void ParticleNumber::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // get WarpXParticleContainer class object
-        auto & myspc = access.GetParticleContainer(i_s);
+        auto & myspc = access.GetParticleView(i_s);
 
         // Save total number of macroparticles for this species
-        m_data[idx_first_species_macroparticles + i_s] = myspc.TotalNumberOfParticles();
+        m_data[idx_first_species_macroparticles + i_s] = myspc.totalNumberOfParticles();
 
         // Save sum of particles weight for this species
         m_data[idx_first_species_sum_weight + i_s] = myspc.sumParticleWeight(false);
