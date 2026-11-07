@@ -353,18 +353,24 @@ foreach(D IN LISTS WarpX_DIMS)
     target_include_directories(ablastr_${SD} PUBLIC
         # future: own directory root
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
+        $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+        $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
     )
     if(WarpX_LIB)
         target_include_directories(lib_${SD} PUBLIC
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
+            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/MomentsSolver>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
         )
     endif()
 
     # build Python module (this is always a shared library)
     if(WarpX_PYTHON)
-        add_library(pyWarpX_${SD} MODULE Source/Python/pyWarpX.cpp)
+        add_library(pyWarpX_${SD} MODULE Source/Plugins/PicEm/Python/pyWarpX.cpp)
         add_library(WarpX::pyWarpX_${SD} ALIAS pyWarpX_${SD})
         target_link_libraries(pyWarpX_${SD} PUBLIC lib_${SD})
         set(_BUILDINFO_SRC pyWarpX_${SD})
@@ -439,12 +445,12 @@ foreach(D IN LISTS WarpX_DIMS)
         unset(_BUILDINFO_SRC)
 
         # add sources
-        target_sources(lib_${SD} PRIVATE Source/WarpX.cpp)
+        target_sources(lib_${SD} PRIVATE Source/Plugins/PicEm/WarpX.cpp)
     endif()
 
     # add sources
     if(WarpX_APP)
-        target_sources(app_${SD} PRIVATE Source/main.cpp)
+        target_sources(app_${SD} PRIVATE Source/Core/main.cpp)
     endif()
 endforeach()
 
@@ -454,11 +460,11 @@ endforeach()
 #   - static class member variables
 generate_export_header(ablastr_${WarpX_DIMS_LAST}
     BASE_NAME ablastr
-    EXPORT_FILE_NAME Source/ablastr/export.H)
+    EXPORT_FILE_NAME Source/Core/ablastr/export.H)
 if(WarpX_LIB)
     generate_export_header(lib_${WarpX_DIMS_LAST}
         BASE_NAME warpx
-        EXPORT_FILE_NAME Source/Utils/export.H)
+        EXPORT_FILE_NAME Source/Core/Utils/export.H)
 endif()
 # At build-time, we might need to set WarpX_<last>_EXPORTS and ablastr_<last>_EXPORTS on all targets
 foreach(D IN LISTS WarpX_DIMS)
@@ -492,25 +498,25 @@ if(WarpX_PYTHON)
     add_dependencies(pyWarpX_python_sources pyWarpX_${WarpX_DIMS_LAST})
 endif()
 
-add_subdirectory(Source/ablastr)
+add_subdirectory(Source/Core/ablastr)
 
 if(WarpX_LIB)
-    add_subdirectory(Source/AcceleratorLattice)
-    add_subdirectory(Source/BoundaryConditions)
-    add_subdirectory(Source/Diagnostics)
-    add_subdirectory(Source/EmbeddedBoundary)
-    add_subdirectory(Source/Evolve)
-    add_subdirectory(Source/FieldSolver)
-    add_subdirectory(Source/Filter)
-    add_subdirectory(Source/Fluids)
-    add_subdirectory(Source/Initialization)
-    add_subdirectory(Source/Laser)
-    add_subdirectory(Source/NonlinearSolvers)
-    add_subdirectory(Source/Parallelization)
-    add_subdirectory(Source/Particles)
-    add_subdirectory(Source/Python)
-    add_subdirectory(Source/Runtime)
-    add_subdirectory(Source/Utils)
+    add_subdirectory(Source/Plugins/PicEm/AcceleratorLattice)
+    add_subdirectory(Source/Plugins/PicEm/BoundaryConditions)
+    add_subdirectory(Source/Plugins/PicEm/Diagnostics)
+    add_subdirectory(Source/Plugins/PicEm/EmbeddedBoundary)
+    add_subdirectory(Source/Plugins/PicEm/Evolve)
+    add_subdirectory(Source/Plugins/PicEm/FieldSolver)
+    add_subdirectory(Source/Plugins/PicEm/Filter)
+    add_subdirectory(Source/Plugins/PicEm/Fluids)
+    add_subdirectory(Source/Plugins/PicEm/Initialization)
+    add_subdirectory(Source/Plugins/PicEm/Laser)
+    add_subdirectory(Source/Plugins/PicEm/NonlinearSolvers)
+    add_subdirectory(Source/Plugins/PicEm/Parallelization)
+    add_subdirectory(Source/Plugins/PicEm/Particles)
+    add_subdirectory(Source/Plugins/PicEm/Python)
+    add_subdirectory(Source/Core/Runtime)
+    add_subdirectory(Source/Core/Utils)
 endif()
 if(WarpX_QED_TOOLS)
     add_subdirectory(Tools/QedTablesUtils)
@@ -680,8 +686,8 @@ endforeach()
 get_source_version(WarpX_${WarpX_DIMS_LAST} ${WarpX_SOURCE_DIR})
 set(WarpX_GIT_VERSION ${WarpX_${WarpX_DIMS_LAST}_GIT_VERSION})
 configure_file(
-    ${WarpX_SOURCE_DIR}/Source/Utils/WarpXVersion.H.in
-    ${WarpX_BINARY_DIR}/Source/Utils/WarpXVersion.H
+    ${WarpX_SOURCE_DIR}/Source/Core/Utils/WarpXVersion.H.in
+    ${WarpX_BINARY_DIR}/Source/Core/Utils/WarpXVersion.H
     @ONLY
 )
 

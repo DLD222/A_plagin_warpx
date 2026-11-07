@@ -3,10 +3,10 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(lib_${SD}
       PRIVATE
         Runtime.cpp
-        ../Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
-        ../Modules/PicEm/Deposition/DepositionHandler.cpp
-        ../Modules/PicEm/ParticlePush/ParticlePushHandler.cpp
-        ../Modules/PicEm/PicEmPackage.cpp
+        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
+        ../../Plugins/PicEm/Modules/PicEm/Deposition/DepositionHandler.cpp
+        ../../Plugins/PicEm/Modules/PicEm/ParticlePush/ParticlePushHandler.cpp
+        ../../Plugins/PicEm/Modules/PicEm/PicEmPackage.cpp
         CollisionPackage.cpp
         PluginLoader.cpp
         DataBus.cpp
