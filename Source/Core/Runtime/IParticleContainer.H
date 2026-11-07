@@ -1,12 +1,14 @@
 #ifndef WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #define WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #include "Modules/Particles/ParticleAttributes.H"
+#include "Utils/WarpXAlgorithmSelection.H"
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_ParticleContainer.H>
 #include <AMReX_REAL.H>
 #include <cstdint>
 #include <optional>
+#include <memory>
 #include <string>
 #include <utility>
 namespace warpx::runtime {
@@ -36,7 +38,23 @@ public:
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& BExternalParticle () const = 0;
     [[nodiscard]] virtual amrex::Real currentInjectionPosition () const = 0;
+    virtual void setCurrentInjectionPosition (amrex::Real) = 0;
     [[nodiscard]] virtual int doNotDeposit () const = 0;
+    [[nodiscard]] virtual bool getTemperatureDepositionFlag () const noexcept = 0;
+    [[nodiscard]] virtual bool has_virtual_photons () const = 0;
+    [[nodiscard]] virtual bool has_virtual_photons_beam_size_effect () const = 0;
+    [[nodiscard]] virtual int getVirtualPhotonSpeciesIndex () const = 0;
+    virtual void DepositCurrent (ablastr::fields::MultiLevelVectorField const& J,
+                                 amrex::Real dt, amrex::Real relative_time,
+                                 PushType push_type = PushType::Explicit,
+                                 std::optional<int> particle_shape = std::nullopt) = 0;
+    virtual void DepositCharge (ablastr::fields::MultiLevelScalarField const& rho,
+                                bool local = false, bool reset = false,
+                                bool interpolate_across_levels = true,
+                                int icomp = 0) = 0;
+    virtual void DepositTotalNGPTemperature (int lev) = 0;
+    [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
+    GetChargeDensityOnLevel (int lev, bool local, bool finalize) = 0;
 };
 }
 #endif

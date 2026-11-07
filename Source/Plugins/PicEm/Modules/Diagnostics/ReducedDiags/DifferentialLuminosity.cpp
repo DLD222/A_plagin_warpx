@@ -192,7 +192,7 @@ void DifferentialLuminosity::ComputeDiags (int step)
             amrex::ParticleReal * const AMREX_RESTRICT u1x = soa_1.m_rdata[PIdx::ux];
             amrex::ParticleReal * const AMREX_RESTRICT u1y = soa_1.m_rdata[PIdx::uy]; // v*gamma=p/m
             amrex::ParticleReal * const AMREX_RESTRICT u1z = soa_1.m_rdata[PIdx::uz];
-            bool const species1_is_photon = species_1.AmIA<PhysicalSpecies::photon>();
+            bool const species1_is_photon = species_1.isPhoton();
 
             // Species 2
             const auto soa_2 = ptile_2.getParticleTileData();
@@ -203,7 +203,7 @@ void DifferentialLuminosity::ComputeDiags (int step)
             amrex::ParticleReal * const AMREX_RESTRICT u2x = soa_2.m_rdata[PIdx::ux];
             amrex::ParticleReal * const AMREX_RESTRICT u2y = soa_2.m_rdata[PIdx::uy];
             amrex::ParticleReal * const AMREX_RESTRICT u2z = soa_2.m_rdata[PIdx::uz];
-            bool const species2_is_photon = species_2.AmIA<PhysicalSpecies::photon>();
+            bool const species2_is_photon = species_2.isPhoton();
 
             // Extract low-level data
             auto const n_cells = static_cast<int>(bins_1.numBins());

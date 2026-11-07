@@ -121,7 +121,7 @@ void ParticleThermalizer::applyThermalizer(MultiParticleContainer &mpc) const
   } else {
     // Apply only to the named species.
     for (const auto &name : m_species_names) {
-      applyThermalizer(mpc.GetParticleContainerFromName(name));
+      applyThermalizer(static_cast<WarpXParticleContainer&>(mpc.GetParticleContainerFromName(name)));
     }
   }
 }

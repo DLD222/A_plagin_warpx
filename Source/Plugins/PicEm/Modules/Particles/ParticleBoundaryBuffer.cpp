@@ -378,7 +378,7 @@ void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (MultiParticleC
             for (int i = 0; i < numSpecies(); ++i)
             {
                 if (!m_do_boundary_buffer[2*idim+iside][i]) { continue; }
-                const WarpXParticleContainer& pc = mypc.GetParticleContainer(i);
+                const warpx::runtime::IParticleContainer& pc = mypc.GetParticleContainer(i);
                 if (!buffer[i].isDefined())
                 {
                     buffer[i] = pc.make_alike<>();

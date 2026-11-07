@@ -101,7 +101,7 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
     for (int i_s = 0; i_s < 2; ++i_s)
     {
         // get WarpXParticleContainer class object
-        const WarpXParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
+        const warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
 
         // get charge
         amrex::ParticleReal const q = myspc.getCharge();
@@ -132,7 +132,7 @@ ColliderRelevant::ColliderRelevant (const std::string& rd_name)
     for (int i_s = 0; i_s < 2; ++i_s)
     {
         // get WarpXParticleContainer class object
-        const WarpXParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
+        const warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
 
         if (myspc.DoQED()){
             add_diag("chimin_"+m_beam_name[i_s], "chi_min_"+m_beam_name[i_s]+"()");
@@ -215,7 +215,7 @@ void ColliderRelevant::ComputeDiags (int step)
     for (int i_s = 0; i_s < 2; ++i_s)
     {
         // get WarpXParticleContainer class object
-        WarpXParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
+        warpx::runtime::IParticleContainer& myspc = mypc.GetParticleContainerFromName(m_beam_name[i_s]);
         // get charge
         amrex::ParticleReal const q = myspc.getCharge();
 
@@ -417,7 +417,7 @@ void ColliderRelevant::ComputeDiags (int step)
 #if (defined WARPX_QED)
         // get mass
         amrex::ParticleReal m = myspc.getMass();
-        const bool is_photon = myspc.AmIA<PhysicalSpecies::photon>();
+        const bool is_photon = myspc.isPhoton();
         if (is_photon) {
             m = PhysConst::m_e;
         }
@@ -467,12 +467,12 @@ void ColliderRelevant::ComputeDiags (int step)
                 // declare external fields
                 const int offset = 0;
                 const auto getExternalEB = GetExternalEBField(pti, offset, myspc.runtime_context());
-                const amrex::ParticleReal Ex_external_particle = myspc.m_E_external_particle[0];
-                const amrex::ParticleReal Ey_external_particle = myspc.m_E_external_particle[1];
-                const amrex::ParticleReal Ez_external_particle = myspc.m_E_external_particle[2];
-                const amrex::ParticleReal Bx_external_particle = myspc.m_B_external_particle[0];
-                const amrex::ParticleReal By_external_particle = myspc.m_B_external_particle[1];
-                const amrex::ParticleReal Bz_external_particle = myspc.m_B_external_particle[2];
+                const amrex::ParticleReal Ex_external_particle = myspc.EExternalParticle()[0];
+                const amrex::ParticleReal Ey_external_particle = myspc.EExternalParticle()[1];
+                const amrex::ParticleReal Ez_external_particle = myspc.EExternalParticle()[2];
+                const amrex::ParticleReal Bx_external_particle = myspc.BExternalParticle()[0];
+                const amrex::ParticleReal By_external_particle = myspc.BExternalParticle()[1];
+                const amrex::ParticleReal Bz_external_particle = myspc.BExternalParticle()[2];
 
                 // define variables in preparation for field gathering
                 amrex::Box box = pti.tilebox();

@@ -17,7 +17,7 @@ CollisionSpeciesTable::CollisionSpeciesTable (const MultiParticleContainer& mypc
 {
     for (const auto& name : mypc.GetSpeciesNames()) {
         auto& pc = mypc.GetParticleContainerFromName(name);
-        m_species.emplace(name, &pc);
+        m_species.emplace(name, static_cast<WarpXParticleContainer*>(&pc));
         warpx::runtime::SpeciesSpec spec;
         spec.species_name = name;
         spec.species_charge = pc.getCharge();

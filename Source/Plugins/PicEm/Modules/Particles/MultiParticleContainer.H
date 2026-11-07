@@ -86,10 +86,10 @@ public:
     MultiParticleContainer(MultiParticleContainer&& )                   = default;
     MultiParticleContainer& operator=(MultiParticleContainer&& )        = default;
 
-    [[nodiscard]] WarpXParticleContainer&
+    [[nodiscard]] warpx::runtime::IParticleContainer&
     GetParticleContainer (int index) const {return *allcontainers[index];}
 
-    [[nodiscard]] WarpXParticleContainer*
+    [[nodiscard]] warpx::runtime::IParticleContainer*
     GetParticleContainerPtr (int index) const {return allcontainers[index].get();}
 
     [[nodiscard]] warpx::runtime::IParticleContainer&
@@ -103,7 +103,7 @@ public:
         return GetParticleView(getSpeciesID(name));
     }
 
-    [[nodiscard]] WarpXParticleContainer&
+    [[nodiscard]] warpx::runtime::IParticleContainer&
     GetParticleContainerFromName (const std::string& name) const;
 
     std::array<amrex::ParticleReal, 3> meanParticleVelocity(int index) {

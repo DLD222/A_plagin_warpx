@@ -302,7 +302,7 @@ void WarpX::HybridPICDepositRhoAndJ ()
         }
         for (auto const & spec : mypc->GetSpeciesNames()) {
             auto & pc = mypc->GetParticleContainerFromName(spec);
-            if (pc.getCharge() == 0._prt || pc.do_not_deposit) { continue; }
+            if (pc.getCharge() == 0._prt || pc.doNotDeposit()) { continue; }
             auto J_spec = m_fields.get_mr_levels_alldirs("current_fp_" + spec, finest_level);
             auto rho_spec = m_fields.get_mr_levels("rho_fp_" + spec, finest_level);
             for (auto const & J_lev : J_spec) {

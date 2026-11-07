@@ -393,7 +393,7 @@ WarpX::WarpX ()
         const int n_containers = mypc->nContainers();
         for (int i=0; i<n_containers; i++)
         {
-            WarpXParticleContainer& pc = mypc->GetParticleContainer(i);
+            WarpXParticleContainer& pc = static_cast<WarpXParticleContainer&>(mypc->GetParticleContainer(i));
 
             // Storing injection position for all species, regardless of whether
             // they are continuously injected, since it makes looping over the

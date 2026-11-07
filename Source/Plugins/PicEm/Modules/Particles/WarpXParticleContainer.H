@@ -203,7 +203,12 @@ public:
     { return m_B_external_particle; }
     [[nodiscard]] amrex::Real currentInjectionPosition () const override
     { return m_current_injection_position; }
+    void setCurrentInjectionPosition (amrex::Real pos) override
+    { m_current_injection_position = pos; }
     [[nodiscard]] int doNotDeposit () const override { return do_not_deposit; }
+    using warpx::runtime::IParticleContainer::DepositCurrent;
+    using warpx::runtime::IParticleContainer::DepositCharge;
+    using warpx::runtime::IParticleContainer::DepositTotalNGPTemperature;
 
     // amrex::StructOfArrays with DiagIdx::nattribs amrex::ParticleReal components
     // and 0 int components for the particle data.

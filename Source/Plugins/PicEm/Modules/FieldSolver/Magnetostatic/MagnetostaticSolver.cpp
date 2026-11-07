@@ -99,8 +99,8 @@ WarpX::AddMagnetostaticFieldLabFrame()
 
     // Deposit current density (source of Poisson solver)
     for (int ispecies=0; ispecies<mypc->nSpecies(); ispecies++){
-        WarpXParticleContainer& species = mypc->GetParticleContainer(ispecies);
-        if (!species.do_not_deposit) {
+        warpx::runtime::IParticleContainer& species = mypc->GetParticleContainer(ispecies);
+        if (!species.doNotDeposit()) {
             species.DepositCurrent(
                 m_fields.get_mr_levels_alldirs(FieldType::current_fp, finest_level),
                 dt[0], 0.);

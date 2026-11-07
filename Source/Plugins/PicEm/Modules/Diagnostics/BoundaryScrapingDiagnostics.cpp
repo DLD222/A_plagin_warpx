@@ -100,7 +100,7 @@ BoundaryScrapingDiagnostics::InitializeParticleBuffer (const MultiParticleContai
     auto& particle_buffer = host().particleBoundaryBufferService();
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         for (auto const& species_name : m_output_species_names){
-            WarpXParticleContainer* pc = &mpc.GetParticleContainerFromName(species_name);
+            WarpXParticleContainer* pc = static_cast<WarpXParticleContainer*>(&mpc.GetParticleContainerFromName(species_name));
             WarpXParticleContainer::Base* bnd_buffer = static_cast<WarpXParticleContainer::Base*>(particle_buffer.getParticleBufferPointer(species_name, i_buffer));
             m_output_species[i_buffer].push_back(ParticleDiag(m_diag_name, species_name, pc, bnd_buffer));
         }

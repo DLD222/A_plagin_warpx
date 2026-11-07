@@ -276,7 +276,7 @@ namespace
         const int n_containers = mpc.nContainers();
         for (int i=0; i<n_containers; i++)
         {
-            WarpXParticleContainer& pc = mpc.GetParticleContainer(i);
+            WarpXParticleContainer& pc = static_cast<WarpXParticleContainer&>(mpc.GetParticleContainer(i));
 
             // Continuously inject plasma in new cells (by default only on level 0)
             if (pc.doContinuousInjection())
@@ -631,7 +631,7 @@ WarpX::MoveWindow (const int step, bool move_j)
     const int n_containers = mypc->nContainers();
     for (int i=0; i<n_containers; i++)
     {
-        WarpXParticleContainer& pc = mypc->GetParticleContainer(i);
+        WarpXParticleContainer& pc = static_cast<WarpXParticleContainer&>(mypc->GetParticleContainer(i));
 
         // Continuously inject plasma in new cells (by default only on level 0)
         if (pc.doContinuousInjection())

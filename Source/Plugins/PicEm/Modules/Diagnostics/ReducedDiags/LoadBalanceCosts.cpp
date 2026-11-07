@@ -59,7 +59,7 @@ namespace
         amrex::Long num_macro_particles = 0;
         for (int i_s = 0; i_s < nSpecies; ++i_s)
         {
-            WarpXParticleContainer const & pc = access.GetParticleContainer(i_s);
+            warpx::runtime::IParticleContainer const & pc = access.GetParticleContainer(i_s);
             auto const & plev  = pc.GetParticles(lev);
 
             auto const & ptile = plev.at(box_index);

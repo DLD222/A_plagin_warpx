@@ -227,7 +227,9 @@ WarpX::InitFromCheckpoint ()
         const int n_species = mypc->nSpecies();
         for (int i=0; i<n_species; i++)
         {
-             is >> mypc->GetParticleContainer(i).m_current_injection_position;
+             amrex::Real injection_position = 0.0;
+             is >> injection_position;
+             mypc->GetParticleContainer(i).setCurrentInjectionPosition(injection_position);
              ablastr::utils::text::goto_next_line(is);
         }
 

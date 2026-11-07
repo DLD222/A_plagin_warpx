@@ -408,7 +408,7 @@ MultiParticleContainer::ReadParameters ()
     }
 }
 
-WarpXParticleContainer&
+warpx::runtime::IParticleContainer&
 MultiParticleContainer::GetParticleContainerFromName (const std::string& name) const
 {
     auto species_and_lasers_names = GetSpeciesAndLasersNames();
@@ -831,7 +831,7 @@ MultiParticleContainer::CalculateNuei (std::string const & electron_species_name
 
     if (allcontainers.empty()) { return; }
 
-    auto& electron_species = GetParticleContainerFromName(electron_species_name);
+    auto& electron_species = static_cast<WarpXParticleContainer&>(GetParticleContainerFromName(electron_species_name));
 
     // Is there a nicer way to get the number of levels?
     // This grabs it from the first species.

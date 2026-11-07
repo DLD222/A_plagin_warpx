@@ -13,9 +13,9 @@ public:
     using SpeciesVector = amrex::Vector<std::unique_ptr<WarpXParticleContainer>>;
     using iterator = SpeciesVector::iterator;
     using const_iterator = SpeciesVector::const_iterator;
-    [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainer (int index) const = 0;
-    [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainerFromName (const std::string& name) const = 0;
-    [[nodiscard]] virtual WarpXParticleContainer* GetParticleContainerPtr (int index) const = 0;
+    [[nodiscard]] virtual IParticleContainer& GetParticleContainer (int index) const = 0;
+    [[nodiscard]] virtual IParticleContainer& GetParticleContainerFromName (const std::string& name) const = 0;
+    [[nodiscard]] virtual IParticleContainer* GetParticleContainerPtr (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleView (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleInterface (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleView (const std::string& name) const = 0;

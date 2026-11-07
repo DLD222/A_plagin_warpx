@@ -497,8 +497,8 @@ void HybridPICModel::InitData (const ablastr::fields::MultiFabRegister& fields)
         auto const & mypc_drag = WarpX::GetInstance().GetPartContainer();
         for (auto const & spec_name : mypc_drag.GetSpeciesNames()) {
             auto const & pc = mypc_drag.GetParticleContainerFromName(spec_name);
-            if (pc.getCharge() == 0._prt || pc.do_not_deposit) {
-                // Neutrals feel no resistive force; do_not_deposit tracers
+            if (pc.getCharge() == 0._prt || pc.doNotDeposit()) {
+                // Neutrals feel no resistive force; doNotDeposit() tracers
                 // have no deposited V_s to relax. Both are exempt.
                 continue;
             }
@@ -514,7 +514,7 @@ void HybridPICModel::InitData (const ablastr::fields::MultiFabRegister& fields)
                 m_resistive_drag_species.contains(spec_name),
                 "A hybrid_resistive_drag collision is registered, but not on "
                 "charged species '" + spec_name + "'. The drag must be "
-                "registered on every charged species (do_not_deposit tracers "
+                "registered on every charged species (doNotDeposit() tracers "
                 "excepted): with the drag active the resistive terms of "
                 "Ohm's law are included in the particle-push E-field, and a "
                 "species without the drag would feel that force with no "
@@ -531,9 +531,9 @@ void HybridPICModel::InitData (const ablastr::fields::MultiFabRegister& fields)
                 "to positive ions (and the per-species fields it gathers are "
                 "only allocated for charged species).");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                !pc.do_not_deposit,
+                !pc.doNotDeposit(),
                 "hybrid_resistive_drag is registered on species '" + spec_name +
-                "', which has do_not_deposit set. Non-depositing species have "
+                "', which has doNotDeposit() set. Non-depositing species have "
                 "no deposited bulk velocity V_s to relax; remove the drag "
                 "from this species.");
         }
@@ -972,7 +972,7 @@ void HybridPICModel::CalculateIonFluidVelocity (const int lev) const
         // Non-depositing (tracer) species never fill their per-species
         // deposits, so their bulk velocity is undefined; skip them (they are
         // also exempt from the resistive drag).
-        if (pc.getCharge() == 0._prt || pc.do_not_deposit) { continue; }
+        if (pc.getCharge() == 0._prt || pc.doNotDeposit()) { continue; }
         ablastr::fields::VectorField Vs = warpx.m_fields.get_alldirs("Vs_fp_" + spec, lev);
         ablastr::fields::VectorField Js = warpx.m_fields.get_alldirs("current_fp_" + spec, lev);
         amrex::MultiFab const & rho_s = *warpx.m_fields.get("rho_fp_" + spec, lev);
