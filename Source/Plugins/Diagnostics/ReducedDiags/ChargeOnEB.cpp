@@ -10,8 +10,6 @@
 #if defined(AMREX_USE_EB)
 #include <AMReX_EBFabFactory.H>
 #include <AMReX_MultiCutFab.H>
-#else
-#include "WarpX.H"
 #endif
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
@@ -41,6 +39,8 @@ using namespace amrex;
 
 
 // constructor
+#if defined(AMREX_USE_EB)
+
 ChargeOnEB::ChargeOnEB (const std::string& rd_name)
 : ReducedDiags{rd_name}
 {
@@ -227,3 +227,5 @@ void ChargeOnEB::ComputeDiags (const int step)
 #endif
 }
 // end void ChargeOnEB::ComputeDiags
+
+#endif

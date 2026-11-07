@@ -47,6 +47,7 @@ public:
     void NewIteration () override;
     Diagnostics& GetDiag(int idiag) {return *alldiags[idiag]; }
     [[nodiscard]] int GetTotalDiags() const override {return ndiags;}
+    void ReadCheckpointData (std::istream&, const warpx::runtime::IParticleContainerAccess&) override;
     DiagTypes diagstypes(int idiag) {return diags_types[idiag];}
     [[nodiscard]] std::string diagName (int i) const override { return alldiags[i]->GetName(); }
     [[nodiscard]] bool isDiagBackTransformed (int i) const override { return diags_types[i] == DiagTypes::BackTransformed; }

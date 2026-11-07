@@ -61,7 +61,9 @@ MultiReducedDiags::MultiReducedDiags (const warpx::runtime::RuntimeContext* ctx)
     const auto reduced_diags_dictionary =
         std::map<std::string, std::function<std::unique_ptr<ReducedDiags>(CS)>>{
             {"BeamRelevant",          [](CS s){return std::make_unique<BeamRelevant>(s);}},
+#if defined(AMREX_USE_EB)
             {"ChargeOnEB",            [](CS s){return std::make_unique<ChargeOnEB>(s);}},
+#endif
             {"ColliderRelevant",      [](CS s){return std::make_unique<ColliderRelevant>(s);}},
             {"DifferentialLuminosity",[](CS s){return std::make_unique<DifferentialLuminosity>(s);}},
             {"DifferentialLuminosity2D",[](CS s){return std::make_unique<DifferentialLuminosity2D>(s);}},

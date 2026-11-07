@@ -13,6 +13,7 @@ struct NullDiagnosticsService final : IDiagnosticsService {
     void RemakeLevel (int) override {}
     void NewIteration () override {}
     int GetTotalDiags () const override { return 0; }
+    void ReadCheckpointData (std::istream&, const IParticleContainerAccess&) override {}
     std::string diagName (int) const override { return {}; }
     bool isDiagBackTransformed (int) const override { return false; }
     int diagNumBuffers (int) const override { return 0; }

@@ -1,6 +1,7 @@
 #ifndef WARPX_RUNTIME_IDIAGNOSTICSSERVICE_H_
 #define WARPX_RUNTIME_IDIAGNOSTICSSERVICE_H_
 #include <AMReX_REAL.H>
+#include <iosfwd>
 #include <memory>
 #include <string>
 namespace warpx::runtime {
@@ -19,6 +20,7 @@ public:
     virtual void RemakeLevel (int lev) = 0;
     virtual void NewIteration () = 0;
     [[nodiscard]] virtual int GetTotalDiags () const = 0;
+    virtual void ReadCheckpointData (std::istream&, const IParticleContainerAccess&) = 0;
     [[nodiscard]] virtual std::string diagName (int i) const = 0;
     [[nodiscard]] virtual bool isDiagBackTransformed (int i) const = 0;
     [[nodiscard]] virtual int diagNumBuffers (int i) const = 0;

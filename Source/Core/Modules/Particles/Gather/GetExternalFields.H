@@ -6,7 +6,7 @@
 #include "Runtime/IParticleContainer.H"
 #include "Utils/WarpXConst.H"
 
-#include "AcceleratorLattice/LatticeElementFinder.H"
+#include "Modules/AcceleratorLattice/LatticeElementFinder.H"
 
 #include <AMReX.H>
 #include <AMReX_Array.H>
