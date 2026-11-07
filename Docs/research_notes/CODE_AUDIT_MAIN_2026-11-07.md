@@ -3,7 +3,8 @@
 <!-- SPDX-License-Identifier: BSD-3-Clause -->
 
 > 审计日期：2026-11-07
-> 审计对象：`main` 分支当前唯一提交 `2050e6a`（"feat(io): enable openPMD with parallel HDF5; fix PML field recreation on load balance"）的**完整源码树**
+> 审计对象：`main` 分支提交 `2050e6a`（"feat(io): enable openPMD with parallel HDF5; fix PML field recreation on load balance"）的**完整源码树**
+> 时点补记：审计过程中作者又推送了 `9715a5b`（L1 模块改名）与 `a6c05ad`（L1 目录化、内建模块可禁用）两个重构提交。已对新 tip 增量重编译（0 错误）并重跑关键测试，**本报告全部 P0/P1 结论在新 tip 上仍然成立**（涉及文件均未改动；`inputs_2d_particles` 未改，`runtime_snapshot_particles_2` 依旧红）。文中行号以 `2050e6a` 为准；两处文件位置在新 tip 已移动：`Source/Runtime/Pic*.H` → `Source/Modules/PicEm/**`，handler 更名（`PicPushHandler`→`ParticlePushHandler`、`PicFinalizeHandler`→`DepositionHandler`、`PicFieldSolveHandler`→`FieldSolveHandler`，模块名如 `field_solve.yee`）。
 > 对照基准：`Docs/research_notes/` 技术路线（A0–A6 共 153 项任务，`ROUTE_STATUS.md` 声称全部完成）、`PLUGIN_RUNTIME_ARCHITECTURE_V2.md`、`STAGE_POINTS.md` 等设计文档
 > 审计方式：全量人工/子代理代码审查 + 实机编译 + 实机运行测试
 
@@ -102,7 +103,7 @@ load-balance 路径有 `m_particle_boundary_buffer->redistribute()`（`WarpXRegr
 
 ### P3 — 代码异味/小问题
 
-1. **死代码且含假数据**：`PicEmPackage::register_specs`（`PicEmPackage.H:36-64`）与 `CollisionPackage::register_specs`（`CollisionPackage.cpp:22-31`）全仓库无调用点；内部硬编码物种名 `"electrons"/"ions"/"photons"/"gas"`，与任何真实输入无关，留着只会误导。同样地，`CollisionHandlerAdapter::spec` 硬编码同样的物种名（`CollisionHandlerAdapter.H`）——当前 Stage::Collisions 只有一个 handler 所以不影响排序，但属虚假声明。
+1. **生产代码无人调用且含假数据**：`PicEmPackage::register_specs`（`PicEmPackage.H:36-64`）与 `CollisionPackage::register_specs`（`CollisionPackage.cpp:22-31`）在 `Source/` 生产代码中无任何调用点（仅被快照测试调用做断言）；内部硬编码物种名 `"electrons"/"ions"/"photons"/"gas"`，与任何真实输入无关——声明数据是假的，留着只会误导。同样地，`CollisionHandlerAdapter::spec` 硬编码同样的物种名（`CollisionHandlerAdapter.H`）——当前 Stage::Collisions 只有一个 handler 所以不影响排序，但属虚假声明。
 2. **注释与实现矛盾**：`CollisionPackage.H:18-24` 注释称 “Execution handlers are intentionally not registered yet”，但 `CollisionPackage.cpp:17-20` 实际注册了执行 handler。
 3. **误导性变量**：`JdispFunctor.cpp:38` `auto* hybrid_pic_model = host().hasHybridPICModel() ? this : nullptr;`——把 `this`（`const JdispFunctor*`）赋给名为 `hybrid_pic_model` 的变量，类型与名字完全不符；功能上只当布尔用，建议改为显式 bool。
 4. **潜在越界**：`MultiFabRegister::remake_level` 里 `mf.tags()[0]`（`MultiFabRegister.cpp:294`）——若某 MultiFab 无 tag，`tags()` 为空 vector，下标 [0] 是 UB。当前所有 `alloc_init` 路径都设 tag，属潜在风险，建议加判空。
