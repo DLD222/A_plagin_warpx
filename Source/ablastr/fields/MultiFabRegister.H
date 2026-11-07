@@ -725,6 +725,11 @@ namespace ablastr::fields
         }
         //@}
 
+        void erase_internal (std::string const & name)
+        {
+            m_mf_register.erase(name);
+        }
+
         [[nodiscard]] amrex::MultiFab* get_internal (std::string const & name)
         {
             auto it = m_mf_register.find(name);

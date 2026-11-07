@@ -65,7 +65,13 @@ A/B:          PASS
 ASAN:         15 / 15 PASS
 ```
 
-失败仅来自环境：
+openPMD + parallel HDF5 构建：
+
+```text
+159 / 159 PASS
+```
+
+失败仅来自默认构建未启用 openPMD：
 
 - 默认/FFT 未启用 openPMD；
 - openPMD 缺 parallel HDF5。

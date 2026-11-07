@@ -1121,6 +1121,20 @@ WarpX::InitFromScratch ()
 void
 WarpX::CreatePMLForLevel (int lev, const BoxArray& ba, const DistributionMapping& dm)
 {
+    // A load-balance or regrid call can recreate the PML. Remove the old
+    // PML-owned fields first, otherwise alloc_init rejects the duplicate.
+    if (m_level_resources.level(lev).pml != nullptr) {
+        m_level_resources.level(lev).pml.reset();
+    }
+    const std::string level_tag = "[level=" + std::to_string(lev) + "]";
+    for (const auto& name : m_fields.list()) {
+        if (name.rfind("pml_", 0) == 0 &&
+            name.size() >= level_tag.size() &&
+            name.compare(name.size() - level_tag.size(), level_tag.size(), level_tag) == 0) {
+            m_fields.erase_internal(name);
+        }
+    }
+
     bool const eb_enabled = EB::enabled();
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
     if (lev == 0) {
