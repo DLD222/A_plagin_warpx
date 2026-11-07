@@ -29,7 +29,7 @@ GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset
 
     const auto& dts = d.dtAll();
 
-    AcceleratorLattice const & accelerator_lattice = d.acceleratorLattice(lev);
+    AcceleratorLattice const & accelerator_lattice = WarpX::GetInstance().get_accelerator_lattice(lev);
     if (accelerator_lattice.m_lattice_defined) {
         d_lattice_element_finder = accelerator_lattice.GetFinderDeviceInstance(a_pti, static_cast<int>(a_offset), dts);
     }

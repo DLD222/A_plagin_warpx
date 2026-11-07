@@ -28,8 +28,7 @@
 namespace amrex { class AmrCore; class EBFArrayBoxFactory; namespace EB2 { class IndexSpace; } }
 
 class NCIGodfreyFilter;
-class AcceleratorLattice;
-class HybridPICModel;
+class IHybridPICModel;
 class MultiParticleContainer;
 class MultiFluidContainer;
 
@@ -80,8 +79,7 @@ public:
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& vGalilean () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& dtAll () const = 0;
-    [[nodiscard]] virtual const AcceleratorLattice& acceleratorLattice (int lev) const = 0;
-    [[nodiscard]] virtual HybridPICModel* hybridPICModel () const = 0;
+    [[nodiscard]] virtual IHybridPICModel* hybridPICModel () const = 0;
     [[nodiscard]] virtual const MaterialRegistry& materials () const = 0;
     [[nodiscard]] virtual const FieldRegistry& fieldRegistry () const = 0;
     [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;

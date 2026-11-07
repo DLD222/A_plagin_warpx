@@ -7,6 +7,7 @@
 #include "HybridResistiveDrag.H"
 
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/IHybridPICModel.H"
 #include "Runtime/RuntimeData.H"
 
 #include "Fields.H"
@@ -65,13 +66,13 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(hybrid_model != nullptr,
         "HybridResistiveDrag requires the hybrid-PIC solver to be active.");
 
-    auto const eta_func = hybrid_model->m_eta;
+    auto const eta_func = hybrid_model->eta();
     auto const t_now    = m_data->t_new(0);
 
     // Optional per-species resistivity overlay: the drag rate uses the same
     // eta_s_eff = eta_global + eta_s_per as Ohm's law and the Joule source.
-    auto const eta_per_it     = hybrid_model->m_eta_per_species.find(m_species_names[0]);
-    bool const has_eta_per    = (eta_per_it != hybrid_model->m_eta_per_species.end());
+    auto const eta_per_it     = hybrid_model->etaPerSpecies().find(m_species_names[0]);
+    bool const has_eta_per    = (eta_per_it != hybrid_model->etaPerSpecies().end());
     amrex::ParserExecutor<7> eta_s_per{};
     if (has_eta_per) { eta_s_per = eta_per_it->second; }
 
@@ -83,7 +84,7 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
     // Density floor (matches the fluid-velocity and Joule-heat paths): skip
     // cells below the floor, where eta ~ 1/sqrt(rho) blows up and the gridded
     // V_s/V_e are noise rather than physical bulk velocities.
-    amrex::Real const rho_floor = PhysConst::q_e * hybrid_model->m_n_floor;
+    amrex::Real const rho_floor = PhysConst::q_e * hybrid_model->nFloor();
 
     int const nox = m_config->nox();
     int const n_rz_azimuthal_modes = m_config->n_rz_azimuthal_modes();

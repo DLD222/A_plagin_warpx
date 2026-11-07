@@ -69,8 +69,7 @@ public:
     [[nodiscard]] bool useVerboncoeurAxisCorrection () const override;
     [[nodiscard]] const amrex::Vector<amrex::Real>& vGalilean () const override;
     [[nodiscard]] const amrex::Vector<amrex::Real>& dtAll () const override;
-    [[nodiscard]] const AcceleratorLattice& acceleratorLattice (int lev) const override;
-    [[nodiscard]] HybridPICModel* hybridPICModel () const override;
+    [[nodiscard]] IHybridPICModel* hybridPICModel () const override;
     [[nodiscard]] const MaterialRegistry& materials () const override;
     [[nodiscard]] const FieldRegistry& fieldRegistry () const override;
     [[nodiscard]] const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const override;

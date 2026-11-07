@@ -1,3 +1,4 @@
+#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Filter/NCIGodfreyFilter.H"
 /* Copyright 2026 DLD222
  *
@@ -73,8 +74,7 @@ amrex::IntVect WarpXRuntimeData::ngDeposJ () const { return w().get_ng_depos_J()
 bool WarpXRuntimeData::useVerboncoeurAxisCorrection () const { return w().UseVerboncoeurAxisCorrection(); }
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::vGalilean () const { return w().m_v_galilean; }
 const amrex::Vector<amrex::Real>& WarpXRuntimeData::dtAll () const { return w().getdt(); }
-const AcceleratorLattice& WarpXRuntimeData::acceleratorLattice (int lev) const { return w().get_accelerator_lattice(lev); }
-HybridPICModel* WarpXRuntimeData::hybridPICModel () const { return w().get_pointer_HybridPICModel(); }
+IHybridPICModel* WarpXRuntimeData::hybridPICModel () const { return w().get_pointer_HybridPICModel(); }
 const FieldRegistry& WarpXRuntimeData::fieldRegistry () const { return w().fieldSchema(); }
 const MaterialRegistry& WarpXRuntimeData::materials () const
 {

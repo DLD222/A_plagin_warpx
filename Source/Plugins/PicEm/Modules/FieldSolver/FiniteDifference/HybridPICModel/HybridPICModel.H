@@ -18,6 +18,7 @@
 #include "Fluids/QdsmcParticleContainer_fwd.H"
 
 #include "ExternalVectorPotential.H"
+#include "Runtime/IHybridPICModel.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
@@ -57,9 +58,13 @@ AMREX_ENUM(VacuumSeamSwitchMode,
  * \brief This class contains the parameters needed to evaluate hybrid field
  * solutions (kinetic ions with fluid electrons).
  */
-class HybridPICModel
+class HybridPICModel : public warpx::runtime::IHybridPICModel
 {
 public:
+    [[nodiscard]] const amrex::ParserExecutor<3>& eta () const override { return m_eta; }
+    [[nodiscard]] const std::map<std::string, amrex::ParserExecutor<7>>&
+    etaPerSpecies () const override { return m_eta_per_species; }
+    [[nodiscard]] amrex::Real nFloor () const override { return m_n_floor; }
     explicit HybridPICModel (const warpx::runtime::RuntimeContext* ctx = nullptr);
     // Defined out-of-line in the .cpp so the unique_ptr<QdsmcParticleContainer>
     // member can destroy a forward-declared particle container.
