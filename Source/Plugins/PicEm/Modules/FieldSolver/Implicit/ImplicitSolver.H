@@ -11,7 +11,7 @@
 
 #include "ImplicitSolver_fwd.H"
 
-#include "FieldSolver/Implicit/ImplicitOptions.H"
+#include "Modules/FieldSolver/ImplicitOptions.H"
 #include "FieldSolver/Implicit/SparseJacobianMatrix.H"
 
 #include "FieldSolver/Implicit/WarpXSolverVec.H"

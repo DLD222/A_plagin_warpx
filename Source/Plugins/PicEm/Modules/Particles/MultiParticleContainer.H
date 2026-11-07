@@ -12,7 +12,7 @@
 #define WARPX_ParticleContainer_H_
 
 #include "MultiParticleContainer_fwd.H"
-#include "FieldSolver/Implicit/ImplicitOptions.H"
+#include "Modules/FieldSolver/ImplicitOptions.H"
 
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper_fwd.H"

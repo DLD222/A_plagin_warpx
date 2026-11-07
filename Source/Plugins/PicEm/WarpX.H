@@ -15,7 +15,7 @@
 #include "BoundaryConditions/PEC_Insulator_fwd.H"
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
-#include "FieldSolver/Implicit/ImplicitOptions.H"
+#include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IAmrPolicy.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver_fwd.H"

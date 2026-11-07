@@ -9,7 +9,7 @@
 #include "BoundaryConditions/PML.H"
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
-#include "FieldSolver/Implicit/ImplicitOptions.H"
+#include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/ParticleBoundaryBuffer.H"
