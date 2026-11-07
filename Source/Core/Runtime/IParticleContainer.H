@@ -3,6 +3,7 @@
 #include <AMReX_REAL.H>
 #include <cstdint>
 #include <string>
+#include <utility>
 namespace warpx::runtime {
 /** \brief Native particle-container view for modules (A7.1). */
 class IParticleContainer {
@@ -14,6 +15,10 @@ public:
     [[nodiscard]] virtual int finestLevel () const = 0;
     [[nodiscard]] virtual std::int64_t totalNumberOfParticles () const = 0;
     [[nodiscard]] virtual amrex::Real sumParticleWeight (bool local) const = 0;
+    [[nodiscard]] virtual std::pair<amrex::Real, amrex::Real>
+    sumParticleWeightAndEnergy (bool local) const = 0;
+    [[nodiscard]] virtual bool isPhoton () const = 0;
+    [[nodiscard]] virtual bool DoQED () const = 0;
 };
 }
 #endif

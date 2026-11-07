@@ -11,6 +11,10 @@ public:
     [[nodiscard]] int finestLevel () const override;
     [[nodiscard]] std::int64_t totalNumberOfParticles () const override;
     [[nodiscard]] amrex::Real sumParticleWeight (bool local) const override;
+    [[nodiscard]] std::pair<amrex::Real, amrex::Real>
+    sumParticleWeightAndEnergy (bool local) const override;
+    [[nodiscard]] bool isPhoton () const override;
+    [[nodiscard]] bool DoQED () const override;
 private:
     WarpXParticleContainer* m_pc;
 };

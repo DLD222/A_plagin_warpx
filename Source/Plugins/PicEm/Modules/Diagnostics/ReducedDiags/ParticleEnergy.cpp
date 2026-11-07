@@ -102,7 +102,7 @@ void ParticleEnergy::ComputeDiags (int step)
     for (int i_s = 0; i_s < nSpecies; ++i_s)
     {
         // Get WarpXParticleContainer class object
-        const auto & myspc = access.GetParticleContainer(i_s);
+        const auto & myspc = access.GetParticleView(i_s);
 
         auto [Etot, Ws] = myspc.sumParticleWeightAndEnergy(false);
 
