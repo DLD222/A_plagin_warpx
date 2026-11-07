@@ -73,7 +73,9 @@ Source/Plugins/PicEm/
 - 2D CPU：默认 76/87，HDF5 构建 159/159；
 - 2D FFT / ASAN 通过；
 - 1D/3D/RZ 统一构建（EB/QED ON，FFT OFF）已通过；
+- 1D/3D/RZ + openPMD + parallel HDF5 构建已通过；
 - 1D/3D/RZ 非 openPMD smoke 8/8 通过；
+- 1D/3D/RZ openPMD smoke 8/8 通过；
 - L1 模块命名/选择/禁用已实现。
 
 ### 2.2 仍然存在
@@ -158,8 +160,8 @@ Core/Runtime -> Plugins/PicEm/WarpX
 仍需：
 
 - 1D/3D/RZ + FFT：需要 `blaspp`；
-- 1D/3D/RZ + openPMD/HDF5：需要对应 HDF5 构建；
-- RZ 轴、3D EB、3D QED 全量测试。
+- RZ 轴、3D EB、3D QED 全量测试；
+- 1D/3D/RZ openPMD 全量测试（当前只做 smoke）。
 
 ### P1：Core/Plugin 依赖倒置
 
@@ -253,9 +255,9 @@ Core 不 include Plugins/PicEm/WarpX.H
 
 | 组合 | 1D | 2D | 3D | RZ |
 |---|---|---|---|---|
-| CPU OMP | 待扩展 | 已通过 | 待扩展 | 待扩展 |
+| CPU OMP | 构建+smoke | 已通过 | 构建+smoke | 构建+smoke |
 | + FFT | 待 | 已通过 | 需 blaspp | 需 blaspp |
-| + openPMD/HDF5 | 待 | 159/159 | 待 | 待 |
+| + openPMD/HDF5 | 构建+smoke | 159/159 | 构建+smoke | 构建+smoke |
 | + EB | 待 | 已通过 | 待 | 待 |
 | + QED | 待 | 已通过 | 待 | 待 |
 | + Python/PICMI | 待 | 未构建 | 待 | 待 |
