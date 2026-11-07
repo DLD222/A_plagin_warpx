@@ -1,7 +1,7 @@
 #ifndef WARPX_PARTICLES_GATHER_GETEXTERNALFIELDS_H_
 #define WARPX_PARTICLES_GATHER_GETEXTERNALFIELDS_H_
 
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include "Runtime/IParticleContainer.H"
 #include "Utils/WarpXConst.H"

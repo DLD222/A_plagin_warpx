@@ -1,5 +1,5 @@
 #include "Runtime/RuntimeConfigSnapshot.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2019-2020 Maxence Thevenet, Yinjian Zhao

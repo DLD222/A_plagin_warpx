@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "ComputeDiagFunctor.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 

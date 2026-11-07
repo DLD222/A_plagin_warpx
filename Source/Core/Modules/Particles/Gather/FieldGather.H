@@ -8,11 +8,11 @@
 #ifndef WARPX_FIELDGATHER_H_
 #define WARPX_FIELDGATHER_H_
 
-#include "Particles/Gather/GetExternalFields.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/ShapeFactors.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/ShapeFactors.H"
 #include "Utils/WarpX_Complex.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 
 #include <AMReX.H>
 

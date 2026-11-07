@@ -13,6 +13,7 @@
 #include <ablastr/utils/Enums.H>
 
 #include <AMReX_Array.H>
+#include <AMReX_IntVect.H>
 #include <AMReX_REAL.H>
 
 namespace warpx::runtime
@@ -49,6 +50,8 @@ struct RuntimeConfigSnapshot
     bool galerkin_interpolation{false};
     bool do_dive_cleaning{false};
     bool do_divb_cleaning{false};
+    bool use_filter{false};
+    amrex::IntVect filter_npass_each_dir{amrex::IntVect::TheZeroVector()};
     bool do_single_precision_comms{false};
     bool fft_do_time_averaging{false};
     int start_moving_window_step{-1};

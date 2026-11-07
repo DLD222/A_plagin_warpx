@@ -1,5 +1,5 @@
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Utils/WarpXConst.H"
 /* Copyright 2019-2020 Yinjian Zhao
  *

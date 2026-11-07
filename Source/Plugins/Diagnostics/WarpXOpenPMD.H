@@ -99,7 +99,8 @@ public:
                     const std::string& engine_type,
                     const std::map< std::string, std::string >& engine_parameters,
                     const std::vector<bool>& fieldPMLdirections,
-                    const std::string& authors);
+                    const std::string& authors,
+                    const warpx::runtime::RuntimeContext* ctx = nullptr);
 
   ~WarpXOpenPMDPlot ();
 
@@ -380,6 +381,7 @@ private:
 
   // The authors' string
   std::string m_authors;
+  const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 };
 #endif // WARPX_USE_OPENPMD
 

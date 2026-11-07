@@ -1,5 +1,7 @@
 #ifndef WARPX_DIAGNOSTICS_H_
 #define WARPX_DIAGNOSTICS_H_
+#include "Runtime/RuntimeConfigSnapshot.H"
+#include "Runtime/ISimulationKernel.H"
 #include "Runtime/ILegacyRuntime.H"
 
 #include "ParticleDiag/ParticleDiag.H"

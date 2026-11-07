@@ -1,6 +1,6 @@
 
 #include "TemperatureFunctor.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 

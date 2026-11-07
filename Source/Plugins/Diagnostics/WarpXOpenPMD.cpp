@@ -6,6 +6,7 @@
  */
 #include "WarpXOpenPMD.H"
 #include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Modules/Particles/ParticleIO.H"
@@ -15,7 +16,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "WarpX.H"
+#include "Utils/WarpXVersion.H"
 #include "OpenPMDHelpFunction.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -387,14 +388,16 @@ WarpXOpenPMDPlot::WarpXOpenPMDPlot (
     const std::string& engine_type,
     const std::map< std::string, std::string >& engine_parameters,
     const std::vector<bool>& fieldPMLdirections,
-    const std::string& authors)
+    const std::string& authors,
+    const warpx::runtime::RuntimeContext* ctx)
     : m_Series(nullptr),
       m_MPIRank{amrex::ParallelDescriptor::MyProc()},
       m_MPISize{amrex::ParallelDescriptor::NProcs()},
       m_Encoding(ie),
       m_OpenPMDFileType{openPMDFileType},
       m_fieldPMLdirections{fieldPMLdirections},
-      m_authors{authors}
+      m_authors{authors},
+      m_runtime_context{ctx}
 {
     m_OpenPMDoptions = ::detail::getSeriesOptions(operator_type, operator_parameters,
                                                 engine_type, engine_parameters);
@@ -527,7 +530,7 @@ WarpXOpenPMDPlot::Init (openPMD::Access access, bool isBTD)
     uint32_t const openPMD_ED_PIC = 1u;
     m_Series->setOpenPMDextension( openPMD_ED_PIC );
     // meta info
-    m_Series->setSoftware( "WarpX", WarpX::Version() );
+    m_Series->setSoftware( "WarpX", std::string(WARPX_GIT_VERSION) );
 }
 
 void
@@ -598,7 +601,7 @@ for (const auto & particle_diag : particle_diags) {
 
     // Gather the electrostatic potential (phi) on the macroparticles
     if ( particle_diag.m_plot_phi ) {
-        storePhiOnParticles(tmp, data, WarpX::electrostatic_solver_id, !use_pinned_pc);
+        storePhiOnParticles(tmp, data, m_runtime_context->config_snapshot->electrostatic_solver_id, !use_pinned_pc);
     }
     if (particle_diag.m_plot_Ex || particle_diag.m_plot_Ey || particle_diag.m_plot_Ez ||
         particle_diag.m_plot_Bx || particle_diag.m_plot_By || particle_diag.m_plot_Bz) {
@@ -1200,25 +1203,25 @@ WarpXOpenPMDPlot::SetConstParticleRecordsEDPIC (
     currSpecies["mass"].setAttribute( "weightingPower", 1.0 );
 
     // more ED-PIC attributes
-    currSpecies.setAttribute("particleShape", double(WarpX::noz));
+    currSpecies.setAttribute("particleShape", double(m_runtime_context->config_snapshot->noz));
     // TODO allow this per direction in the openPMD standard, ED-PIC extension?
-    currSpecies.setAttribute("particleShapes", []() {
+    currSpecies.setAttribute("particleShapes", [this]() {
         return std::vector<double>{
 #if defined(WARPX_DIM_1D_Z)
-                double(WarpX::noz)
+                double(m_runtime_context->config_snapshot->noz)
 #else
-                double(WarpX::nox)
+                double(m_runtime_context->config_snapshot->nox)
 #if defined(WARPX_DIM_3D)
-                , double(WarpX::noy)
+                , double(m_runtime_context->config_snapshot->noy)
 #endif
 #if !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-                , double(WarpX::noz)
+                , double(m_runtime_context->config_snapshot->noz)
 #endif
 #endif
         };
     }());
-    currSpecies.setAttribute("particlePush", []() {
-        switch (WarpX::particle_pusher_algo) {
+    currSpecies.setAttribute("particlePush", [this]() {
+        switch (m_runtime_context->config_snapshot->particle_pusher_algo) {
             case ParticlePusherAlgo::Boris :
                 return "Boris";
             case ParticlePusherAlgo::Vay :
@@ -1229,8 +1232,8 @@ WarpXOpenPMDPlot::SetConstParticleRecordsEDPIC (
                 return "other";
         }
     }());
-    currSpecies.setAttribute("particleInterpolation", []() {
-        switch (WarpX::field_gathering_algo) {
+    currSpecies.setAttribute("particleInterpolation", [this]() {
+        switch (m_runtime_context->config_snapshot->field_gathering_algo) {
             case GatheringAlgo::EnergyConserving :
                 return "energyConserving";
             case GatheringAlgo::MomentumConserving :
@@ -1240,8 +1243,8 @@ WarpXOpenPMDPlot::SetConstParticleRecordsEDPIC (
         }
     }());
     currSpecies.setAttribute("particleSmoothing", "none");
-    currSpecies.setAttribute("currentDeposition", []() {
-        switch (WarpX::current_deposition_algo) {
+    currSpecies.setAttribute("currentDeposition", [this]() {
+        switch (m_runtime_context->config_snapshot->current_deposition_algo) {
             case CurrentDepositionAlgo::Esirkepov :
                 return "Esirkepov";
             case CurrentDepositionAlgo::Vay :
@@ -1290,8 +1293,8 @@ WarpXOpenPMDPlot::SetupFields ( openPMD::Container< openPMD::Mesh >& meshes,
         }
     }
 
-    meshes.setAttribute("fieldSolver", []() {
-        switch (WarpX::electromagnetic_solver_id) {
+    meshes.setAttribute("fieldSolver", [this]() {
+        switch (m_runtime_context->config_snapshot->electromagnetic_solver_id) {
             case ElectromagneticSolverAlgo::Yee :
                 return "Yee";
             case ElectromagneticSolverAlgo::CKC :
@@ -1304,34 +1307,34 @@ WarpXOpenPMDPlot::SetupFields ( openPMD::Container< openPMD::Mesh >& meshes,
     }());
     meshes.setAttribute("fieldBoundary", fieldBoundary);
     meshes.setAttribute("particleBoundary", particleBoundary);
-    meshes.setAttribute("currentSmoothing", []() {
-        if (WarpX::use_filter) { return "Binomial"; }
+    meshes.setAttribute("currentSmoothing", [this]() {
+        if (m_runtime_context->config_snapshot->use_filter) { return "Binomial"; }
         else { return "none"; }
     }());
-    if (WarpX::use_filter) {
-        meshes.setAttribute("currentSmoothingParameters", []() {
+    if (m_runtime_context->config_snapshot->use_filter) {
+        meshes.setAttribute("currentSmoothingParameters", [this]() {
             std::stringstream ss;
             ss << "period=1;compensator=false";
 #if !defined(WARPX_DIM_1D_Z)
-            ss << ";numPasses_x=" << WarpX::filter_npass_each_dir[0];
+            ss << ";numPasses_x=" << m_runtime_context->config_snapshot->filter_npass_each_dir[0];
 #endif
 #if defined(WARPX_DIM_3D)
-            ss << ";numPasses_y=" << WarpX::filter_npass_each_dir[1];
-            ss << ";numPasses_z=" << WarpX::filter_npass_each_dir[2];
+            ss << ";numPasses_y=" << m_runtime_context->config_snapshot->filter_npass_each_dir[1];
+            ss << ";numPasses_z=" << m_runtime_context->config_snapshot->filter_npass_each_dir[2];
 #elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
-            ss << ";numPasses_z=" << WarpX::filter_npass_each_dir[1];
+            ss << ";numPasses_z=" << m_runtime_context->config_snapshot->filter_npass_each_dir[1];
 #elif defined(WARPX_DIM_1D_Z)
-            ss << ";numPasses_z=" << WarpX::filter_npass_each_dir[0];
+            ss << ";numPasses_z=" << m_runtime_context->config_snapshot->filter_npass_each_dir[0];
 #endif
             std::string currentSmoothingParameters = ss.str();
             return currentSmoothingParameters;
         }());
     }
-    meshes.setAttribute("chargeCorrection", []() {
-        if (WarpX::do_dive_cleaning) { return "hyperbolic"; // TODO or "spectral" or something? double-check
+    meshes.setAttribute("chargeCorrection", [this]() {
+        if (m_runtime_context->config_snapshot->do_dive_cleaning) { return "hyperbolic"; // TODO or "spectral" or something? double-check
         } else { return "none"; }
     }());
-    if (WarpX::do_dive_cleaning) {
+    if (m_runtime_context->config_snapshot->do_dive_cleaning) {
         meshes.setAttribute("chargeCorrectionParameters", "period=1");
     }
     // TODO set meta-data information for time-averaged quantities
@@ -1362,7 +1365,7 @@ WarpXOpenPMDPlot::SetupMeshComp (openPMD::Mesh& mesh,
     std::vector<double> const global_offset = getReversedVec(full_geom.ProbLo());
 #if defined(WARPX_DIM_RZ)
     if (var_in_theta_mode) {
-            global_size.emplace(global_size.begin(), WarpX::ncomps);
+            global_size.emplace(global_size.begin(), m_runtime_context->config_snapshot->ncomps);
     }
 #endif
     // - AxisLabels
@@ -1374,7 +1377,7 @@ WarpXOpenPMDPlot::SetupMeshComp (openPMD::Mesh& mesh,
     mesh.setDataOrder(openPMD::Mesh::DataOrder::C);
     if (var_in_theta_mode) {
         mesh.setGeometry("thetaMode");
-        mesh.setGeometryParameters("m=" + std::to_string(WarpX::n_rz_azimuthal_modes) + ";imag=+");
+        mesh.setGeometryParameters("m=" + std::to_string(m_runtime_context->config_snapshot->n_rz_azimuthal_modes) + ";imag=+");
     }
     mesh.setAxisLabels(axis_labels);
     mesh.setGridSpacing(grid_spacing);

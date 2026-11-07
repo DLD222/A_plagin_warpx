@@ -6,7 +6,7 @@
  */
 
 #include "BoundaryScrapingDiagnostics.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "EmbeddedBoundary/Enabled.H"

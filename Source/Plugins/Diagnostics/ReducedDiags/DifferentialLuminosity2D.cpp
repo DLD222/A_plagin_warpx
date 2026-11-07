@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "DifferentialLuminosity2D.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 

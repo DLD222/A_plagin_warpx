@@ -39,6 +39,8 @@ RuntimeConfigSnapshot::FromLegacy ()
     snapshot.galerkin_interpolation = WarpX::galerkin_interpolation;
     snapshot.do_dive_cleaning = WarpX::do_dive_cleaning;
     snapshot.do_divb_cleaning = WarpX::do_divb_cleaning;
+    snapshot.use_filter = WarpX::use_filter;
+    snapshot.filter_npass_each_dir = WarpX::filter_npass_each_dir;
     snapshot.do_single_precision_comms = WarpX::do_single_precision_comms;
     snapshot.fft_do_time_averaging = WarpX::fft_do_time_averaging;
     snapshot.start_moving_window_step = WarpX::start_moving_window_step;

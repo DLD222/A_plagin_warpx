@@ -1,5 +1,5 @@
 #include "FullDiagnostics.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeConfigSnapshot.H"

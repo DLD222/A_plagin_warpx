@@ -8,7 +8,7 @@
 #define WARPX_PARTICLEIO_H_
 
 #include "Runtime/IParticleContainer.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include <ablastr/particles/NodalFieldGather.H>
 

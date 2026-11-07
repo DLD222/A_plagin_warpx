@@ -141,4 +141,8 @@ const amrex::EBFArrayBoxFactory& WarpXRuntimeData::fieldEBFactory (int lev) cons
 #endif
 }
 
+amrex::IntVect WarpXRuntimeData::RefRatio (int lev) const { return w().RefRatio(lev); }
+std::vector<bool> WarpXRuntimeData::pmlDirections () const { return w().getPMLdirections(); }
+bool WarpXRuntimeData::computeMaxStepFromBTD () const { return w().compute_max_step_from_btd; }
+
 } // namespace warpx::runtime

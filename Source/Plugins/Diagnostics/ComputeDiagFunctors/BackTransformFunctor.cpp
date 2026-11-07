@@ -12,7 +12,7 @@
 #include "Utils/WarpXConst.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 
 #include <ablastr/utils/Communication.H>
 
@@ -105,7 +105,7 @@ BackTransformFunctor::operator ()(amrex::MultiFab& mf_dst, int /*dcomp*/, const 
         ablastr::utils::communication::ParallelCopy(*tmp_slice_ptr, *slice, 0, 0, slice->nComp(),
                                                     IntVect(AMREX_D_DECL(0, 0, 0)),
                                                     IntVect(AMREX_D_DECL(0, 0, 0)),
-                                                    WarpX::do_single_precision_comms);
+                                                    config_snapshot().do_single_precision_comms);
         // Now we will cherry pick only the user-defined fields from
         // tmp_slice_ptr to dst_mf
         const int k_lab = m_k_index_zlab[i_buffer];
@@ -127,7 +127,7 @@ BackTransformFunctor::operator ()(amrex::MultiFab& mf_dst, int /*dcomp*/, const 
             const amrex::Array4<amrex::Real> src_arr = tmp[mfi].array();
             const amrex::Array4<amrex::Real> dst_arr = mf_dst[mfi].array();
 #ifdef WARPX_DIM_RZ
-            const int n_rz_comp = WarpX::ncomps;
+            const int n_rz_comp = config_snapshot().ncomps;
 #endif
             amrex::ParallelFor( tbx, ncomp_dst,
                 [=] AMREX_GPU_DEVICE(int i, int j, int k, int n)
@@ -221,7 +221,7 @@ BackTransformFunctor::InitData ()
     for (int i = 0; i < m_varnames.size(); ++i)
     {
 #ifdef WARPX_DIM_RZ
-        const int field_id = i / WarpX::ncomps;
+        const int field_id = i / config_snapshot().ncomps;
         m_map_varnames[i] = m_possible_fields_to_dump[ m_varnames_fields[field_id] ];
 #else
         m_map_varnames[i] = m_possible_fields_to_dump[ m_varnames[i] ] ;
@@ -243,7 +243,7 @@ BackTransformFunctor::LorentzTransformZ (amrex::MultiFab& data, amrex::Real gamm
         const amrex::Real clight = PhysConst::c;
         const amrex::Real inv_clight = 1.0_rt/clight;
 #ifdef WARPX_DIM_RZ
-        const int n_rcomps = WarpX::ncomps;
+        const int n_rcomps = config_snapshot().ncomps;
         amrex::ParallelFor( tbx,
             [=] AMREX_GPU_DEVICE (int i, int j, int k)
             {

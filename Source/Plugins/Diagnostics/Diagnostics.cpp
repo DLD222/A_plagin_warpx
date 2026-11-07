@@ -26,7 +26,7 @@
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <ablastr/utils/Communication.H>
@@ -171,7 +171,7 @@ Diagnostics::BaseReadParameters ()
             "plot F only works if config().do_dive_cleaning() = 1");
     }
 
-    // G can be written to file only if WarpX::do_divb_cleaning = 1
+    // G can be written to file only if config_snapshot().do_divb_cleaning = 1
     if (utils::algorithms::is_in(m_varnames_fields, "G"))
     {
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(

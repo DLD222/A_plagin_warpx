@@ -7,8 +7,8 @@
 #ifndef WARPX_FILTERFUNCTORS_H
 #define WARPX_FILTERFUNCTORS_H
 
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/WarpXConst.H"
 
 #include <AMReX_Gpu.H>

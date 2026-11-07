@@ -12,7 +12,7 @@
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
+#include "Runtime/FrameState.H"
 
 #include <AMReX.H>
 #include <AMReX_Print.H>
@@ -42,7 +42,8 @@ LorentzTransformParticles::LorentzTransformParticles (
     int a_offset
 )
     : m_t_boost(t_boost), m_dt(dt), m_t_lab(t_lab),
-      m_gammaboost(WarpX::gamma_boost), m_betaboost(WarpX::beta_boost),
+      m_gammaboost(warpx::runtime::FrameState::FromLegacy().gamma_boost),
+      m_betaboost(warpx::runtime::FrameState::FromLegacy().beta_boost),
       m_Phys_c(PhysConst::c), m_inv_c2(amrex::Real(1.0)/(m_Phys_c * m_Phys_c)),
       m_uzfrm(-m_gammaboost*m_betaboost*m_Phys_c)
 {

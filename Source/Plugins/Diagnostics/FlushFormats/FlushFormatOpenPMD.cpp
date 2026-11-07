@@ -1,5 +1,5 @@
 #include "FlushFormatOpenPMD.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -123,7 +123,8 @@ FlushFormatOpenPMD::FlushFormatOpenPMD (const std::string& diag_name,
         operator_type, operator_parameters,
         engine_type, engine_parameters,
         host().pml().pmlDirections(),
-        host().diagnosticsMetadata().authors()
+        host().diagnosticsMetadata().authors(),
+        m_runtime_context
     );
 }
 

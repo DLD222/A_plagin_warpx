@@ -1,5 +1,6 @@
 #ifndef WARPX_COMPUTEDIAGFUNCTOR_H_
 #define WARPX_COMPUTEDIAGFUNCTOR_H_
+#include "Runtime/RuntimeConfigSnapshot.H"
 
 #include "ComputeDiagFunctor_fwd.H"
 #include "Utils/TextMsg.H"

@@ -36,6 +36,7 @@ namespace warpx::runtime
 {
 class ISpeciesContainer;
 class IFilterBank;
+class ISimulationKernel;
 class ISpeciesMetadata;
 class IParticleContainerAccess;
 class MaterialRegistry;
@@ -58,6 +59,8 @@ public:
 
     [[nodiscard]] virtual amrex::AmrCore& amrCore () const = 0;
     [[nodiscard]] virtual ISpeciesMetadata& speciesMetadata () = 0;
+    [[nodiscard]] virtual ISimulationKernel& kernel () = 0;
+    [[nodiscard]] virtual const ISimulationKernel& kernel () const = 0;
     [[nodiscard]] virtual IParticleContainerAccess& particleAccess () = 0;
     [[nodiscard]] virtual const ISpeciesMetadata& speciesMetadata () const = 0;
     [[nodiscard]] virtual const IParticleContainerAccess& particleAccess () const = 0;

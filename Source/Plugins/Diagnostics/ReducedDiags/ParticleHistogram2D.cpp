@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "ParticleHistogram2D.H"
-#include "WarpX.H"
+#include "Diagnostics/DiagnosticsDependencies.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
