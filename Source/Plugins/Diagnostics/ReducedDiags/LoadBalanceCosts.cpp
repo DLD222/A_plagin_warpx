@@ -5,6 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "LoadBalanceCosts.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -15,7 +16,6 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 

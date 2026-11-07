@@ -6,6 +6,7 @@
  */
 
 #include "ParticleMomentum.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -13,7 +14,6 @@
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_GpuQualifiers.H>
 #include <AMReX_PODVector.H>

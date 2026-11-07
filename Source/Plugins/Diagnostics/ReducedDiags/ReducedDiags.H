@@ -65,7 +65,7 @@ protected:
 
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
 
 public:
 

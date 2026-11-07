@@ -16,6 +16,7 @@ foreach(D IN LISTS WarpX_DIMS)
         ../../Plugins/PicEm/RuntimeBridge/Runtime/WarpXRuntimeData.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/RuntimeConfig.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/FrameState.cpp
+        ../../Plugins/PicEm/RuntimeBridge/Runtime/LegacyRuntimeFactory.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/LevelResources.cpp
         ../../Plugins/PicEm/RuntimeBridge/Runtime/CollisionPackage.cpp
         ../../Plugins/PicEm/Modules/PicEm/RuntimeConfigSnapshotBridge.cpp

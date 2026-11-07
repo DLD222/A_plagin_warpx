@@ -1,5 +1,6 @@
 #ifndef WARPX_DIAGNOSTICS_H_
 #define WARPX_DIAGNOSTICS_H_
+#include "Runtime/ILegacyRuntime.H"
 
 #include "ParticleDiag/ParticleDiag.H"
 
@@ -211,8 +212,8 @@ public:
     virtual void set_snapshot_full ( [[maybe_unused]] int i_buffer, [[maybe_unused]] int snapshot_full) { }
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
-    mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
+    mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::HostServices> m_legacy_host;
 
 protected:
     /** Read Parameters of the base Diagnostics class */

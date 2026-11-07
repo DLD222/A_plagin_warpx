@@ -11,7 +11,6 @@
 #include "ReducedDiags.H"
 #include "Fields.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

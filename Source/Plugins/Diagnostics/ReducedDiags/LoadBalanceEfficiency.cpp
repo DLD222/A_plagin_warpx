@@ -5,12 +5,12 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "LoadBalanceEfficiency.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_ParallelDescriptor.H>
 #include <AMReX_ParmParse.H>

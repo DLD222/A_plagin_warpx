@@ -6,6 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "DifferentialLuminosity2D.H"
+#include "WarpX.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 
@@ -20,7 +21,6 @@
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>

@@ -6,6 +6,7 @@
  */
 
 #include "RhoMaximum.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -14,7 +15,6 @@
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>

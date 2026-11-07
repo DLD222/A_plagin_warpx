@@ -7,13 +7,13 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "DarwinEfieldFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
 
 #include <AMReX.H>
 #include <AMReX_MultiFab.H>

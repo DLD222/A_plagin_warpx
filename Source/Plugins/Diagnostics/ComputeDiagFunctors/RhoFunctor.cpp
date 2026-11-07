@@ -1,4 +1,5 @@
 #include "RhoFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -16,7 +17,6 @@
 #include "Modules/Particles/WarpXParIter.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX.H>
 #include <AMReX_IntVect.H>

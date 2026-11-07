@@ -1,8 +1,8 @@
 #include "FlushFormatAscent.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "WarpX.H"
 #include "Utils/TextMsg.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

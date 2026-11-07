@@ -1,3 +1,6 @@
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "WarpX.H"
+#include "Utils/WarpXConst.H"
 /* Copyright 2019-2020 Yinjian Zhao
  *
  * This file is part of WarpX.
@@ -12,7 +15,6 @@
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_GpuQualifiers.H>
 #include <AMReX_PODVector.H>

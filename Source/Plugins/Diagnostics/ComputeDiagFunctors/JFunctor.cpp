@@ -5,6 +5,7 @@
  */
 
 #include "JFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -12,7 +13,6 @@
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/utils/Communication.H>

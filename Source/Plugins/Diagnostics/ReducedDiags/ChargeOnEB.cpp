@@ -6,6 +6,7 @@
  */
 
 #include "ChargeOnEB.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -16,7 +17,6 @@
 #include "Utils/WarpXConst.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_GpuAtomic.H>
 #include <AMReX_Config.H>

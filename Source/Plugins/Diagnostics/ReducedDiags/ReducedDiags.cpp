@@ -1,4 +1,5 @@
 #include "Runtime/RuntimeConfigSnapshot.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2019-2020 Maxence Thevenet, Yinjian Zhao
@@ -13,11 +14,10 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
 
-#include "WarpX.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 
@@ -175,7 +175,7 @@ ReducedDiags::data () const
         return *m_runtime_context->data;
     }
     if (!m_legacy_data) {
-        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
+        m_legacy_data = warpx::runtime::create_legacy_runtime_data();
     }
     return *m_legacy_data;
 }

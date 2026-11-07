@@ -1,5 +1,6 @@
 
 #include "TemperatureFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -8,7 +9,6 @@
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

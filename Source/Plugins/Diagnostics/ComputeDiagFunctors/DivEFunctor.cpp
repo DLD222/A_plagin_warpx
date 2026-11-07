@@ -1,4 +1,5 @@
 #include "DivEFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -11,7 +12,6 @@
 #ifdef WARPX_DIM_RZ
 #   include "Utils/WarpXAlgorithmSelection.H"
 #endif
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

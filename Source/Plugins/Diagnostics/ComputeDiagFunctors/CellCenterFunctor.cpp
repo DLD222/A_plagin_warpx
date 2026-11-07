@@ -1,10 +1,10 @@
 #include "CellCenterFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 
-#include "WarpX.H"
 
 #include <AMReX.H>
 #include <AMReX_Extension.H>

@@ -6,6 +6,7 @@
  */
 
 #include "BoundaryScrapingDiagnostics.H"
+#include "WarpX.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "EmbeddedBoundary/Enabled.H"
@@ -14,7 +15,6 @@
 #include "Runtime/RuntimeData.H"
 #include "Diagnostics/FlushFormats/FlushFormat.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>

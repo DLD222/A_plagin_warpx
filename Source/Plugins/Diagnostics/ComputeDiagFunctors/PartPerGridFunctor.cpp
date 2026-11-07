@@ -1,11 +1,11 @@
 #include "PartPerGridFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Runtime/RuntimeData.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

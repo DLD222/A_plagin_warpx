@@ -1,4 +1,5 @@
 #include "Runtime/IDiagnosticsService.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IReducedDiagsService.H"

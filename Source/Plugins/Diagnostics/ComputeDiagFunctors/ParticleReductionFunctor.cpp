@@ -1,3 +1,6 @@
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "WarpX.H"
+#include "Utils/WarpXConst.H"
 
 #include "ParticleReductionFunctor.H"
 #include "Runtime/IParticleContainerAccess.H"
@@ -8,7 +11,6 @@
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "Modules/Particles/WarpXParIter.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

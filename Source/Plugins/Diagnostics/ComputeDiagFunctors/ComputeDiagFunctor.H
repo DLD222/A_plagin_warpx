@@ -112,8 +112,8 @@ protected:
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
-    mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
+    mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::HostServices> m_legacy_host;
 
     /** Coarsening ratio used to interpolate fields from simulation MultiFabs to output MultiFab. */
     amrex::IntVect m_crse_ratio;

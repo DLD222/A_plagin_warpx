@@ -6,6 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "ColliderRelevant.H"
+#include "WarpX.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -24,7 +25,6 @@
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>

@@ -1,10 +1,10 @@
 #include "FlushFormatOpenPMD.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Utils/TextMsg.H"
 #include "Diagnostics/OpenPMDHelpFunction.H"
-#include "WarpX.H"
 #include "Runtime/HostServices.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

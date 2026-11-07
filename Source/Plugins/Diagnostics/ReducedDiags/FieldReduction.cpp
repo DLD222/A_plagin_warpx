@@ -6,6 +6,7 @@
  */
 
 #include "FieldReduction.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 

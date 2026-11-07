@@ -7,6 +7,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "PhiFunctor.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -15,7 +16,6 @@
 
 #include <ablastr/constant.H>
 
-#include "WarpX.H"
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 

@@ -6,6 +6,7 @@
  */
 
 #include "ParticleHistogram.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
@@ -16,7 +17,6 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX.H>
 #include <AMReX_Config.H>

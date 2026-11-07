@@ -6,6 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "OpenPMDHelpFunction.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 

@@ -6,6 +6,7 @@
  */
 
 #include "FieldProbe.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -21,7 +22,6 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/FrameState.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/warn_manager/WarnManager.H>

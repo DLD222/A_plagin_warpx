@@ -53,7 +53,7 @@ protected:
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    mutable std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
 
 public:
     virtual void PrepareFunctorData ( int i_buffer, bool ZSliceInDomain,

@@ -22,6 +22,7 @@
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -93,7 +94,7 @@ Diagnostics::data () const
         return *m_runtime_context->data;
     }
     if (!m_legacy_data) {
-        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(WarpX::GetInstance());
+        m_legacy_data = warpx::runtime::create_legacy_runtime_data();
     }
     return *m_legacy_data;
 }
@@ -738,7 +739,7 @@ Diagnostics::host () const
         return *m_runtime_context->host;
     }
     if (!m_legacy_host) {
-        m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance());
+        m_legacy_host = warpx::runtime::create_legacy_host_services();
     }
     return *m_legacy_host;
 }

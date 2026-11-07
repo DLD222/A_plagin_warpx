@@ -5,10 +5,10 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "MultiReducedDiags.H"
+#include "WarpX.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "WarpX.H"
 
 #include "BeamRelevant.H"
 #include "ChargeOnEB.H"
