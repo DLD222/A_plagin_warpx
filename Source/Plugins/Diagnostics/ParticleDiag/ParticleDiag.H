@@ -18,9 +18,9 @@ class ParticleDiag
 {
 public:
     ParticleDiag(const std::string& diag_name, const std::string& name,
-        warpx::runtime::IParticleContainer* pc, WarpXParticleContainer::Base *pinned_pc = nullptr);
+        warpx::runtime::IParticleContainer* pc, warpx::runtime::IParticleContainer::Base *pinned_pc = nullptr);
     [[nodiscard]] warpx::runtime::IParticleContainer* getParticleContainer() const { return m_pc; }
-    [[nodiscard]] WarpXParticleContainer::Base* getPinnedParticleContainer() const { return m_pinned_pc; }
+    [[nodiscard]] warpx::runtime::IParticleContainer::Base* getPinnedParticleContainer() const { return m_pinned_pc; }
     [[nodiscard]] std::string getSpeciesName() const { return m_name; }
     amrex::Vector<int> m_plot_flags;
     bool m_plot_phi = false; // Whether to output the potential phi on the particles
@@ -45,7 +45,7 @@ private:
     std::string m_diag_name;
     std::string m_name;
     warpx::runtime::IParticleContainer* m_pc;
-    WarpXParticleContainer::Base* m_pinned_pc;
+    warpx::runtime::IParticleContainer::Base* m_pinned_pc;
 };
 
 #endif // WARPX_PARTICLEDIAG_H_

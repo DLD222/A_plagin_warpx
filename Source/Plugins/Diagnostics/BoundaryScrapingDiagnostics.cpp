@@ -101,7 +101,7 @@ BoundaryScrapingDiagnostics::InitializeParticleBuffer (const MultiParticleContai
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
         for (auto const& species_name : m_output_species_names){
             warpx::runtime::IParticleContainer* pc = &mpc.GetParticleContainerFromName(species_name);
-            WarpXParticleContainer::Base* bnd_buffer = static_cast<WarpXParticleContainer::Base*>(particle_buffer.getParticleBufferPointer(species_name, i_buffer));
+            warpx::runtime::IParticleContainer::Base* bnd_buffer = static_cast<warpx::runtime::IParticleContainer::Base*>(particle_buffer.getParticleBufferPointer(species_name, i_buffer));
             m_output_species[i_buffer].push_back(ParticleDiag(m_diag_name, species_name, pc, bnd_buffer));
         }
     }
