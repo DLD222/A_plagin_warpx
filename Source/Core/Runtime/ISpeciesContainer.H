@@ -33,6 +33,12 @@ public:
     [[nodiscard]] virtual std::vector<std::string> GetSpeciesNames () const = 0;
     [[nodiscard]] virtual int getSpeciesID (const std::string& name) const = 0;
     [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainer (int index) const = 0;
+    [[nodiscard]] virtual WarpXParticleContainer& GetParticleContainerFromName (const std::string& name) const = 0;
+    [[nodiscard]] virtual WarpXParticleContainer* GetParticleContainerPtr (int index) const = 0;
+    virtual void SetDoBackTransformedParticles (bool) = 0;
+    virtual void SetDoBackTransformedParticles (const std::string&, bool) = 0;
+    [[nodiscard]] virtual const std::string& E_ext_particle_s () const = 0;
+    [[nodiscard]] virtual const std::string& B_ext_particle_s () const = 0;
     [[nodiscard]] virtual amrex::Vector<amrex::Long> NumberOfParticlesInGrid (int lev) const = 0;
     virtual void Increment (amrex::MultiFab& mf, int lev) = 0;
     virtual iterator begin () = 0;

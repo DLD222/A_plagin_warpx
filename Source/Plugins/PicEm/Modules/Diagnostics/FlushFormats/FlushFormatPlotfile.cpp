@@ -316,7 +316,7 @@ FlushFormatPlotfile::WriteWarpXHeader(
 
         host().writeParticleHeader(HeaderFile);
 
-        const MultiParticleContainer& mypc = data().particles();
+        const warpx::runtime::ISpeciesContainer& mypc = data().species();
         const int n_species = mypc.nSpecies();
         for (int i=0; i<n_species; i++)
         {

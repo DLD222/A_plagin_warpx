@@ -118,7 +118,7 @@ void BTDiagnostics::DerivedInitData ()
     }
 
     /* Allocate vector of particle buffer vectors for each snapshot */
-    MultiParticleContainer& mpc = const_cast<MultiParticleContainer&>(data().particles());
+    warpx::runtime::ISpeciesContainer& mpc = const_cast<warpx::runtime::ISpeciesContainer&>(data().species());
     // If not specified, and write species is not 0, dump all species
     const amrex::ParmParse pp_diag_name(m_diag_name);
     int write_species = 1;
@@ -1437,7 +1437,7 @@ BTDiagnostics::InterleaveParticleDataHeader(const std::string& buffer_ParticleHd
 void
 BTDiagnostics::InitializeParticleFunctors ()
 {
-    const MultiParticleContainer& mpc = const_cast<MultiParticleContainer&>(data().particles());
+    const warpx::runtime::ISpeciesContainer& mpc = const_cast<warpx::runtime::ISpeciesContainer&>(data().species());
     // allocate with total number of species diagnostics
     m_all_particle_functors.resize(m_output_species_names.size());
     // Create an object of class BackTransformParticleFunctor

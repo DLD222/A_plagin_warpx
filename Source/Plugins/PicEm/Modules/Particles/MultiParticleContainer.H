@@ -377,6 +377,9 @@ public:
 
     void ScrapeParticlesAtEB (ablastr::fields::MultiLevelScalarField const& distance_to_eb);
 
+    [[nodiscard]] const std::string& E_ext_particle_s () const override { return m_E_ext_particle_s; }
+    [[nodiscard]] const std::string& B_ext_particle_s () const override { return m_B_ext_particle_s; }
+
     std::string m_B_ext_particle_s = "none";
     std::string m_E_ext_particle_s = "none";
     // Parser for B_external on the particle

@@ -154,7 +154,7 @@ void DifferentialLuminosity::ComputeDiags (int step)
     Real const bin_size = m_bin_size;
 
     // get MultiParticleContainer class object
-    const MultiParticleContainer& mypc = data().particles();
+    const warpx::runtime::ISpeciesContainer& mypc = data().species();
 
     auto& species_1 = mypc.GetParticleContainerFromName(m_beam_name[0]);
     auto& species_2 = mypc.GetParticleContainerFromName(m_beam_name[1]);
