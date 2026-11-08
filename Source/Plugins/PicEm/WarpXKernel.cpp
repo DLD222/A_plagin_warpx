@@ -1,10 +1,11 @@
 #include "WarpXKernel.H"
 
 #include "Modules/PicEm/PicEmPackage.H"
-#include "Particles/Collision/CollisionHandler.H"
-#include "Particles/Collision/CollisionSpeciesTable.H"
+#include "Collision/CollisionHandler.H"
+#include "Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/DataBus.H"
 #include "Runtime/KernelFactory.H"
 #include "Runtime/PluginManifest.H"
@@ -68,12 +69,10 @@ WarpXKernel::WarpXKernel (int, char*[])
 
     auto& mpc = warpx.GetPartContainer();
     auto* host = m_host.get();
-    CollisionSpeciesTable species(mpc, [host](const std::string& name) {
-        host->particleServices().calculateNuei(name);
-    });
     m_config = RuntimeConfig::FromLegacy();
-    m_collision = std::make_unique<CollisionHandler>(
-        species, *m_data, m_config, host);
+    // The collision plugin registers a factory in the core; without it the
+    // simulation simply runs without collisions.
+    m_collision = create_collision_handler(mpc, *m_data, m_config, host);
     warpx.SetCollisionHandler(m_collision.get());
 }
 
@@ -135,7 +134,10 @@ void WarpXKernel::register_species (DataBus& bus)
     }
 }
 
-void WarpXKernel::allocate_collision_data () { m_collision->AllocData(); }
+void WarpXKernel::allocate_collision_data ()
+{
+    if (m_collision != nullptr) { m_collision->AllocData(); }
+}
 
 void WarpXKernel::clear ()
 {

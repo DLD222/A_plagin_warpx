@@ -23,7 +23,7 @@
 #include "Particles/Deposition/TemperatureDeposition.H"
 #include "Modules/Particles/Gather/FieldGather.H"
 #include "Modules/Particles/Gather/GetExternalFields.H"
-#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 #include "Particles/Pusher/CopyParticleAttribs.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/Pusher/PushSelector.H"

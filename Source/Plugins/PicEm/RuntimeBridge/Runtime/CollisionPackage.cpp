@@ -7,7 +7,7 @@
  */
 #include "Runtime/CollisionPackage.H"
 
-#include "Particles/Collision/CollisionHandler.H"
+#include "Collision/CollisionHandler.H"
 #include "Runtime/CollisionHandlerAdapter.H"
 
 namespace warpx::runtime
@@ -16,6 +16,9 @@ namespace warpx::runtime
 void
 CollisionPackage::register_handler (PluginHost& host, warpx::runtime::ICollisionHandler* handler)
 {
+    // No collision plugin linked: register nothing, so the stage simply has no
+    // handler instead of one that throws when invoked.
+    if (handler == nullptr) { return; }
     host.add(std::make_shared<CollisionHandlerAdapter>(handler));
 }
 

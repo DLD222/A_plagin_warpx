@@ -8,7 +8,7 @@
 #ifndef WARPX_FILTER_CREATE_TRANSFORM_FROM_FAB_H_
 #define WARPX_FILTER_CREATE_TRANSFORM_FROM_FAB_H_
 
-#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 
 #include <AMReX_REAL.H>
 #include <AMReX_TypeTraits.H>

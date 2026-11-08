@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "Modules/Particles/ParticleCreation/SmartUtils.H"
-#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 
 #include "Utils/TextMsg.H"
 

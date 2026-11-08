@@ -16,7 +16,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Runtime/WarpXHostServices.H"
-#include "Particles/Collision/CollisionHandler.H"
+#include "Collision/CollisionHandler.H"
 
 #include "BoundaryConditions/FieldBoundaries.H"
 #include "BoundaryConditions/PEC_Insulator.H"

@@ -38,6 +38,7 @@ public:
 
     void apply (StageContext& ctx) override
     {
+        if (m_handler == nullptr) { return; }
         if (m_handler == nullptr) {
             throw std::runtime_error("CollisionHandlerAdapter: null handler");
         }

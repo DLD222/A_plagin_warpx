@@ -1,9 +1,10 @@
 #ifndef WARPX_PLUGIN_WARPXKERNEL_H_
 #define WARPX_PLUGIN_WARPXKERNEL_H_
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/IPicKernel.H"
 #include "Runtime/RuntimeConfig.H"
 #include <memory>
-class WarpX; class CollisionHandler;
+class WarpX;
 namespace warpx::runtime {
 class WarpXRuntimeData; class WarpXHostServices;
 class WarpXKernel final : public IPicKernel {
@@ -34,7 +35,7 @@ private:
     std::unique_ptr<WarpXRuntimeData> m_data;
     std::unique_ptr<WarpXHostServices> m_host;
     RuntimeConfig m_config;
-    std::unique_ptr<CollisionHandler> m_collision;
+    std::unique_ptr<warpx::runtime::ICollisionHandler> m_collision;
 };
 }
 #endif

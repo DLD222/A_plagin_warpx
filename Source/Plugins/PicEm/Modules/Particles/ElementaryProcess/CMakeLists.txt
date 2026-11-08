@@ -10,6 +10,7 @@ foreach(D IN LISTS WarpX_DIMS)
           PRIVATE
             QEDPairGeneration.cpp
             QEDPhotonEmission.cpp
+            VirtualPhotonCreation.cpp
         )
     endif()
 endforeach()

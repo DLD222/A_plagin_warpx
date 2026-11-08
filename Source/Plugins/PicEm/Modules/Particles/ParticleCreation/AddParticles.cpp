@@ -7,7 +7,7 @@
 #include "Particles/PhysicalParticleContainer.H"
 
 #include "AddPlasmaUtilities.H"
-#include "DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 #include "Initialization/InjectorDensity.H"
 #include "Initialization/InjectorMomentum.H"
 #include "Initialization/InjectorPosition.H"

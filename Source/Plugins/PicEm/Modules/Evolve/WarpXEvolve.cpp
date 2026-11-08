@@ -30,10 +30,9 @@
 #include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
-#include "Particles/Collision/CollisionHandler.H"
-#include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/Scheduler.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -687,13 +686,13 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
             m_legacy_config = std::make_unique<warpx::runtime::RuntimeConfig>();
         }
         auto* host = m_legacy_host.get();
-        CollisionSpeciesTable species(GetPartContainer(), [host](const std::string& name) {
-            host->particleServices().calculateNuei(name);
-        });
-        m_legacy_collision_handler = std::make_unique<CollisionHandler>(
-            species, *m_legacy_data, *m_legacy_config, host);
+        // Ask the core for the collision plugin instead of naming its classes;
+        // without the plugin this stays null and collisions are skipped.
+        auto handler = warpx::runtime::create_collision_handler(
+            GetPartContainer(), *m_legacy_data, *m_legacy_config, host);
+        m_legacy_collision_handler = std::move(handler);
         m_collision_handler = m_legacy_collision_handler.get();
-        m_collision_handler->AllocData();
+        if (m_collision_handler != nullptr) { m_collision_handler->AllocData(); }
     }
     if (m_collision_handler != nullptr) {
         m_collision_handler->doCollisions(step, cur_time, dt);

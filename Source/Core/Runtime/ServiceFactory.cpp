@@ -8,6 +8,7 @@
 #include "Runtime/ServiceFactory.H"
 
 #include "Runtime/HostServices.H"
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/IReducedDiagsService.H"
@@ -26,6 +27,7 @@ struct Registry
     ReducedDiagsServiceFactory reduced_diags = nullptr;
     LegacyRuntimeDataFactory legacy_data = nullptr;
     LegacyHostServicesFactory legacy_host = nullptr;
+    CollisionHandlerFactory collision = nullptr;
 };
 
 Registry& registry ()
@@ -53,6 +55,27 @@ register_legacy_runtime_factories (LegacyRuntimeDataFactory data_factory,
 {
     registry().legacy_data = data_factory;
     registry().legacy_host = host_factory;
+}
+
+void
+register_collision_handler_factory (CollisionHandlerFactory factory)
+{
+    registry().collision = factory;
+}
+
+bool
+has_collision_handler_factory ()
+{
+    return registry().collision != nullptr;
+}
+
+std::unique_ptr<ICollisionHandler>
+create_collision_handler (const IParticleContainerAccess& particles,
+                          const RuntimeData& data, const RuntimeConfig& config,
+                          HostServices* host)
+{
+    if (registry().collision == nullptr) { return nullptr; }
+    return registry().collision(particles, data, config, host);
 }
 
 void

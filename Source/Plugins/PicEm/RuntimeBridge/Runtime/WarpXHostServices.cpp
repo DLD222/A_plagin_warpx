@@ -17,7 +17,7 @@
 #include "WarpX.H"
 
 #ifdef WARPX_QED
-#include "Particles/Collision/BinaryCollision/VirtualPhotonCreation.H"
+#include "Particles/ElementaryProcess/VirtualPhotonCreation.H"
 #endif
 
 #include <memory>

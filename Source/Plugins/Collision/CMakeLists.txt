@@ -1,0 +1,18 @@
+foreach(D IN LISTS WarpX_DIMS)
+    warpx_set_suffix_dims(SD ${D})
+    target_sources(warpx_collision_${SD}
+      PRIVATE
+        CollisionHandler.cpp
+    CollisionSpeciesTable.cpp
+        CollisionBase.cpp
+        ScatteringProcess.cpp
+        CollisionFactory.cpp
+    )
+endforeach()
+
+add_subdirectory(BinaryCollision)
+add_subdirectory(BackgroundMCC)
+add_subdirectory(PulsedDecay)
+add_subdirectory(BackgroundStopping)
+add_subdirectory(InverseBremsstrahlung)
+add_subdirectory(HybridResistiveDrag)

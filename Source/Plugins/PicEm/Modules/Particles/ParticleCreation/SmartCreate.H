@@ -8,7 +8,7 @@
 #ifndef WARPX_SMART_CREATE_H_
 #define WARPX_SMART_CREATE_H_
 
-#include "DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 
 #include <AMReX.H>
 #include <AMReX_AmrCore.H>
