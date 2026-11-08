@@ -156,14 +156,15 @@ void EffectivePotentialES::ComputeSigma (
     sigma->mult(1.0_rt - time_filter_param, 0);
 
     // Loop over each species to calculate the Poisson equation dressing
-    for (auto const& pc : mypc) {
-        if (pc->do_not_deposit) { continue; }
+    for (int ispecies = 0; ispecies < mypc.nSpecies(); ++ispecies) {
+        auto& species = mypc.GetParticleContainer(ispecies);
+        if (species.doNotDeposit() != 0) { continue; }
 
         // grab the charge density for this species
         // Note: local deposition is done since the guard cells values are added
         // to the valid cells after filtering in `ApplyFilterandSumBoundaryRho` below.
         // Defer physical boundary folding and volume scaling until after filtering.
-        auto rho = pc->GetChargeDensityOnLevel(lev, true, /*finalize*/false);
+        auto rho = species.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
 
         // Handle the parallel transfer of guard cells and apply filtering
         host().particleServices().applyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
@@ -179,8 +180,8 @@ void EffectivePotentialES::ComputeSigma (
         amrex::MultiFab::Add(*rho_fp[lev], *rho, 0, 0, 1, add_ng);
 
         // get multiplication factor for this species
-        auto const q = std::abs(pc->getCharge());
-        auto const mult_factor_pc = mult_factor * q / pc->getMass();
+        auto const q = std::abs(species.getCharge());
+        auto const mult_factor_pc = mult_factor * q / species.getMass();
 
         // update sigma
 #ifdef AMREX_USE_OMP

@@ -4,5 +4,3 @@
 Source/Core/Modules/AcceleratorLattice/LatticeElementFinder.H|WarpXParIter
 Source/Core/Modules/Particles/WarpXParIter.H|WarpXParIter
 Source/Core/Runtime/IElectrostaticSolver.H|MultiParticleContainer
-Source/Core/Runtime/IParticleContainerAccess.H|WarpXParticleContainer
-Source/Core/Runtime/RuntimeData.H|MultiParticleContainer

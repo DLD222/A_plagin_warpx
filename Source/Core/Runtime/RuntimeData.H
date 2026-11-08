@@ -29,7 +29,6 @@ namespace amrex { class AmrCore; class EBFArrayBoxFactory; namespace EB2 { class
 
 class NCIGodfreyFilter;
 class IHybridPICModel;
-class MultiParticleContainer;
 class MultiFluidContainer;
 
 namespace warpx::runtime

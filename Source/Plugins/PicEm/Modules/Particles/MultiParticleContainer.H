@@ -430,6 +430,11 @@ public:
 
     [[nodiscard]] int getSpeciesID (const std::string& product_str) const;
 
+    [[nodiscard]] bool initializesSelfFields (int index) const override
+    {
+        return allcontainers[index]->initialize_self_fields != 0;
+    }
+
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::iterator begin() {return allcontainers.begin();}
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::iterator end() {return allcontainers.end();}
     amrex::Vector<std::unique_ptr<WarpXParticleContainer>>::const_iterator begin() const {return allcontainers.begin();}

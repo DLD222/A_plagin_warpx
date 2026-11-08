@@ -6,26 +6,21 @@
 #include <memory>
 #include <string>
 #include <vector>
-class WarpXParticleContainer;
 #include "Runtime/IParticleContainer.H"
 #include "Runtime/ISpeciesMetadata.H"
 namespace warpx::runtime {
 class IParticleContainerAccess : public ISpeciesMetadata {
 public:
     virtual ~IParticleContainerAccess () = default;
-    using SpeciesVector = amrex::Vector<std::unique_ptr<WarpXParticleContainer>>;
-    using iterator = SpeciesVector::iterator;
-    using const_iterator = SpeciesVector::const_iterator;
     [[nodiscard]] virtual IParticleContainer& GetParticleContainer (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleContainerFromName (const std::string& name) const = 0;
     [[nodiscard]] virtual IParticleContainer* GetParticleContainerPtr (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleView (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleInterface (int index) const = 0;
     [[nodiscard]] virtual IParticleContainer& GetParticleView (const std::string& name) const = 0;
-    virtual iterator begin () = 0;
-    virtual iterator end () = 0;
-    virtual const_iterator begin () const = 0;
-    virtual const_iterator end () const = 0;
+    //! Whether species `index` asked for its self-fields to be initialized.
+    //! (Generic query: the contract must not expose a concrete container.)
+    [[nodiscard]] virtual bool initializesSelfFields (int index) const = 0;
     [[nodiscard]] virtual int nSpecies () const = 0;
     [[nodiscard]] virtual std::vector<std::string> GetSpeciesNames () const = 0;
     virtual void Increment (amrex::MultiFab& mf, int lev) = 0;
