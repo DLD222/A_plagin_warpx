@@ -526,3 +526,59 @@ Collision 仍 include Particles/*
 FieldSolver 仍直接访问粒子
 IParticlePositionAccess / IParticleSpeciesAccess 尚未独立
 ```
+
+## 9. A7.2.4 位置/物种访问契约
+
+新增：
+
+```text
+Core/Modules/Particles/IParticlePositionAccess.H
+Core/Modules/Particles/IParticleSpeciesAccess.H
+```
+
+```cpp
+using IParticlePositionAccess = GetParticlePosition<PIdx>;
+particlePosition(p, x, y, z)
+ParticleSpeciesInfo particleSpeciesInfo(const IParticleContainer&)
+```
+
+测试：
+
+```text
+tests/runtime/test_particle_access_contracts.cpp
+```
+
+验证：
+
+```text
+默认 11/11 PASS
+plugin boundaries PASS
+contracts 编译 PASS
+```
+
+## 10. CollisionSpeciesTable 迁移确认
+
+尝试把表改为 `IParticleContainerAccess` 后，编译暴露：
+
+```text
+BinaryCollision.H
+  Vector<WarpXParticleContainer*> product_species_vector
+  doCollisionsWithinTile(WarpXParticleContainer&)
+NuclearFusionFunc.H
+  CollisionSpeciesTable(MultiParticleContainer&)
+```
+
+因此不能只改表：
+
+```text
+Collision 内部视图仍要求 WarpXParticleContainer
+```
+
+A7.2.4 的下一步是：
+
+```text
+1. 给 IParticleContainer 增加 collision 所需操作
+2. 或把 Collision 内部 tile 访问改为 IParticleTile
+```
+
+不能通过 static_cast 隐藏。
