@@ -48,11 +48,8 @@ namespace warpx::runtime { struct RuntimeContext; struct RuntimeConfig; }
  *  hybrid_pic_model.holmstrom_vacuum_region is on and the density-floor
  *  selection of the guarded Hall term otherwise. Node and Cell are
  *  vacuum-favoring and supported in Cartesian geometry only. */
-AMREX_ENUM(VacuumSeamSwitchMode,
-    Edge, /**< legacy per-component edge average; the E components of a cell can take inconsistent branches at the plasma/vacuum seam */
-    Node, /**< minimum over the component's edge-endpoint nodes */
-    Cell  /**< minimum over the component's adjacent cells of the node-averaged density: a single decision for all three components of an index */
-);
+// VacuumSeamSwitchMode now lives in the core parameter block header.
+using warpx::runtime::VacuumSeamSwitchMode;
 
 /**
  * \brief This class contains the parameters needed to evaluate hybrid field
@@ -65,6 +62,28 @@ public:
     [[nodiscard]] const std::map<std::string, amrex::ParserExecutor<7>>&
     etaPerSpecies () const override { return m_eta_per_species; }
     [[nodiscard]] amrex::Real nFloor () const override { return m_n_floor; }
+
+    [[nodiscard]] warpx::runtime::HybridPICParameters
+    solverParameters () const override
+    {
+        warpx::runtime::HybridPICParameters p;
+        p.Jx_IndexType = Jx_IndexType; p.Jy_IndexType = Jy_IndexType; p.Jz_IndexType = Jz_IndexType;
+        p.Bx_IndexType = Bx_IndexType; p.By_IndexType = By_IndexType; p.Bz_IndexType = Bz_IndexType;
+        p.Ex_IndexType = Ex_IndexType; p.Ey_IndexType = Ey_IndexType; p.Ez_IndexType = Ez_IndexType;
+        p.eta = m_eta;
+        p.eta_h = m_eta_h;
+        p.n_floor = m_n_floor;
+        p.has_per_species_eta = m_has_per_species_eta;
+        p.has_resistive_drag = m_has_resistive_drag;
+        p.add_external_fields = m_add_external_fields;
+        p.holmstrom_vacuum_region = m_holmstrom_vacuum_region;
+        p.include_hyper_resistivity_term = m_include_hyper_resistivity_term;
+        p.hyper_resistivity_has_B_dependence = m_hyper_resistivity_has_B_dependence;
+        p.resistivity_has_J_dependence = m_resistivity_has_J_dependence;
+        p.solve_electron_energy_equation = m_solve_electron_energy_equation;
+        p.vacuum_seam_switch_mode = m_vacuum_seam_switch_mode;
+        return p;
+    }
     explicit HybridPICModel (const warpx::runtime::RuntimeContext* ctx = nullptr);
     // Defined out-of-line in the .cpp so the unique_ptr<QdsmcParticleContainer>
     // member can destroy a forward-declared particle container.

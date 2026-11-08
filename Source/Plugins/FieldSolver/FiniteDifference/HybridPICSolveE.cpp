@@ -20,7 +20,8 @@
 #   include "FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
 #   include "FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
 #endif
-#include "HybridPIC/HybridPICModel/HybridPICModel.H"
+#include "Fields.H"
+#include "Runtime/HybridPICParameters.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
@@ -547,9 +548,12 @@ void FiniteDifferenceSolver::HybridPICSolveE (
     amrex::MultiFab const& rhofield,
     amrex::MultiFab const& Pefield,
     [[maybe_unused]]std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
-    int lev, HybridPICModel const* hybrid_model,
+    int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
     const bool solve_for_Faraday)
 {
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(hybrid_model != nullptr,
+        "HybridPICSolveE requires a hybrid model");
+    auto const params = hybrid_model->solverParameters();
     // Select algorithm (The choice of algorithm is a runtime option,
     // but we compile code for each algorithm, using templates)
     if (m_fdtd_algo == ElectromagneticSolverAlgo::HybridPIC) {
@@ -597,9 +601,12 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
     amrex::MultiFab const& rhofield,
     amrex::MultiFab const& Pefield,
     std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
-    int lev, HybridPICModel const* hybrid_model,
+    int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
     const bool solve_for_Faraday )
 {
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(hybrid_model != nullptr,
+        "HybridPICSolveE requires a hybrid model");
+    auto const params = hybrid_model->solverParameters();
     // Both steps below do not currently support m > 0 and should be
     // modified if such support wants to be added
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
@@ -612,12 +619,12 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
     using namespace ablastr::coarsen::sample;
 
     // get hybrid model parameters
-    const auto eta = hybrid_model->m_eta;
-    const auto eta_h = hybrid_model->m_eta_h;
-    const auto rho_floor = hybrid_model->m_n_floor * PhysConst::q_e;
-    const auto resistivity_has_J_dependence = hybrid_model->m_resistivity_has_J_dependence;
-    const auto hyper_resistivity_has_B_dependence = hybrid_model->m_hyper_resistivity_has_B_dependence;
-    const bool include_hyper_resistivity_term = hybrid_model->m_include_hyper_resistivity_term;
+    const auto eta = params.eta;
+    const auto eta_h = params.eta_h;
+    const auto rho_floor = params.n_floor * PhysConst::q_e;
+    const auto resistivity_has_J_dependence = params.resistivity_has_J_dependence;
+    const auto hyper_resistivity_has_B_dependence = params.hyper_resistivity_has_B_dependence;
+    const bool include_hyper_resistivity_term = params.include_hyper_resistivity_term;
 
     // With the resistive-drag collision active, the resistive terms belong
     // in every E-solve, including the one that builds the particle-push
@@ -629,18 +636,18 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
     // species, pointwise). The hyper-resistive term is numerical dissipation
     // with no drag back-reaction and stays in the Faraday solves only.
     const bool include_resistivity =
-        solve_for_Faraday || hybrid_model->m_has_resistive_drag;
+        solve_for_Faraday || params.has_resistive_drag;
 
     // The electron pressure term is curl-free, and is therefore left out of
     // the Faraday solves, only when P_e is a function of n_e alone (the
     // algebraic closure). With the electron energy equation its curl is a
     // grad(n_e) x grad(T_e) source of B.
     const bool include_grad_pe =
-        !solve_for_Faraday || hybrid_model->m_solve_electron_energy_equation;
+        !solve_for_Faraday || params.solve_electron_energy_equation;
 
-    const bool include_external_fields = hybrid_model->m_add_external_fields;
+    const bool include_external_fields = params.add_external_fields;
 
-    const bool holmstrom_vacuum_region = hybrid_model->m_holmstrom_vacuum_region;
+    const bool holmstrom_vacuum_region = params.holmstrom_vacuum_region;
 
     const amrex::Real t_new = data().t_new(lev);
     ablastr::fields::VectorField Bfield_external, Efield_external;
@@ -652,15 +659,15 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
 
     // Index type required for interpolating fields from their respective
     // staggering to the Ex, Ey, Ez locations
-    amrex::GpuArray<int, 3> const& Er_stag = hybrid_model->Ex_IndexType;
-    amrex::GpuArray<int, 3> const& Etheta_stag = hybrid_model->Ey_IndexType;
-    amrex::GpuArray<int, 3> const& Ez_stag = hybrid_model->Ez_IndexType;
-    amrex::GpuArray<int, 3> const& Jr_stag = hybrid_model->Jx_IndexType;
-    amrex::GpuArray<int, 3> const& Jtheta_stag = hybrid_model->Jy_IndexType;
-    amrex::GpuArray<int, 3> const& Jz_stag = hybrid_model->Jz_IndexType;
-    amrex::GpuArray<int, 3> const& Br_stag = hybrid_model->Bx_IndexType;
-    amrex::GpuArray<int, 3> const& Btheta_stag = hybrid_model->By_IndexType;
-    amrex::GpuArray<int, 3> const& Bz_stag = hybrid_model->Bz_IndexType;
+    amrex::GpuArray<int, 3> const& Er_stag = params.Ex_IndexType;
+    amrex::GpuArray<int, 3> const& Etheta_stag = params.Ey_IndexType;
+    amrex::GpuArray<int, 3> const& Ez_stag = params.Ez_IndexType;
+    amrex::GpuArray<int, 3> const& Jr_stag = params.Jx_IndexType;
+    amrex::GpuArray<int, 3> const& Jtheta_stag = params.Jy_IndexType;
+    amrex::GpuArray<int, 3> const& Jz_stag = params.Jz_IndexType;
+    amrex::GpuArray<int, 3> const& Br_stag = params.Bx_IndexType;
+    amrex::GpuArray<int, 3> const& Btheta_stag = params.By_IndexType;
+    amrex::GpuArray<int, 3> const& Bz_stag = params.Bz_IndexType;
 
     // Parameters for `interp` that maps from Yee to nodal mesh and back
     amrex::GpuArray<int, 3> const& nodal = {1, 1, 1};
@@ -689,7 +696,7 @@ void FiniteDifferenceSolver::HybridPICSolveECylindrical (
     // HybridPICModel::ComputeResistiveOverlay, which fills the registered
     // hybrid_eta_overlay_fp / hybrid_eta_overlay_coef_fp fields read here).
     // The fields are not allocated when no per-species parser is registered.
-    const bool has_eta_overlay = hybrid_model->m_has_per_species_eta;
+    const bool has_eta_overlay = params.has_per_species_eta;
     ablastr::fields::VectorField eta_overlay_mf = {nullptr, nullptr, nullptr};
     ablastr::fields::VectorField eta_coef_mf = {nullptr, nullptr, nullptr};
     if (has_eta_overlay) {
@@ -1088,7 +1095,7 @@ void FiniteDifferenceSolver::HybridPICSolveESpherical (
     ablastr::fields::VectorField const& /*Bfield*/,
     amrex::MultiFab const& /*rhofield*/,
     amrex::MultiFab const& /*Pefield*/,
-    int /*lev*/, HybridPICModel const* /*hybrid_model*/,
+    int /*lev*/, warpx::runtime::IHybridPICModel const* /*hybrid_model*/,
     const bool /*solve_for_Faraday*/ )
 {
     WARPX_ABORT_WITH_MESSAGE("HybridPICSolveESphrical not fully implemented");
@@ -1104,41 +1111,44 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
     amrex::MultiFab const& rhofield,
     amrex::MultiFab const& Pefield,
     std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
-    int lev, HybridPICModel const* hybrid_model,
+    int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
     const bool solve_for_Faraday )
 {
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(hybrid_model != nullptr,
+        "HybridPICSolveE requires a hybrid model");
+    auto const params = hybrid_model->solverParameters();
     // for the profiler
     amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
     using namespace ablastr::coarsen::sample;
 
     // get hybrid model parameters
-    const auto eta = hybrid_model->m_eta;
-    const auto eta_h = hybrid_model->m_eta_h;
-    const auto rho_floor = hybrid_model->m_n_floor * PhysConst::q_e;
-    const auto resistivity_has_J_dependence = hybrid_model->m_resistivity_has_J_dependence;
-    const auto hyper_resistivity_has_B_dependence = hybrid_model->m_hyper_resistivity_has_B_dependence;
-    const bool include_hyper_resistivity_term = hybrid_model->m_include_hyper_resistivity_term;
+    const auto eta = params.eta;
+    const auto eta_h = params.eta_h;
+    const auto rho_floor = params.n_floor * PhysConst::q_e;
+    const auto resistivity_has_J_dependence = params.resistivity_has_J_dependence;
+    const auto hyper_resistivity_has_B_dependence = params.hyper_resistivity_has_B_dependence;
+    const bool include_hyper_resistivity_term = params.include_hyper_resistivity_term;
 
     // Resistive terms in the push field when the drag is active; see the
     // design notes in HybridPICSolveECylindrical.
     const bool include_resistivity =
-        solve_for_Faraday || hybrid_model->m_has_resistive_drag;
+        solve_for_Faraday || params.has_resistive_drag;
 
     // Electron pressure term in the Faraday solves with the electron energy
     // equation; see HybridPICSolveECylindrical.
     const bool include_grad_pe =
-        !solve_for_Faraday || hybrid_model->m_solve_electron_energy_equation;
+        !solve_for_Faraday || params.solve_electron_energy_equation;
 
-    const bool include_external_fields = hybrid_model->m_add_external_fields;
+    const bool include_external_fields = params.add_external_fields;
 
-    const bool holmstrom_vacuum_region = hybrid_model->m_holmstrom_vacuum_region;
+    const bool holmstrom_vacuum_region = params.holmstrom_vacuum_region;
     // Decision-density sampling for the vacuum seam (VacuumSeamSwitchMode):
     // Edge is the legacy per-component average; Node and Cell give one
     // decision field for all three E components. The decision drives the
     // holmstrom vacuum branch when that treatment is on and the
     // density-floor selection of the guarded Hall term otherwise.
-    const VacuumSeamSwitchMode switch_mode = hybrid_model->m_vacuum_seam_switch_mode;
+    const warpx::runtime::VacuumSeamSwitchMode switch_mode = params.vacuum_seam_switch_mode;
 
     const amrex::Real t_new = data().t_new(lev);
     ablastr::fields::VectorField Bfield_external, Efield_external;
@@ -1150,15 +1160,15 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
 
     // Index type required for interpolating fields from their respective
     // staggering to the Ex, Ey, Ez locations
-    amrex::GpuArray<int, 3> const& Ex_stag = hybrid_model->Ex_IndexType;
-    amrex::GpuArray<int, 3> const& Ey_stag = hybrid_model->Ey_IndexType;
-    amrex::GpuArray<int, 3> const& Ez_stag = hybrid_model->Ez_IndexType;
-    amrex::GpuArray<int, 3> const& Jx_stag = hybrid_model->Jx_IndexType;
-    amrex::GpuArray<int, 3> const& Jy_stag = hybrid_model->Jy_IndexType;
-    amrex::GpuArray<int, 3> const& Jz_stag = hybrid_model->Jz_IndexType;
-    amrex::GpuArray<int, 3> const& Bx_stag = hybrid_model->Bx_IndexType;
-    amrex::GpuArray<int, 3> const& By_stag = hybrid_model->By_IndexType;
-    amrex::GpuArray<int, 3> const& Bz_stag = hybrid_model->Bz_IndexType;
+    amrex::GpuArray<int, 3> const& Ex_stag = params.Ex_IndexType;
+    amrex::GpuArray<int, 3> const& Ey_stag = params.Ey_IndexType;
+    amrex::GpuArray<int, 3> const& Ez_stag = params.Ez_IndexType;
+    amrex::GpuArray<int, 3> const& Jx_stag = params.Jx_IndexType;
+    amrex::GpuArray<int, 3> const& Jy_stag = params.Jy_IndexType;
+    amrex::GpuArray<int, 3> const& Jz_stag = params.Jz_IndexType;
+    amrex::GpuArray<int, 3> const& Bx_stag = params.Bx_IndexType;
+    amrex::GpuArray<int, 3> const& By_stag = params.By_IndexType;
+    amrex::GpuArray<int, 3> const& Bz_stag = params.Bz_IndexType;
 
     // Parameters for `interp` that maps from Yee to nodal mesh and back
     amrex::GpuArray<int, 3> const& nodal = {1, 1, 1};
@@ -1186,7 +1196,7 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
     // times the live plasma current (see HybridPICSolveECylindrical and
     // HybridPICModel::ComputeResistiveOverlay). Not allocated when no
     // per-species parser is registered.
-    const bool has_eta_overlay = hybrid_model->m_has_per_species_eta;
+    const bool has_eta_overlay = params.has_per_species_eta;
     ablastr::fields::VectorField eta_overlay_mf = {nullptr, nullptr, nullptr};
     ablastr::fields::VectorField eta_coef_mf = {nullptr, nullptr, nullptr};
     if (has_eta_overlay) {
@@ -1348,8 +1358,8 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
             // The physics keeps rho_val; only the vacuum-seam decision
             // (holmstrom branch or guarded-floor selection) resamples.
             const Real rho_dec =
-                (switch_mode == VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ex_stag, i, j, k) :
-                (switch_mode == VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ex_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ex_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ex_stag, i, j, k) :
                 rho_val;
 
             if (rho_dec < rho_floor && holmstrom_vacuum_region) {
@@ -1428,8 +1438,8 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
             // The physics keeps rho_val; only the vacuum-seam decision
             // (holmstrom branch or guarded-floor selection) resamples.
             const Real rho_dec =
-                (switch_mode == VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ey_stag, i, j, k) :
-                (switch_mode == VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ey_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ey_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ey_stag, i, j, k) :
                 rho_val;
 
             if (rho_dec < rho_floor && holmstrom_vacuum_region) {
@@ -1506,8 +1516,8 @@ void FiniteDifferenceSolver::HybridPICSolveECartesian (
             // The physics keeps rho_val; only the vacuum-seam decision
             // (holmstrom branch or guarded-floor selection) resamples.
             const Real rho_dec =
-                (switch_mode == VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ez_stag, i, j, k) :
-                (switch_mode == VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ez_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Node) ? NodalSwitchRho(rho, Ez_stag, i, j, k) :
+                (switch_mode == warpx::runtime::VacuumSeamSwitchMode::Cell) ? CellSwitchRho(rho, Ez_stag, i, j, k) :
                 rho_val;
 
             if (rho_dec < rho_floor && holmstrom_vacuum_region) {

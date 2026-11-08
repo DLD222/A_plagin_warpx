@@ -13,6 +13,7 @@
 
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
+#include "Runtime/IHybridPICModel.H"
 #include "FiniteDifferenceSolver_fwd.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
@@ -169,7 +170,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
                                amrex::MultiFab const& rhofield,
                                amrex::MultiFab const& Pefield,
                                std::array< std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-                               int lev, HybridPICModel const* hybrid_model,
+                               int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
                                bool solve_for_Faraday );
 
         /**
@@ -362,7 +363,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             amrex::MultiFab const& rhofield,
             amrex::MultiFab const& Pefield,
             std::array< std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-            int lev, HybridPICModel const* hybrid_model,
+            int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
             bool solve_for_Faraday );
 
         template<typename T_Algo>
@@ -462,7 +463,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             ablastr::fields::VectorField const& Bfield,
             amrex::MultiFab const& rhofield,
             amrex::MultiFab const& Pefield,
-            int lev, HybridPICModel const* hybrid_model,
+            int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
             bool solve_for_Faraday );
 
         template<typename T_Algo>
@@ -628,7 +629,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             amrex::MultiFab const& rhofield,
             amrex::MultiFab const& Pefield,
             std::array< std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-            int lev, HybridPICModel const* hybrid_model,
+            int lev, warpx::runtime::IHybridPICModel const* hybrid_model,
             bool solve_for_Faraday );
 
         template<typename T_Algo>

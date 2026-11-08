@@ -2,4 +2,3 @@
 # Regenerate with: check_plugin_boundaries.py --dump > plugin_boundary_allowlist.txt
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML_current.H
-Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/HybridPICSolveE.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H

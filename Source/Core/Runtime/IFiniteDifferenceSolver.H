@@ -1,5 +1,6 @@
 #ifndef WARPX_RUNTIME_IFINITEDIFFERENCESOLVER_H_
 #define WARPX_RUNTIME_IFINITEDIFFERENCESOLVER_H_
+#include "Runtime/IHybridPICModel.H"
 #include "Runtime/IMacroscopicProperties.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include <ablastr/fields/MultiFabRegister.H>
@@ -14,7 +15,6 @@
 
 class FaceInfoBox;
 class MultiSigmaBox;
-class HybridPICModel;
 
 namespace warpx::runtime {
 
@@ -72,7 +72,7 @@ public:
         ablastr::fields::VectorField const& Bfield,
         amrex::MultiFab const& rhofield, amrex::MultiFab const& Pefield,
         std::array<std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-        int lev, HybridPICModel const* hybrid_model, bool solve_for_Faraday) = 0;
+        int lev, IHybridPICModel const* hybrid_model, bool solve_for_Faraday) = 0;
     virtual void CalculateCurrentAmpere (
         ablastr::fields::VectorField& Jfield, ablastr::fields::VectorField const& Bfield,
         std::array<std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E, int lev) = 0;

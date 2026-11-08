@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_RUNTIMEDATA_H_
 
 #include "Runtime/IFluidModel.H"
+#include "Runtime/IHybridPICModel.H"
 #include "Runtime/MaterialRegistry.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
@@ -32,7 +33,6 @@
 namespace amrex { class AmrCore; class EBFArrayBoxFactory; namespace EB2 { class IndexSpace; } }
 
 class NCIGodfreyFilter;
-class IHybridPICModel;
 class MultiFluidContainer;
 
 namespace warpx::runtime

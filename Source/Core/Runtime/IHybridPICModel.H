@@ -8,6 +8,8 @@
 #ifndef WARPX_RUNTIME_IHYBRIDPICMODEL_H_
 #define WARPX_RUNTIME_IHYBRIDPICMODEL_H_
 
+#include "Runtime/HybridPICParameters.H"
+
 #include <AMReX_Parser.H>
 #include <AMReX_REAL.H>
 
@@ -27,6 +29,9 @@ public:
     [[nodiscard]] virtual const std::map<std::string, amrex::ParserExecutor<7>>&
     etaPerSpecies () const = 0;
     [[nodiscard]] virtual amrex::Real nFloor () const = 0;
+
+    //! Everything a hybrid field update needs, as a plain block.
+    [[nodiscard]] virtual HybridPICParameters solverParameters () const = 0;
 };
 
 } // namespace warpx::runtime
