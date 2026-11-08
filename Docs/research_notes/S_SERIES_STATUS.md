@@ -96,6 +96,13 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
 `SetupPos` / `num_already_flushed` 与上游**逐行相同**（只有类型名和 `data()`/config 取值方式不同），
 因此差异更可能在**送进写出器的数据**（每次 flush 的粒子数、要写的场/物种集合），而不是写出器本身。
 
+**根因已定位并修复（2026-11-09）**：`SetupMeshComp` 用**配置快照**里的 `ncomps` 决定 RZ 数据集的
+模式维长度，而快照是在 `InitData` 之前取的——`WarpX::ncomps` 要到层分配时才算出（`2*nmodes-1=3`），
+第 0 步的诊断写出却发生在同一个 `InitData` 里，于是数据集按 1 个分量声明，写第 2 个分量就越界。
+改为通过运行时上下文读**实时** `RuntimeConfig`（与上游直接读 `WarpX::ncomps` 同源）。
+修复后 `test_rz_embedded_boundary_diffraction` 正常写出 4 个迭代（此前第 1 个就中止），
+产物与上游 26.10 一致。
+
 **12 个运行失败的分解**（本轮实测）：
 
 | 子类 | 数量 | 原因 |
