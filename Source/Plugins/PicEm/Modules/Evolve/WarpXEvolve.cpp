@@ -34,6 +34,7 @@
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
+#include "Runtime/Scheduler.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
 #include "Fluids/MultiFluidContainer.H"
@@ -578,11 +579,11 @@ WarpX::RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
         ctx.step = a_step;
         ctx.time = a_cur_time;
         ctx.dt = a_dt;
-        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Push);
-        if (!handlers.empty()) {
-            for (auto* handler : handlers) { handler->apply(ctx); }
-            return;
-        }
+        // S1: run the whole [before_push, after_push) interval, so a stage a
+        // plugin inserted between the standard ones runs without edits here.
+        warpx::runtime::Scheduler scheduler(*m_plugin_host);
+        if (scheduler.run(ctx, warpx::runtime::Stage::BeforePush,
+                          warpx::runtime::Stage::AfterPush) > 0) { return; }
     }
     OneStep_PushParticles(a_cur_time, a_dt, a_step);
 }
@@ -601,11 +602,9 @@ WarpX::RunFinalizeStage ()
         warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
                                          m_runtime_context->host, m_runtime_context->data,
                                          m_runtime_context->config_snapshot};
-        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::AfterPush);
-        if (!handlers.empty()) {
-            for (auto* handler : handlers) { handler->apply(ctx); }
-            return;
-        }
+        warpx::runtime::Scheduler scheduler(*m_plugin_host);
+        if (scheduler.run(ctx, warpx::runtime::Stage::AfterPush,
+                          warpx::runtime::Stage::BeforeCollisions) > 0) { return; }
     }
     OneStep_FinalizeDeposition();
 }
@@ -625,11 +624,9 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
                                          m_runtime_context->host, m_runtime_context->data,
                                          m_runtime_context->config_snapshot};
         ctx.time = a_cur_time;
-        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::FieldSolve);
-        if (!handlers.empty()) {
-            for (auto* handler : handlers) { handler->apply(ctx); }
-            return;
-        }
+        warpx::runtime::Scheduler scheduler(*m_plugin_host);
+        if (scheduler.run(ctx, warpx::runtime::Stage::BeforeFieldSolve,
+                          warpx::runtime::Stage::AfterFieldSolve) > 0) { return; }
     }
     OneStep_FieldSolve(a_cur_time);
 }
@@ -661,11 +658,9 @@ WarpX::RunDiagnosticsStage (int step)
                                          m_runtime_context->host, m_runtime_context->data,
                                          m_runtime_context->config_snapshot};
         ctx.step = step;
-        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Diagnostics);
-        if (!handlers.empty()) {
-            for (auto* handler : handlers) { handler->apply(ctx); }
-            return;
-        }
+        warpx::runtime::Scheduler scheduler(*m_plugin_host);
+        if (scheduler.run(ctx, warpx::runtime::Stage::Diagnostics,
+                          warpx::runtime::Stage::Finalize) > 0) { return; }
     }
     FlushDiagnostics(step);
 }
@@ -681,11 +676,9 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
         ctx.step = step;
         ctx.time = cur_time;
         ctx.dt = dt;
-        const auto handlers = m_plugin_host->at(warpx::runtime::Stage::Collisions);
-        if (!handlers.empty()) {
-            for (auto* handler : handlers) { handler->apply(ctx); }
-            return;
-        }
+        warpx::runtime::Scheduler scheduler(*m_plugin_host);
+        if (scheduler.run(ctx, warpx::runtime::Stage::BeforeCollisions,
+                          warpx::runtime::Stage::AfterCollisions) > 0) { return; }
     }
     if (m_collision_handler == nullptr) {
         if (!m_legacy_data) {
