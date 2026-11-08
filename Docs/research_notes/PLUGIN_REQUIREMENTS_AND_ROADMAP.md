@@ -462,6 +462,34 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | 2026-11-08 | 首次建立：记录原话（5 条要求 + 3 条约束）、解读 R1–R5、代码现状体检、目标构思、S0–S7 路线、验收矩阵、与 A7 的协作协议 |
 | 2026-11-08 | 接替 A7 与 S 系列；补 §10 A7→S 映射、§11 实施进度；S2 完成（阶段表可扩展，ABI v4） |
 
+## 15b. S6 现状：已拆出的插件与仍在内核的模块（2026-11-09）
+
+| 插件 | 独立层目标 | 开关 | 状态 |
+|---|---|---|---|
+| Diagnostics | `warpx_diagnostics_<dim>` | `WarpX_PLUGIN_DIAGNOSTICS` | 已拆，可关闭构建 |
+| IO | `warpx_io_<dim>` | `WarpX_PLUGIN_IO` | 已拆（仅 FieldIO），可关闭构建 |
+| Collision | `warpx_collision_<dim>` | `WarpX_PLUGIN_COLLISION` | 已拆，关闭后运行正常 |
+| FieldSolver | `warpx_fieldsolver_<dim>` | `WarpX_PLUGIN_FIELDSOLVER` | 有限差分 + 静电已拆；关闭后构建成功、运行时给出可操作错误 |
+
+**仍在内核插件内、且已确认需要"内核服务层"才能拆的模块**：
+
+| 模块 | 阻塞原因（量化） |
+|---|---|
+| 隐式求解器 | 通过 `Define(WarpX*)` 驱动场推进/粒子快照/边界/诊断，约 198 处成员使用 |
+| PSATD | 内核直接持有 `SpectralSolver`/`SpectralSolverRZ` 并使用其 `ForwardTransform`/`ApplyFilter`/`m_spectral_index`，缺少谱求解器契约 |
+| 静磁 | `WarpX` 持有 `VectorPoissonBoundaryHandler` 成员 |
+| 混合模型 | 混合 E 更新需要模型的 23 个参数（见下） |
+| 粒子容器/沉积/推动 | 尚未拆分（A7.3 剩余部分） |
+
+**跨插件 include 棘轮**：87 → 5。剩余 5 处（全部是真实深层耦合，已记录在
+`plugin_boundary_allowlist.txt`）：
+
+1. `EvolveEPML.cpp` → `PML.H`、`PML_current.H`（PML 系数状态，需 PML 服务契约）
+2. `FlushFormatCheckpoint.cpp` → `PML.H`（检查点需写 PML 状态）
+3. `WarpXOpenPMD.cpp` → `FieldIO.H`（openPMD 写出复用场 IO 辅助）
+4. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
+   各场 IndexType、电阻/超电阻开关、真空缝模式等——应做成参数块契约）
+
 ## 16. 多维基线（1D/3D/RZ，2026-11-08 首次建立）
 
 配置：`build_multi2`（DIMS=1;3;RZ，OPENPMD=OFF，QED=ON，OMP，conda python），
