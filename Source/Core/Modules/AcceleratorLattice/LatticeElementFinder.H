@@ -10,7 +10,6 @@
 #include "LatticeElements/HardEdgedQuadrupole.H"
 #include "LatticeElements/HardEdgedPlasmaLens.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Modules/Particles/WarpXParIter.H"
 #include "Utils/TextMsg.H"
 
 #include <AMReX_REAL.H>
@@ -80,8 +79,9 @@ struct LatticeElementFinder
      * @param[in] accelerator_lattice a reference to the accelerator lattice at the refinement level
      * @param[in] dts vector containing the timestep sizes at all refinement levels
      */
+    template <typename ParIterType>
     [[nodiscard]] LatticeElementFinderDevice GetFinderDeviceInstance (
-        WarpXParIter const& a_pti, int a_offset, AcceleratorLattice const& accelerator_lattice,
+        ParIterType const& a_pti, int a_offset, AcceleratorLattice const& accelerator_lattice,
         const amrex::Vector<amrex::Real>&  dts) const;
 
     /* The index lookup tables for each lattice element type */
@@ -117,8 +117,9 @@ struct LatticeElementFinderDevice
      * @param[in] h_finder The host level instance of the element finder that this is associated with
      * @param[in] dts vector containing the timestep sizes at all refinement levels
      */
+    template <typename ParIterType>
     void
-    InitLatticeElementFinderDevice (WarpXParIter const& a_pti, int a_offset,
+    InitLatticeElementFinderDevice (ParIterType const& a_pti, int a_offset,
                                     AcceleratorLattice const& accelerator_lattice,
                                     LatticeElementFinder const & h_finder,
                                     const amrex::Vector<amrex::Real>& dts);

@@ -45,7 +45,9 @@ for path in sorted(CORE.rglob("*")):
         if stripped.startswith(("//", "*", "/*")):
             continue
         for token in TOKENS:
-            if re.search(r"\b" + re.escape(token) + r"\b", line):
+            pattern = (re.escape(token) if token.endswith("::")
+                       else r"\b" + re.escape(token) + r"\b")
+            if re.search(pattern, line):
                 entry = f"{rel}|{token}"
                 found.add(entry)
                 if entry not in allowed:

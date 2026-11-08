@@ -82,8 +82,9 @@ LatticeElementFinder::UpdateIndices (int const lev, amrex::MFIter const& a_mfi,
     }
 }
 
+template <typename ParIterType>
 LatticeElementFinderDevice
-LatticeElementFinder::GetFinderDeviceInstance (WarpXParIter const& a_pti, int const a_offset,
+LatticeElementFinder::GetFinderDeviceInstance (ParIterType const& a_pti, int const a_offset,
                                               AcceleratorLattice const& accelerator_lattice,
                                               const amrex::Vector<amrex::Real>& dts) const
 {
@@ -92,8 +93,9 @@ LatticeElementFinder::GetFinderDeviceInstance (WarpXParIter const& a_pti, int co
     return result;
 }
 
+template <typename ParIterType>
 void
-LatticeElementFinderDevice::InitLatticeElementFinderDevice (WarpXParIter const& a_pti, int const a_offset,
+LatticeElementFinderDevice::InitLatticeElementFinderDevice (ParIterType const& a_pti, int const a_offset,
                                                             AcceleratorLattice const& accelerator_lattice,
                                                             LatticeElementFinder const & h_finder,
                                                             const amrex::Vector<amrex::Real>& dts)
@@ -176,3 +178,11 @@ LatticeElementFinder::setup_lattice_indices (amrex::Gpu::DeviceVector<amrex::Par
             }
         });
 }
+
+// The core only knows the generic iterator; the concrete instantiations live
+// with the implementation that owns them.
+template LatticeElementFinderDevice LatticeElementFinder::GetFinderDeviceInstance<WarpXParIter> (
+    WarpXParIter const&, int, AcceleratorLattice const&, const amrex::Vector<amrex::Real>&) const;
+template void LatticeElementFinderDevice::InitLatticeElementFinderDevice<WarpXParIter> (
+    WarpXParIter const&, int, AcceleratorLattice const&, LatticeElementFinder const&,
+    const amrex::Vector<amrex::Real>&);
