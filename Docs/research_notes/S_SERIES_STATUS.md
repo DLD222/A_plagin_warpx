@@ -61,6 +61,10 @@
 |---|---|---|---|---|
 | 2D（OPENPMD=OFF） | 255 | **222** | 33 | openPMD 用例 + 1 已知输入缺项 |
 | 1D/3D/RZ（OPENPMD=OFF） | 469 | **397** | 72 类 | 全部为 openPMD 输出依赖 |
+
+**重构后回归检查（2026-11-09）**：S6 全部改动（插件拆分、契约抽取、PML/混合/流体搬移）完成后，
+1D/3D/RZ 的失败集与重构前**逐条一致**（204 项，diff 为空），说明这轮结构性改动**没有改变任何
+可运行用例的数值结果**。
 | 1D/3D/RZ（OPENPMD=ON） | 469 | 357 | ？ | 112 条失败，其中 21 个运行失败报 `openPMD-api built without support for backend 'HDF5'` |
 
 **关键事实**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
