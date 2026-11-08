@@ -111,6 +111,9 @@
 1. **R5 前置**：建 MPI-HDF5 环境 → openPMD 编出 HDF5 并行后端 → 四维权威基线。
 2. **逐算例核验**：对上游 26.10 的 420 个测试，逐项比对通过/失败与数值。
 3. **收尾 S6**：PML 系数容器搬移（约 400 行）与混合模型参数块（23 字段）→ 跨插件依赖清零。
-4. **非 PIC 内核可行性**：`IPicKernel` + `KernelFactory` 已是插件注册制，但契约里仍有
-   `register_species`/`allocate_collision_data` 等 PIC 词汇 → 需拆分"通用内核契约 + 可选粒子能力"，
-   并写一个非 PIC（流体十矩）空内核冒烟测试证明零改核心可替换。
+4. **非 PIC 内核**：**已用测试证明可行**（`tests/runtime/test_nonpic_kernel.cpp`，测试名
+   `nonpic_kernel_2`）：一个没有粒子的内核（流体十矩的替身）只包含 `Source/Core` 头文件即可
+   完整实现 `IPicKernel` 与 `RuntimeData`，通过回调总线触发事件；`IPicKernel` 里三处 PIC 词汇
+   （`register_species`/`allocate_collision_data`）实现为空操作即可；`RuntimeData` 的粒子/混合/材料
+   访问器已改为**可选默认实现**（无粒子内核无需伪造，访问时明确报告"本内核无粒子"）。
+   仍需改进（非阻塞）：内核契约的命名与那三个 PIC 方法应拆成"通用内核 + 可选粒子能力"。

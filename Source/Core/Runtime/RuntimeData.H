@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_RUNTIMEDATA_H_
 
 #include "Runtime/IFluidModel.H"
+#include "Runtime/MaterialRegistry.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
 #include <ablastr/utils/text/IntervalsParser.H>
@@ -19,6 +20,8 @@
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>
 #include <AMReX_Geometry.H>
+
+#include <stdexcept>
 #include <AMReX_LayoutData.H>
 #include <AMReX_Vector.H>
 
@@ -58,15 +61,21 @@ public:
     [[nodiscard]] virtual const ablastr::fields::MultiFabRegister& fields () const = 0;
 
     [[nodiscard]] virtual amrex::AmrCore& amrCore () const = 0;
-    [[nodiscard]] virtual ISpeciesMetadata& speciesMetadata () = 0;
+    //! Species view.  A kernel without particles (a fluid kernel) leaves the
+    //! default in place and the accessor reports the absence.
+    [[nodiscard]] virtual ISpeciesMetadata& speciesMetadata ()
+    { throw std::logic_error("RuntimeData: this kernel provides no species"); }
     [[nodiscard]] virtual ISimulationKernel& kernel () = 0;
     [[nodiscard]] virtual const ISimulationKernel& kernel () const = 0;
-    [[nodiscard]] virtual IParticleContainerAccess& particleAccess () = 0;
-    [[nodiscard]] virtual const ISpeciesMetadata& speciesMetadata () const = 0;
-    [[nodiscard]] virtual const IParticleContainerAccess& particleAccess () const = 0;
+    [[nodiscard]] virtual IParticleContainerAccess& particleAccess ()
+    { throw std::logic_error("RuntimeData: this kernel provides no particle containers"); }
+    [[nodiscard]] virtual const ISpeciesMetadata& speciesMetadata () const
+    { throw std::logic_error("RuntimeData: this kernel provides no species"); }
+    [[nodiscard]] virtual const IParticleContainerAccess& particleAccess () const
+    { throw std::logic_error("RuntimeData: this kernel provides no particle containers"); }
     //! Fluid model, when the run has one (generic interface: the kernel may
     //! be a fluid solver instead of PIC).
-    [[nodiscard]] virtual IFluidModel* fluids () = 0;
+    [[nodiscard]] virtual IFluidModel* fluids () { return nullptr; }
 
     [[nodiscard]] virtual int finestLevel () const = 0;
     [[nodiscard]] virtual int maxLevel () const = 0;
@@ -88,8 +97,12 @@ public:
     [[nodiscard]] virtual bool useVerboncoeurAxisCorrection () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& vGalilean () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::Real>& dtAll () const = 0;
-    [[nodiscard]] virtual IHybridPICModel* hybridPICModel () const = 0;
-    [[nodiscard]] virtual const MaterialRegistry& materials () const = 0;
+    [[nodiscard]] virtual IHybridPICModel* hybridPICModel () const { return nullptr; }
+    [[nodiscard]] virtual const MaterialRegistry& materials () const
+    {
+        static const MaterialRegistry none;
+        return none;
+    }
     [[nodiscard]] virtual const FieldRegistry& fieldRegistry () const = 0;
     [[nodiscard]] virtual const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const = 0;
     [[nodiscard]] virtual IFilterBank& filterBank () = 0;
