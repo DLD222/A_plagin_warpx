@@ -3,7 +3,7 @@
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 
-#include "BoundaryConditions/PML.H"
+#include "Runtime/IPML.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
 #   include "BoundaryConditions/PML_RZ.H"
 #endif

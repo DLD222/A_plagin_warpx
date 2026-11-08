@@ -7,8 +7,8 @@
 #include "FiniteDifference/FiniteDifferenceSolver.H"
 
 #include "BoundaryConditions/PML.H"
-#include "BoundaryConditions/PMLComponent.H"
 #include "BoundaryConditions/PML_current.H"
+#include "BoundaryConditions/PMLComponent.H"
 #if !defined(WARPX_DIM_RZ) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
