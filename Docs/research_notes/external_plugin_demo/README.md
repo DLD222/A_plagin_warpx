@@ -14,7 +14,9 @@ WARPX_PLUGIN_PATH=$PWD/libthird_party_plugin.so \
 观察到的输出（证明核心未做任何修改就能用）：
 
 ```
+[third_party] init stage handler ran
 [third_party] handler call 1 at stage AFTER_FIELD_SOLVE, dt=1.17933e-10
+[third_party] finalize stage handler ran
 ```
 
 插件做了三件"核心不知道"的事：声明一个自有场状态（`third_party_score`）、在
@@ -24,5 +26,7 @@ WARPX_PLUGIN_PATH=$PWD/libthird_party_plugin.so \
 
 1. **阶段边界点不可调度**：调度区间是半开区间 `[a, b)`，注册在 `AfterFieldSolve` /
    `AfterCollisions` / `Finalize` 上的处理器没有任何区间覆盖，因此永远不执行。
+3. **初始化与收尾阶段同样不可调度**：`Init`/`BeforeInit`/`AfterInit`/`Finalize` 上没有
+   任何调度调用。已补初始化三段与 Finalize 点的调度。
 2. **可执行文件未导出 C ABI 符号**：外部插件 `dlopen` 时报
    `undefined symbol: warpx_state_request_field`，需要给可执行目标 `ENABLE_EXPORTS`。

@@ -11,6 +11,7 @@
 #include "Runtime/IPicKernel.H"
 #include "Runtime/KernelFactory.H"
 #include "Runtime/PluginLoader.H"
+#include "Runtime/Scheduler.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/RuntimeContext.H"
@@ -103,6 +104,10 @@ Runtime::finalize ()
         StageContext ctx{&m_context, m_bus.get(), &m_kernel->host(), &m_kernel->data(),
                          &m_config_snapshot};
         m_plugin_host->run_finalize(ctx);
+        // Handlers registered at the final stage point must run too; the
+        // stage registry has no interval that ends at it (S4 fix).
+        Scheduler scheduler(*m_plugin_host);
+        amrex::ignore_unused(scheduler.run_stage(ctx, Stage::Finalize));
     }
     m_kernel->clear();
     m_bus.reset();

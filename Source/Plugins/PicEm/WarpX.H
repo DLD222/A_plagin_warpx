@@ -1304,6 +1304,9 @@ private:
     //! Dispatch the intervals that start at a stage boundary, so a plugin
     //! registered exactly at AfterFieldSolve / AfterCollisions also runs.
     void RunAfterFieldSolveStage (amrex::Real a_cur_time, amrex::Real a_dt);
+    //! Dispatch the init-stage intervals (the final stage point is dispatched
+    //! by the runtime itself).
+    void RunInitStages (int from, int to);
     void RunAfterCollisionStage (int step, amrex::Real cur_time, amrex::Real dt);
 
     //! Particle access + services handed to plugin-facing calls (D1-a: no

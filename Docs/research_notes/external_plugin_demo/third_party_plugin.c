@@ -33,8 +33,34 @@ static void on_init (WarpXStageContext* ctx)
     (void)warpx_stage_set_scalar(ctx, "third_party_ready", 1.0);
 }
 
+static void init_handler (WarpXStageContext* ctx, void* user_data)
+{
+    (void)ctx; (void)user_data;
+    printf("[third_party] init stage handler ran\n");
+}
+
+static void finalize_handler (WarpXStageContext* ctx, void* user_data)
+{
+    (void)ctx; (void)user_data;
+    printf("[third_party] finalize stage handler ran\n");
+}
+
 static void register_handlers (WarpXPluginHost* host)
 {
+    WarpXHandlerDesc init_desc = {0};
+    init_desc.struct_size = sizeof(WarpXHandlerDesc);
+    init_desc.name = "third_party_init";
+    init_desc.stage = WARPX_STAGE_INIT;
+    init_desc.apply = &init_handler;
+    (void)warpx_host_add_handler(host, &init_desc);
+
+    WarpXHandlerDesc fin_desc = {0};
+    fin_desc.struct_size = sizeof(WarpXHandlerDesc);
+    fin_desc.name = "third_party_finalize";
+    fin_desc.stage = WARPX_STAGE_FINALIZE;
+    fin_desc.apply = &finalize_handler;
+    (void)warpx_host_add_handler(host, &fin_desc);
+
     WarpXHandlerDesc desc;
     desc.struct_size = sizeof(WarpXHandlerDesc);
     desc.name = "third_party_handler";

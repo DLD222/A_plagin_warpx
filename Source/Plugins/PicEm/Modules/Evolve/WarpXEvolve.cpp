@@ -654,6 +654,18 @@ WarpX::RunRegridStage (int step)
 }
 
 void
+WarpX::RunInitStages (int from, int to)
+{
+    if (m_plugin_host == nullptr || m_runtime_context == nullptr ||
+        m_runtime_context->host == nullptr || m_runtime_context->data == nullptr) { return; }
+    warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                     m_runtime_context->host, m_runtime_context->data,
+                                     m_runtime_context->config_snapshot};
+    warpx::runtime::Scheduler scheduler(*m_plugin_host);
+    amrex::ignore_unused(scheduler.run(ctx, from, to));
+}
+
+void
 WarpX::RunAfterFieldSolveStage (amrex::Real a_cur_time, amrex::Real a_dt)
 {
     if (m_plugin_host == nullptr || m_runtime_context == nullptr ||

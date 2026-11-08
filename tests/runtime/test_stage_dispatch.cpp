@@ -81,14 +81,14 @@ int main (int argc, char* argv[])
 
     int probe_runs = 0;
     int before_push_runs = 0;
-    int never_runs = 0;
+    int before_init_runs = 0;
 
     auto probe = std::make_shared<CountingHandler>("plugin.probe", probe_stage, &probe_runs);
     runtime.plugins().add(probe);
     runtime.plugins().add(std::make_shared<CountingHandler>(
         "plugin.before_push", Stage::BeforePush, &before_push_runs));
     runtime.plugins().add(std::make_shared<CountingHandler>(
-        "plugin.never", Stage::BeforeInit, &never_runs));
+        "plugin.before_init", Stage::BeforeInit, &before_init_runs));
 
     runtime.initialize();
     runtime.evolve(1);
@@ -97,7 +97,9 @@ int main (int argc, char* argv[])
     check(probe_runs > 0, "plugin stage between standard stages was executed");
     check(probe->last_step() == 0, "plugin handler saw the real step index");
     check(before_push_runs > 0, "handler at before_push was executed");
-    check(never_runs == 0, "handler outside every executed interval was not executed");
+    // The init stages are real dispatch points: a handler registered there
+    // must run exactly once per initialize(), not be silently dropped.
+    check(before_init_runs == 1, "handler at before_init was executed once");
 
     if (failures != 0) {
         std::cerr << failures << " check(s) failed\n";

@@ -10,6 +10,7 @@
  * When a provider is missing the core degrades to a no-op service (diagnostics)
  * or fails with an actionable message (legacy runtime), never a link error.
  */
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/ILegacyRuntime.H"
@@ -40,6 +41,7 @@ int main ()
     using namespace warpx::runtime;
 
     check(has_diagnostics_factory(), "diagnostics plugin registered its factory");
+    check(has_collision_handler_factory(), "collision plugin registered its factory");
     check(has_legacy_runtime_factories(), "kernel plugin registered the legacy factories");
 
     auto diagnostics = create_diagnostics_service(nullptr);
@@ -50,6 +52,7 @@ int main ()
     // Simulate a build without the diagnostics plugin.
     clear_service_factories();
     check(!has_diagnostics_factory(), "factories can be cleared");
+    check(!has_collision_handler_factory(), "collision factory can be cleared too");
     auto fallback = create_diagnostics_service(nullptr);
     check(fallback != nullptr, "missing diagnostics plugin yields a no-op service");
     check(fallback && fallback->GetTotalDiags() == 0, "no-op service reports nothing");

@@ -1028,10 +1028,18 @@ WarpX::InitData ()
     for (const auto& [point, name] : plan.sorted()) {
         amrex::ignore_unused(point);
         if (name == "BeforeInit") {
+            RunInitStages(warpx::runtime::Stage::BeforeInit,
+                          warpx::runtime::Stage::Init);
             InitData_BeforeInit();
         } else if (name == "Init") {
             InitData_Init();
+            // Handlers registered at the init stages must actually run; the
+            // intervals are dispatched around the built-in steps (S4 fix).
+            RunInitStages(warpx::runtime::Stage::Init,
+                          warpx::runtime::Stage::AfterInit);
         } else if (name == "AfterInit") {
+            RunInitStages(warpx::runtime::Stage::AfterInit,
+                          warpx::runtime::Stage::BeforePush);
             InitData_AfterInit();
         } else if (name == "FieldSolve") {
             InitData_FieldSolve();
