@@ -7,7 +7,8 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "WarpX.H"
+#include <ablastr/warn_manager/WarnManager.H>
+#include "Utils/TextMsg.H"
 #include "PoissonBoundaryHandler.H"
 
 #include "Runtime/RuntimeConfig.H"

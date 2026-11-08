@@ -1,19 +1,11 @@
 # Kernel coupling still present in solver trees scheduled for extraction (S6).
 # One line per <path>|<token>; the checker fails on anything not listed.
 # This file must shrink every batch.
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/DarwinLinearFieldOperator.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ImplicitSolver.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ImplicitSolver.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/SemiImplicitDarwin.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Implicit/SemiImplicitDarwin.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/SemiImplicitEM.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Implicit/SemiImplicitEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/StrangImplicitSpectralEM.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Implicit/StrangImplicitSpectralEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverDOF.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverVec.cpp|#include "WarpX.H"

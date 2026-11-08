@@ -7,7 +7,6 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "WarpX.H"
 #include "ElectrostaticSolver.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
@@ -16,8 +15,7 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXHostServices.H"
-#include "Runtime/WarpXRuntimeData.H"
+#include "Runtime/ILegacyRuntime.H"
 
 #include <ablastr/fields/PoissonSolver.H>
 
@@ -603,7 +601,7 @@ const warpx::runtime::RuntimeData&
 ElectrostaticSolver::data () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+    const auto& legacy = warpx::runtime::legacy_runtime_data();
     return legacy;
 }
 
@@ -611,6 +609,6 @@ warpx::runtime::HostServices&
 ElectrostaticSolver::host () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
-    static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
+    auto& legacy = warpx::runtime::legacy_host_services();
     return legacy;
 }

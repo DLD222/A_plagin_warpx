@@ -8,6 +8,7 @@
 #define Implicit_Solver_H_
 
 #include "Runtime/IImplicitSolver.H"
+#include "Runtime/RuntimeConfig.H"
 
 #include "ImplicitSolver_fwd.H"
 
@@ -83,6 +84,17 @@ public:
     void ReinitializePETScIfDue (int a_step, bool verbose_step);
 
     [[nodiscard]] const ImplicitOptions& GetImplicitOptions () const override { return m_implicit_options; }
+
+    //! Kernel configuration, read through the core contract instead of the
+    //! WarpX singletons (S6).
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const
+    {
+        if (!m_config_loaded) {
+            m_config = warpx::runtime::RuntimeConfig::FromLegacy();
+            m_config_loaded = true;
+        }
+        return m_config;
+    }
 
     /**
      * \brief Advance fields and particles by one time step using the specified implicit algorithm
@@ -308,6 +320,12 @@ protected:
 
     // Stable particle options. PreRHSOp copies this before setting per-call values.
     ImplicitOptions m_implicit_options;
+
+private:
+    mutable warpx::runtime::RuntimeConfig m_config;
+    mutable bool m_config_loaded = false;
+
+public:
 
     /**
      * \brief Finalize and re-initialize PETSc every this many steps (0: never), to release

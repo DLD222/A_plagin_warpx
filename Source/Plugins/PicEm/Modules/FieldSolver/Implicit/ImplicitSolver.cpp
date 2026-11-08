@@ -792,9 +792,9 @@ void ImplicitSolver::parseNonlinearSolverParams ( const amrex::ParmParse&  pp )
                 m_mass_matrices_pc_width >= 0,
                 "ImplicitSolver: mass_matrices_pc_width must be a non-negative integer");
         }
-        if ( (WarpX::current_deposition_algo == CurrentDepositionAlgo::Villasenor ||
-              WarpX::current_deposition_algo == CurrentDepositionAlgo::Esirkepov) &&
-             (WarpX::nox < 2) ) {
+        if ( (config().current_deposition_algo() == CurrentDepositionAlgo::Villasenor ||
+              config().current_deposition_algo() == CurrentDepositionAlgo::Esirkepov) &&
+             (config().nox() < 2) ) {
             std::stringstream warningMsg;
             warningMsg << "Particle-suppressed JFNK (e.g., theta-implicit evolve with newton nonlinear solver) ";
             warningMsg << "is being used with a charge-conserving deposition (esirkepov or villasenor) and particle_shape = 1.\n";
@@ -888,7 +888,7 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
             }
         }
 
-        if (WarpX::current_deposition_algo == CurrentDepositionAlgo::Direct) {
+        if (config().current_deposition_algo() == CurrentDepositionAlgo::Direct) {
             for (int dir=0; dir<AMREX_SPACEDIM; dir++) {
                 m_ncomp_xx[dir] = 1 + 2*shape;
                 m_ncomp_xy[dir] = 1 + 2*shape + ( (Jx_nodal[dir] + Jy_nodal[dir]) % 2 );
@@ -911,7 +911,7 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
                 Nc_tot_zz *= m_ncomp_zz[dir];
             }
         }
-        else if (WarpX::current_deposition_algo == CurrentDepositionAlgo::Villasenor) {
+        else if (config().current_deposition_algo() == CurrentDepositionAlgo::Villasenor) {
 #ifdef WARPX_DIM_3D
             if (m_use_mass_matrices_jacobian) {
                 WARPX_ABORT_WITH_MESSAGE(
@@ -925,14 +925,14 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
                     "Set implicit_evolve.mass_matrices_pc_width = 0.");
             }
 #else
-            const int max_grid_crossings = WarpX::particle_max_grid_crossings;
+            const int max_grid_crossings = config().particle_max_grid_crossings();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(max_grid_crossings > 0,
                 "Mass matrices with Villasenor deposition require "
                 "particles.max_grid_crossings > 0 for both Jacobian and preconditioner use.");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                max_grid_crossings <= WarpX::villasenor_mass_matrices_max_grid_crossings,
+                max_grid_crossings <= config().villasenor_mass_matrices_max_grid_crossings(),
                 "Mass matrices with Villasenor deposition require "
-                "particles.max_grid_crossings <= WarpX::villasenor_mass_matrices_max_grid_crossings "
+                "particles.max_grid_crossings <= config().villasenor_mass_matrices_max_grid_crossings() "
                 "for both Jacobian and preconditioner use.");
             for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
                 WARPX_ALWAYS_ASSERT_WITH_MESSAGE(ngJ[dir] >= shape / 2 + max_grid_crossings,
@@ -1134,7 +1134,7 @@ void ImplicitSolver::PreRHSOp (const amrex::Real a_cur_time,
 
     using warpx::fields::FieldType;
 
-    if (WarpX::use_filter) {
+    if (config().use_filter()) {
         const int finest_level = 0;
         m_WarpX->ApplyFilterMF(m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Efield_fp, finest_level), 0);
     }

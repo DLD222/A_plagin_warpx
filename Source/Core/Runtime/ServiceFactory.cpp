@@ -134,6 +134,13 @@ legacy_runtime_data ()
     return *holder;
 }
 
+HostServices&
+legacy_host_services ()
+{
+    static const std::unique_ptr<HostServices> holder = create_legacy_host_services();
+    return *holder;
+}
+
 std::unique_ptr<HostServices>
 create_legacy_host_services ()
 {

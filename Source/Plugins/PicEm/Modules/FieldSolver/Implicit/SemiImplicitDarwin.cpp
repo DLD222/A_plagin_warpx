@@ -62,12 +62,12 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
     // Particle shape used for the magnetostatic part of the solve (current and
     // mass matrices deposition, inductive E-field gather, and B-field gather).
     // Defaults to the electrostatic particle shape, algo.particle_shape.
-    m_magnetostatic_particle_shape = WarpX::nox;
+    m_magnetostatic_particle_shape = config().nox();
     const amrex::ParmParse pp_implicit_evolve("implicit_evolve");
     utils::parser::queryWithParser(
         pp_implicit_evolve, "magnetostatic_particle_shape", m_magnetostatic_particle_shape);
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        m_magnetostatic_particle_shape >= 1 && m_magnetostatic_particle_shape <= WarpX::nox,
+        m_magnetostatic_particle_shape >= 1 && m_magnetostatic_particle_shape <= config().nox(),
         "implicit_evolve.magnetostatic_particle_shape must be between 1 and algo.particle_shape");
 
     // Set parameters used by `InitializeMassMatrices`
@@ -116,7 +116,7 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
     // The predictor velocity push gathers the electrostatic E-field with the
     // Galerkin scheme. Skip that, and warn, if the user has explicitly selected
     // momentum-conserving gathering.
-    m_predictor_use_galerkin = (WarpX::field_gathering_algo != GatheringAlgo::MomentumConserving);
+    m_predictor_use_galerkin = (config().field_gathering_algo() != GatheringAlgo::MomentumConserving);
     if (!m_predictor_use_galerkin) {
         ablastr::warn_manager::WMRecordWarning("Semi-implicit Darwin solver",
             "algo.field_gathering = momentum_conserving is set; the predictor "
@@ -190,7 +190,7 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
             *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{1}, lev),
             *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{2}, lev),
             MomentumPushType::Full,
-            FieldGatherOrders{/*e_shape=*/WarpX::nox, /*e_galerkin=*/m_predictor_use_galerkin,
+            FieldGatherOrders{/*e_shape=*/config().nox(), /*e_galerkin=*/m_predictor_use_galerkin,
                               /*b_shape=*/m_magnetostatic_particle_shape}
         );
     }
