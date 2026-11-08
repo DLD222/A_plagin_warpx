@@ -242,16 +242,40 @@ lib_<dim> 必须聚合四个层目标
 ### 8.4 结果
 
 ```text
-warpx_core_2d 单独构建            PASS（无任何 Plugins 源）
+warpx_core_2d 单独构建            PASS（9 个源：5 个 Runtime + 4 个 Utils）
+warpx_core_2d 的 include 路径      0 个 Plugins 条目
 app_2d + 全部测试构建             PASS
 check_build_boundaries.py         PASS
 check_plugin_boundaries.py        PASS
 ```
 
+Core 的 include 列表也收窄了：`ablastr_<dim>` 是 Core 的底座，不再携带
+`Source/Plugins/*` 路径，因此 Core 里残留的 `#include <WarpX.H>` 是**编译错误**，
+不会再被 include 路径静默解析。
+
 因此：
 
 ```text
 A7.1 的“Core 无 Plugins”现在在构建层成立，不再只是 include 层
+```
+
+### 8.5 等价性验证（与未改动 HEAD 对比）
+
+同一份源码、同一套 CMake 选项，两个独立 worktree 全量跑 254 个 2D 测试：
+
+```text
+未改动 HEAD（563 个文件，基线）  失败集合 = 41 项
+本次改动（warpx_core/picem/…）   失败集合 = 41 项
+两项失败集合完全一致（comm 差集为空）
+```
+
+41 项均为环境相关，与本改动无关：
+
+```text
+34 checksum（平台/编译器相关，AGENTS.md 明确忽略）
+ 4 run      background_mcc / laser_ion_acc / qed_breit_wheeler_opmd /
+            rigid_injection_btd —— 测试输入要求 openPMD，本构建 OPENPMD=OFF
+ 3 analysis 上述 run 的下游
 ```
 
 ## 9. 实施：KernelFactory 解耦（已完成）
@@ -355,6 +379,15 @@ plugin_loader_missing_entry_2d / invalid_desc_2d / missing_file_2d  失败路径
 
 12 项 `plugin_|runtime_` 测试：**11 通过**，唯一失败是
 `runtime_snapshot_particles_2`（见 §12，测试输入缺项，与本次改动无关）。
+
+外部插件的实际 ABI 表面（`nm` 证据）：
+
+```text
+libwarpx_dynamic_example_plugin.so
+  未定义符号：  U warpx_host_add_handler      <- 唯一宿主符号，加载时解析
+  导出符号：    T warpx_plugin_entry
+  动态依赖：    libc.so.6 只有              <- 没有 libstdc++，确为 C 插件
+```
 
 ## 11. 当前结论（更新）
 
