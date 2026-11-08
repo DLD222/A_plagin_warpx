@@ -1,4 +1,2 @@
-# Known cross-plugin includes (ratchet). Each line must disappear over time.
-# Regenerate with: check_plugin_boundaries.py --dump > plugin_boundary_allowlist.txt
-Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML.H
-Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML_current.H
+# Known cross-plugin includes (ratchet).
+# Empty: no plugin includes another plugin's headers.

@@ -13,7 +13,7 @@
 #endif
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
-#include "PML_current.H"
+#include "BoundaryConditions/PML_current.H"
 #include "WarpX_PML_kernels.H"
 
 #include <ablastr/fields/MultiFabRegister.H>

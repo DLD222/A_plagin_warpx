@@ -8,11 +8,13 @@
 #ifndef WARPX_PML_FWD_H
 #define WARPX_PML_FWD_H
 
+namespace warpx::pml
+{
 struct Sigma;
 struct SigmaBox;
-
 class SigmaBoxFactory;
 class MultiSigmaBox;
+} // namespace warpx::pml
 
 class PML;
 

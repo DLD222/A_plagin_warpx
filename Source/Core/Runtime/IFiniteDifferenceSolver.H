@@ -13,8 +13,10 @@
 #include <array>
 #include <memory>
 
+
 class FaceInfoBox;
-class MultiSigmaBox;
+
+namespace warpx::pml { class MultiSigmaBox; }
 
 namespace warpx::runtime {
 
@@ -62,7 +64,7 @@ public:
     virtual void EvolveEPML (ablastr::fields::MultiFabRegister& fields,
                             ablastr::utils::enums::PatchType patch_type, int level,
                             std::array<std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-                            MultiSigmaBox const& sigba, amrex::Real dt,
+                            warpx::pml::MultiSigmaBox const& sigba, amrex::Real dt,
                             bool pml_has_particles) = 0;
     virtual void EvolveFPML (amrex::MultiFab* Ffield, ablastr::fields::VectorField Efield,
                             amrex::Real dt) = 0;

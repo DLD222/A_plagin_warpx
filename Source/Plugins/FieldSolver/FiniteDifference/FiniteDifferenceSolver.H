@@ -13,6 +13,7 @@
 
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
+#include "BoundaryConditions/MultiSigmaBox.H"
 #include "Runtime/IHybridPICModel.H"
 #include "FiniteDifferenceSolver_fwd.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -138,7 +139,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             PatchType patch_type,
             int level,
             std::array< std::unique_ptr<amrex::iMultiFab>, 3 > const& eb_update_E,
-            MultiSigmaBox const& sigba,
+            warpx::pml::MultiSigmaBox const& sigba,
             amrex::Real dt,
             bool pml_has_particles
         );
@@ -612,7 +613,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             std::array< amrex::MultiFab*, 3 > Jfield,
             std::array< std::unique_ptr<amrex::iMultiFab>, 3 > const& eb_update_E,
             amrex::MultiFab* Ffield,
-            MultiSigmaBox const& sigba,
+            warpx::pml::MultiSigmaBox const& sigba,
             amrex::Real dt, bool pml_has_particles );
 
         template< typename T_Algo >

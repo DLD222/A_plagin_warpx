@@ -6,8 +6,8 @@
  */
 #include "FiniteDifference/FiniteDifferenceSolver.H"
 
-#include "BoundaryConditions/PML.H"
 #include "BoundaryConditions/PML_current.H"
+#include "BoundaryConditions/MultiSigmaBox.H"
 #include "BoundaryConditions/PMLComponent.H"
 #if !defined(WARPX_DIM_RZ) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
@@ -50,7 +50,7 @@ void FiniteDifferenceSolver::EvolveEPML (
     PatchType patch_type,
     int level,
     std::array< std::unique_ptr<amrex::iMultiFab>, 3 > const& eb_update_E,
-    MultiSigmaBox const& sigba,
+    warpx::pml::MultiSigmaBox const& sigba,
     amrex::Real const dt, bool pml_has_particles ) {
 
     // Select algorithm (The choice of algorithm is a runtime option,
@@ -106,7 +106,7 @@ void FiniteDifferenceSolver::EvolveEPMLCartesian (
     std::array< amrex::MultiFab*, 3 > const Jfield,
     std::array< std::unique_ptr<amrex::iMultiFab>, 3 > const& eb_update_E,
     amrex::MultiFab* const Ffield,
-    MultiSigmaBox const& sigba,
+    warpx::pml::MultiSigmaBox const& sigba,
     amrex::Real const dt, bool pml_has_particles ) {
 
     Real constexpr c2 = PhysConst::c2;

@@ -47,13 +47,13 @@
 
 | 指标 | 变化 |
 |---|---|
-| 跨插件 include 违规 | **87 → 3**（棘轮，新增即失败） |
+| 跨插件 include 违规 | **87 → 0**（棘轮已清空：没有任何插件包含另一个插件的头文件） |
 | 核心回调总线 | 已落地：`register/has/execute/remove_callback`，Python 绑定注册、求解器触发 |
 | 插件状态声明 | 插件在 `on_schema` 声明自有状态，核心随层分配（碰撞生产场为第一个实例） |
 
-剩余 3 处（都在 `plugin_boundary_allowlist.txt` 里记录）：
-`EvolveEPML.cpp` → `PML.H`、`PML_current.H`（PML 系数容器与电流核，约 400 行辅助函数需一并搬移）；
-`HybridPICSolveE.cpp` → `HybridPICModel.H`（混合 E 更新需要 23 个参数，应做成参数块契约）。
+清零路径（都已落地）：
+`HybridPICSolveE.cpp` → 改为接收 `HybridPICParameters` 参数块；
+`EvolveEPML.cpp` → PML 分裂场系数容器（`SigmaBox`/`MultiSigmaBox`）与 PML 电流核移入核心。
 
 ### R5 功能完全覆盖原版（四维数值等价）——**未完成**
 
