@@ -455,6 +455,34 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | 2026-11-08 | 首次建立：记录原话（5 条要求 + 3 条约束）、解读 R1–R5、代码现状体检、目标构思、S0–S7 路线、验收矩阵、与 A7 的协作协议 |
 | 2026-11-08 | 接替 A7 与 S 系列；补 §10 A7→S 映射、§11 实施进度；S2 完成（阶段表可扩展，ABI v4） |
 
+## 16. 多维基线（1D/3D/RZ，2026-11-08 首次建立）
+
+配置：`build_multi2`（DIMS=1;3;RZ，OPENPMD=OFF，QED=ON，OMP，conda python），
+共 469 个测试，**221 项失败**。按成因分类：
+
+| 类别 | 数量（测试条目） | 说明 |
+|---|---|---|
+| openPMD 依赖 | 46 个用例 × 3 ≈ 190 | 输入要求 openPMD 输出，本构建 OPENPMD=OFF；环境性，非代码缺陷 |
+| 其它 | 7 个 `.run` | **真实失败**，需逐个修 |
+| 其余 | — | 通过 |
+
+### 真实失败清单（7 个）
+
+| 测试 | 现象 | 初判 |
+|---|---|---|
+| `test_3d_hard_edged_quadrupoles` / `_boosted` / `_moving` | 段错误，栈在 `LatticeElementFinder::GetFinderDeviceInstance<ParticleTileIter>` | 加速器晶格路径，3D 独有；2D 无对应测试故未暴露 |
+| `test_3d_plasma_lens_hard_edged` | 同上 | 同上 |
+| `test_1d_macroscopic_solver` | 段错误 | 1D 宏观材料路径 |
+| `test_rz_laser_acceleration` | `computeRho: requested ncomp does not match the deposited rho` | RZ 激光/rho 多分量 |
+| `test_3d_deuterium_tritium_fusion` | 诊断无法输出 `DTF1_particle_production`（"not a known field output type"） | 动态注册的场无法被诊断按名输出——**接口缺口**，非数值问题 |
+| `test_3d_load_external_field_particle_time_restart`、`test_rz_load_external_field_{grid,particles}_restart` | 无错误信息，需逐个排查 | 重启路径 |
+
+### 结论
+
+- 2D 的"33 项失败集不变"**不足以证明其它维度正确**：多维基线暴露了 6 处 2D 覆盖不到的真实失败。
+- 这些失败需要逐一定位是"本项目引入"还是"上游既有"；方法是构建上游 `7bcb44a` 的 3D 版跑同样 6 个用例，或在分支内部二分。
+- 诊断无法输出动态注册的场，是插件化后的**接口缺口**（自定义字段名不在诊断的字段名映射里），需要一张"运行期字段名 → 诊断可输出"的注册表。
+
 ## 15. S6 待解决的内核服务缺口（隐式求解器）
 
 隐式求解器不是"再清几处静态量"就能拆的模块，它真正依赖内核的这些能力：
