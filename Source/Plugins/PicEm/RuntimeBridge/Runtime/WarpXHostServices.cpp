@@ -118,12 +118,13 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
 std::unique_ptr<amrex::MultiFab>
 WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_filter,
                                int ncomp, const amrex::IntVect& nodal,
-                               const amrex::IntVect& ngrow)
+                               const amrex::IntVect& ngrow, bool allow_extra)
 {
     auto rho = computeRho(lev, species_index, apply_rz_psatd_filter);
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        rho->nComp() == ncomp,
-        "computeRho: requested ncomp does not match the deposited rho");
+        rho->nComp() == ncomp || (allow_extra && rho->nComp() > ncomp),
+        "computeRho: requested " + std::to_string(ncomp) + " components but the "
+        "deposited rho has " + std::to_string(rho->nComp()));
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         rho->ixType() == amrex::IndexType(nodal),
         "computeRho: requested nodal type does not match the deposited rho");

@@ -42,12 +42,13 @@ RhoFunctor::operator() ( amrex::MultiFab& mf_dst, const int dcomp, const int /*i
 {
     std::unique_ptr<amrex::MultiFab> rho =
         host().particleServices().computeRho(m_lev, m_species_index, m_apply_rz_psatd_filter,
-            nComp(), amrex::IntVect::TheNodeVector(), data().ngDeposRho());
+            nComp(), amrex::IntVect::TheNodeVector(), data().ngDeposRho(),
+            m_convertRZmodes2cartesian);
 
     // A7.1: the host decides the rho layout (nodal/cell, RZ components).  Do not
     // infer it from RuntimeConfig here; reject a mismatched source explicitly
     // instead of letting MultiFab::Add/Interpolate read out of bounds.
-    if (rho->nComp() != nComp()) {
+    if (!m_convertRZmodes2cartesian && rho->nComp() != nComp()) {
         throw std::runtime_error(
             "RhoFunctor: rho ncomp " + std::to_string(rho->nComp()) +
             " does not match the diagnostic ncomp " + std::to_string(nComp()));

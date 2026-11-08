@@ -56,7 +56,7 @@ public:
     std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter,
                 int ncomp, const amrex::IntVect& nodal,
-                const amrex::IntVect& ngrow) override;
+                const amrex::IntVect& ngrow, bool allow_extra = false) override;
     [[nodiscard]] std::unique_ptr<amrex::MultiFab> computePhi (int lev) override;
     [[nodiscard]] const amrex::Vector<std::unique_ptr<amrex::iMultiFab>>&
     ebReduceParticleShapeFlag () const override;

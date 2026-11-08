@@ -15,9 +15,13 @@ public:
     virtual void depositCharge (ablastr::fields::MultiLevelScalarField const& rho,
                                 amrex::Real relative_time) = 0;
     virtual std::unique_ptr<amrex::MultiFab> computeRho (int, int, bool) = 0;
+    //! Deposit rho and validate its layout.  In RZ the deposit legitimately has
+    //! 2*n_modes-1 components while a Cartesian diagnostic asks for one, so the
+    //! caller states whether extra components are expected (`allow_extra`).
     virtual std::unique_ptr<amrex::MultiFab> computeRho (int lev, int species, bool filter,
                                                          int ncomp, const amrex::IntVect& nodal,
-                                                         const amrex::IntVect& ngrow) = 0;
+                                                         const amrex::IntVect& ngrow,
+                                                         bool allow_extra = false) = 0;
     virtual void syncRho (ablastr::fields::MultiLevelScalarField const&, ablastr::fields::MultiLevelScalarField const&, ablastr::fields::MultiLevelScalarField const&) = 0;
     virtual void finalizeRhoOnLevel (int, amrex::MultiFab*, ablastr::utils::enums::PatchType) = 0;
     virtual void applyFilterandSumBoundaryRho (int, int, amrex::MultiFab&, int, int) = 0;
