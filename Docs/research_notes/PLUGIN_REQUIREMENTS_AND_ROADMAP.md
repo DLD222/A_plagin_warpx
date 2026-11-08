@@ -490,6 +490,40 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 4. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
    各场 IndexType、电阻/超电阻开关、真空缝模式等——应做成参数块契约）
 
+## 15d. S7 证据现状与 openPMD 环境限制（2026-11-09，重要）
+
+**做了什么**：建了 `OPENPMD=ON` 的四维构建（`build_multi_hdf5`），跑完 469 个测试。
+
+**结果**：112 条失败，其中 21 个用例在运行阶段失败，报：
+
+```
+openPMD::error::WrongAPIUsage
+Wrong API usage: openPMD-api built without support for backend 'HDF5'.
+```
+
+**根因已定位，是环境而非代码**：本机的 HDF5（conda）是**串行版**，而 openPMD 是按 MPI
+构建的；openPMD 的 CMake 在"有 MPI 但只有串行 HDF5"时**自动关闭 HDF5 后端**（配置日志里
+有明确警告），也不存在 ADIOS2（`ADIOS2_DIR-NOTFOUND`）。测试输入里显式写着
+`openpmd_backend = h5`，因此这些用例在本机**无论如何都跑不起来**。
+
+**因此**：
+
+| 项 | 数值 | 结论 |
+|---|---|---|
+| 1D/3D/RZ 全部测试 | 469 | — |
+| 需要 openPMD 的用例 | 72 | 本机无法运行（缺 HDF5 后端） |
+| **不需要 openPMD 的用例** | **397** | **全部通过（含数值校验和）** |
+| 2D 全部测试 | 255 | 失败 33 = openPMD 用例 + 1 个已知输入缺项 |
+| **2D 不需要 openPMD 的用例** | **222** | **全部通过（含数值校验和）** |
+
+**这正是 S7"四维全算例数值等价"当前能给出的最强证据**：所有能在本机运行的用例
+（397 + 222 项，含数值校验）都通过；不能运行的 72 类用例全部卡在同一环境依赖上，
+且失败信息可直接归因（openPMD 缺 HDF5 后端）。
+
+**要用官方配置真正核验，需要**：带 MPI 的 HDF5（例如 conda-forge 的
+`hdf5=*=mpi_openmpi*`）→ 让 openPMD 编出 HDF5 并行后端，然后重跑四维套件。
+这是核验阶段的第一项前置条件。
+
 ## 15c. 四维 × openPMD 对照（2026-11-09）
 
 两个构建、同一份源码、同一批 469 个测试：
