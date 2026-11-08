@@ -6,6 +6,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Fluids/MultiFluidContainer.H"
+
 #include "Runtime/IElectrostaticSolver.H"
 
 #include "Fields.H"

@@ -7,8 +7,6 @@
 #include <string>
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Fluids/MultiFluidContainer.H"
-#include "Fluids/WarpXFluidContainer.H"
 #include "Modules/Particles/ParticleTileIter.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"

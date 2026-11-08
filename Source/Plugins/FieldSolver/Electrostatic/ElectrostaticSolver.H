@@ -15,7 +15,7 @@
 
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "Fluids/MultiFluidContainer.H"
+#include "Runtime/IFluidModel.H"
 
 #include <ablastr/fields/MLMGOptions.H>
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -65,7 +65,7 @@ public:
     virtual void ComputeSpaceChargeField (
         ablastr::fields::MultiFabRegister& fields,
         warpx::runtime::ParticleContext const& particles,
-        MultiFluidContainer* mfl,
+        warpx::runtime::IFluidModel* mfl,
         int max_level,
         bool verbose_step) = 0;
 

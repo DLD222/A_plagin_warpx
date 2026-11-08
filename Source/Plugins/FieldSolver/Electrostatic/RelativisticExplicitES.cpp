@@ -35,7 +35,7 @@ void RelativisticExplicitES::InitData () {
 void RelativisticExplicitES::ComputeSpaceChargeField (
     ablastr::fields::MultiFabRegister& fields,
     warpx::runtime::ParticleContext const& particles,
-    [[maybe_unused]] MultiFluidContainer* mfl,
+    [[maybe_unused]] warpx::runtime::IFluidModel* mfl,
     int max_level,
     bool verbose_step)
 {

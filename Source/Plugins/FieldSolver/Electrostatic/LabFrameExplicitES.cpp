@@ -25,7 +25,7 @@ void LabFrameExplicitES::InitData() {
 void LabFrameExplicitES::ComputeSpaceChargeField (
     ablastr::fields::MultiFabRegister& fields,
     warpx::runtime::ParticleContext const& particles,
-    MultiFluidContainer* mfl,
+    warpx::runtime::IFluidModel* mfl,
     int max_level,
     bool verbose_step)
 {
@@ -44,7 +44,7 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     particles.services->depositCharge(rho_fp, 0.0_rt);
     if (mfl) {
         const int lev = 0;
-        mfl->DepositCharge(fields, *rho_fp[lev], lev);
+        mfl->depositCharge(fields, *rho_fp[lev], lev);
     }
     warpx::runtime::execute_callback("afterdeposition");
 

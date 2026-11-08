@@ -4,12 +4,9 @@ Plugin->Plugin: Source/Plugins/Collision/CollisionHandler.cpp includes Particles
 Plugin->Plugin: Source/Plugins/Collision/HybridResistiveDrag/HybridResistiveDrag.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/JFunctor.cpp includes Parallelization/WarpXSumGuardCells.H
 Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/JdispFunctor.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
-Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp includes Fluids/MultiFluidContainer.H
-Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp includes Fluids/WarpXFluidContainer.H
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp includes BoundaryConditions/PML.H
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatPlotfile.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/WarpXOpenPMD.cpp includes FieldIO.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H includes Fluids/MultiFluidContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveB.cpp includes EmbeddedBoundary/WarpXFaceInfoBox.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveBPML.cpp includes BoundaryConditions/PMLComponent.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML.H

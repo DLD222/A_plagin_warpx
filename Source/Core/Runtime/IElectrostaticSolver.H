@@ -2,6 +2,7 @@
 #define WARPX_RUNTIME_IElectrostaticSOLVER_H_
 #include <ablastr/fields/MLMGOptions.H>
 #include <ablastr/fields/MultiFabRegister.H>
+#include "Runtime/IFluidModel.H"
 #include "Runtime/ParticleContext.H"
 
 #include <string>
@@ -21,7 +22,7 @@ public:
     virtual void ComputeSpaceChargeField (
         ablastr::fields::MultiFabRegister& fields,
         ParticleContext const& particles,
-        MultiFluidContainer* fluids,
+        IFluidModel* fluids,
         int max_level, bool verbose_step) = 0;
     [[nodiscard]] virtual bool boundaryPotentialSpecified () const = 0;
     virtual void computePhi (ablastr::fields::MultiLevelScalarField const& rho,

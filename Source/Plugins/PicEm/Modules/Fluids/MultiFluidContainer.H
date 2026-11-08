@@ -9,6 +9,8 @@
 
 #include "WarpXFluidContainer_fwd.H"
 
+#include "Runtime/IFluidModel.H"
+
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_Geometry.H>
@@ -21,7 +23,7 @@
 namespace warpx::runtime { struct RuntimeContext; }
 
 /**
- * The class MultiFluidContainer holds multiple instances of the
+ * The class MultiFluidContainer : public warpx::runtime::IFluidModel holds multiple instances of the
  * class WarpXFluidContainer, stored in its member variable "allcontainers".
  * The class WarpX typically has a single (pointer to an) instance of
  * MultiFluidContainer.
@@ -34,7 +36,7 @@ namespace warpx::runtime { struct RuntimeContext; }
  * - Functions that specifically handle multiple species (for instance
  *   ReadParameters).
  */
-class MultiFluidContainer
+class MultiFluidContainer : public warpx::runtime::IFluidModel
 {
 
 public:
@@ -76,6 +78,8 @@ public:
     [[nodiscard]] int nSpecies() const {return static_cast<int>(species_names.size());}
 
     void DepositCharge (ablastr::fields::MultiFabRegister& m_fields, amrex::MultiFab &rho, int lev);
+    void depositCharge (ablastr::fields::MultiFabRegister& m_fields, amrex::MultiFab& rho, int lev) override
+    { DepositCharge(m_fields, rho, lev); }
     void DepositCurrent (ablastr::fields::MultiFabRegister& m_fields,
         amrex::MultiFab& jx, amrex::MultiFab& jy, amrex::MultiFab& jz,
         int lev);
