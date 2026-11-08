@@ -11,7 +11,7 @@
 
 #include "Modules/Particles/ParticleIO.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
-#include "FieldIO.H"
+#include "IO/FieldIO.H"
 #include "Modules/Particles/Filter/FilterFunctors.H"
 #include "Utils/TextMsg.H"
 #include "Utils/Parser/ParserUtils.H"

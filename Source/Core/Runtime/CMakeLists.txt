@@ -7,6 +7,7 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_core_${SD}
       PRIVATE
         Callbacks.cpp
+        ../IO/FieldIO.cpp
 Runtime.cpp
         DataBus.cpp
         PluginLoader.cpp

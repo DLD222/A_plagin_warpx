@@ -21,7 +21,8 @@ LAYERS = {
     "core": "warpx_core_",
     "picem": "warpx_picem_",
     "diagnostics": "warpx_diagnostics_",
-    "io": "warpx_io_",
+    "collision": "warpx_collision_",
+    "fieldsolver": "warpx_fieldsolver_",
 }
 
 errors = []

@@ -42,8 +42,7 @@ foreach(D IN LISTS WarpX_DIMS)
         target_link_libraries(test_field_solver_interface_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_runtime_snapshot_${SD} PRIVATE lib_${SD}
             $<TARGET_OBJECTS:warpx_picem_${SD}>
-            $<TARGET_OBJECTS:warpx_diagnostics_${SD}>
-            $<TARGET_OBJECTS:warpx_io_${SD}>)
+            $<TARGET_OBJECTS:warpx_diagnostics_${SD}>)
 
         add_test(NAME stage_registry_${D} COMMAND test_stage_registry_${SD})
 
