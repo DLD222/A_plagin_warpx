@@ -490,6 +490,20 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 4. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
    各场 IndexType、电阻/超电阻开关、真空缝模式等——应做成参数块契约）
 
+## 15e. 插件删除矩阵（S7，2026-11-09 实测）
+
+2D 构建，同一份源码，逐个关闭插件；`cfg` = 配置成功，`build` = 编译链接成功，`run` = 实跑结果。
+
+| 关闭的插件 | 开关 | cfg | build | 实跑行为 |
+|---|---|---|---|---|
+| 诊断 + IO | `-DWarpX_PLUGIN_DIAGNOSTICS=OFF -DWarpX_PLUGIN_IO=OFF` | ✅ | ✅ | `inputs_2d` **跑完**，**不产出任何诊断文件**（核心的空服务兜底），无崩溃 |
+| 碰撞 | `-DWarpX_PLUGIN_COLLISION=OFF` | ✅ | ✅ | `inputs_2d` 跑完；碰撞算例（`collision_xz`）也**跑完**，碰撞被静默跳过（参数照常被解析并打印） |
+| 场求解器 | `-DWarpX_PLUGIN_FIELDSOLVER=OFF` | ✅ | ✅ | 静电算例给出可操作错误：`No electrostatic solver plugin is linked: build with WarpX_PLUGIN_FIELDSOLVER=ON ...` |
+
+结论：三个插件都可**独立关闭并保持构建**；缺失时行为分两类——
+"可选能力"（诊断、碰撞）退化为空/跳过，"必需能力"（场求解器）给出明确可操作错误。
+这正是"功能由插件提供、核心不依赖任何插件"的验收形态。
+
 ## 15d. S7 证据现状与 openPMD 环境限制（2026-11-09，重要）
 
 **做了什么**：建了 `OPENPMD=ON` 的四维构建（`build_multi_hdf5`），跑完 469 个测试。
