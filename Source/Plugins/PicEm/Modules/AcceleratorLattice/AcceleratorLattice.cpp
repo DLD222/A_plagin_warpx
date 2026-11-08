@@ -110,6 +110,14 @@ AcceleratorLattice::UpdateElementFinder (int const lev, const amrex::Vector<amre
 LatticeElementFinderDevice
 AcceleratorLattice::GetFinderDeviceInstance (ParticleTileIter const& a_pti, int const a_offset, const amrex::Vector<amrex::Real>& dts) const
 {
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        m_element_finder != nullptr,
+        "AcceleratorLattice: lattice is defined but the element finder was never initialised");
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        a_pti.index() >= 0 && a_pti.index() < static_cast<int>(m_element_finder->size()),
+        "AcceleratorLattice: particle iterator index " + std::to_string(a_pti.index()) +
+        " is outside the element finder (size " +
+        std::to_string(m_element_finder->size()) + ")");
     const LatticeElementFinder & finder = (*m_element_finder)[a_pti];
     return finder.GetFinderDeviceInstance(a_pti, a_offset, *this, dts);
 }

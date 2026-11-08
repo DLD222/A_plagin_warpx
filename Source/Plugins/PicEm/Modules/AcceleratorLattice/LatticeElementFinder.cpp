@@ -110,6 +110,10 @@ LatticeElementFinderDevice::InitLatticeElementFinderDevice (ParIterType const& a
     m_ux = attribs[PIdx::ux].dataPtr() + a_offset;
     m_uy = attribs[PIdx::uy].dataPtr() + a_offset;
     m_uz = attribs[PIdx::uz].dataPtr() + a_offset;
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        lev >= 0 && lev < static_cast<int>(dts.size()),
+        "LatticeElementFinder: no timestep for level " + std::to_string(lev) +
+        " (dts.size() = " + std::to_string(dts.size()) + ")");
     m_dt = dts[lev];
 
     m_gamma_boost = WarpX::gamma_boost;

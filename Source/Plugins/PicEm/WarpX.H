@@ -859,7 +859,10 @@ public:
     [[nodiscard]] amrex::Vector<amrex::Real> gett_new () const {return t_new;}
     [[nodiscard]] amrex::Real gett_new (int lev) const {return t_new[lev];}
     void sett_new (int lev, amrex::Real time) {t_new[lev] = time;}
-    [[nodiscard]] amrex::Vector<amrex::Real> getdt () const {return dt;}
+    //! Timestep per level.  Returns a reference: the runtime-data contract
+    //! exposes it as a const reference, so copying here returned a dangling
+    //! reference to callers (root cause of the 3D lattice crash).
+    [[nodiscard]] const amrex::Vector<amrex::Real>& getdt () const {return dt;}
     [[nodiscard]] amrex::Real getdt (int lev) const {return dt.at(lev);}
     [[nodiscard]] int getdo_moving_window() const {return do_moving_window;}
     [[nodiscard]] amrex::Real getmoving_window_x() const {return moving_window_x;}
