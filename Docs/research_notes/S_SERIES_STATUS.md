@@ -77,8 +77,15 @@ what():  Chunk does not reside inside dataset (Dimension on index 0. DS: 1 - Chu
 ```
 
 集中在：RZ BTD、RZ EB 衍射、RZ/RZ load_external_field（含 restart）、RZ projection div cleaner、
-RZ laser acceleration opmd。这是**写出路径的真实缺陷**（数据集维度 1、却写入 chunk 2，典型的重启/
-迭代偏移错误），必须单独定位。
+RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` 里 BTD 的尺寸/偏移逻辑（`ParticleFlushOffset`、
+`is_first_flush_with_particles`、`is_resizing_flush`、`SetupPos/SetupRealProperties` 的 resizing 分支）
+与本仓库导入的上游 26.10 源码**逐字节相同**，差异不在我们的重构里。该失败在 **1 个 MPI 进程**下同样出现，
+因此也不是并行通信问题。当前最可能的解释是 openPMD 0.17.1 的 **HDF5 后端在数据集 resize 上的行为**
+（上游 CI 的 openPMD 用例通常走 ADIOS2 或不同后端组合）。
+
+确认方法（下一轮）：用与本地相同的 openPMD/HDF5 组合构建上游 26.10 并跑同一批用例；
+若上游同样失败，则该 12 项属于**环境/后端限制**，不是本项目缺陷。
+（本轮尝试时上游源码与我们强制复用的 AMReX 版本存在 `IntVect` 构造签名漂移，编译未通过，需要单独固定依赖版本。）
 
 **原关键事实（现已解除）**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
 （配置日志有明确警告），也没有 ADIOS2。测试输入显式要求 `h5` 后端，因此这 72 类用例
