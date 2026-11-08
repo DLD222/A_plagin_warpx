@@ -65,9 +65,22 @@
 **重构后回归检查（2026-11-09）**：S6 全部改动（插件拆分、契约抽取、PML/混合/流体搬移）完成后，
 1D/3D/RZ 的失败集与重构前**逐条一致**（204 项，diff 为空），说明这轮结构性改动**没有改变任何
 可运行用例的数值结果**。
-| 1D/3D/RZ（OPENPMD=ON） | 469 | 357 | ？ | 112 条失败，其中 21 个运行失败报 `openPMD-api built without support for backend 'HDF5'` |
+| 1D/3D/RZ（OPENPMD=ON，**HDF5 无 MPI**） | 469 | 357 | — | 112 条失败，21 个运行失败报 `openPMD-api built without support for backend 'HDF5'` |
+| 1D/3D/RZ（OPENPMD=ON，**并行 HDF5**） | 469 | **427** | — | **42 条失败**：12 运行 + 14 分析 + 16 校验 |
 
-**关键事实**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
+**2026-11-09 进展**：已用系统 OpenMPI 自建并行 HDF5（`/tmp/hdf5_mpi`，HDF5 1.14.6），
+openPMD 的 HDF5 后端随之启用（配置日志中的"only serial version of HDF5"警告消失）。
+四维失败集从 112 降到 **42**。剩余失败中 **12 个是真实运行失败**，错误为：
+
+```
+what():  Chunk does not reside inside dataset (Dimension on index 0. DS: 1 - Chunk: 2)
+```
+
+集中在：RZ BTD、RZ EB 衍射、RZ/RZ load_external_field（含 restart）、RZ projection div cleaner、
+RZ laser acceleration opmd。这是**写出路径的真实缺陷**（数据集维度 1、却写入 chunk 2，典型的重启/
+迭代偏移错误），必须单独定位。
+
+**原关键事实（现已解除）**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
 （配置日志有明确警告），也没有 ADIOS2。测试输入显式要求 `h5` 后端，因此这 72 类用例
 **在本机无论如何都跑不起来**。
 
