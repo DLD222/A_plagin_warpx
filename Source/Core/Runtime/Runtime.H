@@ -17,6 +17,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/StateRegistry.H"
 #include "Runtime/TimeState.H"
 
 #include <memory>
@@ -78,6 +79,10 @@ public:
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields ();
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const;
 
+    //! State the core owns on behalf of plugins (S3).
+    [[nodiscard]] StateRegistry& state () { return m_state; }
+    [[nodiscard]] const StateRegistry& state () const { return m_state; }
+
     //! Thin schema/forwarding layer over fields(); no storage of its own.
     [[nodiscard]] DataBus& bus ();
     [[nodiscard]] const DataBus& bus () const;
@@ -97,6 +102,7 @@ private:
     TimeState m_time{};
     FrameState m_frame{};
     RuntimeContext m_context{};
+    StateRegistry m_state{};
     std::unique_ptr<IPicKernel> m_kernel;
     std::unique_ptr<DataBus> m_bus;
     std::unique_ptr<PluginHost> m_plugin_host;

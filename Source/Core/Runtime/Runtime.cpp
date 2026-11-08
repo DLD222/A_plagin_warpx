@@ -39,7 +39,7 @@ Runtime::Runtime (int argc, char* argv[])
     sync_time();
     m_context = RuntimeContext(&m_config, &m_time, &m_frame,
                                &m_kernel->data(), m_bus.get(), &m_kernel->host(),
-                               [this] { sync_time(); }, &m_config_snapshot);
+                               [this] { sync_time(); }, &m_config_snapshot, &m_state);
     m_kernel->set_runtime_context(&m_context);
 
     if (const char* plugin_path = std::getenv("WARPX_PLUGIN_PATH")) {

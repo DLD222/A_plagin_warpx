@@ -1,0 +1,34 @@
+# S3: level 1 is created dynamically so a plugin-owned field can be checked
+# at a fine level after a regrid.
+max_step = 2
+
+amr.n_cell = 32 32
+amr.max_grid_size = 32
+amr.max_level = 1
+amr.ref_ratio = 2
+amr.blocking_factor = 16
+warpx.regrid_int = 1
+warpx.refine_start_time = 0.0
+warpx.fine_tag_lo = -0.25 -0.25
+warpx.fine_tag_hi =  0.25  0.25
+
+geometry.dims = 2
+geometry.prob_lo = -1.0 -1.0
+geometry.prob_hi =  1.0  1.0
+
+boundary.field_lo = periodic periodic
+boundary.field_hi = periodic periodic
+
+algo.maxwell_solver = yee
+algo.particle_shape = 1
+warpx.cfl = 0.5
+warpx.serialize_initial_conditions = 1
+warpx.verbose = 0
+
+# checkpoint at step 1 so the core-owned plugin field is written by the
+# schema-driven checkpoint path
+diagnostics.diags_names = chk
+chk.diag_type = Full
+chk.intervals = 1
+chk.format = checkpoint
+chk.write_species = 1

@@ -11,6 +11,7 @@
  */
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/StateRegistry.H"
 #include "WarpX.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -2589,6 +2590,29 @@ WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& d
     m_level_resources.level(lev).accelerator_lattice = std::make_unique<AcceleratorLattice>();
     m_level_resources.level(lev).accelerator_lattice->InitElementFinder(lev, gamma_boost, gett_new(), ba, dm);
 
+    // Core-owned plugin state: allocated here so it follows the level
+    // lifecycle (creation, regrid, load balance, checkpoint) like any other
+    // field.  A plugin never allocates its own fields.
+    AllocPluginFields(lev, ba, dm);
+}
+
+void
+WarpX::AllocPluginFields (int lev, const BoxArray& ba, const DistributionMapping& dm)
+{
+    const auto* ctx = GetRuntimeContext();
+    if (ctx == nullptr || ctx->state == nullptr) { return; }
+
+    for (const auto& spec : ctx->state->requested_fields()) {
+        if (m_fields.has(spec.name, lev)) { continue; }
+        m_field_schema.declare(spec);
+        m_fields.alloc_init(std::string(spec.name), lev,
+                            amrex::convert(ba, spec.nodal), dm,
+                            spec.ncomp, spec.ngrow,
+                            std::optional<amrex::Real>{0.0},
+                            /*remake=*/true,
+                            /*redistribute_on_remake=*/true,
+                            spec.checkpoint);
+    }
 }
 
 void

@@ -1429,6 +1429,10 @@ private:
                         const amrex::IntVect& ngRho, const amrex::IntVect& ngF,
                         const amrex::IntVect& ngG, bool aux_is_nodal);
 
+    //! Allocate the fields a plugin asked the core to own (S3).
+    void AllocPluginFields (int lev, const amrex::BoxArray& ba,
+                            const amrex::DistributionMapping& dm);
+
 #ifdef WARPX_USE_FFT
 #   ifdef WARPX_DIM_RZ
     void AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSolverRZ>>& spectral_solver,
