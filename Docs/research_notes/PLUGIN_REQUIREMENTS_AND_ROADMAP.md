@@ -412,6 +412,12 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 35 checksum（平台相关）+ 3 个要求 openPMD 的 run + 其 3 个下游 analysis；无系统性失败。
 每次改动后与此集合比对，新增失败必须解释。
 
+**跨维度（S1a/S2 之后）**：1D/3D/RZ 全量**编译通过**（0 错误）；
+运行时抽查 `test_1d_collision_z`、`test_1d_macroscopic_solver`、`test_3d_embedded_boundary_cube`
+通过，`test_3d_electrostatic_sphere`、`test_1d/3d_langmuir_multi` 失败均为
+`OPENPMD=OFF` 构建下测试输入要求 openPMD（既有问题）。四维运行时全量验收
+需在 openPMD 构建上进行，列入 S7。
+
 ---
 
 ## 12. 变更记录
