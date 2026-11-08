@@ -8,6 +8,7 @@
 #ifndef WARPX_RUNTIME_RUNTIMEDATA_H_
 #define WARPX_RUNTIME_RUNTIMEDATA_H_
 
+#include "Runtime/IFluidModel.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
 #include <ablastr/utils/text/IntervalsParser.H>
@@ -63,7 +64,9 @@ public:
     [[nodiscard]] virtual IParticleContainerAccess& particleAccess () = 0;
     [[nodiscard]] virtual const ISpeciesMetadata& speciesMetadata () const = 0;
     [[nodiscard]] virtual const IParticleContainerAccess& particleAccess () const = 0;
-    [[nodiscard]] virtual MultiFluidContainer* fluids () = 0;
+    //! Fluid model, when the run has one (generic interface: the kernel may
+    //! be a fluid solver instead of PIC).
+    [[nodiscard]] virtual IFluidModel* fluids () = 0;
 
     [[nodiscard]] virtual int finestLevel () const = 0;
     [[nodiscard]] virtual int maxLevel () const = 0;

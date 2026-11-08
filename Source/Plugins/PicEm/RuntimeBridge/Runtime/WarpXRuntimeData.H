@@ -16,6 +16,7 @@
 #include "Runtime/ISimulationKernel.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
+#include "Runtime/IFluidModel.H"
 #include "Runtime/RuntimeData.H"
 
 #ifdef AMREX_USE_EB
@@ -55,7 +56,7 @@ public:
     [[nodiscard]] IParticleContainerAccess& particleAccess () override;
     [[nodiscard]] const ISpeciesMetadata& speciesMetadata () const override;
     [[nodiscard]] const IParticleContainerAccess& particleAccess () const override;
-    [[nodiscard]] MultiFluidContainer* fluids () override;
+    [[nodiscard]] warpx::runtime::IFluidModel* fluids () override;
     [[nodiscard]] int finestLevel () const override;
     [[nodiscard]] int maxLevel () const override;
     [[nodiscard]] const amrex::Geometry& geom (int lev) const override;

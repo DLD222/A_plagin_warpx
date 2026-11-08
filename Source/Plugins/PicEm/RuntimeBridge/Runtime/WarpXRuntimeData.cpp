@@ -56,7 +56,7 @@ IParticleContainerAccess& WarpXRuntimeData::particleAccess () { return w().GetPa
 const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return w().GetPartContainer(); }
 const IParticleContainerAccess& WarpXRuntimeData::particleAccess () const { return w().GetPartContainer(); }
 
-MultiFluidContainer* WarpXRuntimeData::fluids () { auto& warpx = w(); return warpx.DoFluidSpecies() ? &warpx.GetFluidContainer() : nullptr; }
+warpx::runtime::IFluidModel* WarpXRuntimeData::fluids () { auto& warpx = w(); return warpx.DoFluidSpecies() ? &warpx.GetFluidContainer() : nullptr; }
 int WarpXRuntimeData::finestLevel () const { return w().finestLevel(); }
 int WarpXRuntimeData::maxLevel () const { return w().maxLevel(); }
 const amrex::Geometry& WarpXRuntimeData::geom (int lev) const { return w().Geom(lev); }
