@@ -467,7 +467,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | 插件 | 独立层目标 | 开关 | 状态 |
 |---|---|---|---|
 | Diagnostics | `warpx_diagnostics_<dim>` | `WarpX_PLUGIN_DIAGNOSTICS` | 已拆，可关闭构建 |
-| IO | `warpx_io_<dim>` | `WarpX_PLUGIN_IO` | 已拆（仅 FieldIO），可关闭构建 |
+| IO | —— | —— | **已并入核心**：唯一内容是通用的场打包/平均工具（无具体 WarpX 类型），诊断需要它，因此移入 `Source/Core/IO/`；层目标与开关随之删除 |
 | Collision | `warpx_collision_<dim>` | `WarpX_PLUGIN_COLLISION` | 已拆，关闭后运行正常 |
 | FieldSolver | `warpx_fieldsolver_<dim>` | `WarpX_PLUGIN_FIELDSOLVER` | 有限差分 + 静电已拆；关闭后构建成功、运行时给出可操作错误 |
 
@@ -481,13 +481,12 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | 混合模型 | 混合 E 更新需要模型的 23 个参数（见下） |
 | 粒子容器/沉积/推动 | 尚未拆分（A7.3 剩余部分） |
 
-**跨插件 include 棘轮**：87 → 5。剩余 5 处（全部是真实深层耦合，已记录在
+**跨插件 include 棘轮**：87 → 3。剩余 3 处（全部是真实深层耦合，已记录在
 `plugin_boundary_allowlist.txt`）：
 
-1. `EvolveEPML.cpp` → `PML.H`、`PML_current.H`（PML 系数状态，需 PML 服务契约）
-2. `FlushFormatCheckpoint.cpp` → `PML.H`（检查点需写 PML 状态）
-3. `WarpXOpenPMD.cpp` → `FieldIO.H`（openPMD 写出复用场 IO 辅助）
-4. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
+1. `EvolveEPML.cpp` → `PML.H`、`PML_current.H`（PML 系数容器 `SigmaBox`/`MultiSigmaBox`
+   与 PML 电流核，需 PML 服务契约）
+2. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
    各场 IndexType、电阻/超电阻开关、真空缝模式等——应做成参数块契约）
 
 ## 15e. 插件删除矩阵（S7，2026-11-09 实测）
