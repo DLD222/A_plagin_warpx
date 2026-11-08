@@ -17,10 +17,14 @@ ROOT = Path(__file__).resolve().parents[2]
 ALLOWLIST = ROOT / "Tools" / "Modularization" / "kernel_coupling_allowlist.txt"
 
 # Trees scheduled for extraction.  Add one per S6 batch.
+#
+# Excluded for now (documented in PLUGIN_REQUIREMENTS_AND_ROADMAP.md):
+#   FieldSolver/Implicit - its Define(WarpX*) drives the kernel field advance,
+#   particle save/restore and diagnostics (198 member uses over ~11 operations),
+#   so it needs a kernel-service layer before it can leave the kernel plugin.
 TREES = [
     "Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference",
     "Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic",
-    "Source/Plugins/PicEm/Modules/FieldSolver/Implicit",
     "Source/Plugins/PicEm/Modules/FieldSolver/PSATD",
     "Source/Plugins/PicEm/Modules/FieldSolver/Magnetostatic",
 ]

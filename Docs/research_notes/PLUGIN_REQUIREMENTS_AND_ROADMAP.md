@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| S6 第 2 批·场求解器（第 7 步·可行性定界） | **完成** | 可拆分部分（有限差分/静电/PSATD/静磁）内核耦合棘轮 **清零**；**隐式求解器暂不拆**：它通过 `Define(WarpX*)` 驱动内核的场推进、粒子保存/恢复、边界与诊断，共 198 处成员使用、约 11 类内核操作，必须先有「内核服务层」才能离开内核插件；该结论与缺口已写入路线文档，棘轮范围显式排除隐式并注明原因（避免把「暂时不拆」伪装成「已拆」） |
 | S6 第 2 批·场求解器（第 6 步） | **完成** | 静电子树**清零**（核心提供 `legacy_host_services()`，两个类不再构造内核适配器）；隐式组把 7 类配置静态量（`nox`、`current_deposition_algo`、`field_gathering_algo`、`use_filter`、`max_grid_crossings`…）改读 `RuntimeConfig` 访问器，**`WarpX::` 引用清零**；棘轮 16 → **8**（只剩 8 个文件仍包含 `WarpX.H`，它们通过 `Define(WarpX*)` 使用内核对象，属于下一步的接口改造） |
 | S6 第 2 批·场求解器（第 5 步） | **完成** | PSATD 子树**清零**：`SpectralFieldDataRZ` 通过构造注入 `RuntimeData`（`upperCorner`/`costs`），`SpectralSolverRZ` 一路转发；材料模块自己解析 `algo.macroscopic_subpixel`（参数归模块）；两个已无引用的 `WarpX.H` 包含被删除；棘轮 20 → **16**（剩静电 3、隐式 13） |
 | S6 第 2 批·场求解器（第 4 步） | **完成** | 求解器的 `data()` 回退不再自己构造内核适配器：核心提供 `legacy_runtime_data()`（惰性创建、核心持有生命周期），PSATD 与有限差分求解器因此完全不提 `WarpX`；棘轮 22 → **20** |
@@ -449,3 +450,23 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 |---|---|
 | 2026-11-08 | 首次建立：记录原话（5 条要求 + 3 条约束）、解读 R1–R5、代码现状体检、目标构思、S0–S7 路线、验收矩阵、与 A7 的协作协议 |
 | 2026-11-08 | 接替 A7 与 S 系列；补 §10 A7→S 映射、§11 实施进度；S2 完成（阶段表可扩展，ABI v4） |
+
+## 15. S6 待解决的内核服务缺口（隐式求解器）
+
+隐式求解器不是"再清几处静态量"就能拆的模块，它真正依赖内核的这些能力：
+
+| 内核能力 | 使用处（隐式树内） |
+|---|---|
+| 场寄存器 `m_fields` | 109 |
+| 粒子容器 `GetPartContainer` | 9 |
+| 几何 `Geom(lev)` | 9 |
+| EB 掩膜 `getngEB` / `getFieldDotMaskPointer` | 6 |
+| 绝缘体 PEC 标记 `GetPECInsulator_IsESet` | 5 |
+| 场推进 `EvolveB` / `FillBoundaryB` | 8 |
+| 边界应用 `SetElectricFieldAndApplyBCs` | 4 |
+| 粒子保存/恢复 `SaveParticlesAtImplicitStepStart` | 4 |
+| 诊断 `reduced_diags` | 3 |
+| FDTD 求解器指针 `get_pointer_fdtd_solver_fp` | 3 |
+
+结论：要拆隐式求解器，先要在核心定义一组"内核服务"契约（场推进、边界、粒子快照、EB 掩膜、诊断），
+再由内核插件实现。这是 S5b 的正式内容，排在可拆分求解器落地之后。
