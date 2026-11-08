@@ -37,7 +37,6 @@
 #include <Utils/WarpXAlgorithmSelection.H>
 #include <Utils/WarpXConst.H>
 #include <Utils/WarpXUtil.H>
-#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 
@@ -247,13 +246,15 @@ void init_WarpX (py::module& m)
                std::string potential_lo_y, std::string potential_hi_y,
                std::string potential_lo_z, std::string potential_hi_z)
             {
-                if (potential_lo_x != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_xlo_str = potential_lo_x;
-                if (potential_hi_x != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_xhi_str = potential_hi_x;
-                if (potential_lo_y != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_ylo_str = potential_lo_y;
-                if (potential_hi_y != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_yhi_str = potential_hi_y;
-                if (potential_lo_z != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_zlo_str = potential_lo_z;
-                if (potential_hi_z != "") wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->potential_zhi_str = potential_hi_z;
-                wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->BuildParsers();
+                // The concrete Poisson handler is a solver detail; the core
+                // contract exposes the boundary-potential strings (S6).
+                auto& solver = wx.GetElectrostaticSolver();
+                solver.setPotentialBoundaryString(0, false, potential_lo_x);
+                solver.setPotentialBoundaryString(0, true,  potential_hi_x);
+                solver.setPotentialBoundaryString(1, false, potential_lo_y);
+                solver.setPotentialBoundaryString(1, true,  potential_hi_y);
+                solver.setPotentialBoundaryString(2, false, potential_lo_z);
+                solver.setPotentialBoundaryString(2, true,  potential_hi_z);
             },
             py::arg("potential_lo_x") = "",
             py::arg("potential_hi_x") = "",

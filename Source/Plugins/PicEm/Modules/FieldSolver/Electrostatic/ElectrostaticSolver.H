@@ -159,6 +159,8 @@ public:
     [[nodiscard]] const ablastr::fields::MLMGOptions& mlmgOptions () const override
     { return m_mlmg_options; }
 
+    void setPotentialBoundaryString (int axis, bool high, const std::string& value) override;
+
     std::unique_ptr<PoissonBoundaryHandler> m_poisson_boundary_handler;
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 

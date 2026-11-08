@@ -3,5 +3,6 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_picem_${SD}
       PRIVATE
         MacroscopicProperties.cpp
+        MacroscopicPropertiesFactory.cpp
     )
 endforeach()

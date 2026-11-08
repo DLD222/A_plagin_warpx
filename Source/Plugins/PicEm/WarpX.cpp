@@ -22,9 +22,6 @@
 #include "BoundaryConditions/PML.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
-#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #ifdef WARPX_USE_FFT
 #   include "FieldSolver/PSATD/SpectralKSpace.H"
@@ -454,8 +451,13 @@ WarpX::WarpX ()
     m_level_resources.resize(nlevs_max);
 
     if (m_em_solver_medium == MediumForEM::Macroscopic) {
-        // create object for macroscopic solver
-        m_macroscopic_properties = std::make_unique<MacroscopicProperties>();
+        // Create the material model through the core factory: the kernel does
+        // not name the concrete implementation (S6).
+        m_macroscopic_properties = warpx::runtime::create_macroscopic_properties();
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            m_macroscopic_properties != nullptr,
+            "No material-model plugin is linked: build with "
+            "WarpX_PLUGIN_FIELDSOLVER=ON to use a macroscopic medium.");
     }
 
     // Set default values for particle and cell weights for costs update;
@@ -3913,9 +3915,6 @@ WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
 
 warpx::runtime::IParticleContainerAccess&
 WarpX::GetPartContainerAccess () { return *mypc; }
-
-ElectrostaticSolver* WarpX::GetElectrostaticSolverConcrete ()
-{ return dynamic_cast<ElectrostaticSolver*>(m_electrostatic_solver.get()); }
 
 void WarpX::DefineImplicitSolver (bool from_restart)
 {

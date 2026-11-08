@@ -4,6 +4,8 @@
 #include <ablastr/fields/MultiFabRegister.H>
 #include "Runtime/ParticleContext.H"
 
+#include <string>
+
 #include <AMReX_Geometry.H>
 #include <array>
 #include <optional>
@@ -32,6 +34,9 @@ public:
     //! MLMG options used when solving for phi (generic accessor: callers must
     //! not need the concrete solver type).
     [[nodiscard]] virtual const ablastr::fields::MLMGOptions& mlmgOptions () const = 0;
+    //! Set the potential on a domain boundary (axis, high/low side) and rebuild
+    //! the parsers; an empty string leaves that boundary unchanged.
+    virtual void setPotentialBoundaryString (int axis, bool high, const std::string& value) = 0;
 };
 
 /**

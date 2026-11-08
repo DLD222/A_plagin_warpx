@@ -1327,7 +1327,7 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
         m_fields.get_alldirs(FieldType::Bfield_fp, lev),
         m_fields.get_alldirs(FieldType::current_fp, lev),
         m_eb_update_E_fp[lev],
-        a_dt, m_macroscopic_properties);
+        a_dt, *m_macroscopic_properties);
     // D (safety net): with the node-layout exponential step every node is written in
     // its own component layout, so both grid copies already agree and this should be a
     // no-op. It is kept as a guard: if E6/V1 ever change when this is added, there is a

@@ -46,13 +46,20 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
     ablastr::fields::VectorField const& Jfield,
     std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
     amrex::Real const dt,
-    std::unique_ptr<MacroscopicProperties> const& macroscopic_properties)
+    warpx::runtime::IMacroscopicProperties& macroscopic_properties_contract)
 {
+    // Plugin-internal narrowing: the contract above is what the core and the
+    // kernel see; this solver owns the concrete material implementation.
+    auto* macroscopic_properties =
+        dynamic_cast<MacroscopicProperties*>(&macroscopic_properties_contract);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        macroscopic_properties != nullptr,
+        "MacroscopicEvolveE expects the material model of this plugin");
 
     // Select algorithm (The choice of algorithm is a runtime option,
     // but we compile code for each algorithm, using templates)
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-    amrex::ignore_unused(macroscopic_solver_algo, Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
+    amrex::ignore_unused(macroscopic_solver_algo, Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
 
     WARPX_ABORT_WITH_MESSAGE("currently macro E-push does not work for RZ");
 #else
@@ -68,13 +75,13 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::LaxWendroff) {
 
             MacroscopicEvolveECartesian <CartesianYeeAlgorithm, LaxWendroffAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
 
         }
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::BackwardEuler) {
 
             MacroscopicEvolveECartesian <CartesianYeeAlgorithm, BackwardEulerAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
 
         }
 
@@ -85,12 +92,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::LaxWendroff) {
 
             MacroscopicEvolveECartesian <CartesianCKCAlgorithm, LaxWendroffAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
 
         } else if (macroscopic_solver_algo == MacroscopicSolverAlgo::BackwardEuler) {
 
             MacroscopicEvolveECartesian <CartesianCKCAlgorithm, BackwardEulerAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
 
         }
 
@@ -112,8 +119,15 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
     ablastr::fields::VectorField const& Jfield,
     std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
     amrex::Real const dt,
-    std::unique_ptr<MacroscopicProperties> const& macroscopic_properties)
+    warpx::runtime::IMacroscopicProperties& macroscopic_properties_contract)
 {
+    // Plugin-internal narrowing: the contract above is what the core and the
+    // kernel see; this solver owns the concrete material implementation.
+    auto* macroscopic_properties =
+        dynamic_cast<MacroscopicProperties*>(&macroscopic_properties_contract);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        macroscopic_properties != nullptr,
+        "MacroscopicEvolveE expects the material model of this plugin");
     amrex::MultiFab& sigma_mf = macroscopic_properties->getsigma_mf();
     amrex::MultiFab& epsilon_mf = macroscopic_properties->getepsilon_mf();
     amrex::MultiFab& mu_mf = macroscopic_properties->getmu_mf();

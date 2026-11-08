@@ -249,7 +249,7 @@ void FiniteDifferenceSolver::EvolveECartesianECT (
     ablastr::fields::VectorField const& Jfield,
     std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
     int lev, amrex::Real const dt,
-    std::unique_ptr<MacroscopicProperties> const& macroscopic_properties )
+    warpx::runtime::IMacroscopicProperties* macroscopic_properties )
 {
     using warpx::fields::FieldType;
 
@@ -271,18 +271,24 @@ void FiniteDifferenceSolver::EvolveECartesianECT (
     // vacuum permittivity from mu0 and c2 (PhysConst does not expose ep0 here)
     constexpr amrex::Real epsilon0 = amrex::Real(1.0)/(PhysConst::mu0*PhysConst::c2);
     bool const has_macro = (macroscopic_properties != nullptr);
+    // Plugin-internal narrowing: the interface above is what the core and the
+    // kernel see, the staggered index types are this implementation's detail.
+    auto* macro = dynamic_cast<MacroscopicProperties*>(macroscopic_properties);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        !has_macro || macro != nullptr,
+        "EvolveECartesianECT expects the material model of this plugin");
     // The material MultiFabs are cell-centred; the E components live on staggered
     // positions, so epsilon/sigma must be interpolated exactly as
     // MacroscopicEvolveECartesian does (ablastr::coarsen::sample::Interp).
     amrex::GpuArray<int,3> eps_stag{}, sig_stag{}, mu_stag{}, Ex_stag{}, Ey_stag{}, Ez_stag{}, macro_cr{};
     if (has_macro) {
-        eps_stag  = macroscopic_properties->epsilon_IndexType;
-        mu_stag   = macroscopic_properties->mu_IndexType;
-        sig_stag  = macroscopic_properties->sigma_IndexType;
-        Ex_stag   = macroscopic_properties->Ex_IndexType;
-        Ey_stag   = macroscopic_properties->Ey_IndexType;
-        Ez_stag   = macroscopic_properties->Ez_IndexType;
-        macro_cr  = macroscopic_properties->macro_cr_ratio;
+        eps_stag  = macro->epsilon_IndexType;
+        mu_stag   = macro->mu_IndexType;
+        sig_stag  = macro->sigma_IndexType;
+        Ex_stag   = macro->Ex_IndexType;
+        Ey_stag   = macro->Ey_IndexType;
+        Ez_stag   = macro->Ez_IndexType;
+        macro_cr  = macro->macro_cr_ratio;
     }
     amrex::MultiFab const* eps_mf = has_macro ? &macroscopic_properties->getepsilon_mf() : nullptr;
     amrex::MultiFab const* sigma_mf = has_macro ? &macroscopic_properties->getsigma_mf() : nullptr;

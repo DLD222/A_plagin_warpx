@@ -75,19 +75,19 @@ public:
         const amrex::IntVect& Ez_stag);
 
     /** return MultiFab, sigma (conductivity) of the medium. */
-    amrex::MultiFab& getsigma_mf  () {return (*m_sigma_mf);}
+    amrex::MultiFab& getsigma_mf  () override {return (*m_sigma_mf);}
     /** return MultiFab, epsilon (permittivity) of the medium. */
-    amrex::MultiFab& getepsilon_mf  () {return (*m_eps_mf);}
-    amrex::MultiFab& get_eps_node_mf (int c) {return (*m_eps_node[c]);}
+    amrex::MultiFab& getepsilon_mf  () override {return (*m_eps_mf);}
+    amrex::MultiFab& get_eps_node_mf (int c) override {return (*m_eps_node[c]);}
     amrex::MultiFab& get_sigma_m1_node_mf (int c) {return (*m_m1_node[c]);}
     amrex::MultiFab& get_sigma_m2_node_mf (int c) {return (*m_m2_node[c]);}
     amrex::MultiFab& get_sigma_node_mf (int c) {return (*m_sigma_node[c]);}
     amrex::MultiFab& get_eps_inv_node_mf (int c) {return (*m_eps_inv_node[c]);}
     amrex::MultiFab& get_j0_node_mf (int c) {return (*m_j0_node[c]);}
     amrex::MultiFab& get_j1_node_mf (int c) {return (*m_j1_node[c]);}
-    amrex::MultiFab& get_jcond_mf (int c) {return (*m_jcond[c]);}
+    amrex::MultiFab& get_jcond_mf (int c) override {return (*m_jcond[c]);}
     /** return MultiFab, mu (permeability) of the medium. */
-    amrex::MultiFab& getmu_mf  () {return (*m_mu_mf);}
+    amrex::MultiFab& getmu_mf  () override {return (*m_mu_mf);}
 
     /** Inverse-permittivity rows at the E-component locations (Meep chi1inv scheme).
      *  Component `d` of `m_eps_inv_x` holds (eps^-1)_{d,x} at the Ex staggering;
@@ -99,7 +99,7 @@ public:
     amrex::MultiFab& geteps_inv_y_mf () {return (*m_eps_inv_y);}
     amrex::MultiFab& geteps_inv_z_mf () {return (*m_eps_inv_z);}
     /** true when the subpixel rows were allocated (kernel can use them) */
-    bool has_subpixel_rows () const {return m_subpixel;}
+    bool has_subpixel_rows () const override {return m_subpixel;}
     /** M1 = exp(-eps^-1 sigma dt) and M2 = (1-exp(-A dt)) A^-1 eps^-1, stored as
      *  9 components each on a cell-centred MultiFab. Filled only where sigma > 0;
      *  sigma = 0 cells fall back to the plain Yee branch (bit-for-bit). */
@@ -109,9 +109,9 @@ public:
     amrex::Real get_sigma_dt () const {return m_sigma_dt;}
     /** Per-instance (not process-static) seed flag for rho_medium; a second run in the
      *  same process must re-seed. */
-    bool rho_medium_seeded () const {return m_rho_medium_seeded;}
-    void set_rho_medium_seeded () {m_rho_medium_seeded = true;}
-    int& gauss_check_step () {return m_gauss_check_step;}
+    bool rho_medium_seeded () const override {return m_rho_medium_seeded;}
+    void set_rho_medium_seeded () override {m_rho_medium_seeded = true;}
+    int& gauss_check_step () override {return m_gauss_check_step;}
     /** Fill the three rows from the scalar eps (diagonal) and, if an EB level set is
      *  available, apply the Kottke normal/tangential averaging. Called after InitEB. */
     /** Second material permittivity. Together with `macroscopic.interface_function(x,y,z)`
@@ -147,9 +147,9 @@ public:
     bool has_sigma_tensor_mf () const {return m_sigma_tensor_mf != nullptr;}
     /** Cell-centred anisotropic permittivity tensors (6 comps each), filled from the
      *  per-component parsers in InitData (constant or (x,y,z) function). */
-    amrex::MultiFab& get_eps_tensor_mf () {return (*m_eps_tensor_mf);}
+    amrex::MultiFab& get_eps_tensor_mf () override {return (*m_eps_tensor_mf);}
     amrex::MultiFab& get_eps2_tensor_mf () {return (*m_eps2_tensor_mf);}
-    bool has_eps_tensor_mf () const {return m_eps_tensor_mf != nullptr;}
+    bool has_eps_tensor_mf () const override {return m_eps_tensor_mf != nullptr;}
     bool has_eps2_tensor_mf () const {return m_eps2_tensor_mf != nullptr;}
 
     void InitSubpixelRows ( const amrex::Geometry& geom,

@@ -25,7 +25,7 @@
 #   include "EmbeddedBoundary/EmbeddedBoundaryInit.H"
 #endif
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
+#include "Runtime/IMacroscopicProperties.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Filter/BilinearFilter.H"

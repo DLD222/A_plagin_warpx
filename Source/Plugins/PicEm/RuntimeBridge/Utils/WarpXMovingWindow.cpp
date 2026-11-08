@@ -19,7 +19,7 @@
 #include "Fluids/WarpXFluidContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
+#include "Runtime/IMacroscopicProperties.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <ablastr/utils/Communication.H>

@@ -122,7 +122,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
                       ablastr::fields::VectorField const& Jfield,
                       std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
                       amrex::Real dt,
-                      std::unique_ptr<MacroscopicProperties> const& macroscopic_properties);
+                      warpx::runtime::IMacroscopicProperties& macroscopic_properties);
 
         void EvolveBPML (
             ablastr::fields::MultiFabRegister& fields,
@@ -550,7 +550,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             ablastr::fields::VectorField const& Jfield,
             std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
             int lev, amrex::Real dt,
-            std::unique_ptr<MacroscopicProperties> const& macroscopic_properties = nullptr );
+            warpx::runtime::IMacroscopicProperties* macroscopic_properties = nullptr );
 
         template< typename T_Algo >
         void EvolveFCartesian (
@@ -595,7 +595,7 @@ class FiniteDifferenceSolver : public warpx::runtime::IFiniteDifferenceSolver
             ablastr::fields::VectorField const& Jfield,
             std::array< std::unique_ptr<amrex::iMultiFab>,3 > const& eb_update_E,
             amrex::Real dt,
-            std::unique_ptr<MacroscopicProperties> const& macroscopic_properties);
+            warpx::runtime::IMacroscopicProperties& macroscopic_properties);
 
         template< typename T_Algo >
         void EvolveBPMLCartesian (

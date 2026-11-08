@@ -1,5 +1,6 @@
 #ifndef WARPX_RUNTIME_IFINITEDIFFERENCESOLVER_H_
 #define WARPX_RUNTIME_IFINITEDIFFERENCESOLVER_H_
+#include "Runtime/IMacroscopicProperties.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/utils/Enums.H>
@@ -13,7 +14,6 @@
 
 class FaceInfoBox;
 class MultiSigmaBox;
-class MacroscopicProperties;
 class HybridPICModel;
 
 namespace warpx::runtime {
@@ -55,7 +55,7 @@ public:
         ablastr::fields::VectorField const& Bfield,
         ablastr::fields::VectorField const& Jfield,
         std::array<std::unique_ptr<amrex::iMultiFab>,3> const& eb_update_E,
-        amrex::Real dt, std::unique_ptr<MacroscopicProperties> const& props) = 0;
+        amrex::Real dt, IMacroscopicProperties& props) = 0;
     virtual void EvolveBPML (ablastr::fields::MultiFabRegister& fields,
                             ablastr::utils::enums::PatchType patch_type,
                             int level, amrex::Real dt, bool dive_cleaning) = 0;

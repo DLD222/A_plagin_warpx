@@ -21,7 +21,7 @@
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel_fwd.H"
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
+#include "Runtime/IMacroscopicProperties.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/IImplicitSolver.H"
 #include "Filter/NCIGodfreyFilter_fwd.H"
@@ -193,7 +193,6 @@ public:
     warpx::runtime::IParticleContainerAccess& GetPartContainerAccess ();
     MultiFluidContainer& GetFluidContainer () { return *myfl; }
     warpx::runtime::IElectrostaticSolver& GetElectrostaticSolver () {return *m_electrostatic_solver;}
-    ElectrostaticSolver* GetElectrostaticSolverConcrete ();
     [[nodiscard]] HybridPICModel * get_pointer_HybridPICModel () const { return m_hybrid_pic_model.get(); }
     /** Return the implicit solver, or nullptr when the evolve scheme is explicit */
     [[nodiscard]] warpx::runtime::IImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
@@ -1608,13 +1607,13 @@ private:
     bool m_verboncoeur_axis_correction = true;
 
     // Macroscopic properties
-    std::unique_ptr<MacroscopicProperties> m_macroscopic_properties;
+    std::unique_ptr<warpx::runtime::IMacroscopicProperties> m_macroscopic_properties;
 
 public:
-    [[nodiscard]] MacroscopicProperties* get_pointer_MacroscopicProperties () {
+    [[nodiscard]] warpx::runtime::IMacroscopicProperties* get_pointer_MacroscopicProperties () {
         return m_macroscopic_properties.get();
     }
-    [[nodiscard]] const MacroscopicProperties* get_pointer_MacroscopicProperties () const {
+    [[nodiscard]] const warpx::runtime::IMacroscopicProperties* get_pointer_MacroscopicProperties () const {
         return m_macroscopic_properties.get();
     }
 private:

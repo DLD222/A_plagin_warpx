@@ -612,3 +612,18 @@ ElectrostaticSolver::host () const
     auto& legacy = warpx::runtime::legacy_host_services();
     return legacy;
 }
+
+void
+ElectrostaticSolver::setPotentialBoundaryString (int axis, bool high, const std::string& value)
+{
+    if (m_poisson_boundary_handler == nullptr || value.empty()) { return; }
+    auto& ph = *m_poisson_boundary_handler;
+    if (axis == 0) {
+        if (high) { ph.potential_xhi_str = value; } else { ph.potential_xlo_str = value; }
+    } else if (axis == 1) {
+        if (high) { ph.potential_yhi_str = value; } else { ph.potential_ylo_str = value; }
+    } else {
+        if (high) { ph.potential_zhi_str = value; } else { ph.potential_zlo_str = value; }
+    }
+    ph.BuildParsers();
+}

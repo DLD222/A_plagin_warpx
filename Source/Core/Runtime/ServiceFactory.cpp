@@ -11,6 +11,7 @@
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
+#include "Runtime/IMacroscopicProperties.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/IReducedDiagsService.H"
@@ -32,6 +33,7 @@ struct Registry
     CollisionHandlerFactory collision = nullptr;
     ElectrostaticSolverFactory electrostatic = nullptr;
     FiniteDifferenceSolverFactory finite_difference = nullptr;
+    MacroscopicPropertiesFactory macroscopic = nullptr;
 };
 
 Registry& registry ()
@@ -121,6 +123,25 @@ create_finite_difference_solver (ElectromagneticSolverAlgo algo,
 {
     if (registry().finite_difference == nullptr) { return nullptr; }
     return registry().finite_difference(algo, cell_size, grid_type, context);
+}
+
+void
+register_macroscopic_properties_factory (MacroscopicPropertiesFactory factory)
+{
+    registry().macroscopic = factory;
+}
+
+bool
+has_macroscopic_properties_factory ()
+{
+    return registry().macroscopic != nullptr;
+}
+
+std::unique_ptr<IMacroscopicProperties>
+create_macroscopic_properties ()
+{
+    if (registry().macroscopic == nullptr) { return nullptr; }
+    return registry().macroscopic();
 }
 
 void

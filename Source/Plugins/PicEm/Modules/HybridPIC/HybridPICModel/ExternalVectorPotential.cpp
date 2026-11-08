@@ -9,7 +9,7 @@
 
 #include "WarpX.H"
 #include "ExternalVectorPotential.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "Initialization/DivCleaner/ProjectionDivCleaner.H"
 #include "Fields.H"
 
