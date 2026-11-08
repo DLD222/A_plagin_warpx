@@ -49,6 +49,8 @@ public:
     void computeDivE (amrex::MultiFab& divE, int lev) override;
 
     void depositCurrent (int lev, amrex::Real dt) override;
+    void depositCharge (ablastr::fields::MultiLevelScalarField const& rho,
+                        amrex::Real relative_time) override;
     [[nodiscard]] std::unique_ptr<amrex::MultiFab>
     computeRho (int lev, int species_index, bool apply_rz_psatd_filter) override;
     std::unique_ptr<amrex::MultiFab>

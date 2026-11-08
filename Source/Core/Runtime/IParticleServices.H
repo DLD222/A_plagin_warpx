@@ -11,6 +11,9 @@ class IParticleServices {
 public:
     virtual ~IParticleServices () = default;
     virtual void depositCurrent (int, amrex::Real) = 0;
+    //! Deposit charge from every species into `rho` (MPC-level operation).
+    virtual void depositCharge (ablastr::fields::MultiLevelScalarField const& rho,
+                                amrex::Real relative_time) = 0;
     virtual std::unique_ptr<amrex::MultiFab> computeRho (int, int, bool) = 0;
     virtual std::unique_ptr<amrex::MultiFab> computeRho (int lev, int species, bool filter,
                                                          int ncomp, const amrex::IntVect& nodal,

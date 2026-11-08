@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| D1-a 第 4 批（静电求解器契约） | **完成** | 新增核心 `ParticleContext`（通用访问 + 粒子服务）与 `IParticleServices::depositCharge`；`IElectrostaticSolver::ComputeSpaceChargeField` 不再接收具体多粒子容器，改为接收 `ParticleContext`；四个求解器实现同步；具体容器只在插件内部做一次显式窄化（带断言）；核心纯度清单 3 → **2**（只剩加速器元件与迭代器自身） |
 | D1-a 第 3 批（契约去具体类型） | **完成** | `IParticleContainerAccess` 不再暴露具体容器迭代器/容器向量，改为按索引访问 + `initializesSelfFields(i)` 通用查询；两处 range-for 消费方改为通用循环；`RuntimeData` 删除无用的具体容器前向声明；核心纯度清单从 5 降到 **3**（剩余：加速器元件、迭代器自身、静电求解器参数） |
 | D1-a 第 2 批（纯度棘轮） | **完成** | `GetExternalEBField` 构造改为对迭代器类型模板化（核心不再指名具体迭代器）；`FilterFunctors` 的 `SuperParticleType` 改用通用容器类型；新增 `check_core_purity.py` + 允许清单：核心中「具体粒子类／迭代器／WarpX 单例」的引用必须登记，新增即失败；当前真实引用从 8 降到 **5**，且清单只能减不能增 |
 | D1-a 第 1 批的收尾 | **完成** | 首次提交只完成了一部分（`git mv` 链在 `ShapeFactors` 处中断），`IParticleIterator` 与三个别名契约实际仍留在 Core；本次补齐并核对：Core 侧 18 个粒子头中，仅 4 个仍引用具体类型（`WarpXParIter`、`ParticleIO`、`GetExternalFields`、`FilterFunctors`），这 4 个被诊断插件使用，需先换通用契约才能搬迁 |

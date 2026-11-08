@@ -3,4 +3,3 @@
 # the checker fails when a new reference appears that is not listed here.
 Source/Core/Modules/AcceleratorLattice/LatticeElementFinder.H|WarpXParIter
 Source/Core/Modules/Particles/WarpXParIter.H|WarpXParIter
-Source/Core/Runtime/IElectrostaticSolver.H|MultiParticleContainer

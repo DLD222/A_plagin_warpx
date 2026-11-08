@@ -23,7 +23,7 @@ public:
 
     void ComputeSpaceChargeField (
         ablastr::fields::MultiFabRegister& fields,
-        MultiParticleContainer& mpc,
+        warpx::runtime::ParticleContext const& particles,
         MultiFluidContainer* mfl,
         int max_level,
         bool verbose_step) override;

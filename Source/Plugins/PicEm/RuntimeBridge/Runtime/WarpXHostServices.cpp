@@ -74,6 +74,13 @@ WarpXHostServices::depositCurrent (int lev, amrex::Real dt)
         PatchType::fine);
 }
 
+void
+WarpXHostServices::depositCharge (ablastr::fields::MultiLevelScalarField const& rho,
+                                 amrex::Real relative_time)
+{
+    m_warpx.GetPartContainer().DepositCharge(rho, relative_time);
+}
+
 std::unique_ptr<amrex::MultiFab>
 WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_filter)
 {

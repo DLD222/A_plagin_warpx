@@ -25,7 +25,7 @@ void LabFrameExplicitES::InitData() {
 
 void LabFrameExplicitES::ComputeSpaceChargeField (
     ablastr::fields::MultiFabRegister& fields,
-    MultiParticleContainer& mpc,
+    warpx::runtime::ParticleContext const& particles,
     MultiFluidContainer* mfl,
     int max_level,
     bool verbose_step)
@@ -42,7 +42,7 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     const MultiLevelVectorField Efield_fp = fields.get_mr_levels_alldirs(FieldType::Efield_fp, max_level);
 
     ExecutePythonCallback("beforedeposition");
-    mpc.DepositCharge(rho_fp, 0.0_rt);
+    particles.services->depositCharge(rho_fp, 0.0_rt);
     if (mfl) {
         const int lev = 0;
         mfl->DepositCharge(fields, *rho_fp[lev], lev);

@@ -1301,6 +1301,10 @@ private:
     void RunRegridStage (int step);
     void FlushDiagnostics (int step);
     void RunFieldSolveStage (amrex::Real a_cur_time);
+
+    //! Particle access + services handed to plugin-facing calls (D1-a: no
+    //! concrete container crosses a core contract).
+    warpx::runtime::ParticleContext particleContext();
     void OneStep_PushParticles (amrex::Real a_cur_time, amrex::Real a_dt, int a_step);
     void OneStep_FinalizeDeposition ();
     void OneStep_FieldSolve (amrex::Real a_cur_time);

@@ -35,7 +35,7 @@ void RelativisticExplicitES::InitData () {
 
 void RelativisticExplicitES::ComputeSpaceChargeField (
     ablastr::fields::MultiFabRegister& fields,
-    MultiParticleContainer& mpc,
+    warpx::runtime::ParticleContext const& particles,
     [[maybe_unused]] MultiFluidContainer* mfl,
     int max_level,
     bool verbose_step)
@@ -53,8 +53,14 @@ void RelativisticExplicitES::ComputeSpaceChargeField (
     // Loop over the species and add their space-charge contribution to E and B.
     // Note that the fields calculated here does not include the E field
     // due to simulation boundary potentials
-    for (auto const& species : mpc) {
-        if (always_run_solve || (species->initialize_self_fields)) {
+    auto& access = *particles.access;
+    for (int ispecies = 0; ispecies < access.nSpecies(); ++ispecies) {
+        // Plugin-internal narrowing: this solver owns the concrete container
+        // implementation, the core contract above only sees the interface.
+        auto* species = dynamic_cast<WarpXParticleContainer*>(&access.GetParticleContainer(ispecies));
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(species != nullptr,
+            "RelativisticExplicitES expects the PicEm particle container implementation");
+        if (always_run_solve || access.initializesSelfFields(ispecies)) {
             int const verbosity = verbose_step ? species->self_fields_verbosity : 0;
             AddSpaceChargeField(*species, Efield_fp, Bfield_fp, verbosity);
         }

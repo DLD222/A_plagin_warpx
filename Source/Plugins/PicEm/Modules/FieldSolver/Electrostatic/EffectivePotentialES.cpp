@@ -38,7 +38,7 @@ void EffectivePotentialES::InitData() {
 
 void EffectivePotentialES::ComputeSpaceChargeField (
     ablastr::fields::MultiFabRegister& fields,
-    [[maybe_unused]] MultiParticleContainer& mpc,
+    [[maybe_unused]] warpx::runtime::ParticleContext const& particles,
     [[maybe_unused]] MultiFluidContainer* mfl,
     int max_level,
     bool verbose_step)

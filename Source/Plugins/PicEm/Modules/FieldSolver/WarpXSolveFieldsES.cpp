@@ -11,7 +11,29 @@
 #include "Fields.H"
 #include "WarpX.H"
 
+#include "Runtime/HostServices.H"
+#include "Runtime/IParticleServices.H"
+#include "Runtime/ParticleContext.H"
+#include "Runtime/RuntimeContext.H"
+#include "Runtime/WarpXHostServices.H"
+#include "Runtime/WarpXRuntimeData.H"
+
 #include <ablastr/profiler/ProfilerWrapper.H>
+
+warpx::runtime::ParticleContext
+WarpX::particleContext ()
+{
+    if (const auto* ctx = GetRuntimeContext(); ctx != nullptr && ctx->data != nullptr &&
+        ctx->host != nullptr) {
+        return {&ctx->data->particleAccess(), &ctx->host->particleServices()};
+    }
+    if (!m_legacy_host) {
+        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(*this);
+        m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(*this);
+        m_legacy_config = std::make_unique<warpx::runtime::RuntimeConfig>();
+    }
+    return {&m_legacy_data->particleAccess(), &m_legacy_host->particleServices()};
+}
 
 void WarpX::ComputeSpaceChargeField (bool const reset_E_field, bool const reset_B_field,
                                      bool const verbose_step)
@@ -33,5 +55,5 @@ void WarpX::ComputeSpaceChargeField (bool const reset_E_field, bool const reset_
     }
 
     m_electrostatic_solver->ComputeSpaceChargeField(
-        m_fields, *mypc, myfl.get(), max_level, verbose_step);
+        m_fields, particleContext(), myfl.get(), max_level, verbose_step);
 }
