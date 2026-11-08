@@ -8,7 +8,7 @@
 #ifndef WARPX_SOURCE_EMBEDDEDBOUNDARY_WARPXFACEINFOBOX_H
 #define WARPX_SOURCE_EMBEDDEDBOUNDARY_WARPXFACEINFOBOX_H
 
-#include "WarpXFaceInfoBox_fwd.H"
+#include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 
 #include <AMReX_Gpu.H>
 #include <AMReX_BaseFab.H>

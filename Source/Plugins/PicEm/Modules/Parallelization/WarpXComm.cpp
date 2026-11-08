@@ -17,7 +17,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "WarpXComm_K.H"
-#include "WarpXSumGuardCells.H"
+#include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/fields/MultiFabRegister.H>

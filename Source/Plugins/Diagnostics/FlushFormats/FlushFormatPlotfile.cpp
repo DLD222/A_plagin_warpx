@@ -6,7 +6,6 @@
 #include "Fields.H"
 #include "Diagnostics/MultiDiagnostics.H"
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
-#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Modules/Particles/Filter/FilterFunctors.H"
 #include "Modules/Particles/ParticleIO.H"
 #include "Modules/Particles/ParticleTileIter.H"

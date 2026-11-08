@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "WarpXSumGuardCells.H"
+#include "Parallelization/WarpXSumGuardCells.H"
 
 #include "Utils/WarpXAlgorithmSelection.H"
 

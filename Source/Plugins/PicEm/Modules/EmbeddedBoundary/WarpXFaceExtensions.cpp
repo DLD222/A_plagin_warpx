@@ -5,7 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "WarpXFaceInfoBox.H"
+#include "EmbeddedBoundary/WarpXFaceInfoBox.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "Utils/TextMsg.H"

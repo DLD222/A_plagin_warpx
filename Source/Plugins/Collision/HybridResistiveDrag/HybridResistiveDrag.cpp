@@ -11,7 +11,6 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Fields.H"
-#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Modules/Particles/Gather/FieldGather.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Modules/Particles/IParticleIterator.H"

@@ -30,7 +30,6 @@
 
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #ifdef WARPX_QED
-#include "Particles/ElementaryProcess/VirtualPhotonCreation.H"
 #endif
 #include <AMReX_ParmParse.H>
 
