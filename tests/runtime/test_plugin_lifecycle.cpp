@@ -116,8 +116,19 @@ int main (int argc, char* argv[])
 
     auto probe = std::make_shared<ProbePlugin>();
     runtime.plugins().add_plugin(probe);
-    check(runtime.plugins().plugin_count() == 2,
-          "PicEm manifest plus the probe plugin are registered");
+    // PicEm, the probe, and the collision handler's state bridge (the kernel
+    // owns that handler, so it contributes a lifecycle object of its own).
+    bool probe_registered = false;
+    bool picem_registered = false;
+    bool collision_bridge = false;
+    for (const auto& manifest : runtime.plugins().manifests()) {
+        probe_registered = probe_registered || manifest.name == "probe";
+        picem_registered = picem_registered || manifest.name == "picem";
+        collision_bridge = collision_bridge || manifest.name == "collision_state";
+    }
+    check(probe_registered, "the probe plugin is registered");
+    check(picem_registered, "the PicEm manifest is registered");
+    check(collision_bridge, "the collision state bridge is registered");
 
     bool duplicate_rejected = false;
     try {

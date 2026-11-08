@@ -117,8 +117,13 @@ public:
                 // Register access is mutable by design (allocate a field); the
                 // reference is const only because the collision context is.
                 auto& fields = const_cast<warpx::runtime::RuntimeData&>(data).fields();
-                fields.alloc_init(m_particle_production_mf_name, lev, ba, dmap, ncomps, ng,
-                                  initial_value, remake, redistribute_on_remake, checkpoint_restart);
+                // The core may already own this field because the plugin
+                // declared it at schema time (preferred path); only allocate
+                // when it is genuinely absent.
+                if (!fields.has(m_particle_production_mf_name, lev)) {
+                    fields.alloc_init(m_particle_production_mf_name, lev, ba, dmap, ncomps, ng,
+                                      initial_value, remake, redistribute_on_remake, checkpoint_restart);
+                }
             }
         }
     }

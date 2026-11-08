@@ -10,12 +10,16 @@ class HostServices;
 class IParticleContainerAccess;
 class RuntimeConfig;
 class RuntimeData;
+class StateRegistry;
 /** Collision plugin boundary (A7.2.2). */
 class ICollisionHandler
 {
 public:
     virtual ~ICollisionHandler () = default;
     virtual void AllocData () = 0;
+    //! Declare the state this handler needs (S4): the core allocates it with
+    //! the levels, so diagnostics can already see the names.
+    virtual void declare_state (StateRegistry& /*state*/) {}
     virtual void doCollisions (int step, amrex::Real cur_time, amrex::Real dt) = 0;
 };
 

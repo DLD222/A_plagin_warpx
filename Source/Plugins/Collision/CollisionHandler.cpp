@@ -124,6 +124,27 @@ CollisionHandler::CollisionHandler(const CollisionSpeciesTable& species,
 
 }
 
+void
+CollisionHandler::declare_state (warpx::runtime::StateRegistry& state)
+{
+    // Production fields must exist before diagnostics resolve field names, so
+    // they are declared here and allocated by the core with the levels (S4).
+    for (const auto& collision_name : collision_names) {
+        const amrex::ParmParse pp(collision_name);
+        int save_production = 0;
+        pp.query("save_particle_production", save_production);
+        if (save_production == 0) { continue; }
+
+        const std::string field_name = collision_name + "_particle_production";
+        warpx::runtime::FieldSpec spec;
+        spec.name = field_name;
+        spec.ncomp = 1;
+        // cell-centred, no ghost cells (FieldSpec defaults already say so)
+        spec.checkpoint = true;
+        state.request_field(spec);
+    }
+}
+
 /* \brief Allocate any data needed for the collision */
 void CollisionHandler::AllocData ()
 {

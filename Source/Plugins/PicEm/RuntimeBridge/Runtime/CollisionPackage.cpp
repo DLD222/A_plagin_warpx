@@ -20,6 +20,9 @@ CollisionPackage::register_handler (PluginHost& host, warpx::runtime::ICollision
     // handler instead of one that throws when invoked.
     if (handler == nullptr) { return; }
     host.add(std::make_shared<CollisionHandlerAdapter>(handler));
+    // The handler is created by the kernel, not by a plugin entry: give its
+    // state declarations a place in the schema phase (S4).
+    host.add_plugin(std::make_shared<CollisionStatePlugin>(handler));
 }
 
 } // namespace warpx::runtime

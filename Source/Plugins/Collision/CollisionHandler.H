@@ -8,6 +8,7 @@
 #define WARPX_PARTICLES_COLLISION_COLLISIONHANDLER_H_
 
 #include "Runtime/ICollisionHandler.H"
+#include "Runtime/StateRegistry.H"
 
 #include "CollisionBase.H"
 #include "CollisionSpeciesTable.H"
@@ -37,6 +38,7 @@ public:
 
     /* Allocate data needed for collision */
     void AllocData () override;
+    void declare_state (warpx::runtime::StateRegistry& state) override;
 
     [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
 
