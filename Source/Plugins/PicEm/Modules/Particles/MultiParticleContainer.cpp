@@ -32,7 +32,7 @@
 #include "Particles/PhysicalParticleContainer.H"
 #include "Particles/RigidInjectedParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
-#include "SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 #include "Utils/Algorithms/IsIn.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

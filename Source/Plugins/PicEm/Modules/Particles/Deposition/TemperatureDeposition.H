@@ -12,8 +12,8 @@
 
 #include "Particles/Deposition/VarianceAccumulationBuffer.H"
 #include "Particles/Deposition/SharedDepositionUtils.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/ShapeFactors.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/ShapeFactors.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"

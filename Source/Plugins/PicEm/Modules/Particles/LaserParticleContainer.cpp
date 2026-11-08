@@ -11,7 +11,7 @@
 #include "Fields.H"
 #include "Laser/LaserProfiles.H"
 #include "Particles/LaserParticleContainer.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

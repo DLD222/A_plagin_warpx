@@ -34,6 +34,29 @@ for p in PLUGINS.iterdir():
             for other in plugin_names:
                 if other != own and inc.startswith(other + "/"):
                     errors.append(f"Plugin->Plugin: {path.relative_to(ROOT)} includes {inc}")
+# A header that exists under both Core and a plugin with the same relative
+# path is resolved by include order, so the same #include can compile against
+# two different files (ODR hazard).  Fail on duplicates.
+def relative_files(base: Path, prefix: str):
+    root = base / prefix
+    if not root.is_dir():
+        return set()
+    return {str(p.relative_to(base)) for p in root.rglob("*") if p.suffix in (".H", ".h", ".hpp")}
+
+core_headers = relative_files(SRC / "Core", "Modules")
+for plugin_dir in PLUGINS.iterdir():
+    if not plugin_dir.is_dir():
+        continue
+    plugin_headers = relative_files(plugin_dir, "Modules")
+    for rel in sorted(core_headers & plugin_headers):
+        # A one-line forwarder ("#include Modules/<rel>") is an explicit
+        # redirect, not a second definition.
+        forwarder = plugin_dir / rel
+        text = forwarder.read_text(errors="ignore")
+        if f'#include "{rel}"' in text:
+            continue
+        errors.append(f"Duplicate header in Core and {plugin_dir.name}: {rel}")
+
 if errors:
     print("\n".join(errors))
     sys.exit(1)

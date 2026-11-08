@@ -7,6 +7,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "Particles/WarpXParticleContainer.H"
 #include "VelocityCoincidenceThinning.H"
 
 

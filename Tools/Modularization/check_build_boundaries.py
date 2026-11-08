@@ -66,17 +66,18 @@ for layer, base in PLUGIN_DIRS.items():
 root_text = (ROOT / "CMakeLists.txt").read_text()
 layers_match = re.search(r"set\(WARPX_MODULE_LAYERS([^)]*)\)", root_text)
 declared = set(layers_match.group(1).split()) if layers_match else set()
-for layer, prefix in LAYERS.items():
+declared |= set(re.findall(r"list\(APPEND WARPX_MODULE_LAYERS\s+(\w+)\)", root_text))
+for layer in LAYERS:
     if layer not in declared:
         errors.append(f"CMakeLists.txt: layer '{layer}' missing from WARPX_MODULE_LAYERS")
-    if not re.search(r"add_library\(\s*warpx_\$\{_layer\}_\$\{SD\}", root_text):
-        errors.append("CMakeLists.txt: missing the add_library(warpx_${_layer}_${SD}) loop")
-for layer, prefix in LAYERS.items():
-    if not re.search(r"target_sources\(lib_\$\{SD\} PRIVATE[^)]*\$<TARGET_OBJECTS:"
-                     + re.escape(prefix) + r"\$\{SD\}>", root_text, re.S):
-        errors.append(f"CMakeLists.txt: lib_<dim> does not aggregate {prefix}${{SD}} objects")
-if "$<TARGET_OBJECTS:warpx_core_${SD}>" not in root_text:
-    errors.append("CMakeLists.txt: lib_<dim> does not aggregate $<TARGET_OBJECTS:warpx_core_${SD}>")
+if not re.search(r"add_library\(\s*warpx_\$\{_layer\}_\$\{SD\}", root_text):
+    errors.append("CMakeLists.txt: missing the add_library(warpx_${_layer}_${SD}) loop")
+# lib_<dim> must aggregate every active layer through the object list
+if not re.search(r"list\(APPEND _WARPX_LAYER_OBJECTS\s+\$<TARGET_OBJECTS:warpx_\$\{_layer\}_\$\{SD\}>\)",
+                 root_text):
+    errors.append("CMakeLists.txt: module objects are not collected per active layer")
+if not re.search(r"target_sources\(lib_\$\{SD\} PRIVATE \$\{_WARPX_LAYER_OBJECTS\}\)", root_text):
+    errors.append("CMakeLists.txt: lib_<dim> does not aggregate the layer objects")
 
 if errors:
     print("\n".join(errors))

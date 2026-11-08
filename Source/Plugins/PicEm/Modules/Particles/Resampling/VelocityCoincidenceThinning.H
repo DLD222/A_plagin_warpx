@@ -9,10 +9,10 @@
 #ifndef WARPX_VELOCITY_COINCIDENCE_THINNING_H_
 #define WARPX_VELOCITY_COINCIDENCE_THINNING_H_
 
-#include "Particles/Algorithms/KineticEnergy.H"
+#include "Modules/Particles/Algorithms/KineticEnergy.H"
 #include "Resampling.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 
 #include <AMReX_Algorithm.H>
 #include <AMReX_Geometry.H>

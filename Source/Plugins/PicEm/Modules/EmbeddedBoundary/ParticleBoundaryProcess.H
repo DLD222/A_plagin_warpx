@@ -9,8 +9,8 @@
 
 #include "EmbeddedBoundary/DistanceToEB.H"
 #include "Initialization/SampleGaussianFluxDistribution.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"

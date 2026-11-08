@@ -1,4 +1,4 @@
-#include "Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
 
 #include "AcceleratorLattice/AcceleratorLattice.H"
 

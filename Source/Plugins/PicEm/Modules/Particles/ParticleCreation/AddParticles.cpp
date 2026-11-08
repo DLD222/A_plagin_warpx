@@ -15,10 +15,10 @@
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"
 #   include "Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H"
 #endif
-#include "Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 #include "EmbeddedBoundary/Enabled.H"
 #ifdef AMREX_USE_EB

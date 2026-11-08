@@ -10,12 +10,12 @@
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"
 #endif
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
 #include "Particles/PhysicalParticleContainer.H"
 #include "Particles/Pusher/CopyParticleAttribs.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/FrameState.H"

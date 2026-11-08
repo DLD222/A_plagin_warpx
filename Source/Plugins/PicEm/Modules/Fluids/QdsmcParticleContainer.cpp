@@ -16,7 +16,7 @@
 #include "WarpX.H"
 
 #include "Particles/Deposition/ChargeDeposition.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"

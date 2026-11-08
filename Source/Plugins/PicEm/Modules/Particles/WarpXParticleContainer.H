@@ -17,9 +17,9 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 
 #include "Initialization/PlasmaInjector.H"
-#include "Particles/Algorithms/KineticEnergy.H"
+#include "Modules/Particles/Algorithms/KineticEnergy.H"
 #include "Particles/ParticleBoundaries.H"
-#include "SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 #ifdef WARPX_QED
 #    include "ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper_fwd.H"

@@ -8,10 +8,10 @@
  */
 
 #include "Fields.H"
-#include "Particles/ParticleIO.H"
+#include "Modules/Particles/ParticleIO.H"
 
 #include "Runtime/RuntimeData.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/PhysicalParticleContainer.H"
 #include "Particles/LaserParticleContainer.H"

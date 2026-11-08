@@ -14,7 +14,7 @@
 #include "InjectorMomentum.H"
 #include "TemperatureProperties.H"
 #include "VelocityProperties.H"
-#include "Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 #include "InjectorPosition_fwd.H"
 

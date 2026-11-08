@@ -11,7 +11,7 @@
 #include <AMReX_REAL.H>
 #include "Initialization/InjectorDensity.H"
 #include "Initialization/InjectorMomentum.H"
-#include "Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 namespace SpeciesUtils {
 

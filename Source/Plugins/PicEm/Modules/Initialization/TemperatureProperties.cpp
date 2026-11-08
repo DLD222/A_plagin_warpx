@@ -8,7 +8,7 @@
 #include "TemperatureProperties.H"
 
 #include "ExternalField.H"
-#include "Particles/SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"

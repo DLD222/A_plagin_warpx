@@ -4,7 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 
 #include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
@@ -26,7 +26,7 @@ namespace ParticleUtils
     using namespace amrex;
 
     // Define shortcuts for frequently-used type names
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
     using ParticleBins = DenseBins<ParticleTileDataType>;
 
     /* Find the particles and count the particles that are in each cell.

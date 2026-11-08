@@ -9,7 +9,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 
-#include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
+#include "Modules/Particles/Collision/ParticleShufflers.H"
 #include "Particles/ParticleCreation/FilterCopyTransform.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Utils/Parser/ParserUtils.H"

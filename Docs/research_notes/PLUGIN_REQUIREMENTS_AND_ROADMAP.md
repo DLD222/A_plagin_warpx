@@ -384,7 +384,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | A7 项 | 并入 | 说明 |
 |---|---|---|
 | A7.2.1–A7.2.3（诊断/IO 独立、边界检查） | 已完成 | 两个边界检查脚本保留为门 |
-| A7.2.4（粒子能力契约） | **S3 + S5** | 只保留通用契约；具体 tile/工具留在粒子插件（D1-a） |
+| A7.2.4（粒子能力契约） | **S3 + S5** | 只保留通用契约；具体 tile/工具留在粒子插件（D1-a）；2026-11-08 已清掉 11 个 Core/插件重复头（其中 6 个内容已分叉）与 3 个别名式伪契约 |
 | A7.2.5–A7.2.7（内核契约、禁用开关、验收） | **S4** | 由插件清单/能力/生命周期统一承载 |
 | A7.3 ParticleCore 插件 | **S6 第 2 批** | 拆插件在总线与调度就位之后做 |
 | A7.4 FieldSolver 插件 | **S6 第 1 批** | 同上 |
@@ -405,6 +405,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3a 场（插件声明、核心分配/重划/检查点） | **完成** | 核心 `StateRegistry` + `AllocPluginFields`：插件声明拥有的场由核心在每层分配，动态加密后在新层自动创建，并进入 schema 驱动的检查点；`plugin_field_2` 三项断言通过 |
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
+| D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
 | S4a 清单 + 生命周期 + 依赖校验 | **完成** | `PluginManifest`（名字/版本/角色/依赖/能力）+ `IPluginLifecycle`（schema/init/建层/重划/检查点/重启/收尾）；`on_schema` 在 `initialize()` 开头执行（构造后加入的插件也能拿到）、`on_init` 在内核建层后、`on_finalize` 在收尾前且幂等；依赖未满足或重名插件在启动时被拒；PicEm 以 kernel 角色登记清单；`plugin_lifecycle_2` 九项断言通过 |
 | S4d 插件可移除 | **完成** | 新增 `WarpX_PLUGIN_DIAGNOSTICS` / `WarpX_PLUGIN_IO` 构建开关；关闭诊断+IO 后核心与内核仍构建，并可跑完整算例（无诊断输出、无崩溃）；`WarpX::InitFromCheckpoint`/`GetRestartDMap` 从 IO 插件移回 PicEm（它们是 WarpX 成员而非 IO 服务）；默认构建 255 项失败集合不变 |
 | S4c 服务工厂注册表 | **完成** | 诊断/约简诊断/遗留运行时三组工厂改为「插件静态注册、核心查找」：核心没有服务时退回空实现（诊断）或给出可读错误（遗留路径），**插件之间不再互相引用符号**；`service_registry_2` 验证注册、缺失退化、清除后行为 |

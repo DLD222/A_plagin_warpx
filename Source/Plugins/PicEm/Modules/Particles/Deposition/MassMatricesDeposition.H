@@ -9,12 +9,12 @@
 #define WARPX_MASS_MATRICES_DEPOSITION_H_
 
 #include "Particles/Deposition/SharedDepositionUtils.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/Pusher/UpdatePosition.H"
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Gather/GetExternalFields.H"
-#include "Particles/ShapeFactors.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/ShapeFactors.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"

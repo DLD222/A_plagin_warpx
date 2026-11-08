@@ -7,8 +7,8 @@
 #ifndef WARPX_SHAREDDEPOSITIONUTILS_H_
 #define WARPX_SHAREDDEPOSITIONUTILS_H_
 
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/ShapeFactors.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/ShapeFactors.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
 #ifdef WARPX_DIM_RZ

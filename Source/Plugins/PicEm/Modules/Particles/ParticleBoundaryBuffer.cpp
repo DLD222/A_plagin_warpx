@@ -13,8 +13,8 @@
 #include "Particles/ParticleBoundaryBuffer.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/Pusher/UpdatePosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/UpdatePosition.H"
 
 #include <ablastr/particles/NodalFieldGather.H>
 #include <ablastr/profiler/ProfilerWrapper.H>

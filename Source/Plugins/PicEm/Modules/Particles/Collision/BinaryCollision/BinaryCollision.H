@@ -15,7 +15,7 @@
 #include "Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerCollisionFunc.H"
 #include "Particles/Collision/BinaryCollision/LinearCompton/LinearComptonCollisionFunc.H"
 #include "Particles/Collision/BinaryCollision/ParticleCreationFunc.H"
-#include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
+#include "Modules/Particles/Collision/ParticleShufflers.H"
 #include "Particles/Collision/CollisionBase.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Modules/Particles/ParticleCreation/SmartUtils.H"

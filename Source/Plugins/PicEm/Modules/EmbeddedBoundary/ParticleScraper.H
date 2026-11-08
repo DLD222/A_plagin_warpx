@@ -8,7 +8,7 @@
 #define WARPX_PARTICLESCRAPER_H_
 
 #include "EmbeddedBoundary/DistanceToEB.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include <ablastr/particles/NodalFieldGather.H>
 

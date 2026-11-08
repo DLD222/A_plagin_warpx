@@ -4,7 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "SpeciesPhysicalProperties.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 #include "Utils/WarpXConst.H"
 

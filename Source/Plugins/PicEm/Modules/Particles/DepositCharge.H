@@ -8,7 +8,7 @@
 #define ABLASTR_DEPOSIT_CHARGE_H_
 
 #include "ablastr/profiler/ProfilerWrapper.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/Deposition/ChargeDeposition.H"
 #include "ablastr/utils/TextMsg.H"
 

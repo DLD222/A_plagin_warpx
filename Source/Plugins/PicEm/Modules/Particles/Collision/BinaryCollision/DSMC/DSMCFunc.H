@@ -15,7 +15,7 @@
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
+#include "Modules/Particles/Collision/ParticleShufflers.H"
 #include "Particles/Collision/CollisionBase.H"
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"

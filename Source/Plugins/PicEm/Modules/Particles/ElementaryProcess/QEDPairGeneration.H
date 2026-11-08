@@ -8,9 +8,9 @@
 #ifndef WARPX_QED_PAIR_GENERATION_H_
 #define WARPX_QED_PAIR_GENERATION_H_
 
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Gather/GetExternalFields.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "QEDInternals/BreitWheelerEngineWrapper.H"
 
