@@ -405,7 +405,7 @@ WarpX::InitFromCheckpoint ()
     GetPartContainerAccess().Restart(restart_chkfile);
 
     if (m_implicit_solver) {
-        m_implicit_solver->Define(this, /*from_restart=*/true);
+        DefineImplicitSolver(true);
         m_implicit_solver->CreateParticleAttributes();
     }
 

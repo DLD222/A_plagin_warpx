@@ -22,7 +22,7 @@
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
-#include "FieldSolver/Implicit/ImplicitSolver_fwd.H"
+#include "Runtime/IImplicitSolver.H"
 #include "Filter/NCIGodfreyFilter_fwd.H"
 #include "Fluids/MultiFluidContainer_fwd.H"
 #include "Fluids/WarpXFluidContainer_fwd.H"
@@ -195,7 +195,8 @@ public:
     ElectrostaticSolver* GetElectrostaticSolverConcrete ();
     [[nodiscard]] HybridPICModel * get_pointer_HybridPICModel () const { return m_hybrid_pic_model.get(); }
     /** Return the implicit solver, or nullptr when the evolve scheme is explicit */
-    [[nodiscard]] ImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
+    [[nodiscard]] warpx::runtime::IImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
+    void DefineImplicitSolver (bool from_restart = false);
     warpx::runtime::IDiagnosticsService& GetMultiDiags () {return *multi_diags;}
     ParticleBoundaryBuffer& GetParticleBoundaryBuffer () { return *m_particle_boundary_buffer; }
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > >& GetEBUpdateEFlag_fp() { return m_eb_update_E_fp; }
@@ -1895,7 +1896,7 @@ private:
     amrex::Vector<std::unique_ptr<warpx::runtime::IFiniteDifferenceSolver>> m_fdtd_solver_cp;
 
     // implicit solver object
-    std::unique_ptr<ImplicitSolver> m_implicit_solver;
+    std::unique_ptr<warpx::runtime::IImplicitSolver> m_implicit_solver;
 
     //! PSATD JRhom algorithm
     bool m_JRhom = false;

@@ -3901,3 +3901,10 @@ WarpX::GetPartContainerAccess () { return *mypc; }
 
 ElectrostaticSolver* WarpX::GetElectrostaticSolverConcrete ()
 { return dynamic_cast<ElectrostaticSolver*>(m_electrostatic_solver.get()); }
+
+void WarpX::DefineImplicitSolver (bool from_restart)
+{
+    if (m_implicit_solver) {
+        dynamic_cast<ImplicitSolver*>(m_implicit_solver.get())->Define(this, from_restart);
+    }
+}

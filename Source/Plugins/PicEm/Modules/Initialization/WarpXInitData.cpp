@@ -1114,7 +1114,7 @@ WarpX::InitFromScratch ()
 
     if (m_implicit_solver) {
 
-        m_implicit_solver->Define(this,/*from_restart=*/false);
+        DefineImplicitSolver();
         m_implicit_solver->CreateParticleAttributes();
     }
 

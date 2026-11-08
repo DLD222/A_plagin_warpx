@@ -82,7 +82,7 @@ public:
      */
     void ReinitializePETScIfDue (int a_step, bool verbose_step);
 
-    [[nodiscard]] ImplicitOptions const& GetImplicitOptions () const { return m_implicit_options; }
+    [[nodiscard]] const ImplicitOptions& GetImplicitOptions () const override { return m_implicit_options; }
 
     /**
      * \brief Advance fields and particles by one time step using the specified implicit algorithm
