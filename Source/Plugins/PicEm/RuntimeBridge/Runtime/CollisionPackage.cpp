@@ -7,8 +7,8 @@
  */
 #include "Runtime/CollisionPackage.H"
 
-#include "Collision/CollisionHandler.H"
 #include "Runtime/CollisionHandlerAdapter.H"
+#include "Runtime/ICollisionHandler.H"
 
 namespace warpx::runtime
 {

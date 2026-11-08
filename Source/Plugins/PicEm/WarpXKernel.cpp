@@ -1,8 +1,6 @@
 #include "WarpXKernel.H"
 
 #include "Modules/PicEm/PicEmPackage.H"
-#include "Collision/CollisionHandler.H"
-#include "Collision/CollisionSpeciesTable.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/ICollisionHandler.H"
