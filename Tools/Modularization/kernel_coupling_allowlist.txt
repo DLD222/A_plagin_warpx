@@ -1,29 +1,17 @@
-# Kernel coupling still present in trees scheduled for extraction (S6).
+# Kernel coupling still present in solver trees scheduled for extraction (S6).
 # One line per <path>|<token>; the checker fails on anything not listed.
 # This file must shrink every batch.
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/EffectivePotentialES.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/EffectivePotentialES.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/LabFrameExplicitES.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.H|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/RelativisticExplicitES.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/ComputeCurlA.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/ComputeCurlB.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/ComputeGradient.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/ComputeLaplacian.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/EvolveB.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/EvolveE.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/EvolveECTRho.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/ExternalVectorPotential.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/ExternalVectorPotential.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICSolveE.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicEvolveE.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/DarwinLinearFieldOperator.cpp|#include "WarpX.H"
@@ -40,24 +28,6 @@ Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverDOF.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverVec.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Magnetostatic/MagnetostaticSolver.H|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralAlgorithms/PsatdAlgorithmGalileanRZ.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralAlgorithms/PsatdAlgorithmPmlRZ.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralAlgorithms/PsatdAlgorithmRZ.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldData.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldData.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.H|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralSolverRZ.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXImplicitOps.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXImplicitOps.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsEM.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsEM.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsHybridPIC.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsHybridPIC.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXSolveFieldsES.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpXSolveFieldsES.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/WarpX_Magnetostatic.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpX_Magnetostatic.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/WarpX_QED_Field_Pushers.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/WarpX_QED_Field_Pushers.cpp|WarpX::

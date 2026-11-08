@@ -14,7 +14,6 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 
 using namespace amrex;

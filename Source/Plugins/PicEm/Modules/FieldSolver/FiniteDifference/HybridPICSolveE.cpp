@@ -24,7 +24,6 @@
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/sample.H>
 

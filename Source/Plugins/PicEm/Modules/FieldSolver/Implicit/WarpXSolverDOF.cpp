@@ -4,9 +4,9 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "FieldSolver/Implicit/WarpXSolverDOF.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
 
 #include <ablastr/utils/SignalHandling.H>
 #include <ablastr/warn_manager/WarnManager.H>

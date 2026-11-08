@@ -6,11 +6,11 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "Fields.H"
 #include "SemiImplicitDarwin.H"
 #include "Python/callbacks.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "WarpX.H"
 
 #include <ablastr/warn_manager/WarnManager.H>
 

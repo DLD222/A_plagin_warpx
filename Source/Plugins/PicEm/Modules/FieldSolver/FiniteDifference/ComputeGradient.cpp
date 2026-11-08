@@ -21,7 +21,6 @@
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 using namespace amrex;
 

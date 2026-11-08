@@ -4,8 +4,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "WarpX.H"
+#include "FieldSolver/Implicit/WarpXSolverVec.H"
 
 using warpx::fields::FieldType;
 std::unique_ptr<WarpXSolverDOF> WarpXSolverVec::m_dofs = nullptr;

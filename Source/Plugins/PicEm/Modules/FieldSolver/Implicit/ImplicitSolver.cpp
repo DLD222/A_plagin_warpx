@@ -1,8 +1,8 @@
+#include "WarpX.H"
 #include "ImplicitSolver.H"
 #include "MassMatrixSolverOps.H"
 #include "SparseJacobianMatrix.H"
 #include "Fields.H"
-#include "WarpX.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 

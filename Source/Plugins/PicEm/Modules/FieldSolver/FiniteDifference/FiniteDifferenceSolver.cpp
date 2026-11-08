@@ -4,13 +4,13 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "FiniteDifferenceSolver.H"
 
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"

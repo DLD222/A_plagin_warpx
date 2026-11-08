@@ -7,6 +7,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "WarpX.H"
 #include "ElectrostaticSolver.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
@@ -17,7 +18,6 @@
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/PoissonSolver.H>
 

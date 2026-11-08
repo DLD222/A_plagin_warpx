@@ -7,11 +7,11 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "WarpX.H"
 #include "PoissonBoundaryHandler.H"
 
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
-#include "WarpX.H"
 
 using namespace amrex;
 

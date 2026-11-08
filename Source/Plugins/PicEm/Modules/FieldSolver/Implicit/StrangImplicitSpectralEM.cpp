@@ -4,9 +4,9 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "Fields.H"
 #include "StrangImplicitSpectralEM.H"
-#include "WarpX.H"
 
 using namespace warpx::fields;
 using namespace amrex::literals;

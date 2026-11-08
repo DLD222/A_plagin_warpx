@@ -25,7 +25,6 @@
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 

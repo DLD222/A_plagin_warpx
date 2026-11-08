@@ -1,7 +1,7 @@
+#include "WarpX.H"
 #include <fstream>
 #include "MacroscopicProperties.H"
 #include "SubpixelTensor.H"
-#include "WarpX.H"
 #include "Fields.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

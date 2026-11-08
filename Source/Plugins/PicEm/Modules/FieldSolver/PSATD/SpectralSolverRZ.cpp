@@ -9,7 +9,6 @@
 #include "SpectralAlgorithms/PsatdAlgorithmPmlRZ.H"
 #include "SpectralKSpaceRZ.H"
 #include "SpectralSolverRZ.H"
-#include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 /* \brief Initialize the spectral Maxwell solver

@@ -9,6 +9,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "WarpX.H"
 #include "HybridPICModel.H"
 
 #include "Runtime/RuntimeConfig.H"
@@ -24,7 +25,6 @@
 #include "Fluids/QdsmcParticleContainer.H"
 #include "Particles/MultiParticleContainer.H"
 #include "ExternalVectorPotential.H"
-#include "WarpX.H"
 
 #include <AMReX_Random.H>
 

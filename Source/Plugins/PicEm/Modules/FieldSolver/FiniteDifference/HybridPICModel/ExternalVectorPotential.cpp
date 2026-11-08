@@ -7,11 +7,11 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "WarpX.H"
 #include "ExternalVectorPotential.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
 #include "Initialization/DivCleaner/ProjectionDivCleaner.H"
 #include "Fields.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 

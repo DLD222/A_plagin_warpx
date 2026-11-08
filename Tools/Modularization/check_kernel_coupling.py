@@ -18,7 +18,11 @@ ALLOWLIST = ROOT / "Tools" / "Modularization" / "kernel_coupling_allowlist.txt"
 
 # Trees scheduled for extraction.  Add one per S6 batch.
 TREES = [
-    "Source/Plugins/PicEm/Modules/FieldSolver",
+    "Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference",
+    "Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic",
+    "Source/Plugins/PicEm/Modules/FieldSolver/Implicit",
+    "Source/Plugins/PicEm/Modules/FieldSolver/PSATD",
+    "Source/Plugins/PicEm/Modules/FieldSolver/Magnetostatic",
 ]
 
 TOKENS = ["WarpX::", '#include "WarpX.H"']

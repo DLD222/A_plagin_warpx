@@ -4,9 +4,9 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "Fields.H"
 #include "ThetaImplicitEM.H"
-#include "WarpX.H"
 
 using warpx::fields::FieldType;
 using namespace amrex::literals;

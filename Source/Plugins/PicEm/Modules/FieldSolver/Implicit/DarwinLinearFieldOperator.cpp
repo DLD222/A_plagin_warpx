@@ -6,12 +6,12 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "WarpX.H"
 #include "DarwinLinearFieldOperator.H"
 
 #include "Fields.H"
 #include "SemiImplicitDarwin.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
 
 #include "NonlinearSolvers/DarwinMLMGPC.H"
 
