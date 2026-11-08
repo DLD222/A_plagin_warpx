@@ -124,6 +124,9 @@ int WarpXRuntimeData::istep (int lev) const { return w().getistep(lev); }
 amrex::Vector<int> WarpXRuntimeData::istepVector () const { return w().getistep(); }
 EvolveScheme WarpXRuntimeData::evolveScheme () const { return w().evolve_scheme; }
 amrex::LayoutData<amrex::Real>* WarpXRuntimeData::costs (int lev) const { return WarpX::getCosts(lev); }
+LoadBalanceCostsUpdateAlgo WarpXRuntimeData::loadBalanceCostsUpdateAlgo () const
+{ return w().load_balance_costs_update_algo; }
+
 amrex::Real WarpXRuntimeData::loadBalanceEfficiency (int lev) const { return w().getLoadBalanceEfficiency(lev); }
 ablastr::utils::text::IntervalsParser WarpXRuntimeData::loadBalanceIntervals () const { return w().get_load_balance_intervals(); }
 int WarpXRuntimeData::maxStep () const { return w().maxStep(); }

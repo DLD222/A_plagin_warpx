@@ -107,6 +107,7 @@ public:
 
     [[nodiscard]] virtual amrex::LayoutData<amrex::Real>* costs (int lev) const = 0;
     [[nodiscard]] virtual amrex::Real loadBalanceEfficiency (int lev) const = 0;
+    [[nodiscard]] virtual LoadBalanceCostsUpdateAlgo loadBalanceCostsUpdateAlgo () const = 0;
     [[nodiscard]] virtual ablastr::utils::text::IntervalsParser loadBalanceIntervals () const = 0;
     [[nodiscard]] virtual int maxStep () const = 0;
     [[nodiscard]] virtual amrex::Real stopTime () const = 0;

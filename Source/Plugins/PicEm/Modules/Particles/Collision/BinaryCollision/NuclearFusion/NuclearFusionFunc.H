@@ -13,6 +13,7 @@
 #include "SingleNuclearFusionEvent.H"
 
 #include "Particles/Collision/CollisionFuncBase.H"
+#include "Runtime/RuntimeData.H"
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
@@ -100,21 +101,24 @@ public:
         }
     }
 
-    void AllocData () override {
+    void AllocData (const warpx::runtime::RuntimeData& data) override {
+        m_data = &data;
         if (m_save_particle_production) {
-            WarpX & warpx = WarpX::GetInstance();
-            for (int lev = 0; lev <= warpx.finestLevel(); ++lev) {
+            for (int lev = 0; lev <= data.finestLevel(); ++lev) {
 
-                amrex::BoxArray const & ba = warpx.boxArray(lev);
-                amrex::DistributionMapping const & dmap = warpx.DistributionMap(lev);
+                amrex::BoxArray const & ba = data.boxArray(lev);
+                amrex::DistributionMapping const & dmap = data.distributionMap(lev);
                 int const ncomps = 1;
                 amrex::IntVect const ng = amrex::IntVect::TheZeroVector();
                 amrex::Real const initial_value = 0.;
                 bool const remake = true;
                 bool const redistribute_on_remake = true;
                 bool const checkpoint_restart = true;
-                warpx.m_fields.alloc_init(m_particle_production_mf_name, lev, ba, dmap, ncomps, ng,
-                                          initial_value, remake, redistribute_on_remake, checkpoint_restart);
+                // Register access is mutable by design (allocate a field); the
+                // reference is const only because the collision context is.
+                auto& fields = const_cast<warpx::runtime::RuntimeData&>(data).fields();
+                fields.alloc_init(m_particle_production_mf_name, lev, ba, dmap, ncomps, ng,
+                                  initial_value, remake, redistribute_on_remake, checkpoint_restart);
             }
         }
     }
@@ -267,14 +271,22 @@ public:
         // in a way that is thread dependent.
         Executor exe = m_exe;
         if (m_save_particle_production) {
-            WarpX & warpx = WarpX::GetInstance();
-            amrex::MultiFab * particle_production_mf = warpx.m_fields.get(m_particle_production_mf_name, lev);
+            // This field is written by the fusion kernel, so a mutable view is
+            // required; the const-ness above is an interface choice only.
+            amrex::MultiFab * particle_production_mf =
+                const_cast<warpx::runtime::RuntimeData*>(m_data)
+                    ->fields().get(m_particle_production_mf_name, lev);
             exe.m_particle_production = particle_production_mf->array(mfi);
         }
         return exe;
     }
 
     bool use_global_debye_length() { return false; }
+
+private:
+    const warpx::runtime::RuntimeData* m_data = nullptr;
+
+public:
 
 private:
     // Factor used to increase the number of fusion reaction by decreasing the weight of the

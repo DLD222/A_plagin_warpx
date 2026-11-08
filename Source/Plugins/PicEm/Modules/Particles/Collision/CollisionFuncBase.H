@@ -8,6 +8,8 @@
 #ifndef WARPX_COLLISION_FUNC_BASE_H_
 #define WARPX_COLLISION_FUNC_BASE_H_
 
+namespace warpx::runtime { class RuntimeData; }
+
 class CollisionFuncBase
 {
 public:
@@ -22,7 +24,7 @@ public:
     CollisionFuncBase& operator= (CollisionFuncBase&&) noexcept = default;
 
     //! Optional hook to allocate additional data structures.
-    virtual void AllocData () {}
+    virtual void AllocData (const warpx::runtime::RuntimeData& /*data*/) {}
 
 };
 

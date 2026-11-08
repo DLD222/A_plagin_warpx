@@ -66,7 +66,7 @@ CollisionHandler::CollisionHandler(const CollisionSpeciesTable& species,
         if (type == "pairwisecoulomb") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<PairWiseCoulombCollisionFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                 );
             m_use_global_debye_length |= allcollisions[i]->use_global_debye_length();
         }
@@ -85,19 +85,19 @@ CollisionHandler::CollisionHandler(const CollisionSpeciesTable& species,
         else if (type == "dsmc") {
             allcollisions[i] =
                 std::make_unique<BinaryCollision<DSMCFunc, SplitAndScatterFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                 );
         }
         else if (type == "nuclearfusion") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<NuclearFusionFunc, ParticleCreationFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                 );
         }
         else if (type == "bremsstrahlung") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<BremsstrahlungFunc, PhotonCreationFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                 );
         }
         else if (type == "inverse_bremsstrahlung") {
@@ -107,13 +107,13 @@ CollisionHandler::CollisionHandler(const CollisionSpeciesTable& species,
         else if (type == "linear_breit_wheeler") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<LinearBreitWheelerCollisionFunc, ParticleCreationFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                );
         }
         else if (type == "linear_compton") {
             allcollisions[i] =
                std::make_unique<BinaryCollision<LinearComptonCollisionFunc, ParticleCreationFunc>>(
-                    collision_names[i], m_species
+                    collision_names[i], m_species, *m_data
                );
         }
         else{

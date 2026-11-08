@@ -17,6 +17,7 @@
 #include "Particles/Collision/BinaryCollision/ParticleCreationFunc.H"
 #include "Modules/Particles/Collision/ParticleShufflers.H"
 #include "Particles/Collision/CollisionBase.H"
+#include "Runtime/RuntimeData.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Modules/Particles/ParticleCreation/SmartUtils.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
@@ -27,7 +28,6 @@
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "WarpX.H"
 
 #include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
@@ -91,8 +91,9 @@ public:
      * @param[in] mypc Container of species involved
      *
      */
-    BinaryCollision (const std::string& collision_name, const CollisionSpeciesTable& table)
-        : CollisionBase(collision_name), m_species(table)
+    BinaryCollision (const std::string& collision_name, const CollisionSpeciesTable& table,
+                     const warpx::runtime::RuntimeData& data)
+        : CollisionBase(collision_name), m_species(table), m_data(data)
     {
         using namespace amrex::literals;
         if(m_species_names.size() != 2) {
@@ -181,7 +182,7 @@ public:
 
     void AllocData () override
     {
-        m_binary_collision_functor.AllocData();
+        m_binary_collision_functor.AllocData(m_data);
     }
 
     /** Perform the collisions
@@ -244,7 +245,7 @@ public:
         // Loop over refinement levels
         for (int lev = 0; lev <= species1.finestLevel(); ++lev){
 
-        amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+        amrex::LayoutData<amrex::Real>* cost = m_data.costs(lev);
 
         // Loop over all grids/tiles at this level
 #ifdef AMREX_USE_OMP
@@ -252,7 +253,7 @@ public:
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
             for (amrex::MFIter mfi = species1.MakeMFIter(lev, info); mfi.isValid(); ++mfi){
-                if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+                if (cost && m_data.loadBalanceCostsUpdateAlgo() == LoadBalanceCostsUpdateAlgo::Timers)
                 {
                     amrex::Gpu::synchronize();
                 }
@@ -261,7 +262,7 @@ public:
                 doCollisionsWithinTile( dt, lev, mfi, species1, species2, product_species_vector,
                                         copy_species1_data, copy_species2_data);
 
-                if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+                if (cost && m_data.loadBalanceCostsUpdateAlgo() == LoadBalanceCostsUpdateAlgo::Timers)
                 {
                     amrex::Gpu::synchronize();
                     wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -325,16 +326,16 @@ public:
         auto *tile_products_data = tile_products.data();
 
         bool const use_global_debye_length = m_use_global_debye_length;
-        amrex::Array4<amrex::Real> global_debye_length_array;
+        amrex::Array4<amrex::Real const> global_debye_length_array;
         if (use_global_debye_length) {
-            WarpX & warpx = WarpX::GetInstance();
-            amrex::MultiFab * global_debye_length = warpx.m_fields.get(warpx::fields::FieldType::global_debye_length, lev);
-            global_debye_length_array = global_debye_length->array(mfi);
+            const amrex::MultiFab * global_debye_length =
+                m_data.fields().get(warpx::fields::FieldType::global_debye_length, lev);
+            global_debye_length_array = global_debye_length->const_array(mfi);
         }
 
         const amrex::Box tilebox = mfi.tilebox();
 
-        amrex::Geometry const& geom_lev = WarpX::GetInstance().Geom(lev);
+        amrex::Geometry const& geom_lev = m_data.geom(lev);
         // dV is level-specific: cell volume at this refinement level (smaller on fine levels).
         amrex::ParticleReal const dV = AMREX_D_TERM(geom_lev.CellSize(0), *geom_lev.CellSize(1), *geom_lev.CellSize(2));
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
@@ -344,7 +345,7 @@ public:
         auto const hi = ubound(cbx);
         int const nr = hi.x - lo.x + 1;
 #endif
-        amrex::XDim3 const xyzmin = WarpX::LowerCorner(cbx, lev, 0._rt);
+        amrex::XDim3 const xyzmin = m_data.lowerCorner(cbx, lev, 0._rt);
         amrex::Real const rmin = xyzmin.x;
         auto const dr = geom_lev.CellSize(0);
 #endif
@@ -1524,6 +1525,7 @@ public:
 private:
 
     CollisionSpeciesTable m_species;
+    const warpx::runtime::RuntimeData& m_data;
 
     bool m_isSameSpecies;
     bool m_have_product_species;

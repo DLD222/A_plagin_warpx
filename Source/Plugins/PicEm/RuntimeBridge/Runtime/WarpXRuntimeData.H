@@ -107,6 +107,7 @@ public:
     [[nodiscard]] EvolveScheme evolveScheme () const override;
     [[nodiscard]] amrex::LayoutData<amrex::Real>* costs (int lev) const override;
     [[nodiscard]] amrex::Real loadBalanceEfficiency (int lev) const override;
+    [[nodiscard]] LoadBalanceCostsUpdateAlgo loadBalanceCostsUpdateAlgo () const override;
     [[nodiscard]] ablastr::utils::text::IntervalsParser loadBalanceIntervals () const override;
     [[nodiscard]] int maxStep () const override;
     [[nodiscard]] amrex::Real stopTime () const override;

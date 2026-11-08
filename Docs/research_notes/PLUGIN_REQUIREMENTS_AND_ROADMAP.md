@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| S6 第 1 批·碰撞去内核（前半） | **完成** | 碰撞模块（16 个 cpp）现在对内核**零依赖**：0 个 `WarpX.H`、0 处 `WarpX::`。做法是给 `RuntimeData` 补 `loadBalanceCostsUpdateAlgo`，把负载均衡代价/几何/下角点/场寄存器/体量统计全部改走运行时数据契约，并让碰撞模型构造时接收 `RuntimeData const&`、`AllocData` 也带上它；全量失败集不变 |
 | D1-a 收口（核心纯度 **0**） | **完成** | `WarpXParIter` 经核实**不含任何具体 WarpX 类型**（继承 AMReX 的 SoA 迭代器、用核心的属性索引常量），唯一的 WarpX 痕迹是名字；将其重命名为 `ParticleTileIter`（65 个文件、145 处），作为通用 AMReX 级 tile 迭代器保留在核心；纯度允许清单**清空**，检查器等价于零容忍 |
 | D1-a 第 5 批（加速器元件 + 检查器修正） | **完成** | `LatticeElementFinder` 的两个入口对迭代器类型模板化，具体实例化留在插件；修正纯度检查器：`WarpX::` 这类以 `::` 结尾的 token 之前因词边界写法**从未匹配**，修正后核心仍为 0 处单例引用；核心纯度清单 2 → **1**（只剩迭代器自身定义） |
 | D1-a 第 4 批（静电求解器契约） | **完成** | 新增核心 `ParticleContext`（通用访问 + 粒子服务）与 `IParticleServices::depositCharge`；`IElectrostaticSolver::ComputeSpaceChargeField` 不再接收具体多粒子容器，改为接收 `ParticleContext`；四个求解器实现同步；具体容器只在插件内部做一次显式窄化（带断言）；核心纯度清单 3 → **2**（只剩加速器元件与迭代器自身） |
