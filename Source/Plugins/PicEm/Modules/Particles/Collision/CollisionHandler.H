@@ -7,6 +7,8 @@
 #ifndef WARPX_PARTICLES_COLLISION_COLLISIONHANDLER_H_
 #define WARPX_PARTICLES_COLLISION_COLLISIONHANDLER_H_
 
+#include "Runtime/ICollisionHandler.H"
+
 #include "CollisionBase.H"
 #include "CollisionSpeciesTable.H"
 
@@ -25,7 +27,7 @@ namespace warpx::runtime { class HostServices; class RuntimeData; class RuntimeC
 /* \brief CollisionHandler is a light weight class that contains the
  * list of collisions to be done.
  */
-class CollisionHandler
+class CollisionHandler : public warpx::runtime::ICollisionHandler
 {
 public:
     CollisionHandler (const CollisionSpeciesTable& species,
@@ -34,14 +36,14 @@ public:
                       warpx::runtime::HostServices* host);
 
     /* Allocate data needed for collision */
-    void AllocData ();
+    void AllocData () override;
 
     [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
 
 
 
     /* Perform all of the collisions */
-    void doCollisions (int step, amrex::Real cur_time, amrex::Real dt);
+    void doCollisions (int step, amrex::Real cur_time, amrex::Real dt) override;
 
 private:
 

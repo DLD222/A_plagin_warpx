@@ -22,6 +22,7 @@
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
+#include "Runtime/ICollisionHandler.H"
 #include "Runtime/IImplicitSolver.H"
 #include "Filter/NCIGodfreyFilter_fwd.H"
 #include "Fluids/MultiFluidContainer_fwd.H"
@@ -90,7 +91,7 @@
 class ElectrostaticSolver;
 #include <vector>
 
-class CollisionHandler;
+class ICollisionHandler;
 
 namespace warpx::runtime { class PluginHost; class WarpXRuntimeData; class WarpXHostServices; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
 
@@ -1166,7 +1167,7 @@ public:
 
     //! Non-owning runtime context (nullptr on the legacy/Python path).
     void SetRuntimeContext (warpx::runtime::RuntimeContext* context);
-    void SetCollisionHandler (CollisionHandler* handler) { m_collision_handler = handler; }
+    void SetCollisionHandler (warpx::runtime::ICollisionHandler* handler) { m_collision_handler = handler; }
     [[nodiscard]] warpx::runtime::RuntimeContext* GetRuntimeContext () const { return m_runtime_context; }
     [[nodiscard]] const warpx::runtime::RuntimeConfig& runtime_config () const;
 
@@ -1262,8 +1263,8 @@ private:
     // Non-owning compatibility accessor; ownership is Runtime or the Python fallback.
     static WarpX* m_instance;
     warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
-    CollisionHandler* m_collision_handler = nullptr;
-    std::unique_ptr<CollisionHandler> m_legacy_collision_handler;
+    warpx::runtime::ICollisionHandler* m_collision_handler = nullptr;
+    std::unique_ptr<warpx::runtime::ICollisionHandler> m_legacy_collision_handler;
     std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
     std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
     std::unique_ptr<warpx::runtime::RuntimeConfig> m_legacy_config;

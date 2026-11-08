@@ -9,10 +9,11 @@
 #define WARPX_RUNTIME_COLLISIONHANDLERADAPTER_H_
 
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/ICollisionHandler.H"
 
 #include <stdexcept>
 
-class CollisionHandler;
+class ICollisionHandler;
 
 namespace warpx::runtime
 {
@@ -21,7 +22,7 @@ namespace warpx::runtime
 class CollisionHandlerAdapter final : public IHandler
 {
 public:
-    explicit CollisionHandlerAdapter (CollisionHandler* handler) : m_handler(handler) {}
+    explicit CollisionHandlerAdapter (ICollisionHandler* handler) : m_handler(handler) {}
 
     [[nodiscard]] HandlerSpec spec () const override
     {
@@ -44,7 +45,7 @@ public:
     }
 
 private:
-    CollisionHandler* m_handler;
+    ICollisionHandler* m_handler;
 };
 
 } // namespace warpx::runtime

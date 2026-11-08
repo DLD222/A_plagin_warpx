@@ -14,7 +14,7 @@ namespace warpx::runtime
 {
 
 void
-CollisionPackage::register_handler (PluginHost& host, CollisionHandler* handler)
+CollisionPackage::register_handler (PluginHost& host, warpx::runtime::ICollisionHandler* handler)
 {
     host.add(std::make_shared<CollisionHandlerAdapter>(handler));
 }

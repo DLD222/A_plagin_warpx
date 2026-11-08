@@ -9,8 +9,9 @@
 #define WARPX_RUNTIME_COLLISIONPACKAGE_H_
 
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/ICollisionHandler.H"
 
-class CollisionHandler;
+class ICollisionHandler;
 
 namespace warpx::runtime
 {
@@ -25,7 +26,7 @@ namespace warpx::runtime
 class CollisionPackage
 {
 public:
-    static void register_handler (PluginHost& host, CollisionHandler* handler);
+    static void register_handler (PluginHost& host, warpx::runtime::ICollisionHandler* handler);
 
     static void register_specs (PluginHost& host)
     {
