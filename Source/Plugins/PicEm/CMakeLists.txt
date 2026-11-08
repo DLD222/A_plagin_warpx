@@ -6,6 +6,7 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         WarpX.cpp
         WarpXKernel.cpp
+        RuntimeBridge/IO/WarpXCheckpoint.cpp
         RuntimeBridge/Utils/WarpXMovingWindow.cpp
         RuntimeBridge/Utils/WarpXUtil.cpp
         RuntimeBridge/Utils/WarpXVersion.cpp

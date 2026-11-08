@@ -66,6 +66,8 @@ option(WarpX_FASTMATH      "Enable fast-math optimizations"             OFF)
 option(WarpX_FFT           "FFT-based solvers"                          OFF)
 option(WarpX_PYTHON        "Python bindings"                            OFF)
 option(WarpX_SENSEI        "SENSEI in situ diagnostics"                 OFF)
+option(WarpX_PLUGIN_DIAGNOSTICS "Build the Diagnostics plugin (diagnostics, reduced diags)" ON)
+option(WarpX_PLUGIN_IO          "Build the IO helper plugin (needs Diagnostics)" ON)
 option(WarpX_QED           "QED support (requires PICSAR)"              ON)
 option(WarpX_QED_TABLE_GEN "QED table generation (requires PICSAR and Boost)"
                                                                         OFF)
@@ -300,7 +302,17 @@ set(WARPX_CORE_INCLUDE_DIRS
 # the module subdirectories; lib_<dim> only aggregates the objects, so that
 # Core can be configured/built without any plugin source (B1-B7 of
 # Docs/research_notes/A7_BUILD_ABI_AUDIT.md).
-set(WARPX_MODULE_LAYERS core picem diagnostics io)
+if(WarpX_PLUGIN_IO AND NOT WarpX_PLUGIN_DIAGNOSTICS)
+    message(STATUS "WarpX_PLUGIN_IO requires WarpX_PLUGIN_DIAGNOSTICS; disabling IO")
+    set(WarpX_PLUGIN_IO OFF)
+endif()
+set(WARPX_MODULE_LAYERS core picem)
+if(WarpX_PLUGIN_DIAGNOSTICS)
+    list(APPEND WARPX_MODULE_LAYERS diagnostics)
+endif()
+if(WarpX_PLUGIN_IO)
+    list(APPEND WARPX_MODULE_LAYERS io)
+endif()
 
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
@@ -344,9 +356,14 @@ foreach(D IN LISTS WarpX_DIMS)
         # Everything below a plugin layer may use Core; declared here so the
         # archives/objects are ordered correctly at the final link.
         target_link_libraries(warpx_picem_${SD} PRIVATE warpx_core_${SD})
-        target_link_libraries(warpx_diagnostics_${SD} PRIVATE warpx_core_${SD})
-        target_link_libraries(warpx_io_${SD} PRIVATE warpx_diagnostics_${SD})
-        target_link_libraries(warpx_picem_${SD} PRIVATE warpx_diagnostics_${SD} warpx_io_${SD})
+        if(WarpX_PLUGIN_DIAGNOSTICS)
+            target_link_libraries(warpx_diagnostics_${SD} PRIVATE warpx_core_${SD})
+            target_link_libraries(warpx_picem_${SD} PRIVATE warpx_diagnostics_${SD})
+        endif()
+        if(WarpX_PLUGIN_IO)
+            target_link_libraries(warpx_io_${SD} PRIVATE warpx_diagnostics_${SD})
+            target_link_libraries(warpx_picem_${SD} PRIVATE warpx_io_${SD})
+        endif()
 
         add_library(lib_${SD})
         add_library(WarpX::lib_${SD} ALIAS lib_${SD})
@@ -356,12 +373,12 @@ foreach(D IN LISTS WarpX_DIMS)
 
         # lib_<dim> is the aggregate archive: it contributes no compilation of
         # its own, only the objects of the module layers.
-        target_sources(lib_${SD} PRIVATE
-            $<TARGET_OBJECTS:warpx_core_${SD}>
-            $<TARGET_OBJECTS:warpx_picem_${SD}>
-            $<TARGET_OBJECTS:warpx_diagnostics_${SD}>
-            $<TARGET_OBJECTS:warpx_io_${SD}>
-        )
+        set(_WARPX_LAYER_OBJECTS)
+        foreach(_layer IN LISTS WARPX_MODULE_LAYERS)
+            list(APPEND _WARPX_LAYER_OBJECTS $<TARGET_OBJECTS:warpx_${_layer}_${SD}>)
+        endforeach()
+        target_sources(lib_${SD} PRIVATE ${_WARPX_LAYER_OBJECTS})
+        unset(_WARPX_LAYER_OBJECTS)
 
         # Plugin bootstrap at link time.  A static archive drops unreferenced
         # members, and the kernel plugin registers itself from a static
@@ -373,8 +390,10 @@ foreach(D IN LISTS WarpX_DIMS)
         # and the linker ignores the request.
         set(_WARPX_PLUGIN_ANCHORS
             warpx_picem_kernel_anchor
-            warpx_picem_legacy_anchor
-            warpx_diagnostics_anchor)
+            warpx_picem_legacy_anchor)
+        if(WarpX_PLUGIN_DIAGNOSTICS)
+            list(APPEND _WARPX_PLUGIN_ANCHORS warpx_diagnostics_anchor)
+        endif()
         foreach(_anchor IN LISTS _WARPX_PLUGIN_ANCHORS)
             if(MSVC)
                 target_link_options(lib_${SD} INTERFACE "LINKER:/INCLUDE:${_anchor}")
@@ -589,8 +608,12 @@ if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm)
     add_subdirectory(Source/Plugins/PicEm/Modules/AcceleratorLattice)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
-    add_subdirectory(Source/Plugins/Diagnostics)
-    add_subdirectory(Source/Plugins/IO)
+    if(WarpX_PLUGIN_DIAGNOSTICS)
+        add_subdirectory(Source/Plugins/Diagnostics)
+    endif()
+    if(WarpX_PLUGIN_IO)
+        add_subdirectory(Source/Plugins/IO)
+    endif()
     add_subdirectory(Source/Plugins/PicEm/Modules/EmbeddedBoundary)
     add_subdirectory(Source/Plugins/PicEm/Modules/Evolve)
     add_subdirectory(Source/Plugins/PicEm/Modules/FieldSolver)

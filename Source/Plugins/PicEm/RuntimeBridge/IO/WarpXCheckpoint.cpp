@@ -19,7 +19,6 @@
 #endif
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
-#include "FieldIO.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Modules/Particles/WarpXParIter.H"
