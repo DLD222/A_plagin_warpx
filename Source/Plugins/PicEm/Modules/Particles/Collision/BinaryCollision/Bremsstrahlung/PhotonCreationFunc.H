@@ -15,7 +15,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Runtime/IParticleContainer.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 
 #include <AMReX_DenseBins.H>
 #include <AMReX_GpuAtomic.H>

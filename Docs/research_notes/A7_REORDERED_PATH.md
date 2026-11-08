@@ -672,3 +672,38 @@ Plugins/Collision 目录
 ```
 
 不能宣布 A7.2 完成。
+
+## 13. Collision 使用 Core 粒子单元
+
+已将 Collision 对以下路径的 include 改为 Core：
+
+```text
+Modules/Particles/ParticleUtils.H
+Modules/Particles/Pusher/GetAndSetPosition.H
+Modules/Particles/Algorithms/KineticEnergy.H
+Modules/Particles/Gather/FieldGather.H
+```
+
+Collision 外部 Particles include：
+
+```text
+83 -> 54
+```
+
+验证：
+
+```text
+runtime + plugin 12/12 PASS
+plugin boundaries PASS
+charge_exchange_dsmc PASS
+```
+
+剩余具体依赖主要是：
+
+```text
+ParticleCreation/SmartCopy.H
+ParticleCreation/SmartUtils.H
+ParticleCreation/FilterCopyTransform.H
+WarpXParticleContainer.H
+MultiParticleContainer.H
+```

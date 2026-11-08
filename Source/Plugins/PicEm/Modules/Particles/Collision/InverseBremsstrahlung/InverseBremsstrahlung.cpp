@@ -14,7 +14,7 @@
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

@@ -7,8 +7,8 @@
  */
 #ifndef WARPX_DEFAULTINITIALIZATION_H_
 #define WARPX_DEFAULTINITIALIZATION_H_
-
 #include <WarpX.H>
+
 #include "Runtime/RuntimeData.H"
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"

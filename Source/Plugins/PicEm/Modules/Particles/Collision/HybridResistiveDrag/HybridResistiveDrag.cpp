@@ -12,8 +12,8 @@
 
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
-#include "Particles/Gather/FieldGather.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Gather/FieldGather.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"

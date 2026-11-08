@@ -11,7 +11,7 @@
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "ElasticCollisionPerez.H"
-#include "Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 

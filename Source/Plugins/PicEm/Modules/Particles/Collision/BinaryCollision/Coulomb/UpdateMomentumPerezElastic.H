@@ -7,7 +7,7 @@
 #ifndef WARPX_PARTICLES_COLLISION_UPDATE_MOMENTUM_PEREZ_ELASTIC_H_
 #define WARPX_PARTICLES_COLLISION_UPDATE_MOMENTUM_PEREZ_ELASTIC_H_
 
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 
 #include <AMReX_Math.H>

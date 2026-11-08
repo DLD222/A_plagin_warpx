@@ -8,7 +8,7 @@
 #ifndef WARPX_TWO_PRODUCT_UTIL_H
 #define WARPX_TWO_PRODUCT_UTIL_H
 
-#include "Particles/ParticleUtils.H"
+#include "Modules/Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
