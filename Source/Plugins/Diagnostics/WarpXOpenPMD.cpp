@@ -1365,7 +1365,9 @@ WarpXOpenPMDPlot::SetupMeshComp (openPMD::Mesh& mesh,
     std::vector<double> const global_offset = getReversedVec(full_geom.ProbLo());
 #if defined(WARPX_DIM_RZ)
     if (var_in_theta_mode) {
-            global_size.emplace(global_size.begin(), m_runtime_context->config_snapshot->ncomps);
+            global_size.emplace(global_size.begin(),
+                m_runtime_context != nullptr && m_runtime_context->config != nullptr
+                    ? m_runtime_context->config->ncomps() : 1);
     }
 #endif
     // - AxisLabels
@@ -1377,7 +1379,9 @@ WarpXOpenPMDPlot::SetupMeshComp (openPMD::Mesh& mesh,
     mesh.setDataOrder(openPMD::Mesh::DataOrder::C);
     if (var_in_theta_mode) {
         mesh.setGeometry("thetaMode");
-        mesh.setGeometryParameters("m=" + std::to_string(m_runtime_context->config_snapshot->n_rz_azimuthal_modes) + ";imag=+");
+        mesh.setGeometryParameters(
+            "m=" + std::to_string(m_runtime_context->config->n_rz_azimuthal_modes()) +
+            ";imag=+");
     }
     mesh.setAxisLabels(axis_labels);
     mesh.setGridSpacing(grid_spacing);
