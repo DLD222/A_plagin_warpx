@@ -479,3 +479,50 @@ A7.4 FieldSolver
 ```
 
 顺序才成立。
+
+## 8. A7.2.4 进展
+
+新增 Core 粒子能力契约：
+
+```text
+Core/Modules/Particles/IParticleTile.H
+Core/Modules/Particles/IParticleIterator.H
+Core/Modules/Particles/IParticleReduce.H
+```
+
+定义：
+
+```cpp
+IParticleTile      = IParticleContainer::ParticleTileType
+IParticleTileData  = IParticleContainer::ParticleTileType::ParticleTileDataType
+IParticleIterator  = WarpXParIter
+particleReduce<ReduceData>(pc, op, reduce_op)
+```
+
+`IParticleContainer` 增加：
+
+```cpp
+using ParticleTileType = Base::ParticleTileType;
+```
+
+新增契约测试：
+
+```text
+tests/runtime/test_particle_contracts.cpp
+```
+
+验证：
+
+```text
+默认 11/11 PASS
+plugin boundaries PASS
+particle contracts 编译 PASS
+```
+
+仍未完成：
+
+```text
+Collision 仍 include Particles/*
+FieldSolver 仍直接访问粒子
+IParticlePositionAccess / IParticleSpeciesAccess 尚未独立
+```

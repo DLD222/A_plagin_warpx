@@ -20,6 +20,7 @@ class IParticleContainer
 public:
     using Base = amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
     using Base::Base;
+    using ParticleTileType = typename Base::ParticleTileType;
     ~IParticleContainer () override = default;
 
     [[nodiscard]] int NumRealComps () const { return Base::NumRealComps(); }
