@@ -94,6 +94,8 @@ public:
           m_writes_fields(copy_list(desc.writes_fields, desc.n_writes_fields)),
           m_reads_species(copy_list(desc.reads_species, desc.n_reads_species)),
           m_writes_species(copy_list(desc.writes_species, desc.n_writes_species)),
+          m_reads_scalars(copy_list(desc.reads_scalars, desc.n_reads_scalars)),
+          m_writes_scalars(copy_list(desc.writes_scalars, desc.n_writes_scalars)),
           m_apply(desc.apply),
           m_on_regrid(desc.on_regrid),
           m_user_data(desc.user_data)
@@ -117,7 +119,9 @@ public:
             .writes_fields = m_writes_fields,
             .reads_species = m_reads_species,
             .writes_species = m_writes_species,
-            .priority = m_priority};
+            .priority = m_priority,
+            .reads_scalars = m_reads_scalars,
+            .writes_scalars = m_writes_scalars};
     }
 
     void apply (StageContext& ctx) override
@@ -144,6 +148,8 @@ private:
     std::vector<std::string> m_writes_fields;
     std::vector<std::string> m_reads_species;
     std::vector<std::string> m_writes_species;
+    std::vector<std::string> m_reads_scalars;
+    std::vector<std::string> m_writes_scalars;
     void (*m_apply) (WarpXStageContext*, void*);
     void (*m_on_regrid) (WarpXStageContext*, void*);
     void* m_user_data;
@@ -208,6 +214,32 @@ warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_t lev, v
     if (field == nullptr) { return 0; }
     if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
     return 1;
+}
+
+extern "C" int32_t
+warpx_stage_scalar (WarpXStageContext* ctx, const char* name, double* value)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    // Exceptions must not cross the C boundary: report failure instead.
+    try {
+        const double v = ctx->bus->scalar(std::string(name));
+        if (value != nullptr) { *value = v; }
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
+}
+
+extern "C" int32_t
+warpx_stage_set_scalar (WarpXStageContext* ctx, const char* name, double value)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    try {
+        ctx->bus->set_scalar(std::string(name), value);
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }
 
 extern "C" int32_t

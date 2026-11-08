@@ -38,6 +38,10 @@ struct HandlerSpec
     std::vector<std::string> reads_species;
     std::vector<std::string> writes_species;
     int priority = 0;
+    // Scalars are declared after `priority` so existing positional aggregate
+    // initialisations keep their meaning.
+    std::vector<std::string> reads_scalars;
+    std::vector<std::string> writes_scalars;
 };
 
 /** Execution context passed to a handler (A3.3a skeleton). */
@@ -85,6 +89,16 @@ public:
                         throw std::runtime_error(
                             "PluginHost: handlers '" + existing.name + "' and '" +
                             spec.name + "' both write field '" + w +
+                            "' at the same StagePoint");
+                    }
+                }
+            }
+            for (const auto& w : spec.writes_scalars) {
+                for (const auto& ew : existing.writes_scalars) {
+                    if (w == ew) {
+                        throw std::runtime_error(
+                            "PluginHost: handlers '" + existing.name + "' and '" +
+                            spec.name + "' both write scalar '" + w +
                             "' at the same StagePoint");
                     }
                 }
@@ -137,7 +151,8 @@ public:
                     if (i == j) { continue; }
                     const auto& sj = specs[order[begin + j]];
                     if (intersects(si.writes_fields, sj.reads_fields) ||
-                        intersects(si.writes_species, sj.reads_species)) {
+                        intersects(si.writes_species, sj.reads_species) ||
+                        intersects(si.writes_scalars, sj.reads_scalars)) {
                         edge[i][j] = true;
                         ++indegree[j];
                     }

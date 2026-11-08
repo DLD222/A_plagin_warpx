@@ -46,6 +46,42 @@ DataBus::require_species_access (const std::string& name, bool write) const
 }
 
 void
+DataBus::require_scalar_access (const std::string& name, bool write) const
+{
+    if (m_active == nullptr) { return; }
+    const bool declared = write
+        ? key_declared(name, m_active->writes_scalars)
+        : (key_declared(name, m_active->reads_scalars) ||
+           key_declared(name, m_active->writes_scalars));
+    if (!declared) {
+        throw std::runtime_error(
+            "DataBus: handler '" + m_active->name + "' accessed scalar '" + name +
+            "' without declaring it as " + (write ? "written" : "read") +
+            ". Add it to HandlerSpec." + (write ? "writes_scalars" : "reads_scalars") + ".");
+    }
+}
+
+double
+DataBus::scalar (const std::string& name) const
+{
+    require_scalar_access(name, /*write=*/false);
+    if (m_scalars == nullptr) {
+        throw std::runtime_error("DataBus: no scalar registry attached");
+    }
+    return m_scalars->get(name);
+}
+
+void
+DataBus::set_scalar (const std::string& name, double value)
+{
+    require_scalar_access(name, /*write=*/true);
+    if (m_scalars == nullptr) {
+        throw std::runtime_error("DataBus: no scalar registry attached");
+    }
+    m_scalars->set(name, value);
+}
+
+void
 DataBus::declare (FieldSpec spec)
 {
     m_registry->declare(spec);

@@ -24,7 +24,7 @@
 
 /* Version of the layout below.  Bump on any change to WarpXHandlerDesc,
  * WarpXPluginDesc, the WarpXStage ordinals, or the exported functions. */
-#define WARPX_PLUGIN_ABI_VERSION 4u
+#define WARPX_PLUGIN_ABI_VERSION 5u
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,6 +76,10 @@ typedef struct WarpXHandlerDesc
     uint32_t n_reads_species;
     const char* const* writes_species;
     uint32_t n_writes_species;
+    const char* const* reads_scalars;
+    uint32_t n_reads_scalars;
+    const char* const* writes_scalars;
+    uint32_t n_writes_scalars;
     /* Called at the handler's stage. user_data is passed back verbatim. */
     void (*apply) (WarpXStageContext* ctx, void* user_data);
     /* Optional; may be NULL. Called after a successful AMR regrid. */
@@ -117,6 +121,11 @@ int32_t warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_
                                 void** multifab);
 /* Write access: the handler must have declared the field in writes_fields. */
 int32_t warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab);
+
+/* Named scalar state.  Read needs reads_scalars (or writes_scalars), write
+ * needs writes_scalars.  Return 1 on success, 0 when unavailable/undeclared. */
+int32_t warpx_stage_scalar (WarpXStageContext* ctx, const char* name, double* value);
+int32_t warpx_stage_set_scalar (WarpXStageContext* ctx, const char* name, double value);
 
 #ifdef __cplusplus
 } /* extern "C" */

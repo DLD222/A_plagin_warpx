@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_STATEREGISTRY_H_
 
 #include "Runtime/FieldSpec.H"
+#include "Runtime/ScalarRegistry.H"
 
 #include <string>
 #include <vector>
@@ -24,8 +25,8 @@ namespace warpx::runtime
  * that is what keeps "level lifecycle belongs to the core" (I3) true and lets
  * a field survive regrid, load balance and restart without plugin code.
  *
- * Today the registry owns fields only; species, materials, scalars and
- * particle attributes follow in S3b.
+ * Today the registry owns fields and scalars; materials and particle
+ * attributes follow with the plugins that own them.
  */
 class StateRegistry
 {
@@ -50,11 +51,18 @@ public:
         return find_field(name) != nullptr;
     }
 
+    //! Declare a scalar the core owns; handlers reach it through the bus.
+    void request_scalar (const ScalarSpec& spec) { m_scalars.declare(spec); }
+
+    [[nodiscard]] ScalarRegistry& scalars () { return m_scalars; }
+    [[nodiscard]] const ScalarRegistry& scalars () const { return m_scalars; }
+
     //! Drop every request (tests only).
     void clear ();
 
 private:
     std::vector<FieldSpec> m_fields;
+    ScalarRegistry m_scalars;
 };
 
 } // namespace warpx::runtime

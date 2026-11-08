@@ -28,7 +28,8 @@ Runtime::Runtime (int argc, char* argv[])
     m_external_libraries_initialized = true;
 
     m_kernel = create_pic_kernel(argc, argv);
-    m_bus = std::make_unique<DataBus>(m_kernel->fields(), m_kernel->schema());
+    m_bus = std::make_unique<DataBus>(m_kernel->fields(), m_kernel->schema(),
+                                     &m_state.scalars());
     sync_config();
     m_plugin_host = std::make_unique<PluginHost>();
 

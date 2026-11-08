@@ -10,6 +10,7 @@
 
 #include "Runtime/FieldRegistry.H"
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/ScalarRegistry.H"
 #include "Runtime/SpeciesRegistry.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -33,8 +34,9 @@ class DataBus
 {
 public:
     explicit DataBus (ablastr::fields::MultiFabRegister& fields) : m_fields(fields) {}
-    DataBus (ablastr::fields::MultiFabRegister& fields, FieldRegistry& registry)
-        : m_fields(fields), m_registry(&registry) {}
+    DataBus (ablastr::fields::MultiFabRegister& fields, FieldRegistry& registry,
+            ScalarRegistry* scalars = nullptr)
+        : m_fields(fields), m_registry(&registry), m_scalars(scalars) {}
 
     /**
      * \brief Install (or clear) the handler whose declarations gate access.
@@ -68,6 +70,15 @@ public:
      */
     amrex::MultiFab* alias (const std::string& dst, const std::string& src, int dir, int lev);
 
+    /**
+     * \brief Named scalar state (S3b).
+     *
+     * `scalar` is the read path, `set_scalar` the write path; both are checked
+     * against the active handler's scalar declarations.
+     */
+    [[nodiscard]] double scalar (const std::string& name) const;
+    void set_scalar (const std::string& name, double value);
+
     void register_species (const SpeciesSpec& spec);
     [[nodiscard]] bool has_species (const std::string& name) const;
     [[nodiscard]] SpeciesHandle species (const std::string& name) const;
@@ -77,11 +88,13 @@ private:
     //! Throws unless the active handler declared the access (S5).
     void require_field_access (const std::string& name, bool write) const;
     void require_species_access (const std::string& name, bool write) const;
+    void require_scalar_access (const std::string& name, bool write) const;
 
     ablastr::fields::MultiFabRegister& m_fields;
     const HandlerSpec* m_active = nullptr;
     FieldRegistry m_owned_registry;
     FieldRegistry* m_registry = &m_owned_registry;
+    ScalarRegistry* m_scalars = nullptr;
     SpeciesRegistry m_species;
 };
 
