@@ -10,6 +10,15 @@
 namespace warpx::runtime {
 class DataBus; class FieldRegistry; class HostServices; class PluginHost;
 class RuntimeContext; class RuntimeData;
+/**
+ * \brief The kernel contract: what the runtime needs from a simulation kernel.
+ *
+ * Despite the historical name, nothing here is PIC-specific: a fluid kernel
+ * implements the same interface (see tests/runtime/test_nonpic_kernel.cpp).
+ * The particle-only parts are optional hooks with empty defaults.  A7.9 renames
+ * this to ISimulationKernel once the remaining PIC-flavoured accessors in
+ * RuntimeData move behind capability interfaces.
+ */
 class IPicKernel {
 public:
     virtual ~IPicKernel () = default;
@@ -28,8 +37,12 @@ public:
     virtual void set_plugin_host (PluginHost*) = 0;
     virtual void set_runtime_context (RuntimeContext*) = 0;
     virtual void register_plugins (PluginHost&, bool disabled) = 0;
-    virtual void register_species (DataBus&) = 0;
-    virtual void allocate_collision_data () = 0;
+    //! Particle capability hook: publish the species on the bus.  A kernel
+    //! without particles (a fluid kernel) leaves the default in place.
+    virtual void register_species (DataBus& /*bus*/) {}
+    //! Particle capability hook: allocate collision state.  Optional for the
+    //! same reason.
+    virtual void allocate_collision_data () {}
     virtual void clear () = 0;
 
     //! Features this run actually uses ("amr", "eb", "qed", "psatd", ...).

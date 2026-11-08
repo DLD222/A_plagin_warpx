@@ -23,7 +23,7 @@ class IPicKernel;
  * then creates the kernel through it.  When no plugin registered, the runtime
  * reports that no kernel is available instead of failing to link.
  */
-struct PicKernelPlugin
+struct SolverKernelPlugin
 {
     std::unique_ptr<IPicKernel> (*create) (int argc, char* argv[]) = nullptr;
     void (*initialize_libraries) (int argc, char* argv[]) = nullptr;
@@ -31,10 +31,10 @@ struct PicKernelPlugin
 };
 
 /** \brief Register the PIC kernel implementation (idempotent; last one wins). */
-void register_pic_kernel_plugin (const PicKernelPlugin& plugin);
+void register_solver_kernel_plugin (const SolverKernelPlugin& plugin);
 
 //! True once a kernel plugin has registered.
-[[nodiscard]] bool has_pic_kernel_plugin ();
+[[nodiscard]] bool has_solver_kernel_plugin ();
 
 /**
  * \brief Create the simulation kernel through the registered plugin.
@@ -42,14 +42,14 @@ void register_pic_kernel_plugin (const PicKernelPlugin& plugin);
  * Throws std::runtime_error with an actionable message when no kernel plugin
  * is linked, which is the expected outcome for a Core-only build.
  */
-[[nodiscard]] std::unique_ptr<IPicKernel> create_pic_kernel (int argc, char* argv[]);
+[[nodiscard]] std::unique_ptr<IPicKernel> create_solver_kernel (int argc, char* argv[]);
 
 //! Library init/finalize hooks; no-ops when the plugin does not provide them.
 void initialize_runtime_libraries (int argc, char* argv[]);
 void finalize_runtime_libraries ();
 
 //! Drop the registration again (tests only; not part of the runtime lifecycle).
-void clear_pic_kernel_plugin ();
+void clear_solver_kernel_plugin ();
 
 } // namespace warpx::runtime
 

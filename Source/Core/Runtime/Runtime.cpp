@@ -28,7 +28,7 @@ Runtime::Runtime (int argc, char* argv[])
     initialize_runtime_libraries(argc, argv);
     m_external_libraries_initialized = true;
 
-    m_kernel = create_pic_kernel(argc, argv);
+    m_kernel = create_solver_kernel(argc, argv);
     m_bus = std::make_unique<DataBus>(m_kernel->fields(), m_kernel->schema(),
                                      &m_state.scalars());
     sync_config();

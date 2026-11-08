@@ -197,8 +197,8 @@ extern "C" void warpx_picem_kernel_anchor (void) {}
 // announces itself.  Core's registry uses a function-local static, hence no
 // static-initialization-order dependency.
 const bool picem_kernel_registered = [] {
-    register_pic_kernel_plugin(
-        PicKernelPlugin{&make_warpx_kernel, &initialize_warpx_libraries, &finalize_warpx_libraries});
+    register_solver_kernel_plugin(
+        SolverKernelPlugin{&make_warpx_kernel, &initialize_warpx_libraries, &finalize_warpx_libraries});
     return true;
 }();
 } // namespace

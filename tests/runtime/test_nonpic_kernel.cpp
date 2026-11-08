@@ -171,8 +171,6 @@ public:
     void set_plugin_host (warpx::runtime::PluginHost*) override {}
     void set_runtime_context (warpx::runtime::RuntimeContext*) override {}
     void register_plugins (warpx::runtime::PluginHost&, bool) override {}
-    void register_species (warpx::runtime::DataBus&) override {}      // no particles
-    void allocate_collision_data () override {}                        // no collisions
     void clear () override {}
     [[nodiscard]] std::vector<std::string> active_features () const override { return {"fluid"}; }
 

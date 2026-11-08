@@ -18,32 +18,32 @@ namespace
 // Function-local static: registration from a plugin's static initializer runs
 // before main(), but this storage is created on first use, so there is no
 // static-initialization-order dependency between Core and a plugin.
-PicKernelPlugin& registry ()
+SolverKernelPlugin& registry ()
 {
-    static PicKernelPlugin plugin{};
+    static SolverKernelPlugin plugin{};
     return plugin;
 }
 } // namespace
 
 void
-register_pic_kernel_plugin (const PicKernelPlugin& plugin)
+register_solver_kernel_plugin (const SolverKernelPlugin& plugin)
 {
     registry() = plugin;
 }
 
 bool
-has_pic_kernel_plugin ()
+has_solver_kernel_plugin ()
 {
     return registry().create != nullptr;
 }
 
 std::unique_ptr<IPicKernel>
-create_pic_kernel (int argc, char* argv[])
+create_solver_kernel (int argc, char* argv[])
 {
     if (registry().create == nullptr) {
         throw std::runtime_error(
             "Runtime: no PIC kernel plugin is registered. Link a kernel plugin "
-            "(e.g. warpx_picem_<dim>) or register a PicKernelPlugin.");
+            "(e.g. warpx_picem_<dim>) or register a SolverKernelPlugin.");
     }
     return registry().create(argc, argv);
 }
@@ -65,9 +65,9 @@ finalize_runtime_libraries ()
 }
 
 void
-clear_pic_kernel_plugin ()
+clear_solver_kernel_plugin ()
 {
-    registry() = PicKernelPlugin{};
+    registry() = SolverKernelPlugin{};
 }
 
 } // namespace warpx::runtime
