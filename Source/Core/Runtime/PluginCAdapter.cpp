@@ -12,6 +12,8 @@
 #include "Runtime/PluginCAdapter.H"
 
 #include "Runtime/DataBus.H"
+#include "Runtime/PluginManifest.H"
+#include "Runtime/StateRegistry.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/StageRegistry.H"
 
@@ -155,7 +157,89 @@ private:
     void* m_user_data;
 };
 
+//! IPluginLifecycle backed by a C descriptor (v6).
+class CApiPluginLifecycle final : public IPluginLifecycle
+{
+public:
+    explicit CApiPluginLifecycle (const WarpXPluginDesc& desc)
+        : m_name(desc.name != nullptr ? desc.name : ""),
+          m_version(desc.version != nullptr ? desc.version : ""),
+          m_role(parse_role(desc.role)),
+          m_required(copy_list(desc.required_plugins, desc.n_required_plugins)),
+          m_capabilities(copy_list(desc.capabilities, desc.n_capabilities)),
+          m_on_schema(desc.on_schema),
+          m_on_init(desc.on_init),
+          m_on_finalize(desc.on_finalize)
+    {}
+
+    [[nodiscard]] PluginManifest manifest () const override
+    {
+        return PluginManifest{m_name, m_version, m_role, m_required, m_capabilities};
+    }
+
+    void on_schema (SchemaContext& ctx) override
+    {
+        if (m_on_schema == nullptr || ctx.state == nullptr) { return; }
+        m_on_schema(state_registry_c_handle(*ctx.state));
+    }
+
+    void on_init (StageContext& ctx) override
+    {
+        if (m_on_init == nullptr) { return; }
+        WarpXStageContext cctx{ctx.context, ctx.bus, ctx.host, ctx.data, ctx.config,
+                               ctx.step, ctx.time, ctx.dt};
+        m_on_init(&cctx);
+    }
+
+    void on_finalize (StageContext& ctx) override
+    {
+        if (m_on_finalize == nullptr) { return; }
+        WarpXStageContext cctx{ctx.context, ctx.bus, ctx.host, ctx.data, ctx.config,
+                               ctx.step, ctx.time, ctx.dt};
+        m_on_finalize(&cctx);
+    }
+
+private:
+    static PluginRole parse_role (const char* role)
+    {
+        if (role == nullptr) { return PluginRole::Utility; }
+        const std::string value(role);
+        if (value == "kernel") { return PluginRole::Kernel; }
+        if (value == "physics") { return PluginRole::Physics; }
+        if (value == "field_solver") { return PluginRole::FieldSolver; }
+        if (value == "particles") { return PluginRole::Particles; }
+        if (value == "diagnostics") { return PluginRole::Diagnostics; }
+        if (value == "io") { return PluginRole::IO; }
+        if (value == "boundary") { return PluginRole::Boundary; }
+        if (value == "materials") { return PluginRole::Materials; }
+        if (value == "amr") { return PluginRole::Amr; }
+        if (value == "time_integrator") { return PluginRole::TimeIntegrator; }
+        return PluginRole::Utility;
+    }
+
+    std::string m_name;
+    std::string m_version;
+    PluginRole m_role;
+    std::vector<std::string> m_required;
+    std::vector<std::string> m_capabilities;
+    void (*m_on_schema) (WarpXStateRegistry*);
+    void (*m_on_init) (WarpXStageContext*);
+    void (*m_on_finalize) (WarpXStageContext*);
+};
+
 } // namespace
+
+std::shared_ptr<IPluginLifecycle>
+make_c_api_plugin (const WarpXPluginDesc& desc)
+{
+    return std::make_shared<CApiPluginLifecycle>(desc);
+}
+
+WarpXStateRegistry*
+state_registry_c_handle (StateRegistry& state)
+{
+    return reinterpret_cast<WarpXStateRegistry*>(&state);
+}
 
 WarpXPluginHost*
 plugin_host_c_handle (PluginHost& host)
@@ -214,6 +298,25 @@ warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_t lev, v
     if (field == nullptr) { return 0; }
     if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
     return 1;
+}
+
+extern "C" int32_t
+warpx_state_request_field (WarpXStateRegistry* state, const char* name, int32_t ncomp,
+                           int32_t ngrow, int32_t checkpoint)
+{
+    if (state == nullptr || name == nullptr || ncomp <= 0) { return 0; }
+    auto* registry = reinterpret_cast<warpx::runtime::StateRegistry*>(state);
+    try {
+        warpx::runtime::FieldSpec spec;
+        spec.name = name;
+        spec.ncomp = ncomp;
+        spec.ngrow = amrex::IntVect(ngrow);
+        spec.checkpoint = (checkpoint != 0);
+        registry->request_field(spec);
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }
 
 extern "C" int32_t

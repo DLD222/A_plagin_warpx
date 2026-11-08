@@ -20,6 +20,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -44,7 +45,7 @@ public:
         m.version = "2.0";
         m.role = warpx::runtime::PluginRole::Physics;
         m.required_plugins = {"kernel"};
-        m.capabilities = {"amr"};
+        // no capability claim: skipped by the capability check
         return m;
     }
 
@@ -64,6 +65,26 @@ public:
     int schema_calls = 0;
     int init_calls = 0;
     int finalize_calls = 0;
+};
+
+class CapabilityPlugin final : public warpx::runtime::IPluginLifecycle
+{
+public:
+    CapabilityPlugin (std::string name, std::vector<std::string> capabilities)
+        : m_name(std::move(name)), m_capabilities(std::move(capabilities)) {}
+
+    [[nodiscard]] warpx::runtime::PluginManifest manifest () const override
+    {
+        warpx::runtime::PluginManifest m;
+        m.name = m_name;
+        m.role = warpx::runtime::PluginRole::Physics;
+        m.capabilities = m_capabilities;
+        return m;
+    }
+
+private:
+    std::string m_name;
+    std::vector<std::string> m_capabilities;
 };
 
 class UnmetRequirementPlugin final : public warpx::runtime::IPluginLifecycle
@@ -153,6 +174,37 @@ int main (int argc, char* argv[])
         thrown = true;
     }
     check(thrown, "requirement for an unknown name is still rejected");
+
+    // Capability check: active features must be declared by claiming plugins.
+    PluginHost capable;
+    capable.add_plugin(std::make_shared<CapabilityPlugin>("full", std::vector<std::string>{"amr", "qed"}));
+    bool accepted = true;
+    try {
+        capable.validate_capabilities({"amr", "qed"});
+    } catch (const std::runtime_error&) {
+        accepted = false;
+    }
+    check(accepted, "declared capabilities accept the active features");
+
+    PluginHost partial;
+    partial.add_plugin(std::make_shared<CapabilityPlugin>("partial", std::vector<std::string>{"amr"}));
+    bool rejected = false;
+    try {
+        partial.validate_capabilities({"amr", "qed"});
+    } catch (const std::runtime_error&) {
+        rejected = true;
+    }
+    check(rejected, "missing capability is rejected");
+
+    PluginHost silent;
+    silent.add_plugin(std::make_shared<CapabilityPlugin>("silent", std::vector<std::string>{}));
+    bool skipped = true;
+    try {
+        silent.validate_capabilities({"amr", "qed"});
+    } catch (const std::runtime_error&) {
+        skipped = false;
+    }
+    check(skipped, "a plugin that claims no capability is not checked");
 
     if (failures != 0) {
         std::cerr << failures << " check(s) failed\n";

@@ -23,6 +23,12 @@ int main (int argc, char** argv)
             std::cerr << "plugin registration mismatch\n";
             return 1;
         }
+        // C ABI v6: the plugin also registers a manifest (name/version/role).
+        if (host.plugin_count() != 1 ||
+            host.manifests().front().name != "dynamic_example_plugin") {
+            std::cerr << "C plugin manifest mismatch\n";
+            return 1;
+        }
     } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
         return 1;

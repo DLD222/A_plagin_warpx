@@ -70,6 +70,7 @@ Runtime::initialize ()
     SchemaContext schema_ctx{&m_state};
     m_plugin_host->run_schema(schema_ctx);
     m_plugin_host->validate_plugins();
+    m_plugin_host->validate_capabilities(m_kernel->active_features());
 
     m_kernel->initialize();
     sync_config();

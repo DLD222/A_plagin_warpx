@@ -51,7 +51,7 @@ main (void)
         printf("FAIL: handler struct_size\n");
         return 1;
     }
-    if (WARPX_PLUGIN_ABI_VERSION != 5u) {
+    if (WARPX_PLUGIN_ABI_VERSION != 6u) {
         printf("FAIL: unexpected ABI version\n");
         return 2;
     }
@@ -73,6 +73,7 @@ main (void)
     if (warpx_stage_has_field(NULL, "Efield_fp", 0) != 0) { return 8; }
     if (warpx_stage_field(NULL, "Efield_fp", 0, NULL) != 0) { return 9; }
     if (warpx_host_add_handler(NULL, NULL) == 0) { return 10; }
+    if (warpx_state_request_field(NULL, "x", 1, 0, 0) != 0) { return 11; }
 
     printf("plugin ABI v%u C header OK\n", (unsigned) WARPX_PLUGIN_ABI_VERSION);
     return 0;

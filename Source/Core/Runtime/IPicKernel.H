@@ -5,6 +5,8 @@
 #include "Runtime/TimeState.H"
 #include <ablastr/fields/MultiFabRegister.H>
 #include <memory>
+#include <string>
+#include <vector>
 namespace warpx::runtime {
 class DataBus; class FieldRegistry; class HostServices; class PluginHost;
 class RuntimeContext; class RuntimeData;
@@ -29,6 +31,10 @@ public:
     virtual void register_species (DataBus&) = 0;
     virtual void allocate_collision_data () = 0;
     virtual void clear () = 0;
+
+    //! Features this run actually uses ("amr", "eb", "qed", "psatd", ...).
+    //! Used to check plugin capability declarations before the first step.
+    [[nodiscard]] virtual std::vector<std::string> active_features () const = 0;
 };
 // The factory and the library hooks live in Runtime/KernelFactory.H: Core
 // declares them, a kernel plugin (PicEm) registers them at static-init time.

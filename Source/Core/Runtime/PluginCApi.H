@@ -24,7 +24,7 @@
 
 /* Version of the layout below.  Bump on any change to WarpXHandlerDesc,
  * WarpXPluginDesc, the WarpXStage ordinals, or the exported functions. */
-#define WARPX_PLUGIN_ABI_VERSION 5u
+#define WARPX_PLUGIN_ABI_VERSION 6u
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +34,7 @@ extern "C" {
  * host's memory layout. */
 typedef struct WarpXPluginHost WarpXPluginHost;
 typedef struct WarpXStageContext WarpXStageContext;
+typedef struct WarpXStateRegistry WarpXStateRegistry;
 
 /* Stage ordinals.  Mirrors warpx::runtime::Stage; the host asserts equality at
  * build time (PluginCAdapter.cpp). */
@@ -96,6 +97,23 @@ typedef struct WarpXPluginDesc
     const char* version;
     /* Registers zero or more handlers through warpx_host_add_handler. */
     void (*register_handlers) (WarpXPluginHost* host);
+
+    /* ---- v6: manifest and lifecycle (all optional, may be NULL) -------- */
+    /* "kernel", "physics", "field_solver", "particles", "diagnostics",
+     * "io", "boundary", "materials", "amr", "time_integrator", "utility" */
+    const char* role;
+    const char* const* required_plugins;
+    uint32_t n_required_plugins;
+    /* Features this plugin can cope with ("amr", "eb", "qed", ...). An empty
+     * list means "no claim" and skips the capability check. */
+    const char* const* capabilities;
+    uint32_t n_capabilities;
+    /* Declare core-owned state before the first step. */
+    void (*on_schema) (WarpXStateRegistry* state);
+    /* Bring the plugin up after levels are allocated. */
+    void (*on_init) (WarpXStageContext* ctx);
+    /* Release resources after the last step. */
+    void (*on_finalize) (WarpXStageContext* ctx);
 } WarpXPluginDesc;
 
 /* Type of the exported entry point; the loader resolves the string
@@ -121,6 +139,12 @@ int32_t warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_
                                 void** multifab);
 /* Write access: the handler must have declared the field in writes_fields. */
 int32_t warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab);
+
+/* Declare a field the core must own (allocated on every level, remade on
+ * regrid, written to checkpoints when checkpoint != 0).
+ * Returns 1 on success, 0 on failure (never throws across the C boundary). */
+int32_t warpx_state_request_field (WarpXStateRegistry* state, const char* name,
+                                   int32_t ncomp, int32_t ngrow, int32_t checkpoint);
 
 /* Named scalar state.  Read needs reads_scalars (or writes_scalars), write
  * needs writes_scalars.  Return 1 on success, 0 when unavailable/undeclared. */

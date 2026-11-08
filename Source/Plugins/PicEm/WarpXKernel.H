@@ -28,6 +28,7 @@ public:
     void register_species (DataBus&) override;
     void allocate_collision_data () override;
     void clear () override;
+    [[nodiscard]] std::vector<std::string> active_features () const override;
 private:
     std::unique_ptr<WarpX> m_warpx;
     std::unique_ptr<WarpXRuntimeData> m_data;

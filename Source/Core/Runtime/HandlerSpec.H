@@ -173,6 +173,37 @@ public:
         }
     }
 
+    /**
+     * \brief Refuse to start when an active run feature is not declared.
+     *
+     * Only plugins that declared at least one capability are checked: an empty
+     * list means "no claim", so existing plugins keep working.
+     */
+    void validate_capabilities (const std::vector<std::string>& active_features) const
+    {
+        for (const auto& entry : m_plugins) {
+            if (entry.manifest.capabilities.empty()) { continue; }
+            for (const auto& feature : active_features) {
+                bool supported = false;
+                for (const auto& capability : entry.manifest.capabilities) {
+                    if (capability == feature) { supported = true; break; }
+                }
+                if (!supported) {
+                    std::string declared;
+                    for (const auto& capability : entry.manifest.capabilities) {
+                        if (!declared.empty()) { declared += ", "; }
+                        declared += capability;
+                    }
+                    throw std::runtime_error(
+                        "PluginHost: plugin '" + entry.manifest.name +
+                        "' does not support the active run feature '" + feature +
+                        "' (declared capabilities: " + declared +
+                        "). Disable the feature or use a plugin that supports it.");
+                }
+            }
+        }
+    }
+
     void run_schema (SchemaContext& ctx) const
     {
         for (const auto& entry : m_plugins) { entry.plugin->on_schema(ctx); }

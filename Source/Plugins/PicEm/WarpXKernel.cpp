@@ -16,6 +16,8 @@
 #include "Runtime/WarpXRuntimeData.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "WarpX.H"
+
+#include "EmbeddedBoundary/Enabled.H"
 #include "Initialization/WarpXInit.H"
 
 #include <set>
@@ -144,6 +146,25 @@ void WarpXKernel::clear ()
     m_data.reset();
     m_warpx.reset();
     WarpX::ResetInstance();
+}
+
+std::vector<std::string>
+WarpXKernel::active_features () const
+{
+    std::vector<std::string> features;
+    if (m_warpx->maxLevel() > 0) { features.emplace_back("amr"); }
+    if (EB::enabled()) { features.emplace_back("eb"); }
+#ifdef WARPX_QED
+    features.emplace_back("qed");
+#endif
+#ifdef WARPX_DIM_RZ
+    features.emplace_back("rz");
+#endif
+    switch (m_config.electromagnetic_solver_id()) {
+        case ElectromagneticSolverAlgo::PSATD: features.emplace_back("psatd"); break;
+        default: break;
+    }
+    return features;
 }
 
 void WarpXKernel::finalize () {}
