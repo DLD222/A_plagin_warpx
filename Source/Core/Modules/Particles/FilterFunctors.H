@@ -15,7 +15,7 @@
 #include <AMReX_Parser.H>
 #include <AMReX_Random.H>
 
-using SuperParticleType = typename WarpXParticleContainer::SuperParticleType;
+using SuperParticleType = typename warpx::runtime::IParticleContainer::SuperParticleType;
 
 /**
  *  \brief Used to keep track of what inputs units a filter function should expect.

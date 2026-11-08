@@ -25,8 +25,10 @@ struct GetExternalEBField
 
     GetExternalEBField () = default;
 
-    explicit GetExternalEBField (const WarpXParIter& a_pti, long a_offset = 0,
-                                const warpx::runtime::RuntimeContext* ctx = nullptr) noexcept;
+    //! Generic over the tile iterator: Core must not name a concrete one.
+    template <typename ParIterType>
+    explicit GetExternalEBField (const ParIterType& a_pti, long a_offset = 0,
+                                 const warpx::runtime::RuntimeContext* ctx = nullptr) noexcept;
 
     ExternalFieldInitType m_Etype;
     ExternalFieldInitType m_Btype;

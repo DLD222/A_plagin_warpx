@@ -17,7 +17,8 @@
 
 using namespace amrex::literals;
 
-GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset,
+template <typename ParIterType>
+GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
                                         const warpx::runtime::RuntimeContext* ctx) noexcept
 {
     static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
@@ -108,3 +109,8 @@ GetExternalEBField::GetExternalEBField (const WarpXParIter& a_pti, long a_offset
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_Btype != Unknown, "Unknown B_ext_particle_init_style");
 
 }
+
+// The core only knows the generic iterator; this is the one concrete
+// instantiation the built-in plugins use.
+template GetExternalEBField::GetExternalEBField<WarpXParIter> (
+    const WarpXParIter&, long, const warpx::runtime::RuntimeContext*) noexcept;

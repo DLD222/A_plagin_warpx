@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| D1-a 第 2 批（纯度棘轮） | **完成** | `GetExternalEBField` 构造改为对迭代器类型模板化（核心不再指名具体迭代器）；`FilterFunctors` 的 `SuperParticleType` 改用通用容器类型；新增 `check_core_purity.py` + 允许清单：核心中「具体粒子类／迭代器／WarpX 单例」的引用必须登记，新增即失败；当前真实引用从 8 降到 **5**，且清单只能减不能增 |
 | D1-a 第 1 批的收尾 | **完成** | 首次提交只完成了一部分（`git mv` 链在 `ShapeFactors` 处中断），`IParticleIterator` 与三个别名契约实际仍留在 Core；本次补齐并核对：Core 侧 18 个粒子头中，仅 4 个仍引用具体类型（`WarpXParIter`、`ParticleIO`、`GetExternalFields`、`FilterFunctors`），这 4 个被诊断插件使用，需先换通用契约才能搬迁 |
 | S4a 清单 + 生命周期 + 依赖校验 | **完成** | `PluginManifest`（名字/版本/角色/依赖/能力）+ `IPluginLifecycle`（schema/init/建层/重划/检查点/重启/收尾）；`on_schema` 在 `initialize()` 开头执行（构造后加入的插件也能拿到）、`on_init` 在内核建层后、`on_finalize` 在收尾前且幂等；依赖未满足或重名插件在启动时被拒；PicEm 以 kernel 角色登记清单；`plugin_lifecycle_2` 九项断言通过 |
 | S4d 插件可移除 | **完成** | 新增 `WarpX_PLUGIN_DIAGNOSTICS` / `WarpX_PLUGIN_IO` 构建开关；关闭诊断+IO 后核心与内核仍构建，并可跑完整算例（无诊断输出、无崩溃）；`WarpX::InitFromCheckpoint`/`GetRestartDMap` 从 IO 插件移回 PicEm（它们是 WarpX 成员而非 IO 服务）；默认构建 255 项失败集合不变 |

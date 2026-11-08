@@ -1,0 +1,8 @@
+# Known concrete WarpX particle/iterator references in Core (D1-a ratchet).
+# Each line is <path>|<symbol>. Remove entries as the dependency is replaced;
+# the checker fails when a new reference appears that is not listed here.
+Source/Core/Modules/AcceleratorLattice/LatticeElementFinder.H|WarpXParIter
+Source/Core/Modules/Particles/WarpXParIter.H|WarpXParIter
+Source/Core/Runtime/IElectrostaticSolver.H|MultiParticleContainer
+Source/Core/Runtime/IParticleContainerAccess.H|WarpXParticleContainer
+Source/Core/Runtime/RuntimeData.H|MultiParticleContainer
