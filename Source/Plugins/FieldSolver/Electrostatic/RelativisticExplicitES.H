@@ -11,7 +11,8 @@
 #define WARPX_RELATIVISTICEXPLICITES_H_
 
 #include "ElectrostaticSolver.H"
-#include "Particles/WarpXParticleContainer.H"
+
+#include "Runtime/IParticleContainer.H"
 
 
 class RelativisticExplicitES final : public ElectrostaticSolver
@@ -58,7 +59,7 @@ public:
      * \param[in] verbosity Level of verbosity
      */
     void AddSpaceChargeField (
-        WarpXParticleContainer& pc,
+        warpx::runtime::IParticleContainer& pc,
         ablastr::fields::MultiLevelVectorField& Efield_fp,
         ablastr::fields::MultiLevelVectorField& Bfield_fp,
         int verbosity

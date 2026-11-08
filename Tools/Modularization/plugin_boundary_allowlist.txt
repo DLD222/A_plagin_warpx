@@ -10,9 +10,6 @@ Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatCheckpoint.cp
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatPlotfile.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/WarpXOpenPMD.cpp includes FieldIO.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H includes Fluids/MultiFluidContainer.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.H includes Particles/WarpXParticleContainer.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.cpp includes Particles/MultiParticleContainer.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.cpp includes Particles/WarpXParticleContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveB.cpp includes EmbeddedBoundary/WarpXFaceInfoBox.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveBPML.cpp includes BoundaryConditions/PMLComponent.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML.H

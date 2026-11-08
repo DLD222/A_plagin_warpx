@@ -150,6 +150,18 @@ public:
     void setCurrentInjectionPosition (amrex::Real pos) override
     { m_current_injection_position = pos; }
     [[nodiscard]] int doNotDeposit () const override { return do_not_deposit; }
+
+    [[nodiscard]] amrex::Real selfFieldRelativeTolerance () const override
+    { return self_fields_required_precision; }
+    [[nodiscard]] amrex::Real selfFieldAbsoluteTolerance () const override
+    { return self_fields_absolute_tolerance; }
+    [[nodiscard]] int selfFieldMaxIterations () const override
+    { return self_fields_max_iters; }
+    [[nodiscard]] int selfFieldVerbosity () const override
+    { return self_fields_verbosity; }
+    [[nodiscard]] std::array<amrex::ParticleReal, 3>
+    meanVelocity (bool local = false) override
+    { return meanParticleVelocity(local); }
     using warpx::runtime::IParticleContainer::DepositCurrent;
     using warpx::runtime::IParticleContainer::DepositCharge;
     using warpx::runtime::IParticleContainer::DepositTotalNGPTemperature;

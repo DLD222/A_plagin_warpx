@@ -74,6 +74,16 @@ public:
     virtual void DepositTotalNGPTemperature (int lev) = 0;
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
     GetChargeDensityOnLevel (int lev, bool local, bool finalize) = 0;
+
+    // ---- self-field accuracy configuration (generic: any species may ask for
+    // its own self-consistent fields at a given accuracy) -------------------
+    [[nodiscard]] virtual amrex::Real selfFieldRelativeTolerance () const = 0;
+    [[nodiscard]] virtual amrex::Real selfFieldAbsoluteTolerance () const = 0;
+    [[nodiscard]] virtual int selfFieldMaxIterations () const = 0;
+    [[nodiscard]] virtual int selfFieldVerbosity () const = 0;
+    //! Mean particle velocity, optionally over the local rank's particles only.
+    [[nodiscard]] virtual std::array<amrex::ParticleReal, 3>
+    meanVelocity (bool local = false) = 0;
 };
 }
 #endif
