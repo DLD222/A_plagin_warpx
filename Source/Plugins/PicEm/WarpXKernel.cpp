@@ -7,6 +7,7 @@
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/DataBus.H"
 #include "Runtime/KernelFactory.H"
+#include "Runtime/PluginManifest.H"
 #include "Runtime/DiagnosticsPackage.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -90,8 +91,27 @@ HostServices& WarpXKernel::host () { return *m_host; }
 void WarpXKernel::set_plugin_host (PluginHost* host) { m_warpx->SetPluginHost(host); }
 void WarpXKernel::set_runtime_context (RuntimeContext* ctx) { m_warpx->SetRuntimeContext(ctx); }
 
+namespace
+{
+//! Minimal manifest plugin: PicEm is the kernel, everything else may require it.
+class PicEmManifestPlugin final : public IPluginLifecycle
+{
+public:
+    [[nodiscard]] PluginManifest manifest () const override
+    {
+        PluginManifest m;
+        m.name = "picem";
+        m.version = "1.0";
+        m.role = PluginRole::Kernel;
+        m.capabilities = {"amr", "eb", "qed", "psatd", "implicit", "rz"};
+        return m;
+    }
+};
+} // namespace
+
 void WarpXKernel::register_plugins (PluginHost& host, bool disabled)
 {
+    host.add_plugin(std::make_shared<PicEmManifestPlugin>());
     if (!disabled) {
         PicEmPackage::register_handlers(host, field_solver_module_name(m_config));
         DiagnosticsPackage::register_handlers(host);

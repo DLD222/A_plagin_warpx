@@ -64,10 +64,22 @@ Runtime::initialize ()
         throw std::runtime_error("Runtime::initialize() called after finalize()");
     }
     if (m_initialized) { return; }
+
+    // S4: plugins may be added between construction and initialize(), so the
+    // schema phase and the manifest check happen here, before any physics.
+    SchemaContext schema_ctx{&m_state};
+    m_plugin_host->run_schema(schema_ctx);
+    m_plugin_host->validate_plugins();
+
     m_kernel->initialize();
     sync_config();
     m_kernel->allocate_collision_data();
     m_kernel->register_species(*m_bus);
+    if (m_bus != nullptr) {
+        StageContext ctx{&m_context, m_bus.get(), &m_kernel->host(), &m_kernel->data(),
+                         &m_config_snapshot};
+        m_plugin_host->run_init(ctx);
+    }
     m_initialized = true;
     sync_state();
 }
@@ -86,6 +98,11 @@ void
 Runtime::finalize ()
 {
     if (m_finalized) { return; }
+    if (m_plugin_host != nullptr && m_bus != nullptr && m_kernel != nullptr) {
+        StageContext ctx{&m_context, m_bus.get(), &m_kernel->host(), &m_kernel->data(),
+                         &m_config_snapshot};
+        m_plugin_host->run_finalize(ctx);
+    }
     m_kernel->clear();
     m_bus.reset();
     m_plugin_host.reset();

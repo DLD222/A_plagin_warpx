@@ -31,6 +31,8 @@ foreach(D IN LISTS WarpX_DIMS)
         target_link_libraries(test_bus_access_${SD} PRIVATE lib_${SD})
         add_executable(test_scalar_state_${SD} test_scalar_state.cpp)
         target_link_libraries(test_scalar_state_${SD} PRIVATE lib_${SD})
+        add_executable(test_plugin_lifecycle_${SD} test_plugin_lifecycle.cpp)
+        target_link_libraries(test_plugin_lifecycle_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_collision_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_access_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_contracts_${SD} PRIVATE lib_${SD})
@@ -42,6 +44,12 @@ foreach(D IN LISTS WarpX_DIMS)
             $<TARGET_OBJECTS:warpx_io_${SD}>)
 
         add_test(NAME stage_registry_${D} COMMAND test_stage_registry_${SD})
+
+        warpx_runtime_test_workdir(plugin_lifecycle_${D} plugin_lifecycle_${D}_dir)
+        add_test(NAME plugin_lifecycle_${D}
+                 COMMAND test_plugin_lifecycle_${SD} ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d)
+        set_tests_properties(plugin_lifecycle_${D} PROPERTIES
+            WORKING_DIRECTORY ${plugin_lifecycle_${D}_dir})
 
         warpx_runtime_test_workdir(scalar_state_${D} scalar_state_${D}_dir)
         add_test(NAME scalar_state_${D}

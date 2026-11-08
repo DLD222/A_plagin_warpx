@@ -405,7 +405,8 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3a 场（插件声明、核心分配/重划/检查点） | **完成** | 核心 `StateRegistry` + `AllocPluginFields`：插件声明拥有的场由核心在每层分配，动态加密后在新层自动创建，并进入 schema 驱动的检查点；`plugin_field_2` 三项断言通过 |
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
-| S4 插件清单/生命周期/能力 | 未开始 | — |
+| S4a 清单 + 生命周期 + 依赖校验 | **完成** | `PluginManifest`（名字/版本/角色/依赖/能力）+ `IPluginLifecycle`（schema/init/建层/重划/检查点/重启/收尾）；`on_schema` 在 `initialize()` 开头执行（构造后加入的插件也能拿到）、`on_init` 在内核建层后、`on_finalize` 在收尾前且幂等；依赖未满足或重名插件在启动时被拒；PicEm 以 kernel 角色登记清单；`plugin_lifecycle_2` 九项断言通过 |
+| S4b 能力校验 + C ABI 清单 | 未开始 | 能力（AMR/EB/QED）与运行特性对账；C 侧清单与生命周期 |
 | S5a 声明式访问校验 | **完成** | 处理器运行时总线只允许其声明的读写；未声明访问在调用点抛错并给出声明指引；聚合名/分量名共用同一匹配规则（`KeyMatch.H`）；内置处理器仍走宿主服务（S5b 待做）；`bus_access_2` 覆盖允许/拒绝/内核路径/聚合名 |
 | S5b 内置处理器改经总线 | 未开始 | — |
 | S6 按物理功能拆插件 | 未开始 | — |

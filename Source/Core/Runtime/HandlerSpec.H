@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_HANDLERSPEC_H_
 
 #include "Runtime/KeyMatch.H"
+#include "Runtime/PluginManifest.H"
 #include "Runtime/StagePoint.H"
 #include "Runtime/StageRegistry.H"
 
@@ -113,6 +114,88 @@ public:
     {
         validate(spec);
         m_specs.push_back(std::move(spec));
+    }
+
+    // ---------------------------------------------------------------- S4 --
+    /** \brief Register a plugin (manifest + lifecycle). Names must be unique. */
+    void add_plugin (std::shared_ptr<IPluginLifecycle> plugin)
+    {
+        PluginManifest manifest = plugin->manifest();
+        if (manifest.name.empty()) {
+            throw std::runtime_error("PluginHost: plugin without a manifest name");
+        }
+        for (const auto& existing : m_plugins) {
+            if (existing.plugin->manifest().name == manifest.name) {
+                throw std::runtime_error(
+                    "PluginHost: plugin '" + manifest.name + "' registered twice");
+            }
+        }
+        m_plugins.push_back({std::move(manifest), std::move(plugin)});
+    }
+
+    [[nodiscard]] std::size_t plugin_count () const { return m_plugins.size(); }
+
+    [[nodiscard]] std::vector<PluginManifest> manifests () const
+    {
+        std::vector<PluginManifest> out;
+        out.reserve(m_plugins.size());
+        for (const auto& entry : m_plugins) { out.push_back(entry.manifest); }
+        return out;
+    }
+
+    /**
+     * \brief Refuse to start when a manifest requirement is unmet.
+     *
+     * A requirement is satisfied by another registered plugin's manifest name,
+     * by a plugin role ("kernel", "diagnostics", ...), or by the reserved
+     * names "core" and "runtime".
+     */
+    void validate_plugins () const
+    {
+        std::vector<std::string> provided{"core", "runtime"};
+        for (const auto& entry : m_plugins) {
+            provided.push_back(entry.manifest.name);
+            provided.push_back(role_name(entry.manifest.role));
+        }
+        for (const auto& entry : m_plugins) {
+            for (const auto& requirement : entry.manifest.required_plugins) {
+                bool satisfied = false;
+                for (const auto& have : provided) {
+                    if (have == requirement) { satisfied = true; break; }
+                }
+                if (!satisfied) {
+                    throw std::runtime_error(
+                        "PluginHost: plugin '" + entry.manifest.name +
+                        "' requires \"" + requirement +
+                        "\", which is neither registered nor a known role");
+                }
+            }
+        }
+    }
+
+    void run_schema (SchemaContext& ctx) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_schema(ctx); }
+    }
+    void run_init (StageContext& ctx) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_init(ctx); }
+    }
+    void run_level_created (StageContext& ctx, int lev) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_level_created(ctx, lev); }
+    }
+    void run_checkpoint (StageContext& ctx) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_checkpoint(ctx); }
+    }
+    void run_restart (StageContext& ctx) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_restart(ctx); }
+    }
+    void run_finalize (StageContext& ctx) const
+    {
+        for (const auto& entry : m_plugins) { entry.plugin->on_finalize(ctx); }
     }
 
     [[nodiscard]] std::size_t size () const { return m_handlers.size(); }
@@ -235,6 +318,13 @@ private:
         }
     }
 
+    struct PluginEntry
+    {
+        PluginManifest manifest;
+        std::shared_ptr<IPluginLifecycle> plugin;
+    };
+
+    std::vector<PluginEntry> m_plugins;
     std::vector<std::shared_ptr<IHandler>> m_handlers;
     std::vector<HandlerSpec> m_specs;
     std::vector<HandlerSpec> m_handler_specs;
