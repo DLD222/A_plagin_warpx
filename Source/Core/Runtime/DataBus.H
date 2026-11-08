@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_DATABUS_H_
 
 #include "Runtime/FieldRegistry.H"
+#include "Runtime/HandlerSpec.H"
 #include "Runtime/SpeciesRegistry.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -34,6 +35,16 @@ public:
     explicit DataBus (ablastr::fields::MultiFabRegister& fields) : m_fields(fields) {}
     DataBus (ablastr::fields::MultiFabRegister& fields, FieldRegistry& registry)
         : m_fields(fields), m_registry(&registry) {}
+
+    /**
+     * \brief Install (or clear) the handler whose declarations gate access.
+     *
+     * Set by the scheduler around a handler's apply().  While unset (kernel
+     * code, legacy paths, tests) the bus is unrestricted, as before.
+     */
+    void set_active_handler (const HandlerSpec* spec) { m_active = spec; }
+    void clear_active_handler () { m_active = nullptr; }
+    [[nodiscard]] const HandlerSpec* active_handler () const { return m_active; }
 
     void declare (FieldSpec spec);
     [[nodiscard]] const FieldSpec* spec (const std::string& name) const;
@@ -63,7 +74,12 @@ public:
     [[nodiscard]] const SpeciesRegistry& speciesRegistry () const { return m_species; }
 
 private:
+    //! Throws unless the active handler declared the access (S5).
+    void require_field_access (const std::string& name, bool write) const;
+    void require_species_access (const std::string& name, bool write) const;
+
     ablastr::fields::MultiFabRegister& m_fields;
+    const HandlerSpec* m_active = nullptr;
     FieldRegistry m_owned_registry;
     FieldRegistry* m_registry = &m_owned_registry;
     SpeciesRegistry m_species;

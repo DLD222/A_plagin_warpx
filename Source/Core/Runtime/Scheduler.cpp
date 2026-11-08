@@ -7,6 +7,7 @@
  */
 #include "Runtime/Scheduler.H"
 
+#include "Runtime/DataBus.H"
 #include "Runtime/StageRegistry.H"
 
 namespace warpx::runtime
@@ -18,9 +19,17 @@ Scheduler::run (StageContext& ctx, int from, int to) const
     if (to <= from) { return 0; }
     int executed = 0;
     for (auto* handler : m_host.ordered()) {
-        const int stage = handler->spec().point.stage;
-        if (stage < from || stage >= to) { continue; }
-        handler->apply(ctx);
+        const HandlerSpec spec = handler->spec();
+        if (spec.point.stage < from || spec.point.stage >= to) { continue; }
+        // The bus checks every access against this declaration (S5).
+        if (ctx.bus != nullptr) { ctx.bus->set_active_handler(&spec); }
+        try {
+            handler->apply(ctx);
+        } catch (...) {
+            if (ctx.bus != nullptr) { ctx.bus->clear_active_handler(); }
+            throw;
+        }
+        if (ctx.bus != nullptr) { ctx.bus->clear_active_handler(); }
         ++executed;
     }
     return executed;

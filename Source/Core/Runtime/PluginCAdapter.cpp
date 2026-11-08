@@ -201,6 +201,16 @@ warpx_stage_has_field (WarpXStageContext* ctx, const char* name, int32_t lev)
 }
 
 extern "C" int32_t
+warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    const amrex::MultiFab* field = ctx->bus->field(std::string(name), lev);
+    if (field == nullptr) { return 0; }
+    if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
+    return 1;
+}
+
+extern "C" int32_t
 warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab)
 {
     if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }

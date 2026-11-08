@@ -8,6 +8,7 @@
 #ifndef WARPX_RUNTIME_HANDLERSPEC_H_
 #define WARPX_RUNTIME_HANDLERSPEC_H_
 
+#include "Runtime/KeyMatch.H"
 #include "Runtime/StagePoint.H"
 #include "Runtime/StageRegistry.H"
 
@@ -114,20 +115,9 @@ public:
             return specs[a].priority < specs[b].priority;
         });
 
-        auto field_matches = [](const std::string& a, const std::string& b) {
-            if (a == b) { return true; }
-            // A spec may declare an aggregate name ("Efield_fp") while the
-            // registry stores components ("Efield_fp_x").
-            if (b.size() > a.size() && b.compare(0, a.size(), a) == 0 && b[a.size()] == '_') { return true; }
-            if (a.size() > b.size() && a.compare(0, b.size(), b) == 0 && a[b.size()] == '_') { return true; }
-            return false;
-        };
-        auto intersects = [&field_matches](const std::vector<std::string>& a,
-                                           const std::vector<std::string>& b) {
-            for (const auto& x : a) {
-                for (const auto& y : b) { if (field_matches(x, y)) { return true; } }
-            }
-            return false;
+        auto intersects = [](const std::vector<std::string>& a,
+                             const std::vector<std::string>& b) {
+            return key_intersects(a, b);
         };
 
         std::vector<std::size_t> sorted;

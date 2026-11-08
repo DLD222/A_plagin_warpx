@@ -112,6 +112,10 @@ double warpx_stage_dt (const WarpXStageContext* ctx);
  * amrex::MultiFab pointer for that field/level (advanced plugins also link
  * AMReX to interpret it).  Returns 0 when the field is absent. */
 int32_t warpx_stage_has_field (WarpXStageContext* ctx, const char* name, int32_t lev);
+/* Read access: the handler must have declared the field in reads_fields. */
+int32_t warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_t lev,
+                                void** multifab);
+/* Write access: the handler must have declared the field in writes_fields. */
 int32_t warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab);
 
 #ifdef __cplusplus
