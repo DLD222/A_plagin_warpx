@@ -444,6 +444,9 @@ foreach(D IN LISTS WarpX_DIMS)
         add_executable(app_${SD})
         add_executable(WarpX::app_${SD} ALIAS app_${SD})
         target_link_libraries(app_${SD} PRIVATE lib_${SD})
+        # Plugins loaded at run time through WARPX_PLUGIN_PATH resolve the C ABI
+        # from the host, so the executable must export its symbols.
+        set_target_properties(app_${SD} PROPERTIES ENABLE_EXPORTS ON)
         set(_BUILDINFO_SRC app_${SD})
         list(APPEND _ALL_TARGETS app_${SD})
     endif()

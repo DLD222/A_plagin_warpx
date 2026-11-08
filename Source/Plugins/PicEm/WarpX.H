@@ -1301,6 +1301,10 @@ private:
     void RunRegridStage (int step);
     void FlushDiagnostics (int step);
     void RunFieldSolveStage (amrex::Real a_cur_time);
+    //! Dispatch the intervals that start at a stage boundary, so a plugin
+    //! registered exactly at AfterFieldSolve / AfterCollisions also runs.
+    void RunAfterFieldSolveStage (amrex::Real a_cur_time, amrex::Real a_dt);
+    void RunAfterCollisionStage (int step, amrex::Real cur_time, amrex::Real dt);
 
     //! Particle access + services handed to plugin-facing calls (D1-a: no
     //! concrete container crosses a core contract).

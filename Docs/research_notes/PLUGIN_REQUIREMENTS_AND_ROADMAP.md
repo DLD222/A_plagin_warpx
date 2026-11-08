@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| R2/R4 外部插件验证（第 10 步） | **完成** | 在**仓库外**用普通 gcc 写并编译了一个插件（只包含公共 C ABI 头、不链接任何 WarpX 代码），用 `WARPX_PLUGIN_PATH` 加载进真实算例：清单（名称/版本/角色）与处理器注册成功、处理器在 `AFTER_FIELD_SOLVE` 被调度执行（dt 正确）；全程**零改核心**。该验证暴露出一个真实缺陷：**注册在阶段边界点（AfterFieldSolve/AfterCollisions/Finalize）的处理器永远不会被调度**（调度区间是半开区间，缺少以这些点开头的区间）——已补两条区间调度并验证生效；同时修正可执行文件未导出符号导致外部插件 `dlopen` 失败的问题（`ENABLE_EXPORTS`） |
 | S6 第 2 批·场求解器（第 9 步） | **完成** | 有限差分求解器也改为**注册制**（核心注册表 + 插件静态注册 + 锚点），内核只调用 `create_finite_difference_solver`；`mlmgOptions()` 提升到静电契约，宿主服务不再需要「取具体求解器」的通道；内核里 3 个具体静电头文件被删除 |
 | S6 第 2 批·场求解器（第 8 步） | **完成** | 内核不再 `new` 具体静电求解器：新增核心工厂 `create_electrostatic_solver(algo, max_level, context)`，静电插件侧静态注册并加链接锚点；内核侧只调用工厂，未链接时给出可操作错误；这是「内核向核心要插件」模式的第三个实例（诊断、碰撞、静电） |
 | S6 第 2 批·场求解器（第 7 步·可行性定界） | **完成** | 可拆分部分（有限差分/静电/PSATD/静磁）内核耦合棘轮 **清零**；**隐式求解器暂不拆**：它通过 `Define(WarpX*)` 驱动内核的场推进、粒子保存/恢复、边界与诊断，共 198 处成员使用、约 11 类内核操作，必须先有「内核服务层」才能离开内核插件；该结论与缺口已写入路线文档，棘轮范围显式排除隐式并注明原因（避免把「暂时不拆」伪装成「已拆」） |
