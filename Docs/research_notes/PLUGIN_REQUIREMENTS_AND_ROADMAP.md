@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| S6 第 2 批·场求解器（第 1 步） | **进行中** | 把「WarpX 成员函数写在求解器目录里」的两处搬回编排层（`Implicit/WarpXImplicitOps.cpp`、`Magnetostatic/MagnetostaticSolver.cpp` → `FieldSolver/`）；磁静耦合 22 → **1**、隐式 42 → **19**；新增 `check_kernel_coupling.py` + 允许清单（当前 56 条，只能减不能增）作为拆分棘轮 |
 | S6 第 1 批·碰撞插件 | **完成** | 碰撞成为独立插件：目录 `Source/Plugins/Collision/`、独立层目标 `warpx_collision_<dim>`、开关 `WarpX_PLUGIN_COLLISION`；内核通过核心注册的工厂取处理器（未链接时返回空，碰撞静默跳过并保持可运行）；`WarpX_PLUGIN_COLLISION=OFF` 时核心+内核+诊断+IO 仍构建并跑通算例；顺带把 QED 虚光子生成移回粒子插件（它被宿主服务调用，不属于碰撞） |
 | S6 第 1 批·碰撞去内核（前半） | **完成** | 碰撞模块（16 个 cpp）现在对内核**零依赖**：0 个 `WarpX.H`、0 处 `WarpX::`。做法是给 `RuntimeData` 补 `loadBalanceCostsUpdateAlgo`，把负载均衡代价/几何/下角点/场寄存器/体量统计全部改走运行时数据契约，并让碰撞模型构造时接收 `RuntimeData const&`、`AllocData` 也带上它；全量失败集不变 |
 | D1-a 收口（核心纯度 **0**） | **完成** | `WarpXParIter` 经核实**不含任何具体 WarpX 类型**（继承 AMReX 的 SoA 迭代器、用核心的属性索引常量），唯一的 WarpX 痕迹是名字；将其重命名为 `ParticleTileIter`（65 个文件、145 处），作为通用 AMReX 级 tile 迭代器保留在核心；纯度允许清单**清空**，检查器等价于零容忍 |

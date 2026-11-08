@@ -3,6 +3,8 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_picem_${SD}
       PRIVATE
         WarpXPushFieldsEM.cpp
+        WarpXImplicitOps.cpp
+        WarpX_Magnetostatic.cpp
         WarpXPushFieldsHybridPIC.cpp
         WarpX_QED_Field_Pushers.cpp
         WarpXSolveFieldsES.cpp

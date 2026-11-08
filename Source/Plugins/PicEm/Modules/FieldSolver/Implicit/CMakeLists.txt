@@ -9,7 +9,6 @@ foreach(D IN LISTS WarpX_DIMS)
         SparseJacobianMatrix.cpp
         ThetaImplicitEM.cpp
         StrangImplicitSpectralEM.cpp
-        WarpXImplicitOps.cpp
         WarpXSolverDOF.cpp
         WarpXSolverVec.cpp
     )
