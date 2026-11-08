@@ -20,7 +20,7 @@
 #   include "FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
 #   include "FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
 #endif
-#include "HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"

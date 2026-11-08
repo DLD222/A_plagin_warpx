@@ -9,7 +9,7 @@
 #include "Runtime/WarpXHostServices.H"
 
 #include "BoundaryConditions/PML.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"

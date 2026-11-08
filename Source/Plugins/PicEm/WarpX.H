@@ -20,7 +20,7 @@
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel_fwd.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel_fwd.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties_fwd.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/IImplicitSolver.H"

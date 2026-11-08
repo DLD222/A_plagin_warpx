@@ -19,7 +19,7 @@
 #endif
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Modules/Particles/ParticleTileIter.H"
 #include "Python/callbacks.H"

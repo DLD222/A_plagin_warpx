@@ -8,7 +8,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Fluids/MultiFluidContainer.H"

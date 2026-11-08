@@ -27,7 +27,7 @@
 #include "Fields.H"
 #include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Filter/BilinearFilter.H"
 #include "Filter/NCIGodfreyFilter.H"

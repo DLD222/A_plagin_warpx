@@ -19,7 +19,7 @@
 #include "BoundaryConditions/PML.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #ifdef WARPX_USE_FFT
 #   ifdef WARPX_DIM_RZ
 #       include "FieldSolver/PSATD/SpectralSolverRZ.H"

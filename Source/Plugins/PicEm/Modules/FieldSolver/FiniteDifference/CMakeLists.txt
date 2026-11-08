@@ -23,5 +23,4 @@ foreach(D IN LISTS WarpX_DIMS)
     )
 endforeach()
 
-add_subdirectory(HybridPICModel)
 add_subdirectory(MacroscopicProperties)

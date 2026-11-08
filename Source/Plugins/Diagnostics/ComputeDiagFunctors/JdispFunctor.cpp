@@ -15,7 +15,7 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 
 #include <AMReX.H>
 #include <AMReX_Extension.H>

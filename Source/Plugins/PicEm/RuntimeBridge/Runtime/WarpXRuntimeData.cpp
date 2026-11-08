@@ -1,4 +1,4 @@
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Filter/NCIGodfreyFilter.H"
 /* Copyright 2026 DLD222
  *

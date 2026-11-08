@@ -1,17 +1,11 @@
 # Kernel coupling still present in solver trees scheduled for extraction (S6).
 # One line per <path>|<token>; the checker fails on anything not listed.
 # This file must shrink every batch.
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/EffectivePotentialES.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.H|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/ExternalVectorPotential.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/ExternalVectorPotential.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/DarwinLinearFieldOperator.cpp|#include "WarpX.H"
@@ -27,7 +21,5 @@ Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|#include "
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverDOF.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverVec.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/Magnetostatic/MagnetostaticSolver.H|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldData.cpp|WarpX::
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.H|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp|WarpX::

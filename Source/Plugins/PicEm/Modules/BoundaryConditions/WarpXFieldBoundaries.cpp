@@ -2,7 +2,7 @@
 #include "BoundaryConditions/PEC_Insulator.H"
 #include "BoundaryConditions/PML.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "WarpX_PEC.H"
 
 #include <AMReX.H>

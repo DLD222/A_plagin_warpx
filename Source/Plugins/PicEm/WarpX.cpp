@@ -28,7 +28,7 @@
 #include "FieldSolver/Electrostatic/EffectivePotentialES.H"
 #include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
-#include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #ifdef WARPX_USE_FFT
 #   include "FieldSolver/PSATD/SpectralKSpace.H"
 #   ifdef WARPX_DIM_RZ
