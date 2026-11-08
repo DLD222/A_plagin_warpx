@@ -4,7 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "FiniteDifference/FiniteDifferenceSolver.H"
 
 #include "BoundaryConditions/PMLComponent.H"
 #if !defined(WARPX_DIM_RZ) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)

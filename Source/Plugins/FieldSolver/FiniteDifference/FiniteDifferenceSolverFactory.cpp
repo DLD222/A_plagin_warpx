@@ -1,6 +1,6 @@
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "Runtime/ServiceFactory.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "FiniteDifference/FiniteDifferenceSolver.H"
 
 #include <memory>
 

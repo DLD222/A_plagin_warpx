@@ -7,11 +7,6 @@
 #include <string>
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
-    #include "FieldSolver/PSATD/SpectralFieldData.H"
-    #include "FieldSolver/PSATD/SpectralSolverRZ.H"
-    #include "Utils/WarpXAlgorithmSelection.H"
-#endif
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
 #include "Modules/Particles/ParticleTileIter.H"

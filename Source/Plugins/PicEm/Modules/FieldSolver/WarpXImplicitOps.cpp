@@ -8,7 +8,7 @@
 
 #include "BoundaryConditions/PML.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"

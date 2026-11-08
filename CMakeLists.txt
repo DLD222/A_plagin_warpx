@@ -69,6 +69,7 @@ option(WarpX_SENSEI        "SENSEI in situ diagnostics"                 OFF)
 option(WarpX_PLUGIN_DIAGNOSTICS "Build the Diagnostics plugin (diagnostics, reduced diags)" ON)
 option(WarpX_PLUGIN_IO          "Build the IO helper plugin (needs Diagnostics)" ON)
 option(WarpX_PLUGIN_COLLISION   "Build the collision plugin" ON)
+option(WarpX_PLUGIN_FIELDSOLVER "Build the field-solver plugin" ON)
 option(WarpX_QED           "QED support (requires PICSAR)"              ON)
 option(WarpX_QED_TABLE_GEN "QED table generation (requires PICSAR and Boost)"
                                                                         OFF)
@@ -317,6 +318,9 @@ endif()
 if(WarpX_PLUGIN_COLLISION)
     list(APPEND WARPX_MODULE_LAYERS collision)
 endif()
+if(WarpX_PLUGIN_FIELDSOLVER)
+    list(APPEND WARPX_MODULE_LAYERS fieldsolver)
+endif()
 
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
@@ -371,6 +375,9 @@ foreach(D IN LISTS WarpX_DIMS)
         if(WarpX_PLUGIN_COLLISION)
             target_link_libraries(warpx_collision_${SD} PRIVATE warpx_core_${SD})
         endif()
+        if(WarpX_PLUGIN_FIELDSOLVER)
+            target_link_libraries(warpx_fieldsolver_${SD} PRIVATE warpx_core_${SD})
+        endif()
 
         add_library(lib_${SD})
         add_library(WarpX::lib_${SD} ALIAS lib_${SD})
@@ -397,10 +404,13 @@ foreach(D IN LISTS WarpX_DIMS)
         # and the linker ignores the request.
         set(_WARPX_PLUGIN_ANCHORS
             warpx_picem_kernel_anchor
-            warpx_picem_legacy_anchor
-            warpx_electrostatic_anchor
-            warpx_finitedifference_anchor
-            warpx_macroscopic_anchor)
+            warpx_picem_legacy_anchor)
+        if(WarpX_PLUGIN_FIELDSOLVER)
+            list(APPEND _WARPX_PLUGIN_ANCHORS
+                warpx_electrostatic_anchor
+                warpx_finitedifference_anchor
+                warpx_macroscopic_anchor)
+        endif()
         if(WarpX_PLUGIN_DIAGNOSTICS)
             list(APPEND _WARPX_PLUGIN_ANCHORS warpx_diagnostics_anchor)
         endif()
@@ -626,6 +636,9 @@ if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
     if(WarpX_PLUGIN_COLLISION)
         add_subdirectory(Source/Plugins/Collision)
+    endif()
+    if(WarpX_PLUGIN_FIELDSOLVER)
+        add_subdirectory(Source/Plugins/FieldSolver)
     endif()
     if(WarpX_PLUGIN_DIAGNOSTICS)
         add_subdirectory(Source/Plugins/Diagnostics)

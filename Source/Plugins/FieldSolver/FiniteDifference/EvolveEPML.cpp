@@ -4,7 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "FiniteDifference/FiniteDifferenceSolver.H"
 
 #include "BoundaryConditions/PML.H"
 #include "BoundaryConditions/PMLComponent.H"

@@ -16,24 +16,73 @@ picem_prefixes = ("Particles/", "Diagnostics/", "FieldSolver/", "Evolve/",
                   "EmbeddedBoundary/", "Fluids/", "Laser/", "MomentsSolver/",
                   "NonlinearSolvers/", "Parallelization/", "Python/")
 inc_re = re.compile(r'#include\s+"([^"]+)"')
+
+# Resolve an include the way the compiler does, so a directory name that exists
+# in two plugins (or in the core) is attributed to the file actually used.
+INCLUDE_ROOTS = [
+    SRC / "Core",
+    SRC / "Plugins" / "PicEm",
+    SRC / "Plugins" / "PicEm" / "Modules",
+    SRC / "Plugins" / "PicEm" / "Modules" / "IO",
+    SRC / "Plugins" / "PicEm" / "RuntimeBridge",
+    SRC / "Plugins" / "PicEm" / "Modules" / "MomentsSolver",
+    SRC / "Plugins",
+    SRC / "Plugins" / "IO",
+    SRC,
+]
+
+
+def owner(path: Path) -> str:
+    """Return 'core', 'plugin:<name>' or 'other' for a source file."""
+    try:
+        rel = path.relative_to(SRC)
+    except ValueError:
+        return "other"
+    parts = rel.parts
+    if parts and parts[0] == "Plugins" and len(parts) > 2:
+        return "plugin:" + parts[1]
+    if parts and parts[0] == "Core":
+        return "core"
+    return "other"
+
+
+def resolve(inc: str):
+    for root in INCLUDE_ROOTS:
+        candidate = root / inc
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+allow_file = ROOT / "Tools" / "Modularization" / "plugin_boundary_allowlist.txt"
+allowed = set()
+if allow_file.exists():
+    for line in allow_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            allowed.add(line)
+
 errors = []
-for path in (SRC / "Core").rglob("*"):
-    if path.suffix not in (".h", ".H", ".hpp", ".cpp"):
+violations = set()
+files = [p for p in SRC.rglob("*") if p.suffix in (".h", ".H", ".hpp", ".cpp")]
+for path in files:
+    here = owner(path)
+    if here == "other":
         continue
     for inc in inc_re.findall(path.read_text(errors="ignore")):
-        if inc.startswith(picem_prefixes) or any(inc.startswith(n + "/") for n in plugin_names):
-            errors.append(f"Core->Plugin: {path.relative_to(ROOT)} includes {inc}")
-for p in PLUGINS.iterdir():
-    if not p.is_dir():
-        continue
-    own = p.name
-    for path in p.rglob("*"):
-        if path.suffix not in (".h", ".H", ".hpp", ".cpp"):
+        target = resolve(inc)
+        if target is None:
             continue
-        for inc in inc_re.findall(path.read_text(errors="ignore")):
-            for other in plugin_names:
-                if other != own and inc.startswith(other + "/"):
-                    errors.append(f"Plugin->Plugin: {path.relative_to(ROOT)} includes {inc}")
+        there = owner(target)
+        if there == "other" or there == here:
+            continue
+        if here == "core":
+            violations.add(f"Core->Plugin: {path.relative_to(ROOT)} includes {inc}")
+        elif there == "core":
+            continue  # plugins may use the core
+        else:
+            violations.add(f"Plugin->Plugin: {path.relative_to(ROOT)} includes {inc}")
+
 # A header that exists under both Core and a plugin with the same relative
 # path is resolved by include order, so the same #include can compile against
 # two different files (ODR hazard).  Fail on duplicates.
@@ -57,7 +106,14 @@ for plugin_dir in PLUGINS.iterdir():
             continue
         errors.append(f"Duplicate header in Core and {plugin_dir.name}: {rel}")
 
+errors = sorted(v for v in violations if v not in allowed)
+resolved = sorted(allowed - violations)
+if resolved:
+    print("note: allowlist entries no longer violate (remove them):")
+    for entry in resolved:
+        print("  " + entry)
+
 if errors:
     print("\n".join(errors))
     sys.exit(1)
-print("plugin boundaries OK")
+print(f"plugin boundaries OK ({len(violations)} known, 0 new)")

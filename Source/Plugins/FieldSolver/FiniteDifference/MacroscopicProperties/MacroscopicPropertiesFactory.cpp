@@ -8,7 +8,7 @@
  * Material-model plugin entry point: the kernel asks the core, the core
  * forwards here (S6).
  */
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
+#include "FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
 
 #include "Runtime/IMacroscopicProperties.H"
 #include "Runtime/ServiceFactory.H"

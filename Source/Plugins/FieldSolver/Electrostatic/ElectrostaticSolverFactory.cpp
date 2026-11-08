@@ -8,9 +8,9 @@
  * Electrostatic solver plugin entry point: the kernel asks the core, the core
  * forwards to this factory (S6).
  */
-#include "FieldSolver/Electrostatic/EffectivePotentialES.H"
-#include "FieldSolver/Electrostatic/LabFrameExplicitES.H"
-#include "FieldSolver/Electrostatic/RelativisticExplicitES.H"
+#include "Electrostatic/EffectivePotentialES.H"
+#include "Electrostatic/LabFrameExplicitES.H"
+#include "Electrostatic/RelativisticExplicitES.H"
 
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/ServiceFactory.H"

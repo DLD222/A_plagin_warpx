@@ -14,7 +14,7 @@
 
 #include "NonlinearSolvers/LinearSolverLibrary.H"
 
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "Particles/MultiParticleContainer.H"
 
 #include <AMReX_Array.H>

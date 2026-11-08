@@ -6,12 +6,12 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
+#include "Runtime/IMacroscopicProperties.H"
 #include "WarpX.H"
 
 #include "BoundaryConditions/PML.H"
 #include "Fields.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #if defined(WARPX_USE_FFT)
 #   include "FieldSolver/PSATD/SpectralFieldData.H"
 #   ifdef WARPX_DIM_RZ
