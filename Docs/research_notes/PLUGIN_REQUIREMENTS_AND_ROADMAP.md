@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| R5 多维基线（第 13 步·再修一个真实缺陷） | **完成** | `computeRho` 的"分量数必须等于诊断请求数"校验在 RZ 下必然失败（沉积 rho 有 `2*nmodes-1` 个分量，诊断要 1 个）；改为显式 `allow_extra` 参数，仅当诊断做 RZ→笛卡尔转换时允许——其余情形保持严格校验。`test_rz_laser_acceleration` 的 **run 与 checksum 双双通过**（checksum 证明数值正确），多维失败集 209 → **207**，2D 仍 33 项 |
 | R5 多维基线（第 12 步·修真实缺陷） | **完成** | 多维基线暴露的第一个真实缺陷已定位并修复：`WarpX::getdt()` **按值返回**，而 `RuntimeData::dtAll()` 以 `const&` 转发它——调用方拿到的是**悬垂引用**，在 3D 加速器晶格路径（每粒子构造外场收集器）上读到释放的内存而崩溃。改为返回 `const&` 后：4 个晶格/等离子体透镜用例与 1D 宏观求解器用例全部恢复，多维失败集 221 → **209**；2D 仍为 33 项不变 |
 | R2/R4 外部插件验证（第 11 步） | **完成** | 同一缺陷模式继续排查：`BeforeInit`/`Init`/`AfterInit`/`Finalize` 四个阶段点**同样没有调度**。已补初始化三段与 Finalize 点的调度；外部插件演示现在同时验证 init、after_field_solve、finalize 三处都执行；`stage_dispatch_2` 原先断言的正是这个缺陷（"不在区间内的处理器不应执行"），已改为断言修复后的语义 |
 | R2/R4 外部插件验证（第 10 步） | **完成** | 在**仓库外**用普通 gcc 写并编译了一个插件（只包含公共 C ABI 头、不链接任何 WarpX 代码），用 `WARPX_PLUGIN_PATH` 加载进真实算例：清单（名称/版本/角色）与处理器注册成功、处理器在 `AFTER_FIELD_SOLVE` 被调度执行（dt 正确）；全程**零改核心**。该验证暴露出一个真实缺陷：**注册在阶段边界点（AfterFieldSolve/AfterCollisions/Finalize）的处理器永远不会被调度**（调度区间是半开区间，缺少以这些点开头的区间）——已补两条区间调度并验证生效；同时修正可执行文件未导出符号导致外部插件 `dlopen` 失败的问题（`ENABLE_EXPORTS`） |
@@ -475,7 +476,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | `test_3d_plasma_lens_hard_edged` | 同上 | 同上 |
 | `test_1d_macroscopic_solver` | 段错误 | 1D 宏观材料路径 |
 | `test_rz_laser_acceleration` | `computeRho: requested ncomp does not match the deposited rho` | RZ 激光/rho 多分量 |
-| `test_3d_deuterium_tritium_fusion` | 诊断无法输出 `DTF1_particle_production`（"not a known field output type"） | 动态注册的场无法被诊断按名输出——**接口缺口**，非数值问题 |
+| `test_3d_deuterium_tritium_fusion` 等 3 个 | 诊断初始化时查不到 `*_particle_production` 场 | **顺序缺口**：诊断在 `InitData` 解析字段名，而该场在碰撞处理器 `AllocData` 里才分配。架构上插件应在 `on_schema` 声明自有状态、由核心在分配层时创建；碰撞的生产场尚未走这条路径 |
 | `test_3d_load_external_field_particle_time_restart`、`test_rz_load_external_field_{grid,particles}_restart` | 无错误信息，需逐个排查 | 重启路径 |
 
 ### 结论
