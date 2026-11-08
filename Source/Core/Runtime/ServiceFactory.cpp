@@ -9,6 +9,7 @@
 
 #include "Runtime/HostServices.H"
 #include "Runtime/ICollisionHandler.H"
+#include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/IReducedDiagsService.H"
@@ -28,6 +29,7 @@ struct Registry
     LegacyRuntimeDataFactory legacy_data = nullptr;
     LegacyHostServicesFactory legacy_host = nullptr;
     CollisionHandlerFactory collision = nullptr;
+    ElectrostaticSolverFactory electrostatic = nullptr;
 };
 
 Registry& registry ()
@@ -76,6 +78,25 @@ create_collision_handler (const IParticleContainerAccess& particles,
 {
     if (registry().collision == nullptr) { return nullptr; }
     return registry().collision(particles, data, config, host);
+}
+
+void
+register_electrostatic_solver_factory (ElectrostaticSolverFactory factory)
+{
+    registry().electrostatic = factory;
+}
+
+bool
+has_electrostatic_solver_factory ()
+{
+    return registry().electrostatic != nullptr;
+}
+
+std::unique_ptr<IElectrostaticSolver>
+create_electrostatic_solver (int algorithm, int max_level, const RuntimeContext* context)
+{
+    if (registry().electrostatic == nullptr) { return nullptr; }
+    return registry().electrostatic(algorithm, max_level, context);
 }
 
 void

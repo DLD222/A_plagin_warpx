@@ -427,21 +427,14 @@ WarpX::WarpX ()
     m_flag_info_face.resize(nlevs_max);
     m_flag_ext_face.resize(nlevs_max);
 
-    // Create Electrostatic Solver object if needed
-    if ((WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame)
-        || (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic))
-    {
-        m_electrostatic_solver = std::make_unique<LabFrameExplicitES>(nlevs_max, m_runtime_context);
-    }
-    // Initialize the effective potential electrostatic solver if required
-    else if (electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameEffectivePotential)
-    {
-        m_electrostatic_solver = std::make_unique<EffectivePotentialES>(nlevs_max, m_runtime_context);
-    }
-    else
-    {
-        m_electrostatic_solver = std::make_unique<RelativisticExplicitES>(nlevs_max, m_runtime_context);
-    }
+    // Create the electrostatic solver through the core factory: the kernel
+    // does not name the concrete solver (S6).
+    m_electrostatic_solver = warpx::runtime::create_electrostatic_solver(
+        static_cast<int>(WarpX::electrostatic_solver_id), nlevs_max, m_runtime_context);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        m_electrostatic_solver != nullptr,
+        "No electrostatic solver plugin is linked: build with "
+        "WarpX_PLUGIN_FIELDSOLVER=ON to use an electrostatic solver.");
 
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC)
     {

@@ -9,6 +9,7 @@
 #include <optional>
 class MultiFluidContainer;
 namespace warpx::runtime {
+struct RuntimeContext;
 /** Electrostatic field-solver plugin contract (A7.3.2a). */
 class IElectrostaticSolver
 {
@@ -29,5 +30,21 @@ public:
                              std::optional<ablastr::fields::MultiLevelVectorField> efield = std::nullopt) const = 0;
     virtual void definePhiBCs (const amrex::Geometry& geom) = 0;
 };
-}
+
+/**
+ * \brief Electrostatic solver factory (S6): the kernel asks, the field-solver
+ * plugin answers.  Returns nullptr when the plugin is not linked.
+ */
+using ElectrostaticSolverFactory = std::unique_ptr<IElectrostaticSolver> (*) (
+    int algorithm, int max_level, const RuntimeContext* context);
+
+void register_electrostatic_solver_factory (ElectrostaticSolverFactory factory);
+
+[[nodiscard]] std::unique_ptr<IElectrostaticSolver>
+create_electrostatic_solver (int algorithm, int max_level,
+                            const RuntimeContext* context);
+
+[[nodiscard]] bool has_electrostatic_solver_factory ();
+
+} // namespace warpx::runtime
 #endif
