@@ -582,3 +582,93 @@ A7.2.4 的下一步是：
 ```
 
 不能通过 static_cast 隐藏。
+
+## 11. A7.2.4 表构造迁移
+
+`CollisionSpeciesTable` 构造函数已改为：
+
+```cpp
+const warpx::runtime::IParticleContainerAccess&
+```
+
+`BinaryCollisionUtils` 的入口也改为：
+
+```cpp
+IParticleContainerAccess const*
+```
+
+`CollisionSpeciesView` 仍保留具体容器：
+
+```text
+WarpXParticleContainer&
+```
+
+原因：
+
+```text
+BinaryCollision / SmartCopyFactory / ParticleCreation
+仍要求具体容器
+```
+
+验证：
+
+```text
+runtime + plugin 12/12 PASS
+plugin boundaries PASS
+charge_exchange_dsmc PASS
+```
+
+仍未完成：
+
+```text
+Collision 视图接口化
+Collision 单元无 Particles include
+Plugins/Collision
+```
+
+## 12. Collision 视图接口化
+
+`CollisionSpeciesView` 已改为：
+
+```cpp
+IParticleContainer&
+IParticleContainer* operator->
+```
+
+新增 Core 粒子能力：
+
+```cpp
+isPhysicalSpecies(PhysicalSpecies)
+getIonizationInitialLevel()
+particleData()
+config()
+```
+
+迁移的 Collision 单元：
+
+```text
+BinaryCollision
+ParticleCreationFunc
+PhotonCreationFunc
+SplitAndScatterFunc
+BackgroundMCC
+InverseBremsstrahlung
+PulsedDecay
+```
+
+验证：
+
+```text
+runtime + plugin 12/12 PASS
+plugin boundaries PASS
+charge_exchange_dsmc PASS
+```
+
+仍未完成：
+
+```text
+Collision 中 83 处 ParticleCreation/ParticleUtils 具体 include
+Plugins/Collision 目录
+```
+
+不能宣布 A7.2 完成。

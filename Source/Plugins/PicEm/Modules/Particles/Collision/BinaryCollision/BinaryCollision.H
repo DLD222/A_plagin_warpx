@@ -22,6 +22,7 @@
 #include "Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 #include "Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -75,8 +76,8 @@ class BinaryCollision final
     : public CollisionBase
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = WarpXParticleContainer::ParticleType;
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleType = warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;
@@ -202,7 +203,7 @@ public:
 
         // In case of particle creation, create the necessary vectors
         const int n_product_species = m_product_species.size();
-        amrex::Vector<WarpXParticleContainer*> product_species_vector;
+        amrex::Vector<warpx::runtime::IParticleContainer*> product_species_vector;
         amrex::Vector<SmartCopyFactory> copy_factory_species1;
         amrex::Vector<SmartCopyFactory> copy_factory_species2;
         amrex::Vector<SmartCopy> copy_species1;
@@ -295,9 +296,9 @@ public:
      */
     void doCollisionsWithinTile (
         amrex::Real dt, int const lev, amrex::MFIter const& mfi,
-        WarpXParticleContainer& species_1,
-        WarpXParticleContainer& species_2,
-        amrex::Vector<WarpXParticleContainer*> product_species_vector,
+        warpx::runtime::IParticleContainer& species_1,
+        warpx::runtime::IParticleContainer& species_2,
+        amrex::Vector<warpx::runtime::IParticleContainer*> product_species_vector,
         SmartCopy* copy_species1, SmartCopy* copy_species2)
     {
         using namespace ParticleUtils;

@@ -36,20 +36,20 @@ class CollisionSpeciesView
 {
 public:
     CollisionSpeciesView (warpx::runtime::SpeciesHandle handle,
-                          WarpXParticleContainer& container)
+                          warpx::runtime::IParticleContainer& container)
         : m_handle(std::move(handle)), m_container(&container) {}
 
     [[nodiscard]] const warpx::runtime::SpeciesHandle& handle () const { return m_handle; }
-    [[nodiscard]] WarpXParticleContainer& container () const { return *m_container; }
+    [[nodiscard]] warpx::runtime::IParticleContainer& container () const { return *m_container; }
 
     //! Compatibility for existing model code: `*table.get(name)` / `get(name)->`.
-    [[nodiscard]] WarpXParticleContainer& operator* () const { return *m_container; }
-    [[nodiscard]] WarpXParticleContainer* operator-> () const { return m_container; }
+    [[nodiscard]] warpx::runtime::IParticleContainer& operator* () const { return *m_container; }
+    [[nodiscard]] warpx::runtime::IParticleContainer* operator-> () const { return m_container; }
     explicit operator bool () const { return m_container != nullptr; }
 
 private:
     warpx::runtime::SpeciesHandle m_handle;
-    WarpXParticleContainer* m_container = nullptr;
+    warpx::runtime::IParticleContainer* m_container = nullptr;
 };
 
 class CollisionSpeciesTable
@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    std::map<std::string, WarpXParticleContainer*> m_species;
+    std::map<std::string, warpx::runtime::IParticleContainer*> m_species;
     std::map<std::string, warpx::runtime::SpeciesHandle> m_handles;
     NueiFunction m_calculate_nuei;
 };

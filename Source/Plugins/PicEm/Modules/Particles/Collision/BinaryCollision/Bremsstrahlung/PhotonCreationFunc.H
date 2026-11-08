@@ -14,6 +14,7 @@
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 #include "Particles/ParticleUtils.H"
 
 #include <AMReX_DenseBins.H>
@@ -92,7 +93,7 @@ public:
     amrex::Vector<int> operator() (
                     const index_type& n_total_pairs,
                     ParticleTileType& ptile1, ParticleTileType& ptile2,
-                    const amrex::Vector<WarpXParticleContainer*>& pc_products,
+                    const amrex::Vector<warpx::runtime::IParticleContainer*>& pc_products,
                     ParticleTileType** AMREX_RESTRICT tile_products,
                     const amrex::ParticleReal& m1, const amrex::ParticleReal& m2,
                     const amrex::Vector<amrex::ParticleReal>& /*products_mass*/,

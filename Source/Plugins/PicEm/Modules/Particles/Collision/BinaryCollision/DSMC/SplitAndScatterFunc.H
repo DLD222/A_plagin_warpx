@@ -15,6 +15,7 @@
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 #include "Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -104,7 +105,7 @@ public:
     amrex::Vector<int> operator() (
         const index_type& n_total_pairs,
         ParticleTileType& ptile0, ParticleTileType& ptile1,
-        const amrex::Vector<WarpXParticleContainer*>& pc_products,
+        const amrex::Vector<warpx::runtime::IParticleContainer*>& pc_products,
         ParticleTileType** AMREX_RESTRICT tile_products,
         const amrex::ParticleReal m0, const amrex::ParticleReal m1,
         const amrex::Vector<amrex::ParticleReal>& /*products_mass*/,

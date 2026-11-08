@@ -138,6 +138,8 @@ public:
     [[nodiscard]] std::int64_t totalNumberOfParticles () const override
     { return static_cast<std::int64_t>(TotalNumberOfParticles(false)); }
     [[nodiscard]] bool isPhoton () const override { return AmIA<PhysicalSpecies::photon>(); }
+    [[nodiscard]] bool isPhysicalSpecies (PhysicalSpecies species) const override
+    { return physical_species == species; }
     [[nodiscard]] MomentumSum sumParticleMomentum () const override;
     [[nodiscard]] const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const override
     { return m_E_external_particle; }
@@ -163,8 +165,9 @@ public:
 
     WarpXParticleContainer (amrex::AmrCore* amr_core, int ispecies, const std::string& name);
 
-    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
+    [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const override;
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& particleData () const override { return data(); }
     [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
     [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const override { return m_runtime_context; }
@@ -738,7 +741,7 @@ protected:
 
 public:
 
-    int getIonizationInitialLevel () const noexcept {return ionization_initial_level;}
+    int getIonizationInitialLevel () const noexcept override {return ionization_initial_level;}
 
     // By default this returns false, can be overridden in PysicalParticleContainer
     virtual bool getTemperatureDepositionFlag () const noexcept {return false;}

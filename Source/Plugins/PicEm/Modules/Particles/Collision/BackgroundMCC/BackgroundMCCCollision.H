@@ -9,6 +9,7 @@
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
@@ -69,8 +70,8 @@ public:
     void doBackgroundIonization (
                                  int lev,
                                  amrex::LayoutData<amrex::Real>* cost,
-                                 WarpXParticleContainer& species1,
-                                 WarpXParticleContainer& species2,
+                                 warpx::runtime::IParticleContainer& species1,
+                                 warpx::runtime::IParticleContainer& species2,
                                  amrex::Real t
                                  );
 

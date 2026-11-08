@@ -3,6 +3,7 @@
 #include "Modules/Particles/IParticleAttributeAccess.H"
 #include "Modules/Particles/IQEDEngineAccess.H"
 #include "Modules/Particles/ParticleAttributes.H"
+#include "Modules/Particles/SpeciesPhysicalProperties.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include <ablastr/fields/MultiFabRegister.H>
 
@@ -15,6 +16,8 @@
 #include <utility>
 namespace warpx::runtime {
 class RuntimeContext;
+class RuntimeData;
+class RuntimeConfig;
 /** \brief Project particle-container module base (AMReX-backed). */
 class IParticleContainer
     : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>,
@@ -26,6 +29,10 @@ public:
     using Base::Base;
     using ParticleTileType = typename Base::ParticleTileType;
     ~IParticleContainer () override = default;
+    [[nodiscard]] virtual const RuntimeConfig& config () const = 0;
+    [[nodiscard]] virtual const RuntimeData& particleData () const = 0;
+    [[nodiscard]] virtual int getIonizationInitialLevel () const = 0;
+    [[nodiscard]] virtual bool isPhysicalSpecies (PhysicalSpecies species) const = 0;
 
     [[nodiscard]] int NumRealComps () const { return Base::NumRealComps(); }
     bool HasRealComp (const std::string& n) { return Base::HasRealComp(n); }

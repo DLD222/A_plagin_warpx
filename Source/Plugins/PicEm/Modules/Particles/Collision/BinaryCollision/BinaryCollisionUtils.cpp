@@ -55,7 +55,7 @@ namespace BinaryCollisionUtils{
             auto& species1 = *table.get(species_name[0]);
             auto& species2 = *table.get(species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                species1.AmIA<PhysicalSpecies::photon>() && species2.AmIA<PhysicalSpecies::photon>(),
+                species1.isPhysicalSpecies(PhysicalSpecies::photon) && species2.isPhysicalSpecies(PhysicalSpecies::photon),
                 "Species involved in linear Breit-Wheeler collisions must be of type photon.");
             // Check that product species are electron and positron
             amrex::Vector<std::string> product_species_name;
@@ -66,9 +66,9 @@ namespace BinaryCollisionUtils{
             auto& product_species1 = *table.get(product_species_name[0]);
             auto& product_species2 = *table.get(product_species_name[1]);
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                (product_species1.AmIA<PhysicalSpecies::electron>() && product_species2.AmIA<PhysicalSpecies::positron>())
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::electron) && product_species2.isPhysicalSpecies(PhysicalSpecies::positron))
                 ||
-                (product_species1.AmIA<PhysicalSpecies::positron>() && product_species2.AmIA<PhysicalSpecies::electron>()),
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::positron) && product_species2.isPhysicalSpecies(PhysicalSpecies::electron)),
                 "Product species of linear Breit-Wheeler collisions must be of type electron and positron");
             return CollisionType::LinearBreitWheeler;
         }
@@ -81,9 +81,9 @@ namespace BinaryCollisionUtils{
                 "Linear Compton collisions must involve exactly two species");
             auto& species1 = *table.get(species_name[0]);
             auto& species2 = *table.get(species_name[1]);
-            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species1.AmIA<PhysicalSpecies::photon>(),
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species1.isPhysicalSpecies(PhysicalSpecies::photon),
                 "The first species in linear Compton collisions must be a photon");
-            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species2.AmIA<PhysicalSpecies::electron>() || species2.AmIA<PhysicalSpecies::positron>(),
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species2.isPhysicalSpecies(PhysicalSpecies::electron) || species2.isPhysicalSpecies(PhysicalSpecies::positron),
                 "The second species in linear Compton collisions must be an electron or positron");
             // Check that first product species is photon and second is electron/positron
             amrex::Vector<std::string> product_species_name;
@@ -93,9 +93,9 @@ namespace BinaryCollisionUtils{
                 "Linear Compton collisions must contain exactly two product species");
             auto& product_species1 = *table.get(product_species_name[0]);
             auto& product_species2 = *table.get(product_species_name[1]);
-            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species1.AmIA<PhysicalSpecies::photon>(),
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species1.isPhysicalSpecies(PhysicalSpecies::photon),
                 "The first product species in linear Compton collisions must be a photon");
-            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species2.AmIA<PhysicalSpecies::electron>() || product_species2.AmIA<PhysicalSpecies::positron>(),
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE( product_species2.isPhysicalSpecies(PhysicalSpecies::electron) || product_species2.isPhysicalSpecies(PhysicalSpecies::positron),
                 "The second product species in linear Compton collisions must be an electron or positron");
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE( species2.getSpeciesTypeName() == product_species2.getSpeciesTypeName(),
                 "The second incident species and the second product species in linear Compton collisions must be of the same type");
@@ -183,9 +183,9 @@ namespace BinaryCollisionUtils{
         pp_collision_name.getarr("product_species", product_species_name);
 
         NuclearFusionType fusion_type = NuclearFusionType::Undefined;
-        if ((species1.AmIA<PhysicalSpecies::hydrogen2>() && species2.AmIA<PhysicalSpecies::hydrogen3>())
+        if ((species1.isPhysicalSpecies(PhysicalSpecies::hydrogen2) && species2.isPhysicalSpecies(PhysicalSpecies::hydrogen3))
             ||
-            (species1.AmIA<PhysicalSpecies::hydrogen3>() && species2.AmIA<PhysicalSpecies::hydrogen2>())
+            (species1.isPhysicalSpecies(PhysicalSpecies::hydrogen3) && species2.isPhysicalSpecies(PhysicalSpecies::hydrogen2))
             )
         {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
@@ -195,13 +195,13 @@ namespace BinaryCollisionUtils{
             auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                (product_species1.AmIA<PhysicalSpecies::helium4>() && product_species2.AmIA<PhysicalSpecies::neutron>())
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::helium4) && product_species2.isPhysicalSpecies(PhysicalSpecies::neutron))
                 ||
-                (product_species1.AmIA<PhysicalSpecies::neutron>() && product_species2.AmIA<PhysicalSpecies::helium4>()),
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::neutron) && product_species2.isPhysicalSpecies(PhysicalSpecies::helium4)),
                 "ERROR: Product species of deuterium-tritium fusion must be of type neutron and helium4");
             fusion_type = NuclearFusionType::DeuteriumTritiumToNeutronHelium;
         }
-        else if (species1.AmIA<PhysicalSpecies::hydrogen2>() && species2.AmIA<PhysicalSpecies::hydrogen2>())
+        else if (species1.isPhysicalSpecies(PhysicalSpecies::hydrogen2) && species2.isPhysicalSpecies(PhysicalSpecies::hydrogen2))
         {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 product_species_name.size() == 2u,
@@ -210,20 +210,20 @@ namespace BinaryCollisionUtils{
             auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             if (
-                (product_species1.AmIA<PhysicalSpecies::helium3>() && product_species2.AmIA<PhysicalSpecies::neutron>())
-                ||(product_species1.AmIA<PhysicalSpecies::neutron>() && product_species2.AmIA<PhysicalSpecies::helium3>())){
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::helium3) && product_species2.isPhysicalSpecies(PhysicalSpecies::neutron))
+                ||(product_species1.isPhysicalSpecies(PhysicalSpecies::neutron) && product_species2.isPhysicalSpecies(PhysicalSpecies::helium3))){
                 fusion_type = NuclearFusionType::DeuteriumDeuteriumToNeutronHelium;
             } else if (
-                (product_species1.AmIA<PhysicalSpecies::hydrogen3>() && product_species2.AmIA<PhysicalSpecies::proton>())
-                ||(product_species1.AmIA<PhysicalSpecies::proton>() && product_species2.AmIA<PhysicalSpecies::hydrogen3>())){
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::hydrogen3) && product_species2.isPhysicalSpecies(PhysicalSpecies::proton))
+                ||(product_species1.isPhysicalSpecies(PhysicalSpecies::proton) && product_species2.isPhysicalSpecies(PhysicalSpecies::hydrogen3))){
                 fusion_type = NuclearFusionType::DeuteriumDeuteriumToProtonTritium;
             } else {
                 WARPX_ABORT_WITH_MESSAGE("ERROR: Product species of deuterium-deuterium fusion must be of type helium3 and neutron, or tritium/hydrogen3 and proton/hydrogen1");
             }
         }
-        else if ((species1.AmIA<PhysicalSpecies::hydrogen2>() && species2.AmIA<PhysicalSpecies::helium3>())
+        else if ((species1.isPhysicalSpecies(PhysicalSpecies::hydrogen2) && species2.isPhysicalSpecies(PhysicalSpecies::helium3))
             ||
-            (species1.AmIA<PhysicalSpecies::helium3>() && species2.AmIA<PhysicalSpecies::hydrogen2>())
+            (species1.isPhysicalSpecies(PhysicalSpecies::helium3) && species2.isPhysicalSpecies(PhysicalSpecies::hydrogen2))
             )
         {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
@@ -233,15 +233,15 @@ namespace BinaryCollisionUtils{
             auto& product_species2 = *table.get(product_species_name[1]);
             mass_after = product_species1.getMass() + product_species2.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                (product_species1.AmIA<PhysicalSpecies::helium4>() && product_species2.AmIA<PhysicalSpecies::proton>())
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::helium4) && product_species2.isPhysicalSpecies(PhysicalSpecies::proton))
                 ||
-                (product_species1.AmIA<PhysicalSpecies::proton>() && product_species2.AmIA<PhysicalSpecies::helium4>()),
+                (product_species1.isPhysicalSpecies(PhysicalSpecies::proton) && product_species2.isPhysicalSpecies(PhysicalSpecies::helium4)),
                 "ERROR: Product species of deuterium-helium fusion must be of type proton/hydrogen1 and alpha/helium4");
             fusion_type = NuclearFusionType::DeuteriumHeliumToProtonHelium;
         }
-        else if ((species1.AmIA<PhysicalSpecies::proton>() && species2.AmIA<PhysicalSpecies::boron11>())
+        else if ((species1.isPhysicalSpecies(PhysicalSpecies::proton) && species2.isPhysicalSpecies(PhysicalSpecies::boron11))
             ||
-            (species1.AmIA<PhysicalSpecies::boron11>() && species2.AmIA<PhysicalSpecies::proton>())
+            (species1.isPhysicalSpecies(PhysicalSpecies::boron11) && species2.isPhysicalSpecies(PhysicalSpecies::proton))
             )
         {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
@@ -250,7 +250,7 @@ namespace BinaryCollisionUtils{
             auto& product_species = *table.get(product_species_name[0]);
             mass_after = 3.0_prt*product_species.getMass();
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-                product_species.AmIA<PhysicalSpecies::helium4>(),
+                product_species.isPhysicalSpecies(PhysicalSpecies::helium4),
                 "ERROR: Product species of proton-boron fusion must be of type helium4");
             fusion_type = NuclearFusionType::ProtonBoronToAlphas;
         }

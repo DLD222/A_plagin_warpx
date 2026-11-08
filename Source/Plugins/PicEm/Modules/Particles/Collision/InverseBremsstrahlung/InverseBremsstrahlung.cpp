@@ -38,7 +38,7 @@ InverseBremsstrahlung::InverseBremsstrahlung (std::string const& collision_name,
                                      "Inverse Bremsstrahlung must have exactly two species.");
 
     auto& species_1 = *m_species.get(m_species_names[0]);
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(species_1.AmIA<PhysicalSpecies::photon>(),
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(species_1.isPhysicalSpecies(PhysicalSpecies::photon),
                                      "InverseBremsstrahlung: The first species must be photons");
 
     const amrex::ParmParse pp_collisions("collisions");
@@ -107,8 +107,8 @@ InverseBremsstrahlung::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
 
 void InverseBremsstrahlung::doInverseBremsstrahlungWithinTile (
         amrex::Real dt, int lev, amrex::MFIter const& mfi,
-        WarpXParticleContainer& photons,
-        WarpXParticleContainer& electrons) const
+        warpx::runtime::IParticleContainer& photons,
+        warpx::runtime::IParticleContainer& electrons) const
 {
     using namespace amrex::literals;
 

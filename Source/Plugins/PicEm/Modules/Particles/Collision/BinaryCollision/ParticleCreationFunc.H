@@ -17,6 +17,7 @@
 #include "Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/ScatteringUtils.H"
 
 #include <AMReX_DenseBins.H>
@@ -36,12 +37,12 @@
 class ParticleCreationFunc
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
-    using ParticleTileType = typename WarpXParticleContainer::ParticleTileType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = typename warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = typename ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = typename ParticleBins::index_type;
-    using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     /**
@@ -103,7 +104,7 @@ public:
     amrex::Vector<int> operator() (
                     const index_type& n_total_pairs,
                     ParticleTileType& ptile1, ParticleTileType& ptile2,
-                    const amrex::Vector<WarpXParticleContainer*>& pc_products,
+                    const amrex::Vector<warpx::runtime::IParticleContainer*>& pc_products,
                     ParticleTileType** AMREX_RESTRICT tile_products,
                     const amrex::ParticleReal& m1, const amrex::ParticleReal& m2,
                     const amrex::Vector<amrex::ParticleReal>& products_mass,
@@ -332,12 +333,12 @@ private:
  */
 class NoParticleCreationFunc
 {
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
-    using ParticleTileType = typename WarpXParticleContainer::ParticleTileType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = typename warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = typename ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = typename ParticleBins::index_type;
-    using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     NoParticleCreationFunc () = default;
@@ -352,7 +353,7 @@ public:
     amrex::Vector<int> operator() (
                     const index_type& /*n_total_pairs*/,
                     ParticleTileType& /*ptile1*/, ParticleTileType& /*ptile2*/,
-                    amrex::Vector<WarpXParticleContainer*>& /*pc_products*/,
+                    amrex::Vector<warpx::runtime::IParticleContainer*>& /*pc_products*/,
                     ParticleTileType** /*tile_products*/,
                     const amrex::ParticleReal& /*m1*/, const amrex::ParticleReal& /*m2*/,
                     const amrex::Vector<amrex::ParticleReal>& /*products_mass*/,

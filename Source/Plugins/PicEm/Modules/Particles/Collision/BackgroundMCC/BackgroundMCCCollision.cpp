@@ -431,7 +431,7 @@ void BackgroundMCCCollision::doBackgroundCollisionsWithinTile
 
 void BackgroundMCCCollision::doBackgroundIonization
 ( int lev, amrex::LayoutData<amrex::Real>* cost,
-  WarpXParticleContainer& species1, WarpXParticleContainer& species2, amrex::Real t)
+  warpx::runtime::IParticleContainer& species1, warpx::runtime::IParticleContainer& species2, amrex::Real t)
 {
     ABLASTR_PROFILE("BackgroundMCCCollision::doBackgroundIonization()");
 

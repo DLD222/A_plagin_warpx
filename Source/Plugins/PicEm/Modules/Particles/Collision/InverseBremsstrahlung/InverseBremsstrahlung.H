@@ -9,6 +9,7 @@
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"
@@ -63,8 +64,8 @@ public:
      *
      */
     void doInverseBremsstrahlungWithinTile (amrex::Real dt, int lev, amrex::MFIter const& mfi,
-                                            WarpXParticleContainer& photons,
-                                            WarpXParticleContainer& electrons) const;
+                                            warpx::runtime::IParticleContainer& photons,
+                                            warpx::runtime::IParticleContainer& electrons) const;
 
 private:
 
