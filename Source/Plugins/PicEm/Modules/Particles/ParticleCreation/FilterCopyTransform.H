@@ -8,7 +8,7 @@
 #ifndef WARPX_FILTER_COPY_TRANSFORM_H_
 #define WARPX_FILTER_COPY_TRANSFORM_H_
 
-#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include "DefaultInitialization.H"
 
 #include <AMReX_GpuContainers.H>
 #include <AMReX_TypeTraits.H>

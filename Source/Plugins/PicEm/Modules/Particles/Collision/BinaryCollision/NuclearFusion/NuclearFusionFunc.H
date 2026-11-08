@@ -1,3 +1,5 @@
+#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include <WarpX.H>
 /* Copyright 2021 Neil Zaim
  *
  * This file is part of WarpX.

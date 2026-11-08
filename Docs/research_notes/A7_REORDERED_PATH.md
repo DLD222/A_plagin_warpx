@@ -707,3 +707,31 @@ ParticleCreation/FilterCopyTransform.H
 WarpXParticleContainer.H
 MultiParticleContainer.H
 ```
+
+## 14. SmartCopy/SmartUtils 移入 Core
+
+新增 Core 单元：
+
+```text
+Core/Modules/Particles/ParticleCreation/InitializationPolicy.H
+Core/Modules/Particles/ParticleCreation/SmartCopy.H
+Core/Modules/Particles/ParticleCreation/SmartUtils.H
+```
+
+`DefaultInitialization` 改为使用 Core 的 `InitializationPolicy`，不再重复定义。
+
+Collision 外部 Particles include：
+
+```text
+54 -> 47
+```
+
+验证：
+
+```text
+runtime + plugin 12/12 PASS
+plugin boundaries PASS
+charge_exchange_dsmc PASS
+```
+
+`FilterCopyTransform` 仍留在 Particles，因为它依赖 `DefaultInitialization` 的 QED 初始化函数。

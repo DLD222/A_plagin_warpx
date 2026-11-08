@@ -25,9 +25,9 @@
 #ifdef WARPX_QED
 #   include "Particles/ParticleCreation/FilterCreateTransformFromFAB.H"
 #endif
-#include "Particles/ParticleCreation/SmartCopy.H"
+#include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/ParticleCreation/SmartCreate.H"
-#include "Particles/ParticleCreation/SmartUtils.H"
+#include "Modules/Particles/ParticleCreation/SmartUtils.H"
 #include "Particles/PhotonParticleContainer.H"
 #include "Particles/PhysicalParticleContainer.H"
 #include "Particles/RigidInjectedParticleContainer.H"

@@ -9,7 +9,7 @@
 #ifndef WARPX_SMART_UTILS_H_
 #define WARPX_SMART_UTILS_H_
 
-#include "DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/InitializationPolicy.H"
 
 #include <AMReX_Config.H>
 #include <AMReX_GpuContainers.H>

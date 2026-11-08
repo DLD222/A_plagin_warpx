@@ -8,7 +8,7 @@
 #ifndef WARPX_SMART_COPY_H_
 #define WARPX_SMART_COPY_H_
 
-#include "DefaultInitialization.H"
+#include "Modules/Particles/ParticleCreation/InitializationPolicy.H"
 #include "SmartUtils.H"
 
 #include <AMReX_GpuContainers.H>

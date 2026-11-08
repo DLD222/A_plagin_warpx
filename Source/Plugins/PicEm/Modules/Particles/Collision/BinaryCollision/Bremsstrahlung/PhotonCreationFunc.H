@@ -1,3 +1,5 @@
+#include "Particles/ParticleCreation/DefaultInitialization.H"
+#include <WarpX.H>
 /* Copyright 2024 David Grote
  *
  * This file is part of WarpX.
@@ -11,7 +13,7 @@
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
 
-#include "Particles/ParticleCreation/SmartCopy.H"
+#include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Runtime/IParticleContainer.H"

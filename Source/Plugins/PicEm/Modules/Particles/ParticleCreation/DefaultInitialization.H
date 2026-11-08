@@ -7,6 +7,7 @@
  */
 #ifndef WARPX_DEFAULTINITIALIZATION_H_
 #define WARPX_DEFAULTINITIALIZATION_H_
+#include "Modules/Particles/ParticleCreation/InitializationPolicy.H"
 #include <WarpX.H>
 
 #include "Runtime/RuntimeData.H"
@@ -37,8 +38,6 @@
  *                    extracted from an exponential distribution
  *
  */
-enum struct InitializationPolicy {Zero=0, One, RandomExp};
-
 namespace
 {
     /**
@@ -60,35 +59,6 @@ namespace
 #endif
 
     };
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::ParticleReal initializeRealValue (const InitializationPolicy policy, amrex::RandomEngine const& engine) noexcept
-{
-    switch (policy) {
-        case InitializationPolicy::Zero : return 0.0;
-        case InitializationPolicy::One  : return 1.0;
-        case InitializationPolicy::RandomExp : {
-            return -std::log(amrex::Random(engine));
-        }
-        default : {
-            amrex::Abort("Initialization Policy not recognized");
-            return 1.0;
-        }
-    }
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int initializeIntValue (const InitializationPolicy policy) noexcept
-{
-    switch (policy) {
-        case InitializationPolicy::Zero : return 0;
-        case InitializationPolicy::One  : return 1;
-        default : {
-            amrex::Abort("Initialization Policy not recognized");
-            return 1;
-        }
-    }
 }
 
 namespace ParticleCreation {

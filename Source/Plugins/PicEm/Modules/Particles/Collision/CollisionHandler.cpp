@@ -28,7 +28,7 @@
 #include "Particles/Collision/InverseBremsstrahlung/InverseBremsstrahlung.H"
 #include "Utils/TextMsg.H"
 
-#include "Particles/ParticleCreation/SmartCopy.H"
+#include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #ifdef WARPX_QED
 #include "Particles/Collision/BinaryCollision/VirtualPhotonCreation.H"
 #endif

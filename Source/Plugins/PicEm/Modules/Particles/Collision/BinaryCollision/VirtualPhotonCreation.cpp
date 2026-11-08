@@ -11,7 +11,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Particles/PhysicalParticleContainer.H"
-#include "Particles/ParticleCreation/SmartCopy.H"
+#include "Modules/Particles/ParticleCreation/SmartCopy.H"
 
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"

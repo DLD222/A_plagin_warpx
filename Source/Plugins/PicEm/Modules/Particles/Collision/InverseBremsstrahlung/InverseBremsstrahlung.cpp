@@ -11,7 +11,7 @@
 
 #include "Particles/Collision/BinaryCollision/ParticleShufflers.H"
 #include "Particles/ParticleCreation/FilterCopyTransform.H"
-#include "Particles/ParticleCreation/SmartCopy.H"
+#include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Modules/Particles/ParticleUtils.H"
