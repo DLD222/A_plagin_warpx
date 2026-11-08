@@ -21,7 +21,7 @@
 #include "Runtime/IHybridPICModel.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXConst.H"
 

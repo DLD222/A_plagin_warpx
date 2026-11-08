@@ -1,7 +1,7 @@
 #include "WarpX.H"
 #include "BoundaryConditions/PEC_Insulator.H"
 #include "BoundaryConditions/PML.H"
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "WarpX_PEC.H"
 

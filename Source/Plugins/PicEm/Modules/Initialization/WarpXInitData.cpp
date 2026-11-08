@@ -25,7 +25,6 @@
 #   include "EmbeddedBoundary/EmbeddedBoundaryInit.H"
 #endif
 #include "Fields.H"
-#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
@@ -87,7 +86,7 @@
 #include <string>
 #include <utility>
 
-#include "FieldSolver/FiniteDifference/FiniteDifferenceSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 
 using namespace amrex;
 
