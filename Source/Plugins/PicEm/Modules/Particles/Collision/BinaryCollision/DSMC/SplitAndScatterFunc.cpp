@@ -9,6 +9,8 @@
 
 #include "SplitAndScatterFunc.H"
 
+#include "Particles/MultiParticleContainer.H"
+
 SplitAndScatterFunc::SplitAndScatterFunc (const std::string& collision_name,
                                           MultiParticleContainer const * const mypc):
     SplitAndScatterFunc(collision_name, CollisionSpeciesTable(*mypc))

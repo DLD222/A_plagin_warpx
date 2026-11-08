@@ -9,6 +9,7 @@
 #define WARPX_COLLISION_SPECIESTABLE_H_
 
 #include "Runtime/IParticleContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/SpeciesSpec.H"
 
 #include <functional>
@@ -56,7 +57,7 @@ class CollisionSpeciesTable
 public:
     using NueiFunction = std::function<void(const std::string&)>;
 
-    explicit CollisionSpeciesTable (const MultiParticleContainer& mypc,
+    explicit CollisionSpeciesTable (const warpx::runtime::IParticleContainerAccess& mypc,
                                     NueiFunction calculate_nuei = {});
 
     [[nodiscard]] CollisionSpeciesView get (const std::string& name) const;

@@ -13,7 +13,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/MultiParticleContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
 
 #include <AMReX_Math.H>
 #include <AMReX_Vector.H>
@@ -41,7 +41,7 @@ enum struct NuclearFusionType {
 namespace BinaryCollisionUtils{
 
     NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
-                                               MultiParticleContainer const * mypc);
+                                               warpx::runtime::IParticleContainerAccess const * mypc);
 
     NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
                                                const CollisionSpeciesTable& table);
@@ -51,7 +51,7 @@ namespace BinaryCollisionUtils{
                             amrex::ParticleReal mass_after);
 
     CollisionType get_collision_type (const std::string& collision_name,
-                                      MultiParticleContainer const * mypc);
+                                      warpx::runtime::IParticleContainerAccess const * mypc);
 
     CollisionType get_collision_type (const std::string& collision_name,
                                       const CollisionSpeciesTable& table);

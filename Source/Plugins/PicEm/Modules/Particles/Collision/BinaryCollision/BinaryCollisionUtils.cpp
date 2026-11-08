@@ -8,7 +8,7 @@
 #include "BinaryCollisionUtils.H"
 
 #include "Particles/Collision/ScatteringProcess.H"
-#include "Particles/MultiParticleContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -318,14 +318,14 @@ namespace BinaryCollisionUtils{
 }
 namespace BinaryCollisionUtils {
     CollisionType get_collision_type (const std::string& collision_name,
-                                      MultiParticleContainer const * const mypc)
+                                      warpx::runtime::IParticleContainerAccess const * const mypc)
     {
         const CollisionSpeciesTable table(*mypc);
         return get_collision_type(collision_name, table);
     }
 
     NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
-                                               MultiParticleContainer const * const mypc)
+                                               warpx::runtime::IParticleContainerAccess const * const mypc)
     {
         const CollisionSpeciesTable table(*mypc);
         return get_nuclear_fusion_type(collision_name, table);

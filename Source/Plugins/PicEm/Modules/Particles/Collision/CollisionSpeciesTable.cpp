@@ -7,17 +7,18 @@
  */
 #include "CollisionSpeciesTable.H"
 
-#include "Particles/MultiParticleContainer.H"
+#include "Particles/WarpXParticleContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
 
 #include <stdexcept>
 
-CollisionSpeciesTable::CollisionSpeciesTable (const MultiParticleContainer& mypc,
+CollisionSpeciesTable::CollisionSpeciesTable (const warpx::runtime::IParticleContainerAccess& mypc,
                                               NueiFunction calculate_nuei)
     : m_calculate_nuei(std::move(calculate_nuei))
 {
     for (const auto& name : mypc.GetSpeciesNames()) {
         auto& pc = mypc.GetParticleContainerFromName(name);
-        m_species.emplace(name, static_cast<WarpXParticleContainer*>(&pc));
+        m_species.emplace(name, dynamic_cast<WarpXParticleContainer*>(&pc));
         warpx::runtime::SpeciesSpec spec;
         spec.species_name = name;
         spec.species_charge = pc.getCharge();
