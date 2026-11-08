@@ -120,6 +120,8 @@ public:
     amrex::Real m_epsilon2 = 0.0;
     /** whether a dielectric interface (phi) was provided */
     bool m_has_interface = false;
+    //! algo.macroscopic_subpixel: the module owns the parameter it consumes.
+    int m_macroscopic_subpixel = 0;
     /** whether the 6-component tensor inputs were provided */
     bool m_has_eps_tensor = false;
     bool m_has_eps2_tensor = false;

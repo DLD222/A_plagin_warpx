@@ -36,7 +36,8 @@ class SpectralFieldDataRZ
                              const SpectralKSpaceRZ& k_space,
                              const amrex::DistributionMapping& dm,
                              int n_field_required,
-                             int n_modes);
+                             int n_modes,
+                             const warpx::runtime::RuntimeData* data = nullptr);
         SpectralFieldDataRZ () = default; // Default constructor
         ~SpectralFieldDataRZ ();
 
@@ -112,6 +113,11 @@ class SpectralFieldDataRZ
         int m_ncomps;
 
     private:
+
+        //! Kernel-provided state (geometry, costs); falls back to the core's
+        //! legacy provider when null.
+        [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+        const warpx::runtime::RuntimeData* m_data = nullptr;
 
         SpectralFieldIndex m_spectral_index;
         int m_n_fields;

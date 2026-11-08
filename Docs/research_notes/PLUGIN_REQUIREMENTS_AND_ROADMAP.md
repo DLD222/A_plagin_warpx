@@ -406,6 +406,7 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 | S3b 标量可注册 | **完成** | `ScalarRegistry` + `StateRegistry::request_scalar`；总线 `scalar`/`set_scalar` 受声明约束；标量参与处理器排序与同阶段双写检测；C ABI v5 增加标量声明与读写；`scalar_state_2` 七项断言通过 |
 | S3c 物种/材料/粒子属性 | 未开始 | 物种已可读（既有）；材料与粒子属性随其插件（S6） |
 | D1-a 粒子单元归位（第 1 批） | **完成** | Core 与 PicEm 各存一份同名粒子头的问题已消除：Core 保留通用副本，插件副本删除、33 个文件 include 改写；`SmartCopy/SmartUtils/InitializationPolicy` 移回插件；`IParticleIterator` 随具体类型移回；删除 `IParticleTile/IParticleCollisionTile/IParticlePositionAccess` 三个别名式契约（对应编译检查随之更新）；`ParticleUtils.cpp` 实现改用通用容器类型；边界检查器新增「Core 与插件不得同名重复头」规则 |
+| S6 第 2 批·场求解器（第 5 步） | **完成** | PSATD 子树**清零**：`SpectralFieldDataRZ` 通过构造注入 `RuntimeData`（`upperCorner`/`costs`），`SpectralSolverRZ` 一路转发；材料模块自己解析 `algo.macroscopic_subpixel`（参数归模块）；两个已无引用的 `WarpX.H` 包含被删除；棘轮 20 → **16**（剩静电 3、隐式 13） |
 | S6 第 2 批·场求解器（第 4 步） | **完成** | 求解器的 `data()` 回退不再自己构造内核适配器：核心提供 `legacy_runtime_data()`（惰性创建、核心持有生命周期），PSATD 与有限差分求解器因此完全不提 `WarpX`；棘轮 22 → **20** |
 | S6 第 2 批·场求解器（第 3 步） | **完成** | 把 `HybridPICModel`（含外部矢势）整体移出求解器树 → `Modules/HybridPIC/`：它是混合 PIC 物理模型（电子压力闭合、QDSMC、粒子耦合），不是麦克斯韦求解器，32/36 处单例引用随之离开拆分范围；棘轮 30 → **22**（注释行不再计入） |
 | S6 第 2 批·场求解器（第 2 步） | **完成** | 棘轮范围收窄为真正的求解器子树（编排层留在 PicEm）；逐文件尝试去掉 `#include "WarpX.H"`，26 个文件确认不需要内核头、14 个仍需（编译验证后精确保留）；棘轮条目 48 → **30**（14 个 include + 16 个仍有 `WarpX::` 的文件） |

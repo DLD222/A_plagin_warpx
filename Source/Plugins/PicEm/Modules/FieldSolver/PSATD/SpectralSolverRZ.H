@@ -45,7 +45,8 @@ class SpectralSolverRZ
                           TimeDependencyJ time_dependency_J,
                           TimeDependencyRho time_dependency_rho,
                           bool dive_cleaning,
-                          bool divb_cleaning);
+                          bool divb_cleaning,
+                          const warpx::runtime::RuntimeData* data = nullptr);
 
         /* \brief Transform the component `i_comp` of MultiFab `field_mf`
          *  to spectral space, and store the corresponding result internally

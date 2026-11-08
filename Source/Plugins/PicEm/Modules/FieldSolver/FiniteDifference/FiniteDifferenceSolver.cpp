@@ -4,7 +4,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
 #include "FiniteDifferenceSolver.H"
 
 #include "Runtime/RuntimeConfig.H"

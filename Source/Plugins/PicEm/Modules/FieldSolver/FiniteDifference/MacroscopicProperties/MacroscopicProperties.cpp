@@ -1,4 +1,3 @@
-#include "WarpX.H"
 #include <fstream>
 #include "MacroscopicProperties.H"
 #include "SubpixelTensor.H"
@@ -36,6 +35,10 @@ void
 MacroscopicProperties::ReadParameters ()
 {
     const ParmParse pp_macroscopic("macroscopic");
+    // Own parameter: the solver still validates it, but the value is read here
+    // instead of reaching into the kernel.
+    const ParmParse pp_algo("algo");
+    pp_algo.query("macroscopic_subpixel", m_macroscopic_subpixel);
     // Since macroscopic maxwell solve is turned on,
     // user-defined sigma, mu, and epsilon are queried.
     // The vacuum values are used as default for the macroscopic parameters
@@ -370,7 +373,7 @@ MacroscopicProperties::InitData (
     // Guard against the silent downgrade that bit c03-E3: with an interface_function
     // but subpixel off, the subpixel rows are never built and epsilon2 / tensor
     // material 2 are simply ignored (the run then looks exactly like the vacuum run).
-    if (m_has_interface && !WarpX::macroscopic_subpixel) {
+    if (m_has_interface && !m_macroscopic_subpixel) {
         ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
             "interface_function is set but algo.macroscopic_subpixel=0: the subpixel "
             "rows are NOT built and epsilon2 / tensor material 2 will be ignored.");
@@ -445,7 +448,7 @@ MacroscopicProperties::InitData (
     // backward-Euler integrator. The exponential M1/M2 are only built inside
     // InitSubpixelRows, which is never called when macroscopic_subpixel = 0;
     // at a*dt ~ O(0.1..1) the two integrators differ visibly (see c03-E6).
-    if (!WarpX::macroscopic_subpixel && m_sigma_mf && m_sigma_mf->max(0) > amrex::Real(0.0)) {
+    if (!m_macroscopic_subpixel && m_sigma_mf && m_sigma_mf->max(0) > amrex::Real(0.0)) {
         ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
             "macroscopic.sigma > 0 but algo.macroscopic_subpixel=0: the E update "
             "falls back to the first-order backward-Euler integrator instead of "

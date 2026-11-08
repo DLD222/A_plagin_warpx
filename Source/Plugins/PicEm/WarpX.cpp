@@ -3378,7 +3378,9 @@ void WarpX::AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSo
                                                   time_dependency_J,
                                                   time_dependency_rho,
                                                   do_dive_cleaning,
-                                                  do_divb_cleaning);
+                                                  do_divb_cleaning,
+                                                  GetRuntimeContext() != nullptr
+                                                      ? GetRuntimeContext()->data : nullptr);
     spectral_solver[lev] = std::move(pss);
 
     if (use_kspace_filter) {
