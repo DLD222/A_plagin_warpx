@@ -24,8 +24,6 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXHostServices.H"
-#include "Runtime/WarpXRuntimeData.H"
 #include "Diagnostics/DiagnosticsDependencies.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

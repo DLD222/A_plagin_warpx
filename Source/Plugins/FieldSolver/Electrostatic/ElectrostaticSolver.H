@@ -12,8 +12,10 @@
 #include "Runtime/IElectrostaticSolver.H"
 
 #include "PoissonBoundaryHandler.H"
+
+#include "Utils/TextMsg.H"
+#include "Utils/WarpXConst.H"
 #include "Fluids/MultiFluidContainer.H"
-#include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/fields/MLMGOptions.H>
 #include <ablastr/profiler/ProfilerWrapper.H>

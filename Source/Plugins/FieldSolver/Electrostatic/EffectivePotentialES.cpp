@@ -16,6 +16,7 @@
 #include "Python/callbacks.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/HostServices.H"
+#include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeData.H"
 
 using namespace amrex;

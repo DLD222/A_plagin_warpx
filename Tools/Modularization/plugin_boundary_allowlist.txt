@@ -6,14 +6,11 @@ Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/JFunctor.cpp incl
 Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/JdispFunctor.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp includes Fluids/MultiFluidContainer.H
 Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp includes Fluids/WarpXFluidContainer.H
-Plugin->Plugin: Source/Plugins/Diagnostics/Diagnostics.cpp includes Runtime/WarpXHostServices.H
-Plugin->Plugin: Source/Plugins/Diagnostics/Diagnostics.cpp includes Runtime/WarpXRuntimeData.H
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp includes BoundaryConditions/PML.H
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatPlotfile.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/WarpXOpenPMD.cpp includes FieldIO.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/EffectivePotentialES.cpp includes Python/callbacks.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H includes Fluids/MultiFluidContainer.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H includes Particles/MultiParticleContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/LabFrameExplicitES.cpp includes Python/callbacks.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.H includes Particles/WarpXParticleContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.cpp includes Particles/MultiParticleContainer.H
