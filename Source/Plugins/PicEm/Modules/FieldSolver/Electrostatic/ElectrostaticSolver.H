@@ -156,6 +156,9 @@ public:
     void definePhiBCs (const amrex::Geometry& geom) override
     { m_poisson_boundary_handler->DefinePhiBCs(geom); }
 
+    [[nodiscard]] const ablastr::fields::MLMGOptions& mlmgOptions () const override
+    { return m_mlmg_options; }
+
     std::unique_ptr<PoissonBoundaryHandler> m_poisson_boundary_handler;
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 

@@ -106,7 +106,17 @@ public:
 namespace warpx::runtime {
 class RuntimeContext;
 struct FieldSolverRequest;
+/** \brief Finite-difference solver factory (S6): the kernel asks, the
+ *  field-solver plugin answers.  Returns nullptr when it is not linked. */
+using FiniteDifferenceSolverFactory = std::unique_ptr<IFiniteDifferenceSolver> (*) (
+    ElectromagneticSolverAlgo algo, std::array<amrex::Real,3> cell_size,
+    ablastr::utils::enums::GridType grid_type, const RuntimeContext* context);
+
+void register_finite_difference_solver_factory (FiniteDifferenceSolverFactory factory);
+
 std::unique_ptr<IFiniteDifferenceSolver> create_finite_difference_solver (
     ElectromagneticSolverAlgo algo, std::array<amrex::Real,3> cell_size,
     ablastr::utils::enums::GridType grid_type, const RuntimeContext* context);
+
+[[nodiscard]] bool has_finite_difference_solver_factory ();
 }

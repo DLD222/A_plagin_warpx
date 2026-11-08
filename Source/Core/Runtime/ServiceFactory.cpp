@@ -10,6 +10,7 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/IElectrostaticSolver.H"
+#include "Runtime/IFiniteDifferenceSolver.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/IReducedDiagsService.H"
@@ -30,6 +31,7 @@ struct Registry
     LegacyHostServicesFactory legacy_host = nullptr;
     CollisionHandlerFactory collision = nullptr;
     ElectrostaticSolverFactory electrostatic = nullptr;
+    FiniteDifferenceSolverFactory finite_difference = nullptr;
 };
 
 Registry& registry ()
@@ -97,6 +99,28 @@ create_electrostatic_solver (int algorithm, int max_level, const RuntimeContext*
 {
     if (registry().electrostatic == nullptr) { return nullptr; }
     return registry().electrostatic(algorithm, max_level, context);
+}
+
+void
+register_finite_difference_solver_factory (FiniteDifferenceSolverFactory factory)
+{
+    registry().finite_difference = factory;
+}
+
+bool
+has_finite_difference_solver_factory ()
+{
+    return registry().finite_difference != nullptr;
+}
+
+std::unique_ptr<IFiniteDifferenceSolver>
+create_finite_difference_solver (ElectromagneticSolverAlgo algo,
+                                 std::array<amrex::Real,3> cell_size,
+                                 ablastr::utils::enums::GridType grid_type,
+                                 const RuntimeContext* context)
+{
+    if (registry().finite_difference == nullptr) { return nullptr; }
+    return registry().finite_difference(algo, cell_size, grid_type, context);
 }
 
 void

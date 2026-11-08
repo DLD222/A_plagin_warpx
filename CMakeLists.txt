@@ -398,7 +398,8 @@ foreach(D IN LISTS WarpX_DIMS)
         set(_WARPX_PLUGIN_ANCHORS
             warpx_picem_kernel_anchor
             warpx_picem_legacy_anchor
-            warpx_electrostatic_anchor)
+            warpx_electrostatic_anchor
+            warpx_finitedifference_anchor)
         if(WarpX_PLUGIN_DIAGNOSTICS)
             list(APPEND _WARPX_PLUGIN_ANCHORS warpx_diagnostics_anchor)
         endif()

@@ -10,7 +10,6 @@
 
 #include "BoundaryConditions/PML.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "FieldSolver/Electrostatic/ElectrostaticSolver.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
@@ -164,7 +163,7 @@ WarpXHostServices::computePhi (int lev)
     const std::array<amrex::Real, 3> beta = {0.0};
     es_solver.computePhi(
         amrex::GetVecOfPtrs(rho_vec), amrex::GetVecOfPtrs(phi_vec),
-        beta, m_warpx.GetElectrostaticSolverConcrete()->m_mlmg_options, /*is_igf_2d_slices*/ false);
+        beta, m_warpx.GetElectrostaticSolver().mlmgOptions(), /*is_igf_2d_slices*/ false);
 
     return std::move(phi_vec[0]);
 }
