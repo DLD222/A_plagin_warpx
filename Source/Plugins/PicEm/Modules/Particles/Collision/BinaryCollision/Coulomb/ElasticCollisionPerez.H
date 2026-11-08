@@ -8,7 +8,8 @@
 #define WARPX_PARTICLES_COLLISION_ELASTIC_COLLISION_PEREZ_H_
 
 #include "UpdateMomentumPerezElastic.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/WarpXConst.H"
 
 #include <AMReX_Random.H>

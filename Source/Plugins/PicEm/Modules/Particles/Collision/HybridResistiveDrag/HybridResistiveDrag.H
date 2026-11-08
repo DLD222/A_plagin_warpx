@@ -8,7 +8,8 @@
 #define WARPX_PARTICLES_COLLISION_HYBRIDRESISTIVEDRAG_H_
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Particles/Collision/CollisionBase.H"

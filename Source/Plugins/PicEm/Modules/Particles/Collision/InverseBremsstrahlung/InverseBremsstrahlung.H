@@ -8,7 +8,9 @@
 #define WARPX_PARTICLES_COLLISION_INVERSEBREMSSTRAHLUNG_H_
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
@@ -27,7 +29,7 @@ class InverseBremsstrahlung final
     : public CollisionBase
 {
 
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;

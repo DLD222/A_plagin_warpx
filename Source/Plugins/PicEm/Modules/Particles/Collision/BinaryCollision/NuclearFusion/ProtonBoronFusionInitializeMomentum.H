@@ -9,7 +9,8 @@
 #define WARPX_PROTON_BORON_FUSION_INITIALIZE_MOMENTUM_H
 
 #include "Particles/Collision/BinaryCollision/TwoProductUtil.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -24,9 +25,9 @@
 
 namespace {
     // Define shortcuts for frequently-used type names
-    using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
-    using ParticleTileType = typename WarpXParticleContainer::ParticleTileType;
+    using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = typename warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = typename ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = typename ParticleBins::index_type;

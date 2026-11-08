@@ -8,7 +8,8 @@
 #ifndef WARPX_VIRTUAL_PHOTONS_H_
 #define WARPX_VIRTUAL_PHOTONS_H_
 
-#include "Particles/MultiParticleContainer_fwd.H"
+#include "Runtime/IParticleContainerAccess.H"
+
 
 namespace collision::binarycollision::virtualphotons
 {
@@ -34,7 +35,7 @@ namespace collision::binarycollision::virtualphotons
  *
  * \param[in] mypc MultiParticleContainer calling this method
  */
-void GenerateVirtualPhotons (MultiParticleContainer* mypc);
+void GenerateVirtualPhotons (warpx::runtime::IParticleContainerAccess* mypc);
 
 }
 

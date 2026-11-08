@@ -281,7 +281,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt)
 #ifdef _OPENMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(species1, lev); pti.isValid(); ++pti) {
+        for (warpx::runtime::IParticleIterator pti(species1, lev); pti.isValid(); ++pti) {
             if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
@@ -307,7 +307,7 @@ BackgroundMCCCollision::doCollisions (amrex::Real cur_time, amrex::Real dt)
 
 
 void BackgroundMCCCollision::doBackgroundCollisionsWithinTile
-( WarpXParIter& pti, amrex::Real t )
+( warpx::runtime::IParticleIterator& pti, amrex::Real t )
 {
     using namespace amrex::literals;
 
@@ -451,7 +451,7 @@ void BackgroundMCCCollision::doBackgroundIonization
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-    for (WarpXParIter pti(species1, lev); pti.isValid(); ++pti) {
+    for (warpx::runtime::IParticleIterator pti(species1, lev); pti.isValid(); ++pti) {
 
         if (cost && species1.config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {

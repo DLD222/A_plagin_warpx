@@ -20,16 +20,17 @@
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 #include "Modules/Particles/ParticleCreation/SmartUtils.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "WarpX.H"
 
-#include "Particles/MultiParticleContainer_fwd.H"
-#include "Particles/WarpXParticleContainer_fwd.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
@@ -90,10 +91,6 @@ public:
      * @param[in] mypc Container of species involved
      *
      */
-    BinaryCollision (const std::string& collision_name, MultiParticleContainer const * const mypc)
-        : BinaryCollision(collision_name, CollisionSpeciesTable(*mypc))
-    {}
-
     BinaryCollision (const std::string& collision_name, const CollisionSpeciesTable& table)
         : CollisionBase(collision_name), m_species(table)
     {

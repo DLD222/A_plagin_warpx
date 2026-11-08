@@ -12,12 +12,6 @@
 
 using namespace amrex::literals;
 
-BremsstrahlungFunc::BremsstrahlungFunc (std::string const& collision_name, MultiParticleContainer const * const mypc,
-                                        bool isSameSpecies):
-    BremsstrahlungFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies)
-{
-}
-
 BremsstrahlungFunc::BremsstrahlungFunc (std::string const& collision_name,
                                         const CollisionSpeciesTable& table,
                                         bool isSameSpecies)

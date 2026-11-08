@@ -222,7 +222,7 @@ void ModulusShuffle (int n_cells, T_index np, int nrounds, T_index const * cell_
 /* \brief Shuffle array according to Fisher-Yates algorithm.
  *        Only shuffle the part between is <= i < ie, n = ie-is.
  *        T_index shall be
- *        amrex::DenseBins<WarpXParticleContainer::ParticleTileType::ParticleTileDataType>::index_type
+ *        amrex::DenseBins<warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType>::index_type
 */
 template <typename T_index>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

@@ -16,7 +16,9 @@
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
@@ -31,12 +33,12 @@
 class SplitAndScatterFunc
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
-    using ParticleTileType = typename WarpXParticleContainer::ParticleTileType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = typename warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = typename ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = typename ParticleBins::index_type;
-    using SoaData_type = WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     /**

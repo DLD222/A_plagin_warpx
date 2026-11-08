@@ -8,7 +8,8 @@
 #ifndef LINEAR_COMPTON_INITIALIZE_MOMENTUM_H
 #define LINEAR_COMPTON_INITIALIZE_MOMENTUM_H
 
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 
@@ -21,9 +22,9 @@
 
 namespace {
     // Define shortcuts for frequently-used type names
-    using SoaData_type = WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
-    using ParticleType = WarpXParticleContainer::ParticleType;
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using SoaData_type = warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
+    using ParticleType = warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;

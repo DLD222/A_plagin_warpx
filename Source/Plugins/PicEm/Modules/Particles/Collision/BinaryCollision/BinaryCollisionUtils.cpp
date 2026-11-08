@@ -9,7 +9,8 @@
 
 #include "Particles/Collision/ScatteringProcess.H"
 #include "Runtime/IParticleContainerAccess.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 

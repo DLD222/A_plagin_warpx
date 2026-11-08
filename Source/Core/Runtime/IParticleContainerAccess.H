@@ -5,6 +5,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <vector>
 class WarpXParticleContainer;
 #include "Runtime/IParticleContainer.H"
 #include "Runtime/ISpeciesMetadata.H"
@@ -25,6 +26,8 @@ public:
     virtual iterator end () = 0;
     virtual const_iterator begin () const = 0;
     virtual const_iterator end () const = 0;
+    [[nodiscard]] virtual int nSpecies () const = 0;
+    [[nodiscard]] virtual std::vector<std::string> GetSpeciesNames () const = 0;
     virtual void Increment (amrex::MultiFab& mf, int lev) = 0;
     virtual void AllocData () = 0;
     virtual void ReadHeader (std::istream&) = 0;

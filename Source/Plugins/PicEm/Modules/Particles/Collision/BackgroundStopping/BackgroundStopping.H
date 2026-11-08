@@ -8,7 +8,8 @@
 #define WARPX_PARTICLES_COLLISION_BACKGROUNSTOPPING_H_
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 
 #include <AMReX_Parser.H>
 
@@ -59,7 +60,7 @@ public:
      * @param species_charge charge of the active species
      *
      */
-    void doBackgroundStoppingOnElectronsWithinTile (WarpXParIter& pti, amrex::Real dt, amrex::Real t,
+    void doBackgroundStoppingOnElectronsWithinTile (warpx::runtime::IParticleIterator& pti, amrex::Real dt, amrex::Real t,
                                                     amrex::ParticleReal species_mass, amrex::ParticleReal species_charge);
 
     /** Perform the stopping calculation within a tile for stopping on ions
@@ -71,7 +72,7 @@ public:
      * @param species_charge charge of the active species
      *
      */
-    void doBackgroundStoppingOnIonsWithinTile (WarpXParIter& pti, amrex::Real dt, amrex::Real t,
+    void doBackgroundStoppingOnIonsWithinTile (warpx::runtime::IParticleIterator& pti, amrex::Real dt, amrex::Real t,
                                                amrex::ParticleReal species_mass, amrex::ParticleReal species_charge);
 
 private:

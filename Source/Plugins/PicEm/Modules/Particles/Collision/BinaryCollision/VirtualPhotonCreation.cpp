@@ -8,9 +8,10 @@
 
 #include "VirtualPhotonCreation.H"
 
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
-#include "Particles/PhysicalParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/IParticleContainer.H"
+
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
 
 #include "Modules/Particles/ParticleUtils.H"
@@ -30,9 +31,9 @@ namespace collision::binarycollision::virtualphotons{
 
 using namespace amrex::literals;
 using namespace ParticleUtils;
-using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
-void GenerateVirtualPhotons (MultiParticleContainer* mypc){
+void GenerateVirtualPhotons (warpx::runtime::IParticleContainerAccess* mypc){
 
 #ifdef WARPX_QED
 

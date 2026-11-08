@@ -20,13 +20,6 @@
  */
 DSMCFunc::DSMCFunc (
     const std::string& collision_name,
-    MultiParticleContainer const * const mypc,
-    const bool isSameSpecies ): DSMCFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies)
-{
-}
-
-DSMCFunc::DSMCFunc (
-    const std::string& collision_name,
     const CollisionSpeciesTable& table,
     const bool isSameSpecies ): m_isSameSpecies{isSameSpecies}
 {

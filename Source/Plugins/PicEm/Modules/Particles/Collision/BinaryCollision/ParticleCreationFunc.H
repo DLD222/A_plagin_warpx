@@ -17,8 +17,9 @@
 #include "Particles/Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerInitializeMomentum.H"
 #include "Particles/Collision/BinaryCollision/LinearCompton/LinearComptonInitializeMomentum.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 #include "Utils/ScatteringUtils.H"
 
@@ -58,7 +59,6 @@ public:
      * @param[in] collision_name the name of the collision
      * @param[in] mypc pointer to the MultiParticleContainer
      */
-    ParticleCreationFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
 
     ParticleCreationFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
 
@@ -347,9 +347,6 @@ public:
 
     NoParticleCreationFunc (const std::string& /*collision_name*/,
                             const CollisionSpeciesTable& /*table*/) {}
-
-    NoParticleCreationFunc (const std::string& /*collision_name*/,
-                            MultiParticleContainer const * const /*mypc*/) {}
 
     AMREX_INLINE
     amrex::Vector<int> operator() (

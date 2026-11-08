@@ -14,7 +14,8 @@
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Modules/Particles/Gather/FieldGather.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "WarpX.H"
@@ -114,7 +115,7 @@ HybridResistiveDrag::doCollisions (amrex::Real /*cur_time*/, amrex::Real dt)
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(species, lev); pti.isValid(); ++pti)
+        for (warpx::runtime::IParticleIterator pti(species, lev); pti.isValid(); ++pti)
         {
             amrex::Box const & box = pti.validbox();
             amrex::XDim3 const xyzmin = m_data->lowerCorner(box, lev);

@@ -14,8 +14,9 @@
 #include "Particles/Collision/CollisionSpeciesTable.H"
 
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
 
@@ -35,12 +36,12 @@
 class PhotonCreationFunc
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = typename WarpXParticleContainer::ParticleType;
-    using ParticleTileType = typename WarpXParticleContainer::ParticleTileType;
+    using ParticleType = typename warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = typename warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = typename ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = typename ParticleBins::index_type;
-    using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     /**
@@ -54,7 +55,6 @@ public:
      * @param[in] collision_name the name of the collision
      * @param[in] mypc pointer to the MultiParticleContainer
      */
-    PhotonCreationFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
 
     PhotonCreationFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
 

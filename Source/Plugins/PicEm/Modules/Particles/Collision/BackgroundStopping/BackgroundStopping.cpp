@@ -119,7 +119,7 @@ BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt)
 #ifdef _OPENMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(species, lev); pti.isValid(); ++pti) {
+        for (warpx::runtime::IParticleIterator pti(species, lev); pti.isValid(); ++pti) {
             if (cost && m_config->load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
@@ -143,7 +143,7 @@ BackgroundStopping::doCollisions (amrex::Real cur_time, amrex::Real dt)
     }
 }
 
-void BackgroundStopping::doBackgroundStoppingOnElectronsWithinTile (WarpXParIter& pti, amrex::Real dt, amrex::Real t,
+void BackgroundStopping::doBackgroundStoppingOnElectronsWithinTile (warpx::runtime::IParticleIterator& pti, amrex::Real dt, amrex::Real t,
                                                                     amrex::ParticleReal species_mass, amrex::ParticleReal species_charge)
 {
     using namespace amrex::literals;
@@ -219,7 +219,7 @@ void BackgroundStopping::doBackgroundStoppingOnElectronsWithinTile (WarpXParIter
         );
 }
 
-void BackgroundStopping::doBackgroundStoppingOnIonsWithinTile (WarpXParIter& pti, amrex::Real dt, amrex::Real t,
+void BackgroundStopping::doBackgroundStoppingOnIonsWithinTile (warpx::runtime::IParticleIterator& pti, amrex::Real dt, amrex::Real t,
                                                                amrex::ParticleReal species_mass, amrex::ParticleReal species_charge)
 {
     using namespace amrex::literals;

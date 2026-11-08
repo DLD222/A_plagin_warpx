@@ -8,7 +8,6 @@
 #include "PhotonCreationFunc.H"
 
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 
 #include <AMReX_GpuContainers.H>
@@ -16,12 +15,6 @@
 #include <AMReX_Vector.H>
 
 #include <string>
-
-PhotonCreationFunc::PhotonCreationFunc (const std::string& collision_name,
-                                        MultiParticleContainer const * const mypc):
-    PhotonCreationFunc(collision_name, CollisionSpeciesTable(*mypc))
-{
-}
 
 PhotonCreationFunc::PhotonCreationFunc (const std::string& collision_name,
                                         const CollisionSpeciesTable& table):

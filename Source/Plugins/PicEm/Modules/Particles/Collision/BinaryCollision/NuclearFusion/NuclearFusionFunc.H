@@ -16,8 +16,8 @@
 #include "Particles/Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Particles/Collision/CollisionSpeciesTable.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 
@@ -40,12 +40,12 @@ class NuclearFusionFunc
     : public CollisionFuncBase
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = WarpXParticleContainer::ParticleType;
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleType = warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;
-    using SoaData_type = WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     /**
@@ -60,10 +60,6 @@ public:
      * @param[in] mypc pointer to the MultiParticleContainer
      * @param[in] isSameSpecies whether the two colliding species are the same
      */
-    NuclearFusionFunc (const std::string& collision_name, MultiParticleContainer const * const mypc,
-                       const bool isSameSpecies):
-        NuclearFusionFunc(collision_name, CollisionSpeciesTable(*mypc), isSameSpecies) {}
-
     NuclearFusionFunc (const std::string& collision_name, const CollisionSpeciesTable& table,
                        const bool isSameSpecies):
         m_fusion_multiplier{amrex::ParticleReal{1.0}}, // default fusion multiplier

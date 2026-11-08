@@ -735,3 +735,41 @@ charge_exchange_dsmc PASS
 ```
 
 `FilterCopyTransform` 仍留在 Particles，因为它依赖 `DefaultInitialization` 的 QED 初始化函数。
+
+## 15. Collision 去 MultiParticleContainer 依赖
+
+已删除 Collision 中的具体 `MultiParticleContainer` 构造重载，统一走 `CollisionSpeciesTable`。
+
+`VirtualPhotonCreation` 改为：
+
+```cpp
+IParticleContainerAccess*
+```
+
+`IParticleContainerAccess` 增加：
+
+```cpp
+nSpecies()
+GetSpeciesNames()
+```
+
+Collision 外部 Particles include：
+
+```text
+47 -> 7
+```
+
+剩余：
+
+```text
+ParticleCreation/DefaultInitialization.H  5
+ParticleCreation/FilterCopyTransform.H    2
+```
+
+验证：
+
+```text
+runtime + plugin 12/12 PASS
+plugin boundaries PASS
+charge_exchange_dsmc PASS
+```

@@ -7,7 +7,8 @@
  */
 #include "CollisionSpeciesTable.H"
 
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Runtime/IParticleContainerAccess.H"
 
 #include <stdexcept>

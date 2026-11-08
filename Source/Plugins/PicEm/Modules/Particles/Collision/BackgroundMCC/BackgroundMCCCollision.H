@@ -8,7 +8,9 @@
 #define WARPX_PARTICLES_COLLISION_BACKGROUNDMCCCOLLISION_H_
 
 #include "Particles/Collision/CollisionSpeciesTable.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
@@ -56,7 +58,7 @@ public:
      * @param t current time
      *
      */
-    void doBackgroundCollisionsWithinTile ( WarpXParIter& pti, amrex::Real t);
+    void doBackgroundCollisionsWithinTile ( warpx::runtime::IParticleIterator& pti, amrex::Real t);
 
     /** Perform MCC ionization interactions
      *

@@ -8,7 +8,6 @@
 #include "ParticleCreationFunc.H"
 
 #include "BinaryCollisionUtils.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "ablastr/warn_manager/WarnManager.H"
 
@@ -134,12 +133,6 @@ void ParticleCreationFunc::RecordEnergyRangeWarnings (
             "Verify that the table covers the simulated energy regime.",
             ablastr::warn_manager::WarnPriority::medium);
     }
-}
-
-ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,
-                                            MultiParticleContainer const * const mypc):
-    ParticleCreationFunc(collision_name, CollisionSpeciesTable(*mypc))
-{
 }
 
 ParticleCreationFunc::ParticleCreationFunc (const std::string& collision_name,

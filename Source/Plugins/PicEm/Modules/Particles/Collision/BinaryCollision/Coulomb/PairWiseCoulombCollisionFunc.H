@@ -12,7 +12,8 @@
 #include "Particles/Collision/CollisionFuncBase.H"
 #include "ElasticCollisionPerez.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Particles/WarpXParticleContainer.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/Parser/ParserUtils.H"
 
 #include <AMReX_DenseBins.H>
@@ -29,12 +30,12 @@ class PairWiseCoulombCollisionFunc
     : public CollisionFuncBase
 {
     // Define shortcuts for frequently-used type names
-    using ParticleType = WarpXParticleContainer::ParticleType;
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleType = warpx::runtime::IParticleContainer::ParticleType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;
-    using SoaData_type = WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
 public:
     /**

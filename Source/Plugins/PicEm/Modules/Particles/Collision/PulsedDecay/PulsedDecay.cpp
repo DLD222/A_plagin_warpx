@@ -134,11 +134,11 @@ PulsedDecay::doCollisions (amrex::Real cur_time, amrex::Real dt)
 
     using namespace amrex::literals;
 
-    using ParticleTileType = WarpXParticleContainer::ParticleTileType;
+    using ParticleTileType = warpx::runtime::IParticleContainer::ParticleTileType;
     using ParticleTileDataType = ParticleTileType::ParticleTileDataType;
     using ParticleBins = amrex::DenseBins<ParticleTileDataType>;
     using index_type = ParticleBins::index_type;
-    using SoaData_type = typename WarpXParticleContainer::ParticleTileType::ParticleTileDataType;
+    using SoaData_type = typename warpx::runtime::IParticleContainer::ParticleTileType::ParticleTileDataType;
 
     // Get handles to species particle containters
     const auto species1_view = m_species.view(m_species_names[0]);
@@ -182,7 +182,7 @@ PulsedDecay::doCollisions (amrex::Real cur_time, amrex::Real dt)
 
         // Enable tiling
         amrex::MFItInfo info;
-        if (amrex::Gpu::notInLaunchRegion()) { info.EnableTiling(WarpXParticleContainer::tile_size); }
+        if (amrex::Gpu::notInLaunchRegion()) { info.EnableTiling(warpx::runtime::IParticleContainer::tile_size); }
 
 #ifdef AMREX_USE_OMP
         info.SetDynamic(true);

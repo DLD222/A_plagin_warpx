@@ -323,7 +323,7 @@ public:
     void SetParticleBoxArray (int lev, amrex::BoxArray& new_ba);
     void SetParticleDistributionMap (int lev, amrex::DistributionMapping& new_dm);
 
-    [[nodiscard]] int nSpecies () const {return static_cast<int>(species_names.size());}
+    [[nodiscard]] int nSpecies () const override {return static_cast<int>(species_names.size());}
     [[nodiscard]] int nLasers () const {return static_cast<int>(lasers_names.size());}
     [[nodiscard]] int nContainers () const {return static_cast<int>(allcontainers.size());}
 
@@ -376,7 +376,7 @@ public:
     // Inject particles from a surface during the simulation
     void ContinuousFluxInjection(amrex::Real t, amrex::Real dt) const;
 
-    [[nodiscard]] std::vector<std::string> GetSpeciesNames() const { return species_names; }
+    [[nodiscard]] std::vector<std::string> GetSpeciesNames() const override { return species_names; }
 
     [[nodiscard]] std::vector<std::string> GetLasersNames() const { return lasers_names; }
 
