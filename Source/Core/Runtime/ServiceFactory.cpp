@@ -127,6 +127,13 @@ create_legacy_runtime_data ()
     return registry().legacy_data();
 }
 
+const RuntimeData&
+legacy_runtime_data ()
+{
+    static const std::unique_ptr<RuntimeData> holder = create_legacy_runtime_data();
+    return *holder;
+}
+
 std::unique_ptr<HostServices>
 create_legacy_host_services ()
 {

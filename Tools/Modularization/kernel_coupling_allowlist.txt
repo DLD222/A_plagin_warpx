@@ -5,7 +5,6 @@ Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|#
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/ElectrostaticSolver.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic/PoissonBoundaryHandler.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/DarwinLinearFieldOperator.cpp|#include "WarpX.H"
@@ -21,5 +20,4 @@ Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|#include "
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/ThetaImplicitEM.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverDOF.cpp|#include "WarpX.H"
 Source/Plugins/PicEm/Modules/FieldSolver/Implicit/WarpXSolverVec.cpp|#include "WarpX.H"
-Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldData.cpp|WarpX::
 Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp|WarpX::

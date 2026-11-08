@@ -8,6 +8,7 @@
 #include "FiniteDifferenceSolver.H"
 
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -143,6 +144,7 @@ FiniteDifferenceSolver::data () const
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
         return *m_runtime_context->data;
     }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
+    // Kernel provider comes from the core registry, so this solver does not
+    // need the WarpX singleton at all (S6).
+    return warpx::runtime::legacy_runtime_data();
 }
