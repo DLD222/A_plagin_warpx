@@ -70,6 +70,10 @@ for path in files:
     if here == "other":
         continue
     for inc in inc_re.findall(path.read_text(errors="ignore")):
+        # A forward-declaration header carries no definition and no code
+        # dependency: it names a type, it does not use it.
+        if inc.endswith("_fwd.H"):
+            continue
         target = resolve(inc)
         if target is None:
             continue
@@ -105,6 +109,11 @@ for plugin_dir in PLUGINS.iterdir():
         if f'#include "{rel}"' in text:
             continue
         errors.append(f"Duplicate header in Core and {plugin_dir.name}: {rel}")
+
+if "--dump" in sys.argv:
+    for v in sorted(violations):
+        print(v)
+    sys.exit(0)
 
 errors = sorted(v for v in violations if v not in allowed)
 resolved = sorted(allowed - violations)

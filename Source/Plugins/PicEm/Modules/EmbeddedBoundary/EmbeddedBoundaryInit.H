@@ -8,7 +8,7 @@
 #ifndef WARPX_EMBEDDED_BOUNDARY_EMBEDDED_BOUNDARY_INIT_H_
 #define WARPX_EMBEDDED_BOUNDARY_EMBEDDED_BOUNDARY_INIT_H_
 
-#include "Enabled.H"
+#include "EmbeddedBoundary/Enabled.H"
 
 #ifdef AMREX_USE_EB
 

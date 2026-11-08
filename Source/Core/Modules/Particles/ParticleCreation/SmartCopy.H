@@ -9,7 +9,7 @@
 #define WARPX_SMART_COPY_H_
 
 #include "Modules/Particles/ParticleCreation/InitializationPolicy.H"
-#include "SmartUtils.H"
+#include "Modules/Particles/ParticleCreation/SmartUtils.H"
 
 #include <AMReX_GpuContainers.H>
 #include <AMReX_ParallelDescriptor.H>

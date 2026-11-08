@@ -5,7 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "Enabled.H"
+#include "EmbeddedBoundary/Enabled.H"
 
 #ifdef AMREX_USE_EB
 
