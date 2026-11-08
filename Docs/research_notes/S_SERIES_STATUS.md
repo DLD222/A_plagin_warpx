@@ -83,9 +83,26 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
 因此也不是并行通信问题。当前最可能的解释是 openPMD 0.17.1 的 **HDF5 后端在数据集 resize 上的行为**
 （上游 CI 的 openPMD 用例通常走 ADIOS2 或不同后端组合）。
 
-确认方法（下一轮）：用与本地相同的 openPMD/HDF5 组合构建上游 26.10 并跑同一批用例；
-若上游同样失败，则该 12 项属于**环境/后端限制**，不是本项目缺陷。
-（本轮尝试时上游源码与我们强制复用的 AMReX 版本存在 `IntVect` 构造签名漂移，编译未通过，需要单独固定依赖版本。）
+**决定性对照实验（已完成）**：用上游 26.10 **自己的依赖 pin** + 同一并行 HDF5 构建出
+`/tmp/warpx_up2610/build_up2/bin/warpx.rz`（配置日志无 "only serial version of HDF5"）。
+用**同一输入、同一后端、同一 1 进程**运行 `test_rz_embedded_boundary_diffraction`：
+
+- **上游 26.10：正常完成**（`AMReX ... finalized`）
+- **本项目：失败**（`Chunk does not reside inside dataset (DS: 1 - Chunk: 2)`）
+
+→ 结论：**这不是环境限制，而是我们分支与上游的差异**。
+
+**差异定位进展**：写出路径的核心函数 `WriteOpenPMDParticles` / `DumpToFile` / `FlushBTDToDisk` /
+`SetupPos` / `num_already_flushed` 与上游**逐行相同**（只有类型名和 `data()`/config 取值方式不同），
+因此差异更可能在**送进写出器的数据**（每次 flush 的粒子数、要写的场/物种集合），而不是写出器本身。
+
+**12 个运行失败的分解**（本轮实测）：
+
+| 子类 | 数量 | 原因 |
+|---|---|---|
+| `load_external_field`（RZ/3D，含 restart） | 7 | 外部数据集缺失：`openPMD::error::ReadError / Inaccessible`（`openPMD-example-datasets` 不在本机） |
+| `test_rz_projection_div_cleaner` | 1 | 同上（ReadError） |
+| `test_rz_btd`、`test_rz_embedded_boundary_diffraction`、`test_rz_laser_acceleration[_boosted]_opmd` | 4 | **本项目差异**（上游同环境通过），待定位到具体数据/计数逻辑 |
 
 **原关键事实（现已解除）**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
 （配置日志有明确警告），也没有 ADIOS2。测试输入显式要求 `h5` 后端，因此这 72 类用例
