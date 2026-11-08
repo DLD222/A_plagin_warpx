@@ -51,7 +51,7 @@ main (void)
         printf("FAIL: handler struct_size\n");
         return 1;
     }
-    if (WARPX_PLUGIN_ABI_VERSION != 3u) {
+    if (WARPX_PLUGIN_ABI_VERSION != 4u) {
         printf("FAIL: unexpected ABI version\n");
         return 2;
     }

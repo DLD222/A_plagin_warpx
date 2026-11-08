@@ -11,6 +11,7 @@ foreach(D IN LISTS WarpX_DIMS)
         PluginLoader.cpp
         PluginCAdapter.cpp
         KernelFactory.cpp
+        StageRegistry.cpp
     )
     target_link_libraries(warpx_core_${SD} PRIVATE ${CMAKE_DL_LIBS})
 endforeach()

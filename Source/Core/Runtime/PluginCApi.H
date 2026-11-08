@@ -24,7 +24,7 @@
 
 /* Version of the layout below.  Bump on any change to WarpXHandlerDesc,
  * WarpXPluginDesc, the WarpXStage ordinals, or the exported functions. */
-#define WARPX_PLUGIN_ABI_VERSION 3u
+#define WARPX_PLUGIN_ABI_VERSION 4u
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,20 +39,24 @@ typedef struct WarpXStageContext WarpXStageContext;
  * build time (PluginCAdapter.cpp). */
 enum WarpXStage
 {
-    WARPX_STAGE_BEFORE_INIT = 0,
-    WARPX_STAGE_INIT = 1,
-    WARPX_STAGE_AFTER_INIT = 2,
-    WARPX_STAGE_BEFORE_PUSH = 3,
-    WARPX_STAGE_PUSH = 4,
-    WARPX_STAGE_AFTER_PUSH = 5,
-    WARPX_STAGE_BEFORE_COLLISIONS = 6,
-    WARPX_STAGE_COLLISIONS = 7,
-    WARPX_STAGE_AFTER_COLLISIONS = 8,
-    WARPX_STAGE_BEFORE_FIELD_SOLVE = 9,
-    WARPX_STAGE_FIELD_SOLVE = 10,
-    WARPX_STAGE_AFTER_FIELD_SOLVE = 11,
-    WARPX_STAGE_DIAGNOSTICS = 12,
-    WARPX_STAGE_FINALIZE = 13
+    /* Standard ordinals.  They match warpx::runtime::Stage::* and are spaced
+     * by 1000 so that a C++ plugin can register extra stages in between; a C
+     * plugin can only use the standard ones (custom stages are registered by
+     * name through the C++ API until the plugin manifest lands). */
+    WARPX_STAGE_BEFORE_INIT       =     0,
+    WARPX_STAGE_INIT              =  1000,
+    WARPX_STAGE_AFTER_INIT        =  2000,
+    WARPX_STAGE_BEFORE_PUSH       =  3000,
+    WARPX_STAGE_PUSH              =  4000,
+    WARPX_STAGE_AFTER_PUSH        =  5000,
+    WARPX_STAGE_BEFORE_COLLISIONS =  6000,
+    WARPX_STAGE_COLLISIONS        =  7000,
+    WARPX_STAGE_AFTER_COLLISIONS  =  8000,
+    WARPX_STAGE_BEFORE_FIELD_SOLVE=  9000,
+    WARPX_STAGE_FIELD_SOLVE       = 10000,
+    WARPX_STAGE_AFTER_FIELD_SOLVE = 11000,
+    WARPX_STAGE_DIAGNOSTICS       = 12000,
+    WARPX_STAGE_FINALIZE          = 13000
 };
 
 /* Data contract of one handler.  String arrays are borrowed for the duration

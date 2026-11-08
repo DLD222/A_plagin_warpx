@@ -16,33 +16,53 @@
 namespace warpx::runtime
 {
 
-enum class Stage
+/**
+ * \brief Standard stage ordinals of the runtime.
+ *
+ * A stage is an integer ordinal, not an enum: plugins may register additional
+ * stages between the standard ones without recompiling the core (S2).  The
+ * standard stages are spaced by `StageStride` so a registration can be placed
+ * in the gap with a single integer, and existing ordinals never move.
+ *
+ * Only the execution engine decides *when* a stage runs; declaring a handler
+ * at an ordinal that the engine never reaches simply means it never runs.
+ */
+namespace Stage
 {
-    BeforeInit,
-    Init,
-    AfterInit,
-    BeforePush,
-    Push,
-    AfterPush,
-    BeforeCollisions,
-    Collisions,
-    AfterCollisions,
-    BeforeFieldSolve,
-    FieldSolve,
-    AfterFieldSolve,
-    Diagnostics,
-    Finalize
-};
+inline constexpr int Stride = 1000;
 
+inline constexpr int BeforeInit     =  0 * Stride;
+inline constexpr int Init           =  1 * Stride;
+inline constexpr int AfterInit      =  2 * Stride;
+inline constexpr int BeforePush     =  3 * Stride;
+inline constexpr int Push           =  4 * Stride;
+inline constexpr int AfterPush      =  5 * Stride;
+inline constexpr int BeforeCollisions =  6 * Stride;
+inline constexpr int Collisions       =  7 * Stride;
+inline constexpr int AfterCollisions  =  8 * Stride;
+inline constexpr int BeforeFieldSolve =  9 * Stride;
+inline constexpr int FieldSolve       = 10 * Stride;
+inline constexpr int AfterFieldSolve  = 11 * Stride;
+inline constexpr int Diagnostics      = 12 * Stride;
+inline constexpr int Finalize         = 13 * Stride;
+
+//! True for the ordinals above (used to validate plugin-provided integers).
+[[nodiscard]] inline constexpr bool is_standard (int stage)
+{
+    return stage >= BeforeInit && stage <= Finalize && stage % Stride == 0;
+}
+} // namespace Stage
+
+/** A concrete point in the step order: a stage plus a sub-stage index. */
 struct StagePoint
 {
-    Stage stage = Stage::BeforeInit;
+    int stage = Stage::BeforeInit;
     int sub = 0;
 };
 
 inline bool operator< (const StagePoint& a, const StagePoint& b)
 {
-    if (a.stage != b.stage) { return static_cast<int>(a.stage) < static_cast<int>(b.stage); }
+    if (a.stage != b.stage) { return a.stage < b.stage; }
     return a.sub < b.sub;
 }
 
@@ -52,9 +72,10 @@ inline bool operator== (const StagePoint& a, const StagePoint& b)
 }
 
 /**
- * \brief Ordered list of named stage entries (A3.1a skeleton).
+ * \brief Ordered list of named stage entries (planning aid).
  *
- * It only orders by StagePoint; handler dependency sorting is added in A3.1c.
+ * It only orders by StagePoint; handler dependency sorting is done by the
+ * plugin host.
  */
 class StagePlan
 {

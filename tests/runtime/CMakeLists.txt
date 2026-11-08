@@ -21,6 +21,8 @@ foreach(D IN LISTS WarpX_DIMS)
         add_executable(test_particle_contracts_${SD} test_particle_contracts.cpp)
         add_executable(test_particle_access_contracts_${SD} test_particle_access_contracts.cpp)
         add_executable(test_collision_contracts_${SD} test_collision_contracts.cpp)
+        add_executable(test_stage_registry_${SD} test_stage_registry.cpp)
+        target_link_libraries(test_stage_registry_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_collision_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_access_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_contracts_${SD} PRIVATE lib_${SD})
@@ -30,6 +32,8 @@ foreach(D IN LISTS WarpX_DIMS)
             $<TARGET_OBJECTS:warpx_picem_${SD}>
             $<TARGET_OBJECTS:warpx_diagnostics_${SD}>
             $<TARGET_OBJECTS:warpx_io_${SD}>)
+
+        add_test(NAME stage_registry_${D} COMMAND test_stage_registry_${SD})
 
         warpx_runtime_test_workdir(runtime_snapshot_${D} runtime_snapshot_${D}_dir)
         add_test(NAME runtime_snapshot_${D}

@@ -13,6 +13,7 @@
 
 #include "Runtime/DataBus.H"
 #include "Runtime/HandlerSpec.H"
+#include "Runtime/StageRegistry.H"
 
 #include <cstdint>
 #include <memory>
@@ -44,20 +45,20 @@ namespace
 
 // The C enum must track warpx::runtime::Stage; a silent reorder would move
 // every external handler to a different stage.
-static_assert(static_cast<int>(Stage::BeforeInit) == WARPX_STAGE_BEFORE_INIT, "Stage drift");
-static_assert(static_cast<int>(Stage::Init) == WARPX_STAGE_INIT, "Stage drift");
-static_assert(static_cast<int>(Stage::AfterInit) == WARPX_STAGE_AFTER_INIT, "Stage drift");
-static_assert(static_cast<int>(Stage::BeforePush) == WARPX_STAGE_BEFORE_PUSH, "Stage drift");
-static_assert(static_cast<int>(Stage::Push) == WARPX_STAGE_PUSH, "Stage drift");
-static_assert(static_cast<int>(Stage::AfterPush) == WARPX_STAGE_AFTER_PUSH, "Stage drift");
-static_assert(static_cast<int>(Stage::BeforeCollisions) == WARPX_STAGE_BEFORE_COLLISIONS, "Stage drift");
-static_assert(static_cast<int>(Stage::Collisions) == WARPX_STAGE_COLLISIONS, "Stage drift");
-static_assert(static_cast<int>(Stage::AfterCollisions) == WARPX_STAGE_AFTER_COLLISIONS, "Stage drift");
-static_assert(static_cast<int>(Stage::BeforeFieldSolve) == WARPX_STAGE_BEFORE_FIELD_SOLVE, "Stage drift");
-static_assert(static_cast<int>(Stage::FieldSolve) == WARPX_STAGE_FIELD_SOLVE, "Stage drift");
-static_assert(static_cast<int>(Stage::AfterFieldSolve) == WARPX_STAGE_AFTER_FIELD_SOLVE, "Stage drift");
-static_assert(static_cast<int>(Stage::Diagnostics) == WARPX_STAGE_DIAGNOSTICS, "Stage drift");
-static_assert(static_cast<int>(Stage::Finalize) == WARPX_STAGE_FINALIZE, "Stage drift");
+static_assert(Stage::BeforeInit == WARPX_STAGE_BEFORE_INIT, "Stage drift");
+static_assert(Stage::Init == WARPX_STAGE_INIT, "Stage drift");
+static_assert(Stage::AfterInit == WARPX_STAGE_AFTER_INIT, "Stage drift");
+static_assert(Stage::BeforePush == WARPX_STAGE_BEFORE_PUSH, "Stage drift");
+static_assert(Stage::Push == WARPX_STAGE_PUSH, "Stage drift");
+static_assert(Stage::AfterPush == WARPX_STAGE_AFTER_PUSH, "Stage drift");
+static_assert(Stage::BeforeCollisions == WARPX_STAGE_BEFORE_COLLISIONS, "Stage drift");
+static_assert(Stage::Collisions == WARPX_STAGE_COLLISIONS, "Stage drift");
+static_assert(Stage::AfterCollisions == WARPX_STAGE_AFTER_COLLISIONS, "Stage drift");
+static_assert(Stage::BeforeFieldSolve == WARPX_STAGE_BEFORE_FIELD_SOLVE, "Stage drift");
+static_assert(Stage::FieldSolve == WARPX_STAGE_FIELD_SOLVE, "Stage drift");
+static_assert(Stage::AfterFieldSolve == WARPX_STAGE_AFTER_FIELD_SOLVE, "Stage drift");
+static_assert(Stage::Diagnostics == WARPX_STAGE_DIAGNOSTICS, "Stage drift");
+static_assert(Stage::Finalize == WARPX_STAGE_FINALIZE, "Stage drift");
 
 static_assert(std::is_standard_layout_v<WarpXHandlerDesc>,
               "WarpXHandlerDesc must stay a C struct");
@@ -86,7 +87,7 @@ class CApiHandler final : public IHandler
 public:
     explicit CApiHandler (const WarpXHandlerDesc& desc)
         : m_name(desc.name != nullptr ? desc.name : ""),
-          m_stage(static_cast<Stage>(desc.stage)),
+          m_stage(desc.stage),
           m_sub(desc.sub),
           m_priority(desc.priority),
           m_reads_fields(copy_list(desc.reads_fields, desc.n_reads_fields)),
@@ -97,8 +98,10 @@ public:
           m_on_regrid(desc.on_regrid),
           m_user_data(desc.user_data)
     {
-        if (desc.stage < WARPX_STAGE_BEFORE_INIT || desc.stage > WARPX_STAGE_FINALIZE) {
-            throw std::runtime_error("CApiHandler '" + m_name + "': invalid stage");
+        if (!StageRegistry::instance().contains(desc.stage)) {
+            throw std::runtime_error("CApiHandler '" + m_name + "': stage " +
+                                     StageRegistry::instance().name_of(desc.stage) +
+                                     " is not registered");
         }
         if (m_apply == nullptr) {
             throw std::runtime_error("CApiHandler '" + m_name + "': null apply()");
@@ -134,7 +137,7 @@ public:
 
 private:
     std::string m_name;
-    Stage m_stage;
+    int m_stage;
     int m_sub;
     int m_priority;
     std::vector<std::string> m_reads_fields;

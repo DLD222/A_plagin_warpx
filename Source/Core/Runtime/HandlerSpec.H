@@ -9,6 +9,7 @@
 #define WARPX_RUNTIME_HANDLERSPEC_H_
 
 #include "Runtime/StagePoint.H"
+#include "Runtime/StageRegistry.H"
 
 #include <AMReX_REAL.H>
 
@@ -74,6 +75,7 @@ public:
     void add (std::shared_ptr<IHandler> handler)
     {
         const HandlerSpec spec = handler->spec();
+        validate(spec);
         for (const auto& existing : m_specs) {
             if (!(existing.point == spec.point)) { continue; }
             for (const auto& w : spec.writes_fields) {
@@ -94,6 +96,7 @@ public:
 
     void declare (HandlerSpec spec)
     {
+        validate(spec);
         m_specs.push_back(std::move(spec));
     }
 
@@ -159,7 +162,7 @@ public:
                 if (pick == n) {
                     throw std::runtime_error(
                         "PluginHost: dependency cycle at StagePoint (" +
-                        std::to_string(static_cast<int>(specs[order[begin]].point.stage)) + "," +
+                        StageRegistry::instance().name_of(specs[order[begin]].point.stage) + "," +
                         std::to_string(specs[order[begin]].point.sub) + ")");
                 }
                 done[pick] = true;
@@ -206,7 +209,7 @@ public:
         return out;
     }
 
-    [[nodiscard]] std::vector<IHandler*> at (Stage stage) const
+    [[nodiscard]] std::vector<IHandler*> at (int stage) const
     {
         std::vector<IHandler*> out;
         for (auto* h : ordered()) {
@@ -216,6 +219,17 @@ public:
     }
 
 private:
+    static void validate (const HandlerSpec& spec)
+    {
+        if (!StageRegistry::instance().contains(spec.point.stage)) {
+            throw std::runtime_error(
+                "PluginHost: handler '" + spec.name + "' is declared at stage " +
+                StageRegistry::instance().name_of(spec.point.stage) +
+                ", which is not a registered stage. Register it with "
+                "warpx::runtime::register_stage() before adding the handler.");
+        }
+    }
+
     std::vector<std::shared_ptr<IHandler>> m_handlers;
     std::vector<HandlerSpec> m_specs;
     std::vector<HandlerSpec> m_handler_specs;
