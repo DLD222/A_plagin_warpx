@@ -1,6 +1,6 @@
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
-    target_sources(lib_${SD}
+    target_sources(warpx_diagnostics_${SD}
       PRIVATE
         Diagnostics.cpp
         DiagnosticsServiceFactory.cpp
@@ -24,9 +24,10 @@ if(TARGET lib_2d)
     file(GLOB_RECURSE WARPX_DIAGNOSTICS_SOURCES CONFIGURE_DEPENDS
          ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
     list(FILTER WARPX_DIAGNOSTICS_SOURCES EXCLUDE REGEX "OpenPMD")
-    add_library(warpx_diagnostics_standalone_2d OBJECT ${WARPX_DIAGNOSTICS_SOURCES})
+    add_library(warpx_diagnostics_standalone_2d OBJECT EXCLUDE_FROM_ALL ${WARPX_DIAGNOSTICS_SOURCES})
     target_include_directories(warpx_diagnostics_standalone_2d PRIVATE
-        $<TARGET_PROPERTY:lib_2d,INCLUDE_DIRECTORIES>)
+        $<TARGET_PROPERTY:lib_2d,INCLUDE_DIRECTORIES>
+        ${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build/share/amrex/C_scripts)
     target_compile_definitions(warpx_diagnostics_standalone_2d PRIVATE
         $<TARGET_PROPERTY:lib_2d,COMPILE_DEFINITIONS>)
     target_compile_options(warpx_diagnostics_standalone_2d PRIVATE

@@ -1,6 +1,6 @@
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
-    target_sources(lib_${SD}
+    target_sources(warpx_diagnostics_${SD}
       PRIVATE
         FlushFormat.cpp
         FlushFormatInSitu.cpp
@@ -12,7 +12,7 @@ foreach(D IN LISTS WarpX_DIMS)
     )
 
     if(WarpX_HAVE_OPENPMD)
-        target_sources(lib_${SD}
+        target_sources(warpx_diagnostics_${SD}
           PRIVATE
             FlushFormatOpenPMD.cpp
         )

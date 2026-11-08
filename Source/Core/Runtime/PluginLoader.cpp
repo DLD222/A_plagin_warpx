@@ -9,6 +9,7 @@
 
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/PluginABI.H"
+#include "Runtime/PluginCAdapter.H"
 
 #include <dlfcn.h>
 
@@ -54,7 +55,8 @@ PluginLoader::load (const std::string& path, PluginHost& host)
             std::to_string(warpx_plugin_abi_version) + ")");
     }
 
-    desc->register_handlers(&host);
+    // C ABI v3: the plugin only ever sees an opaque handle, never PluginHost.
+    desc->register_handlers(plugin_host_c_handle(host));
     // Intentionally keep the library loaded: registered handlers live in it.
 }
 

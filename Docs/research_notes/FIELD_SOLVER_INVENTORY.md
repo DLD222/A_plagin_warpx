@@ -1,6 +1,6 @@
 # FieldSolver 实现清单
 
-文件总数：60
+文件总数：61
 
 | 模块 | 单元 | 文件 | 行数 | WarpX.H | Particles |
 |---|---|---|---:|---:|---:|
@@ -24,6 +24,7 @@
 | FiniteDifference/Units | EvolveF | `FiniteDifference/EvolveFPML.cpp` | 130 | 0 | 0 |
 | FiniteDifference/Units | EvolveG | `FiniteDifference/EvolveG.cpp` | 113 | 0 | 0 |
 | FiniteDifference/Driver | FiniteDifferenceFieldSolver | `FiniteDifference/FiniteDifferenceSolver.cpp` | 148 | 1 | 0 |
+| FieldSolver/Factory | FiniteDifferenceSolverFactory | `FiniteDifference/FiniteDifferenceSolverFactory.cpp` | 10 | 0 | 0 |
 | FiniteDifference/HybridPIC | HybridPICSolveElectricField | `FiniteDifference/HybridPICModel/ExternalVectorPotential.cpp` | 379 | 1 | 0 |
 | FiniteDifference/HybridPIC | HybridPICSolveElectricField | `FiniteDifference/HybridPICModel/HybridPICModel.cpp` | 3002 | 1 | 1 |
 | FiniteDifference/HybridPIC | HybridPICSolveElectricField | `FiniteDifference/HybridPICSolveE.cpp` | 1585 | 1 | 0 |
@@ -70,6 +71,7 @@
 - Electromagnetic/Driver: 1 个 CPP, 2113 行
 - Electrostatic: 5 个 CPP, 1654 行
 - Electrostatic/Driver: 1 个 CPP, 37 行
+- FieldSolver/Factory: 1 个 CPP, 10 行
 - FiniteDifference/Boundaries: 1 个 CPP, 394 行
 - FiniteDifference/Driver: 1 个 CPP, 148 行
 - FiniteDifference/HybridPIC: 4 个 CPP, 5574 行

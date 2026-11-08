@@ -9,6 +9,7 @@
 
 #include "Runtime/DataBus.H"
 #include "Runtime/IPicKernel.H"
+#include "Runtime/KernelFactory.H"
 #include "Runtime/PluginLoader.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"

@@ -30,8 +30,7 @@ public:
     virtual void allocate_collision_data () = 0;
     virtual void clear () = 0;
 };
-std::unique_ptr<IPicKernel> create_pic_kernel (int argc, char* argv[]);
-void initialize_runtime_libraries (int argc, char* argv[]);
-void finalize_runtime_libraries ();
+// The factory and the library hooks live in Runtime/KernelFactory.H: Core
+// declares them, a kernel plugin (PicEm) registers them at static-init time.
 }
 #endif

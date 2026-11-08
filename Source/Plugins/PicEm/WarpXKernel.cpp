@@ -6,6 +6,7 @@
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/DataBus.H"
+#include "Runtime/KernelFactory.H"
 #include "Runtime/DiagnosticsPackage.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -127,19 +128,38 @@ void WarpXKernel::clear ()
 
 void WarpXKernel::finalize () {}
 
-std::unique_ptr<IPicKernel> create_pic_kernel (int argc, char* argv[])
+namespace
+{
+//! Entry points handed to the Core runtime (A7 KernelFactory).
+std::unique_ptr<IPicKernel> make_warpx_kernel (int argc, char* argv[])
 {
     return std::make_unique<WarpXKernel>(argc, argv);
 }
 
-void initialize_runtime_libraries (int argc, char* argv[])
+void initialize_warpx_libraries (int argc, char* argv[])
 {
     warpx::initialization::initialize_external_libraries(argc, argv);
 }
 
-void finalize_runtime_libraries ()
+void finalize_warpx_libraries ()
 {
     warpx::initialization::finalize_external_libraries();
 }
+
+//! Linker anchor: lib_<dim> is a static archive, so an unreferenced member
+//! (this one) would be dropped together with its static registration.  The
+//! aggregate library asks the linker to keep this symbol (-u/INCLUDE), which
+//! pulls the object in.  See the lib_<dim> link options in CMakeLists.txt.
+extern "C" void warpx_picem_kernel_anchor (void) {}
+
+// Static registration: Core contains no reference to this file, so the plugin
+// announces itself.  Core's registry uses a function-local static, hence no
+// static-initialization-order dependency.
+const bool picem_kernel_registered = [] {
+    register_pic_kernel_plugin(
+        PicKernelPlugin{&make_warpx_kernel, &initialize_warpx_libraries, &finalize_warpx_libraries});
+    return true;
+}();
+} // namespace
 
 } // namespace warpx::runtime

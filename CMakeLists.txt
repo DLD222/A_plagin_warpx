@@ -269,6 +269,39 @@ endif()
 #
 include(GenerateExportHeader)
 set(_ALL_TARGETS)
+
+# Include directories shared by every module target.  Hoisted so that the
+# per-module object libraries below see exactly the same tree as lib_<dim>.
+set(WARPX_MODULE_INCLUDE_DIRS
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
+    $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
+    $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
+)
+# Core compiles without any plugin include path, so a stray dependency fails
+# the build instead of resolving silently (A7.1 build-level boundary).
+set(WARPX_CORE_INCLUDE_DIRS
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
+    $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
+    $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
+)
+
+# A7 module layout: one object library per layer.  Sources are attached from
+# the module subdirectories; lib_<dim> only aggregates the objects, so that
+# Core can be configured/built without any plugin source (B1-B7 of
+# Docs/research_notes/A7_BUILD_ABI_AUDIT.md).
+set(WARPX_MODULE_LAYERS core picem diagnostics io)
+
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
 
@@ -295,11 +328,53 @@ foreach(D IN LISTS WarpX_DIMS)
 
     # link into a library (default: static)
     if(WarpX_LIB)
+        # Per-layer object libraries.  Nothing below the module CMakeLists may
+        # add plugin sources to Core (and vice versa).
+        foreach(_layer IN LISTS WARPX_MODULE_LAYERS)
+            add_library(warpx_${_layer}_${SD} OBJECT)
+            set_target_properties(warpx_${_layer}_${SD} PROPERTIES
+                POSITION_INDEPENDENT_CODE ON)
+            if(_layer STREQUAL "core")
+                target_include_directories(warpx_core_${SD} PRIVATE ${WARPX_CORE_INCLUDE_DIRS})
+            else()
+                target_include_directories(warpx_${_layer}_${SD} PRIVATE ${WARPX_MODULE_INCLUDE_DIRS})
+            endif()
+            target_link_libraries(warpx_${_layer}_${SD} PRIVATE ablastr_${SD})
+        endforeach()
+        # Everything below a plugin layer may use Core; declared here so the
+        # archives/objects are ordered correctly at the final link.
+        target_link_libraries(warpx_picem_${SD} PRIVATE warpx_core_${SD})
+        target_link_libraries(warpx_diagnostics_${SD} PRIVATE warpx_core_${SD})
+        target_link_libraries(warpx_io_${SD} PRIVATE warpx_diagnostics_${SD})
+        target_link_libraries(warpx_picem_${SD} PRIVATE warpx_diagnostics_${SD} warpx_io_${SD})
+
         add_library(lib_${SD})
         add_library(WarpX::lib_${SD} ALIAS lib_${SD})
         target_link_libraries(lib_${SD} PUBLIC ablastr_${SD})
         set(_BUILDINFO_SRC lib_${SD})
         list(APPEND _ALL_TARGETS lib_${SD})
+
+        # lib_<dim> is the aggregate archive: it contributes no compilation of
+        # its own, only the objects of the module layers.
+        target_sources(lib_${SD} PRIVATE
+            $<TARGET_OBJECTS:warpx_core_${SD}>
+            $<TARGET_OBJECTS:warpx_picem_${SD}>
+            $<TARGET_OBJECTS:warpx_diagnostics_${SD}>
+            $<TARGET_OBJECTS:warpx_io_${SD}>
+        )
+
+        # Plugin bootstrap at link time.  A static archive drops unreferenced
+        # members, and the kernel plugin registers itself from a static
+        # initializer (Core no longer references it), so the registration
+        # object must be forced in.  Applied to lib_<dim> as an INTERFACE
+        # option so every consumer (app, pyWarpX, tests) inherits it.
+        if(MSVC)
+            target_link_options(lib_${SD} INTERFACE
+                "LINKER:/INCLUDE:warpx_picem_kernel_anchor")
+        else()
+            target_link_options(lib_${SD} INTERFACE
+                "LINKER:-u,warpx_picem_kernel_anchor")
+        endif()
 
         set_target_properties(lib_${SD} PROPERTIES
             POSITION_INDEPENDENT_CODE ON
@@ -349,37 +424,20 @@ foreach(D IN LISTS WarpX_DIMS)
         )
     endif()
 
-    # own headers
+    # own headers.  ABLASTR backs the Core layer, so it must not carry plugin
+    # include paths: a stray "#include <WarpX.H>" in Core has to be a compile
+    # error instead of resolving silently (A7.1 build-level boundary).
     target_include_directories(ablastr_${SD} PUBLIC
         # future: own directory root
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
         $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
-        $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build/share/amrex/C_scripts>
     )
     if(WarpX_LIB)
-        target_include_directories(lib_${SD} PUBLIC
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/RuntimeBridge>
-            $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/MomentsSolver>
-            $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
-            $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
-        )
+        target_include_directories(lib_${SD} PUBLIC ${WARPX_MODULE_INCLUDE_DIRS})
     endif()
 
     # build Python module (this is always a shared library)
@@ -456,10 +514,9 @@ foreach(D IN LISTS WarpX_DIMS)
         # if we include <AMReX_buildInfo.H> we will need to call:
         generate_buildinfo(${_BUILDINFO_SRC} "${WarpX_SOURCE_DIR}")
         target_link_libraries(lib_${SD} PRIVATE buildInfo::${_BUILDINFO_SRC})
+        # PicEm carries the <AMReX_buildInfo.H> user (RuntimeBridge/Utils/WarpXVersion.cpp).
+        target_link_libraries(warpx_picem_${SD} PRIVATE buildInfo::${_BUILDINFO_SRC})
         unset(_BUILDINFO_SRC)
-
-        # add sources
-        target_sources(lib_${SD} PRIVATE Source/Plugins/PicEm/WarpX.cpp)
     endif()
 
     # add sources
@@ -486,6 +543,9 @@ foreach(D IN LISTS WarpX_DIMS)
     target_compile_definitions(ablastr_${SD} PRIVATE ablastr_${WarpX_DIMS_LAST}_EXPORTS)
     if(WarpX_LIB)
         target_compile_definitions(lib_${SD} PRIVATE lib_${WarpX_DIMS_LAST}_EXPORTS)  # note: some collision risk here
+        foreach(_layer IN LISTS WARPX_MODULE_LAYERS)
+            target_compile_definitions(warpx_${_layer}_${SD} PRIVATE lib_${WarpX_DIMS_LAST}_EXPORTS)
+        endforeach()
     endif()
     # Static libs: WARPX_STATIC_DEFINE and ABLASTR_STATIC_DEFINE during build time
     # note: using a static lib (lib_${SD}) in a .dll (pyWarpX_${SD}) still needs the exports for
@@ -495,6 +555,9 @@ foreach(D IN LISTS WarpX_DIMS)
         target_compile_definitions(ablastr_${SD} PRIVATE ABLASTR_STATIC_DEFINE)
         if(WarpX_LIB)
             target_compile_definitions(lib_${SD} PRIVATE WARPX_STATIC_DEFINE)
+            foreach(_layer IN LISTS WARPX_MODULE_LAYERS)
+                target_compile_definitions(warpx_${_layer}_${SD} PRIVATE WARPX_STATIC_DEFINE)
+            endforeach()
         endif()
     endif()
 endforeach()
@@ -515,6 +578,7 @@ endif()
 add_subdirectory(Source/Core/ablastr)
 
 if(WarpX_LIB)
+    add_subdirectory(Source/Plugins/PicEm)
     add_subdirectory(Source/Plugins/PicEm/Modules/AcceleratorLattice)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
     add_subdirectory(Source/Plugins/Diagnostics)

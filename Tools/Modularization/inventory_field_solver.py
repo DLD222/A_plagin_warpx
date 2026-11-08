@@ -26,6 +26,8 @@ def classify(rel: Path):
         return "FiniteDifference/Operators", "ComputeGradient"
     if "ComputeLaplacian" in p:
         return "FiniteDifference/Operators", "ComputeLaplacian"
+    if rel.name == "FiniteDifferenceSolverFactory.cpp":
+        return "FieldSolver/Factory", "FiniteDifferenceSolverFactory"
     if rel.name == "FiniteDifferenceSolver.cpp":
         return "FiniteDifference/Driver", "FiniteDifferenceFieldSolver"
     if p == "WarpXSolveFieldsES.cpp":

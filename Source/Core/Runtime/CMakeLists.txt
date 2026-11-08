@@ -1,25 +1,16 @@
+# Core runtime only.  Plugin sources (PicEm adapters, WarpXKernel, handlers,
+# RuntimeBridge) are compiled by their own plugin target, see
+# Source/Plugins/PicEm/CMakeLists.txt.  Keep this list free of ../../Plugins/*
+# (checked by Tools/Modularization/check_build_boundaries.py).
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
-    target_sources(lib_${SD}
+    target_sources(warpx_core_${SD}
       PRIVATE
         Runtime.cpp
-        ../../Plugins/PicEm/WarpXKernel.cpp
-        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/FieldSolveHandler.cpp
-        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/YeePackage.cpp
-        ../../Plugins/PicEm/Modules/PicEm/FieldSolve/Yee/YeeFieldSolveHandler.cpp
-        ../../Plugins/PicEm/Modules/PicEm/Deposition/DepositionHandler.cpp
-        ../../Plugins/PicEm/Modules/PicEm/ParticlePush/ParticlePushHandler.cpp
-        ../../Plugins/PicEm/Modules/PicEm/PicEmPackage.cpp
-        PluginLoader.cpp
         DataBus.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/WarpXRuntimeData.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/RuntimeConfig.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/FrameState.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/LegacyRuntimeFactory.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/LevelResources.cpp
-        ../../Plugins/PicEm/RuntimeBridge/Runtime/CollisionPackage.cpp
-        ../../Plugins/PicEm/Modules/PicEm/RuntimeConfigSnapshotBridge.cpp
+        PluginLoader.cpp
+        PluginCAdapter.cpp
+        KernelFactory.cpp
     )
-    target_link_libraries(lib_${SD} PRIVATE ${CMAKE_DL_LIBS})
+    target_link_libraries(warpx_core_${SD} PRIVATE ${CMAKE_DL_LIBS})
 endforeach()

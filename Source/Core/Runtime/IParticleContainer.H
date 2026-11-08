@@ -1,5 +1,7 @@
 #ifndef WARPX_RUNTIME_IPARTICLECONTAINER_H_
 #define WARPX_RUNTIME_IPARTICLECONTAINER_H_
+#include "Modules/Particles/IParticleAttributeAccess.H"
+#include "Modules/Particles/IQEDEngineAccess.H"
 #include "Modules/Particles/ParticleAttributes.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include <ablastr/fields/MultiFabRegister.H>
@@ -15,7 +17,9 @@ namespace warpx::runtime {
 class RuntimeContext;
 /** \brief Project particle-container module base (AMReX-backed). */
 class IParticleContainer
-    : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
+    : public amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>,
+      public IParticleAttributeAccess,
+      public IQEDEngineAccess
 {
 public:
     using Base = amrex::ParticleContainerPureSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;

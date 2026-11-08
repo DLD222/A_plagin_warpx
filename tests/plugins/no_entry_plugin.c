@@ -4,5 +4,12 @@
  *
  * License: BSD-3-Clause
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Shared library without the warpx_plugin_entry symbol (C).
  */
-extern "C" int warpx_plugin_not_entry () { return 0; }
+
+int
+warpx_plugin_not_entry (void)
+{
+    return 0;
+}

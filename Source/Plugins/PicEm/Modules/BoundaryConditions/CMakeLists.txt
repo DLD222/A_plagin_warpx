@@ -1,6 +1,6 @@
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
-    target_sources(lib_${SD}
+    target_sources(warpx_picem_${SD}
       PRIVATE
         FieldBoundaries.cpp
         PEC_Insulator.cpp
@@ -11,7 +11,7 @@ foreach(D IN LISTS WarpX_DIMS)
     )
 
     if(D STREQUAL "RZ")
-        target_sources(lib_${SD}
+        target_sources(warpx_picem_${SD}
           PRIVATE
             PML_RZ.cpp
         )
