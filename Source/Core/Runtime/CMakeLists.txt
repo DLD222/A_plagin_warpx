@@ -15,6 +15,7 @@ foreach(D IN LISTS WarpX_DIMS)
         Scheduler.cpp
         StateRegistry.cpp
         ScalarRegistry.cpp
+        ServiceFactory.cpp
     )
     target_link_libraries(warpx_core_${SD} PRIVATE ${CMAKE_DL_LIBS})
 endforeach()

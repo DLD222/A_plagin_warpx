@@ -368,13 +368,21 @@ foreach(D IN LISTS WarpX_DIMS)
         # initializer (Core no longer references it), so the registration
         # object must be forced in.  Applied to lib_<dim> as an INTERFACE
         # option so every consumer (app, pyWarpX, tests) inherits it.
-        if(MSVC)
-            target_link_options(lib_${SD} INTERFACE
-                "LINKER:/INCLUDE:warpx_picem_kernel_anchor")
-        else()
-            target_link_options(lib_${SD} INTERFACE
-                "LINKER:-u,warpx_picem_kernel_anchor")
-        endif()
+        # One anchor per plugin translation unit that holds a static
+        # registration; a plugin omitted from the build simply has no anchor
+        # and the linker ignores the request.
+        set(_WARPX_PLUGIN_ANCHORS
+            warpx_picem_kernel_anchor
+            warpx_picem_legacy_anchor
+            warpx_diagnostics_anchor)
+        foreach(_anchor IN LISTS _WARPX_PLUGIN_ANCHORS)
+            if(MSVC)
+                target_link_options(lib_${SD} INTERFACE "LINKER:/INCLUDE:${_anchor}")
+            else()
+                target_link_options(lib_${SD} INTERFACE "LINKER:-u,${_anchor}")
+            endif()
+        endforeach()
+        unset(_WARPX_PLUGIN_ANCHORS)
 
         set_target_properties(lib_${SD} PROPERTIES
             POSITION_INDEPENDENT_CODE ON

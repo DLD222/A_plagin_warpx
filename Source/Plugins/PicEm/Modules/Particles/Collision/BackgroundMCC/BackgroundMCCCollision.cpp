@@ -19,7 +19,6 @@
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX_ParmParse.H>

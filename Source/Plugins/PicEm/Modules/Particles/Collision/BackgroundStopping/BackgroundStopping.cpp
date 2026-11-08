@@ -11,7 +11,7 @@
 
 #include "Utils/Parser/ParserUtils.H"
 #include "Modules/Particles/ParticleUtils.H"
-#include "WarpX.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX_ParmParse.H>

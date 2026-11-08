@@ -18,7 +18,6 @@
 #include "Runtime/IParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "WarpX.H"
 
 #include <ablastr/particles/NodalFieldGather.H>
 #include <ablastr/profiler/ProfilerWrapper.H>

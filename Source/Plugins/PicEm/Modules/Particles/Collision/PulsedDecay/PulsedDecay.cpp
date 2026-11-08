@@ -14,7 +14,6 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Modules/Particles/ParticleUtils.H"
-#include "WarpX.H"
 #include "Particles/ParticleCreation/DefaultInitialization.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>

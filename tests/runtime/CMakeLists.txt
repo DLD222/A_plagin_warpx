@@ -33,6 +33,8 @@ foreach(D IN LISTS WarpX_DIMS)
         target_link_libraries(test_scalar_state_${SD} PRIVATE lib_${SD})
         add_executable(test_plugin_lifecycle_${SD} test_plugin_lifecycle.cpp)
         target_link_libraries(test_plugin_lifecycle_${SD} PRIVATE lib_${SD})
+        add_executable(test_service_registry_${SD} test_service_registry.cpp)
+        target_link_libraries(test_service_registry_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_collision_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_access_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_particle_contracts_${SD} PRIVATE lib_${SD})
@@ -44,6 +46,8 @@ foreach(D IN LISTS WarpX_DIMS)
             $<TARGET_OBJECTS:warpx_io_${SD}>)
 
         add_test(NAME stage_registry_${D} COMMAND test_stage_registry_${SD})
+
+        add_test(NAME service_registry_${D} COMMAND test_service_registry_${SD})
 
         warpx_runtime_test_workdir(plugin_lifecycle_${D} plugin_lifecycle_${D}_dir)
         add_test(NAME plugin_lifecycle_${D}
