@@ -319,7 +319,7 @@ void SemiImplicitDarwin::PrepareVelocitiesForCurrentDeposition ()
 #endif
             auto particle_comps = pc->GetRealSoANames();
 
-            for (WarpXParIter pti(*pc, lev); pti.isValid(); ++pti) {
+            for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
 
                 auto& attribs = pti.GetAttribs();
                 amrex::ParticleReal* const AMREX_RESTRICT ux = attribs[PIdx::ux].dataPtr();
@@ -537,7 +537,7 @@ void SemiImplicitDarwin::ClearParticleVelocities ()
 #endif
             auto particle_comps = pc->GetRealSoANames();
 
-            for (WarpXParIter pti(*pc, lev); pti.isValid(); ++pti) {
+            for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
 
                 auto& attribs = pti.GetAttribs();
                 amrex::ParticleReal* const AMREX_RESTRICT ux = attribs[PIdx::ux].dataPtr();
@@ -574,7 +574,7 @@ void SemiImplicitDarwin::FinishVelocityUpdate ()
 #endif
             auto particle_comps = pc->GetRealSoANames();
 
-            for (WarpXParIter pti(*pc, lev); pti.isValid(); ++pti) {
+            for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
 
                 auto& attribs = pti.GetAttribs();
                 amrex::ParticleReal* const AMREX_RESTRICT ux = attribs[PIdx::ux].dataPtr();

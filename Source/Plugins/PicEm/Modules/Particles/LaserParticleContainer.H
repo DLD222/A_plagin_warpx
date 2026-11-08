@@ -85,11 +85,11 @@ public:
 
     void PostRestart () final;
 
-    void calculate_laser_plane_coordinates (const WarpXParIter& pti, int np,
+    void calculate_laser_plane_coordinates (const ParticleTileIter& pti, int np,
                                             amrex::Real * AMREX_RESTRICT pplane_Xp,
                                             amrex::Real * AMREX_RESTRICT pplane_Yp);
 
-    void update_laser_particle (WarpXParIter& pti, int np, amrex::ParticleReal * AMREX_RESTRICT puxp,
+    void update_laser_particle (ParticleTileIter& pti, int np, amrex::ParticleReal * AMREX_RESTRICT puxp,
                                 amrex::ParticleReal * AMREX_RESTRICT puyp,
                                 amrex::ParticleReal * AMREX_RESTRICT puzp,
                                 amrex::ParticleReal const * AMREX_RESTRICT pwp,

@@ -136,13 +136,13 @@ namespace
 }
 #endif
 
-WarpXParIter::WarpXParIter (ContainerType& pc, int level)
+ParticleTileIter::ParticleTileIter (ContainerType& pc, int level)
     : amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(pc, level,
              MFItInfo().SetDynamic(WarpX::do_dynamic_scheduling))
 {
 }
 
-WarpXParIter::WarpXParIter (ContainerType& pc, int level, MFItInfo& info)
+ParticleTileIter::ParticleTileIter (ContainerType& pc, int level, MFItInfo& info)
     : amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(pc, level,
                    info.SetDynamic(WarpX::do_dynamic_scheduling))
 {
@@ -419,7 +419,7 @@ WarpXParticleContainer::deleteInvalidParticles () {
 #ifdef AMREX_USE_OMP
 #pragma omp parallel
 #endif
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti) {
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti) {
             ParticleTileType& ptile = ParticlesAt(lev, pti);
             removeInvalidParticles( ptile );
         }
@@ -451,7 +451,7 @@ WarpXParticleContainer::deleteInvalidParticles () {
  * \param particle_shape Order of the particle shape factors used for the deposition
  */
 void
-WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
+WarpXParticleContainer::DepositCurrent (ParticleTileIter& pti,
                                         RealVector const & wp, RealVector const & uxp,
                                         RealVector const & uyp, RealVector const & uzp,
                                         int const * const ion_lev,
@@ -1039,7 +1039,7 @@ WarpXParticleContainer::DepositCurrent (WarpXParIter& pti,
  * \param implicit_options Implicit solver options (mass matrices stencil and particle shape)
  */
 void
-WarpXParticleContainer::DepositMassMatrices (WarpXParIter& pti, const RealVector& wp,
+WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVector& wp,
                                        const RealVector& uxp, const RealVector& uyp, const RealVector& uzp,
                                        amrex::MultiFab* Sxx, amrex::MultiFab* Sxy, amrex::MultiFab* Sxz,
                                        amrex::MultiFab* Syx, amrex::MultiFab* Syy, amrex::MultiFab* Syz,
@@ -1504,7 +1504,7 @@ WarpXParticleContainer::DepositCurrent (
 #else
         const int thread_num = 0;
 #endif
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             const long np = pti.numParticles();
             const auto & wp = pti.GetAttribs(PIdx::w);
@@ -1567,7 +1567,7 @@ void WarpXParticleContainer::DepositCurrentOnLevel (
  * \param depos_lev   Level on which particles deposit (if buffers are used)
  */
 void
-WarpXParticleContainer::DepositCharge (WarpXParIter& pti, RealVector const& wp,
+WarpXParticleContainer::DepositCharge (ParticleTileIter& pti, RealVector const& wp,
                                        const int * const ion_lev,
                                        amrex::MultiFab* rho, const int icomp,
                                        const long offset, const long np_to_deposit,
@@ -1920,7 +1920,7 @@ WarpXParticleContainer::DepositChargeOnLevel (amrex::MultiFab* rho,
 #else
     const int thread_num = 0;
 #endif
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
     {
         const long np = pti.numParticles();
         auto const & wp = pti.GetAttribs(PIdx::w);
@@ -2040,7 +2040,7 @@ WarpXParticleContainer::DepositTotalNGPTemperature (int lev)
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
     {
         const long np = pti.numParticles();
         auto& tile = pti.GetParticleTile();
@@ -2120,7 +2120,7 @@ WarpXParticleContainer::DepositTotalNGPTemperature (int lev)
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
     {
         const long np = pti.numParticles();
         auto& tile = pti.GetParticleTile();
@@ -2638,7 +2638,7 @@ std::array<ParticleReal, 3> WarpXParticleContainer::meanParticleVelocity(bool lo
         ReduceData<ParticleReal, ParticleReal, ParticleReal> reduce_data(reduce_op);
         using ReduceTuple = typename decltype(reduce_data)::Type;
         for (int lev = 0; lev <= nLevels; ++lev) {
-            for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
             {
                 const auto uxp = pti.GetAttribs(PIdx::ux).data();
                 const auto uyp = pti.GetAttribs(PIdx::uy).data();
@@ -2671,7 +2671,7 @@ std::array<ParticleReal, 3> WarpXParticleContainer::meanParticleVelocity(bool lo
 #ifdef AMREX_USE_OMP
 #pragma omp parallel reduction(+:vx_total, vy_total, vz_total, np_total)
 #endif
-            for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
             {
                 auto& ux = pti.GetAttribs(PIdx::ux);
                 auto& uy = pti.GetAttribs(PIdx::uy);
@@ -2719,7 +2719,7 @@ amrex::ParticleReal WarpXParticleContainer::maxParticleDtInv(bool local) {
 #pragma omp parallel reduction(+:np_total) if (amrex::Gpu::notInLaunchRegion())
 #endif
     for (int lev = 0; lev <= nLevels; ++lev) {
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             const amrex::Long np = pti.numParticles();
             if (np == 0) { continue; }
@@ -2799,7 +2799,7 @@ WarpXParticleContainer::TransformMomentumToCurvilinear ([[maybe_unused]]bool for
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     {
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
 
             // momenta are stored as a struct of array, in `attribs`
@@ -2875,7 +2875,7 @@ WarpXParticleContainer::PushX (int lev, amrex::Real dt)
 #endif
     {
 
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             if (costs && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
@@ -2971,7 +2971,7 @@ WarpXParticleContainer::ApplyBoundaryConditions ()
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             auto GetPosition = GetParticlePosition<PIdx>(pti);
             auto SetPosition = SetParticlePosition<PIdx>(pti);
@@ -3066,7 +3066,7 @@ WarpXParticleContainer::FinishImplicitParticleUpdate (
 #endif
     {
 
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti) {
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti) {
 
         const auto getPosition = GetParticlePosition(pti);
         const auto setPosition = SetParticlePosition(pti);
@@ -3134,7 +3134,7 @@ WarpXParticleContainer::ResetImplicitParticleData (int lev)
 #endif
     {
 
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti) {
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti) {
 
         const auto setPosition = SetParticlePosition(pti);
 

@@ -7,7 +7,7 @@
 #ifndef WARPX_COMPUTEPARTICLEDIAGFUNCTOR_H_
 #define WARPX_COMPUTEPARTICLEDIAGFUNCTOR_H_
 
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include <AMReX.H>
 #include <AMReX_AmrParticles.H>
 

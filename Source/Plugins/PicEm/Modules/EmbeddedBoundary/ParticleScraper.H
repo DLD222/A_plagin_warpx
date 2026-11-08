@@ -182,7 +182,7 @@ scrapeParticlesAtEB (PC& pc, ablastr::fields::MultiLevelScalarField const& dista
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for(WarpXParIter pti(pc, lev); pti.isValid(); ++pti)
+        for(ParticleTileIter pti(pc, lev); pti.isValid(); ++pti)
         {
             const auto getPosition = GetParticlePosition<PIdx>(pti);
             const auto setPosition = SetParticlePosition<PIdx>(pti);

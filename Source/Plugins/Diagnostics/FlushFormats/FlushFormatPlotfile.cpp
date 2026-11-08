@@ -9,7 +9,7 @@
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "Modules/Particles/Filter/FilterFunctors.H"
 #include "Modules/Particles/ParticleIO.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/Interpolate.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

@@ -10,7 +10,7 @@
 #include "Diagnostics/ParticleDiag/ParticleDiag.H"
 #include "Diagnostics/ReducedDiags/MultiReducedDiags.H"
 #include "Fields.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeConfig.H"

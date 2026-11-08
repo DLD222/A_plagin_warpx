@@ -15,7 +15,7 @@
 #include "Modules/Particles/Collision/ParticleShufflers.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/WarpXConst.H"

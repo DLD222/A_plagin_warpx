@@ -83,7 +83,7 @@ int iteratorDistance(ForwardIterator const first,
 class fillBufferFlag
 {
     public:
-        fillBufferFlag( WarpXParIter const& pti, amrex::iMultiFab const* bmasks,
+        fillBufferFlag( ParticleTileIter const& pti, amrex::iMultiFab const* bmasks,
                         amrex::Gpu::DeviceVector<int>& inexflag,
                         amrex::Geometry const& geom ):
             // Extract simple structure that can be used directly on the GPU
@@ -136,7 +136,7 @@ class fillBufferFlagRemainingParticles
 {
     public:
         fillBufferFlagRemainingParticles(
-                        WarpXParIter const& pti,
+                        ParticleTileIter const& pti,
                         amrex::iMultiFab const* bmasks,
                         amrex::Gpu::DeviceVector<int>& inexflag,
                         amrex::Geometry const& geom,

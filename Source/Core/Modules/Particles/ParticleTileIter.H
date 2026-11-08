@@ -1,17 +1,17 @@
-#ifndef WARPX_CORE_PARTICLES_WARPXPARITER_H_
-#define WARPX_CORE_PARTICLES_WARPXPARITER_H_
+#ifndef WARPX_CORE_PARTICLES_PARTICLETILEITER_H_
+#define WARPX_CORE_PARTICLES_PARTICLETILEITER_H_
 #include "Modules/Particles/ParticleAttributes.H"
 #include "Runtime/IParticleContainer.H"
 #include <AMReX_ParIter.H>
 #include <array>
 #include <string>
-class WarpXParIter
+class ParticleTileIter
     : public amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
 {
 public:
     using amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>::ParIterSoA;
-    WarpXParIter (ContainerType& pc, int level);
-    WarpXParIter (ContainerType& pc, int level, amrex::MFItInfo& info);
+    ParticleTileIter (ContainerType& pc, int level);
+    ParticleTileIter (ContainerType& pc, int level, amrex::MFItInfo& info);
     [[nodiscard]] const std::array<RealVector, PIdx::nattribs>& GetAttribs () const
     { return GetStructOfArrays().GetRealData(); }
     [[nodiscard]] std::array<RealVector, PIdx::nattribs>& GetAttribs ()

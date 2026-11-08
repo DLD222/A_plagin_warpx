@@ -21,7 +21,7 @@
 #include "Fields.H"
 #include "FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H"
 #include "FieldSolver/Implicit/ImplicitSolver.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"
 

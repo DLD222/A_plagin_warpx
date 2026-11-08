@@ -1971,7 +1971,7 @@ void HybridPICModel::QDSMCApplyIonHeating (int const lev, amrex::Real const dt,
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(pc, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti)
         {
             long const np = pti.numParticles();
             auto & tile = pti.GetParticleTile();

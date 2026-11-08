@@ -10,11 +10,11 @@
 #include <WarpX.H>
 
 
-void init_WarpXParIter (py::module& m)
+void init_ParticleTileIter (py::module& m)
 {
     py::class_<
-        WarpXParIter, amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
-    >(m, "WarpXParIter")
+        ParticleTileIter, amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>
+    >(m, "ParticleTileIter")
         .def(py::init<amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>::ContainerType&, int>(),
             py::arg("particle_container"), py::arg("level"))
         .def(py::init<amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>::ContainerType&, int, amrex::MFItInfo&>(),
@@ -114,7 +114,7 @@ void init_WarpXParticleContainer (py::module& m)
             [](WarpXParticleContainer& pc,
             amrex::MultiFab* rho, const int lev)
             {
-                for (WarpXParIter pti(pc, lev); pti.isValid(); ++pti)
+                for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti)
                 {
                     const long np = pti.numParticles();
                     auto& wp = pti.GetAttribs(PIdx::w);

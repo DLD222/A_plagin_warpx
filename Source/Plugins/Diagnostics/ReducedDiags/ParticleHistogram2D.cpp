@@ -13,7 +13,7 @@
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Diagnostics/OpenPMDHelpFunction.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
@@ -152,7 +152,7 @@ void ParticleHistogram2D::ComputeDiags (int step)
     }
 
     d_data_2D.copy(m_h_data_2D);
-    // Gpu::streamSynchronize() is not needed, because there is a sync in WarpXParIter constructor later
+    // Gpu::streamSynchronize() is not needed, because there is a sync in ParticleTileIter constructor later
 
     auto d_table = d_data_2D.table();
 
@@ -197,7 +197,7 @@ void ParticleHistogram2D::ComputeDiags (int step)
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         {
-            for (WarpXParIter pti(myspc, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(myspc, lev); pti.isValid(); ++pti)
             {
                 auto const GetPosition = GetParticlePosition<PIdx>(pti);
 

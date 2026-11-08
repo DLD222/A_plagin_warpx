@@ -1187,7 +1187,7 @@ MultiParticleContainer::doFieldIonization (int lev,
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
             if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
@@ -1827,7 +1827,7 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
             if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
@@ -1904,7 +1904,7 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
-        for (WarpXParIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*pc_source, lev, info); pti.isValid(); ++pti)
         {
             if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {

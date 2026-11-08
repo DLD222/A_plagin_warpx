@@ -9,7 +9,7 @@
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/FrameState.H"
@@ -20,7 +20,7 @@
 
 SelectParticles::SelectParticles (
     const warpx::runtime::IParticleContainer& /*pc*/,
-    WarpXParIter& a_pti,
+    ParticleTileIter& a_pti,
     amrex::Real current_z_boost,
     amrex::Real old_z_boost,
     int a_offset
@@ -35,7 +35,7 @@ SelectParticles::SelectParticles (
 
 LorentzTransformParticles::LorentzTransformParticles (
     const warpx::runtime::IParticleContainer& /*pc*/,
-    WarpXParIter& a_pti,
+    ParticleTileIter& a_pti,
     amrex::Real t_boost,
     amrex::Real dt,
     amrex::Real t_lab,
@@ -93,7 +93,7 @@ BackTransformParticleFunctor::operator () (warpx::runtime::IParticleContainer::B
         const amrex::Real t_boost = data().t_new(0);
         const amrex::Real dt = data().dt(0);
 
-        for (WarpXParIter pti(*m_pc_src, lev); pti.isValid(); ++pti) {
+        for (ParticleTileIter pti(*m_pc_src, lev); pti.isValid(); ++pti) {
             pc_dst.DefineAndReturnParticleTile(lev, pti.index(), pti.LocalTileIndex() );
         }
 
@@ -107,7 +107,7 @@ BackTransformParticleFunctor::operator () (warpx::runtime::IParticleContainer::B
             amrex::Gpu::DeviceVector<int> FlagForPartCopy;
             amrex::Gpu::DeviceVector<int> IndexForPartCopy;
 
-            for (WarpXParIter pti(*m_pc_src, lev); pti.isValid(); ++pti) {
+            for (ParticleTileIter pti(*m_pc_src, lev); pti.isValid(); ++pti) {
 
                 auto index = std::make_pair(pti.index(), pti.LocalTileIndex());
 

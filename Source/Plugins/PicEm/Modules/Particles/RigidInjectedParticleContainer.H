@@ -74,7 +74,7 @@ public:
                  MomentumPushType momentum_push_type=MomentumPushType::Full,
                  ImplicitOptions const * implicit_options = nullptr) override;
 
-    void PushPX (WarpXParIter& pti,
+    void PushPX (ParticleTileIter& pti,
                          amrex::FArrayBox const * exfab,
                          amrex::FArrayBox const * eyfab,
                          amrex::FArrayBox const * ezfab,

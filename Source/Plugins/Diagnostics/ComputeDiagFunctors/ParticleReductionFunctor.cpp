@@ -9,7 +9,7 @@
 #include "Runtime/RuntimeData.H"
 
 #include "Diagnostics/ComputeDiagFunctors/ComputeDiagFunctor.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/Parser/ParserUtils.H"
 
 #include <ablastr/coarsen/sample.H>

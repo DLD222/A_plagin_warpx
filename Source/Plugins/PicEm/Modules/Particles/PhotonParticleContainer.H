@@ -56,7 +56,7 @@ public:
                  MomentumPushType momentum_push_type=MomentumPushType::Full,
                  ImplicitOptions const * implicit_options = nullptr) override;
 
-    void PushPX (WarpXParIter& pti,
+    void PushPX (ParticleTileIter& pti,
                         amrex::FArrayBox const * exfab,
                         amrex::FArrayBox const * eyfab,
                         amrex::FArrayBox const * ezfab,
@@ -97,7 +97,7 @@ public:
                         std::optional<FieldGatherOrders> /*gather_orders*/) override {}
 
     // DepositCharge should do nothing for photons
-    void DepositCharge (WarpXParIter& /*pti*/,
+    void DepositCharge (ParticleTileIter& /*pti*/,
                                 RealVector const & /*wp*/,
                                 const int * const /*ion_lev*/,
                                 amrex::MultiFab* /*rho*/,
@@ -109,7 +109,7 @@ public:
                                 int /*depos_lev*/) override {}
 
     // DepositCurrent should do nothing for photons
-    void DepositCurrent (WarpXParIter& /*pti*/,
+    void DepositCurrent (ParticleTileIter& /*pti*/,
                                  RealVector const & /*wp*/,
                                  RealVector const & /*uxp*/,
                                  RealVector const & /*uyp*/,

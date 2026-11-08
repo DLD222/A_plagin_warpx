@@ -9,7 +9,7 @@
 #include "ComputeDiagFunctors/ComputeDiagFunctor_fwd.H"
 #include "ComputeDiagFunctors/ComputeParticleDiagFunctor.H"
 #include "FlushFormats/FlushFormat_fwd.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 
 #include <AMReX_IntVect.H>
 #include <AMReX_REAL.H>

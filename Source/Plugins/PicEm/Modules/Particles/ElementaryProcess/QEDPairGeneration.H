@@ -99,7 +99,7 @@ public:
     * @param[in] a_offset offset to apply to the particle indices
     */
     PairGenerationTransformFunc(BreitWheelerGeneratePairs generate_functor,
-                                const WarpXParIter& a_pti, int lev, amrex::IntVect ngEB,
+                                const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
                                 amrex::FArrayBox const& exfab,
                                 amrex::FArrayBox const& eyfab,
                                 amrex::FArrayBox const& ezfab,

@@ -20,7 +20,7 @@
 #include "Modules/Particles/Gather/GetExternalFields.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
@@ -285,7 +285,7 @@ void ParticleExtrema::ComputeDiags (int step)
                 using ReduceTuple = typename decltype(reduce_data)::Type;
 
                 // Loop over boxes
-                for (WarpXParIter pti(myspc, lev); pti.isValid(); ++pti)
+                for (ParticleTileIter pti(myspc, lev); pti.isValid(); ++pti)
                 {
                     const auto GetPosition = GetParticlePosition<PIdx>(pti);
                     // get particle arrays

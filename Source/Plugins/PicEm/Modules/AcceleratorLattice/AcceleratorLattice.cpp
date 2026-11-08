@@ -108,7 +108,7 @@ AcceleratorLattice::UpdateElementFinder (int const lev, const amrex::Vector<amre
 }
 
 LatticeElementFinderDevice
-AcceleratorLattice::GetFinderDeviceInstance (WarpXParIter const& a_pti, int const a_offset, const amrex::Vector<amrex::Real>& dts) const
+AcceleratorLattice::GetFinderDeviceInstance (ParticleTileIter const& a_pti, int const a_offset, const amrex::Vector<amrex::Real>& dts) const
 {
     const LatticeElementFinder & finder = (*m_element_finder)[a_pti];
     return finder.GetFinderDeviceInstance(a_pti, a_offset, *this, dts);

@@ -181,8 +181,8 @@ LatticeElementFinder::setup_lattice_indices (amrex::Gpu::DeviceVector<amrex::Par
 
 // The core only knows the generic iterator; the concrete instantiations live
 // with the implementation that owns them.
-template LatticeElementFinderDevice LatticeElementFinder::GetFinderDeviceInstance<WarpXParIter> (
-    WarpXParIter const&, int, AcceleratorLattice const&, const amrex::Vector<amrex::Real>&) const;
-template void LatticeElementFinderDevice::InitLatticeElementFinderDevice<WarpXParIter> (
-    WarpXParIter const&, int, AcceleratorLattice const&, LatticeElementFinder const&,
+template LatticeElementFinderDevice LatticeElementFinder::GetFinderDeviceInstance<ParticleTileIter> (
+    ParticleTileIter const&, int, AcceleratorLattice const&, const amrex::Vector<amrex::Real>&) const;
+template void LatticeElementFinderDevice::InitLatticeElementFinderDevice<ParticleTileIter> (
+    ParticleTileIter const&, int, AcceleratorLattice const&, LatticeElementFinder const&,
     const amrex::Vector<amrex::Real>&);

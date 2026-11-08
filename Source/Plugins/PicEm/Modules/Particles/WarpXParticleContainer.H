@@ -11,7 +11,7 @@
 #define WARPX_WarpXParticleContainer_H_
 
 #include "Modules/Particles/ParticleAttributes.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Runtime/IParticleContainer.H"
 #include "WarpXParticleContainer_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
@@ -343,7 +343,7 @@ public:
      */
     std::unique_ptr<amrex::MultiFab> GetChargeDensityOnLevel (int lev, bool local, bool finalize);
 
-    virtual void DepositCharge (WarpXParIter& pti,
+    virtual void DepositCharge (ParticleTileIter& pti,
                                RealVector const & wp,
                                const int* ion_lev,
                                amrex::MultiFab* rho,
@@ -354,7 +354,7 @@ public:
                                int lev,
                                int depos_lev);
 
-    virtual void DepositCurrent (WarpXParIter& pti,
+    virtual void DepositCurrent (ParticleTileIter& pti,
                                 RealVector const & wp,
                                 RealVector const & uxp,
                                 RealVector const & uyp,
@@ -388,7 +388,7 @@ public:
     {}
 
     virtual void DepositTemperature (
-        [[maybe_unused]]WarpXParIter& pti,
+        [[maybe_unused]]ParticleTileIter& pti,
         [[maybe_unused]]RealVector const & wp,
         [[maybe_unused]]RealVector const & uxp,
         [[maybe_unused]]RealVector const & uyp,
@@ -417,7 +417,7 @@ public:
 
     std::unique_ptr<amrex::MultiFab> GetPlasmaFrequency (int lev);
 
-    void DepositMassMatrices (WarpXParIter& pti,
+    void DepositMassMatrices (ParticleTileIter& pti,
                         const RealVector& wp,
                         const RealVector& uxp,
                         const RealVector& uyp,

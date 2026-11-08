@@ -283,7 +283,7 @@ namespace {
  * \brief The routine finds particles that have previously been marked for suborbiting.
  *        The indices and the weights of such particles are saved.
  *
- * \param[in] pti                            The WarpXParIter holding the particles to push
+ * \param[in] pti                            The ParticleTileIter holding the particles to push
  * \param[in] offset                         The particle index offset for the particles to be pushed
  * \param[in] np_to_push                     The number of particles to push
  * \param[in/out] num_unconverged_particles  Number of unconverged particles
@@ -291,7 +291,7 @@ namespace {
  * \param[in/out] saved_weights              The saved weights of the unconverged particles
  */
 void
-PhysicalParticleContainer::FindSuborbitParticles (WarpXParIter & pti,
+PhysicalParticleContainer::FindSuborbitParticles (ParticleTileIter & pti,
                                                   long offset,
                                                   long np_to_push,
                                                   long & num_unconverged_particles,
@@ -328,7 +328,7 @@ PhysicalParticleContainer::FindSuborbitParticles (WarpXParIter & pti,
  *        gathered, their weights saved, and their weight set to zero (so they
  *        don't contribute to the current density).
  *
- * \param[in] pti                        The WarpXParIter holding the particles to push
+ * \param[in] pti                        The ParticleTileIter holding the particles to push
  * \param[in] offset                     The particle index offset for the particles to be pushed
  * \param[in] np_to_push                 The number of particles to push
  * \param[in] num_unconverged_particles  Number of unconverged particles
@@ -336,7 +336,7 @@ PhysicalParticleContainer::FindSuborbitParticles (WarpXParIter & pti,
  * \param[in/out] saved_weights          The saved weights of the unconverged particles
  */
 void
-PhysicalParticleContainer::SetupSuborbitParticles (WarpXParIter & pti,
+PhysicalParticleContainer::SetupSuborbitParticles (ParticleTileIter & pti,
                                                    long offset,
                                                    long np_to_push,
                                                    long num_unconverged_particles,
@@ -396,7 +396,7 @@ PhysicalParticleContainer::SetupSuborbitParticles (WarpXParIter & pti,
  *        (which depend on each other) are consistent. Any unconverged particles
  *        are flagged for later processing.
  *
- * \param[in] pti The WarpXParIter holding the particles to push
+ * \param[in] pti The ParticleTileIter holding the particles to push
  * \param[in] exfab, eyfab, ezfab The E fields
  * \param[in] bxfab, byfab, bzfab The B fields
  * \param[in] implicit_options Specifies options for implicit push
@@ -411,7 +411,7 @@ PhysicalParticleContainer::SetupSuborbitParticles (WarpXParIter & pti,
  * \param[in/out] saved_weights The saved weights of the unconverged particles
  */
 void
-PhysicalParticleContainer::ImplicitPushXP (WarpXParIter & pti,
+PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
                                            amrex::FArrayBox const * exfab,
                                            amrex::FArrayBox const * eyfab,
                                            amrex::FArrayBox const * ezfab,
@@ -713,7 +713,7 @@ PhysicalParticleContainer::ImplicitPushXP (WarpXParIter & pti,
  *        in one fused kernel using suborbits.
  *        These are particles that failed to converge in ImplicitPushXP.
  *
- * \param[in] pti The WarpXParIter holding the particles to push
+ * \param[in] pti The ParticleTileIter holding the particles to push
  * \param[in] fields The MultiFab register instance
  * \param[in] exfab, eyfab, ezfab The E fields
  * \param[in] bxfab, byfab, bzfab The B fields
@@ -730,7 +730,7 @@ PhysicalParticleContainer::ImplicitPushXP (WarpXParIter & pti,
  * \param[in] saved_weights The saved weights of the unconverged particles
  */
 void
-PhysicalParticleContainer::ImplicitPushXPSubOrbits (WarpXParIter& pti,
+PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                                                     ablastr::fields::MultiFabRegister& fields,
                                                     amrex::FArrayBox const * exfab,
                                                     amrex::FArrayBox const * eyfab,

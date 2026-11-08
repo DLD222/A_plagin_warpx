@@ -12,7 +12,7 @@
 
 #include "Diagnostics/ComputeDiagFunctors/RhoFunctor.H"
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/RuntimeData.H"
 

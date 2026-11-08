@@ -130,7 +130,7 @@ RigidInjectedParticleContainer::RemapParticles()
                 // Note that the particles are already in the boosted frame.
                 // This value is saved to advance the particles not injected yet
 
-                for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+                for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
                 {
                     const auto& attribs = pti.GetAttribs();
                     const auto *const uxp = attribs[PIdx::ux].dataPtr();
@@ -171,7 +171,7 @@ RigidInjectedParticleContainer::RemapParticles()
 }
 
 void
-RigidInjectedParticleContainer::PushPX (WarpXParIter& pti,
+RigidInjectedParticleContainer::PushPX (ParticleTileIter& pti,
                                         amrex::FArrayBox const * exfab,
                                         amrex::FArrayBox const * eyfab,
                                         amrex::FArrayBox const * ezfab,
@@ -332,7 +332,7 @@ RigidInjectedParticleContainer::PushP (int lev, Real dt,
 #pragma omp parallel
 #endif
     {
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             amrex::Box box = pti.tilebox();
             box.grow(Ex.nGrowVect());

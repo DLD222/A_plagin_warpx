@@ -122,7 +122,7 @@ public:
     /**
      * \brief Gather fields and push particles in one fused kernel.
      */
-    virtual void PushPX (WarpXParIter& pti,
+    virtual void PushPX (ParticleTileIter& pti,
                          amrex::FArrayBox const * exfab,
                          amrex::FArrayBox const * eyfab,
                          amrex::FArrayBox const * ezfab,
@@ -138,21 +138,21 @@ public:
                          PositionPushType position_push_type=PositionPushType::Full,
                          MomentumPushType momentum_push_type=MomentumPushType::Full);
 
-    void FindSuborbitParticles (WarpXParIter& pti,
+    void FindSuborbitParticles (ParticleTileIter& pti,
                          long offset,
                          long np_to_push,
                          long & num_unconverged_particles,
                          amrex::Gpu::DeviceVector<long> & unconverged_indices,
                          amrex::Gpu::DeviceVector<amrex::ParticleReal> & saved_weights);
 
-    void SetupSuborbitParticles (WarpXParIter& pti,
+    void SetupSuborbitParticles (ParticleTileIter& pti,
                          long offset,
                          long np_to_push,
                          long num_unconverged_particles,
                          amrex::Gpu::DeviceVector<long> & unconverged_indices,
                          amrex::Gpu::DeviceVector<amrex::ParticleReal> & saved_weights);
 
-    void ImplicitPushXP (WarpXParIter& pti,
+    void ImplicitPushXP (ParticleTileIter& pti,
                          amrex::FArrayBox const * exfab,
                          amrex::FArrayBox const * eyfab,
                          amrex::FArrayBox const * ezfab,
@@ -169,7 +169,7 @@ public:
                          amrex::Gpu::DeviceVector<long> & unconverged_indices,
                          amrex::Gpu::DeviceVector<amrex::ParticleReal> & saved_weights);
 
-    void ImplicitPushXPSubOrbits (WarpXParIter& pti,
+    void ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                                   ablastr::fields::MultiFabRegister& fields,
                                   amrex::FArrayBox const * exfab,
                                   amrex::FArrayBox const * eyfab,
@@ -204,7 +204,7 @@ public:
                         long& nfine_current,
                         long& nfine_gather,
                         long np,
-                        WarpXParIter& pti,
+                        ParticleTileIter& pti,
                         int lev,
                         int n_field_gather_buffer,
                         int n_current_deposition_buffer,
@@ -215,7 +215,7 @@ public:
 
     void SplitParticles (int lev);
 
-    IonizationFilterFunc getIonizationFunc (const WarpXParIter& pti,
+    IonizationFilterFunc getIonizationFunc (const ParticleTileIter& pti,
                                             int lev,
                                             amrex::IntVect ngEB,
                                             const amrex::FArrayBox& Ex,
@@ -434,7 +434,7 @@ public:
         amrex::Real relative_time) override;
 
     void DepositTemperature (
-        WarpXParIter& pti,
+        ParticleTileIter& pti,
         RealVector const & wp, RealVector const & uxp,
         RealVector const & uyp, RealVector const & uzp,
         amrex::MultiFab* Tx, amrex::MultiFab* Ty, amrex::MultiFab* Tz,

@@ -45,7 +45,7 @@ struct CopyParticleAttribs
      */
     CopyParticleAttribs (
         const WarpXParticleContainer& /*pc*/,
-        WarpXParIter& a_pti,
+        ParticleTileIter& a_pti,
         long a_offset = 0) noexcept
     {
         const auto& attribs = a_pti.GetAttribs();

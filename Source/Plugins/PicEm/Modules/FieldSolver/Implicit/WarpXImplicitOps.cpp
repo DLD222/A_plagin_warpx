@@ -154,7 +154,7 @@ WarpX::SaveParticlesAtImplicitStepStart ( )
 
             auto particle_comps = pc->GetRealSoANames();
 
-            for (WarpXParIter pti(*pc, lev); pti.isValid(); ++pti) {
+            for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
 
                 const auto getPosition = GetParticlePosition(pti);
 

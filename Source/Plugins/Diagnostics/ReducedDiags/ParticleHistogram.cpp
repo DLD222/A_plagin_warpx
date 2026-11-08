@@ -12,7 +12,7 @@
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
@@ -200,7 +200,7 @@ void ParticleHistogram::ComputeDiags (int step)
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
         {
-            for (WarpXParIter pti(myspc, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(myspc, lev); pti.isValid(); ++pti)
             {
                 auto const GetPosition = GetParticlePosition<PIdx>(pti);
 

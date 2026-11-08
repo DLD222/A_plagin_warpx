@@ -608,7 +608,7 @@ LaserParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
 
         Gpu::DeviceVector<Real> plane_Xp, plane_Yp, amplitude_E;
 
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
@@ -802,7 +802,7 @@ LaserParticleContainer::PushP (int /*lev*/, Real /*dt*/,
  * in laser plane coordinate.
  */
 void
-LaserParticleContainer::calculate_laser_plane_coordinates (const WarpXParIter& pti, const int np,
+LaserParticleContainer::calculate_laser_plane_coordinates (const ParticleTileIter& pti, const int np,
                                                            Real * AMREX_RESTRICT const pplane_Xp,
                                                            Real * AMREX_RESTRICT const pplane_Yp)
 {
@@ -859,7 +859,7 @@ LaserParticleContainer::calculate_laser_plane_coordinates (const WarpXParIter& p
  * \param dt: time step.
  */
 void
-LaserParticleContainer::update_laser_particle (WarpXParIter& pti,
+LaserParticleContainer::update_laser_particle (ParticleTileIter& pti,
                                                const int np,
                                                ParticleReal * AMREX_RESTRICT const puxp,
                                                ParticleReal * AMREX_RESTRICT const puyp,

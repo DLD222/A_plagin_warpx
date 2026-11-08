@@ -581,7 +581,7 @@ PhysicalParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
         FArrayBox filtered_Ex, filtered_Ey, filtered_Ez;
         FArrayBox filtered_Bx, filtered_By, filtered_Bz;
 
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             if (cost && config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
@@ -915,7 +915,7 @@ PhysicalParticleContainer::DepositMassMatrices (ablastr::fields::MultiFabRegiste
         const int thread_num = 0;
 #endif
 
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
 
             // Extract particle data
@@ -1039,7 +1039,7 @@ PhysicalParticleContainer::SplitParticles (int lev)
     }
 
     // Loop over particle interator
-    for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+    for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
     {
         const auto GetPosition = GetParticlePosition<PIdx>(pti);
 
@@ -1244,7 +1244,7 @@ PhysicalParticleContainer::PushP (int lev, Real dt,
 #pragma omp parallel
 #endif
     {
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             amrex::Box box = pti.tilebox();
             box.grow(Ex.nGrowVect());
@@ -1405,7 +1405,7 @@ PhysicalParticleContainer::PushP (int lev, Real dt,
  *
  */
 void
-PhysicalParticleContainer::PushPX (WarpXParIter& pti,
+PhysicalParticleContainer::PushPX (ParticleTileIter& pti,
                                    amrex::FArrayBox const * exfab,
                                    amrex::FArrayBox const * eyfab,
                                    amrex::FArrayBox const * ezfab,
@@ -1743,7 +1743,7 @@ PhysicalParticleContainer::InitIonizationModule ()
 }
 
 IonizationFilterFunc
-PhysicalParticleContainer::getIonizationFunc (const WarpXParIter& pti,
+PhysicalParticleContainer::getIonizationFunc (const ParticleTileIter& pti,
                                               int lev,
                                               amrex::IntVect ngEB,
                                               const amrex::FArrayBox& Ex,
@@ -1798,7 +1798,7 @@ void PhysicalParticleContainer::resample (const amrex::Vector<amrex::Geometry>& 
         global_numparts = TotalNumberOfParticles();
         for (int lev = 0; lev <= maxLevel(); lev++)
         {
-            for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
             {
                 m_resampler(geom[lev], pti, lev, this);
             }
@@ -1919,7 +1919,7 @@ PhysicalParticleContainer::getPairGenerationFilterFunc ()
  */
 void
 PhysicalParticleContainer::DepositTemperature (
-    WarpXParIter& pti,
+    ParticleTileIter& pti,
     RealVector const & wp, RealVector const & uxp,
     RealVector const & uyp, RealVector const & uzp,
     amrex::MultiFab * Tx, amrex::MultiFab * Ty, amrex::MultiFab * Tz,
@@ -2102,7 +2102,7 @@ PhysicalParticleContainer::AccumulateVelocitiesAndComputeTemperature (
 #else
         const int thread_num = 0;
 #endif
-        for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+        for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
         {
             const long np = pti.numParticles();
             const auto & wp = pti.GetAttribs(PIdx::w);
@@ -2152,7 +2152,7 @@ PhysicalParticleContainer::AccumulateVelocitiesAndComputeTemperature (
             {
             const int thread_num = omp_get_thread_num();
 #endif
-            for (WarpXParIter pti(*this, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(*this, lev); pti.isValid(); ++pti)
             {
                 const long np = pti.numParticles();
                 const auto & wp = pti.GetAttribs(PIdx::w);

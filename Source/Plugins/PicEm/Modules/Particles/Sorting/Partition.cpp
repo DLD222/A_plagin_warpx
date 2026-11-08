@@ -52,7 +52,7 @@ using namespace amrex;
 void
 PhysicalParticleContainer::PartitionParticlesInBuffers(
     long& nfine_current, long& nfine_gather, long const np,
-    WarpXParIter& pti, int const lev,
+    ParticleTileIter& pti, int const lev,
     int n_field_gather_buffer,
     int n_current_deposition_buffer,
     iMultiFab const* current_masks,

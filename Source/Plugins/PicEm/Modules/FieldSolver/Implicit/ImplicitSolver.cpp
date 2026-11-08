@@ -42,7 +42,7 @@ void ImplicitSolver::FinishImplicitParticleUpdate (
 #pragma omp parallel
 #endif
             {
-                for (WarpXParIter pti(*pc, lev); pti.isValid(); ++pti) {
+                for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
                     int const* const nsuborbits =
                         pti.GetiAttribs("nsuborbits").dataPtr();
                     long const np = pti.numParticles();

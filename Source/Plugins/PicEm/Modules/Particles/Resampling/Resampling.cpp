@@ -40,7 +40,7 @@ bool Resampling::triggered (const int timestep, const amrex::Real global_numpart
 }
 
 void Resampling::operator() (
-    const amrex::Geometry& geom_lev, WarpXParIter& pti,
+    const amrex::Geometry& geom_lev, ParticleTileIter& pti,
     const int lev, WarpXParticleContainer * const pc) const
 {
     (*m_resampling_algorithm)(geom_lev, pti, lev, pc);

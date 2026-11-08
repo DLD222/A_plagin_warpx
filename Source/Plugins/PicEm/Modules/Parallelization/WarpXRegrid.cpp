@@ -417,7 +417,7 @@ WarpX::ComputeCostsHeuristic ()
             auto & myspc = mypc_ref.GetParticleContainer(i_s);
 
             // Particle loop
-            for (WarpXParIter pti(myspc, lev); pti.isValid(); ++pti)
+            for (ParticleTileIter pti(myspc, lev); pti.isValid(); ++pti)
             {
                 (*m_level_resources.level(lev).costs)[pti.index()] += costs_heuristic_particles_wt*pti.numParticles();
             }

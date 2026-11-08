@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <array>
 
-IonizationFilterFunc::IonizationFilterFunc (const WarpXParIter& a_pti, int lev, amrex::IntVect ngEB,
+IonizationFilterFunc::IonizationFilterFunc (const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
                                             amrex::FArrayBox const& exfab,
                                             amrex::FArrayBox const& eyfab,
                                             amrex::FArrayBox const& ezfab,

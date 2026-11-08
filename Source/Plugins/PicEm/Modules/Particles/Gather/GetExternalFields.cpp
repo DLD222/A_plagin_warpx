@@ -112,5 +112,5 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
 
 // The core only knows the generic iterator; this is the one concrete
 // instantiation the built-in plugins use.
-template GetExternalEBField::GetExternalEBField<WarpXParIter> (
-    const WarpXParIter&, long, const warpx::runtime::RuntimeContext*) noexcept;
+template GetExternalEBField::GetExternalEBField<ParticleTileIter> (
+    const ParticleTileIter&, long, const warpx::runtime::RuntimeContext*) noexcept;

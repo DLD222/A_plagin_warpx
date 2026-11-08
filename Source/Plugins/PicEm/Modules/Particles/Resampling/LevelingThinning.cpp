@@ -65,7 +65,7 @@ void LevelingThinning::BackwardCompatibility (const std::string& species_name )
 }
 
 void LevelingThinning::operator() (
-    const amrex::Geometry& geom_lev, WarpXParIter& pti,
+    const amrex::Geometry& geom_lev, ParticleTileIter& pti,
     const int lev, WarpXParticleContainer * const pc) const
 {
     using namespace amrex::literals;

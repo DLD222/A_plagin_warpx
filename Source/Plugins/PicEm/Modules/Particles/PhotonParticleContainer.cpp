@@ -83,7 +83,7 @@ void PhotonParticleContainer::InitData()
 }
 
 void
-PhotonParticleContainer::PushPX (WarpXParIter& pti,
+PhotonParticleContainer::PushPX (ParticleTileIter& pti,
                                  amrex::FArrayBox const * exfab,
                                  amrex::FArrayBox const * eyfab,
                                  amrex::FArrayBox const * ezfab,

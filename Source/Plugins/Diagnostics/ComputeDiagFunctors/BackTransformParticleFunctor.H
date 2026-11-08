@@ -31,7 +31,7 @@ struct SelectParticles
      * @param[in] a_offset           index offset for particles to be selected
      */
     SelectParticles (const warpx::runtime::IParticleContainer& pc,
-                     WarpXParIter& a_pti,
+                     ParticleTileIter& a_pti,
                      amrex::Real current_z_boost, amrex::Real old_z_boost,
                      int a_offset = 0);
 
@@ -87,7 +87,7 @@ struct LorentzTransformParticles
      * @param[in] a_offset           index offset for particles to be transformed
      */
     LorentzTransformParticles (const warpx::runtime::IParticleContainer& pc,
-                               WarpXParIter& a_pti,
+                               ParticleTileIter& a_pti,
                                amrex::Real t_boost, amrex::Real dt,
                                amrex::Real t_lab, int a_offset = 0);
 

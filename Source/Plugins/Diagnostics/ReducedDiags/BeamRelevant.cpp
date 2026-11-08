@@ -12,7 +12,7 @@
 #include "Runtime/ISpeciesMetadata.H"
 
 #include "Diagnostics/ReducedDiags/ReducedDiags.H"
-#include "Modules/Particles/WarpXParIter.H"
+#include "Modules/Particles/ParticleTileIter.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeData.H"
 

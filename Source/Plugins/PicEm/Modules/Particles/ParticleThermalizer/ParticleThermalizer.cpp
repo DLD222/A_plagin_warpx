@@ -137,7 +137,7 @@ void ParticleThermalizer::applyThermalizer(WarpXParticleContainer &pc) const
         amrex::RealBox thermalizer_region = geom.ProbDomain();
         thermalizer_region.setLo(dir, m_start);
         thermalizer_region.setHi(dir, m_end);
-        for (WarpXParIter pti(pc, lev); pti.isValid(); ++pti) {
+        for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
             const long np = pti.numParticles();
 
             // early exit for tiles that do not overlap the thermalizer region

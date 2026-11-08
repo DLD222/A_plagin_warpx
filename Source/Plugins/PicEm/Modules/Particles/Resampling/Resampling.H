@@ -28,7 +28,7 @@ struct ResamplingAlgorithm
      * \brief Virtual operator() of the abstract ResamplingAlgorithm class
      */
     virtual void operator() (
-        const amrex::Geometry& /*geom_lev*/, WarpXParIter& /*pti*/,
+        const amrex::Geometry& /*geom_lev*/, ParticleTileIter& /*pti*/,
         int /*lev*/, WarpXParticleContainer* /*pc*/) const = 0;
 
     /**
@@ -88,7 +88,7 @@ public:
      * @param[in] pc a pointer to the particle container.
      */
     void operator() (
-        const amrex::Geometry& geom_lev, WarpXParIter& pti,
+        const amrex::Geometry& geom_lev, ParticleTileIter& pti,
         int lev, WarpXParticleContainer* pc) const;
 
 private:

@@ -76,7 +76,7 @@ public:
      * @param[in] dts vector containing the timestep sizes at all refinement levels
      */
     [[nodiscard]] LatticeElementFinderDevice
-    GetFinderDeviceInstance (WarpXParIter const& a_pti, int a_offset, const amrex::Vector<amrex::Real>& dts) const;
+    GetFinderDeviceInstance (ParticleTileIter const& a_pti, int a_offset, const amrex::Vector<amrex::Real>& dts) const;
 
     /* All of the available lattice element types */
     Drift h_drift;

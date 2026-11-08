@@ -14,7 +14,7 @@ enum struct ConvertDirection;
 struct PIdx;
 struct DiagIdx;
 
-class WarpXParIter;
+class ParticleTileIter;
 
 class WarpXParticleContainer;
 

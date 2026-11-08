@@ -61,7 +61,7 @@ particlesConvertUnits (ConvertDirection convert_direction, T_ParticleContainer* 
         {
             // - momenta are stored as a struct of array, in `attribs`
             // The GetStructOfArrays is called directly since the convenience routine GetAttribs
-            // is only available in WarpXParIter. ParIter is used here since the pc passed in
+            // is only available in ParticleTileIter. ParIter is used here since the pc passed in
             // will sometimes be a warpx::runtime::IParticleContainer (not derived from a warpx::runtime::IParticleContainer).
             auto& attribs = pti.GetStructOfArrays().GetRealData();
             ParticleReal* AMREX_RESTRICT ux = attribs[PIdx::ux].dataPtr();
