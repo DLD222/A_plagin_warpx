@@ -10,7 +10,6 @@
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXRuntimeData.H"
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"

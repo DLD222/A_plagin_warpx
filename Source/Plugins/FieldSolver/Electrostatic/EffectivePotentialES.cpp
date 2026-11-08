@@ -13,7 +13,7 @@
 #include "Fields.H"
 #include "Particles/MultiParticleContainer_fwd.H"
 #include "Utils/Parser/ParserUtils.H"
-#include "Python/callbacks.H"
+#include "Runtime/Callbacks.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/IParticleContainerAccess.H"
@@ -61,12 +61,12 @@ void EffectivePotentialES::ComputeSpaceChargeField (
     // set the boundary potentials appropriately
     setPhiBC(phi_fp, data().t_new(0));
 
-    ExecutePythonCallback("beforedeposition");
+    warpx::runtime::execute_callback("beforedeposition");
     // Calculate the mass enhancement factor - see  Appendix A of
     // Barnes, Journal of Comp. Phys., 424 (2021), 109852.
     // Also accumulate the total charge density.
     ComputeSigma(rho_fp);
-    ExecutePythonCallback("afterdeposition");
+    warpx::runtime::execute_callback("afterdeposition");
 
     // perform phi calculation
     int const verbosity = verbose_step ? m_mlmg_options.verbosity : 0;

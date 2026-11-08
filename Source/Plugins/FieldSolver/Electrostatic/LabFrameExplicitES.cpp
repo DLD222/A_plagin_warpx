@@ -11,7 +11,7 @@
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "Particles/MultiParticleContainer_fwd.H"
-#include "Python/callbacks.H"
+#include "Runtime/Callbacks.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
@@ -40,13 +40,13 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     const MultiLevelScalarField phi_fp = fields.get_mr_levels(FieldType::phi_fp, max_level);
     const MultiLevelVectorField Efield_fp = fields.get_mr_levels_alldirs(FieldType::Efield_fp, max_level);
 
-    ExecutePythonCallback("beforedeposition");
+    warpx::runtime::execute_callback("beforedeposition");
     particles.services->depositCharge(rho_fp, 0.0_rt);
     if (mfl) {
         const int lev = 0;
         mfl->DepositCharge(fields, *rho_fp[lev], lev);
     }
-    ExecutePythonCallback("afterdeposition");
+    warpx::runtime::execute_callback("afterdeposition");
 
     // Apply filter, perform MPI exchange, interpolate across levels
     const Vector<std::unique_ptr<MultiFab> > rho_buf(num_levels);
@@ -65,10 +65,10 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     setPhiBC(phi_fp, data().t_new(0));
 
     // Compute the potential phi, by solving the Poisson equation
-    if (IsPythonCallbackInstalled("poissonsolver")) {
+    if (warpx::runtime::has_callback("poissonsolver")) {
 
         // Use the Python level solver (user specified)
-        ExecutePythonCallback("poissonsolver");
+        warpx::runtime::execute_callback("poissonsolver");
 
     } else {
 
@@ -90,7 +90,7 @@ void LabFrameExplicitES::ComputeSpaceChargeField (
     // field will be calculated in the computePhi call.
     if (!EB::enabled()) { computeE( Efield_fp, phi_fp, beta ); }
     else {
-        if (IsPythonCallbackInstalled("poissonsolver")) { computeE(Efield_fp, phi_fp, beta); }
+        if (warpx::runtime::has_callback("poissonsolver")) { computeE(Efield_fp, phi_fp, beta); }
     }
 }
 

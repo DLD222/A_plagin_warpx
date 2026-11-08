@@ -9,9 +9,7 @@ Plugin->Plugin: Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp in
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatCheckpoint.cpp includes BoundaryConditions/PML.H
 Plugin->Plugin: Source/Plugins/Diagnostics/FlushFormats/FlushFormatPlotfile.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
 Plugin->Plugin: Source/Plugins/Diagnostics/WarpXOpenPMD.cpp includes FieldIO.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/EffectivePotentialES.cpp includes Python/callbacks.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H includes Fluids/MultiFluidContainer.H
-Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/LabFrameExplicitES.cpp includes Python/callbacks.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.H includes Particles/WarpXParticleContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.cpp includes Particles/MultiParticleContainer.H
 Plugin->Plugin: Source/Plugins/FieldSolver/Electrostatic/RelativisticExplicitES.cpp includes Particles/WarpXParticleContainer.H
@@ -21,5 +19,4 @@ Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp inclu
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PMLComponent.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveEPML.cpp includes BoundaryConditions/PML_current.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/EvolveFPML.cpp includes BoundaryConditions/PMLComponent.H
-Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp includes Runtime/WarpXRuntimeData.H
 Plugin->Plugin: Source/Plugins/FieldSolver/FiniteDifference/HybridPICSolveE.cpp includes HybridPIC/HybridPICModel/HybridPICModel.H
