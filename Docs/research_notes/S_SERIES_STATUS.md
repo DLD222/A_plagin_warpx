@@ -71,6 +71,11 @@
 （配置日志有明确警告），也没有 ADIOS2。测试输入显式要求 `h5` 后端，因此这 72 类用例
 **在本机无论如何都跑不起来**。
 
+**非 PIC 内核（R2/R4 的一部分）**：内核工厂已改为中性命名（`SolverKernelPlugin` /
+`register_solver_kernel_plugin` / `create_solver_kernel`），`IPicKernel` 的
+`register_species`、`allocate_collision_data` 已变为**可选钩子（默认空实现）**；
+`nonpic_kernel_2` 测试删掉这两个空实现后仍然通过，证明它们确实是可选的。
+
 **要完成 R5 必须先做**：提供带 MPI 的 HDF5（如 conda-forge `hdf5=*=mpi_openmpi*`），
 重建 openPMD → 重跑四维套件 → 建立权威基线。
 
