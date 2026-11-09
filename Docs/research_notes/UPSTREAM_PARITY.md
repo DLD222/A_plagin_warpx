@@ -612,3 +612,21 @@ ctest --test-dir <build> -j 4 --timeout 2400
 1. `test_1d_macroscopic_solver`：把基准换成物理解（需上游确认，属于改基准，不在本项目单方面执行）；
 2. Python 绑定（`WarpX_PYTHON=ON`）构建下的 `test_3d_ionization_electron_dsmc` 等用例；
 3. ADIOS2 后端、GPU 后端：清单一致但无运行证据。
+
+---
+
+## 10. 最终状态（2026-11-10，插件化完成之后）
+
+四维套件与 Python/PICMI 套件的实测结果：
+
+| 套件 | 构建 | 结果 | 残余 |
+|---|---|---|---|
+| 2D | `build_takeover`（openPMD=OFF） | 232 / 264 | 32 条，全部 openPMD 依赖 |
+| 2D | `build_2d_full`（openPMD+FFT） | 335 / 336 | 1 条平台校验和 |
+| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT） | 567 / 573 | 6 条（3 校验和 + 1 缺 Python 绑定 + 2 上游自带） |
+| 2D PICMI | `build_py_opmd` | 72 / 75 | 3 条平台校验和 |
+
+**结论**：功能覆盖上没有缺口——上游 420 个测试定义全部存在且参数逐字相同，源文件可符号级对应，
+四维与 PICMI 的失败全部落在平台校验和、缺失可选依赖与上游自带发散基准三类里。
+插件化重构（把诊断、碰撞、五种场求解器、粒子内核单元拆成插件）**没有改变任何可运行用例的结果**：
+每次搬迁都以"失败集逐条一致"作为验收条件。
