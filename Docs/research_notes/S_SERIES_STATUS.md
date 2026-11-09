@@ -8,7 +8,8 @@
 
 **核心与物理无关、插件接口通用、插件可独立增删**这三条已经**用自动化检查器与实测**证明；
 **功能完全覆盖原版（四维数值等价）**这一条**尚未完成**，卡在两类问题上：
-(a) 本机 openPMD 缺 HDF5 后端，72 类用例无法运行；
+(a) 1D/3D/RZ 的 469 个用例里仍有 **13 条**失败：2 条需要 FFT 构建（本验证构建 `WarpX_FFT=OFF`）、
+1 条慢测试超时、3 条 RZ BTD、6 条其它校验/分析；"缺外部测试数据"的 24 条已于 2026-11-09 清零；
 (b) 粒子系统、PSATD、静磁、隐式求解器仍在内核插件内（各有量化原因）。
 
 ---
@@ -57,6 +58,42 @@
 
 ### R5 功能完全覆盖原版（四维数值等价）——**未完成**
 
+**最新状态（2026-11-09 09:15，第 1 项已完成）**：37 条失败中 **24 条（8 个用例）已清零**，
+剩余 **13 条**。清零的是"缺外部测试数据"这一类，做法与上游 CI 一致
+（`.azure-pipelines.yml:183`）：把 `openPMD-example-datasets` 克隆到**仓库的上一级目录**。
+测试输入写的是 `../../../../openPMD-example-datasets/...`，从 `build_multi_hdf5/bin/<test>/`
+上溯 4 层正好是仓库父目录。
+
+```bash
+# 在 /home/douliangduo 下执行（仓库父目录），与上游 CI 相同
+git clone --depth 1 https://github.com/openPMD/openPMD-example-datasets.git
+# 只需其中 example-femm-3d.h5 (3.4 MB) 与 example-femm-thetaMode.h5 (84 KB)
+
+cd WarpX_plugin
+ctest --test-dir build_multi_hdf5 -R "load_external_field|projection_div_cleaner" -j 4 --output-on-failure
+# -> 100% tests passed, 0 tests failed out of 24   (8 用例 x run/analysis/checksum, 9.8 s)
+```
+
+**证据**：8 个用例的 checksum 全部通过，且基准值非零
+（`test_3d_load_external_field_particle_time`：`lev=0 Bz = 98.7756`；
+`test_rz_load_external_field_grid`：`lev=0 Br = 0.6186`、`Bz = 4.6531`；
+`test_rz_projection_div_cleaner`：`Br = 0.7880`、`Bz = 6.0501`）——数据确实从 HDF5 读入并复现了
+上游数值，而不是"读取失败后全零也通过"。本轮**没有改任何代码**（`git status` 干净），
+唯一的变量就是数据集的出现，因此归因明确。
+
+**37 条失败按 CTest 条目的完整分解**（此前那张表只覆盖 30 条，漏了 7 条"其它校验/分析"）：
+
+| 类别 | 条目 | 数量 |
+|---|---|---|
+| 缺外部测试数据（**已清零**） | `test_rz_load_external_field_grid[_restart]`、`test_rz_load_external_field_particles[_restart]`、`test_3d_load_external_field_particle_time[_restart]`、`test_3d_load_external_field_particle_multi_time`、`test_rz_projection_div_cleaner`（各 run/analysis/checksum） | 24 |
+| 需 FFT 构建 | `test_rz_laser_acceleration_boosted_opmd.{run,checksum}`（`algo.maxwell_solver = psatd`） | 2 |
+| 慢/偶发超时 | `test_3d_particles_in_pml_mr.run` | 1 |
+| RZ BTD | `test_rz_btd.{run,analysis,checksum}` | 3 |
+| 其它校验/分析 | `test_3d_embedded_boundary_cube{,_mr,_macroscopic}.checksum`(3)、`test_3d_ionization_electron_dsmc.analysis`(1)、`test_1d_macroscopic_solver.{analysis,checksum}`(2)、`test_1d_laser_acceleration_fluid_boosted.run`(1，已由快照修复解决) | 7 |
+
+**结论**：37 条 = 24 缺数据 + 2 缺 FFT + 1 慢测试 + 3 BTD + 7 其它；其中 1 条已由快照修复解决，
+**其余 6 条"其它校验/分析"尚未逐条归因**，是后续轮次的工作项（不再声称"已全部归因"）。
+
 | 构建 | 用例 | 通过 | 无法运行 | 失败性质 |
 |---|---|---|---|---|
 | 2D（OPENPMD=OFF） | 255 | **222** | 33 | openPMD 用例 + 1 已知输入缺项 |
@@ -68,18 +105,6 @@
 | 1D/3D/RZ（OPENPMD=ON，**HDF5 无 MPI**） | 469 | 357 | — | 112 条失败，21 个运行失败报 `openPMD-api built without support for backend 'HDF5'` |
 | 1D/3D/RZ（OPENPMD=ON，**并行 HDF5**） | 469 | **427** | — | 42 条失败：12 运行 + 14 分析 + 16 校验 |
 | 同上，修完两处"配置快照过期"缺陷后 | 469 | **432** | — | **37 条失败**（12 运行 + 11 分析 + 14 校验） |
-
-**37 条失败的构成（已逐项归因）**：
-
-| 类别 | 数量 | 说明 |
-|---|---|---|
-| 缺外部测试数据 | 8 个用例 | `load_external_field`（RZ/3D 含 restart）+ `projection_div_cleaner`：`openPMD::error::ReadError / Inaccessible`，需下载 `openPMD-example-datasets` |
-| 需要 FFT 构建 | 2 个用例 | `*_boosted_opmd` 用 `algo.maxwell_solver = psatd`；本验证构建 `WarpX_FFT=OFF`，断言明确报"built without spectral solvers" |
-| 慢/偶发 | 1 个用例 | `test_3d_particles_in_pml_mr`（单独运行通过，并行下易超时） |
-| 待查 | `test_rz_btd` 分析/校验 | 运行阶段已通过（段错误已修），但该用例耗时数分钟，分析找不到 `diags/back_rz`，需要单独排查 |
-
-**结论**：除"缺数据/缺 FFT/慢测试"三类环境因素外，**真实代码缺陷已在本轮全部修复**（两处
-配置快照过期：场数据集模式维、后处理字段映射）。
 
 **2026-11-09 进展**：已用系统 OpenMPI 自建并行 HDF5（`/tmp/hdf5_mpi`，HDF5 1.14.6），
 openPMD 的 HDF5 后端随之启用（配置日志中的"only serial version of HDF5"警告消失）。
