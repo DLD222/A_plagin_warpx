@@ -16,7 +16,7 @@
 #include "Filter/BilinearFilter.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
-#include "WarpXComm_K.H"
+#include "Parallelization/WarpXComm_K.H"
 #include "Parallelization/WarpXSumGuardCells.H"
 #include "Particles/MultiParticleContainer.H"
 
