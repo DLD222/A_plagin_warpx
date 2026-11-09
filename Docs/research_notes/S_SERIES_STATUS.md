@@ -323,3 +323,25 @@ include）与 `Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataR
 
 **结论**：并发会话共享同一台机器/工作树时，ctest 的超时会被放大成"假失败"。
 复现或核验时应保证同一时刻只有一个会话在跑套件，或使用独立 worktree + 降低并行度。
+
+
+## 9. Python / PICMI 路径（2026-11-10）
+
+Python 绑定在插件化重构后**曾完全不可用**（`WarpX_PYTHON=ON` 连配置都失败）。已修：
+
+| 缺陷 | 修法 |
+|---|---|
+| pyWarpX 源码路径仍指向 `Source/Plugins/PicEm/Python/` | 改到 `Modules/Python/pyWarpX.cpp` |
+| `Modules/Python/WarpX.cpp` 包含 `FieldSolver/FiniteDifference/HybridPICModel/…`（旧路径） | 改到 `HybridPIC/HybridPICModel/…` |
+| `set_potential_on_eb` 调已删除的 `GetElectrostaticSolverConcrete()` | 契约新增 `IElectrostaticSolver::setPotentialOnEB`，绑定走契约 |
+| Python 路径不经 `Runtime`，故无运行时上下文 → `FlushFormat: runtime context/data is not set` | `InitData` 在上下文为空时自建 legacy 上下文（data/host/config/时间与帧状态） |
+| 同上，但缺配置快照 → "Te diagnostic requires the hybrid-PIC solver" | legacy 上下文补 `RuntimeConfigSnapshot::FromLegacy()` |
+
+**2D PICMI 套件（75 个测试）**：74 失败 → 47 → 38 → **19 失败（56 通过）**。
+
+剩余 19 条构成：10 平台校验和、2 下游分析、**7 条真实缺口**——
+`TypeError: Unregistered type : PhysicalParticleContainer`
+（`ParticleBoundaryBuffer::get_particle_container` 返回 `WarpXParticleContainer::Base&`，
+而 pybind 在动态类型 `PhysicalParticleContainer` 上找不到注册项）。
+该绑定与上游 26.10 **逐字相同**，缓冲区成员类型也相同，因此需进一步确认是本分支的类型层次差异
+（`IParticleContainer` 插入）还是 pybind/AMReX 版本差异。
