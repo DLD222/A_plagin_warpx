@@ -75,7 +75,22 @@ python3 Tools/Modularization/check_build_boundaries.py  # 构建层次与层目�
 `WarpXParticleContainer`），因此**必须先把这些类型搬进核心或抽象掉**，才能定义
 `IImplicitKernelServices`（约 40 个方法）并让求解器改走契约。
 
-### 实测结论：还需要 6 个"粒子级循环"服务项
+### 实测结论（第三次尝试）：搬迁只剩两个前置项
+
+求解器已经**不再持有任何内核指针**（`Define` 接收服务袋），目录搬迁尝试到"能编译、27 个隐式测试全过"
+的地步，但跨插件检查器报了 19 处违规，全部来自两类剩余依赖：
+
+1. **`NonlinearSolvers/*`（约 20 个文件）**：隐式求解器需要的线性/非线性求解器头（`LinearFunction`、
+   `MatrixSolverOps`、`NonlinearSolverLibrary`、`DarwinMLMGPC`、`LinearSolverLibrary` 等）仍在内核插件里。
+   它们是通用线性代数，应先移入核心（`Source/Core/Solvers/`），与 `WarpXSolverVec` 同处理。
+2. **内核侧反向包含 `FieldSolver/Implicit/ImplicitSolver.H`**（`WarpXEvolve.cpp`、`WarpXInitData.cpp`、
+   `WarpXCheckpoint.cpp`、`WarpX_PETSc.cpp`）：这些地方应改为使用核心的 `Runtime/IImplicitSolver.H`
+   接口（必要时补方法），而不是包含插件的具体头。
+
+**因此搬迁的正确顺序是**：先移 `NonlinearSolvers` → 再把内核侧改用 `IImplicitSolver` → 最后 `git mv`。
+跳过前两步会立刻打破"插件间零包含"的不变量（已实测 19 处违规），所以本轮选择回退到已提交状态。
+
+### 早期实测：还需要 6 个"粒子级循环"服务项
 
 第一次尝试把 40 个调用点直接换成服务袋时，编译暴露了真实缺口：求解器里有 **5 处
 `for (auto const& pc : GetPartContainer())` 循环**和 1 处全体沉积，循环体内直接操作
