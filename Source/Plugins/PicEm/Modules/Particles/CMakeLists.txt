@@ -3,7 +3,6 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_picem_${SD}
       PRIVATE
         MultiParticleContainer.cpp
-        ParticleBoundaries.cpp
         PhotonParticleContainer.cpp
         PhysicalParticleContainer.cpp
         RigidInjectedParticleContainer.cpp

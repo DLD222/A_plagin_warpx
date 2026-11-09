@@ -5,7 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "ParticleBoundaries.H"
+#include "Particles/ParticleBoundaries.H"
 
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

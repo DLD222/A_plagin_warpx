@@ -24,7 +24,7 @@
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "WarpXParticleContainer.H"
-#include "ParticleBoundaries.H"
+#include "Particles/ParticleBoundaries.H"
 #include "ExternalParticleFields.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
