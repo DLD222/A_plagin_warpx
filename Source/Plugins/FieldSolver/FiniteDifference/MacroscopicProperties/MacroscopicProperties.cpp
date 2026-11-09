@@ -507,13 +507,30 @@ MacroscopicProperties::InitData (
             auto sn = m_sigma_node[c]->array(mfi);
             amrex::Box const cbox = m_eps_mf->boxArray()[mfi.index()];
             int const ilo = cbox.smallEnd(0), ihi = cbox.bigEnd(0);
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+            // In a one-dimensional build the second index does not exist: asking
+            // the domain for it is out of range.  The neighbour cells are then
+            // along the first dimension, exactly like DownwardDz uses.
+            int const ilo_dom = geom.Domain().smallEnd(0);
+            int const ihi_dom = geom.Domain().bigEnd(0);
+#else
             int const jlo_dom = geom.Domain().smallEnd(1);
             int const jhi_dom = geom.Domain().bigEnd(1);
+#endif
             amrex::ParallelFor(b, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                 int const ii = amrex::min(amrex::max(i, ilo), ihi);
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                // the neighbour cells of a node lie along the only dimension
+                int const iL = amrex::max(i - 1, ilo_dom);
+                int const iR = amrex::min(i, ihi_dom);
+                int const jL = j, jR = j;
+#else
+                int const iL = ii, iR = ii;
                 int const jm = amrex::max(j - 1, jlo_dom);
                 int const jp = amrex::min(j, jhi_dom);
-                amrex::Real const sL = sc(ii, jm, k), sR = sc(ii, jp, k);
+                int const jL = jm, jR = jp;
+#endif
+                amrex::Real const sL = sc(iL, jL, k), sR = sc(iR, jR, k);
                 // Mechanism-probe flag (NOT physics): use the arithmetic normal mean
                 // instead of the harmonic one, so the interface node keeps conduction
                 // when one side is an exact insulator (sigma1 = 0). The harmonic mean is
@@ -544,24 +561,24 @@ MacroscopicProperties::InitData (
                 warpx::subpixel::Mat3 eL{}, eR{};
                 if (m1L) {
                     if (has_t1) {
-                        eL.m[0]=et1(ii,jm,k,0); eL.m[4]=et1(ii,jm,k,1); eL.m[8]=et1(ii,jm,k,2);
-                        eL.m[1]=eL.m[3]=et1(ii,jm,k,3); eL.m[2]=eL.m[6]=et1(ii,jm,k,4); eL.m[5]=eL.m[7]=et1(ii,jm,k,5);
-                    } else { eL = warpx::subpixel::diag3(ec(ii,jm,k)); }
+                        eL.m[0]=et1(iL,jL,k,0); eL.m[4]=et1(iL,jL,k,1); eL.m[8]=et1(iL,jL,k,2);
+                        eL.m[1]=eL.m[3]=et1(iL,jL,k,3); eL.m[2]=eL.m[6]=et1(iL,jL,k,4); eL.m[5]=eL.m[7]=et1(iL,jL,k,5);
+                    } else { eL = warpx::subpixel::diag3(ec(iL,jL,k)); }
                 } else {
                     if (has_t2) {
-                        eL.m[0]=et2(ii,jm,k,0); eL.m[4]=et2(ii,jm,k,1); eL.m[8]=et2(ii,jm,k,2);
-                        eL.m[1]=eL.m[3]=et2(ii,jm,k,3); eL.m[2]=eL.m[6]=et2(ii,jm,k,4); eL.m[5]=eL.m[7]=et2(ii,jm,k,5);
+                        eL.m[0]=et2(iL,jL,k,0); eL.m[4]=et2(iL,jL,k,1); eL.m[8]=et2(iL,jL,k,2);
+                        eL.m[1]=eL.m[3]=et2(iL,jL,k,3); eL.m[2]=eL.m[6]=et2(iL,jL,k,4); eL.m[5]=eL.m[7]=et2(iL,jL,k,5);
                     } else { eL = warpx::subpixel::diag3(eps2_sc); }
                 }
                 if (m1R) {
                     if (has_t1) {
-                        eR.m[0]=et1(ii,jp,k,0); eR.m[4]=et1(ii,jp,k,1); eR.m[8]=et1(ii,jp,k,2);
-                        eR.m[1]=eR.m[3]=et1(ii,jp,k,3); eR.m[2]=eR.m[6]=et1(ii,jp,k,4); eR.m[5]=eR.m[7]=et1(ii,jp,k,5);
-                    } else { eR = warpx::subpixel::diag3(ec(ii,jp,k)); }
+                        eR.m[0]=et1(iR,jR,k,0); eR.m[4]=et1(iR,jR,k,1); eR.m[8]=et1(iR,jR,k,2);
+                        eR.m[1]=eR.m[3]=et1(iR,jR,k,3); eR.m[2]=eR.m[6]=et1(iR,jR,k,4); eR.m[5]=eR.m[7]=et1(iR,jR,k,5);
+                    } else { eR = warpx::subpixel::diag3(ec(iR,jR,k)); }
                 } else {
                     if (has_t2) {
-                        eR.m[0]=et2(ii,jp,k,0); eR.m[4]=et2(ii,jp,k,1); eR.m[8]=et2(ii,jp,k,2);
-                        eR.m[1]=eR.m[3]=et2(ii,jp,k,3); eR.m[2]=eR.m[6]=et2(ii,jp,k,4); eR.m[5]=eR.m[7]=et2(ii,jp,k,5);
+                        eR.m[0]=et2(iR,jR,k,0); eR.m[4]=et2(iR,jR,k,1); eR.m[8]=et2(iR,jR,k,2);
+                        eR.m[1]=eR.m[3]=et2(iR,jR,k,3); eR.m[2]=eR.m[6]=et2(iR,jR,k,4); eR.m[5]=eR.m[7]=et2(iR,jR,k,5);
                     } else { eR = warpx::subpixel::diag3(eps2_sc); }
                 }
                 if (!tensor_mode) {
@@ -574,8 +591,8 @@ MacroscopicProperties::InitData (
                 } else if (!iface_on_n) {
                     for (int q = 0; q < 6; ++q) {
                         en(i,j,k,q) = m1L
-                            ? (has_t1 ? et1(ii,jp,k,q) : (q < 3 ? ec(ii,jp,k) : amrex::Real(0.0)))
-                            : (has_t2 ? et2(ii,jp,k,q) : (q < 3 ? eps2_sc : amrex::Real(0.0)));
+                            ? (has_t1 ? et1(iR,jR,k,q) : (q < 3 ? ec(iR,jR,k) : amrex::Real(0.0)))
+                            : (has_t2 ? et2(iR,jR,k,q) : (q < 3 ? eps2_sc : amrex::Real(0.0)));
                     }
                     for (int q = 0; q < 3; ++q) { sn(i,j,k,q) = sv; }
                     for (int q = 3; q < 6; ++q) { sn(i,j,k,q) = amrex::Real(0.0); }
@@ -609,10 +626,10 @@ MacroscopicProperties::InitData (
                 //   coupling       : arithmetic (recorded as first order).
                 if (m_has_sig_tensor) {
                     warpx::subpixel::Mat3 sL{}, sR{};
-                    sL.m[0]=st1(ii,jm,k,0); sL.m[4]=st1(ii,jm,k,1); sL.m[8]=st1(ii,jm,k,2);
-                    sL.m[1]=sL.m[3]=st1(ii,jm,k,3); sL.m[2]=sL.m[6]=st1(ii,jm,k,4); sL.m[5]=sL.m[7]=st1(ii,jm,k,5);
-                    sR.m[0]=st1(ii,jp,k,0); sR.m[4]=st1(ii,jp,k,1); sR.m[8]=st1(ii,jp,k,2);
-                    sR.m[1]=sR.m[3]=st1(ii,jp,k,3); sR.m[2]=sR.m[6]=st1(ii,jp,k,4); sR.m[5]=sR.m[7]=st1(ii,jp,k,5);
+                    sL.m[0]=st1(iL,jL,k,0); sL.m[4]=st1(iL,jL,k,1); sL.m[8]=st1(iL,jL,k,2);
+                    sL.m[1]=sL.m[3]=st1(iL,jL,k,3); sL.m[2]=sL.m[6]=st1(iL,jL,k,4); sL.m[5]=sL.m[7]=st1(iL,jL,k,5);
+                    sR.m[0]=st1(iR,jR,k,0); sR.m[4]=st1(iR,jR,k,1); sR.m[8]=st1(iR,jR,k,2);
+                    sR.m[1]=sR.m[3]=st1(iR,jR,k,3); sR.m[2]=sR.m[6]=st1(iR,jR,k,4); sR.m[5]=sR.m[7]=st1(iR,jR,k,5);
                     warpx::subpixel::Mat3 s3{};
                     if (!iface_on_n) {
                         s3 = m1L ? sL : sR;
