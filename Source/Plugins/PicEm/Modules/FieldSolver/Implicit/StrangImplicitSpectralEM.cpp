@@ -21,7 +21,8 @@ void StrangImplicitSpectralEM::Define (WarpX* const a_WarpX, bool a_from_restart
     m_WarpX = a_WarpX;
 
     // Define E and Eold vectors
-    m_E.Define(m_WarpX, "Efield_fp");
+    BuildSolverVectorContext();
+    m_E.Define(m_solver_vec_context, "Efield_fp");
     m_Eold.Define(m_E);
 
     // Set initial values for E and Eold vectors

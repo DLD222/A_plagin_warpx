@@ -54,7 +54,8 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
     }
 
     // Define WarpXSolverVec instances for the magnetoinductive equation solution (Z) and source
-    m_Z.Define( m_WarpX, "Bfield_fp");
+    BuildSolverVectorContext();
+    m_Z.Define(m_solver_vec_context, "Bfield_fp");
     m_Z.zero();
     m_source.Define(m_Z);
     m_source.zero();

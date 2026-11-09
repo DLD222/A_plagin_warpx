@@ -35,7 +35,7 @@
 #include <vector>
 
 // forward declaration
-class WarpX;
+namespace warpx::runtime { struct SolverVectorContext; }
 
 /**
  * \brief
@@ -67,7 +67,7 @@ public:
 
     [[nodiscard]] inline bool IsDefined () const { return m_is_defined; }
 
-    void Define ( WarpX*  a_WarpX,
+    void Define ( warpx::runtime::SolverVectorContext const& a_context,
              const std::string&  a_vector_type_name,
              const std::string&  a_scalar_type_name = "none" );
 
@@ -76,7 +76,7 @@ public:
     {
         assertIsDefined( a_solver_vec );
         m_num_amr_levels = a_solver_vec.m_num_amr_levels;
-        Define( a_solver_vec.m_WarpX,
+        Define( *a_solver_vec.m_context,
                 a_solver_vec.getVectorType(),
                 a_solver_vec.getScalarType() );
     }
@@ -125,7 +125,7 @@ public:
             m_vector_type_name = a_solver_vec.m_vector_type_name;
             m_scalar_type_name = a_solver_vec.m_scalar_type_name;
             m_num_amr_levels = a_solver_vec.m_num_amr_levels;
-            m_WarpX = a_solver_vec.m_WarpX;
+            m_context = a_solver_vec.m_context;
             m_is_defined = true;
         }
         return *this;
@@ -320,7 +320,7 @@ public:
     void copyTo   (amrex::Real*) const;
 
     // return WarpX pointer
-    [[nodiscard]] auto getWarpX () const { return m_WarpX; }
+    [[nodiscard]] auto getContext () const { return m_context; }
 
     // return the number of AMR levels
     [[nodiscard]] auto numAMRLevels () const { return m_num_amr_levels; }
@@ -349,7 +349,7 @@ private:
      * Set by Define() and scoped to a single vector, so that a process running
      * several simulations one after another gets the instance it is solving for.
      */
-    WarpX* m_WarpX = nullptr;
+    warpx::runtime::SolverVectorContext const* m_context = nullptr;
 
     static std::unique_ptr<WarpXSolverDOF> m_dofs;
 };

@@ -1554,3 +1554,16 @@ void ImplicitSolver::GetPCMatrix (
     m_sparse_jacobian->GetMatrix(a_r_indices_g, a_num_nz, a_c_indices_g,
                                  a_a_ij, a_n, a_ncols_max);
 }
+
+void ImplicitSolver::BuildSolverVectorContext ()
+{
+    m_solver_vec_context.fields = &m_WarpX->m_fields;
+    m_solver_vec_context.field_dot_mask =
+        [this] (warpx::fields::FieldType field_type, int lev, int dir) {
+            return m_WarpX->getFieldDotMaskPointer(
+                field_type, lev, ablastr::fields::Direction{dir});
+        };
+    m_solver_vec_context.periodicity = [this] (int lev) {
+        return m_WarpX->Geom(lev).periodicity();
+    };
+}

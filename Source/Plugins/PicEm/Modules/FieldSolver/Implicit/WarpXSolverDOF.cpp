@@ -6,6 +6,8 @@
  */
 #include "WarpX.H"
 #include "FieldSolver/Implicit/WarpXSolverDOF.H"
+
+#include "Runtime/SolverVectorContext.H"
 #include "Utils/TextMsg.H"
 
 #include <ablastr/utils/SignalHandling.H>
@@ -16,7 +18,7 @@
 using warpx::fields::FieldType;
 using namespace amrex;
 
-void WarpXSolverDOF::Define ( WarpX* const        a_WarpX,
+void WarpXSolverDOF::Define ( warpx::runtime::SolverVectorContext const& a_context,
                               const int           a_num_amr_levels,
                               const std::string&  a_vector_type_name,
                               const std::string&  a_scalar_type_name )
@@ -55,7 +57,7 @@ void WarpXSolverDOF::Define ( WarpX* const        a_WarpX,
             "WarpXSolverDOF::Define() called with array_type not an array field");
 
         for (int lev = 0; lev < a_num_amr_levels; ++lev) {
-            const ablastr::fields::VectorField this_array = a_WarpX->m_fields.get_alldirs(a_vector_type_name, lev);
+            const ablastr::fields::VectorField this_array = a_context.fields->get_alldirs(a_vector_type_name, lev);
             for (int n = 0; n < 3; n++) {
                 auto ncomp = this_array[n]->nComp();
                 m_array[lev][n] = std::make_unique<amrex::iMultiFab>(this_array[n]->boxArray(),
@@ -63,7 +65,7 @@ void WarpXSolverDOF::Define ( WarpX* const        a_WarpX,
                                                                      2*ncomp, // {local, global} for each comp
                                                                      this_array[n]->nGrowVect() );
 
-                const auto* mask = a_WarpX->getFieldDotMaskPointer(m_array_type, lev, ablastr::fields::Direction{n});
+                const auto* mask = a_context.field_dot_mask(m_array_type, lev, n);
                 fill_local_dof(*m_array[lev][n], *mask);
             }
         }
@@ -78,14 +80,14 @@ void WarpXSolverDOF::Define ( WarpX* const        a_WarpX,
             "WarpXSolverDOF::Define() called with scalar_type not a scalar field ");
 
         for (int lev = 0; lev < a_num_amr_levels; ++lev) {
-            const amrex::MultiFab* this_mf = a_WarpX->m_fields.get(a_scalar_type_name,lev);
+            const amrex::MultiFab* this_mf = a_context.fields->get(a_scalar_type_name,lev);
             auto ncomp = this_mf->nComp();
             m_scalar[lev] = std::make_unique<amrex::iMultiFab>(this_mf->boxArray(),
                                                                this_mf->DistributionMap(),
                                                                2*ncomp, // {local, global} for each comp
                                                                this_mf->nGrowVect() );
 
-            const auto* mask = a_WarpX->getFieldDotMaskPointer(m_scalar_type, lev, ablastr::fields::Direction{0});
+            const auto* mask = a_context.field_dot_mask(m_scalar_type, lev, 0);
             fill_local_dof(*m_scalar[lev], *mask);
         }
 
@@ -97,13 +99,13 @@ void WarpXSolverDOF::Define ( WarpX* const        a_WarpX,
         for (int n = 0; n < 3; n++) {
             if (auto* dof = m_array[lev][n].get()) {
                 for (int comp = 1; comp < dof->nComp(); comp += 2) { // Only call this on global id
-                    dof->FillBoundaryAndSync(comp, 1, dof->nGrowVect(), a_WarpX->Geom(lev).periodicity());
+                    dof->FillBoundaryAndSync(comp, 1, dof->nGrowVect(), a_context.periodicity(lev));
                 }
             }
         }
         if (auto* dof = m_scalar[lev].get()) {
             for (int comp = 1; comp < dof->nComp(); comp += 2) { // Only call this on global id
-                dof->FillBoundaryAndSync(comp, 1, dof->nGrowVect(), a_WarpX->Geom(lev).periodicity());
+                dof->FillBoundaryAndSync(comp, 1, dof->nGrowVect(), a_context.periodicity(lev));
             }
         }
     }

@@ -14,7 +14,7 @@
 #include <string>
 
 // forward declaration
-class WarpX;
+namespace warpx::runtime { struct SolverVectorContext; }
 
 /**
  * \brief
@@ -33,7 +33,8 @@ struct WarpXSolverDOF
     amrex::Long m_nDoFs_g = 0; /*!< Global nDOF */
     amrex::Vector<amrex::Long> m_row_offsets; /*!< First global DOF of each process, and total */
 
-    void Define ( WarpX* , int, const std::string&, const std::string&);
+    void Define ( warpx::runtime::SolverVectorContext const&, int,
+                  const std::string&, const std::string&);
 
     void fill_local_dof (amrex::iMultiFab& dof, amrex::iMultiFab const& mask);
     void fill_global_dof ();

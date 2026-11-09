@@ -15,6 +15,8 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "FieldSolver/Implicit/SparseJacobianMatrix.H"
 
+#include "Runtime/SolverVectorContext.H"
+
 #include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "NonlinearSolvers/MatrixSolverOps.H"
 #include "NonlinearSolvers/NonlinearSolverLibrary.H"
@@ -256,6 +258,15 @@ protected:
      * \brief Pointer back to main WarpX class
      */
     WarpX* m_WarpX;
+
+    //! Everything the solver vectors need, captured from m_WarpX once.
+    warpx::runtime::SolverVectorContext m_solver_vec_context;
+
+protected:
+    //! Fill m_solver_vec_context from m_WarpX (call at the end of Define).
+    void BuildSolverVectorContext ();
+
+public:
 
     bool m_is_defined = false;
 
