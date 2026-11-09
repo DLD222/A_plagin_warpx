@@ -623,7 +623,7 @@ ctest --test-dir <build> -j 4 --timeout 2400
 |---|---|---|---|
 | 2D | `build_takeover`（openPMD=OFF） | 232 / 264 | 32 条，全部 openPMD 依赖 |
 | 2D | `build_2d_full`（openPMD+FFT） | 335 / 336 | 1 条平台校验和 |
-| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT） | 567 / 573 | 6 条（3 校验和 + 1 缺 Python 绑定 + 2 上游自带） |
+| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT） | 567 / 573 | 6 条（3 校验和 + 1 缺 Python 绑定 + 2 上游自带），与隐式搬迁前逐条一致 |
 | 2D PICMI | `build_py_opmd` | 72 / 75 | 3 条平台校验和 |
 
 **结论**：功能覆盖上没有缺口——上游 420 个测试定义全部存在且参数逐字相同，源文件可符号级对应，
