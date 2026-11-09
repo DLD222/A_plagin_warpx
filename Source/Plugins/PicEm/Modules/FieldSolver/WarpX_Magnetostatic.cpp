@@ -82,7 +82,8 @@ WarpX::AddMagnetostaticFieldLabFrame()
     // Store the boundary conditions for the field solver if they haven't been
     // stored yet
     if (!m_vector_poisson_boundary_handler.bcs_set) {
-        m_vector_poisson_boundary_handler.defineVectorPotentialBCs(Geom(0));
+        m_vector_poisson_boundary_handler.defineVectorPotentialBCs(
+            Geom(0), WarpX::field_boundary_lo, WarpX::field_boundary_hi);
     }
 
 #ifdef WARPX_DIM_RZ
@@ -290,7 +291,10 @@ WarpX::setVectorPotentialBC (ablastr::fields::MultiLevelVectorField const& A) co
     } // lev
 }
 
-void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs (const amrex::Geometry& geom)
+void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs (
+    const amrex::Geometry& geom,
+    amrex::Array<FieldBoundaryType,AMREX_SPACEDIM> const& field_boundary_lo,
+    amrex::Array<FieldBoundaryType,AMREX_SPACEDIM> const& field_boundary_hi)
 {
     for (int adim = 0; adim < 3; adim++) {
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
@@ -311,7 +315,7 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
             dim_start = 1;
 
             // handle the r_max boundary explicitly
-            if (WarpX::field_boundary_hi[0] == FieldBoundaryType::PEC) {
+            if (field_boundary_hi[0] == FieldBoundaryType::PEC) {
                 if (adim == 0) {
                     hibc[adim][0] = LinOpBCType::Neumann;
                     dirichlet_flag[adim][1] = false;
@@ -320,7 +324,7 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
                     dirichlet_flag[adim][1] = true;
                 }
             }
-            else if (WarpX::field_boundary_hi[0] == FieldBoundaryType::Neumann) {
+            else if (field_boundary_hi[0] == FieldBoundaryType::Neumann) {
                 hibc[adim][0] = LinOpBCType::Neumann;
                 dirichlet_flag[adim][1] = false;
             }
@@ -337,8 +341,8 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
             if (idim == 1) { ndotA = (adim == 2); }
 #endif
 
-            if ( WarpX::field_boundary_lo[idim] == FieldBoundaryType::Periodic
-                && WarpX::field_boundary_hi[idim] == FieldBoundaryType::Periodic ) {
+            if ( field_boundary_lo[idim] == FieldBoundaryType::Periodic
+                && field_boundary_hi[idim] == FieldBoundaryType::Periodic ) {
                 lobc[adim][idim] = LinOpBCType::Periodic;
                 hibc[adim][idim] = LinOpBCType::Periodic;
                 dirichlet_flag[adim][idim*2] = false;
@@ -346,7 +350,7 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
             }
             else {
                 has_non_periodic = true;
-                if ( WarpX::field_boundary_lo[idim] == FieldBoundaryType::PEC ) {
+                if ( field_boundary_lo[idim] == FieldBoundaryType::PEC ) {
                     if (ndotA) {
                         lobc[adim][idim] = LinOpBCType::Neumann;
                         dirichlet_flag[adim][idim*2] = false;
@@ -356,18 +360,18 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
                     }
                 }
 
-                else if ( WarpX::field_boundary_lo[idim] == FieldBoundaryType::Neumann ) {
+                else if ( field_boundary_lo[idim] == FieldBoundaryType::Neumann ) {
                     lobc[adim][idim] = LinOpBCType::Neumann;
                     dirichlet_flag[adim][idim*2] = false;
                 }
                 else {
                     WARPX_ABORT_WITH_MESSAGE(
                         "Field boundary conditions have to be either periodic, PEC or neumann "
-                        "when using the magnetostatic solver,  but they are " + amrex::getEnumNameString(WarpX::field_boundary_lo[idim])
+                        "when using the magnetostatic solver,  but they are " + amrex::getEnumNameString(field_boundary_lo[idim])
                     );
                 }
 
-                if ( WarpX::field_boundary_hi[idim] == FieldBoundaryType::PEC ) {
+                if ( field_boundary_hi[idim] == FieldBoundaryType::PEC ) {
                     if (ndotA) {
                         hibc[adim][idim] = LinOpBCType::Neumann;
                         dirichlet_flag[adim][idim*2+1] = false;
@@ -376,14 +380,14 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
                         dirichlet_flag[adim][idim*2+1] = true;
                     }
                 }
-                else if ( WarpX::field_boundary_hi[idim] == FieldBoundaryType::Neumann ) {
+                else if ( field_boundary_hi[idim] == FieldBoundaryType::Neumann ) {
                     hibc[adim][idim] = LinOpBCType::Neumann;
                     dirichlet_flag[adim][idim*2+1] = false;
                 }
                 else {
                     WARPX_ABORT_WITH_MESSAGE(
                         "Field boundary conditions have to be either periodic, PEC or neumann "
-                        "when using the magnetostatic solver,  but they are " + amrex::getEnumNameString(WarpX::field_boundary_lo[idim])
+                        "when using the magnetostatic solver,  but they are " + amrex::getEnumNameString(field_boundary_lo[idim])
                     );
                 }
             }

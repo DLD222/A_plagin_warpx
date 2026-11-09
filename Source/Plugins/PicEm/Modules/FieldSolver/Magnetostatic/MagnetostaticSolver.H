@@ -7,6 +7,8 @@
 #ifndef WARPX_MAGNETOSTATICSOLVER_H_
 #define WARPX_MAGNETOSTATICSOLVER_H_
 
+#include "Utils/WarpXAlgorithmSelection.H"
+
 #include <ablastr/fields/MultiFabRegister.H>
 
 #include <AMReX_Array.H>
@@ -30,7 +32,10 @@ namespace MagnetostaticSolver {
         std::array<std::array<bool, AMREX_SPACEDIM * 2>, 3> dirichlet_flag;
         bool has_non_periodic = false;
 
-        void defineVectorPotentialBCs (const amrex::Geometry& geom);
+        void defineVectorPotentialBCs (
+            const amrex::Geometry& geom,
+            amrex::Array<FieldBoundaryType,AMREX_SPACEDIM> const& field_boundary_lo,
+            amrex::Array<FieldBoundaryType,AMREX_SPACEDIM> const& field_boundary_hi);
     };
 
     /** use amrex to directly calculate the magnetic field since with EB's the

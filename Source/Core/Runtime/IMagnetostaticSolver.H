@@ -12,7 +12,12 @@
 
 #include "Utils/WarpXAlgorithmSelection.H"
 
+#include <AMReX_Array.H>
+#include <AMReX_BoxArray.H>
+#include <AMReX_DistributionMapping.H>
 #include <AMReX_Geometry.H>
+#include <AMReX_FArrayBox.H>
+#include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
 
 #include <functional>
@@ -36,6 +41,15 @@ struct MagnetostaticConfig
     ablastr::fields::MultiFabRegister* fields = nullptr;
     //! Geometry of level 0, for the boundary conditions.
     const amrex::Geometry* geom = nullptr;
+    //! Per-level AmrCore views the vector-Poisson solve needs.
+    const amrex::Vector<amrex::Geometry>* level_geom = nullptr;
+    const amrex::Vector<amrex::DistributionMapping>* level_dmap = nullptr;
+    const amrex::Vector<amrex::BoxArray>* level_grids = nullptr;
+    const amrex::Vector<amrex::IntVect>* ref_ratio = nullptr;
+    //! Time at the end of the step (the solve uses it for the EB path).
+    amrex::Real t_new = 0.0;
+    //! EB factories per level (only meaningful when EB is enabled at compile time).
+    std::function<amrex::FArrayBoxFactory const& (int lev)> eb_factory;
 
     int max_level = 0;
     int finest_level = 0;
@@ -51,8 +65,8 @@ struct MagnetostaticConfig
     std::function<void (ablastr::fields::MultiFabRegister&, int)> finalize_current;
 
     //! Field boundary types per direction, used to build the vector-potential BCs.
-    amrex::Vector<FieldBoundaryType> field_boundary_lo;
-    amrex::Vector<FieldBoundaryType> field_boundary_hi;
+    amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> field_boundary_lo{};
+    amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> field_boundary_hi{};
     //! Finite-order stencil of the field centering (EB path): orders and the
     //! device-side coefficients the kernel precomputes.
     int field_centering_nox = 0;
