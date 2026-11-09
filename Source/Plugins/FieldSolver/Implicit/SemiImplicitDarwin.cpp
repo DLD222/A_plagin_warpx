@@ -6,10 +6,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
 #include "Fields.H"
 #include "SemiImplicitDarwin.H"
-#include "Python/callbacks.H"
 #include "Utils/Parser/ParserUtils.H"
 
 #include <ablastr/warn_manager/WarnManager.H>
@@ -204,7 +202,7 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     AccumulateCurrentAndMassMatrices();
 
     // Python callback insertion
-    ExecutePythonCallback("afterdeposition");
+    if (m_services.run_python_callback) { m_services.run_python_callback("afterdeposition"); }
 
     // Populate the source vector
     // i.e. fill m_source with `2 * laplacian(B) + 2 * mu_0 curl(J)`

@@ -31,7 +31,6 @@
 #include "Fields.H"
 #include "Runtime/IMacroscopicProperties.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Filter/BilinearFilter.H"
 #include "Filter/NCIGodfreyFilter.H"
 #include "Initialization/ExternalField.H"

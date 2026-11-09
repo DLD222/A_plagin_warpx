@@ -6,7 +6,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
 #include "DarwinLinearFieldOperator.H"
 
 #include "Fields.H"

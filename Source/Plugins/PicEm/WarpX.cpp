@@ -49,7 +49,7 @@
 #include "Utils/WarpXUtil.H"
 
 #ifdef WARPX_HAVE_IMPLICIT_SOLVER
-#   include "FieldSolver/Implicit/ImplicitKernelServicesBuilder.H"
+#   include "FieldSolver/ImplicitKernelServicesBuilder.H"
 #   include "FieldSolver/Implicit/ImplicitSolverLibrary.H"
 #endif
 

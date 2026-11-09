@@ -11,6 +11,7 @@
 
 #include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
+#include "Python/callbacks.H"
 
 #include "Runtime/ImplicitKernelServices.H"
 
@@ -143,6 +144,10 @@ BuildImplicitKernelServices (WarpX& warpx)
         };
     s.push_particles_position = [&warpx] (amrex::Real dt) {
         warpx.GetPartContainer().PushX(dt);
+    };
+    s.run_python_callback = [&warpx] (char const* name) {
+        amrex::ignore_unused(warpx);
+        ExecutePythonCallback(name);
     };
     s.clear_particle_velocities = [&warpx] { warpx.ClearImplicitParticleVelocities(); };
     s.finish_velocity_update = [&warpx] { warpx.FinishImplicitVelocityUpdate(); };

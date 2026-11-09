@@ -116,6 +116,8 @@ struct ImplicitKernelServices
     std::function<void ()> clear_particle_velocities;
     std::function<void ()> finish_velocity_update;
     std::function<void ()> prepare_velocities_for_deposition;
+    //! Run a named Python callback hook (the "afterdeposition" insertion point).
+    std::function<void (char const* name)> run_python_callback;
     //! Register the particle attributes the implicit step keeps (x_n, u_n, nsuborbits).
     std::function<void (bool particle_suborbits)> add_implicit_particle_attributes;
     //! Count the particles of a species whose sub-orbit attribute reaches \c threshold.

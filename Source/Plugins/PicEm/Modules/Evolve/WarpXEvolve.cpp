@@ -27,7 +27,6 @@
 #       include "FieldSolver/PSATD/SpectralSolver.H"
 #   endif
 #endif
-#include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
 #include "Runtime/RuntimeConfig.H"
