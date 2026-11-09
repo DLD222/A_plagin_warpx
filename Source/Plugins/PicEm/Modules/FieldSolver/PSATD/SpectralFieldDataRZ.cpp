@@ -6,6 +6,8 @@
  */
 #include "SpectralFieldDataRZ.H"
 
+#include "Runtime/ILegacyRuntime.H"
+#include "Runtime/RuntimeData.H"
 #include "Utils/WarpXUtil.H"
 
 #include <ablastr/math/fft/AnyFFT.H>

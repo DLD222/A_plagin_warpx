@@ -15,6 +15,15 @@
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
+#ifdef WARPX_USE_FFT
+#   ifdef WARPX_DIM_RZ
+// The RZ PSATD rho filtering and the RZ PML checkpoint need the complete types;
+// WarpX.H only carries forward declarations for them.
+#       include "FieldSolver/PSATD/SpectralSolverRZ.H"
+#       include "BoundaryConditions/PML_RZ.H"
+#   endif
+#endif
+
 #ifdef WARPX_QED
 #include "Particles/ElementaryProcess/VirtualPhotonCreation.H"
 #endif

@@ -525,7 +525,9 @@ BTDiagnostics::DefineCellCenteredMultiFab(int lev)
     const amrex::DistributionMapping dmap = data().distributionMap(lev);
     const int ngrow = 1;
 #ifdef WARPX_DIM_RZ
-    const int ncomps = config_snapshot().ncomps * static_cast<int>(m_cellcenter_varnames.size());
+    // ncomps is computed during level allocation, which happens after the
+    // config snapshot is taken, so the live configuration must be asked here.
+    const int ncomps = config().ncomps() * static_cast<int>(m_cellcenter_varnames.size());
 #else
     const int ncomps = static_cast<int>(m_cellcenter_varnames.size());
 #endif

@@ -127,7 +127,8 @@ BackTransformFunctor::operator ()(amrex::MultiFab& mf_dst, int /*dcomp*/, const 
             const amrex::Array4<amrex::Real> src_arr = tmp[mfi].array();
             const amrex::Array4<amrex::Real> dst_arr = mf_dst[mfi].array();
 #ifdef WARPX_DIM_RZ
-            const int n_rz_comp = config_snapshot().ncomps;
+            // live value: the snapshot is taken before ncomps is known
+            const int n_rz_comp = config().ncomps();
 #endif
             amrex::ParallelFor( tbx, ncomp_dst,
                 [=] AMREX_GPU_DEVICE(int i, int j, int k, int n)
@@ -245,7 +246,7 @@ BackTransformFunctor::LorentzTransformZ (amrex::MultiFab& data, amrex::Real gamm
         const amrex::Real clight = PhysConst::c;
         const amrex::Real inv_clight = 1.0_rt/clight;
 #ifdef WARPX_DIM_RZ
-        const int n_rcomps = config_snapshot().ncomps;
+        const int n_rcomps = config().ncomps();  // live, see InitData()
         amrex::ParallelFor( tbx,
             [=] AMREX_GPU_DEVICE (int i, int j, int k)
             {
