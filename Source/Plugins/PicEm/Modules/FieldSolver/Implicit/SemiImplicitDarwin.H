@@ -10,7 +10,7 @@
 #define SEMI_IMPLICIT_DARWIN_H_
 
 #include "DarwinLinearFieldOperator.H"
-#include "WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 
 #include "NonlinearSolvers/LinearSolverLibrary.H"
 

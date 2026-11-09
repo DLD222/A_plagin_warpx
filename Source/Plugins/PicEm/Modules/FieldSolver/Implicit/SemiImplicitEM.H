@@ -7,7 +7,7 @@
 #ifndef SEMI_IMPLICIT_EM_H_
 #define SEMI_IMPLICIT_EM_H_
 
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 
 #include <AMReX_Array.H>
 #include <AMReX_MultiFab.H>

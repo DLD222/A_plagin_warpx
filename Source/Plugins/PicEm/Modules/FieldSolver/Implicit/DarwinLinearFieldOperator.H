@@ -9,7 +9,7 @@
 #ifndef WARPX_DARWIN_LINEAR_FIELD_OPERATOR_H_
 #define WARPX_DARWIN_LINEAR_FIELD_OPERATOR_H_
 
-#include "WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 
 #include "NonlinearSolvers/LinearFunction.H"
 

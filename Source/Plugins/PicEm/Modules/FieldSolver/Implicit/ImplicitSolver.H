@@ -17,7 +17,7 @@
 
 #include "Runtime/SolverVectorContext.H"
 
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 #include "NonlinearSolvers/MatrixSolverOps.H"
 #include "NonlinearSolvers/NonlinearSolverLibrary.H"
 

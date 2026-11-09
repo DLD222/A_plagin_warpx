@@ -6,7 +6,7 @@
  */
 
 #include "SparseJacobianMatrix.H"
-#include "WarpXSolverDOF.H"
+#include "Solvers/WarpXSolverDOF.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
 

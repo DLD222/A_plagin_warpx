@@ -4,8 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 
 #include "Runtime/SolverVectorContext.H"
 

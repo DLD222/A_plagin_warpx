@@ -6,7 +6,7 @@
  */
 
 #include "FieldSolver/Implicit/ImplicitSolver.H"
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 #include "NewtonSolverParams.H"
 #include "NonlinearSolver.H"
 #include "Preconditioner.H"

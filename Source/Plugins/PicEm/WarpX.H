@@ -53,7 +53,7 @@
 #include "Runtime/IReducedDiagsService.H"
 #include "Runtime/LevelResources.H"
 #include "Runtime/IMagnetostaticSolver.H"
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 #include "Filter/BilinearFilter.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Runtime/IParticleThermalizer.H"

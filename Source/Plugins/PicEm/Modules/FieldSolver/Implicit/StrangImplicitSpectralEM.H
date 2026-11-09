@@ -7,7 +7,7 @@
 #ifndef STRANG_IMPLICIT_SPECTRALEM_H_
 #define STRANG_IMPLICIT_SPECTRALEM_H_
 
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 
 #include <AMReX_Array.H>
 #include <AMReX_MultiFab.H>

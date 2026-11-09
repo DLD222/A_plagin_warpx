@@ -8,7 +8,7 @@
 #define WarpXSolverVec_H_
 
 #include "Utils/TextMsg.H"
-#include "FieldSolver/Implicit/WarpXSolverDOF.H"
+#include "Solvers/WarpXSolverDOF.H"
 #include "Fields.H"
 
 #include <ablastr/utils/SignalHandling.H>

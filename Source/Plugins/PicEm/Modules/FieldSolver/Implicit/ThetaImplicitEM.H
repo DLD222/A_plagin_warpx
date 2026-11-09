@@ -7,7 +7,7 @@
 #ifndef THETA_IMPLICIT_EM_H_
 #define THETA_IMPLICIT_EM_H_
 
-#include "FieldSolver/Implicit/WarpXSolverVec.H"
+#include "Solvers/WarpXSolverVec.H"
 #include "ImplicitSolver.H"
 
 #include <AMReX_Array.H>
