@@ -10,6 +10,12 @@
 
 #include "BoundaryConditions/PML.H"
 #include "BoundaryConditions/PMLComponent.H"
+#ifdef WARPX_USE_FFT
+// The PML still constructs the concrete spectral solver; the member and the
+// helpers only know the contract.  Construction moves to the field-solver
+// plugin factory in the next step.
+#   include "FieldSolver/PSATD/SpectralSolver.H"
+#endif
 #include "Fields.H"
 #ifdef AMREX_USE_EB
 #   include "EmbeddedBoundary/EmbeddedBoundaryInit.H"
@@ -943,10 +949,12 @@ PML::PML (const int lev, const BoxArray& grid_ba,
         amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
         amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
         realspace_ba.enclosedCells().grow(nge); // cell-centered + guard cells
-        spectral_solver_fp = std::make_unique<SpectralSolver>(realspace_ba, dm,
+        spectral_solver_fp = std::unique_ptr<warpx::runtime::ISpectralSolver>(
+            std::make_unique<SpectralSolver>(realspace_ba, dm,
             nox_fft, noy_fft, noz_fft, grid_type, v_galilean,
             v_comoving_zero, dx, dt, in_pml, periodic_single_box, update_with_rho,
-            fft_do_time_averaging, psatd_solution_type, time_dependency_J, time_dependency_rho, m_dive_cleaning, m_divb_cleaning);
+            fft_do_time_averaging, psatd_solution_type, time_dependency_J, time_dependency_rho,
+            m_dive_cleaning, m_divb_cleaning));
 #endif
     }
 
@@ -1088,10 +1096,12 @@ PML::PML (const int lev, const BoxArray& grid_ba,
             amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
             amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
             realspace_cba.enclosedCells().grow(nge); // cell-centered + guard cells
-            spectral_solver_cp = std::make_unique<SpectralSolver>(realspace_cba, cdm,
+            spectral_solver_cp = std::unique_ptr<warpx::runtime::ISpectralSolver>(
+                std::make_unique<SpectralSolver>(realspace_cba, cdm,
                 nox_fft, noy_fft, noz_fft, grid_type, v_galilean,
                 v_comoving_zero, cdx, dt, in_pml, periodic_single_box, update_with_rho,
-                fft_do_time_averaging, psatd_solution_type, time_dependency_J, time_dependency_rho, m_dive_cleaning, m_divb_cleaning);
+                fft_do_time_averaging, psatd_solution_type, time_dependency_J,
+                time_dependency_rho, m_dive_cleaning, m_divb_cleaning));
 #endif
         }
     }
@@ -1374,7 +1384,7 @@ PML::PushPSATD (ablastr::fields::MultiFabRegister& fields, const int lev)
 void
 PushPMLPSATDSinglePatch (
     const int lev,
-    SpectralSolver& solver,
+    warpx::runtime::ISpectralSolver& solver,
     ablastr::fields::VectorField& pml_E,
     ablastr::fields::VectorField& pml_B,
     ablastr::fields::ScalarField pml_F,

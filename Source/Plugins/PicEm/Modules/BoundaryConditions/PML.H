@@ -16,7 +16,7 @@
 namespace warpx::runtime { struct RuntimeContext; class RuntimeData; }
 
 #ifdef WARPX_USE_FFT
-#   include "FieldSolver/PSATD/SpectralSolver.H"
+#   include "Runtime/ISpectralSolver.H"
 #endif
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -152,8 +152,8 @@ private:
     std::array< std::unique_ptr<amrex::iMultiFab>, 3 > m_eb_update_E_cp;
 
 #ifdef WARPX_USE_FFT
-    std::unique_ptr<SpectralSolver> spectral_solver_fp;
-    std::unique_ptr<SpectralSolver> spectral_solver_cp;
+    std::unique_ptr<warpx::runtime::ISpectralSolver> spectral_solver_fp;
+    std::unique_ptr<warpx::runtime::ISpectralSolver> spectral_solver_cp;
 #endif
 
     // Factory for field data
@@ -171,7 +171,7 @@ private:
 #ifdef WARPX_USE_FFT
 void PushPMLPSATDSinglePatch (
     int lev,
-    SpectralSolver& solver,
+    warpx::runtime::ISpectralSolver& solver,
     ablastr::fields::VectorField& pml_E,
     ablastr::fields::VectorField& pml_B,
     ablastr::fields::ScalarField pml_F,
