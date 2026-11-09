@@ -10,6 +10,8 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 
+#include "Utils/WarpXAlgorithmSelection.H"
+
 #include <AMReX_Geometry.H>
 #include <AMReX_REAL.H>
 
@@ -47,6 +49,14 @@ struct MagnetostaticConfig
     std::function<void (ablastr::fields::MultiFabRegister&, int, int)> sync_current;
     //! Applies the RZ inverse-volume scaling to the current (no-op elsewhere).
     std::function<void (ablastr::fields::MultiFabRegister&, int)> finalize_current;
+
+    //! Field boundary types per direction, used to build the vector-potential BCs.
+    amrex::Vector<FieldBoundaryType> field_boundary_lo;
+    amrex::Vector<FieldBoundaryType> field_boundary_hi;
+    //! Finite-order stencil of the field centering (EB path).
+    int field_centering_nox = 0;
+    int field_centering_noy = 0;
+    int field_centering_noz = 0;
 
     amrex::Real required_precision = 0.0;
     amrex::Real absolute_tolerance = 0.0;
