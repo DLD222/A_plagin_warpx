@@ -227,3 +227,17 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
    （`register_species`/`allocate_collision_data`）实现为空操作即可；`RuntimeData` 的粒子/混合/材料
    访问器已改为**可选默认实现**（无粒子内核无需伪造，访问时明确报告"本内核无粒子"）。
    仍需改进（非阻塞）：内核契约的命名与那三个 PIC 方法应拆成"通用内核 + 可选粒子能力"。
+
+
+### 2026-11-09 末次验证（RZ 诊断族全绿）
+
+修复「配置快照过期」的第三、四处（BTDiagnostics 缓冲区尺寸、后处理核的模式循环）后，
+以下用例 **run/analysis/checksum 全部通过**：
+
+- `test_rz_btd`
+- `test_rz_embedded_boundary_diffraction`
+- `test_rz_laser_acceleration`（含 `_opmd`）
+- `test_rz_projection_div_cleaner`
+
+剩余仅有：`*_boosted_opmd`（需 `WarpX_FFT=ON` 构建）、`load_external_field` 系列（缺示例数据集）、
+`test_3d_particles_in_pml_mr`（并行下偶发超时）。
