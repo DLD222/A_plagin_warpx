@@ -75,6 +75,21 @@ python3 Tools/Modularization/check_build_boundaries.py  # 构建层次与层目�
 `WarpXParticleContainer`），因此**必须先把这些类型搬进核心或抽象掉**，才能定义
 `IImplicitKernelServices`（约 40 个方法）并让求解器改走契约。
 
+### 实测结论：还需要 6 个"粒子级循环"服务项
+
+第一次尝试把 40 个调用点直接换成服务袋时，编译暴露了真实缺口：求解器里有 **5 处
+`for (auto const& pc : GetPartContainer())` 循环**和 1 处全体沉积，循环体内直接操作
+具体容器（`pti.GetAttribs()`、`GetRealSoANames()`、`PIdx::ux` 等），**无法经通用契约表达**。
+正确做法是把每个循环体整体作为一个内核操作搬进服务袋：
+
+| 待加服务项 | 来源 |
+|---|---|
+| `zero_implicit_velocity_correction` | `SemiImplicitDarwin.cpp:532` |
+| `finish_velocity_update` | `SemiImplicitDarwin.cpp:569` |
+| `convert_velocity_to_time_centered` | `SemiImplicitDarwin.cpp:314` |
+| `deposit_current_all_species` | `SemiImplicitDarwin.cpp:369` |
+| `count_suborbits` / `species_has_attrib` 已经加过 | `ImplicitSolver.cpp:34,115` |
+
 **这不是"以后再说"，而是有明确前置条件的工程任务**：先把 `WarpXSolverVec` 抽象为
 核心可用的"求解向量"，再按 40 个成员逐组定义服务，最后才搬文件。
 任何尝试跳步的做法都会得到"假拆分"（接口存在但内部仍 `WarpX*`）。
