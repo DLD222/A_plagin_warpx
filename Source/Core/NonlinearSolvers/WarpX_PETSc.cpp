@@ -5,7 +5,6 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "FieldSolver/Implicit/ImplicitSolver.H"
 #include "Solvers/WarpXSolverVec.H"
 #include "NewtonSolverParams.H"
 #include "NonlinearSolver.H"

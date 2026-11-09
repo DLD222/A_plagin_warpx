@@ -8,7 +8,6 @@
 #ifndef PETSC_KSP_WRAPPER_H_
 #define PETSC_KSP_WRAPPER_H_
 
-#include "Initialization/WarpXInit.H"
 #include "LinearSolver.H"
 #include "WarpX_PETSc.H"
 
