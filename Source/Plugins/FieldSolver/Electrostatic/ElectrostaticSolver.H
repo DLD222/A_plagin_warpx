@@ -157,6 +157,8 @@ public:
 
     void definePhiBCs (const amrex::Geometry& geom) override
     { m_poisson_boundary_handler->DefinePhiBCs(geom); }
+    void setPotentialOnEB (std::string const& potential) override
+    { m_poisson_boundary_handler->setPotentialEB(potential); }
 
     [[nodiscard]] const ablastr::fields::MLMGOptions& mlmgOptions () const override
     { return m_mlmg_options; }

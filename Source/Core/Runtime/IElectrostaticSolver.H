@@ -32,6 +32,9 @@ public:
                              bool is_igf_2d_slices,
                              std::optional<ablastr::fields::MultiLevelVectorField> efield = std::nullopt) const = 0;
     virtual void definePhiBCs (const amrex::Geometry& geom) = 0;
+
+    //! Set the potential applied on embedded boundaries (the Python API exposes it).
+    virtual void setPotentialOnEB (std::string const& potential) = 0;
     //! MLMG options used when solving for phi (generic accessor: callers must
     //! not need the concrete solver type).
     [[nodiscard]] virtual const ablastr::fields::MLMGOptions& mlmgOptions () const = 0;

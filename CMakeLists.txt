@@ -501,7 +501,7 @@ foreach(D IN LISTS WarpX_DIMS)
 
     # build Python module (this is always a shared library)
     if(WarpX_PYTHON)
-        add_library(pyWarpX_${SD} MODULE Source/Plugins/PicEm/Python/pyWarpX.cpp)
+        add_library(pyWarpX_${SD} MODULE Source/Plugins/PicEm/Modules/Python/pyWarpX.cpp)
         add_library(WarpX::pyWarpX_${SD} ALIAS pyWarpX_${SD})
         target_link_libraries(pyWarpX_${SD} PUBLIC lib_${SD})
         set(_BUILDINFO_SRC pyWarpX_${SD})

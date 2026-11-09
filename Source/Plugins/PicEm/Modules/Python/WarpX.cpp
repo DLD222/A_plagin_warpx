@@ -14,7 +14,7 @@
 #include <EmbeddedBoundary/WarpXFaceInfoBox.H>
 #include <FieldSolver/FiniteDifference/FiniteDifferenceSolver.H>
 #include <FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H>
-#include <FieldSolver/FiniteDifference/HybridPICModel/HybridPICModel.H>
+#include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include <FieldSolver/Implicit/ImplicitSolver.H>
 #ifdef WARPX_USE_FFT
 #   include <FieldSolver/PSATD/SpectralKSpace.H>
@@ -266,7 +266,7 @@ void init_WarpX (py::module& m)
         )
         .def("set_potential_on_eb",
             [](WarpX& wx, std::string potential) {
-                wx.GetElectrostaticSolverConcrete()->m_poisson_boundary_handler->setPotentialEB(potential);
+                wx.GetElectrostaticSolver().setPotentialOnEB(potential);
             },
             py::arg("potential"),
             "Sets the EB potential string and updates the function parser."
