@@ -337,11 +337,12 @@ Python 绑定在插件化重构后**曾完全不可用**（`WarpX_PYTHON=ON` 连
 | Python 路径不经 `Runtime`，故无运行时上下文 → `FlushFormat: runtime context/data is not set` | `InitData` 在上下文为空时自建 legacy 上下文（data/host/config/时间与帧状态） |
 | 同上，但缺配置快照 → "Te diagnostic requires the hybrid-PIC solver" | legacy 上下文补 `RuntimeConfigSnapshot::FromLegacy()` |
 
-**2D PICMI 套件（75 个测试）**：74 失败 → 47 → 38 → **19 失败（56 通过）**。
+**2D PICMI 套件（75 个测试）**：74 失败 → 47 → 38 → 19 → **3 失败（72 通过，96%）**。
+最后那一步是 `MultiParticleContainer::get` 的绑定：它直接绑定到
+`GetParticleContainerFromName`，而该函数在插件化后返回核心接口 `IParticleContainer&`，
+pybind 于是回退到动态类型 `PhysicalParticleContainer` 并报"未注册"。
+改为在绑定处 `dynamic_cast` 到 `WarpXParticleContainer&`（PIC 内核只会存这一种）。
 
-剩余 19 条构成：10 平台校验和、2 下游分析、**7 条真实缺口**——
-`TypeError: Unregistered type : PhysicalParticleContainer`
-（`ParticleBoundaryBuffer::get_particle_container` 返回 `WarpXParticleContainer::Base&`，
-而 pybind 在动态类型 `PhysicalParticleContainer` 上找不到注册项）。
-该绑定与上游 26.10 **逐字相同**，缓冲区成员类型也相同，因此需进一步确认是本分支的类型层次差异
-（`IParticleContainer` 插入）还是 pybind/AMReX 版本差异。
+剩余 3 条**全部是校验和**（相对误差 1e-3~6e-3，`run` 与 `analysis` 均通过），
+属于与 C++ 套件一致的平台校验和类，不是功能缺口。
+另有 10 条校验和差异在修复前统计中已归入该类。
