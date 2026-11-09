@@ -408,6 +408,10 @@ foreach(D IN LISTS WarpX_DIMS)
                 warpx_electrostatic_anchor
                 warpx_finitedifference_anchor
                 warpx_macroscopic_anchor)
+            if(WarpX_FFT)
+                # The spectral solver is registered by the same plugin.
+                list(APPEND _WARPX_PLUGIN_ANCHORS warpx_spectral_anchor)
+            endif()
         endif()
         if(WarpX_PLUGIN_DIAGNOSTICS)
             list(APPEND _WARPX_PLUGIN_ANCHORS warpx_diagnostics_anchor)

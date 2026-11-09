@@ -14,7 +14,7 @@
 // The PML still constructs the concrete spectral solver; the member and the
 // helpers only know the contract.  Construction moves to the field-solver
 // plugin factory in the next step.
-#   include "FieldSolver/PSATD/SpectralSolver.H"
+#   include "Runtime/SpectralSolverFactory.H"
 #endif
 #include "Fields.H"
 #ifdef AMREX_USE_EB
@@ -949,12 +949,29 @@ PML::PML (const int lev, const BoxArray& grid_ba,
         amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
         amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
         realspace_ba.enclosedCells().grow(nge); // cell-centered + guard cells
-        spectral_solver_fp = std::unique_ptr<warpx::runtime::ISpectralSolver>(
-            std::make_unique<SpectralSolver>(realspace_ba, dm,
-            nox_fft, noy_fft, noz_fft, grid_type, v_galilean,
-            v_comoving_zero, dx, dt, in_pml, periodic_single_box, update_with_rho,
-            fft_do_time_averaging, psatd_solution_type, time_dependency_J, time_dependency_rho,
-            m_dive_cleaning, m_divb_cleaning));
+        warpx::runtime::SpectralSolverConfig config;
+        config.realspace_ba = &realspace_ba;
+        config.dm = &dm;
+        config.norder_x = nox_fft;
+        config.norder_y = noy_fft;
+        config.norder_z = noz_fft;
+        config.grid_type = grid_type;
+        config.v_galilean = v_galilean;
+        config.v_comoving = v_comoving_zero;
+        config.dx = dx;
+        config.dt = dt;
+        config.pml = in_pml;
+        config.periodic_single_box = periodic_single_box;
+        config.update_with_rho = update_with_rho;
+        config.fft_do_time_averaging = fft_do_time_averaging;
+        config.psatd_solution_type = psatd_solution_type;
+        config.time_dependency_J = time_dependency_J;
+        config.time_dependency_rho = time_dependency_rho;
+        config.dive_cleaning = m_dive_cleaning;
+        config.divb_cleaning = m_divb_cleaning;
+        spectral_solver_fp = warpx::runtime::create_spectral_solver(config);
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(spectral_solver_fp != nullptr,
+            "the field-solver plugin does not provide a spectral solver (PML)");
 #endif
     }
 
@@ -1096,12 +1113,29 @@ PML::PML (const int lev, const BoxArray& grid_ba,
             amrex::Vector<amrex::Real> const v_galilean = data().vGalilean();
             amrex::Vector<amrex::Real> const v_comoving_zero = {0., 0., 0.};
             realspace_cba.enclosedCells().grow(nge); // cell-centered + guard cells
-            spectral_solver_cp = std::unique_ptr<warpx::runtime::ISpectralSolver>(
-                std::make_unique<SpectralSolver>(realspace_cba, cdm,
-                nox_fft, noy_fft, noz_fft, grid_type, v_galilean,
-                v_comoving_zero, cdx, dt, in_pml, periodic_single_box, update_with_rho,
-                fft_do_time_averaging, psatd_solution_type, time_dependency_J,
-                time_dependency_rho, m_dive_cleaning, m_divb_cleaning));
+            warpx::runtime::SpectralSolverConfig config_cp;
+            config_cp.realspace_ba = &realspace_cba;
+            config_cp.dm = &cdm;
+            config_cp.norder_x = nox_fft;
+            config_cp.norder_y = noy_fft;
+            config_cp.norder_z = noz_fft;
+            config_cp.grid_type = grid_type;
+            config_cp.v_galilean = v_galilean;
+            config_cp.v_comoving = v_comoving_zero;
+            config_cp.dx = cdx;
+            config_cp.dt = dt;
+            config_cp.pml = in_pml;
+            config_cp.periodic_single_box = periodic_single_box;
+            config_cp.update_with_rho = update_with_rho;
+            config_cp.fft_do_time_averaging = fft_do_time_averaging;
+            config_cp.psatd_solution_type = psatd_solution_type;
+            config_cp.time_dependency_J = time_dependency_J;
+            config_cp.time_dependency_rho = time_dependency_rho;
+            config_cp.dive_cleaning = m_dive_cleaning;
+            config_cp.divb_cleaning = m_divb_cleaning;
+            spectral_solver_cp = warpx::runtime::create_spectral_solver(config_cp);
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE(spectral_solver_cp != nullptr,
+                "the field-solver plugin does not provide a spectral solver (PML, coarse)");
 #endif
         }
     }

@@ -18,6 +18,7 @@ Runtime.cpp
         StateRegistry.cpp
         ScalarRegistry.cpp
         SpectralFieldIndex.cpp
+        SpectralSolverFactory.cpp
         ServiceFactory.cpp
     )
     target_link_libraries(warpx_core_${SD} PRIVATE ${CMAKE_DL_LIBS})

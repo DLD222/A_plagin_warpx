@@ -10,6 +10,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/SpectralSolverFactory.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/StateRegistry.H"
 #include "WarpX.H"
@@ -3370,28 +3371,33 @@ void WarpX::AllocLevelSpectralSolverRZ (
         solver_dt /= 2.;
     }
 
-    auto pss = std::make_unique<SpectralSolverRZ>(lev,
-                                                  realspace_ba,
-                                                  dm,
-                                                  n_rz_azimuthal_modes,
-                                                  noz_fft,
-                                                  grid_type,
-                                                  m_v_galilean,
-                                                  dx_vect,
-                                                  solver_dt,
-                                                  ::isAnyBoundaryPML(field_boundary_lo, field_boundary_hi),
-                                                  update_with_rho,
-                                                  fft_do_time_averaging,
-                                                  time_dependency_J,
-                                                  time_dependency_rho,
-                                                  do_dive_cleaning,
-                                                  do_divb_cleaning,
-                                                  GetRuntimeContext() != nullptr
-                                                      ? GetRuntimeContext()->data : nullptr);
-    if (use_kspace_filter) {
-        pss->InitFilter(filter_npass_each_dir, use_filter_compensation);
-    }
-    spectral_solver[lev] = std::move(pss);
+    warpx::runtime::SpectralSolverConfig config;
+    config.lev = lev;
+    config.realspace_ba = &realspace_ba;
+    config.dm = &dm;
+    config.n_rz_azimuthal_modes = n_rz_azimuthal_modes;
+    config.norder_z = noz_fft;
+    config.grid_type = grid_type;
+    config.v_galilean = m_v_galilean;
+    config.dx = dx_vect;
+    config.dt = solver_dt;
+    config.pml = ::isAnyBoundaryPML(field_boundary_lo, field_boundary_hi);
+    config.update_with_rho = update_with_rho;
+    config.fft_do_time_averaging = fft_do_time_averaging;
+    config.time_dependency_J = time_dependency_J;
+    config.time_dependency_rho = time_dependency_rho;
+    config.dive_cleaning = do_dive_cleaning;
+    config.divb_cleaning = do_divb_cleaning;
+    config.use_kspace_filter = use_kspace_filter;
+    config.filter_npass_each_dir = filter_npass_each_dir;
+    config.use_filter_compensation = use_filter_compensation;
+    config.context = GetRuntimeContext();
+
+    spectral_solver[lev] = warpx::runtime::create_spectral_solver(config);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        spectral_solver[lev] != nullptr,
+        "the field-solver plugin does not provide a spectral solver: "
+        "rebuild with WarpX_PLUGIN_FIELDSOLVER=ON or do not request PSATD");
 }
 #   else
 /* \brief Allocate spectral Maxwell solver at a level
@@ -3430,27 +3436,37 @@ void WarpX::AllocLevelSpectralSolver (
         solver_dt /= 2.;
     }
 
-    auto pss = std::make_unique<SpectralSolver>(realspace_ba,
-                                                dm,
-                                                nox_fft,
-                                                noy_fft,
-                                                noz_fft,
-                                                grid_type,
-                                                m_v_galilean,
-                                                m_v_comoving,
-                                                dx_vect,
-                                                solver_dt,
-                                                pml_flag,
-                                                fft_periodic_single_box,
-                                                update_with_rho,
-                                                fft_do_time_averaging,
-                                                m_psatd_solution_type,
-                                                time_dependency_J,
-                                                time_dependency_rho,
-                                                do_dive_cleaning,
-                                                do_divb_cleaning,
-                                                m_runtime_context);
-    spectral_solver[lev] = std::move(pss);
+    warpx::runtime::SpectralSolverConfig config;
+    config.lev = lev;
+    config.realspace_ba = &realspace_ba;
+    config.dm = &dm;
+    config.norder_x = nox_fft;
+    config.norder_y = noy_fft;
+    config.norder_z = noz_fft;
+    config.grid_type = grid_type;
+    config.v_galilean = m_v_galilean;
+    config.v_comoving = m_v_comoving;
+    config.dx = dx_vect;
+    config.dt = solver_dt;
+    config.pml = pml_flag;
+    config.periodic_single_box = fft_periodic_single_box;
+    config.update_with_rho = update_with_rho;
+    config.fft_do_time_averaging = fft_do_time_averaging;
+    config.psatd_solution_type = m_psatd_solution_type;
+    config.time_dependency_J = time_dependency_J;
+    config.time_dependency_rho = time_dependency_rho;
+    config.dive_cleaning = do_dive_cleaning;
+    config.divb_cleaning = do_divb_cleaning;
+    config.use_kspace_filter = use_kspace_filter;
+    config.filter_npass_each_dir = filter_npass_each_dir;
+    config.use_filter_compensation = use_filter_compensation;
+    config.context = GetRuntimeContext();
+
+    spectral_solver[lev] = warpx::runtime::create_spectral_solver(config);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        spectral_solver[lev] != nullptr,
+        "the field-solver plugin does not provide a spectral solver: "
+        "rebuild with WarpX_PLUGIN_FIELDSOLVER=ON or do not request PSATD");
 }
 #   endif
 #endif
