@@ -96,6 +96,15 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
 `SetupPos` / `num_already_flushed` 与上游**逐行相同**（只有类型名和 `data()`/config 取值方式不同），
 因此差异更可能在**送进写出器的数据**（每次 flush 的粒子数、要写的场/物种集合），而不是写出器本身。
 
+**同一类根因的第二处（2026-11-09）**：`BackTransformFunctor::InitData` 用
+`i / config_snapshot().ncomps` 把输出变量映射到字段名表。快照里的 `ncomps` 此时仍是默认 1，
+索引越界后 `m_varnames_fields[field_id]` 越界 → **段错误**（栈在 `InitData`）。
+改为读实时 `RuntimeConfig` 后，RZ BTD 的运行阶段恢复正常。
+
+**共性结论**：凡是"在 `InitData` 期间就用到 `ncomps`/模式数"的代码，都不能读配置快照，
+必须读实时配置——因为快照在 `InitData` 之前生成，而这两个值要到层分配时才计算。
+这条已作为规则记录，后续新增诊断代码需遵守。
+
 **根因已定位并修复（2026-11-09）**：`SetupMeshComp` 用**配置快照**里的 `ncomps` 决定 RZ 数据集的
 模式维长度，而快照是在 `InitData` 之前取的——`WarpX::ncomps` 要到层分配时才算出（`2*nmodes-1=3`），
 第 0 步的诊断写出却发生在同一个 `InitData` 里，于是数据集按 1 个分量声明，写第 2 个分量就越界。
