@@ -9,6 +9,8 @@
 
 #include "SpectralSolver_fwd.H"
 
+#include "Runtime/ISpectralSolver.H"
+
 #include "SpectralAlgorithms/SpectralBaseAlgorithm.H"
 #include "SpectralFieldData.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -33,7 +35,7 @@
  * to Fourier-transform the fields between real space and spectral space
  * and to update fields in spectral space over one time step.
  */
-class SpectralSolver
+class SpectralSolver : public warpx::runtime::ISpectralSolver
 {
     public:
 
@@ -105,7 +107,7 @@ class SpectralSolver
         void ForwardTransform (int lev,
                                const amrex::MultiFab& mf,
                                int field_index,
-                               int i_comp = 0);
+                               int i_comp = 0) override;
 
         /**
          * \brief Transform spectral field specified by `field_index` back to
@@ -115,12 +117,12 @@ class SpectralSolver
                                 amrex::MultiFab& mf,
                                 int field_index,
                                 const amrex::IntVect& fill_guards,
-                                int i_comp=0 );
+                                int i_comp=0 ) override;
 
         /**
          * \brief Update the fields in spectral space, over one timestep
          */
-        void pushSpectralFields();
+        void pushSpectralFields (bool doing_pml = false) override;
 
         /**
           * \brief Public interface to call the member function ComputeSpectralDivE
@@ -129,7 +131,7 @@ class SpectralSolver
         void ComputeSpectralDivE (
             int lev,
             ablastr::fields::VectorField const & Efield,
-            amrex::MultiFab& divE);
+            amrex::MultiFab& divE) override;
 
         /**
          * \brief Public interface to call the virtual function \c CurrentCorrection,
@@ -137,7 +139,7 @@ class SpectralSolver
          * by its derived classes (e.g. PsatdAlgorithm, PsatdAlgorithmComoving, etc.), from
          * objects of class SpectralSolver through the private unique pointer \c algorithm
          */
-        void CurrentCorrection ();
+        void CurrentCorrection () override;
 
         /**
          * \brief Public interface to call the virtual function \c VayDeposition,
@@ -145,7 +147,7 @@ class SpectralSolver
          * derived classes, from objects of class SpectralSolver through the private
          * unique pointer \c algorithm.
          */
-        void VayDeposition ();
+        void VayDeposition () override;
 
         /**
          * \brief Copy spectral data from component \c src_comp to component \c dest_comp
@@ -154,14 +156,14 @@ class SpectralSolver
          * \param[in] src_comp  component of the source FabArray from which the data are copied
          * \param[in] dest_comp component of the destination FabArray where the data are copied
          */
-        void CopySpectralDataComp (int src_comp, int dest_comp);
+        void CopySpectralDataComp (int src_comp, int dest_comp) override;
 
         /**
          * \brief Set to zero the data on component \c icomp of \c field_data.fields
          *
          * \param[in] icomp component of the FabArray where the data are set to zero
          */
-        void ZeroOutDataComp (int icomp);
+        void ZeroOutDataComp (int icomp) override;
 
         /**
          * \brief Scale the data on component \c icomp of \c field_data.fields
@@ -170,9 +172,13 @@ class SpectralSolver
          * \param[in] icomp component of the FabArray where the data are scaled
          * \param[in] scale_factor scale factor to use for scaling
          */
-        void ScaleDataComp (int icomp, amrex::Real scale_factor);
+        void ScaleDataComp (int icomp, amrex::Real scale_factor) override;
 
         SpectralFieldIndex m_spectral_index;
+
+        [[nodiscard]] SpectralFieldIndex const& spectralIndex () const override
+        { return m_spectral_index; }
+        [[nodiscard]] amrex::Real spectralDt () const override { return m_dt; }
 
         // Solve time step size
         amrex::Real m_dt;

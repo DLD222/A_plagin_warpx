@@ -136,7 +136,8 @@ SpectralSolver::BackwardTransform( const int lev,
 }
 
 void
-SpectralSolver::pushSpectralFields(){
+SpectralSolver::pushSpectralFields (bool doing_pml){
+    amrex::ignore_unused(doing_pml);
     ABLASTR_PROFILE("SpectralSolver::pushSpectralFields");
     // Virtual function: the actual function used here depends
     // on the sub-class of `SpectralBaseAlgorithm` that was

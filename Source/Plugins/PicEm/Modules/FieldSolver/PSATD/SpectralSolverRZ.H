@@ -9,6 +9,8 @@
 
 #include "SpectralSolverRZ_fwd.H"
 
+#include "Runtime/ISpectralSolver.H"
+
 #include "SpectralAlgorithms/SpectralBaseAlgorithmRZ.H"
 #include "SpectralFieldDataRZ.H"
 
@@ -22,7 +24,7 @@
  * to Fourier-transform the fields between real space and spectral space
  * and to update fields in spectral space over one time step.
  */
-class SpectralSolverRZ
+class SpectralSolverRZ : public warpx::runtime::ISpectralSolver
 {
     public:
         // Inline definition of the member functions of `SpectralSolverRZ`,
@@ -52,7 +54,7 @@ class SpectralSolverRZ
          *  to spectral space, and store the corresponding result internally
          *  (in the spectral field specified by `field_index`) */
         void ForwardTransform (int lev, amrex::MultiFab const & field_mf, int field_index,
-                               int i_comp=0);
+                               int i_comp=0) override;
 
         /* \brief Transform the two MultiFabs `field_mf1` and `field_mf2`
          *  to spectral space, and store the corresponding results internally
@@ -65,13 +67,22 @@ class SpectralSolverRZ
         void BackwardTransform (int lev, amrex::MultiFab& field_mf, int field_index,
                                 int i_comp=0);
 
+        //! Contract form: RZ rebuilds the guard cells itself, so the requested
+        //! guard fill is only forwarded.
+        void BackwardTransform (int lev, amrex::MultiFab& field_mf, int field_index,
+                                amrex::IntVect const& fill_guards, int i_comp=0) override
+        {
+            amrex::ignore_unused(fill_guards);
+            BackwardTransform(lev, field_mf, field_index, i_comp);
+        }
+
         /* \brief Transform spectral fields specified by `field_index1` and `field_index2`
          * back to real space, and store it in `field_mf1` and `field_mf2`*/
         void BackwardTransform (int lev, amrex::MultiFab& field_mf1, int field_index1,
                                 amrex::MultiFab& field_mf2, int field_index2);
 
         /* \brief Update the fields in spectral space, over one timestep */
-        void pushSpectralFields (bool doing_pml=false);
+        void pushSpectralFields (bool doing_pml=false) override;
 
         /* \brief Initialize K space filtering arrays */
         void InitFilter (amrex::IntVect const & filter_npass_each_dir,
@@ -90,7 +101,7 @@ class SpectralSolverRZ
           */
         void ComputeSpectralDivE (int lev,
                                   ablastr::fields::VectorField const & Efield,
-                                  amrex::MultiFab& divE);
+                                  amrex::MultiFab& divE) override;
 
         /**
          * \brief Public interface to call the virtual function \c CurrentCorrection,
@@ -98,7 +109,7 @@ class SpectralSolverRZ
          * by its derived classes (e.g. PsatdAlgorithmRZ), from
          * objects of class SpectralSolverRZ through the private unique pointer \c algorithm
          */
-        void CurrentCorrection ();
+        void CurrentCorrection () override;
 
         /**
          * \brief Public interface to call the virtual function \c VayDeposition,
@@ -106,7 +117,7 @@ class SpectralSolverRZ
          * derived classes, from objects of class SpectralSolverRZ through the private
          * unique pointer \c algorithm.
          */
-        void VayDeposition ();
+        void VayDeposition () override;
 
         /**
          * \brief Copy spectral data from component \c src_comp to component \c dest_comp
@@ -115,14 +126,14 @@ class SpectralSolverRZ
          * \param[in] src_comp  component of the source FabArray from which the data are copied
          * \param[in] dest_comp component of the destination FabArray where the data are copied
          */
-        void CopySpectralDataComp (int src_comp, int dest_comp);
+        void CopySpectralDataComp (int src_comp, int dest_comp) override;
 
         /**
          * \brief Set to zero the data on component \c icomp of \c field_data.fields
          *
          * \param[in] icomp component of the FabArray where the data are set to zero
          */
-        void ZeroOutDataComp (int icomp);
+        void ZeroOutDataComp (int icomp) override;
 
         /**
          * \brief Scale the data on component \c icomp of \c field_data.fields
@@ -131,9 +142,13 @@ class SpectralSolverRZ
          * \param[in] icomp component of the FabArray where the data are scaled
          * \param[in] scale_factor scale factor to use for scaling
          */
-        void ScaleDataComp (int icomp, amrex::Real scale_factor);
+        void ScaleDataComp (int icomp, amrex::Real scale_factor) override;
 
         SpectralFieldIndex m_spectral_index;
+
+        [[nodiscard]] SpectralFieldIndex const& spectralIndex () const override
+        { return m_spectral_index; }
+        [[nodiscard]] amrex::Real spectralDt () const override { return m_dt; }
 
         // Solve time step size
         amrex::Real m_dt;
