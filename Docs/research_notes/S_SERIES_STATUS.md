@@ -156,7 +156,7 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
 |---|---|---|
 | `load_external_field`（RZ/3D，含 restart） | 7 | 外部数据集缺失：`openPMD::error::ReadError / Inaccessible`（`openPMD-example-datasets` 不在本机） |
 | `test_rz_projection_div_cleaner` | 1 | 同上（ReadError） |
-| `test_rz_btd`、`test_rz_embedded_boundary_diffraction`、`test_rz_laser_acceleration[_boosted]_opmd` | 4 | **本项目差异**（上游同环境通过），待定位到具体数据/计数逻辑 |
+| `test_rz_btd`、`test_rz_embedded_boundary_diffraction`、`test_rz_laser_acceleration[_boosted]_opmd` | 4 | **本项目差异**；其中 EB 衍射与 `_opmd` 已修复（配置快照），`_boosted_opmd` 需 FFT 构建；**`test_rz_btd` 仍崩溃**：`free(): corrupted unsorted chunks`（堆损坏，发生在第一次 BTD 缓冲刷新；`storeFieldOnParticles` 等已排除） |
 
 **原关键事实（现已解除）**：本机 conda 的 HDF5 是串行版，而 openPMD 按 MPI 构建 → openPMD 自动关闭 HDF5 后端
 （配置日志有明确警告），也没有 ADIOS2。测试输入显式要求 `h5` 后端，因此这 72 类用例
