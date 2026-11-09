@@ -56,3 +56,25 @@ python3 Tools/Modularization/check_build_boundaries.py  # 构建层次与层目�
 - `S_SERIES_STATUS.md`：R1–R5 的证据与缺口、已修缺陷清单、提交纪律说明。
 - `external_plugin_demo/`：仓库外插件的最小示例（含复现命令）。
 - `Tools/verify/`：核验环境脚本。
+
+
+## 6. 为什么隐式求解器还没拆（以及要拆需要什么）
+
+隐式求解器的公开入口是 `Define(WarpX*, bool)`：它拿内核对象直接驱动
+"场推进 / 边界 / 粒子保存恢复 / 降维诊断"。实测耦合：
+
+| 文件 | 内核引用 |
+|---|---|
+| `ImplicitSolver.cpp` | 70 |
+| `SemiImplicitDarwin.cpp` | 60 |
+| `ThetaImplicitEM.cpp` | 34 |
+| `SemiImplicitEM.cpp` | 25 |
+
+共 **40 个不同的内核成员**。其中 `m_fields`（109 次）可由 `RuntimeData` 提供，
+但其余方法签名依赖内核侧类型（`WarpXSolverVec`、`ImplicitOptions`、`SubcyclingHalf`、
+`WarpXParticleContainer`），因此**必须先把这些类型搬进核心或抽象掉**，才能定义
+`IImplicitKernelServices`（约 40 个方法）并让求解器改走契约。
+
+**这不是"以后再说"，而是有明确前置条件的工程任务**：先把 `WarpXSolverVec` 抽象为
+核心可用的"求解向量"，再按 40 个成员逐组定义服务，最后才搬文件。
+任何尝试跳步的做法都会得到"假拆分"（接口存在但内部仍 `WarpX*`）。
