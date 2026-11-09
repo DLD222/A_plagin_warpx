@@ -437,13 +437,18 @@ WarpX::WarpX ()
     m_flag_ext_face.resize(nlevs_max);
 
     // Create the electrostatic solver through the core factory: the kernel
-    // does not name the concrete solver (S6).
+    // does not name the concrete solver (S6).  Only an electrostatic run needs
+    // it, so a build without the field-solver plugin keeps working for the
+    // electromagnetic solvers and reports a message that names what is missing.
     m_electrostatic_solver = warpx::runtime::create_electrostatic_solver(
         static_cast<int>(WarpX::electrostatic_solver_id), nlevs_max, m_runtime_context);
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        m_electrostatic_solver != nullptr,
-        "No electrostatic solver plugin is linked: build with "
-        "WarpX_PLUGIN_FIELDSOLVER=ON to use an electrostatic solver.");
+    if (electrostatic_solver_id != ElectrostaticSolverAlgo::None)
+    {
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            m_electrostatic_solver != nullptr,
+            "this input asks for an electrostatic solver, but no field-solver "
+            "plugin is linked: build with WarpX_PLUGIN_FIELDSOLVER=ON.");
+    }
 
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC)
     {
