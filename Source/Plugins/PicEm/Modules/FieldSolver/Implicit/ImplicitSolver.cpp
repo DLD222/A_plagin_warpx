@@ -31,34 +31,13 @@ void ImplicitSolver::FinishImplicitParticleUpdate (
     m_WarpX->FinishImplicitParticleUpdate(time);
 
     std::map<std::string, amrex::Long> local_suborbit_counts;
-    for (auto const& pc : m_WarpX->GetPartContainer()) {
-        if (!pc->HasiAttrib("nsuborbits")) { continue; }
+    for (int ispecies = 0; ispecies < m_services.num_species(); ++ispecies) {
+        if (!m_services.species_has_attrib(ispecies, "nsuborbits")) { continue; }
 
         amrex::Gpu::Buffer<amrex::Long> suborbit_count({0});
-        amrex::Long* const suborbit_count_ptr = suborbit_count.data();
-
-        for (int lev = 0; lev <= m_WarpX->finestLevel(); ++lev) {
-#ifdef AMREX_USE_OMP
-#pragma omp parallel
-#endif
-            {
-                for (ParticleTileIter pti(*pc, lev); pti.isValid(); ++pti) {
-                    int const* const nsuborbits =
-                        pti.GetiAttribs("nsuborbits").dataPtr();
-                    long const np = pti.numParticles();
-                    int const suborbit_warning_threshold = m_suborbit_warning_threshold;
-                    amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (long ip)
-                    {
-                        if (nsuborbits[ip] >= suborbit_warning_threshold) {
-                            amrex::Gpu::Atomic::Add(
-                                suborbit_count_ptr, amrex::Long(1));
-                        }
-                    });
-                }
-            }
-        }
-
-        local_suborbit_counts[pc->getName()] =
+        m_services.count_suborbits(ispecies, m_suborbit_warning_threshold,
+                                   suborbit_count.data());
+        local_suborbit_counts[m_services.species_name(ispecies)] =
             *(suborbit_count.copyToHost());
     }
 
@@ -107,29 +86,8 @@ void ImplicitSolver::AccumulateSuborbitStatistics (
 
 void ImplicitSolver::CreateParticleAttributes () const
 {
-    // Set comm to false so that the attributes are not communicated
-    // nor written to the checkpoint files
-    int const comm = 0;
+    m_WarpX->AddImplicitParticleAttributes(m_particle_suborbits);
 
-    // Add space to save the positions and velocities at the start of the time steps
-    for (auto const& pc : m_WarpX->GetPartContainer()) {
-#if !defined(WARPX_DIM_1D_Z)
-        pc->AddRealComp("x_n", comm);
-#endif
-#if defined(WARPX_DIM_3D) || defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        pc->AddRealComp("y_n", comm);
-#endif
-#if !defined(WARPX_DIM_RCYLINDER)
-        pc->AddRealComp("z_n", comm);
-#endif
-        pc->AddRealComp("ux_n", comm);
-        pc->AddRealComp("uy_n", comm);
-        pc->AddRealComp("uz_n", comm);
-
-        if (m_particle_suborbits) {
-            pc->AddIntComp("nsuborbits", comm);
-        }
-    }
 }
 
 const Geometry& ImplicitSolver::GetGeometry (const int a_lvl) const

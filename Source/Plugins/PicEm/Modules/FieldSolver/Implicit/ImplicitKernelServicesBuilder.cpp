@@ -131,8 +131,17 @@ BuildImplicitKernelServices (WarpX& warpx)
                                           std::optional<warpx::particles::FieldGatherOrders> gather) {
         warpx.GetPartContainer().PushP(lev, dt, Ex, Ey, Ez, Bx, By, Bz, push_type, gather);
     };
+    s.deposit_current_all_species =
+        [&warpx] (ablastr::fields::MultiLevelVectorField const& J, amrex::Real dt,
+                  amrex::Real time_dilation, PushType push_type, int particle_shape) {
+            warpx.GetPartContainer().DepositCurrent(J, dt, time_dilation, push_type, particle_shape);
+        };
     s.push_particles_position = [&warpx] (amrex::Real dt) {
         warpx.GetPartContainer().PushX(dt);
+    };
+    s.num_species = [&warpx] { return warpx.GetPartContainer().nSpecies(); };
+    s.species_name = [&warpx] (int ispecies) {
+        return warpx.GetPartContainer().GetParticleContainer(ispecies).getName();
     };
     s.species_has_attrib = [&warpx] (int ispecies, std::string const& attrib) {
         auto& pc = dynamic_cast<WarpXParticleContainer&>(

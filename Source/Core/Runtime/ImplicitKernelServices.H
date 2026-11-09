@@ -99,10 +99,17 @@ struct ImplicitKernelServices
                         amrex::MultiFab const& By, amrex::MultiFab const& Bz,
                         MomentumPushType momentum_push_type,
                         std::optional<warpx::particles::FieldGatherOrders> gather_orders)> push_particles_momentum;
+    //! Deposit the current of every species into J (implicit push type).
+    std::function<void (ablastr::fields::MultiLevelVectorField const& J, amrex::Real dt,
+                        amrex::Real current_time_dilation, PushType push_type,
+                        int particle_shape)> deposit_current_all_species;
     //! Push the positions of every species.
     std::function<void (amrex::Real dt)> push_particles_position;
     //! Attributes a species exposes (used to detect sub-orbit bookkeeping).
     std::function<bool (int ispecies, std::string const& attrib)> species_has_attrib;
+    //! Number of species and their names, for the sub-orbit bookkeeping.
+    std::function<int ()> num_species;
+    std::function<std::string (int ispecies)> species_name;
     //! Count the particles of a species whose sub-orbit attribute reaches \c threshold.
     std::function<void (int ispecies, int threshold, amrex::Long* counter)> count_suborbits;
     std::function<void (int step, amrex::Real dt)> compute_diags_mid_step;

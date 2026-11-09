@@ -159,3 +159,29 @@ WarpX::PrepareImplicitVelocitiesForDeposition ()
         }
     }
 }
+
+void WarpX::AddImplicitParticleAttributes (bool particle_suborbits)
+{
+    // Set comm to false so that the attributes are not communicated nor written
+    // to the checkpoint files.
+    int const comm = 0;
+
+    for (auto const& pc : GetPartContainer()) {
+#if !defined(WARPX_DIM_1D_Z)
+        pc->AddRealComp("x_n", comm);
+#endif
+#if defined(WARPX_DIM_3D) || defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+        pc->AddRealComp("y_n", comm);
+#endif
+#if !defined(WARPX_DIM_RCYLINDER)
+        pc->AddRealComp("z_n", comm);
+#endif
+        pc->AddRealComp("ux_n", comm);
+        pc->AddRealComp("uy_n", comm);
+        pc->AddRealComp("uz_n", comm);
+
+        if (particle_suborbits) {
+            pc->AddIntComp("nsuborbits", comm);
+        }
+    }
+}

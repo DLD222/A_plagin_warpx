@@ -8,6 +8,7 @@
  */
 #include "WarpX.H"
 #include "Fields.H"
+#include "ImplicitKernelServicesBuilder.H"
 #include "SemiImplicitDarwin.H"
 #include "Python/callbacks.H"
 #include "Utils/Parser/ParserUtils.H"
@@ -28,6 +29,7 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
 
     // Retain a pointer back to main WarpX class
     m_WarpX = a_WarpX;
+    m_services = BuildImplicitKernelServices(*a_WarpX);
 
     // The guard-cell handling throughout this solver (SumBoundaryJ and
     // FillBoundaryAndSync calls using the domain periodicity) and the GMRES
@@ -181,17 +183,17 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     // the corrector push and the mass matrices, i.e., with the magnetostatic particle shape.
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        m_WarpX->GetPartContainer().PushP(
+        m_services.push_particles_momentum(
             lev,
             m_dt,
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev),
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{1}, lev),
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{2}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{1}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{2}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{1}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{2}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{1}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{2}, lev),
             MomentumPushType::Full,
-            FieldGatherOrders{/*e_shape=*/config().nox(), /*e_galerkin=*/m_predictor_use_galerkin,
+            warpx::particles::FieldGatherOrders{/*e_shape=*/config().nox(), /*e_galerkin=*/m_predictor_use_galerkin,
                               /*b_shape=*/m_magnetostatic_particle_shape}
         );
     }
@@ -245,17 +247,17 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     // mass matrices.
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        m_WarpX->GetPartContainer().PushP(
+        m_services.push_particles_momentum(
             lev,
             m_dt,
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev),
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{1}, lev),
-            *m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{2}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{1}, lev),
-            *m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{2}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{1}, lev),
+            *m_services.fields->get(FieldType::Efield_fp, Direction{2}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{1}, lev),
+            *m_services.fields->get(FieldType::Bfield_fp, Direction{2}, lev),
             MomentumPushType::Full,
-            FieldGatherOrders{/*e_shape=*/m_magnetostatic_particle_shape,
+            warpx::particles::FieldGatherOrders{/*e_shape=*/m_magnetostatic_particle_shape,
                               /*e_galerkin=*/false,
                               /*b_shape=*/m_magnetostatic_particle_shape}
         );
@@ -266,7 +268,7 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     FinishVelocityUpdate();
 
     // Push particle positions forward (velocities are already updated)
-    m_WarpX->GetPartContainer().PushX(m_dt);
+    m_services.push_particles_position(m_dt);
 
     // Update magnetic field using dB/dt = -curl(E)
     m_WarpX->EvolveB(m_dt, SubcyclingHalf::None, a_step*m_dt);
@@ -306,8 +308,8 @@ void SemiImplicitDarwin::AccumulateCurrentAndMassMatrices ()
     // particle velocities as appropriate for the implicit push and the
     // magnetostatic particle shape. This also resets the current MultiFabs
     // before depositing.
-    m_WarpX->GetPartContainer().DepositCurrent(
-        m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::current_fp, lev),
+    m_services.deposit_current_all_species(
+        m_services.fields->get_mr_levels_alldirs(FieldType::current_fp, lev),
         m_dt, 0.0_rt, PushType::Implicit, m_magnetostatic_particle_shape);
 
     // Zero and accumulate the mass matrices from all species. This shares the

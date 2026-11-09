@@ -180,6 +180,7 @@ public:
     void SaveParticlesAtImplicitStepStart ();
     //! Implicit-solver particle bookkeeping that needs the tile layout.
     void ClearImplicitParticleVelocities ();
+    void AddImplicitParticleAttributes (bool particle_suborbits);
     void FinishImplicitVelocityUpdate ();
     void PrepareImplicitVelocitiesForDeposition ();
     void FinishImplicitParticleUpdate (amrex::Real a_time);

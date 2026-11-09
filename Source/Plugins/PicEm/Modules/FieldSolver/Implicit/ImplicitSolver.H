@@ -15,6 +15,7 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "FieldSolver/Implicit/SparseJacobianMatrix.H"
 
+#include "Runtime/ImplicitKernelServices.H"
 #include "Runtime/SolverVectorContext.H"
 
 #include "Solvers/WarpXSolverVec.H"
@@ -258,6 +259,8 @@ protected:
      * \brief Pointer back to main WarpX class
      */
     WarpX* m_WarpX;
+    //! The operations this solver drives on the simulation.
+    warpx::runtime::ImplicitKernelServices m_services;
 
     //! Everything the solver vectors need, captured from m_WarpX once.
     warpx::runtime::SolverVectorContext m_solver_vec_context;

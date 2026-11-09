@@ -4,6 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "ImplicitKernelServicesBuilder.H"
 #include "WarpX.H"
 #include "Fields.H"
 #include "SemiImplicitEM.H"
@@ -21,6 +22,7 @@ void SemiImplicitEM::Define (WarpX*  a_WarpX, bool  a_from_restart)
 
     // Retain a pointer back to main WarpX class
     m_WarpX = a_WarpX;
+    m_services = BuildImplicitKernelServices(*a_WarpX);
 
     // Define E and Eold vectors
     BuildSolverVectorContext();
