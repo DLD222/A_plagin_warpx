@@ -48,7 +48,9 @@
 #include "Utils/WarpXConst.H"
 #include "Utils/WarpXUtil.H"
 
-#include "FieldSolver/Implicit/ImplicitSolverLibrary.H"
+#ifdef WARPX_HAVE_IMPLICIT_SOLVER
+#   include "FieldSolver/Implicit/ImplicitSolverLibrary.H"
+#endif
 
 #include <ablastr/math/FiniteDifference.H>
 #include <ablastr/math/RandomSeed.H>
@@ -1377,6 +1379,17 @@ WarpX::ReadParameters ()
         pp_algo.query_enum_case_insensitive("particle_pusher", particle_pusher_algo);
 
         // check for implicit evolve scheme
+        const bool wants_implicit =
+            evolve_scheme == EvolveScheme::Semi_Implicit_EM ||
+            evolve_scheme == EvolveScheme::Theta_Implicit_EM ||
+            evolve_scheme == EvolveScheme::Strang_Implicit_Spectral_EM ||
+            evolve_scheme == EvolveScheme::Semi_Implicit_Darwin;
+#ifndef WARPX_HAVE_IMPLICIT_SOLVER
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(!wants_implicit,
+            "this input asks for an implicit evolve scheme, but this build has no "
+            "implicit solver: rebuild with WarpX_PLUGIN_IMPLICIT=ON.");
+#endif
+#ifdef WARPX_HAVE_IMPLICIT_SOLVER
         if (evolve_scheme == EvolveScheme::Semi_Implicit_EM) {
             m_implicit_solver = std::make_unique<SemiImplicitEM>();
         }
@@ -1389,6 +1402,7 @@ WarpX::ReadParameters ()
         else if (evolve_scheme == EvolveScheme::Semi_Implicit_Darwin) {
             m_implicit_solver = std::make_unique<SemiImplicitDarwin>();
         }
+#endif
 
         // implicit evolve schemes not setup to use mirrors
         if (evolve_scheme == EvolveScheme::Semi_Implicit_EM ||
@@ -3953,7 +3967,13 @@ WarpX::GetPartContainerAccess () { return *mypc; }
 
 void WarpX::DefineImplicitSolver (bool from_restart)
 {
+#ifdef WARPX_HAVE_IMPLICIT_SOLVER
     if (m_implicit_solver) {
         dynamic_cast<ImplicitSolver*>(m_implicit_solver.get())->Define(this, from_restart);
     }
+#else
+    amrex::ignore_unused(from_restart);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_implicit_solver == nullptr,
+        "this build has no implicit solver: rebuild with WarpX_PLUGIN_IMPLICIT=ON.");
+#endif
 }
