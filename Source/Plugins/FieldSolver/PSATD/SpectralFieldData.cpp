@@ -12,7 +12,6 @@
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXRuntimeData.H"
 
 #include <AMReX_Array4.H>
 #include <AMReX_BLassert.H>

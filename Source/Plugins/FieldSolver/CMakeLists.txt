@@ -10,3 +10,6 @@ endforeach()
 
 add_subdirectory(FiniteDifference)
 add_subdirectory(Electrostatic)
+if(WarpX_FFT)
+    add_subdirectory(PSATD)
+endif()
