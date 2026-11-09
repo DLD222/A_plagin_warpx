@@ -1,13 +1,14 @@
 #ifndef WARPX_PLUGIN_WARPXKERNEL_H_
 #define WARPX_PLUGIN_WARPXKERNEL_H_
 #include "Runtime/ICollisionHandler.H"
-#include "Runtime/IPicKernel.H"
+#include "Runtime/ISimulationKernel.H"
 #include "Runtime/RuntimeConfig.H"
 #include <memory>
 class WarpX;
 namespace warpx::runtime {
 class WarpXRuntimeData; class WarpXHostServices;
-class WarpXKernel final : public IPicKernel {
+class WarpXKernel final : public ISimulationKernel,
+                          public IParticleCapability {
 public:
     explicit WarpXKernel (int argc, char* argv[]);
     ~WarpXKernel () override;
@@ -27,6 +28,7 @@ public:
     void set_runtime_context (RuntimeContext*) override;
     void register_plugins (PluginHost&, bool disabled) override;
     void register_species (DataBus&) override;
+    [[nodiscard]] IParticleCapability* particle_capability () override { return this; }
     void allocate_collision_data () override;
     void clear () override;
     [[nodiscard]] std::vector<std::string> active_features () const override;

@@ -39,7 +39,7 @@ namespace warpx::runtime
 {
 class ISpeciesContainer;
 class IFilterBank;
-class ISimulationKernel;
+class IGeometryProvider;
 class ISpeciesMetadata;
 class IParticleContainerAccess;
 class MaterialRegistry;
@@ -65,8 +65,8 @@ public:
     //! default in place and the accessor reports the absence.
     [[nodiscard]] virtual ISpeciesMetadata& speciesMetadata ()
     { throw std::logic_error("RuntimeData: this kernel provides no species"); }
-    [[nodiscard]] virtual ISimulationKernel& kernel () = 0;
-    [[nodiscard]] virtual const ISimulationKernel& kernel () const = 0;
+    [[nodiscard]] virtual IGeometryProvider& kernel () = 0;
+    [[nodiscard]] virtual const IGeometryProvider& kernel () const = 0;
     [[nodiscard]] virtual IParticleContainerAccess& particleAccess ()
     { throw std::logic_error("RuntimeData: this kernel provides no particle containers"); }
     [[nodiscard]] virtual const ISpeciesMetadata& speciesMetadata () const

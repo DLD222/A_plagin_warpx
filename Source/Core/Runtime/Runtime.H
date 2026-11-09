@@ -10,7 +10,7 @@
 
 #include "Runtime/DataBus.H"
 #include "Runtime/HandlerSpec.H"
-#include "Runtime/IPicKernel.H"
+#include "Runtime/ISimulationKernel.H"
 #include "Runtime/FrameState.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
@@ -25,7 +25,7 @@
 namespace warpx::runtime
 {
 
-class IPicKernel;
+class ISimulationKernel;
 class DataBus;
 class PluginHost;
 class HostServices;
@@ -103,7 +103,7 @@ private:
     FrameState m_frame{};
     RuntimeContext m_context{};
     StateRegistry m_state{};
-    std::unique_ptr<IPicKernel> m_kernel;
+    std::unique_ptr<ISimulationKernel> m_kernel;
     std::unique_ptr<DataBus> m_bus;
     std::unique_ptr<PluginHost> m_plugin_host;
 

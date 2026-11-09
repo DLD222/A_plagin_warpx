@@ -1,6 +1,7 @@
 #ifndef WARPX_RUNTIME_IPICKERNEL_H_
 #define WARPX_RUNTIME_IPICKERNEL_H_
 #include "Runtime/FrameState.H"
+#include "Runtime/IParticleCapability.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/TimeState.H"
 #include <ablastr/fields/MultiFabRegister.H>
@@ -9,19 +10,18 @@
 #include <vector>
 namespace warpx::runtime {
 class DataBus; class FieldRegistry; class HostServices; class PluginHost;
+class IParticleCapability;
 class RuntimeContext; class RuntimeData;
 /**
  * \brief The kernel contract: what the runtime needs from a simulation kernel.
  *
- * Despite the historical name, nothing here is PIC-specific: a fluid kernel
- * implements the same interface (see tests/runtime/test_nonpic_kernel.cpp).
- * The particle-only parts are optional hooks with empty defaults.  A7.9 renames
- * this to ISimulationKernel once the remaining PIC-flavoured accessors in
- * RuntimeData move behind capability interfaces.
+ * Nothing here is PIC-specific: a fluid kernel implements the same interface
+ * (see tests/runtime/test_nonpic_kernel.cpp).  The particle-specific setup lives
+ * behind the optional IParticleCapability a kernel may return.
  */
-class IPicKernel {
+class ISimulationKernel {
 public:
-    virtual ~IPicKernel () = default;
+    virtual ~ISimulationKernel () = default;
     virtual void initialize () = 0;
     virtual void evolve (int numsteps) = 0;
     virtual void finalize () = 0;
@@ -37,12 +37,13 @@ public:
     virtual void set_plugin_host (PluginHost*) = 0;
     virtual void set_runtime_context (RuntimeContext*) = 0;
     virtual void register_plugins (PluginHost&, bool disabled) = 0;
-    //! Particle capability hook: publish the species on the bus.  A kernel
-    //! without particles (a fluid kernel) leaves the default in place.
-    virtual void register_species (DataBus& /*bus*/) {}
-    //! Particle capability hook: allocate collision state.  Optional for the
-    //! same reason.
-    virtual void allocate_collision_data () {}
+    /**
+     * \brief The particle capability, or nullptr for a kernel without particles.
+     *
+     * A fluid kernel returns nullptr and the runtime simply skips the particle
+     * setup; nothing else in this contract mentions particles.
+     */
+    [[nodiscard]] virtual IParticleCapability* particle_capability () { return nullptr; }
     virtual void clear () = 0;
 
     //! Features this run actually uses ("amr", "eb", "qed", "psatd", ...).

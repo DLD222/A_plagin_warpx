@@ -11,7 +11,7 @@
  * a fluid (e.g. ten-moment) kernel — using only headers from Source/Core.  It
  * proves two things:
  *
- *  1. the kernel contract (IPicKernel) and the state view (RuntimeData) can be
+ *  1. the kernel contract (ISimulationKernel) and the state view (RuntimeData) can be
  *     implemented outside the WarpX kernel plugin;
  *  2. the particle-specific part of RuntimeData is optional: a kernel without
  *     particles leaves the defaults in place and everything still compiles and
@@ -25,7 +25,7 @@
 #include "Runtime/IFilterBank.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/HostServices.H"
-#include "Runtime/IPicKernel.H"
+#include "Runtime/ISimulationKernel.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 
@@ -77,8 +77,8 @@ public:
     [[nodiscard]] ablastr::fields::MultiFabRegister& fields () override { return m_fields; }
     [[nodiscard]] const ablastr::fields::MultiFabRegister& fields () const override { return m_fields; }
     [[nodiscard]] amrex::AmrCore& amrCore () const override { throw std::logic_error("no AmrCore"); }
-    [[nodiscard]] warpx::runtime::ISimulationKernel& kernel () override { throw std::logic_error("no kernel view"); }
-    [[nodiscard]] const warpx::runtime::ISimulationKernel& kernel () const override { throw std::logic_error("no kernel view"); }
+    [[nodiscard]] warpx::runtime::IGeometryProvider& kernel () override { throw std::logic_error("no kernel view"); }
+    [[nodiscard]] const warpx::runtime::IGeometryProvider& kernel () const override { throw std::logic_error("no kernel view"); }
     [[nodiscard]] int finestLevel () const override { return 0; }
     [[nodiscard]] int maxLevel () const override { return 0; }
     [[nodiscard]] const amrex::Geometry& geom (int) const override { return m_geom[0]; }
@@ -145,7 +145,7 @@ private:
 /* A kernel that evolves fluid moments.  The particle-flavoured parts of the
  * kernel contract are no-ops; that is the whole accommodation a fluid kernel
  * needs today. */
-class FluidKernel final : public warpx::runtime::IPicKernel
+class FluidKernel final : public warpx::runtime::ISimulationKernel
 {
 public:
     FluidKernel () : m_data(std::make_unique<FluidRuntimeData>()) {}
@@ -171,6 +171,13 @@ public:
     void set_plugin_host (warpx::runtime::PluginHost*) override {}
     void set_runtime_context (warpx::runtime::RuntimeContext*) override {}
     void register_plugins (warpx::runtime::PluginHost&, bool) override {}
+    // A fluid kernel has no particles: the runtime must be told so explicitly
+    // rather than through a pair of empty hooks.
+    [[nodiscard]] warpx::runtime::IParticleCapability* particle_capability () override
+    {
+        return nullptr;
+    }
+
     void clear () override {}
     [[nodiscard]] std::vector<std::string> active_features () const override { return {"fluid"}; }
 

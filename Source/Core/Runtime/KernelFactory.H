@@ -13,7 +13,7 @@
 namespace warpx::runtime
 {
 
-class IPicKernel;
+class ISimulationKernel;
 
 /**
  * \brief Entry points a PIC kernel plugin provides to the Core runtime.
@@ -25,7 +25,7 @@ class IPicKernel;
  */
 struct SolverKernelPlugin
 {
-    std::unique_ptr<IPicKernel> (*create) (int argc, char* argv[]) = nullptr;
+    std::unique_ptr<ISimulationKernel> (*create) (int argc, char* argv[]) = nullptr;
     void (*initialize_libraries) (int argc, char* argv[]) = nullptr;
     void (*finalize_libraries) () = nullptr;
 };
@@ -42,7 +42,7 @@ void register_solver_kernel_plugin (const SolverKernelPlugin& plugin);
  * Throws std::runtime_error with an actionable message when no kernel plugin
  * is linked, which is the expected outcome for a Core-only build.
  */
-[[nodiscard]] std::unique_ptr<IPicKernel> create_solver_kernel (int argc, char* argv[]);
+[[nodiscard]] std::unique_ptr<ISimulationKernel> create_solver_kernel (int argc, char* argv[]);
 
 //! Library init/finalize hooks; no-ops when the plugin does not provide them.
 void initialize_runtime_libraries (int argc, char* argv[]);

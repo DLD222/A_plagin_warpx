@@ -8,7 +8,7 @@
 #include "Runtime/Runtime.H"
 
 #include "Runtime/DataBus.H"
-#include "Runtime/IPicKernel.H"
+#include "Runtime/ISimulationKernel.H"
 #include "Runtime/KernelFactory.H"
 #include "Runtime/PluginLoader.H"
 #include "Runtime/Scheduler.H"
@@ -75,8 +75,10 @@ Runtime::initialize ()
 
     m_kernel->initialize();
     sync_config();
-    m_kernel->allocate_collision_data();
-    m_kernel->register_species(*m_bus);
+    if (auto* particles = m_kernel->particle_capability()) {
+        particles->allocate_collision_data();
+        particles->register_species(*m_bus);
+    }
     if (m_bus != nullptr) {
         StageContext ctx{&m_context, m_bus.get(), &m_kernel->host(), &m_kernel->data(),
                          &m_config_snapshot};

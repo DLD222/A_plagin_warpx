@@ -7,7 +7,7 @@
  */
 #include "Runtime/KernelFactory.H"
 
-#include "Runtime/IPicKernel.H"
+#include "Runtime/ISimulationKernel.H"
 
 #include <stdexcept>
 
@@ -37,7 +37,7 @@ has_solver_kernel_plugin ()
     return registry().create != nullptr;
 }
 
-std::unique_ptr<IPicKernel>
+std::unique_ptr<ISimulationKernel>
 create_solver_kernel (int argc, char* argv[])
 {
     if (registry().create == nullptr) {

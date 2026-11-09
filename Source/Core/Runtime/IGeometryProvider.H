@@ -4,9 +4,9 @@
 #include <AMReX_IntVect.H>
 #include <vector>
 namespace warpx::runtime {
-class ISimulationKernel {
+class IGeometryProvider {
 public:
-    virtual ~ISimulationKernel () = default;
+    virtual ~IGeometryProvider () = default;
     [[nodiscard]] virtual amrex::IntVect RefRatio (int lev) const = 0;
     [[nodiscard]] virtual std::vector<bool> pmlDirections () const = 0;
     [[nodiscard]] virtual bool computeMaxStepFromBTD () const = 0;

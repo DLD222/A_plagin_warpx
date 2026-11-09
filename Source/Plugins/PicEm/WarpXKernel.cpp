@@ -172,7 +172,7 @@ void WarpXKernel::finalize () {}
 namespace
 {
 //! Entry points handed to the Core runtime (A7 KernelFactory).
-std::unique_ptr<IPicKernel> make_warpx_kernel (int argc, char* argv[])
+std::unique_ptr<ISimulationKernel> make_warpx_kernel (int argc, char* argv[])
 {
     return std::make_unique<WarpXKernel>(argc, argv);
 }

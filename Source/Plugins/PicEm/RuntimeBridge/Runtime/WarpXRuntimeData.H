@@ -1,5 +1,5 @@
 #include "Runtime/IFilterBank.H"
-#include "Runtime/ISimulationKernel.H"
+#include "Runtime/IGeometryProvider.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2026 DLD222
@@ -13,7 +13,7 @@
 #define WARPX_RUNTIME_WARPXRUNTIMEDATA_H_
 
 #include "Runtime/IFilterBank.H"
-#include "Runtime/ISimulationKernel.H"
+#include "Runtime/IGeometryProvider.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "Runtime/IFluidModel.H"
@@ -38,7 +38,7 @@ namespace warpx::runtime
  *  stateless w.r.t. WarpX lifetime, so there is no unordered-static
  *  destruction-order hazard when the singleton is torn down.
  */
-class WarpXRuntimeData final : public RuntimeData, public IFilterBank, public ISimulationKernel
+class WarpXRuntimeData final : public RuntimeData, public IFilterBank, public IGeometryProvider
 {
 public:
     WarpXRuntimeData () = default;
@@ -81,8 +81,8 @@ public:
     [[nodiscard]] const FieldRegistry& fieldRegistry () const override;
     [[nodiscard]] const amrex::EB2::IndexSpace* ebIndexSpace (int lev) const override;
     [[nodiscard]] IFilterBank& filterBank () override;
-    [[nodiscard]] ISimulationKernel& kernel () override { return *this; }
-    [[nodiscard]] const ISimulationKernel& kernel () const override { return *this; }
+    [[nodiscard]] IGeometryProvider& kernel () override { return *this; }
+    [[nodiscard]] const IGeometryProvider& kernel () const override { return *this; }
     [[nodiscard]] amrex::IntVect RefRatio (int lev) const override;
     [[nodiscard]] std::vector<bool> pmlDirections () const override;
     [[nodiscard]] bool computeMaxStepFromBTD () const override;
