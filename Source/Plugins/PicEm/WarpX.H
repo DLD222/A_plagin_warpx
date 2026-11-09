@@ -51,7 +51,7 @@
 #include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "Filter/BilinearFilter.H"
 #include "Parallelization/GuardCellManager.H"
-#include "Particles/ParticleThermalizer/ParticleThermalizer.H"
+#include "Runtime/IParticleThermalizer.H"
 #include "Utils/export.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
@@ -1485,8 +1485,9 @@ private:
     std::unique_ptr<warpx::runtime::IDiagnosticsService> multi_diags;
     std::shared_ptr<warpx::runtime::IAmrPolicy> m_amr_policy;
 
-    // Particle thermalizer configuration (constructed from inputs)
-    ParticleThermalizer m_particle_thermalizer;
+    // Particle thermalizer (A7.4): provided by the particle-core plugin through
+    // the core factory.  Null when the plugin is not linked.
+    std::unique_ptr<warpx::runtime::IParticleThermalizer> m_particle_thermalizer;
 
     //! Order of finite centering of currents (from nodal grid to staggered grid), along x
     int m_current_centering_nox  = 2;

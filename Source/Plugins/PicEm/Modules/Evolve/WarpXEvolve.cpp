@@ -297,9 +297,10 @@ WarpX::Evolve (int numsteps)
 
         HandleParticlesAtBoundaries(step, cur_time, num_moved);
 
-        // Apply particle thermalizer (no-op until implemented)
-        if (m_particle_thermalizer.defined()) {
-            m_particle_thermalizer.applyThermalizer(*mypc);
+        // Apply the particle thermalizer (A7.4: particle-core plugin, reached
+        // through the core contract only; absent when the plugin is disabled).
+        if (m_particle_thermalizer && m_particle_thermalizer->defined()) {
+            m_particle_thermalizer->apply(particleContext());
         }
 
         if (m_implicit_solver) {

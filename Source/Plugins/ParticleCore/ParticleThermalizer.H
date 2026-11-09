@@ -4,20 +4,30 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#ifndef WARPX_PARTICLETHERMALIZER_H
-#define WARPX_PARTICLETHERMALIZER_H
+#ifndef WARPX_PARTICLECORE_PARTICLETHERMALIZER_H_
+#define WARPX_PARTICLECORE_PARTICLETHERMALIZER_H_
 
-#include <string>
-#include <vector>
+#include "Runtime/IParticleThermalizer.H"
 
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
-// Forward declaration to avoid heavy includes in the header
-class MultiParticleContainer;
-class WarpXParticleContainer;
+#include <string>
+#include <vector>
 
-class ParticleThermalizer {
+namespace warpx::runtime { class IParticleContainer; }
+
+/**
+ * \brief Particle thermalizer (A7.4 unit), implementing the core
+ * `IParticleThermalizer` contract.
+ *
+ * The unit names no kernel type, no concrete particle container and no
+ * multi-species container: it reaches species through the generic
+ * `ParticleContext` the kernel hands it and iterates the particle tiles with
+ * the AMReX tile iterator.  This is what lets it live in its own plugin layer.
+ */
+class ParticleThermalizer final : public warpx::runtime::IParticleThermalizer
+{
 public:
 
     // Construct and read parameters from inputs under the `particle_thermalizer` block.
@@ -25,16 +35,16 @@ public:
 
     // Returns true if the particle_thermalizer parameters were provided
     // and the thermalizer is therefore on.
-    [[nodiscard]] bool defined () const;
+    [[nodiscard]] bool defined () const override;
 
-    // Apply the thermalizer to particles in the provided MultiParticleContainer.
-    void applyThermalizer (MultiParticleContainer &mpc) const;
-
-    // Per-species overload; operates on a single WarpXParticleContainer.
-    // Should be protected, but can't be because it has an extended __device__ lambda
-    void applyThermalizer (WarpXParticleContainer &pcont) const;
+    // Apply the thermalizer to the species reached through `particles`.
+    void apply (warpx::runtime::ParticleContext const& particles) const override;
 
 private:
+
+    // Per-species work; operates on the generic core container contract.
+    void applyToSpecies (warpx::runtime::IParticleContainer& pc) const;
+
     bool m_defined{false};
 
     // The normal direction as an integer USING THE AMREX CONVENTION (0, 1, or 2)
@@ -57,4 +67,4 @@ private:
     std::vector<std::string> m_species_names;
 };
 
-#endif // WARPX_PARTICLETHERMALIZER_H
+#endif // WARPX_PARTICLECORE_PARTICLETHERMALIZER_H_

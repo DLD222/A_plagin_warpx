@@ -27,6 +27,9 @@ TREES = [
     "Source/Plugins/PicEm/Modules/FieldSolver/Electrostatic",
     "Source/Plugins/PicEm/Modules/FieldSolver/PSATD",
     "Source/Plugins/PicEm/Modules/FieldSolver/Magnetostatic",
+    # Extracted particle layer: it must stay free of the kernel singleton, so
+    # any new reference here fails outright (no allowlist entries).
+    "Source/Plugins/ParticleCore",
 ]
 
 TOKENS = ["WarpX::", '#include "WarpX.H"']

@@ -23,6 +23,7 @@ LAYERS = {
     "diagnostics": "warpx_diagnostics_",
     "collision": "warpx_collision_",
     "fieldsolver": "warpx_fieldsolver_",
+    "particlecore": "warpx_particlecore_",
 }
 
 errors = []
@@ -42,6 +43,7 @@ PLUGIN_DIRS = {
     "picem": SRC / "Plugins/PicEm",
     "diagnostics": SRC / "Plugins/Diagnostics",
     "io": SRC / "Plugins/IO",
+    "particlecore": SRC / "Plugins/ParticleCore",
 }
 for layer, base in PLUGIN_DIRS.items():
     for cm in base.rglob("CMakeLists.txt"):

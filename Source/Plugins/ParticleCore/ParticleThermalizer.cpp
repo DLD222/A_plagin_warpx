@@ -7,21 +7,36 @@
 
 #include "ParticleThermalizer.H"
 
-#include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
-#include "Particles/ParticleCreation/AddPlasmaUtilities.H"
+#include "Modules/Particles/ParticleAttributes.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Runtime/IParticleContainer.H"
+#include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/RuntimeConfig.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
+#include "Utils/WarpXConst.H"
 
+#include <AMReX_GpuLaunch.H>
+#include <AMReX_Math.H>
+#include <AMReX_ParIter.H>
 #include <AMReX_ParmParse.H>
+#include <AMReX_Random.H>
 #include <AMReX_REAL.H>
+#include <AMReX_RealBox.H>
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <string>
 
 using namespace amrex::literals;
+
+namespace
+{
+//! Tile iterator over the generic core container: the AMReX SoA iterator with
+//! the same dynamic-scheduling setting the kernel used to apply.
+using TileIter = amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>;
+} // namespace
 
 ParticleThermalizer::ParticleThermalizer():
     m_start(0._rt), m_end(-1._rt),
@@ -110,54 +125,60 @@ bool ParticleThermalizer::defined() const {
   return m_defined;
 }
 
-void ParticleThermalizer::applyThermalizer(MultiParticleContainer &mpc) const
+void ParticleThermalizer::apply(warpx::runtime::ParticleContext const& particles) const
 {
+  if (particles.access == nullptr) { return; }
+
   if (m_species_names.empty()) {
-    // No species filter: apply to all species.
-    for (auto &pc_uptr : mpc) {
-      if (!pc_uptr) { continue; }
-      applyThermalizer(*pc_uptr);
+    // No species filter: visit every container (species, then lasers), which
+    // is the same set the kernel-level loop used to visit.
+    for (const auto &name : particles.access->GetSpeciesAndLasersNames()) {
+      applyToSpecies(particles.access->GetParticleContainerFromName(name));
     }
   } else {
     // Apply only to the named species.
     for (const auto &name : m_species_names) {
-      applyThermalizer(static_cast<WarpXParticleContainer&>(mpc.GetParticleContainerFromName(name)));
+      applyToSpecies(particles.access->GetParticleContainerFromName(name));
     }
   }
 }
 
-void ParticleThermalizer::applyThermalizer(WarpXParticleContainer &pc) const
+void ParticleThermalizer::applyToSpecies(warpx::runtime::IParticleContainer &pc) const
 {
     for (int lev = 0; lev < pc.numLevels(); ++lev) {
         const auto& geom = pc.Geom(lev);
-        const auto& dx = geom.CellSizeArray();
-        const auto& problo = geom.ProbLoArray();
+        const amrex::Real* dx = geom.CellSize();
+        const amrex::Real* problo = geom.ProbLo();
+        const amrex::Real dx_dir = dx[m_normal];
         const auto dir = static_cast<int>(m_normal);
 
         amrex::RealBox thermalizer_region = geom.ProbDomain();
         thermalizer_region.setLo(dir, m_start);
         thermalizer_region.setHi(dir, m_end);
-        for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
+
+        amrex::MFItInfo info;
+        info.SetDynamic(pc.config().do_dynamic_scheduling());
+        for (TileIter pti(pc, lev, info); pti.isValid(); ++pti) {
             const long np = pti.numParticles();
 
-            // early exit for tiles that do not overlap the thermalizer region
+            // Early exit for tiles that do not overlap the thermalizer region.
+            // Identical predicate to find_overlap(): the tile only takes part
+            // when it overlaps the region on every direction (the region spans
+            // the full domain away from the normal).
             const amrex::Box& tile_box = pti.tilebox();
-            const amrex::RealBox tile_realbox = WarpX::getRealBox(tile_box, lev);
-
-            amrex::RealBox overlap_realbox;
-            amrex::Box overlap_box;
-            amrex::IntVect shifted;
-            const bool no_overlap = find_overlap(tile_realbox, thermalizer_region, dx, problo, overlap_realbox, overlap_box, shifted);
-            if (no_overlap) {
+            const amrex::RealBox tile_realbox{tile_box, dx, problo};
+            if (tile_realbox.lo(dir) > thermalizer_region.hi(dir) ||
+                tile_realbox.hi(dir) < thermalizer_region.lo(dir)) {
                 continue; // Go to the next tile
             }
 
             const auto getPosition = GetParticlePosition(pti);
 
             // Acquire pointers to particle attribute arrays as needed.
-            amrex::ParticleReal* ux = pti.GetAttribs(PIdx::ux).data();
-            amrex::ParticleReal* uy = pti.GetAttribs(PIdx::uy).data();
-            amrex::ParticleReal* uz = pti.GetAttribs(PIdx::uz).data();
+            auto& soa = pti.GetStructOfArrays();
+            amrex::ParticleReal* ux = soa.GetRealData(PIdx::ux).dataPtr();
+            amrex::ParticleReal* uy = soa.GetRealData(PIdx::uy).dataPtr();
+            amrex::ParticleReal* uz = soa.GetRealData(PIdx::uz).dataPtr();
 
             const amrex::Real loend = thermalizer_region.lo(dir);
             const amrex::Real hiend = thermalizer_region.hi(dir);
@@ -190,11 +211,11 @@ void ParticleThermalizer::applyThermalizer(WarpXParticleContainer &pc) const
                 amrex::Real prob; // stopping probability
                 if (norm_pos < loend) {
                   prob = 0._rt;
-                } else if (norm_pos > hiend - dx[dir]) {
+                } else if (norm_pos > hiend - dx_dir) {
                   prob = 1._rt;
                 } else {
-                  prob = 1.0_rt - std::pow((hiend - dx[dir] - norm_pos) /
-                                           (hiend - dx[dir] - loend),
+                  prob = 1.0_rt - std::pow((hiend - dx_dir - norm_pos) /
+                                           (hiend - dx_dir - loend),
                                             0.25_rt);
                 }
 

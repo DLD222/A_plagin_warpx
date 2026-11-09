@@ -406,6 +406,20 @@ WarpX::WarpX ()
     // Particle Boundary Buffer (i.e., scraped particles on boundary)
     m_particle_boundary_buffer = std::make_unique<ParticleBoundaryBuffer>(m_runtime_context);
 
+    // The particle thermalizer is a particle-core unit: ask the core factory
+    // instead of naming the implementation (A7.4).  A build without the plugin
+    // still runs, but an input that asked for the thermalizer must not be
+    // silently ignored.
+    m_particle_thermalizer = warpx::runtime::create_particle_thermalizer();
+    if (!m_particle_thermalizer) {
+        amrex::ParmParse const pp_thermalizer("particle_thermalizer");
+        std::string thermalizer_normal;
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            !pp_thermalizer.query("normal", thermalizer_normal),
+            "particle_thermalizer is set in the inputs but the particle-core plugin is "
+            "not linked: rebuild with WarpX_PLUGIN_PARTICLECORE=ON.");
+    }
+
     // Fluid Container
     if (do_fluid_species) {
         myfl = std::make_unique<MultiFluidContainer>(m_runtime_context);

@@ -12,6 +12,7 @@
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "Runtime/IMacroscopicProperties.H"
+#include "Runtime/IParticleThermalizer.H"
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/IReducedDiagsService.H"
@@ -34,6 +35,7 @@ struct Registry
     ElectrostaticSolverFactory electrostatic = nullptr;
     FiniteDifferenceSolverFactory finite_difference = nullptr;
     MacroscopicPropertiesFactory macroscopic = nullptr;
+    ParticleThermalizerFactory particle_thermalizer = nullptr;
 };
 
 Registry& registry ()
@@ -101,6 +103,25 @@ create_electrostatic_solver (int algorithm, int max_level, const RuntimeContext*
 {
     if (registry().electrostatic == nullptr) { return nullptr; }
     return registry().electrostatic(algorithm, max_level, context);
+}
+
+void
+register_particle_thermalizer_factory (ParticleThermalizerFactory factory)
+{
+    registry().particle_thermalizer = factory;
+}
+
+bool
+has_particle_thermalizer_factory ()
+{
+    return registry().particle_thermalizer != nullptr;
+}
+
+std::unique_ptr<IParticleThermalizer>
+create_particle_thermalizer ()
+{
+    if (registry().particle_thermalizer == nullptr) { return nullptr; }
+    return registry().particle_thermalizer();
 }
 
 void
