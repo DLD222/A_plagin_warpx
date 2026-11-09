@@ -14,7 +14,7 @@ algo.particle_shape = 1
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
 
-warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce
+warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce part_num part_energy part_mom rho_max lb_eff extrema
 step_info.type = Timestep
 step_info.intervals = 1
 field_energy.type = FieldEnergy
