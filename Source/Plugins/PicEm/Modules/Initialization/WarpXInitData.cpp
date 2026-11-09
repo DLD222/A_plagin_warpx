@@ -833,9 +833,12 @@ WarpX::InitData_BeforeInit ()
             warpx::runtime::RuntimeConfig::FromLegacy());
         m_legacy_time = std::make_unique<warpx::runtime::TimeState>();
         m_legacy_frame = std::make_unique<warpx::runtime::FrameState>();
+        m_legacy_snapshot = std::make_unique<warpx::runtime::RuntimeConfigSnapshot>(
+            warpx::runtime::RuntimeConfigSnapshot::FromLegacy());
         m_legacy_context = std::make_unique<warpx::runtime::RuntimeContext>(
             m_legacy_config.get(), m_legacy_time.get(), m_legacy_frame.get(),
-            m_legacy_data.get(), nullptr, m_legacy_host.get(), [] {});
+            m_legacy_data.get(), nullptr, m_legacy_host.get(), [] {},
+            m_legacy_snapshot.get());
         SetRuntimeContext(m_legacy_context.get());
     }
 

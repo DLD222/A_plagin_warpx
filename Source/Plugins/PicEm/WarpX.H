@@ -18,6 +18,7 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IAmrPolicy.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 #include "Runtime/TimeState.H"
 #include "Runtime/FrameState.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
@@ -1269,6 +1270,7 @@ private:
     std::unique_ptr<warpx::runtime::RuntimeConfig> m_legacy_config;
     std::unique_ptr<warpx::runtime::TimeState> m_legacy_time;
     std::unique_ptr<warpx::runtime::FrameState> m_legacy_frame;
+    std::unique_ptr<warpx::runtime::RuntimeConfigSnapshot> m_legacy_snapshot;
     std::unique_ptr<warpx::runtime::RuntimeContext> m_legacy_context;
 
     //! Complete the asynchronous broadcast of signal flags, and initiate a checkpoint if requested
