@@ -49,7 +49,7 @@ struct MagnetostaticConfig
     //! Time at the end of the step (the solve uses it for the EB path).
     amrex::Real t_new = 0.0;
     //! EB factories per level (only meaningful when EB is enabled at compile time).
-    std::function<amrex::FArrayBoxFactory const& (int lev)> eb_factory;
+    std::function<amrex::FabFactory<amrex::FArrayBox> const& (int lev)> eb_factory;
 
     int max_level = 0;
     int finest_level = 0;

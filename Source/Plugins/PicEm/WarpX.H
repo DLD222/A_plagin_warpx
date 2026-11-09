@@ -48,7 +48,7 @@
 #include "Runtime/IDiagnosticsService.H"
 #include "Runtime/IReducedDiagsService.H"
 #include "Runtime/LevelResources.H"
-#include "FieldSolver/Magnetostatic/MagnetostaticSolver.H"
+#include "Runtime/IMagnetostaticSolver.H"
 #include "FieldSolver/Implicit/WarpXSolverVec.H"
 #include "Filter/BilinearFilter.H"
 #include "Parallelization/GuardCellManager.H"
@@ -972,22 +972,14 @@ public:
     /** Electrostatic solve call */
     void ComputeSpaceChargeField (bool reset_E_field, bool reset_B_field, bool verbose_step);
 
-    // Magnetostatic Solver Interface
-    MagnetostaticSolver::VectorPoissonBoundaryHandler m_vector_poisson_boundary_handler;
+    // Magnetostatic Solver Interface: the kernel owns the contract, the
+    // field-solver plugin owns the implementation.
+    std::unique_ptr<warpx::runtime::IMagnetostaticSolver> m_magnetostatic_solver;
     amrex::Real magnetostatic_solver_required_precision = amrex::Real(1.e-11);
     amrex::Real magnetostatic_solver_absolute_tolerance = amrex::Real(0.0);
     int magnetostatic_solver_max_iters = 200;
     int magnetostatic_solver_verbosity = 2;
     void ComputeMagnetostaticField ();
-    void AddMagnetostaticFieldLabFrame ();
-    void computeVectorPotential (ablastr::fields::MultiLevelVectorField const& curr,
-                                 ablastr::fields::MultiLevelVectorField const& A,
-                                 amrex::Real required_precision=amrex::Real(1.e-11),
-                                 amrex::Real absolute_tolerance=amrex::Real(0.0),
-                                 int max_iters=200,
-                                 int verbosity=2); // const;
-
-    void setVectorPotentialBC (ablastr::fields::MultiLevelVectorField const& A) const;
 
     /**
      * \brief
