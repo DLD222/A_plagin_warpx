@@ -11,6 +11,7 @@
 #include "Fields.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/FieldGatherOrders.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
 #include "Solvers/WarpXSolverVec.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -24,6 +25,7 @@
 #include <AMReX_REAL.H>
 
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace warpx::runtime
@@ -43,8 +45,7 @@ struct ImplicitKernelServices
 {
     // ---- data the solver reads -------------------------------------------
     ablastr::fields::MultiFabRegister* fields = nullptr;
-    //! The species (their particle containers) the solver pushes.
-    warpx::runtime::IParticleContainerAccess* particles = nullptr;
+
     std::function<amrex::Geometry const& (int lev)> geom;
     std::function<amrex::IntVect ()> ng_eb;
     std::function<int (int dir, int side)> pec_insulator_is_e;
@@ -86,16 +87,24 @@ struct ImplicitKernelServices
     std::function<void (amrex::Real theta, amrex::Real time)> finish_electric_field_and_apply_bcs;
     std::function<void (amrex::Real theta, amrex::Real time)> finish_magnetic_field_and_apply_bcs;
     std::function<void (amrex::Real start_time)> spectral_source_free_field_advance;
-    //! Push the momentum of the sub-orbit particles on one level.
+    /**
+     * \brief Push the momentum of the sub-orbit particles on one level.
+     *
+     * Takes the six field components by reference plus the gather orders the
+     * solver is configured with, which is exactly what the kernel's PushP needs.
+     */
     std::function<void (int lev, amrex::Real dt,
-                        ablastr::fields::VectorField const& E,
-                        ablastr::fields::VectorField const& B)> push_particles_momentum;
+                        amrex::MultiFab const& Ex, amrex::MultiFab const& Ey,
+                        amrex::MultiFab const& Ez, amrex::MultiFab const& Bx,
+                        amrex::MultiFab const& By, amrex::MultiFab const& Bz,
+                        MomentumPushType momentum_push_type,
+                        std::optional<warpx::particles::FieldGatherOrders> gather_orders)> push_particles_momentum;
     //! Push the positions of every species.
     std::function<void (amrex::Real dt)> push_particles_position;
     //! Attributes a species exposes (used to detect sub-orbit bookkeeping).
     std::function<bool (int ispecies, std::string const& attrib)> species_has_attrib;
-    //! Number of sub-orbit attributes of a species on one level.
-    std::function<void (int ispecies, int lev, amrex::Gpu::Buffer<amrex::Long>& counter)> count_suborbits;
+    //! Count the particles of a species whose sub-orbit attribute reaches \c threshold.
+    std::function<void (int ispecies, int threshold, amrex::Long* counter)> count_suborbits;
     std::function<void (int step, amrex::Real dt)> compute_diags_mid_step;
 };
 

@@ -12,6 +12,7 @@
 
 #include "Modules/Particles/ParticleAttributes.H"
 #include "Modules/Particles/ParticleTileIter.H"
+#include "Runtime/FieldGatherOrders.H"
 #include "Runtime/IParticleContainer.H"
 #include "WarpXParticleContainer_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
@@ -98,12 +99,7 @@ struct DiagIdx
  * along each component's own direction (i.e. the Galerkin scheme on the Yee grid).
  * B is gathered with shape order b_shape and no order reduction.
  */
-struct FieldGatherOrders
-{
-    int e_shape;
-    bool e_galerkin;
-    int b_shape;
-};
+using warpx::particles::FieldGatherOrders;
 
 /**
  * WarpXParticleContainer is the base polymorphic class from which all concrete

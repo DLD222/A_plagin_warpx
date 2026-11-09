@@ -9,6 +9,9 @@
 
 #include "WarpX.H"
 
+#include "Particles/MultiParticleContainer.H"
+#include "Particles/WarpXParticleContainer.H"
+
 #include "Runtime/ImplicitKernelServices.H"
 
 warpx::runtime::ImplicitKernelServices
@@ -119,6 +122,42 @@ BuildImplicitKernelServices (WarpX& warpx)
     };
     s.compute_diags_mid_step = [&warpx] (int step, amrex::Real dt) {
         if (warpx.reduced_diags) { warpx.reduced_diags->ComputeDiagsMidStep(step, dt); }
+    };
+    s.push_particles_momentum = [&warpx] (int lev, amrex::Real dt,
+                                          amrex::MultiFab const& Ex, amrex::MultiFab const& Ey,
+                                          amrex::MultiFab const& Ez, amrex::MultiFab const& Bx,
+                                          amrex::MultiFab const& By, amrex::MultiFab const& Bz,
+                                          MomentumPushType push_type,
+                                          std::optional<warpx::particles::FieldGatherOrders> gather) {
+        warpx.GetPartContainer().PushP(lev, dt, Ex, Ey, Ez, Bx, By, Bz, push_type, gather);
+    };
+    s.push_particles_position = [&warpx] (amrex::Real dt) {
+        warpx.GetPartContainer().PushX(dt);
+    };
+    s.species_has_attrib = [&warpx] (int ispecies, std::string const& attrib) {
+        auto& pc = dynamic_cast<WarpXParticleContainer&>(
+            warpx.GetPartContainer().GetParticleContainer(ispecies));
+        return pc.HasiAttrib(attrib);
+    };
+    s.count_suborbits = [&warpx] (int ispecies, int threshold, amrex::Long* counter) {
+        auto& pc = dynamic_cast<WarpXParticleContainer&>(
+            warpx.GetPartContainer().GetParticleContainer(ispecies));
+        for (int lev = 0; lev <= warpx.finestLevel(); ++lev) {
+#ifdef AMREX_USE_OMP
+#pragma omp parallel
+#endif
+            {
+                for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
+                    int const* const nsuborbits = pti.GetiAttribs("nsuborbits").dataPtr();
+                    long const np = pti.numParticles();
+                    amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (long ip) {
+                        if (nsuborbits[ip] >= threshold) {
+                            amrex::Gpu::Atomic::Add(counter, amrex::Long(1));
+                        }
+                    });
+                }
+            }
+        }
     };
     return s;
 }
