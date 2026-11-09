@@ -8,6 +8,7 @@ foreach(D IN LISTS WarpX_DIMS)
         WarpXPushFieldsHybridPIC.cpp
         WarpX_QED_Field_Pushers.cpp
         WarpXSolveFieldsES.cpp
+        WarpX_ImplicitParticles.cpp
     )
 
 endforeach()

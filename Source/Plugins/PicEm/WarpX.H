@@ -178,6 +178,10 @@ public:
     void SyncMassMatricesPC ();
     void SyncMassMatrices ();
     void SaveParticlesAtImplicitStepStart ();
+    //! Implicit-solver particle bookkeeping that needs the tile layout.
+    void ClearImplicitParticleVelocities ();
+    void FinishImplicitVelocityUpdate ();
+    void PrepareImplicitVelocitiesForDeposition ();
     void FinishImplicitParticleUpdate (amrex::Real a_time);
     void ResetImplicitParticleData ();
     void SetElectricFieldAndApplyBCs (const WarpXSolverVec& a_E, amrex::Real a_time);
