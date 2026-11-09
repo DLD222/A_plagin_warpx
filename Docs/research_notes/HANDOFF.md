@@ -146,3 +146,30 @@ cmake --build build_off -j 16      # 编译通过；相应输入给出可操作�
 
 **预期数字**：2D 32 失败 / 四维 6 失败 / PICMI 3 失败，全部为平台校验和、缺可选依赖或上游自带；
 检查器全 0；`external_plugin_2` 与 `nonpic_kernel_2` 通过。
+
+
+## 8. 一个未修复的真实缺陷（必须优先处理）
+
+**症状**：宏观（张量介质）E 更新在**真空极限**下不等于 Yee —— `max|Ex|` 恰好是 Yee 的
+**2.000000 倍**，导致所有介质算例的色散关系快约 2 倍，`test_1d_macroscopic_solver` 因此失败
+（`cfl=1.0` 下发散、`cfl=0.5` 下剖面与解析解差 127%）。
+
+**一键复现**：
+
+```bash
+export LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:/tmp/hdf5_mpi/lib:$LD_LIBRARY_PATH"
+Tools/verify/check_macroscopic_vacuum_limit.sh        # 打印 ratio = 2.000000，退出码 1
+```
+
+**已定位**：`MacroscopicProperties.cpp` 节点介电填充（约 505-585 行）在节点上取左右两个
+相邻单元，但索引是按 **XZ（2D）** 写的（`jm = max(j-1,...)` / `jp = min(j,...)`，偏移第 1 维），
+在 `WARPX_DIM_1D_Z` 构建里第 1 维退化，导致一侧读到 0，算术平均把介电常数减半：
+
+```
+[node-fill] eL=0  eR=8.854187819e-12  normal=0  ev=4.427093909e-12
+```
+
+**修复方向**：让节点填充按维度取相邻单元（1D 下沿第 0 维），或复用 `T_Algo` 的维度约定；
+修好后用 `Tools/verify/check_macroscopic_vacuum_limit.sh`（应为 1.000000）与
+`test_1d_macroscopic_solver` 两个判据验收。**注意**：该文件同时服务 2D/3D 张量与亚像素材料，
+改动后必须重跑四维套件确认失败集不增。
