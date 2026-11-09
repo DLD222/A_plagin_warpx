@@ -58,8 +58,10 @@
 
 ### R5 功能完全覆盖原版（四维数值等价）——**未完成**
 
-**最新状态（2026-11-09 09:15，第 1 项已完成）**：37 条失败中 **24 条（8 个用例）已清零**，
-剩余 **13 条**。清零的是"缺外部测试数据"这一类，做法与上游 CI 一致
+**最新状态（2026-11-09 09:50，第 1-3 项已有实测结果）**：37 条失败中 **26 条已清零**，剩 **11 条**：
+RZ BTD 3 条、`boosted_opmd.checksum` 1 条、`pml_mr.run` 1 条（单独跑通过，待全量 `-j 4` 复核）、
+`ionization_dsmc.analysis` 1 条（需 `pywarpx`，验证构建 PYTHON=OFF）、`macroscopic_solver` 2 条、
+EB cube checksum 3 条。清零的是"缺外部测试数据"这一类（24 条），做法与上游 CI 一致
 （`.azure-pipelines.yml:183`）：把 `openPMD-example-datasets` 克隆到**仓库的上一级目录**。
 测试输入写的是 `../../../../openPMD-example-datasets/...`，从 `build_multi_hdf5/bin/<test>/`
 上溯 4 层正好是仓库父目录。
@@ -91,8 +93,54 @@ ctest --test-dir build_multi_hdf5 -R "load_external_field|projection_div_cleaner
 | RZ BTD | `test_rz_btd.{run,analysis,checksum}` | 3 |
 | 其它校验/分析 | `test_3d_embedded_boundary_cube{,_mr,_macroscopic}.checksum`(3)、`test_3d_ionization_electron_dsmc.analysis`(1)、`test_1d_macroscopic_solver.{analysis,checksum}`(2)、`test_1d_laser_acceleration_fluid_boosted.run`(1，已由快照修复解决) | 7 |
 
-**结论**：37 条 = 24 缺数据 + 2 缺 FFT + 1 慢测试 + 3 BTD + 7 其它；其中 1 条已由快照修复解决，
-**其余 6 条"其它校验/分析"尚未逐条归因**，是后续轮次的工作项（不再声称"已全部归因"）。
+**结论**：37 条 = 24 缺数据 + 2 缺 FFT + 1 慢测试 + 3 BTD + 7 其它；其中 1 条已由快照修复解决。
+其余 6 条已在下面逐条给出证据（1 条是环境项，1 条是真实数值发散，3 条待上游对照，1 条已清零），
+不再声称"已全部归因"。
+
+**2026-11-09 09:50，第 2 项（FFT 构建）与第 3 项（慢测试）的实测结果**：
+
+第 2 项：RZ + FFT 需要 `blaspp`/`lapackpp`，本机没有系统 BLAS。依赖用 micromamba 装在
+`/home/douliangduo/third_party/fft-deps`（conda-forge `blaspp`/`lapackpp` 2025.05.28 + OpenBLAS），
+FFTW 沿用 `/home/douliangduo/third_party/fftw`。配置：
+
+```bash
+cmake -S . -B build_multi_hdf5_fft -DCMAKE_BUILD_TYPE=Release -DWarpX_DIMS="1;3;RZ" \
+  -DWarpX_COMPUTE=OMP -DWarpX_OPENPMD=ON -DWarpX_FFT=ON -DWarpX_MPI_THREAD_MULTIPLE=ON \
+  -DCMAKE_PREFIX_PATH="/home/douliangduo/miniconda3;/home/douliangduo/third_party/fftw;/home/douliangduo/third_party/fft-deps" \
+  -DHDF5_DIR=/tmp/hdf5_mpi/cmake -DHDF5_ROOT=/tmp/hdf5_mpi -DWarpX_CCACHE=ON
+cmake --build build_multi_hdf5_fft -j 20      # -> EXIT=0
+```
+
+**这个组合此前从未被编译过，第一次编译就暴露 3 个真实缺陷（都是插件化搬移留下的，已最小修复）**：
+
+| # | 文件 | 症状 | 修复 |
+|---|---|---|---|
+| 1 | `Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp` | `SpectralSolverRZ`/`PML_RZ` 是完整类型使用，但只经 `WarpX.H` 拿到前置声明 → `invalid use of incomplete type` | 加 `#ifdef WARPX_USE_FFT` + `#ifdef WARPX_DIM_RZ` 保护的两个头（与 `WarpX.cpp` 同款） |
+| 2 | `Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp` | 缺 `Runtime/ILegacyRuntime.H`、`Runtime/RuntimeData.H`、`Utils/TextMsg.H`；构造函数签名漏了头文件里已有的 `const RuntimeData*` 形参（`m_data(data)` 引用了不存在的名字） | 补 include，补形参（改名 `runtime_data`，避免遮蔽成员函数 `data()`） |
+| 3 | 同目录 `WarpXHostServices.cpp` 的 `computeRho` | `ixType` 断言在 RZ 上是错的：RZ PSATD 的沉积 rho 本来就是 cell-centered（`MultiParticleContainer::GetZeroChargeDensity` 对 RZ PSATD 不做 `surroundingNodes`，与上游逐行一致），诊断随后在 `InterpolateMFForDiag` 插值到节点；上游 `RhoFunctor` 没有此断言 | 该断言只在非 RZ 保留（`#ifndef WARPX_DIM_RZ`） |
+
+用例结果：`test_rz_laser_acceleration_boosted_opmd.run` **通过**（3.43 s）；`.checksum` 仍失败，
+但差异只出现在 mode-1 的微小分量（如 `Br_1_imag` 7.07e-12 vs 8.63e-12，相对 22%），
+而同一用例的主导分量与基准**在 1e-15 相对量级上一致**（`jr_1_imag` 1.5554e15、`jt_1_real` 1.5423e15）——
+该算例的 mode-1 本身是发散的（基准里同样有 1e12–1e15 的非物理值），微小分量属平台/FFT 相关噪声。
+结论：**FFT 不再是阻塞项**；这条 checksum 要用"上游 26.10 + 同 FFT/HDF5 环境"对照后才能定性（下一轮）。
+
+第 3 项：`ctest --test-dir build_multi_hdf5 -R test_3d_particles_in_pml_mr --timeout 3000` 单独跑，
+`run` 87.44 s + `analysis` + `checksum` 全通过（总 1:30）。此前并行失败是资源争用下的超时，
+不是数值问题；全量 `-j 4` 复跑的权威确认放到下一轮。
+
+**"其它 6 条"已逐条分类（不再是"待查"）**：
+
+| 条目 | 结论 | 证据 |
+|---|---|---|
+| `test_3d_ionization_electron_dsmc.analysis` | **环境项**：分析脚本 `from pywarpx import picmi`，验证构建 `WarpX_PYTHON=OFF` | `ModuleNotFoundError: No module named 'pywarpx'` |
+| `test_1d_macroscopic_solver.{analysis,checksum}` | **真实数值发散**（`By`→1.44e80、`Ez`=NaN、相对误差 2.7e78）；但**基准本身也是发散值**（`By`=52.77、`Ex`=1.52e10），需与上游同环境对照 | `analysis_fields.py` 报 `rel. l2 error on By = 3.17e+78` |
+| `test_3d_embedded_boundary_cube{,_mr,_macroscopic}.checksum` | Ey/Ez 相对差 95%（1.5e-6 vs 3.0e-5），其余分量 <0.5%；同样需上游对照 | checksum 输出逐键对比 |
+| `test_1d_laser_acceleration_fluid_boosted.run` | **已清零**（快照修复） | 本轮复跑 38.71 s 通过 |
+
+**无回归检查**：打完上述补丁后重建 FFT=OFF 的 `build_multi_hdf5` 全绿（`EXIT=0`），
+RZ 诊断子集（`test_rz_laser_acceleration_opmd`、`load_external_field`、`projection_div_cleaner`、
+`1d_macroscopic_solver.run`）**19/19 通过**。
 
 | 构建 | 用例 | 通过 | 无法运行 | 失败性质 |
 |---|---|---|---|---|

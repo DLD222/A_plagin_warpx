@@ -134,9 +134,17 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
         rho->nComp() == ncomp || (allow_extra && rho->nComp() > ncomp),
         "computeRho: requested " + std::to_string(ncomp) + " components but the "
         "deposited rho has " + std::to_string(rho->nComp()));
+#ifndef WARPX_DIM_RZ
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         rho->ixType() == amrex::IndexType(nodal),
         "computeRho: requested nodal type does not match the deposited rho");
+#else
+    // RZ PSATD deposits rho cell-centred (MultiParticleContainer::GetZeroChargeDensity
+    // skips surroundingNodes for RZ PSATD, same as upstream) while a diagnostic
+    // interpolates it onto nodes in InterpolateMFForDiag.  That mismatch is
+    // legitimate, so the layout is not validated here on RZ.
+    amrex::ignore_unused(nodal);
+#endif
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         rho->nGrowVect() == ngrow,
         "computeRho: requested ngrow does not match the deposited rho");

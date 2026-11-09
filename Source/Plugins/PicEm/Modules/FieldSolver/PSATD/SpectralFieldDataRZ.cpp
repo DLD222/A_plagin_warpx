@@ -8,6 +8,7 @@
 
 #include "Runtime/ILegacyRuntime.H"
 #include "Runtime/RuntimeData.H"
+#include "Utils/TextMsg.H"
 #include "Utils/WarpXUtil.H"
 
 #include <ablastr/math/fft/AnyFFT.H>
@@ -38,10 +39,11 @@ SpectralFieldDataRZ::SpectralFieldDataRZ (const int lev,
                                           SpectralKSpaceRZ const & k_space,
                                           amrex::DistributionMapping const & dm,
                                           int const n_field_required,
-                                          int const n_modes)
+                                          int const n_modes,
+                                          const warpx::runtime::RuntimeData* runtime_data)
     : n_rz_azimuthal_modes(n_modes),
       m_ncomps(2 * n_modes - 1),
-      m_data(data),
+      m_data(runtime_data),
       m_n_fields(n_field_required)
 {
     amrex::BoxArray const & spectralspace_ba = k_space.spectralspace_ba;
