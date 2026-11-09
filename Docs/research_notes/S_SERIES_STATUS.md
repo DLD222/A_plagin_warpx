@@ -346,3 +346,23 @@ pybind 于是回退到动态类型 `PhysicalParticleContainer` 并报"未注册"
 剩余 3 条**全部是校验和**（相对误差 1e-3~6e-3，`run` 与 `analysis` 均通过），
 属于与 C++ 套件一致的平台校验和类，不是功能缺口。
 另有 10 条校验和差异在修复前统计中已归入该类。
+
+
+## 10. 判据 2 收尾：场求解器族全部插件化（2026-11-10）
+
+| 能力 | 位置 | 独立开关 | 缺失时的行为 |
+|---|---|---|---|
+| 有限差分 | `Plugins/FieldSolver/FiniteDifference` | `WarpX_PLUGIN_FIELDSOLVER` | 可操作错误 |
+| 静电 | `Plugins/FieldSolver/Electrostatic` | 同上 | 可操作错误 |
+| PSATD | `Plugins/FieldSolver/PSATD` | 同上 + `WarpX_FFT` | 可操作错误 |
+| 静磁 | `Plugins/FieldSolver/Magnetostatic` | 同上 | 可操作错误 |
+| **隐式（四种）** | `Plugins/FieldSolver/Implicit` | 同上 + `WarpX_PLUGIN_IMPLICIT` | 可操作错误 |
+
+**隐式求解器搬迁的四个前置条件（全部完成）**：
+
+1. `WarpXSolverVec`/`WarpXSolverDOF` 去内核指针并移入 `Source/Core/Solvers`；
+2. `FieldGatherOrders`、`SpectralFieldIndex`、`NonlinearSolvers/*`（28 文件）移入核心；
+3. `Define` 改收 `ImplicitKernelServices` 服务袋（50+ 项），求解器内 `WarpX*` 归零；
+4. 内核侧三处未使用的 `ImplicitSolver.H` 包含删除。
+
+**验证**：四个检查器全 0；2D 全量套件失败集 32 项，与搬迁前**逐条一致**；27 个隐式/Darwin 测试通过。
