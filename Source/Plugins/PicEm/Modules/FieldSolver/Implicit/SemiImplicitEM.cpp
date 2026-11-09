@@ -38,15 +38,15 @@ void SemiImplicitEM::Define (WarpX*  a_WarpX, bool  a_from_restart)
     // This is only needed for substepping
     using ablastr::fields::Direction;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        const auto& ba_Bx = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->boxArray();
-        const auto& ba_By = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{1}, lev)->boxArray();
-        const auto& ba_Bz = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{2}, lev)->boxArray();
-        const auto& dm = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->DistributionMap();
-        const amrex::IntVect ngb = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->nGrowVect();
-        const int ncomp = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->nComp();
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{0}, lev, ba_Bx, dm, ncomp, ngb, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{1}, lev, ba_By, dm, ncomp, ngb, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{2}, lev, ba_Bz, dm, ncomp, ngb, 0.0_rt);
+        const auto& ba_Bx = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->boxArray();
+        const auto& ba_By = m_services.fields->get(FieldType::Bfield_fp, Direction{1}, lev)->boxArray();
+        const auto& ba_Bz = m_services.fields->get(FieldType::Bfield_fp, Direction{2}, lev)->boxArray();
+        const auto& dm = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->DistributionMap();
+        const amrex::IntVect ngb = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->nGrowVect();
+        const int ncomp = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->nComp();
+        m_services.fields->alloc_init(FieldType::B_old, Direction{0}, lev, ba_Bx, dm, ncomp, ngb, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::B_old, Direction{1}, lev, ba_By, dm, ncomp, ngb, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::B_old, Direction{2}, lev, ba_Bz, dm, ncomp, ngb, 0.0_rt);
     }
 
     // Reconstruct the initial guess E^{n-1/2} from checkpoint fields E^{n-1} and E^n.
@@ -70,7 +70,7 @@ void SemiImplicitEM::Define (WarpX*  a_WarpX, bool  a_from_restart)
 
 void SemiImplicitEM::PrintParameters () const
 {
-    if (!m_WarpX->Verbose()) { return; }
+    if (!m_services.verbose()) { return; }
     amrex::Print() << "\n";
     amrex::Print() << "-----------------------------------------------------------\n";
     amrex::Print() << "----------- SEMI IMPLICIT EM SOLVER PARAMETERS ------------\n";
@@ -84,7 +84,7 @@ void SemiImplicitEM::SetupStep (amrex::Real start_time)
 {
     // Save particle position and velocity at the start of the time step
     // Copy x to x_n etc
-    m_WarpX->SaveParticlesAtImplicitStepStart();
+    m_services.save_particles_at_implicit_step_start(0);
 
     // Particles at t_{n}
     // Efield_fp is at t_{n}
@@ -107,8 +107,8 @@ void SemiImplicitEM::SetupStep (amrex::Real start_time)
     // B_old is at t_{n}
 
     // Advance WarpX owned Bfield_fp from t_{n} to t_{n+1/2}
-    m_WarpX->EvolveB(0.5_rt*m_dt, SubcyclingHalf::FirstHalf, start_time);
-    m_WarpX->FillBoundaryB(m_WarpX->getngEB(), true);
+    m_services.evolve_b(0.5_rt*m_dt, SubcyclingHalf::FirstHalf, start_time);
+    m_services.fill_boundary_b(m_services.ng_eb(), true);
 
     // Bfield_fp is at t_{n+1/2}
 }
@@ -133,7 +133,7 @@ void SemiImplicitEM::ResetStep (amrex::Real start_time)
     m_E.Copy(m_E_save);
     // m_E is at t_{n-1/2}
 
-    m_WarpX->ResetImplicitParticleData();
+    m_services.reset_implicit_particle_data();
 
     // Restore E^n, including guards, before recomputing the magnetic half-step.
     // The failed solve leaves Efield_fp containing its last nonlinear iterate.
@@ -143,8 +143,8 @@ void SemiImplicitEM::ResetStep (amrex::Real start_time)
     CopyVectorField(FieldType::Bfield_fp, FieldType::B_old);
 
     // Advance WarpX owned Bfield_fp from t_{n} to t_{n+1/2}
-    m_WarpX->EvolveB(0.5_rt*m_dt, SubcyclingHalf::FirstHalf, start_time);
-    m_WarpX->FillBoundaryB(m_WarpX->getngEB(), true);
+    m_services.evolve_b(0.5_rt*m_dt, SubcyclingHalf::FirstHalf, start_time);
+    m_services.fill_boundary_b(m_services.ng_eb(), true);
     // Bfield_fp is at t_{n+1/2} (with new smaller time step)
 }
 
@@ -153,8 +153,8 @@ void SemiImplicitEM::FinishStep (const amrex::Real start_time, const int a_step)
     const amrex::Real half_time = start_time + 0.5_rt*m_dt;
 
     // Update WarpX owned Efield_fp to t_{n+1/2}
-    m_WarpX->SetElectricFieldAndApplyBCs(m_E, half_time);
-    m_WarpX->reduced_diags->ComputeDiagsMidStep(a_step, m_dt);
+    m_services.set_electric_field_and_apply_bcs(m_E, half_time);
+    m_services.compute_diags_mid_step(a_step, m_dt);
 
     // Efield_fp is at t_{n+1/2}
 
@@ -163,7 +163,7 @@ void SemiImplicitEM::FinishStep (const amrex::Real start_time, const int a_step)
     // Advance particles from t_{n+1/2} to t_{n+1}
     FinishImplicitParticleUpdate(new_time, a_step);
     if (m_nsubsteps > 1) {
-        m_WarpX->HandleParticlesAtBoundaries(a_step, new_time, 0);
+        m_services.handle_particles_at_boundaries(a_step, new_time, 0);
     }
 
     // Particles at t_{n+1}
@@ -172,7 +172,7 @@ void SemiImplicitEM::FinishStep (const amrex::Real start_time, const int a_step)
     // as the initial guess for the next nonlinear solve. E_old retains E^n
     // for checkpointing alongside Efield_fp at E^{n+1}.
     // E^{n+1} = 2*E^{n+1/2} - E^n
-    m_WarpX->FinishElectricFieldAndApplyBCs(m_theta, new_time);
+    m_services.finish_electric_field_and_apply_bcs(m_theta, new_time);
 
     // Efield_fp is at t_{n+1}
     // m_E is at t_{n+1/2}
@@ -181,8 +181,8 @@ void SemiImplicitEM::FinishStep (const amrex::Real start_time, const int a_step)
     // m_Eold is at t_{n}
 
     // Advance WarpX owned Bfield_fp from t_{n+1/2} to t_{n+1}
-    m_WarpX->EvolveB(0.5_rt*m_dt, SubcyclingHalf::SecondHalf, half_time);
-    m_WarpX->FillBoundaryB(m_WarpX->getngEB(), true);
+    m_services.evolve_b(0.5_rt*m_dt, SubcyclingHalf::SecondHalf, half_time);
+    m_services.fill_boundary_b(m_services.ng_eb(), true);
 
     // Bfield_fp is at t_{n+1}
 }
@@ -199,7 +199,7 @@ void SemiImplicitEM::ComputeRHS (WarpXSolverVec& a_RHS,
     // Update WarpX-owned Efield_fp using current state of E from
     // the nonlinear solver at time n+1/2
     const amrex::Real half_time = start_time + 0.5_rt*m_dt;
-    m_WarpX->SetElectricFieldAndApplyBCs( a_E, half_time );
+    m_services.set_electric_field_and_apply_bcs( a_E, half_time );
 
     // Update particle positions and velocities using the current state
     // of E and B. Deposit current density at time n+1/2
@@ -207,5 +207,5 @@ void SemiImplicitEM::ComputeRHS (WarpXSolverVec& a_RHS,
     PreRHSOp(half_time, a_nl_iter, a_from_jacobian, dt_scale, update_pc);
 
     // RHS = cvac^2*0.5*dt*(curl(B^{n+1/2}) - mu0*J^{n+1/2})
-    m_WarpX->ImplicitComputeRHSE(0.5_rt*m_dt, a_RHS);
+    m_services.implicit_compute_rhse(0.5_rt*m_dt, a_RHS);
 }

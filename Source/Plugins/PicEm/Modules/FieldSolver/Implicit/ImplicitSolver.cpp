@@ -28,7 +28,7 @@ void ImplicitSolver::FinishImplicitParticleUpdate (
     amrex::Real const time,
     int const step)
 {
-    m_WarpX->FinishImplicitParticleUpdate(time);
+    m_services.finish_implicit_particle_update(time);
 
     std::map<std::string, amrex::Long> local_suborbit_counts;
     for (int ispecies = 0; ispecies < m_services.num_species(); ++ispecies) {
@@ -86,34 +86,34 @@ void ImplicitSolver::AccumulateSuborbitStatistics (
 
 void ImplicitSolver::CreateParticleAttributes () const
 {
-    m_WarpX->AddImplicitParticleAttributes(m_particle_suborbits);
+    m_services.add_implicit_particle_attributes(m_particle_suborbits);
 
 }
 
 const Geometry& ImplicitSolver::GetGeometry (const int a_lvl) const
 {
     AMREX_ASSERT((a_lvl >= 0) && (a_lvl < m_num_amr_levels));
-    return m_WarpX->Geom(a_lvl);
+    return m_services.geom(a_lvl);
 }
 
 const Array<FieldBoundaryType,AMREX_SPACEDIM>& ImplicitSolver::GetFieldBoundaryLo () const
 {
-    return m_WarpX->GetFieldBoundaryLo();
+    return m_services.field_boundary_lo();
 }
 
 const Array<FieldBoundaryType,AMREX_SPACEDIM>& ImplicitSolver::GetFieldBoundaryHi () const
 {
-    return m_WarpX->GetFieldBoundaryHi();
+    return m_services.field_boundary_hi();
 }
 
 Array<LinOpBCType,AMREX_SPACEDIM> ImplicitSolver::GetLinOpBCLo () const
 {
-    return convertFieldBCToLinOpBC(m_WarpX->GetFieldBoundaryLo(),/*bdry_side=*/0);
+    return convertFieldBCToLinOpBC(m_services.field_boundary_lo(),/*bdry_side=*/0);
 }
 
 Array<LinOpBCType,AMREX_SPACEDIM> ImplicitSolver::GetLinOpBCHi () const
 {
-    return convertFieldBCToLinOpBC(m_WarpX->GetFieldBoundaryHi(),/*bdry_side=*/1);
+    return convertFieldBCToLinOpBC(m_services.field_boundary_hi(),/*bdry_side=*/1);
 }
 
 Array<LinOpBCType,AMREX_SPACEDIM> ImplicitSolver::convertFieldBCToLinOpBC (const Array<FieldBoundaryType,AMREX_SPACEDIM>& a_fbc, const int bdry_side) const
@@ -138,7 +138,7 @@ Array<LinOpBCType,AMREX_SPACEDIM> ImplicitSolver::convertFieldBCToLinOpBC (const
             // Also for FieldBoundaryType::PMC
             lbc[i] = LinOpBCType::symmetry;
         } else if (a_fbc[i] == FieldBoundaryType::PEC_Insulator) {
-            const int voltage_driven = m_WarpX->GetPECInsulator_IsESet(i,bdry_side);
+            const int voltage_driven = m_services.pec_insulator_is_e(i,bdry_side);
             if (voltage_driven) { // Dirichlet for E
                 lbc[i] = LinOpBCType::Dirichlet;
             } else { // Dirichlet for B
@@ -255,8 +255,8 @@ void ImplicitSolver::CumulateJ ()
 
     using warpx::fields::FieldType;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        ablastr::fields::VectorField J = m_WarpX->m_fields.get_alldirs(FieldType::current_fp, lev);
-        const ablastr::fields::VectorField J0 = m_WarpX->m_fields.get_alldirs(FieldType::current_fp_non_suborbit, lev);
+        ablastr::fields::VectorField J = m_services.fields->get_alldirs(FieldType::current_fp, lev);
+        const ablastr::fields::VectorField J0 = m_services.fields->get_alldirs(FieldType::current_fp_non_suborbit, lev);
         amrex::MultiFab::Add(*J[0], *J0[0], 0, 0, J0[0]->nComp(), J0[0]->nGrowVect());
         amrex::MultiFab::Add(*J[1], *J0[1], 0, 0, J0[1]->nComp(), J0[1]->nGrowVect());
         amrex::MultiFab::Add(*J[2], *J0[2], 0, 0, J0[2]->nComp(), J0[2]->nGrowVect());
@@ -317,9 +317,9 @@ void ImplicitSolver::ApplyMassMatrices (
 
     for (int lev = 0; lev < nlevs; ++lev) {
 
-        ablastr::fields::VectorField SX = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_X, lev);
-        ablastr::fields::VectorField SY = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_Y, lev);
-        ablastr::fields::VectorField SZ = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_Z, lev);
+        ablastr::fields::VectorField SX = m_services.fields->get_alldirs(FieldType::MassMatrices_X, lev);
+        ablastr::fields::VectorField SY = m_services.fields->get_alldirs(FieldType::MassMatrices_Y, lev);
+        ablastr::fields::VectorField SZ = m_services.fields->get_alldirs(FieldType::MassMatrices_Z, lev);
 
         if (a_zero_out_first) {
             a_out[lev][0]->setVal(0.0);
@@ -669,13 +669,13 @@ void ImplicitSolver::ComputeJfromMassMatrices (const bool  a_J_from_MM_only)
     const int finest_level = m_num_amr_levels - 1;
 
     ablastr::fields::MultiLevelVectorField J_ml =
-        m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::current_fp, finest_level);
+        m_services.fields->get_mr_levels_alldirs(FieldType::current_fp, finest_level);
     const ablastr::fields::MultiLevelVectorField E_ml =
-        m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Efield_fp, finest_level);
+        m_services.fields->get_mr_levels_alldirs(FieldType::Efield_fp, finest_level);
     const ablastr::fields::MultiLevelVectorField E0_ml =
-        m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Efield_fp_save, finest_level);
+        m_services.fields->get_mr_levels_alldirs(FieldType::Efield_fp_save, finest_level);
     const ablastr::fields::MultiLevelVectorField J0_ml =
-        m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::current_fp_non_suborbit, finest_level);
+        m_services.fields->get_mr_levels_alldirs(FieldType::current_fp_non_suborbit, finest_level);
 
     ApplyMassMatrices(
         /* a_out           = */ J_ml,
@@ -772,8 +772,8 @@ void ImplicitSolver::CopyVectorField (warpx::fields::FieldType dst, warpx::field
 {
     // Copy the MultiFabs in a VectorField
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        const ablastr::fields::VectorField src_vec = m_WarpX->m_fields.get_alldirs(src, lev);
-        ablastr::fields::VectorField dst_vec = m_WarpX->m_fields.get_alldirs(dst, lev);
+        const ablastr::fields::VectorField src_vec = m_services.fields->get_alldirs(src, lev);
+        ablastr::fields::VectorField dst_vec = m_services.fields->get_alldirs(dst, lev);
         for (int n = 0; n < 3; ++n) {
             amrex::MultiFab::Copy(*dst_vec[n], *src_vec[n], 0, 0, dst_vec[n]->nComp(), dst_vec[n]->nGrowVect());
         }
@@ -823,11 +823,11 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
     // The mass matrices are deposited with the shape their stencil is sized for
     m_implicit_options.particle_shape = particle_shape;
     const int shape = particle_shape;
-    const amrex::IntVect ngJ = m_WarpX->m_fields.get(FieldType::current_fp, Direction{0}, 0)->nGrowVect();
-    const amrex::IntVect ngE = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, 0)->nGrowVect();
+    const amrex::IntVect ngJ = m_services.fields->get(FieldType::current_fp, Direction{0}, 0)->nGrowVect();
+    const amrex::IntVect ngE = m_services.fields->get(FieldType::Efield_fp, Direction{0}, 0)->nGrowVect();
 
     // Get nodal flags for each component of J
-    const ablastr::fields::VectorField J = m_WarpX->m_fields.get_alldirs(FieldType::current_fp, 0);
+    const ablastr::fields::VectorField J = m_services.fields->get_alldirs(FieldType::current_fp, 0);
     const amrex::IntVect Jx_nodal = J[0]->ixType().toIntVect();
     const amrex::IntVect Jy_nodal = J[1]->ixType().toIntVect();
     const amrex::IntVect Jz_nodal = J[2]->ixType().toIntVect();
@@ -1005,40 +1005,40 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
     }
 
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        const auto& ba_Jx = m_WarpX->m_fields.get(FieldType::current_fp, Direction{0}, lev)->boxArray();
-        const auto& ba_Jy = m_WarpX->m_fields.get(FieldType::current_fp, Direction{1}, lev)->boxArray();
-        const auto& ba_Jz = m_WarpX->m_fields.get(FieldType::current_fp, Direction{2}, lev)->boxArray();
-        const auto& dm = m_WarpX->m_fields.get(FieldType::current_fp, Direction{0}, lev)->DistributionMap();
+        const auto& ba_Jx = m_services.fields->get(FieldType::current_fp, Direction{0}, lev)->boxArray();
+        const auto& ba_Jy = m_services.fields->get(FieldType::current_fp, Direction{1}, lev)->boxArray();
+        const auto& ba_Jz = m_services.fields->get(FieldType::current_fp, Direction{2}, lev)->boxArray();
+        const auto& dm = m_services.fields->get(FieldType::current_fp, Direction{0}, lev)->DistributionMap();
         //
         if (m_use_mass_matrices_jacobian) {
-            m_WarpX->m_fields.alloc_init(FieldType::Efield_fp_save, Direction{0}, lev, ba_Jx, dm, 1, ngE, 0.0_rt);
-            m_WarpX->m_fields.alloc_init(FieldType::Efield_fp_save, Direction{1}, lev, ba_Jy, dm, 1, ngE, 0.0_rt);
-            m_WarpX->m_fields.alloc_init(FieldType::Efield_fp_save, Direction{2}, lev, ba_Jz, dm, 1, ngE, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::Efield_fp_save, Direction{0}, lev, ba_Jx, dm, 1, ngE, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::Efield_fp_save, Direction{1}, lev, ba_Jy, dm, 1, ngE, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::Efield_fp_save, Direction{2}, lev, ba_Jz, dm, 1, ngE, 0.0_rt);
         }
         //
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_X, Direction{0}, lev, ba_Jx, dm, Nc_tot_xx, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_X, Direction{1}, lev, ba_Jx, dm, Nc_tot_xy, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_X, Direction{2}, lev, ba_Jx, dm, Nc_tot_xz, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_X, Direction{0}, lev, ba_Jx, dm, Nc_tot_xx, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_X, Direction{1}, lev, ba_Jx, dm, Nc_tot_xy, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_X, Direction{2}, lev, ba_Jx, dm, Nc_tot_xz, ngJ, 0.0_rt);
         //
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Y, Direction{0}, lev, ba_Jy, dm, Nc_tot_yx, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Y, Direction{1}, lev, ba_Jy, dm, Nc_tot_yy, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Y, Direction{2}, lev, ba_Jy, dm, Nc_tot_yz, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Y, Direction{0}, lev, ba_Jy, dm, Nc_tot_yx, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Y, Direction{1}, lev, ba_Jy, dm, Nc_tot_yy, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Y, Direction{2}, lev, ba_Jy, dm, Nc_tot_yz, ngJ, 0.0_rt);
         //
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Z, Direction{0}, lev, ba_Jz, dm, Nc_tot_zx, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Z, Direction{1}, lev, ba_Jz, dm, Nc_tot_zy, ngJ, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_Z, Direction{2}, lev, ba_Jz, dm, Nc_tot_zz, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Z, Direction{0}, lev, ba_Jz, dm, Nc_tot_zx, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Z, Direction{1}, lev, ba_Jz, dm, Nc_tot_zy, ngJ, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::MassMatrices_Z, Direction{2}, lev, ba_Jz, dm, Nc_tot_zz, ngJ, 0.0_rt);
         //
         if (m_use_mass_matrices_pc) {
-            m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_PC, Direction{0}, lev, ba_Jx, dm, ncomp_tot_pc_xx, ngJ, 0.0_rt);
-            m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_PC, Direction{1}, lev, ba_Jy, dm, ncomp_tot_pc_yy, ngJ, 0.0_rt);
-            m_WarpX->m_fields.alloc_init(FieldType::MassMatrices_PC, Direction{2}, lev, ba_Jz, dm, ncomp_tot_pc_zz, ngJ, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::MassMatrices_PC, Direction{0}, lev, ba_Jx, dm, ncomp_tot_pc_xx, ngJ, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::MassMatrices_PC, Direction{1}, lev, ba_Jy, dm, ncomp_tot_pc_yy, ngJ, 0.0_rt);
+            m_services.fields->alloc_init(FieldType::MassMatrices_PC, Direction{2}, lev, ba_Jz, dm, ncomp_tot_pc_zz, ngJ, 0.0_rt);
         }
     }
 
     // Set the pointer to mass matrix MultiFab
     if (m_use_mass_matrices_pc) {
         for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-            m_mmpc_mfarrvec.push_back(m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_PC, lev));
+            m_mmpc_mfarrvec.push_back(m_services.fields->get_alldirs(FieldType::MassMatrices_PC, lev));
         }
     }
 
@@ -1066,7 +1066,7 @@ void ImplicitSolver::PreLinearSolve (const bool update_pc)
 
     // The deposit is skipped when the mass matrices are used only for a PC that is not updated
     if (m_use_mass_matrices_jacobian || (m_use_mass_matrices_pc && update_pc)) {
-        m_WarpX->DepositMassMatrices(m_dt, m_implicit_options);
+        m_services.deposit_mass_matrices(m_dt, m_implicit_options);
         FinishMassMatricesDeposition();
     }
 
@@ -1094,7 +1094,7 @@ void ImplicitSolver::PreRHSOp (const amrex::Real a_cur_time,
 
     if (config().use_filter()) {
         const int finest_level = 0;
-        m_WarpX->ApplyFilterMF(m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Efield_fp, finest_level), 0);
+        m_services.apply_filter_mf(m_services.fields->get_mr_levels_alldirs(FieldType::Efield_fp, finest_level), 0);
     }
 
     // Advance the particle positions by 1/2 dt,
@@ -1122,13 +1122,13 @@ void ImplicitSolver::PreRHSOp (const amrex::Real a_cur_time,
     if (m_use_mass_matrices_jacobian && a_from_jacobian) { // Called from linear stage of JFNK and using mass matrices for Jacobian
         if (m_particle_suborbits) {
             options.evolve_suborbit_particles_only = true;
-            m_WarpX->PushParticlesandDeposit(a_cur_time, skip_deposition, PositionPushType::Full, MomentumPushType::Full, a_dt_scale, &options);
+            m_services.push_particles_and_deposit(a_cur_time, skip_deposition, PositionPushType::Full, MomentumPushType::Full, a_dt_scale, &options);
         }
         const bool J_from_MM_only = !options.evolve_suborbit_particles_only;
         ComputeJfromMassMatrices( J_from_MM_only );
     }
     else { // Conventional particle-suppressed JFNK
-        m_WarpX->PushParticlesandDeposit(a_cur_time, skip_deposition, PositionPushType::Full, MomentumPushType::Full, a_dt_scale, &options);
+        m_services.push_particles_and_deposit(a_cur_time, skip_deposition, PositionPushType::Full, MomentumPushType::Full, a_dt_scale, &options);
         CumulateJ();
     }
 
@@ -1137,15 +1137,15 @@ void ImplicitSolver::PreRHSOp (const amrex::Real a_cur_time,
     // current has been accumulated from all containers above.
     // Rho (if used) is scaled inside WarpX::FinalizeRho().
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        ablastr::fields::VectorField J = m_WarpX->m_fields.get_alldirs(FieldType::current_fp, lev);
-        m_WarpX->ApplyInverseVolumeScalingToCurrentDensity(J[0], J[1], J[2], lev);
+        ablastr::fields::VectorField J = m_services.fields->get_alldirs(FieldType::current_fp, lev);
+        m_services.apply_inverse_volume_scaling_current(*m_services.fields, lev);
     }
 #endif
 
     // Apply BCs to J and communicate
-    m_WarpX->SyncCurrentAndRho();
-    m_WarpX->FinalizeRho();
-    m_WarpX->FinalizeJ();
+    m_services.sync_current_and_rho();
+    m_services.finalize_rho();
+    m_services.finalize_j();
 
 }
 
@@ -1183,10 +1183,10 @@ void ImplicitSolver::SyncMassMatricesPCAndApplyBCs ()
     }
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
 
-        const amrex::MultiFab* MM_xx = m_WarpX->m_fields.get(FieldType::MassMatrices_X, Direction{0}, lev);
-        const amrex::MultiFab* MM_yy = m_WarpX->m_fields.get(FieldType::MassMatrices_Y, Direction{1}, lev);
-        const amrex::MultiFab* MM_zz = m_WarpX->m_fields.get(FieldType::MassMatrices_Z, Direction{2}, lev);
-        ablastr::fields::VectorField MM_PC = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_PC, lev);
+        const amrex::MultiFab* MM_xx = m_services.fields->get(FieldType::MassMatrices_X, Direction{0}, lev);
+        const amrex::MultiFab* MM_yy = m_services.fields->get(FieldType::MassMatrices_Y, Direction{1}, lev);
+        const amrex::MultiFab* MM_zz = m_services.fields->get(FieldType::MassMatrices_Z, Direction{2}, lev);
+        ablastr::fields::VectorField MM_PC = m_services.fields->get_alldirs(FieldType::MassMatrices_PC, lev);
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
@@ -1234,19 +1234,19 @@ void ImplicitSolver::SyncMassMatricesPCAndApplyBCs ()
         }
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        m_WarpX->ApplyInverseVolumeScalingToMassMatricesPC(MM_PC[0], MM_PC[1], MM_PC[2], lev);
+        m_services.apply_inverse_volume_scaling_mass_matrices_pc(*m_services.fields, lev);
 #endif
     }
 
     // Do addOp Exchange on MassMatrices_PC
-    m_WarpX->SyncMassMatricesPC();
+    m_services.sync_mass_matrices_pc();
 
     // Apply BCs to MassMatrices_PC
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        m_WarpX->ApplyJfieldBoundary(lev,
-            m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{0}, lev),
-            m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{1}, lev),
-            m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{2}, lev),
+        m_services.apply_jfield_boundary(lev,
+            m_services.fields->get(FieldType::MassMatrices_PC, Direction{0}, lev),
+            m_services.fields->get(FieldType::MassMatrices_PC, Direction{1}, lev),
+            m_services.fields->get(FieldType::MassMatrices_PC, Direction{2}, lev),
             PatchType::fine);
     }
 }
@@ -1265,9 +1265,9 @@ void ImplicitSolver::SetMassMatricesForPC ( const amrex::Real a_theta_dt )
 
     const amrex::Real pc_factor = PhysConst::c2 * PhysConst::mu0 * a_theta_dt;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        amrex::MultiFab* MMxx_PC = m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{0}, lev);
-        amrex::MultiFab* MMyy_PC = m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{1}, lev);
-        amrex::MultiFab* MMzz_PC = m_WarpX->m_fields.get(FieldType::MassMatrices_PC, Direction{2}, lev);
+        amrex::MultiFab* MMxx_PC = m_services.fields->get(FieldType::MassMatrices_PC, Direction{0}, lev);
+        amrex::MultiFab* MMyy_PC = m_services.fields->get(FieldType::MassMatrices_PC, Direction{1}, lev);
+        amrex::MultiFab* MMzz_PC = m_services.fields->get(FieldType::MassMatrices_PC, Direction{2}, lev);
         MMxx_PC->mult(pc_factor, 0, MMxx_PC->nComp());
         MMyy_PC->mult(pc_factor, 0, MMyy_PC->nComp());
         MMzz_PC->mult(pc_factor, 0, MMzz_PC->nComp());
@@ -1366,9 +1366,9 @@ void ImplicitSolver::FinishMassMatricesDeposition ()
 
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
 
-        ablastr::fields::VectorField SX = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_X, lev);
-        ablastr::fields::VectorField SY = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_Y, lev);
-        ablastr::fields::VectorField SZ = m_WarpX->m_fields.get_alldirs(FieldType::MassMatrices_Z, lev);
+        ablastr::fields::VectorField SX = m_services.fields->get_alldirs(FieldType::MassMatrices_X, lev);
+        ablastr::fields::VectorField SY = m_services.fields->get_alldirs(FieldType::MassMatrices_Y, lev);
+        ablastr::fields::VectorField SZ = m_services.fields->get_alldirs(FieldType::MassMatrices_Z, lev);
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
@@ -1515,13 +1515,13 @@ void ImplicitSolver::GetPCMatrix (
 
 void ImplicitSolver::BuildSolverVectorContext ()
 {
-    m_solver_vec_context.fields = &m_WarpX->m_fields;
+    m_solver_vec_context.fields = m_services.fields;
     m_solver_vec_context.field_dot_mask =
         [this] (warpx::fields::FieldType field_type, int lev, int dir) {
-            return m_WarpX->getFieldDotMaskPointer(
+            return m_services.field_dot_mask(
                 field_type, lev, ablastr::fields::Direction{dir});
         };
     m_solver_vec_context.periodicity = [this] (int lev) {
-        return m_WarpX->Geom(lev).periodicity();
+        return m_services.geom(lev).periodicity();
     };
 }

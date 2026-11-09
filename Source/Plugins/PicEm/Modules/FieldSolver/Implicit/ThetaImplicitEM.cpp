@@ -38,15 +38,15 @@ void ThetaImplicitEM::Define (WarpX* const a_WarpX, bool a_from_restart)
     // Define B_old MultiFab
     using ablastr::fields::Direction;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        const auto& ba_Bx = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->boxArray();
-        const auto& ba_By = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{1}, lev)->boxArray();
-        const auto& ba_Bz = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{2}, lev)->boxArray();
-        const auto& dm = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->DistributionMap();
-        const amrex::IntVect ngb = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->nGrowVect();
-        const int ncomp = m_WarpX->m_fields.get(FieldType::Bfield_fp, Direction{0}, lev)->nComp();
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{0}, lev, ba_Bx, dm, ncomp, ngb, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{1}, lev, ba_By, dm, ncomp, ngb, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::B_old, Direction{2}, lev, ba_Bz, dm, ncomp, ngb, 0.0_rt);
+        const auto& ba_Bx = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->boxArray();
+        const auto& ba_By = m_services.fields->get(FieldType::Bfield_fp, Direction{1}, lev)->boxArray();
+        const auto& ba_Bz = m_services.fields->get(FieldType::Bfield_fp, Direction{2}, lev)->boxArray();
+        const auto& dm = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->DistributionMap();
+        const amrex::IntVect ngb = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->nGrowVect();
+        const int ncomp = m_services.fields->get(FieldType::Bfield_fp, Direction{0}, lev)->nComp();
+        m_services.fields->alloc_init(FieldType::B_old, Direction{0}, lev, ba_Bx, dm, ncomp, ngb, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::B_old, Direction{1}, lev, ba_By, dm, ncomp, ngb, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::B_old, Direction{2}, lev, ba_Bz, dm, ncomp, ngb, 0.0_rt);
     }
 
     // Parse theta-implicit solver specific parameters
@@ -79,7 +79,7 @@ void ThetaImplicitEM::PrintParameters () const
 {
     BL_PROFILE("ThetaImplicitEM::PrintParameters()");
 
-    if (!m_WarpX->Verbose()) { return; }
+    if (!m_services.verbose()) { return; }
     amrex::Print() << "\n";
     amrex::Print() << "-----------------------------------------------------------\n";
     amrex::Print() << "----------- THETA IMPLICIT EM SOLVER PARAMETERS -----------\n";
@@ -94,7 +94,7 @@ void ThetaImplicitEM::SetupStep (amrex::Real /* start_time */)
 {
     // Save particle position and velocity at the start of the time step
     // Copy x to x_n etc
-    m_WarpX->SaveParticlesAtImplicitStepStart();
+    m_services.save_particles_at_implicit_step_start(0);
 
     // Particles at t_{n}
     // Efield_fp is at t_{n}
@@ -136,14 +136,14 @@ void ThetaImplicitEM::ResetStep (amrex::Real /* start_time */)
     m_E.Copy(m_E_save);
     // m_E is at t_{n-1/2}
 
-    m_WarpX->ResetImplicitParticleData();
+    m_services.reset_implicit_particle_data();
 }
 
 void ThetaImplicitEM::FinishStep (const amrex::Real start_time, const int a_step)
 {
     // Update WarpX owned Efield_fp and Bfield_fp to t_{n+theta}
     UpdateWarpXFields(m_E, start_time);
-    m_WarpX->reduced_diags->ComputeDiagsMidStep(a_step, m_dt);
+    m_services.compute_diags_mid_step(a_step, m_dt);
 
     // Efield_fp is at t_{n+1/2}
     // Bfield_fp is at t_{n+1/2}
@@ -153,7 +153,7 @@ void ThetaImplicitEM::FinishStep (const amrex::Real start_time, const int a_step
     // Advance particles from t_{n+1/2} to t_{n+1}
     FinishImplicitParticleUpdate(new_time, a_step);
     if (m_nsubsteps > 1) {
-        m_WarpX->HandleParticlesAtBoundaries(a_step, new_time, 0);
+        m_services.handle_particles_at_boundaries(a_step, new_time, 0);
     }
 
     // Particles at t_{n+1}
@@ -189,7 +189,7 @@ void ThetaImplicitEM::ComputeRHS (WarpXSolverVec& a_RHS,
     PreRHSOp(theta_time, a_nl_iter, a_from_jacobian, dt_scale, update_pc);
 
     // RHS = cvac^2*m_theta*dt*(curl(B^{n+theta}) - mu0*J^{n+1/2})
-    m_WarpX->ImplicitComputeRHSE(m_theta*m_dt, a_RHS);
+    m_services.implicit_compute_rhse(m_theta*m_dt, a_RHS);
 
 }
 
@@ -200,11 +200,11 @@ void ThetaImplicitEM::UpdateWarpXFields ( const WarpXSolverVec&  a_E,
 
     // Update Efield_fp owned by WarpX
     const amrex::Real theta_time = start_time + m_theta*m_dt;
-    m_WarpX->SetElectricFieldAndApplyBCs( a_E, theta_time );
+    m_services.set_electric_field_and_apply_bcs( a_E, theta_time );
 
     // Update Bfield_fp owned by WarpX
-    ablastr::fields::MultiLevelVectorField const& B_old = m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::B_old, 0);
-    m_WarpX->UpdateMagneticFieldAndApplyBCs( B_old, m_theta*m_dt, start_time );
+    ablastr::fields::MultiLevelVectorField const& B_old = m_services.fields->get_mr_levels_alldirs(FieldType::B_old, 0);
+    m_services.update_magnetic_field_and_apply_bcs( B_old, m_theta*m_dt, start_time );
 
 }
 
@@ -218,15 +218,15 @@ void ThetaImplicitEM::FinishFieldUpdate (amrex::Real end_time)
     // E^{n+1} = (1/theta)*E^{n+theta} + (1-1/theta)*E^n
     // B^{n+1} = (1/theta)*B^{n+theta} + (1-1/theta)*B^n
 
-    m_WarpX->FinishElectricFieldAndApplyBCs(m_theta, end_time);
-    m_WarpX->FinishMagneticFieldAndApplyBCs(m_theta, end_time);
+    m_services.finish_electric_field_and_apply_bcs(m_theta, end_time);
+    m_services.finish_magnetic_field_and_apply_bcs(m_theta, end_time);
 
 }
 
 const amrex::MultiFab* ThetaImplicitEM::GetCurl2BCmask (const int lev, const int field_dir) const
 {
     using ablastr::fields::Direction;
-    const amrex::MultiFab* mask = m_WarpX->m_fields.get(FieldType::curl2_BC_mask, Direction{field_dir}, lev);
+    const amrex::MultiFab* mask = m_services.fields->get(FieldType::curl2_BC_mask, Direction{field_dir}, lev);
     return mask;
 }
 
@@ -276,10 +276,10 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
     using ablastr::fields::Direction;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
         const amrex::IntVect ghosts = amrex::IntVect{0};
-        const auto& dm = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->DistributionMap();
-        const auto& ba_Ex = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->boxArray();
-        const auto& ba_Ey = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->boxArray();
-        const auto& ba_Ez = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{2}, lev)->boxArray();
+        const auto& dm = m_services.fields->get(FieldType::Efield_fp, Direction{1}, lev)->DistributionMap();
+        const auto& ba_Ex = m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev)->boxArray();
+        const auto& ba_Ey = m_services.fields->get(FieldType::Efield_fp, Direction{1}, lev)->boxArray();
+        const auto& ba_Ez = m_services.fields->get(FieldType::Efield_fp, Direction{2}, lev)->boxArray();
 #if defined(WARPX_DIM_1D_Z)
         const int ncomps_Ex = 2;
         const int ncomps_Ey = 2;
@@ -297,9 +297,9 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
         const int ncomps_Ey = 6;
         const int ncomps_Ez = 6;
 #endif
-        m_WarpX->m_fields.alloc_init(FieldType::curl2_BC_mask, Direction{0}, lev, ba_Ex, dm, ncomps_Ex, ghosts, 1.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::curl2_BC_mask, Direction{1}, lev, ba_Ey, dm, ncomps_Ey, ghosts, 1.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::curl2_BC_mask, Direction{2}, lev, ba_Ez, dm, ncomps_Ez, ghosts, 1.0_rt);
+        m_services.fields->alloc_init(FieldType::curl2_BC_mask, Direction{0}, lev, ba_Ex, dm, ncomps_Ex, ghosts, 1.0_rt);
+        m_services.fields->alloc_init(FieldType::curl2_BC_mask, Direction{1}, lev, ba_Ey, dm, ncomps_Ey, ghosts, 1.0_rt);
+        m_services.fields->alloc_init(FieldType::curl2_BC_mask, Direction{2}, lev, ba_Ez, dm, ncomps_Ez, ghosts, 1.0_rt);
     }
 
     const int lev = 0;
@@ -312,7 +312,7 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
     const amrex::Array<FieldBoundaryType,AMREX_SPACEDIM>& bc_type_lo = GetFieldBoundaryLo();
     const amrex::Array<FieldBoundaryType,AMREX_SPACEDIM>& bc_type_hi = GetFieldBoundaryHi();
 
-    ablastr::fields::VectorField curl2_BC_mask = m_WarpX->m_fields.get_alldirs(FieldType::curl2_BC_mask, lev);
+    ablastr::fields::VectorField curl2_BC_mask = m_services.fields->get_alldirs(FieldType::curl2_BC_mask, lev);
 #if AMREX_SPACEDIM < 3
     // Set the BC masks for the out-of-plane components of the curl curl E operator
     for (amrex::MFIter mfi(*curl2_BC_mask[1], false); mfi.isValid(); ++mfi) {
@@ -356,7 +356,7 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
                     val1 = 1.0_rt;
                 }
                 if (bc_type == FieldBoundaryType::PEC_Insulator) {
-                    const int voltage_driven = m_WarpX->GetPECInsulator_IsESet(bdry_dir,bdry_side);
+                    const int voltage_driven = m_services.pec_insulator_is_e(bdry_dir,bdry_side);
                     if (voltage_driven) { // Dirichlet boundary for E
                         val0 = 0.0_rt;
                         val1 = 0.0_rt;
@@ -376,7 +376,7 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
 
                 // Need to overwrite BC masks for certain BCs in this geometry
                 if (bc_type == FieldBoundaryType::PEC_Insulator &&
-                   !m_WarpX->GetPECInsulator_IsESet(bdry_dir,bdry_side)) { // Dirichlet for B
+                   !m_services.pec_insulator_is_e(bdry_dir,bdry_side)) { // Dirichlet for B
                     const amrex::Real ibdry_real = (bdry_side == 0 ? static_cast<amrex::Real>(domain_lo[bdry_dir])
                                                                    : static_cast<amrex::Real>(domain_hi[bdry_dir]));
                     const amrex::Real geom_p = ibdry_real / (ibdry_real + 0.5_rt);
@@ -480,7 +480,7 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
                         val2 = 2.0_rt;
                     }
                     if (bc_type == FieldBoundaryType::PEC_Insulator) {
-                        const int voltage_driven = m_WarpX->GetPECInsulator_IsESet(bdry_dir,bdry_side);
+                        const int voltage_driven = m_services.pec_insulator_is_e(bdry_dir,bdry_side);
                         if (voltage_driven) { // Dirichlet boundary for E
                             val0 = 0.0_rt;
                             val1 = 0.0_rt;
@@ -497,7 +497,7 @@ void ThetaImplicitEM::InitializeCurlCurlBCMasks ()
                     // Need to overwrite BC masks for certain BCs in this geometry
                     if (bdry_dir == 0) {
                         if (bc_type == FieldBoundaryType::PEC_Insulator &&
-                           !m_WarpX->GetPECInsulator_IsESet(bdry_dir,bdry_side)) { // Dirichlet for B
+                           !m_services.pec_insulator_is_e(bdry_dir,bdry_side)) { // Dirichlet for B
                             const amrex::Real ibdry_real = (bdry_side == 0 ? static_cast<amrex::Real>(domain_lo[bdry_dir])
                                                                            : static_cast<amrex::Real>(domain_hi[bdry_dir]));
                             const amrex::Real geom_p = ibdry_real / (ibdry_real + 0.5_rt);

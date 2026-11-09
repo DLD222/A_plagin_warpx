@@ -37,7 +37,7 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
     // (PEC) walls the run would proceed but give wrong results near the walls.
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-            m_WarpX->Geom(lev).isAllPeriodic(),
+            m_services.geom(lev).isAllPeriodic(),
             "The semi-implicit Darwin solver requires periodic field boundary "
             "conditions in all directions.");
     }
@@ -45,14 +45,14 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
     // Define dA MultiFabs
     using ablastr::fields::Direction;
     for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        const auto& ba_Ex = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->boxArray();
-        const auto& ba_Ey = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->boxArray();
-        const auto& ba_Ez = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{2}, lev)->boxArray();
-        const auto& dm_E = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->DistributionMap();
-        const amrex::IntVect nge = m_WarpX->m_fields.get(FieldType::Efield_fp, Direction{0}, lev)->nGrowVect();
-        m_WarpX->m_fields.alloc_init(FieldType::dA_fp, Direction{0}, lev, ba_Ex, dm_E, 1, nge, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::dA_fp, Direction{1}, lev, ba_Ey, dm_E, 1, nge, 0.0_rt);
-        m_WarpX->m_fields.alloc_init(FieldType::dA_fp, Direction{2}, lev, ba_Ez, dm_E, 1, nge, 0.0_rt);
+        const auto& ba_Ex = m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev)->boxArray();
+        const auto& ba_Ey = m_services.fields->get(FieldType::Efield_fp, Direction{1}, lev)->boxArray();
+        const auto& ba_Ez = m_services.fields->get(FieldType::Efield_fp, Direction{2}, lev)->boxArray();
+        const auto& dm_E = m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev)->DistributionMap();
+        const amrex::IntVect nge = m_services.fields->get(FieldType::Efield_fp, Direction{0}, lev)->nGrowVect();
+        m_services.fields->alloc_init(FieldType::dA_fp, Direction{0}, lev, ba_Ex, dm_E, 1, nge, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::dA_fp, Direction{1}, lev, ba_Ey, dm_E, 1, nge, 0.0_rt);
+        m_services.fields->alloc_init(FieldType::dA_fp, Direction{2}, lev, ba_Ez, dm_E, 1, nge, 0.0_rt);
     }
 
     // Define WarpXSolverVec instances for the magnetoinductive equation solution (Z) and source
@@ -170,11 +170,11 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     // The electrostatic solve at the end of the previous step only sets E in the
     // valid cells, so exchange guard cells now (this happens in
     // WarpX::ExplicitFillBoundaryEBUpdateAux for explicit solvers).
-    m_WarpX->FillBoundaryE(m_WarpX->getngEB());
+    m_services.fill_boundary_e(m_services.ng_eb(), false);
 
     // Save u and x at the start of the time step
     // TODO: only save u since we don't need to keep x
-    m_WarpX->SaveParticlesAtImplicitStepStart();
+    m_services.save_particles_at_implicit_step_start(0);
 
     // Push particle velocities with E_fp (which currently just contains -grad(phi) since
     // the E-field was cleared during the last Poisson solve). E is gathered with the
@@ -271,8 +271,8 @@ int SemiImplicitDarwin::OneStep ( [[maybe_unused]] amrex::Real  start_time,
     m_services.push_particles_position(m_dt);
 
     // Update magnetic field using dB/dt = -curl(E)
-    m_WarpX->EvolveB(m_dt, SubcyclingHalf::None, a_step*m_dt);
-    m_WarpX->FillBoundaryB(m_WarpX->getngEB(), true);
+    m_services.evolve_b(m_dt, SubcyclingHalf::None, a_step*m_dt);
+    m_services.fill_boundary_b(m_services.ng_eb(), true);
 
     return exit_status;
 }
@@ -317,7 +317,7 @@ void SemiImplicitDarwin::AccumulateCurrentAndMassMatrices ()
     // (see ImplicitSolver::PreLinearSolve), which drive the same
     // WarpX::DepositMassMatrices() -> MultiParticleContainer::DepositMassMatrices(),
     // here with the magnetostatic particle shape (set in m_implicit_options).
-    m_WarpX->DepositMassMatrices(m_dt, m_implicit_options);
+    m_services.deposit_mass_matrices(m_dt, m_implicit_options);
 
     // The deposit routine only fills half of each diagonal mass matrix's
     // band (exploiting symmetry); mirror the other half to complete
@@ -325,11 +325,11 @@ void SemiImplicitDarwin::AccumulateCurrentAndMassMatrices ()
     FinishMassMatricesDeposition();
 
     // Sync current (filter and sum boundaries)
-    m_WarpX->SyncCurrent("current_fp");
-    m_WarpX->FinalizeJ();
+    m_services.sync_current("current_fp");
+    m_services.finalize_j();
 
     // Sum boundaries for mass matrices
-    m_WarpX->SyncMassMatrices();
+    m_services.sync_mass_matrices();
 }
 
 void SemiImplicitDarwin::CalculateSourceVector ()
@@ -346,16 +346,16 @@ void SemiImplicitDarwin::CalculateSourceVector ()
     m_source.zero();
 
     // Grab the magnetic field and current density
-    ablastr::fields::MultiLevelVectorField Bfield = m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Bfield_fp, lev);
-    ablastr::fields::MultiLevelVectorField jfield = m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::current_fp, lev);
+    ablastr::fields::MultiLevelVectorField Bfield = m_services.fields->get_mr_levels_alldirs(FieldType::Bfield_fp, lev);
+    ablastr::fields::MultiLevelVectorField jfield = m_services.fields->get_mr_levels_alldirs(FieldType::current_fp, lev);
 
     // Ensure guard cells are valid before differentiating these fields below -
     // this function doesn't otherwise control when Bfield_fp/current_fp were
     // last synced, so don't rely on that happening elsewhere.
     for (int ii = 0; ii < 3; ii++)
     {
-        Bfield[lev][ii]->FillBoundaryAndSync(m_WarpX->Geom(lev).periodicity());
-        jfield[lev][ii]->FillBoundaryAndSync(m_WarpX->Geom(lev).periodicity());
+        Bfield[lev][ii]->FillBoundaryAndSync(m_services.geom(lev).periodicity());
+        jfield[lev][ii]->FillBoundaryAndSync(m_services.geom(lev).periodicity());
     }
 
     // Create temporary multifabs with B-staggering for storage
@@ -376,13 +376,13 @@ void SemiImplicitDarwin::CalculateSourceVector ()
     ablastr::fields::VectorField curlJ = {&curlJ_x, &curlJ_y, &curlJ_z};
 
     // Calculate the vector Laplacian of B and write result into first temporary MF
-    m_WarpX->get_pointer_fdtd_solver_fp(lev)->ComputeVectorLaplacian(
-        lapB, Bfield[lev], m_WarpX->GetEBUpdateBFlag_fp()[lev], lev
+    m_services.fdtd_solver(lev)->ComputeVectorLaplacian(
+        lapB, Bfield[lev], m_services.eb_update_b_flag()[lev], lev
     );
 
     // Calculate the curl of J and write result into second temporary MF
-    m_WarpX->get_pointer_fdtd_solver_fp(lev)->ComputeCurlA(
-        curlJ, jfield[lev], m_WarpX->GetEBUpdateBFlag_fp()[lev], lev
+    m_services.fdtd_solver(lev)->ComputeCurlA(
+        curlJ, jfield[lev], m_services.eb_update_b_flag()[lev], lev
     );
 
     // Calculate 2 * laplacian(B) + 2 * mu_0 curl(J) and write result in m_source
@@ -397,7 +397,7 @@ void SemiImplicitDarwin::CalculateSourceVector ()
     // This is the RHS GMRES solves against for the entire step.
     for (int ii = 0; ii < 3; ii++)
     {
-        b[lev][ii]->FillBoundaryAndSync(m_WarpX->Geom(lev).periodicity());
+        b[lev][ii]->FillBoundaryAndSync(m_services.geom(lev).periodicity());
     }
 }
 
@@ -409,11 +409,11 @@ void SemiImplicitDarwin::ComputeInductiveEfromdA ( int astep )
     const int lev = 0;
 
     // Grab the E-field MultiFabs
-    ablastr::fields::MultiLevelVectorField Efield = m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::Efield_fp, lev);
+    ablastr::fields::MultiLevelVectorField Efield = m_services.fields->get_mr_levels_alldirs(FieldType::Efield_fp, lev);
 
     // Grab the dA_fp MultiFabs to store dA = curl(Z) (the solved-for Z lives
     // on B's staggering; dA lives on A/E's staggering)
-    ablastr::fields::MultiLevelVectorField dAfield = m_WarpX->m_fields.get_mr_levels_alldirs(FieldType::dA_fp, lev);
+    ablastr::fields::MultiLevelVectorField dAfield = m_services.fields->get_mr_levels_alldirs(FieldType::dA_fp, lev);
 
     // Grab m_Z MultiFabs (the solved-for Z). Z's valid region is sound at this
     // point - it is a linear combination of vectors that were themselves
@@ -438,16 +438,16 @@ void SemiImplicitDarwin::ComputeInductiveEfromdA ( int astep )
         // *valid* cells possibly representing the same periodic-wrapped point.
         // Plain FillBoundary only reconciles true ghost cells, not two
         // overlapping valid cells - use FillBoundaryAndSync instead.
-        Zscratch[ii]->FillBoundaryAndSync(m_WarpX->Geom(lev).periodicity());
+        Zscratch[ii]->FillBoundaryAndSync(m_services.geom(lev).periodicity());
     }
 
     // Calculate dA = curl(Z)
-    m_WarpX->get_pointer_fdtd_solver_fp(lev)->ComputeCurlB(
-        dAfield[lev], Zscratch, m_WarpX->GetEBUpdateEFlag_fp()[lev], lev
+    m_services.fdtd_solver(lev)->ComputeCurlB(
+        dAfield[lev], Zscratch, m_services.eb_update_e_flag()[lev], lev
     );
     for (int ii = 0; ii < 3; ii++)
     {
-        dAfield[lev][ii]->FillBoundaryAndSync(m_WarpX->Geom(lev).periodicity());
+        dAfield[lev][ii]->FillBoundaryAndSync(m_services.geom(lev).periodicity());
     }
 
     const auto prefac = -1.0_rt / m_dt;
@@ -460,8 +460,8 @@ void SemiImplicitDarwin::ComputeInductiveEfromdA ( int astep )
     }
 
     // Apply E-field boundary
-    m_WarpX->ApplyEfieldBoundary(0, PatchType::fine, astep*m_dt);
-    m_WarpX->FillBoundaryE(m_WarpX->getngEB(), true);
+    m_services.apply_efield_boundary(0, PatchType::fine, astep*m_dt);
+    m_services.fill_boundary_e(m_services.ng_eb(), true);
 }
 
 
@@ -505,9 +505,9 @@ void SemiImplicitDarwin::ComputeScaledMassMatrixCC ( amrex::MultiFab& a_chi_xx_c
 
     const int lev = 0;
     const amrex::MultiFab* Sdiag[3] = {
-        m_WarpX->m_fields.get(FieldType::MassMatrices_X, Direction{0}, lev),
-        m_WarpX->m_fields.get(FieldType::MassMatrices_Y, Direction{1}, lev),
-        m_WarpX->m_fields.get(FieldType::MassMatrices_Z, Direction{2}, lev)};
+        m_services.fields->get(FieldType::MassMatrices_X, Direction{0}, lev),
+        m_services.fields->get(FieldType::MassMatrices_Y, Direction{1}, lev),
+        m_services.fields->get(FieldType::MassMatrices_Z, Direction{2}, lev)};
     amrex::MultiFab* chi_cc[3] = {&a_chi_xx_cc, &a_chi_yy_cc, &a_chi_zz_cc};
 
     // Scale by the same 2 mu0/dt prefactor the operator applies to the
@@ -547,15 +547,15 @@ void SemiImplicitDarwin::ComputeScaledMassMatrixCC ( amrex::MultiFab& a_chi_xx_c
 
 void SemiImplicitDarwin::ClearParticleVelocities ()
 {
-    m_WarpX->ClearImplicitParticleVelocities();
+    m_services.clear_particle_velocities();
 }
 
 void SemiImplicitDarwin::FinishVelocityUpdate ()
 {
-    m_WarpX->FinishImplicitVelocityUpdate();
+    m_services.finish_velocity_update();
 }
 
 void SemiImplicitDarwin::PrepareVelocitiesForCurrentDeposition ()
 {
-    m_WarpX->PrepareImplicitVelocitiesForDeposition();
+    m_services.prepare_velocities_for_deposition();
 }

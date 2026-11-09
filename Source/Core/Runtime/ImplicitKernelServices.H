@@ -86,6 +86,8 @@ struct ImplicitKernelServices
     std::function<void (WarpXSolverVec const& e, amrex::Real time)> set_electric_field_and_apply_bcs;
     std::function<void (amrex::Real theta, amrex::Real time)> finish_electric_field_and_apply_bcs;
     std::function<void (amrex::Real theta, amrex::Real time)> finish_magnetic_field_and_apply_bcs;
+    std::function<void (ablastr::fields::MultiLevelVectorField const& Bn,
+                        amrex::Real theta_dt, amrex::Real start_time)> update_magnetic_field_and_apply_bcs;
     std::function<void (amrex::Real start_time)> spectral_source_free_field_advance;
     /**
      * \brief Push the momentum of the sub-orbit particles on one level.
@@ -110,6 +112,12 @@ struct ImplicitKernelServices
     //! Number of species and their names, for the sub-orbit bookkeeping.
     std::function<int ()> num_species;
     std::function<std::string (int ispecies)> species_name;
+    //! Particle bookkeeping that needs the tile layout (Darwin velocity handling).
+    std::function<void ()> clear_particle_velocities;
+    std::function<void ()> finish_velocity_update;
+    std::function<void ()> prepare_velocities_for_deposition;
+    //! Register the particle attributes the implicit step keeps (x_n, u_n, nsuborbits).
+    std::function<void (bool particle_suborbits)> add_implicit_particle_attributes;
     //! Count the particles of a species whose sub-orbit attribute reaches \c threshold.
     std::function<void (int ispecies, int threshold, amrex::Long* counter)> count_suborbits;
     std::function<void (int step, amrex::Real dt)> compute_diags_mid_step;

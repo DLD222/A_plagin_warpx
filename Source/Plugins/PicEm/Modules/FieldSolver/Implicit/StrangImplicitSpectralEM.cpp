@@ -53,7 +53,7 @@ void StrangImplicitSpectralEM::Define (WarpX* const a_WarpX, bool a_from_restart
 
 void StrangImplicitSpectralEM::PrintParameters () const
 {
-    if (!m_WarpX->Verbose()) { return; }
+    if (!m_services.verbose()) { return; }
     amrex::Print() << "\n";
     amrex::Print() << "------------------------------------------------------------------------" << "\n";
     amrex::Print() << "----------- STRANG SPLIT IMPLICIT SPECTRAL EM SOLVER PARAMETERS --------" << "\n";
@@ -75,10 +75,10 @@ int StrangImplicitSpectralEM::OneStep (amrex::Real start_time,
     m_dt = a_dt;
 
     // Save the values at the start of the time step,
-    m_WarpX->SaveParticlesAtImplicitStepStart();
+    m_services.save_particles_at_implicit_step_start(0);
 
     // Advance the fields to time n+1/2 source free
-    m_WarpX->SpectralSourceFreeFieldAdvance(start_time);
+    m_services.spectral_source_free_field_advance(start_time);
 
     // Save E at start of implicit substep, after the first source-free half step
     SaveEoldMultifab(); // Copy Efield_fp into E_old
@@ -95,7 +95,7 @@ int StrangImplicitSpectralEM::OneStep (amrex::Real start_time,
 
     // Copy the converged implicit midpoint E into WarpX-owned Efield_fp
     UpdateWarpXFields(m_E, half_time);
-    m_WarpX->reduced_diags->ComputeDiagsMidStep(a_step, m_dt);
+    m_services.compute_diags_mid_step(a_step, m_dt);
 
     amrex::Real const end_time = start_time + m_dt;
 
@@ -106,7 +106,7 @@ int StrangImplicitSpectralEM::OneStep (amrex::Real start_time,
     FinishFieldUpdate(end_time);
 
     // Advance the fields to time n+1 source free
-    m_WarpX->SpectralSourceFreeFieldAdvance(half_time);
+    m_services.spectral_source_free_field_advance(half_time);
 
     return exit_status;
 }
@@ -140,7 +140,7 @@ void StrangImplicitSpectralEM::UpdateWarpXFields (WarpXSolverVec const & a_E,
 {
 
     // Update Efield_fp owned by WarpX
-    m_WarpX->SetElectricFieldAndApplyBCs( a_E, half_time );
+    m_services.set_electric_field_and_apply_bcs( a_E, half_time );
 
 }
 
@@ -151,6 +151,6 @@ void StrangImplicitSpectralEM::FinishFieldUpdate (amrex::Real end_time)
     // where E_before is saved in E_old after the first source-free half step.
     // Preserve m_E at the implicit midpoint for the next nonlinear solve.
     // The second source-free half step then advances Efield_fp to E^{n+1}.
-    m_WarpX->FinishElectricFieldAndApplyBCs(m_theta, end_time);
+    m_services.finish_electric_field_and_apply_bcs(m_theta, end_time);
 
 }

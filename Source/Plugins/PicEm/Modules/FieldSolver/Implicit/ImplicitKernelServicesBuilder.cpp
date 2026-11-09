@@ -117,6 +117,11 @@ BuildImplicitKernelServices (WarpX& warpx)
     s.finish_magnetic_field_and_apply_bcs = [&warpx] (amrex::Real theta, amrex::Real time) {
         warpx.FinishMagneticFieldAndApplyBCs(theta, time);
     };
+    s.update_magnetic_field_and_apply_bcs =
+        [&warpx] (ablastr::fields::MultiLevelVectorField const& Bn,
+                  amrex::Real theta_dt, amrex::Real start_time) {
+            warpx.UpdateMagneticFieldAndApplyBCs(Bn, theta_dt, start_time);
+        };
     s.spectral_source_free_field_advance = [&warpx] (amrex::Real start_time) {
         warpx.SpectralSourceFreeFieldAdvance(start_time);
     };
@@ -138,6 +143,14 @@ BuildImplicitKernelServices (WarpX& warpx)
         };
     s.push_particles_position = [&warpx] (amrex::Real dt) {
         warpx.GetPartContainer().PushX(dt);
+    };
+    s.clear_particle_velocities = [&warpx] { warpx.ClearImplicitParticleVelocities(); };
+    s.finish_velocity_update = [&warpx] { warpx.FinishImplicitVelocityUpdate(); };
+    s.prepare_velocities_for_deposition = [&warpx] {
+        warpx.PrepareImplicitVelocitiesForDeposition();
+    };
+    s.add_implicit_particle_attributes = [&warpx] (bool particle_suborbits) {
+        warpx.AddImplicitParticleAttributes(particle_suborbits);
     };
     s.num_species = [&warpx] { return warpx.GetPartContainer().nSpecies(); };
     s.species_name = [&warpx] (int ispecies) {
