@@ -1,3 +1,0 @@
-CEXE_sources += ParticleThermalizer.cpp
-
-VPATH_LOCATIONS   += $(WARPX_HOME)/Source/Particles/ParticleThermalizer/

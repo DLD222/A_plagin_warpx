@@ -309,3 +309,17 @@ include）与 `Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataR
 
 处理方式：不改写历史（避免破坏并发会话的工作树），在此如实记录；此后所有提交都显式指定自己的路径
 （`git add <path>`），不再使用 `-A`。
+
+
+## 8. 关于 2D 失败集短暂升到 52 的说明（2026-11-09）
+
+本会话末轮重建并跑 2D 套件时得到 52 条失败（基线 33），逐项核查后确认**不是回归**：
+
+- 新增失败全部是**慢测试**（`test_2d_pml_x_yee`、`test_2d_theta_implicit_*`、`test_2d_nci_corrector_mr`、
+  `test_2d_ionization_lab`、`test_2d_laser_injection_implicit`）；
+- 单独复跑 `test_2d_pml_x_yee.run` → **通过**（243 秒）；
+- 同一时刻有三个定时任务在各自会话中构建并跑套件（它们此时提交了 `f4259d9`、`bcffaa0`、`e361107`，
+  并新建 `Source/Plugins/ParticleCore/`），机器被占满导致慢测试超时。
+
+**结论**：并发会话共享同一台机器/工作树时，ctest 的超时会被放大成"假失败"。
+复现或核验时应保证同一时刻只有一个会话在跑套件，或使用独立 worktree + 降低并行度。
