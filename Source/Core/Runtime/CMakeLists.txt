@@ -17,6 +17,7 @@ Runtime.cpp
         Scheduler.cpp
         StateRegistry.cpp
         ScalarRegistry.cpp
+        SpectralFieldIndex.cpp
         ServiceFactory.cpp
     )
     target_link_libraries(warpx_core_${SD} PRIVATE ${CMAKE_DL_LIBS})
