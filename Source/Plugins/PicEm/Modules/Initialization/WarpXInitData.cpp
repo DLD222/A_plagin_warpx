@@ -14,7 +14,11 @@
 #include <cstdlib>
 
 #include "Runtime/NullDiagnosticsService.H"
+#include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/TimeState.H"
+#include "Runtime/WarpXHostServices.H"
+#include "Runtime/WarpXRuntimeData.H"
 
 #include "BoundaryConditions/PML.H"
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
@@ -818,6 +822,22 @@ WarpX::InitData_BeforeInit ()
     Print() << "WarpX (" << WarpX::Version() << ")\n";
 
     Print() << utils::logo::get_logo();
+
+    // The plugin services (diagnostics, collisions, ...) need a runtime
+    // context.  The Python/PICMI path builds a WarpX without the runtime, so
+    // this supplies the legacy one instead of failing every diagnostic.
+    if (m_runtime_context == nullptr) {
+        m_legacy_data = std::make_unique<warpx::runtime::WarpXRuntimeData>(*this);
+        m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(*this);
+        m_legacy_config = std::make_unique<warpx::runtime::RuntimeConfig>(
+            warpx::runtime::RuntimeConfig::FromLegacy());
+        m_legacy_time = std::make_unique<warpx::runtime::TimeState>();
+        m_legacy_frame = std::make_unique<warpx::runtime::FrameState>();
+        m_legacy_context = std::make_unique<warpx::runtime::RuntimeContext>(
+            m_legacy_config.get(), m_legacy_time.get(), m_legacy_frame.get(),
+            m_legacy_data.get(), nullptr, m_legacy_host.get(), [] {});
+        SetRuntimeContext(m_legacy_context.get());
+    }
 
     // Diagnostics
     multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);

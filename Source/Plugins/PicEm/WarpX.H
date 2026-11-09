@@ -17,6 +17,9 @@
 #include "BoundaryConditions/PML_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IAmrPolicy.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/TimeState.H"
+#include "Runtime/FrameState.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox_fwd.H"
 #include "Runtime/IElectrostaticSolver.H"
 #include "Runtime/IFiniteDifferenceSolver.H"
@@ -1260,9 +1263,13 @@ private:
     warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     warpx::runtime::ICollisionHandler* m_collision_handler = nullptr;
     std::unique_ptr<warpx::runtime::ICollisionHandler> m_legacy_collision_handler;
+    //! Services the legacy (Python/PICMI) path owns, created on first use.
     std::unique_ptr<warpx::runtime::WarpXRuntimeData> m_legacy_data;
     std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
     std::unique_ptr<warpx::runtime::RuntimeConfig> m_legacy_config;
+    std::unique_ptr<warpx::runtime::TimeState> m_legacy_time;
+    std::unique_ptr<warpx::runtime::FrameState> m_legacy_frame;
+    std::unique_ptr<warpx::runtime::RuntimeContext> m_legacy_context;
 
     //! Complete the asynchronous broadcast of signal flags, and initiate a checkpoint if requested
     void HandleSignals ();
