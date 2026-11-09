@@ -78,9 +78,8 @@ void DarwinLinearFieldOperator::define ( const WarpXSolverVec& a_U,
                         Zvec[lev][2]->nComp(), Zscratch_ng);
 
     // curl(Z) and chi curl(Z) live on the E/A/J staggering
-    WarpX* const warpx_ptr = m_ops->GetWarpX();
     const ablastr::fields::VectorField Efield =
-        warpx_ptr->m_fields.get_alldirs(FieldType::Efield_fp, lev);
+        m_ops->services().fields->get_alldirs(FieldType::Efield_fp, lev);
     m_dA_x.define(Efield[0]->boxArray(), Efield[0]->DistributionMap(), 1, dA_ng);
     m_dA_y.define(Efield[1]->boxArray(), Efield[1]->DistributionMap(), 1, dA_ng);
     m_dA_z.define(Efield[2]->boxArray(), Efield[2]->DistributionMap(), 1, dA_ng);
@@ -93,11 +92,11 @@ void DarwinLinearFieldOperator::define ( const WarpXSolverVec& a_U,
     // mass matrices themselves hold valid data for, so those have to cover
     // the one cell that the final curl reads.
     const ablastr::fields::VectorField SX =
-        warpx_ptr->m_fields.get_alldirs(FieldType::MassMatrices_X, lev);
+        m_ops->services().fields->get_alldirs(FieldType::MassMatrices_X, lev);
     const ablastr::fields::VectorField SY =
-        warpx_ptr->m_fields.get_alldirs(FieldType::MassMatrices_Y, lev);
+        m_ops->services().fields->get_alldirs(FieldType::MassMatrices_Y, lev);
     const ablastr::fields::VectorField SZ =
-        warpx_ptr->m_fields.get_alldirs(FieldType::MassMatrices_Z, lev);
+        m_ops->services().fields->get_alldirs(FieldType::MassMatrices_Z, lev);
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         SX[0]->nGrowVect().allGE(chidA_ng) &&
         SY[1]->nGrowVect().allGE(chidA_ng) &&
@@ -146,7 +145,7 @@ void DarwinLinearFieldOperator::apply ( WarpXSolverVec& a_Ax, const WarpXSolverV
     const int lev = 0;
     const int ncomps = 1;
 
-    WarpX* const warpx_ptr = m_ops->GetWarpX();
+
 
     const auto& Zvec = a_x.getArrayVec();
     auto& rhs_vec = a_Ax.getArrayVec();
@@ -171,20 +170,20 @@ void DarwinLinearFieldOperator::apply ( WarpXSolverVec& a_Ax, const WarpXSolverV
         // overlapping valid cells - use FillBoundaryAndSync instead (harmless
         // no-op for the transverse, cell-centered components, which have no
         // such duplication).
-        Zscratch[ii]->FillBoundaryAndSync(warpx_ptr->Geom(lev).periodicity());
+        Zscratch[ii]->FillBoundaryAndSync(m_ops->services().geom(lev).periodicity());
     }
 
     // Evaluation of the (single) 4th-order field equation:
     // bilaplacian(Z), discretized directly in a single pass over Z.
-    warpx_ptr->get_pointer_fdtd_solver_fp(lev)->ComputeVectorBiLaplacian(
-        rhs_vec[lev], Zscratch, warpx_ptr->GetEBUpdateBFlag_fp()[lev], lev
+    m_ops->services().fdtd_solver(lev)->ComputeVectorBiLaplacian(
+        rhs_vec[lev], Zscratch, m_ops->services().eb_update_b_flag()[lev], lev
     );
 
     // Calculate dA = curl(Z), out into dA's full guard region so that the mass
     // matrix gather below never runs off the end of it
     // (ComputeCurlB resets dA to zero internally).
-    warpx_ptr->get_pointer_fdtd_solver_fp(lev)->ComputeCurlB(
-        dA[lev], Zscratch, warpx_ptr->GetEBUpdateEFlag_fp()[lev], lev, m_dA_x.nGrowVect()
+    m_ops->services().fdtd_solver(lev)->ComputeCurlB(
+        dA[lev], Zscratch, m_ops->services().eb_update_e_flag()[lev], lev, m_dA_x.nGrowVect()
     );
 
     // Calculate chi dA (the scaled mass matrices applied to dA) and write into
@@ -198,8 +197,8 @@ void DarwinLinearFieldOperator::apply ( WarpXSolverVec& a_Ax, const WarpXSolverV
     m_ops->ApplyScaledMassMatrices(chidA, dA);
 
     // Reuse lapZ as a temporary storage location for curl(chi curl(Z))
-    warpx_ptr->get_pointer_fdtd_solver_fp(lev)->ComputeCurlA(
-        lapZ, chidA[lev], warpx_ptr->GetEBUpdateBFlag_fp()[lev], lev
+    m_ops->services().fdtd_solver(lev)->ComputeCurlA(
+        lapZ, chidA[lev], m_ops->services().eb_update_b_flag()[lev], lev
     );
 
     for (int ii = 0; ii < 3; ii++)

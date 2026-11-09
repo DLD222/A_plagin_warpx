@@ -42,7 +42,7 @@ public:
     SemiImplicitDarwin(SemiImplicitDarwin&&) = delete;
     SemiImplicitDarwin& operator=(SemiImplicitDarwin&&) = delete;
 
-    void Define ( WarpX* a_WarpX, bool from_restart ) override;
+    void Define ( warpx::runtime::ImplicitKernelServices const& a_services, bool from_restart ) override;
 
     void PrintParameters () const override;
 
@@ -74,7 +74,6 @@ public:
                       bool update_pc = true ) override;
 
     /** \brief Pointer back to the main WarpX class, used by DarwinLinearFieldOperator */
-    [[nodiscard]] WarpX* GetWarpX () const { return m_WarpX; }
 
     /**
      * \brief Accumulate `chi dA` into `rhs`, where `chi` is the deposited mass

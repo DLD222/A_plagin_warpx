@@ -4,7 +4,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "ImplicitKernelServicesBuilder.H"
 #include "WarpX.H"
 #include "Fields.H"
 #include "SemiImplicitEM.H"
@@ -12,7 +11,7 @@
 using warpx::fields::FieldType;
 using namespace amrex::literals;
 
-void SemiImplicitEM::Define (WarpX*  a_WarpX, bool  a_from_restart)
+void SemiImplicitEM::Define (warpx::runtime::ImplicitKernelServices const& a_services, bool  a_from_restart)
 {
     BL_PROFILE("SemiImplicitEM::Define()");
 
@@ -20,9 +19,7 @@ void SemiImplicitEM::Define (WarpX*  a_WarpX, bool  a_from_restart)
         !m_is_defined,
         "SemiImplicitEM object is already defined!");
 
-    // Retain a pointer back to main WarpX class
-    m_WarpX = a_WarpX;
-    m_services = BuildImplicitKernelServices(*a_WarpX);
+        m_services = a_services;
 
     // Define E and Eold vectors
     BuildSolverVectorContext();

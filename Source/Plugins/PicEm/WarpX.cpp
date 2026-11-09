@@ -49,6 +49,7 @@
 #include "Utils/WarpXUtil.H"
 
 #ifdef WARPX_HAVE_IMPLICIT_SOLVER
+#   include "FieldSolver/Implicit/ImplicitKernelServicesBuilder.H"
 #   include "FieldSolver/Implicit/ImplicitSolverLibrary.H"
 #endif
 
@@ -3969,7 +3970,8 @@ void WarpX::DefineImplicitSolver (bool from_restart)
 {
 #ifdef WARPX_HAVE_IMPLICIT_SOLVER
     if (m_implicit_solver) {
-        dynamic_cast<ImplicitSolver*>(m_implicit_solver.get())->Define(this, from_restart);
+        dynamic_cast<ImplicitSolver*>(m_implicit_solver.get())->Define(
+            BuildImplicitKernelServices(*this), from_restart);
     }
 #else
     amrex::ignore_unused(from_restart);

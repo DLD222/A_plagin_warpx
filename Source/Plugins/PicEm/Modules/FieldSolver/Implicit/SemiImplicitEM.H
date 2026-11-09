@@ -53,7 +53,7 @@ public:
     SemiImplicitEM(SemiImplicitEM&&) = delete;
     SemiImplicitEM& operator=(SemiImplicitEM&&) = delete;
 
-    void Define (WarpX* a_WarpX, bool a_from_restart) override;
+    void Define (warpx::runtime::ImplicitKernelServices const& a_services, bool a_from_restart) override;
 
     void PrintParameters () const override;
 

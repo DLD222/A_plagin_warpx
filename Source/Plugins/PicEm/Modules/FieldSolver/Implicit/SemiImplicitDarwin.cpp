@@ -8,7 +8,6 @@
  */
 #include "WarpX.H"
 #include "Fields.H"
-#include "ImplicitKernelServicesBuilder.H"
 #include "SemiImplicitDarwin.H"
 #include "Python/callbacks.H"
 #include "Utils/Parser/ParserUtils.H"
@@ -18,7 +17,7 @@
 using warpx::fields::FieldType;
 using namespace amrex::literals;
 
-void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
+void SemiImplicitDarwin::Define ( warpx::runtime::ImplicitKernelServices const& a_services, bool from_restart)
 {
     amrex::ignore_unused(from_restart);
     BL_PROFILE("SemiImplicitDarwin::Define()");
@@ -27,9 +26,7 @@ void SemiImplicitDarwin::Define ( WarpX*  a_WarpX, bool from_restart)
         !m_is_defined,
         "SemiImplicitDarwin object is already defined!");
 
-    // Retain a pointer back to main WarpX class
-    m_WarpX = a_WarpX;
-    m_services = BuildImplicitKernelServices(*a_WarpX);
+        m_services = a_services;
 
     // The guard-cell handling throughout this solver (SumBoundaryJ and
     // FillBoundaryAndSync calls using the domain periodicity) and the GMRES

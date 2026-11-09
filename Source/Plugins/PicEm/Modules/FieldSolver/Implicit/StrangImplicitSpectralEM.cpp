@@ -4,7 +4,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "ImplicitKernelServicesBuilder.H"
 #include "WarpX.H"
 #include "Fields.H"
 #include "StrangImplicitSpectralEM.H"
@@ -12,15 +11,14 @@
 using namespace warpx::fields;
 using namespace amrex::literals;
 
-void StrangImplicitSpectralEM::Define (WarpX* const a_WarpX, bool a_from_restart)
+void StrangImplicitSpectralEM::Define (warpx::runtime::ImplicitKernelServices const& a_services,
+                    bool a_from_restart)
 {
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         !m_is_defined,
         "StrangImplicitSpectralEM object is already defined!");
 
-    // Retain a pointer back to main WarpX class
-    m_WarpX = a_WarpX;
-    m_services = BuildImplicitKernelServices(*a_WarpX);
+        m_services = a_services;
 
     // Define E and Eold vectors
     BuildSolverVectorContext();

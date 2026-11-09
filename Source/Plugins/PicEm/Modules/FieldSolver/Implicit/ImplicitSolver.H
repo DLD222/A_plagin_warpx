@@ -62,7 +62,8 @@ public:
      * \brief Read user-provided parameters that control the implicit solver.
      * Allocate internal arrays for intermediate field values needed by the solver.
      */
-    virtual void Define (WarpX* a_WarpX, bool from_restart) = 0;
+    virtual void Define (warpx::runtime::ImplicitKernelServices const& a_services,
+                         bool from_restart) = 0;
 
     [[nodiscard]] bool IsDefined () const { return m_is_defined; }
 
@@ -258,15 +259,20 @@ protected:
     /**
      * \brief Pointer back to main WarpX class
      */
-    WarpX* m_WarpX;
+
     //! The operations this solver drives on the simulation.
     warpx::runtime::ImplicitKernelServices m_services;
 
-    //! Everything the solver vectors need, captured from m_WarpX once.
+    //! Everything the solver vectors need, built from the bag once.
     warpx::runtime::SolverVectorContext m_solver_vec_context;
 
+public:
+    //! The operations this solver drives on the simulation.
+    [[nodiscard]] warpx::runtime::ImplicitKernelServices const& services () const
+    { return m_services; }
+
 protected:
-    //! Fill m_solver_vec_context from m_WarpX (call at the end of Define).
+    //! Fill m_solver_vec_context from the bag (call at the end of Define).
     void BuildSolverVectorContext ();
 
 public:
