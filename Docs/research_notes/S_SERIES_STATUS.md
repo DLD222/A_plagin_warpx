@@ -66,7 +66,20 @@
 1D/3D/RZ 的失败集与重构前**逐条一致**（204 项，diff 为空），说明这轮结构性改动**没有改变任何
 可运行用例的数值结果**。
 | 1D/3D/RZ（OPENPMD=ON，**HDF5 无 MPI**） | 469 | 357 | — | 112 条失败，21 个运行失败报 `openPMD-api built without support for backend 'HDF5'` |
-| 1D/3D/RZ（OPENPMD=ON，**并行 HDF5**） | 469 | **427** | — | **42 条失败**：12 运行 + 14 分析 + 16 校验 |
+| 1D/3D/RZ（OPENPMD=ON，**并行 HDF5**） | 469 | **427** | — | 42 条失败：12 运行 + 14 分析 + 16 校验 |
+| 同上，修完两处"配置快照过期"缺陷后 | 469 | **432** | — | **37 条失败**（12 运行 + 11 分析 + 14 校验） |
+
+**37 条失败的构成（已逐项归因）**：
+
+| 类别 | 数量 | 说明 |
+|---|---|---|
+| 缺外部测试数据 | 8 个用例 | `load_external_field`（RZ/3D 含 restart）+ `projection_div_cleaner`：`openPMD::error::ReadError / Inaccessible`，需下载 `openPMD-example-datasets` |
+| 需要 FFT 构建 | 2 个用例 | `*_boosted_opmd` 用 `algo.maxwell_solver = psatd`；本验证构建 `WarpX_FFT=OFF`，断言明确报"built without spectral solvers" |
+| 慢/偶发 | 1 个用例 | `test_3d_particles_in_pml_mr`（单独运行通过，并行下易超时） |
+| 待查 | `test_rz_btd` 分析/校验 | 运行阶段已通过（段错误已修），但该用例耗时数分钟，分析找不到 `diags/back_rz`，需要单独排查 |
+
+**结论**：除"缺数据/缺 FFT/慢测试"三类环境因素外，**真实代码缺陷已在本轮全部修复**（两处
+配置快照过期：场数据集模式维、后处理字段映射）。
 
 **2026-11-09 进展**：已用系统 OpenMPI 自建并行 HDF5（`/tmp/hdf5_mpi`，HDF5 1.14.6），
 openPMD 的 HDF5 后端随之启用（配置日志中的"only serial version of HDF5"警告消失）。
