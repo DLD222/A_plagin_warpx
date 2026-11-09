@@ -571,3 +571,44 @@ In file included from /tmp/warpx_up2610/Source/WarpX.cpp:26:
 git log --oneline 50307e2..HEAD -- Regression/Checksum/benchmarks_json Examples/*/Tests/*/analysis*.py | head
 # （本轮与并发会话都没有触碰这些路径）
 ```
+
+---
+
+## 8. 独立复核（2026-11-09 22:30–23:20，第二次测量）
+
+为排除"单次测量/单会话"的偶然性，本轮用**同一套配置**（openPMD + FFT + 并行 HDF5）
+重新配置、构建并跑完整套件，只把并行度降到 `-j 4`、超时提到 2400 s：
+
+```bash
+export LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:/tmp/hdf5_mpi/lib:$LD_LIBRARY_PATH"
+export OMP_NUM_THREADS=1
+cmake -S . -B build_2d_full  -DWarpX_DIMS=2 -DWarpX_OPENPMD=ON -DWarpX_FFT=ON \
+      -DHDF5_ROOT=/tmp/hdf5_mpi -DFFTW_ROOT=$HOME/third_party/fftw ...
+cmake -S . -B build_multi_hdf5_fft -DWarpX_DIMS="1;3;RZ" (同上)
+ctest --test-dir <build> -j 4 --timeout 2400
+```
+
+| 构建 | 结果 | 失败条目 |
+|---|---|---|
+| `build_2d_full` | **335 / 336（99.7%）** | `test_2d_laser_ion_acc.checksum`（平台校验和） |
+| `build_multi_hdf5_fft` | **568 / 573（99.1%）** | 5 条，见下 |
+
+5 条失败与 §4.4 的定性**逐条吻合**，没有出现新的类别：
+
+| 条目 | 类别 | 依据 |
+|---|---|---|
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 | 差异最大项是 `Bx = 4.27e-18`（数值零），`Ey/Ez` 仅 2.37e-7 |
+| `test_3d_ionization_electron_dsmc.analysis` | 环境（Python 绑定） | `ModuleNotFoundError: No module named 'pywarpx'`；本机全部构建 `WarpX_PYTHON=OFF` |
+| `test_1d_macroscopic_solver.{analysis,checksum}` | 上游继承的发散基准 | 基准/输入/分析脚本与 `/tmp/warpx_up2610` **逐字节相同**（本轮再次 `diff` 确认） |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | 平台/FFT 噪声 | 差异只在 mode-1 的 1e-12 量级分量 |
+
+**结论**：两次独立测量一致（首次 334/335 + 567/573，本次 335/336 + 568/573，差异来自新增的
+`external_plugin_2` 用例与修好的 `runtime_snapshot_particles_2`）。四维合计 **903/909 = 99.3%**，
+其中 3 条平台校验和（按 `AGENTS.md` 口径不视为功能缺陷）、1 条缺 Python 绑定、2 条上游自带发散用例；
+**没有一条可归因于"本项目功能缺失或退化"**。
+
+## 9. 剩余待办（更新）
+
+1. `test_1d_macroscopic_solver`：把基准换成物理解（需上游确认，属于改基准，不在本项目单方面执行）；
+2. Python 绑定（`WarpX_PYTHON=ON`）构建下的 `test_3d_ionization_electron_dsmc` 等用例；
+3. ADIOS2 后端、GPU 后端：清单一致但无运行证据。
