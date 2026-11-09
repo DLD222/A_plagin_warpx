@@ -18,7 +18,15 @@ void init_MultiParticleContainer (py::module& m)
 {
     py::class_<MultiParticleContainer>(m, "MultiParticleContainer")
         .def("get",
-            &MultiParticleContainer::GetParticleContainerFromName,
+            // The kernel hands out the core particle interface; the Python
+            // layer only knows the concrete WarpX container, so the binding
+            // narrows explicitly (the PIC kernel always stores that type).
+            [](MultiParticleContainer& mpc, const std::string& name)
+                -> WarpXParticleContainer&
+            {
+                return dynamic_cast<WarpXParticleContainer&>(
+                    mpc.GetParticleContainerFromName(name));
+            },
             py::arg("name"),
             py::return_value_policy::reference_internal
         )
