@@ -108,3 +108,41 @@ python3 Tools/Modularization/check_build_boundaries.py  # 构建层次与层目�
 **这不是"以后再说"，而是有明确前置条件的工程任务**：先把 `WarpXSolverVec` 抽象为
 核心可用的"求解向量"，再按 40 个成员逐组定义服务，最后才搬文件。
 任何尝试跳步的做法都会得到"假拆分"（接口存在但内部仍 `WarpX*`）。
+
+
+## 7. 一页复现指南（把本文档的结论重新跑出来）
+
+```bash
+# 0) 不变量（必须全 0 / OK）
+python3 Tools/Modularization/check_core_purity.py
+python3 Tools/Modularization/check_plugin_boundaries.py
+python3 Tools/Modularization/check_kernel_coupling.py
+python3 Tools/Modularization/check_build_boundaries.py
+
+# 1) 2D 基线（openPMD=OFF）：失败 32 项
+cmake -S . -B build_takeover -DWarpX_DIMS=2 ...
+cmake --build build_takeover -j 16 && ctest --test-dir build_takeover -j 6
+
+# 2) 四维完整特性（openPMD + FFT + 并行 HDF5）：失败 6 项
+Tools/verify/build_parallel_hdf5.sh /tmp/hdf5_mpi            # 一次性
+export LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:/tmp/hdf5_mpi/lib:$LD_LIBRARY_PATH"
+cmake -S . -B build_multi_hdf5_fft -DWarpX_DIMS="1;3;RZ" -DWarpX_OPENPMD=ON \
+      -DWarpX_FFT=ON -DHDF5_ROOT=/tmp/hdf5_mpi -DFFTW_ROOT=$HOME/third_party/fftw
+cmake --build build_multi_hdf5_fft -j 16
+OMP_NUM_THREADS=1 ctest --test-dir build_multi_hdf5_fft -j 4 --timeout 2400
+
+# 3) Python/PICMI：失败 3 项（全为校验和）
+cmake -S . -B build_py_opmd -DWarpX_PYTHON=ON -DWarpX_OPENPMD=ON ...
+cmake --build build_py_opmd -j 16
+PYTHONPATH=$PWD/build_py_opmd/lib/site-packages ctest --test-dir build_py_opmd -j 4 -R picmi
+
+# 4) 用户自定义插件验收（ctest 里已含）
+ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2"
+
+# 5) 插件可关闭性
+cmake -S . -B build_off -DWarpX_PLUGIN_FIELDSOLVER=OFF -DWarpX_PLUGIN_IMPLICIT=OFF ...
+cmake --build build_off -j 16      # 编译通过；相应输入给出可操作错误
+```
+
+**预期数字**：2D 32 失败 / 四维 6 失败 / PICMI 3 失败，全部为平台校验和、缺可选依赖或上游自带；
+检查器全 0；`external_plugin_2` 与 `nonpic_kernel_2` 通过。
