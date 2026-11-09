@@ -489,6 +489,29 @@ PicEm 退化为"提供物理处理器 + 服务"，这是删除 WarpX（A7.9）�
 2. `HybridPICSolveE.cpp` → `HybridPICModel.H`（23 个参数：`eta`、`eta_h`、`n_floor`、
    各场 IndexType、电阻/超电阻开关、真空缝模式等——应做成参数块契约）
 
+## 15f. 四维核验环境与最终状态（2026-11-09）
+
+核验脚本与说明：`Tools/verify/`（`build_parallel_hdf5.sh`、`build_and_run_4d.sh`、`README.md`）。
+
+**关键环境事实**：openPMD 需要**并行 HDF5** 才能启用 HDF5 后端；本机 conda 的 HDF5 是串行版，
+openPMD 会静默关闭该后端。用系统 OpenMPI 自建 HDF5 1.14.6 后：
+
+| 构建 | 失败数 |
+|---|---|
+| 2D（OPENPMD=OFF） | 33（openPMD 用例 + 1 已知输入缺项） |
+| 1D/3D/RZ（OPENPMD=OFF） | 204（72 个 openPMD 用例） |
+| 1D/3D/RZ（OPENPMD=ON，串行 HDF5） | 112 |
+| 1D/3D/RZ（OPENPMD=ON，**并行 HDF5**） | 42 |
+| 同上 + 修复"配置快照过期"四处 | **≈25**（仅剩环境/构建前提） |
+
+**"配置快照过期"缺陷族（本系列最重要的一类）**：`RuntimeConfigSnapshot` 在 `InitData` 之前生成，
+而 `ncomps`（`2*nmodes-1`）要到层分配时才计算；任何在 `InitData` 期间使用它的代码都拿到默认值 1。
+四处中招并已修复：RZ 场数据集的模式维、后处理字段映射、BTD 缓冲区尺寸、后处理核的模式循环。
+**规则**：`InitData` 期间的代码必须读实时 `RuntimeConfig`，不得读快照。
+
+**剩余前提**：`*_boosted_opmd` 需 `-DWarpX_FFT=ON`；`load_external_field*` 需
+`openPMD-example-datasets`；`test_3d_particles_in_pml_mr` 并行下易超时。
+
 ## 15e. 插件删除矩阵（S7，2026-11-09 实测）
 
 2D 构建，同一份源码，逐个关闭插件；`cfg` = 配置成功，`build` = 编译链接成功，`run` = 实跑结果。
