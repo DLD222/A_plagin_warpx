@@ -34,3 +34,19 @@ Tools/verify/build_and_run_4d.sh build_multi_fft -DWarpX_FFT=ON   # 需要 PSATD
 | 2D（OPENPMD=OFF） | 222/255 |
 | 1D/3D/RZ（OPENPMD=OFF） | 397/469 |
 | 1D/3D/RZ（OPENPMD=ON + 并行 HDF5） | ≈444/469 |
+
+## 上游对照与失败分类脚本
+
+`Docs/research_notes/UPSTREAM_PARITY.md` 的两个结论都用脚本核对，而不是靠肉眼：
+
+```bash
+# 上游测试定义与本地的逐字比对（参数、维度、门控）
+python3 Tools/verify/parse_tests.py --compare /tmp/warpx_up2610 .
+
+# 把 ctest 日志里的失败按“用例 + 成因”归并
+python3 Tools/verify/classify_ctest_log.py /path/to/ctest.log
+```
+
+分类脚本只做初判：标成 `candidate real defect` 的用例必须 `ctest -j1 -R <case> --timeout 2400`
+串行复跑后才采纳 —— 并行过载会把 13 s 的用例拖成 1500 s 超时，这一点在 2026-11-09 的 2D 套件上
+被实测过（见 `UPSTREAM_PARITY.md` §4.3.1）。
