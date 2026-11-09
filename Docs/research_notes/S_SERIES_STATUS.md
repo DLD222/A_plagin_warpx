@@ -241,3 +241,14 @@ RZ laser acceleration opmd。**定位进展**：`WarpXOpenPMDPlot::DumpToFile` �
 
 剩余仅有：`*_boosted_opmd`（需 `WarpX_FFT=ON` 构建）、`load_external_field` 系列（缺示例数据集）、
 `test_3d_particles_in_pml_mr`（并行下偶发超时）。
+
+
+## 7. 提交纪律说明（2026-11-09 自查）
+
+`50307e2`（后处理模式数修复）在提交时用了 `git add -A Source`，无意中把**另一个并发会话**当时的两个
+改动一并带入：`Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp`（FFT/PSATD 相关
+include）与 `Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp`（`RuntimeData`
+注入）。**这两处不是本会话的改动**。
+
+处理方式：不改写历史（避免破坏并发会话的工作树），在此如实记录；此后所有提交都显式指定自己的路径
+（`git add <path>`），不再使用 `-A`。
