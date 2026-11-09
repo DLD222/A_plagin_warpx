@@ -62,17 +62,14 @@ namespace {
 
     void ForwardTransformVect (
         const int lev,
-#ifdef WARPX_DIM_RZ
-        SpectralSolverRZ& solver,
-#else
-        SpectralSolver& solver,
-#endif
+        warpx::runtime::ISpectralSolver& solver,
         const ablastr::fields::VectorField& vector_field,
         const int compx, const int compy, const int compz)
     {
 #ifdef WARPX_DIM_RZ
-        solver.ForwardTransform(lev, *vector_field[0], compx, *vector_field[1], compy);
-        solver.ForwardTransform(lev, *vector_field[2], compz);
+        auto& rz_solver = dynamic_cast<SpectralSolverRZ&>(solver);
+        rz_solver.ForwardTransform(lev, *vector_field[0], compx, *vector_field[1], compy);
+        rz_solver.ForwardTransform(lev, *vector_field[2], compz);
 #else
         solver.ForwardTransform(lev, *vector_field[0], compx);
         solver.ForwardTransform(lev, *vector_field[1], compy);
@@ -82,19 +79,16 @@ namespace {
 
     void BackwardTransformVect (
         const int lev,
-#ifdef WARPX_DIM_RZ
-        SpectralSolverRZ& solver,
-#else
-        SpectralSolver& solver,
-#endif
+        warpx::runtime::ISpectralSolver& solver,
         const ablastr::fields::VectorField& vector_field,
         const int compx, const int compy, const int compz,
         const amrex::IntVect& fill_guards)
     {
 #ifdef WARPX_DIM_RZ
         amrex::ignore_unused(fill_guards);
-        solver.BackwardTransform(lev, *vector_field[0], compx, *vector_field[1], compy);
-        solver.BackwardTransform(lev, *vector_field[2], compz);
+        auto& rz_solver = dynamic_cast<SpectralSolverRZ&>(solver);
+        rz_solver.BackwardTransform(lev, *vector_field[0], compx, *vector_field[1], compy);
+        rz_solver.BackwardTransform(lev, *vector_field[2], compz);
 #else
         solver.BackwardTransform(lev, *vector_field[0], compx, fill_guards);
         solver.BackwardTransform(lev, *vector_field[1], compy, fill_guards);
@@ -268,7 +262,7 @@ namespace {
 
 void WarpX::PSATDForwardTransformEB ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     const std::string Efield_fp_string = "Efield_fp";
     const std::string Efield_cp_string = "Efield_cp";
@@ -302,7 +296,7 @@ void WarpX::PSATDForwardTransformEB ()
 
 void WarpX::PSATDBackwardTransformEB ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     const std::string Efield_fp_string = "Efield_fp";
     const std::string Efield_cp_string = "Efield_cp";
@@ -354,7 +348,7 @@ void WarpX::PSATDBackwardTransformEBavg (
     ablastr::fields::MultiLevelVectorField const& E_avg_cp,
     ablastr::fields::MultiLevelVectorField const& B_avg_cp)
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -376,7 +370,7 @@ void WarpX::PSATDBackwardTransformEBavg (
 void
 WarpX::PSATDForwardTransformF ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -396,7 +390,7 @@ WarpX::PSATDForwardTransformF ()
 void
 WarpX::PSATDBackwardTransformF ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -426,7 +420,7 @@ WarpX::PSATDBackwardTransformF ()
 void
 WarpX::PSATDForwardTransformG ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -446,7 +440,7 @@ WarpX::PSATDForwardTransformG ()
 void
 WarpX::PSATDBackwardTransformG ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -487,7 +481,7 @@ void WarpX::PSATDForwardTransformJ (
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        Idx = spectral_solver_fp[lev]->m_spectral_index;
+        Idx = spectral_solver_fp[lev]->spectralIndex();
 
         idx_jx = (time_dependency_J != TimeDependencyJ::Constant) ? static_cast<int>(Idx.Jx_new) : static_cast<int>(Idx.Jx_mid);
         idx_jy = (time_dependency_J != TimeDependencyJ::Constant) ? static_cast<int>(Idx.Jy_new) : static_cast<int>(Idx.Jy_mid);
@@ -500,7 +494,7 @@ void WarpX::PSATDForwardTransformJ (
 
         if (spectral_solver_cp[lev])
         {
-            Idx = spectral_solver_cp[lev]->m_spectral_index;
+            Idx = spectral_solver_cp[lev]->spectralIndex();
 
             idx_jx = (time_dependency_J != TimeDependencyJ::Constant) ? static_cast<int>(Idx.Jx_new) : static_cast<int>(Idx.Jx_mid);
             idx_jy = (time_dependency_J != TimeDependencyJ::Constant) ? static_cast<int>(Idx.Jy_new) : static_cast<int>(Idx.Jy_mid);
@@ -519,23 +513,23 @@ void WarpX::PSATDForwardTransformJ (
     {
         for (int lev = 0; lev <= finest_level; ++lev)
         {
-            Idx = spectral_solver_fp[lev]->m_spectral_index;
+            Idx = spectral_solver_fp[lev]->spectralIndex();
 
             idx_jx = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jx_new) : static_cast<int>(Idx.Jx_mid);
             idx_jy = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jy_new) : static_cast<int>(Idx.Jy_mid);
             idx_jz = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jz_new) : static_cast<int>(Idx.Jz_mid);
 
-            spectral_solver_fp[lev]->ApplyFilter(lev, idx_jx, idx_jy, idx_jz);
+            dynamic_cast<SpectralSolverRZ&>(*spectral_solver_fp[lev]).ApplyFilter(lev, idx_jx, idx_jy, idx_jz);
 
             if (spectral_solver_cp[lev])
             {
-                Idx = spectral_solver_cp[lev]->m_spectral_index;
+                Idx = spectral_solver_cp[lev]->spectralIndex();
 
                 idx_jx = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jx_new) : static_cast<int>(Idx.Jx_mid);
                 idx_jy = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jy_new) : static_cast<int>(Idx.Jy_mid);
                 idx_jz = (time_dependency_J == TimeDependencyJ::Linear) ? static_cast<int>(Idx.Jz_new) : static_cast<int>(Idx.Jz_mid);
 
-                spectral_solver_cp[lev]->ApplyFilter(lev, idx_jx, idx_jy, idx_jz);
+                dynamic_cast<SpectralSolverRZ&>(*spectral_solver_cp[lev]).ApplyFilter(lev, idx_jx, idx_jy, idx_jz);
             }
         }
     }
@@ -555,7 +549,7 @@ void WarpX::PSATDBackwardTransformJ (
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        Idx = spectral_solver_fp[lev]->m_spectral_index;
+        Idx = spectral_solver_fp[lev]->spectralIndex();
 
         // Note that these backward FFTs are currently called only
         // with algorithms that do not support J linear in time
@@ -571,7 +565,7 @@ void WarpX::PSATDBackwardTransformJ (
 
         if (spectral_solver_cp[lev])
         {
-            Idx = spectral_solver_cp[lev]->m_spectral_index;
+            Idx = spectral_solver_cp[lev]->spectralIndex();
 
             // Note that these backward FFTs are currently called only
             // with algorithms that do not support J linear in time
@@ -617,11 +611,11 @@ void WarpX::PSATDForwardTransformRho (
     {
         for (int lev = 0; lev <= finest_level; ++lev)
         {
-            spectral_solver_fp[lev]->ApplyFilter(lev, dcomp);
+            dynamic_cast<SpectralSolverRZ&>(*spectral_solver_fp[lev]).ApplyFilter(lev, dcomp);
 
             if (spectral_solver_cp[lev])
             {
-                spectral_solver_cp[lev]->ApplyFilter(lev, dcomp);
+                dynamic_cast<SpectralSolverRZ&>(*spectral_solver_cp[lev]).ApplyFilter(lev, dcomp);
             }
         }
     }
@@ -647,7 +641,7 @@ WarpX::PSATDPushSpectralFields ()
 void
 WarpX::PSATDMoveRhoNewToRhoOld ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -663,7 +657,7 @@ WarpX::PSATDMoveRhoNewToRhoOld ()
 void
 WarpX::PSATDMoveRhoNewToRhoMid ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -679,7 +673,7 @@ WarpX::PSATDMoveRhoNewToRhoMid ()
 void
 WarpX::PSATDMoveJNewToJOld ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -699,7 +693,7 @@ WarpX::PSATDMoveJNewToJOld ()
 void
 WarpX::PSATDMoveJNewToJMid ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -719,7 +713,7 @@ WarpX::PSATDMoveJNewToJMid ()
 void
 WarpX::PSATDEraseAverageFields ()
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -745,7 +739,7 @@ WarpX::PSATDEraseAverageFields ()
 void
 WarpX::PSATDScaleAverageFields (const amrex::Real scale_factor)
 {
-    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->m_spectral_index;
+    const SpectralFieldIndex& Idx = spectral_solver_fp[0]->spectralIndex();
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
@@ -780,8 +774,8 @@ WarpX::PushPSATD (amrex::Real start_time)
 
     bool const skip_lev0_coarse_patch = true;
 
-    const int rho_old = spectral_solver_fp[0]->m_spectral_index.rho_old;
-    const int rho_new = spectral_solver_fp[0]->m_spectral_index.rho_new;
+    const int rho_old = spectral_solver_fp[0]->spectralIndex().rho_old;
+    const int rho_new = spectral_solver_fp[0]->spectralIndex().rho_new;
 
     std::string const rho_fp_string = "rho_fp";
     std::string const rho_cp_string = "rho_cp";
@@ -907,7 +901,7 @@ WarpX::PushPSATD (amrex::Real start_time)
 
 #ifdef WARPX_DIM_RZ
     constexpr auto lev0 = 0;
-    if (pml_rz[lev0]) { pml_rz[lev0]->PushPSATD(lev0, m_fields, get_spectral_solver_fp(lev0)); }
+    if (pml_rz[lev0]) { pml_rz[lev0]->PushPSATD(lev0, m_fields, dynamic_cast<SpectralSolverRZ&>(get_spectral_solver_fp(lev0))); }
 #endif
 
     // FFT of F and G
@@ -937,7 +931,7 @@ WarpX::PushPSATD (amrex::Real start_time)
             pmlPtr(lev)->PushPSATD(m_fields, lev);
         }
 
-        amrex::Real const new_time = start_time + spectral_solver_fp[lev]->m_dt;
+        amrex::Real const new_time = start_time + spectral_solver_fp[lev]->spectralDt();
         ApplyEfieldBoundary(lev, PatchType::fine, new_time);
         if (lev > 0) { ApplyEfieldBoundary(lev, PatchType::coarse, new_time); }
         ApplyBfieldBoundary(lev, PatchType::fine, SubcyclingHalf::FirstHalf, new_time);

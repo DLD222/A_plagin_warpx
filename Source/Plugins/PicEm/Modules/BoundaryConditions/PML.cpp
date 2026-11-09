@@ -1381,7 +1381,7 @@ PushPMLPSATDSinglePatch (
     ablastr::fields::ScalarField pml_G,
     const amrex::IntVect& fill_guards)
 {
-    const SpectralFieldIndex& Idx = solver.m_spectral_index;
+    const SpectralFieldIndex& Idx = solver.spectralIndex();
 
     // Perform forward Fourier transforms
     solver.ForwardTransform(lev, *pml_E[0], Idx.Exy, PMLComp::xy);

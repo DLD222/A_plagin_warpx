@@ -189,7 +189,7 @@ PML_RZ::PushPSATD (int lev, ablastr::fields::MultiFabRegister& fields, SpectralS
 {
     using ablastr::fields::Direction;
 
-    SpectralFieldIndex const& Idx = spec_solver.m_spectral_index;
+    SpectralFieldIndex const& Idx = spec_solver.spectralIndex();
     amrex::MultiFab * pml_Er = fields.get(FieldType::pml_E_fp, Direction{0}, 0);
     amrex::MultiFab * pml_Et = fields.get(FieldType::pml_E_fp, Direction{1}, 0);
     amrex::MultiFab * pml_Br = fields.get(FieldType::pml_B_fp, Direction{0}, 0);

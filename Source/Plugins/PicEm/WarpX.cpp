@@ -3354,7 +3354,8 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
  * \param[in] dm                   Indicates which MPI proc owns which box, in realspace_ba
  * \param[in] dx                   Cell size along each dimension
  */
-void WarpX::AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSolverRZ>>& spectral_solver,
+void WarpX::AllocLevelSpectralSolverRZ (
+    amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>>& spectral_solver,
                                         const int lev,
                                         const amrex::BoxArray& realspace_ba,
                                         const amrex::DistributionMapping& dm,
@@ -3387,12 +3388,10 @@ void WarpX::AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSo
                                                   do_divb_cleaning,
                                                   GetRuntimeContext() != nullptr
                                                       ? GetRuntimeContext()->data : nullptr);
-    spectral_solver[lev] = std::move(pss);
-
     if (use_kspace_filter) {
-        spectral_solver[lev]->InitFilter(filter_npass_each_dir,
-                                         use_filter_compensation);
+        pss->InitFilter(filter_npass_each_dir, use_filter_compensation);
     }
+    spectral_solver[lev] = std::move(pss);
 }
 #   else
 /* \brief Allocate spectral Maxwell solver at a level
@@ -3406,7 +3405,8 @@ void WarpX::AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSo
  * \param[in] dx                    Cell size along each dimension
  * \param[in] pml_flag              Whether the boxes in which the solver is applied are PML boxes
  */
-void WarpX::AllocLevelSpectralSolver (amrex::Vector<std::unique_ptr<SpectralSolver>>& spectral_solver,
+void WarpX::AllocLevelSpectralSolver (
+    amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>>& spectral_solver,
                                       const int lev,
                                       const amrex::BoxArray& realspace_ba,
                                       const amrex::DistributionMapping& dm,

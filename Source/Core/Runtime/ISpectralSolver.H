@@ -42,8 +42,10 @@ public:
      * \c fill_guards says which ghost cells the transform must also fill; a
      * solver that reconstructs them itself may ignore it.
      */
-    virtual void BackwardTransform (int lev, amrex::MultiFab& mf, int field_index,
-                                    amrex::IntVect const& fill_guards, int i_comp = 0) = 0;
+    virtual void BackwardTransform (
+        int lev, amrex::MultiFab& mf, int field_index,
+        amrex::IntVect const& fill_guards = amrex::IntVect::TheZeroVector(),
+        int i_comp = 0) = 0;
 
     //! Advance the fields in spectral space by one time step.
     virtual void pushSpectralFields (bool doing_pml = false) = 0;

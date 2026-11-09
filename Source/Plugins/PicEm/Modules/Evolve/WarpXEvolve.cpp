@@ -1241,8 +1241,8 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
 
     bool const skip_lev0_coarse_patch = true;
 
-    const int rho_mid = spectral_solver_fp[0]->m_spectral_index.rho_mid;
-    const int rho_new = spectral_solver_fp[0]->m_spectral_index.rho_new;
+    const int rho_mid = spectral_solver_fp[0]->spectralIndex().rho_mid;
+    const int rho_new = spectral_solver_fp[0]->spectralIndex().rho_new;
 
     // Push particle from x^{n} to x^{n+1}
     //               from p^{n-1/2} to p^{n+1/2}

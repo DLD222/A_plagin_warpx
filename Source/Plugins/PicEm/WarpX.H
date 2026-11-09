@@ -33,6 +33,7 @@
 #include "Particles/WarpXParticleContainer_fwd.H"
 
 #ifdef WARPX_USE_FFT
+#   include "Runtime/ISpectralSolver.H"
 #   ifdef WARPX_DIM_RZ
 #       include "BoundaryConditions/PML_RZ_fwd.H"
 #       include "FieldSolver/PSATD/SpectralSolverRZ_fwd.H"
@@ -1145,7 +1146,7 @@ public:
     void ComputeEightWaysExtensions();
 
 #ifdef WARPX_USE_FFT
-    auto&  get_spectral_solver_fp (int lev) {return *spectral_solver_fp[lev];}
+    warpx::runtime::ISpectralSolver& get_spectral_solver_fp (int lev) {return *spectral_solver_fp[lev];}
 #endif
 
     warpx::runtime::IFiniteDifferenceSolver * get_pointer_fdtd_solver_fp (int lev) { return m_fdtd_solver_fp[lev].get(); }
@@ -1448,13 +1449,15 @@ private:
 
 #ifdef WARPX_USE_FFT
 #   ifdef WARPX_DIM_RZ
-    void AllocLevelSpectralSolverRZ (amrex::Vector<std::unique_ptr<SpectralSolverRZ>>& spectral_solver,
+    void AllocLevelSpectralSolverRZ (
+                                     amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>>& spectral_solver,
                                      int lev,
                                      const amrex::BoxArray& realspace_ba,
                                      const amrex::DistributionMapping& dm,
                                      const std::array<amrex::Real,3>& dx);
 #   else
-    void AllocLevelSpectralSolver (amrex::Vector<std::unique_ptr<SpectralSolver>>& spectral_solver,
+    void AllocLevelSpectralSolver (
+                                   amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>>& spectral_solver,
                                    int lev,
                                    const amrex::BoxArray& realspace_ba,
                                    const amrex::DistributionMapping& dm,
@@ -1901,13 +1904,10 @@ private:
      */
     void PSATDEraseAverageFields ();
 
-#   ifdef WARPX_DIM_RZ
-        amrex::Vector<std::unique_ptr<SpectralSolverRZ>> spectral_solver_fp;
-        amrex::Vector<std::unique_ptr<SpectralSolverRZ>> spectral_solver_cp;
-#   else
-        amrex::Vector<std::unique_ptr<SpectralSolver>> spectral_solver_fp;
-        amrex::Vector<std::unique_ptr<SpectralSolver>> spectral_solver_cp;
-#   endif
+        // The kernel only knows the spectral contract: which solver implements
+        // it is decided by the field-solver plugin.
+        amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>> spectral_solver_fp;
+        amrex::Vector<std::unique_ptr<warpx::runtime::ISpectralSolver>> spectral_solver_cp;
 
 #endif
 

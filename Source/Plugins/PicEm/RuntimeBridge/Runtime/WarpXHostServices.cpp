@@ -111,8 +111,10 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD &&
         WarpX::use_kspace_filter && apply_rz_psatd_filter) {
-        auto& solver = m_warpx.get_spectral_solver_fp(lev);
-        const SpectralFieldIndex& Idx = solver.m_spectral_index;
+        // RZ k-space filtering is an RZ-solver capability, so the concrete
+        // type is narrowed here; the rest of the kernel only sees the contract.
+        auto& solver = dynamic_cast<SpectralSolverRZ&>(m_warpx.get_spectral_solver_fp(lev));
+        const SpectralFieldIndex& Idx = solver.spectralIndex();
         solver.ForwardTransform(lev, *rho, Idx.rho_new);
         solver.ApplyFilter(lev, Idx.rho_new);
         solver.BackwardTransform(lev, *rho, Idx.rho_new);
