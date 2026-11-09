@@ -1010,6 +1010,7 @@ if(BUILD_TESTING)
     endif()
     add_subdirectory(tests/runtime)
     add_subdirectory(tests/plugins)
+    add_subdirectory(tests/external_plugin)
 endif()
 
 
