@@ -42,17 +42,34 @@ namespace MagnetostaticSolver {
         ablastr::fields::MultiLevelVectorField m_b_field;
         ablastr::fields::MultiLevelVectorField m_grad_buf_e_stag;
         ablastr::fields::MultiLevelVectorField m_grad_buf_b_stag;
-        WarpX* m_warpx = nullptr;
+        //! Field-centering orders and device coefficients (were read from WarpX*).
+        int m_fg_nox = 0;
+        int m_fg_noy = 0;
+        int m_fg_noz = 0;
+        amrex::Real const* m_coeffs_x = nullptr;
+        amrex::Real const* m_coeffs_y = nullptr;
+        amrex::Real const* m_coeffs_z = nullptr;
+        bool m_single_precision_comms = false;
 
       public:
         EBCalcBfromVectorPotentialPerLevel (ablastr::fields::MultiLevelVectorField const & b_field,
                                             ablastr::fields::MultiLevelVectorField const & grad_buf_e_stag,
                                             ablastr::fields::MultiLevelVectorField const & grad_buf_b_stag,
-                                            WarpX* warpx)
+                                            int fg_nox, int fg_noy, int fg_noz,
+                                            amrex::Real const* coeffs_x,
+                                            amrex::Real const* coeffs_y,
+                                            amrex::Real const* coeffs_z,
+                                            bool single_precision_comms)
                 : m_b_field(b_field),
                   m_grad_buf_e_stag(grad_buf_e_stag),
                   m_grad_buf_b_stag(grad_buf_b_stag),
-                  m_warpx(warpx)
+                  m_fg_nox(fg_nox),
+                  m_fg_noy(fg_noy),
+                  m_fg_noz(fg_noz),
+                  m_coeffs_x(coeffs_x),
+                  m_coeffs_y(coeffs_y),
+                  m_coeffs_z(coeffs_z),
+                  m_single_precision_comms(single_precision_comms)
         {}
 
         void operator() (amrex::Array<std::unique_ptr<amrex::MLMG>, 3> & mlmg, int lev);

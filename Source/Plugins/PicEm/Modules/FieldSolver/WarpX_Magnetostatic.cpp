@@ -180,7 +180,13 @@ WarpX::computeVectorPotential (ablastr::fields::MultiLevelVectorField const& cur
         Bfield_fp,
         m_fields.get_mr_levels_alldirs(FieldType::vector_potential_grad_buf_e_stag, finest_level),
         m_fields.get_mr_levels_alldirs(FieldType::vector_potential_grad_buf_b_stag, finest_level),
-        this
+        WarpX::field_centering_nox,
+        WarpX::field_centering_noy,
+        WarpX::field_centering_noz,
+        device_field_centering_stencil_coeffs_x.data(),
+        device_field_centering_stencil_coeffs_y.data(),
+        device_field_centering_stencil_coeffs_z.data(),
+        WarpX::do_single_precision_comms
     });
 
 #if defined(AMREX_USE_EB)
@@ -389,23 +395,20 @@ void MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs
 void MagnetostaticSolver::EBCalcBfromVectorPotentialPerLevel::doInterp (amrex::MultiFab & src,
                                                                         amrex::MultiFab & dst)
 {
-    WarpX &warpx = *m_warpx;
-
-    // Grab Interpolation Coefficients
     // Order of finite-order centering of fields
-    const int fg_nox = WarpX::field_centering_nox;
-    const int fg_noy = WarpX::field_centering_noy;
-    const int fg_noz = WarpX::field_centering_noz;
+    const int fg_nox = m_fg_nox;
+    const int fg_noy = m_fg_noy;
+    const int fg_noz = m_fg_noz;
 
-    // Device vectors of stencil coefficients used for finite-order centering of fields
-    amrex::Real const * stencil_coeffs_x = warpx.device_field_centering_stencil_coeffs_x.data();
-    amrex::Real const * stencil_coeffs_y = warpx.device_field_centering_stencil_coeffs_y.data();
-    amrex::Real const * stencil_coeffs_z = warpx.device_field_centering_stencil_coeffs_z.data();
+    // Stencil coefficients used for finite-order centering of fields
+    amrex::Real const * stencil_coeffs_x = m_coeffs_x;
+    amrex::Real const * stencil_coeffs_y = m_coeffs_y;
+    amrex::Real const * stencil_coeffs_z = m_coeffs_z;
 
     // Synchronize the ghost cells, do halo exchange
     ablastr::utils::communication::FillBoundary(src,
                                                 src.nGrowVect(),
-                                                WarpX::do_single_precision_comms);
+                                                m_single_precision_comms);
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
