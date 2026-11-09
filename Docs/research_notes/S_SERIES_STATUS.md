@@ -125,6 +125,15 @@ cmake --build build_multi_hdf5_fft -j 20      # -> EXIT=0
 该算例的 mode-1 本身是发散的（基准里同样有 1e12–1e15 的非物理值），微小分量属平台/FFT 相关噪声。
 结论：**FFT 不再是阻塞项**；这条 checksum 要用"上游 26.10 + 同 FFT/HDF5 环境"对照后才能定性（下一轮）。
 
+**FFT 构建额外带入 104 条此前从未运行过的 PSATD 条目（总数 573 vs 469）**：
+`ctest --test-dir build_multi_hdf5_fft -R psatd -j 8` 跑 86 条，**70 通过 / 16 失败**，
+失败集中在 6 个用例：`3d_uniform_plasma_psatd_JRhom_CC1`、
+`rz_galilean_psatd_current_correction[_psb]`、`rz_psatd_JRhom_LL2`、
+`3d_pml_psatd_dive_divb_cleaning`、`rz_pml_psatd`。抽检 `test_rz_psatd_JRhom_LL2.run`
+**单独跑 14.81 s 通过**（并行套件里 28.73 s 失败），因此这 16 条更像 `-j 8` × 每例 2–4 个 MPI rank
+的资源争用，需用 `-j 4` 复跑定性（下一轮）。3D/RZ 的 langmuir、galilean、acceleration 等
+PSATD **数值用例全部通过**，说明 RZ+FFT 的三处编译修复没有改变数值结果。
+
 第 3 项：`ctest --test-dir build_multi_hdf5 -R test_3d_particles_in_pml_mr --timeout 3000` 单独跑，
 `run` 87.44 s + `analysis` + `checksum` 全通过（总 1:30）。此前并行失败是资源争用下的超时，
 不是数值问题；全量 `-j 4` 复跑的权威确认放到下一轮。
