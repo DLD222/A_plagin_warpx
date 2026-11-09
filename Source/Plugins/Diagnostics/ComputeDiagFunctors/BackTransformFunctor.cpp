@@ -221,7 +221,9 @@ BackTransformFunctor::InitData ()
     for (int i = 0; i < m_varnames.size(); ++i)
     {
 #ifdef WARPX_DIM_RZ
-        const int field_id = i / config_snapshot().ncomps;
+        // ncomps is only known once the levels are allocated (InitData), so
+        // the live configuration must be asked, not the earlier snapshot.
+        const int field_id = i / config().ncomps();
         m_map_varnames[i] = m_possible_fields_to_dump[ m_varnames_fields[field_id] ];
 #else
         m_map_varnames[i] = m_possible_fields_to_dump[ m_varnames[i] ] ;
