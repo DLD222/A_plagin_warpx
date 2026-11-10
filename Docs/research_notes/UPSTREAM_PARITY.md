@@ -1105,3 +1105,24 @@ this=0x…7360 @…7388 words: 3.76e+06   1.727e+97   1.727e+97 120259     -5.6e
 
 **下一步**：用 `-DAMREX_DEBUG=ON` 重建 1D Python 模块（AMReX 的边界/断言会先于这里报错），
 或在 `WarpX` 构造函数里对 `geom` 容器逐成员校验，定位谁在按 2 个 `Real` 成对写几何数据。
+
+#### 12.3.4 范围收敛到 `WarpX::WarpX()` 构造函数体
+
+在构造函数体入口打印：
+
+```
+[ctor-body] Geom(0).ProbLo(0) = -5.6e-05 ProbHi(0) = 1.2e-05
+0::Assertion `valid_domain' failed ...
+```
+
+即基类 `AmrMesh` 构造完成时几何**完全正确**，崩溃发生在其后的 **`WarpX::WarpX()` 函数体里**。
+
+同时确认：把同样的 54 个选项**写成文本 inputs 文件**或用 **argv 形式**喂给纯 C++ 可执行文件，
+两者都**正常跑完**（`STEP 1 ends ... STEP 2 starts`）。所以问题既不在选项内容，也不在 ParmParse 文本解析，
+而在 **Python 绑定路径 + WarpX 构造函数体**的组合。
+
+已查证的事实：`sizeof(RealBox)=16`、`sizeof(Geometry)=88`、`prob_domain` 位于对象偏移 0x28，
+warpx 模块与 amrex pybind 模块的 `AMREX_SPACEDIM` 都是 1（尺寸一致，排除布局不匹配）。
+
+**下一步**：在构造函数体内分段插桩（先二分到调用），定位到底哪一行/哪个被调函数把
+`prob_domain` 平移了 16 字节。
