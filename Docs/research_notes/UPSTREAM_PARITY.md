@@ -775,3 +775,31 @@ if (!tensor_mode) {
 1. 真空极限单步 `max|Ex|` 与 Yee 相等（比值 1.000×，当前 2.000×）；
 2. 该腔模在 `cfl=1.0` 下不发散且剖面吻合 `cos(kz)cos(ω t)`；
 3. 四维套件失败集不增。
+
+#### 10.1.6 修复与验证（2026-11-10）
+
+**修复**：`MacroscopicProperties.cpp` 的节点填充改用**按维度**取相邻单元——1D 构建下沿第 0 维
+（与 `DownwardDz` 一致），其余维度保持原样；并修正了 1D 下对 `geom.Domain().smallEnd(1)/bigEnd(1)`
+的越界访问。所有对 `epsilon`、`sigma`、介电张量、电导张量的读取都走同一对索引。
+
+**验收一：真空极限**（`Tools/verify/check_macroscopic_vacuum_limit.sh`）
+
+| | 修复前 | 修复后 |
+|---|---|---|
+| Yee `max|Ex|` | 3 678 360.615965 | 3 678 360.615965 |
+| 宏观 `max|Ex|` | 7 356 721.231931 | **3 678 360.615965** |
+| 比值 | 2.000000 | **1.000000** |
+
+**验收二：`test_1d_macroscopic_solver`**：`run` / `analysis` / `checksum` **全部通过**
+（修复前 analysis 报 3.17e+78、checksum 失败）。
+
+**验收三：四维全套件（573 个测试）**
+
+| | 修复前 | 修复后 |
+|---|---|---|
+| 失败条目 | 6 | **3** |
+| 差异 | — | 只少了 `test_1d_macroscopic_solver.{analysis,checksum}` 与 `test_3d_ionization_electron_dsmc.analysis`，**无新增失败** |
+
+剩余 3 条：`test_3d_embedded_boundary_cube_macroscopic.checksum`（相对误差 1.21e-2 且最大项落在
+数值零附近的分量、`Ey/Ez` 仅 2.37e-7）、`test_3d_linear_compton_bunch_laser.analysis`（分析脚本在
+3D 数据集上挂起，环境）、`test_rz_laser_acceleration_boosted_opmd.checksum`（mode-1 的 1e-12 量级噪声）。
