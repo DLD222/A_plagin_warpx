@@ -5,6 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "NonlinearSolvers/PETScReinitialize.H"
 #include "WarpXInit.H"
 
 #include "Initialization/WarpXAMReXInit.H"
@@ -52,6 +53,19 @@ void warpx::initialization::initialize_external_libraries(int argc, char* argv[]
     }
     amrex::Print() << "Initialized PETSc.\n";
 #endif
+}
+
+namespace
+{
+    //! Register the PETSc reset with the core so the solver wrappers can call it.
+    struct RegisterPetscReinitializer
+    {
+        RegisterPetscReinitializer ()
+        {
+            warpx::petsc::set_reinitializer(&warpx::initialization::reinitialize_petsc);
+        }
+    };
+    const RegisterPetscReinitializer register_petsc_reinitializer{};
 }
 
 void warpx::initialization::reinitialize_petsc ()

@@ -8,6 +8,7 @@
 #ifndef PETSC_KSP_WRAPPER_H_
 #define PETSC_KSP_WRAPPER_H_
 
+#include "PETScReinitialize.H"
 #include "LinearSolver.H"
 #include "WarpX_PETSc.H"
 
@@ -67,7 +68,7 @@ public:
     bool reinitializePETSc () override
     {
         m_solver->destroyObjects();
-        warpx::initialization::reinitialize_petsc();
+        warpx::petsc::reinitialize();
         return true;
     }
 

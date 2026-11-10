@@ -3,6 +3,7 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_core_${SD}
       PRIVATE
         MatrixPCAlgMG.cpp
+        PETScReinitialize.cpp
         WarpX_PETSc.cpp
     )
 endforeach()

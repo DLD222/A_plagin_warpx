@@ -7,6 +7,7 @@
 
 #include "Solvers/WarpXSolverVec.H"
 #include "NewtonSolverParams.H"
+#include "JacobianFunctionMF.H"
 #include "NonlinearSolver.H"
 #include "Preconditioner.H"
 
