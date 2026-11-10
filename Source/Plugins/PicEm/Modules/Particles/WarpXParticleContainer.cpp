@@ -204,15 +204,15 @@ WarpXParticleContainer::WarpXParticleContainer (AmrCore* amr_core, int ispecies,
     // can allow these value to be overwritten if different boundary
     // conditions are desired for a specific species
 #ifndef WARPX_DIM_1D_Z
-    m_boundary_conditions.SetBoundsX(WarpX::particle_boundary_lo[0], config().particle_boundary_hi()[0]);
+    m_boundary_conditions.SetBoundsX(config().particle_boundary_lo()[0], config().particle_boundary_hi()[0]);
 #endif
 #ifdef WARPX_DIM_3D
-    m_boundary_conditions.SetBoundsY(WarpX::particle_boundary_lo[1], config().particle_boundary_hi()[1]);
-    m_boundary_conditions.SetBoundsZ(WarpX::particle_boundary_lo[2], config().particle_boundary_hi()[2]);
+    m_boundary_conditions.SetBoundsY(config().particle_boundary_lo()[1], config().particle_boundary_hi()[1]);
+    m_boundary_conditions.SetBoundsZ(config().particle_boundary_lo()[2], config().particle_boundary_hi()[2]);
 #elif WARPX_DIM_XZ || WARPX_DIM_RZ
-    m_boundary_conditions.SetBoundsZ(WarpX::particle_boundary_lo[1], config().particle_boundary_hi()[1]);
+    m_boundary_conditions.SetBoundsZ(config().particle_boundary_lo()[1], config().particle_boundary_hi()[1]);
 #elif defined(WARPX_DIM_1D_Z)
-    m_boundary_conditions.SetBoundsZ(WarpX::particle_boundary_lo[0], config().particle_boundary_hi()[0]);
+    m_boundary_conditions.SetBoundsZ(config().particle_boundary_lo()[0], config().particle_boundary_hi()[0]);
 #endif
     m_boundary_conditions.BuildReflectionModelParsers();
 
@@ -1579,7 +1579,7 @@ WarpXParticleContainer::DepositCharge (ParticleTileIter& pti, RealVector const& 
         ": not enough components allocated (" + std::to_string(rho->nComp()) + "!"
     );
 
-    if (WarpX::do_shared_mem_charge_deposition)
+    if (config().do_shared_mem_charge_deposition())
     {
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE((depos_lev==(lev-1)) ||
                                          (depos_lev==(lev  )),
@@ -1959,7 +1959,7 @@ WarpXParticleContainer::GetChargeDensityOnLevel (int lev, bool local, bool final
 
 #ifdef WARPX_DIM_RZ
     const bool is_PSATD_RZ =
-        (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD);
+        (config().electromagnetic_solver_id() == ElectromagneticSolverAlgo::PSATD);
 #else
     const bool is_PSATD_RZ = false;
 #endif

@@ -850,7 +850,7 @@ PhysicalParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
             if (deposit_charge) {
                 // Deposit charge after particle push, in component 1 of MultiFab rho.
                 // (Skipped for electrostatic solver, as this may lead to out-of-bounds)
-                if (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::None) {
+                if (config().electrostatic_solver_id() == ElectrostaticSolverAlgo::None) {
                     amrex::MultiFab* rho = fields.get(FieldType::rho_fp, lev);
                     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(rho->nComp() >= 2,
                         "Cannot deposit charge in rho component 1: only component 0 is allocated!");
@@ -1941,7 +1941,7 @@ PhysicalParticleContainer::DepositTemperature (
     // algorithm; implicit pushers and shared-memory deposition change the
     // u/x staging assumptions and are not supported.
     if (push_type != PushType::Explicit
-        || WarpX::do_shared_mem_current_deposition
+        || config().do_shared_mem_current_deposition()
         )
     {
         WARPX_ABORT_WITH_MESSAGE(

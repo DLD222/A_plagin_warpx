@@ -93,7 +93,7 @@ struct DiagIdx
 
 /**
  * \brief Field gather orders for PushP, when they are set explicitly rather than from
- * the global WarpX::nox and WarpX::galerkin_interpolation settings.
+ * the global config().nox() and config().galerkin_interpolation() settings.
  *
  * E is gathered with shape order e_shape and, if e_galerkin is true, one order lower
  * along each component's own direction (i.e. the Galerkin scheme on the Yee grid).
@@ -266,7 +266,7 @@ public:
     ///
     /// This pushes the particle momenta by dt.
     /// If gather_orders is set, E and B are gathered with these orders instead of
-    /// WarpX::nox and WarpX::galerkin_interpolation (see FieldGatherOrders).
+    /// config().nox() and config().galerkin_interpolation() (see FieldGatherOrders).
     ///
     virtual void PushP (int lev, amrex::Real dt,
                         const amrex::MultiFab& Ex,
