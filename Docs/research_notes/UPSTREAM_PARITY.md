@@ -1359,3 +1359,32 @@ PETSc 的 9 个用例因此**仍未运行**，阻塞点已从"工具链"变为"�
 （后者间接引入该枚举）。**解决办法**：把需要完整类型的那两处调用
 （`m_op->ComputeRHS(...)`、`m_op->PreLinearSolve(...)`）隔离到一个**不包含 PETSc 头**的 TU 中，
 由它做 `ImplicitSolver` 适配，PETSc TU 只经一个薄接口调用。
+
+#### 12.6.3 PETSc 构建打通：2D 的三个 PETSc 用例已能运行
+
+用 `PETScImplicitBridge.{H,cpp}` 把"需要完整 `ImplicitSolver` 类型"的调用隔离到
+**不含 PETSc 头**的编译单元（`ComputeRHS`、`PreLinearSolve`、`GetThetaForPC`、
+`AssemblePCMatrix`、`GetPCMatrix`、`numAMRLevels`、`GetMassMatricesCoeff`、`GetGeometry`、
+`LinOpBCLo/Hi`、`MakePCMatrixOps`），包装器只用前置声明。
+
+```
+$ ctest --test-dir build_petsc -R "petsc"
+1/9 test_2d_curl_curl_petsc_pc.run ........................ Passed
+2/9 test_2d_semi_implicit_planar_pinch_petsc_snes.run ..... Passed
+3/9 test_2d_curl_curl_petsc_pc.analysis ................... Passed
+4/9 test_2d_semi_implicit_planar_pinch_petsc_snes.analysis  Passed
+5/9 test_2d_theta_implicit_planar_pinch_petsc_snes.run .... Passed
+7/9 test_2d_theta_implicit_planar_pinch_petsc_snes.analysis Passed
+6/9 test_2d_curl_curl_petsc_pc.checksum ................... ***Failed
+8/9 test_2d_semi_implicit_planar_pinch_petsc_snes.checksum  ***Failed
+9/9 test_2d_theta_implicit_planar_pinch_petsc_snes.checksum ***Failed
+67% tests passed, 3 tests failed out of 9
+```
+
+**关键点**：三个用例的 `run` 与 `analysis` **全部通过**，失败的只有 `checksum` ——
+而校验和依赖 PETSc 版本与平台（本机 PETSc 3.26.1，上游基准由别的版本录制），按 AGENTS.md 属可忽略类别。
+
+默认构建（PETSc=OFF）仍全绿：2D 编译通过、27 个隐式/Darwin 测试通过、检查器 0。
+
+**剩余覆盖**：9 条 PETSc 用例中，2D 的 3 条已可运行；其余 6 条需要 RZ / RCYLINDER / 3D 的
+PETSc 构建（同样的桥接代码，只是维度不同）。
