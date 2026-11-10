@@ -1463,3 +1463,29 @@ $ ctest --test-dir build_petsc -R "petsc" -j 2
 与修复前的 6 条基线逐条比对：**只减少、不新增**——
 `test_1d_macroscopic_solver.{analysis,checksum}`（宏观求解器缺陷，已修）与
 `test_3d_linear_compton_bunch_laser.analysis`（matplotlib 后端，`MPLBACKEND=Agg` 已解决）都消失了。
+
+### 12.11 A/B 扩到 16 个算例：15 个逐位相同
+
+本轮新增三个算例（3D 碰撞、RZ 激光加速、2D 碰撞），全部逐位相同。完整表格：
+
+| 算例 | 维度 | 覆盖 | 场数 | 全局相对差 |
+|---|---|---|---|---|
+| `rz_collision` | RZ | 库仑碰撞 | 33 | **0.000e+00** |
+| `rz_es` | RZ | 静电求解器 | 31 | **0.000e+00** |
+| `rz_es_eb` | RZ | 静电 + 嵌入边界 | 3 | **0.000e+00** |
+| `rz_btd` | RZ | BTD 诊断（boosted frame） | 9 | **0.000e+00** |
+| `rz_langmuir` | RZ | PIC 标准算例 | 41 | **0.000e+00** |
+| `rz_fluid` | RZ | 流体（矩）模型 | 6 | **0.000e+00** |
+| `rz_fusion` | RZ | D-T 核聚变 | 91 | **0.000e+00** |
+| **`rz_laser`** | RZ | **激光加速（78 个场分量）** | 78 | **0.000e+00** |
+| `d3_langmuir` | 3D | PIC 标准算例 | 37 | **0.000e+00** |
+| `d3_implicit` | 3D | 隐式求解器（theta/JFNK） | 47 | **0.000e+00** |
+| `d3_laser` | 3D | 激光注入 | 8 | **0.000e+00** |
+| `d3_eb` | 3D | 嵌入边界 | 6 | 1.63e-11（双精度舍入） |
+| **`d3_collision`** | 3D | **碰撞（36 个场分量）** | 36 | **0.000e+00** |
+| `d2_langmuir` | 2D | PIC 标准算例 | 41 | **0.000e+00** |
+| `d2_plasma_mirror` | 2D | 等离子体镜（物理应用） | 41 | **0.000e+00** |
+| **`d2_collision`** | 2D | **碰撞（38 个场分量）** | 38 | **0.000e+00** |
+
+**16 个算例、15 个逐位相同**，覆盖 RZ/3D/2D 三个维度上的 PIC、碰撞、静电、嵌入边界、
+BTD、流体、核聚变、激光加速、隐式求解器。
