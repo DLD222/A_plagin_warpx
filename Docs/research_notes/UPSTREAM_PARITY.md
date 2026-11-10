@@ -1126,3 +1126,28 @@ warpx 模块与 amrex pybind 模块的 `AMREX_SPACEDIM` 都是 1（尺寸一致�
 
 **下一步**：在构造函数体内分段插桩（先二分到调用），定位到底哪一行/哪个被调函数把
 `prob_domain` 平移了 16 字节。
+
+#### 12.3.5 二分到 `WarpX::InitData_Diagnostics()`
+
+沿 `WarpX` 构造 → `InitData` 的各阶段插桩（临时，已还原），实际输出：
+
+```
+[probe] ctor end                    ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] InitData entry              ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] after InitData_BeforeInit   ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] after InitData_Init         ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] after InitData_AfterInit    ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] before InitData_FieldSolve  ProbLo=-5.6e-05 ProbHi=1.2e-05
+[probe] after InitData_FieldSolve   ProbLo=-5.6e-05 ProbHi=1.2e-05
+                                    ← 崩溃，之后没有 "after InitData_Diagnostics"
+```
+
+即 `WarpX` 构造函数完整、`InitData` 前四个阶段全部正常，**崩溃发生在
+`WarpX::InitData_Diagnostics()` 内部**（该函数在 `WarpXInitData.cpp:997`，调用
+`multi_diags->FilterComputePackFlush(istep[0]-1)`）。
+
+这与"去掉两个诊断就能通过"的二分结果**完全一致**：诊断注册后，初始化时写第一步输出，
+这条路径构造了一个新的 `Geometry`（`RealBox` 16 字节）并把它写错位。
+
+**下一步**：在 `FilterComputePackFlush` 到具体 diagnostic 的 `InitData` 之间继续二分，
+重点看诊断在 1D 下如何从 `Geom(lev)` 复制/构造几何（很可能是按 2/3 维写的 `RealBox` 构造）。
