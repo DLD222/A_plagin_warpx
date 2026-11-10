@@ -1291,3 +1291,22 @@ error: 'EBFArrayBoxFactory' in namespace 'amrex' does not name a type
 关掉 `WarpX_EB` 也不行（那样 AMReX 自己就没有 EB 模块）。本仓库同一处有维度守卫，
 所以本仓库能建 1D。**因此 1D 的 A/B 无法以"上游自建二进制"的方式进行**；1D 的等价性依据是
 上游自带 checksum（本仓库全部通过）。
+
+### 12.6 PETSc：装好了工具链，但同时暴露了上一轮搬迁的遗留问题
+
+**工具链**（单核机器上分批完成）：
+`conda install -c conda-forge petsc`（3.26.1）需要配套编译器，再装 `gcc_linux-64`/`gxx_linux-64`
+后，用 conda 的 `mpicc`/`mpicxx` 可以配置：
+`-DWarpX_PETSC=ON -DAMReX_PETSC=ON -DCMAKE_C_COMPILER=<conda>/mpicc ...`（`cfg=0`）。
+
+**但 `WarpX_PETSC=ON` 的第一次编译就暴露了上一轮"非线性求解器移入核心"留下的两个遗留问题**
+（此前所有构建都是 PETSc=OFF，所以一直没暴露）：
+
+| 问题 | 现象 | 处理 |
+|---|---|---|
+| 反向依赖内核 | `PETScKSP_Wrapper.H:70` 调 `warpx::initialization::reinitialize_petsc()`（内核函数） | **已修**：改为核心契约 `warpx::petsc::set_reinitializer/reinitialize`，内核启动时注册一次 |
+| 丢失的间接包含 | `WarpX_PETSc.cpp` 缺 `JacobianFunctionMF.H` 等（原先靠内核头间接获得） | **已修**：显式补回 |
+| **仍存在** | `WarpX_PETSc.H` 把 `TIType` 别名到具体的 `ImplicitSolver`，而该类已移入场求解器插件 → 核心到插件的依赖 | **待办**：改用核心接口 `Runtime/IImplicitSolver.H`，或把这部分 PETSc 代码移入场求解器插件 |
+
+默认构建（PETSc=OFF）编译通过、四个检查器仍为 0、27 个隐式/Darwin 测试全过。
+PETSc 的 9 个用例因此**仍未运行**，阻塞点已从"工具链"变为"两处代码依赖"。
