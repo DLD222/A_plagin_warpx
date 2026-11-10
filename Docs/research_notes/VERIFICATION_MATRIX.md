@@ -151,3 +151,17 @@ Abort: Fatal error in internal_Init_thread: Internal MPI error!
 
 **判读规则**：如果一批 `*_picmi.run` 同时失败且错误里有 `PMI`/`Init_thread`，先查 MPI 启动器，
 不要急着怀疑代码。
+
+### 2026-11-11：`build_py_4d` 的回归**尚未解释清楚**（进行中）
+
+本轮把该套件重跑三次，结果分别是 **18 → 20 → 20** 条失败，而目标是 6 条。
+逐步排除：
+
+| 现象 | 结论 |
+|---|---|
+| 一批 `*_picmi.run` 同时失败，错误含 `PMI`/`Init_thread` | **MPI 启动器不对**：`ctest` 里记录的是配置时的 `/usr/bin/mpiexec`（OpenMPI），而 conda 的 `mpi4py` 是 MPICH。用 `-DMPIEXEC_EXECUTABLE=$HOME/miniconda3/bin/mpiexec` 重新配置后，这类错误消失 |
+| 仍有 `*_picmi.run` 失败，日志为 `Couldn't open file: diags/field_diag000000/Level_0/Cell_H` | **尚未定位**：诊断输出没有产生 |
+
+**不做猜测**：在把 `build_py_4d` 跑回 6 条之前，不能声称本轮的改动没有回归。
+下一步是拿一个具体用例（`test_1d_ohm_solver_em_modes_picmi`）对比"改动前/后"的运行目录与输出，
+必要时用 `git stash` 式的精确二分（只回退单个改动，不用 `git checkout`）。
