@@ -95,3 +95,23 @@ cmake -S . -B build_exotic -DWarpX_DIMS="RCYLINDER;RSPHERE" -DWarpX_OPENPMD=ON
 ```
 
 否则内核会引用未编译的 `ImplicitSolver` vtable，在**链接期**失败（已实测）。
+
+## 判据 4 的验收（用户自定义插件）
+
+| 测试 | 内容 | 关键点 |
+|---|---|---|
+| `external_plugin_2` | 用**仓库外的** `third_party_plugin.c` 驱动一次真实 2D 模拟（`max_step=3`、16×16 网格、真实边界与求解器设置） | 只用公共 C ABI（`Runtime/PluginCApi.H`）；由**裸 C 编译器**构建：`${CMAKE_C_COMPILER} -shared -fPIC -std=c11`，不链接任何 WarpX 目标；插件自己声明场状态、在核心一无所知的阶段注册处理器、写出命名标量，测试断言插件自己的输出 |
+| `nonpic_kernel_2` | 一个**完全没有粒子**的内核（十矩流体的替身），只使用 `Source/Core` 的头文件 | 证明内核可替换；`particle_capability()` 返回 `nullptr`，系统仍能运行 |
+
+**跨配置复验**（避免"只在某个构建里碰巧通过"）：
+
+```
+$ ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2|runtime_snapshot_particles_2|plugin_"
+100% tests passed, 0 tests failed out of 12
+
+$ ctest --test-dir build_petsc -R "external_plugin|nonpic_kernel"
+1/2 nonpic_kernel_2 ... Passed
+2/2 external_plugin_2 ... Passed
+```
+
+即在默认 2D 构建与 PETSc 构建（2D/RZ/RCYLINDER/3D）中**都通过**。
