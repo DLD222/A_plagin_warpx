@@ -1017,3 +1017,25 @@ Python/PICMI → C++ 交接缺陷**，而 1D 的纯 C++ 路径正常（四维套
 | 既有平台校验和（3D EB macroscopic、RZ boosted） | 2 | 平台校验和 |
 | pytest 依赖 | 3 | 已修复（安装 pytest/pytest-mpi 后通过） |
 | 其余 | 3 | 见日志 |
+
+### 12.3 P0 调查进展（1D PICMI 崩溃）
+
+已排除的假设：
+
+| 假设 | 实验 | 结果 |
+|---|---|---|
+| Python 层写错值 | 单独初始化 `Cartesian1DGrid` 并读回 | **值正确**：`prob_lo=[-2e-05]`、`prob_hi=[2e-05]`、`n_cell=[256]`、`dims=1` |
+| 加载了错误的维度库 | 检查 `_libwarpx.load_library()` 与 `.so` | **正确**：`dims="1"` → `warpx_pybind_1d` |
+| `parse_geometry_input()` 读到错值 | 在函数内打印（`WARPX_DEBUG_GEOM=1`） | **读到正确的值**：`[geom] SPACEDIM=1 read prob_lo size=1 = -5.6e-05 ; prob_hi = 1.2e-05`，且 ParmParse 里也是 1 条 `-5.6e-05` |
+| `ParmParse::addarr` 追加导致重复条目 | 用 `WARPX_NO_ADDARR=1` 跳过两次 `addarr` 后重跑 | **仍然崩溃** → 不是 addarr |
+
+**仍未解释的现象**：`parse_geometry_input()` 之后 ParmParse 里是正确的 `-5.6e-05 / 1.2e-05`，
+但紧接着 `amrex::Geometry` 的 `computeRoundoffDomain` 拿到的 `prob_domain` 是
+`(1.7273e+97, 120259.08)` —— 注意 `120259.08 ≈ 1.2e-05 / 1e-10`，提示存在 **1e10 量级的缩放**
+与一处未初始化值。也就是说：**在 parse 之后、Geometry 构造之前**，`geometry.prob_lo/prob_hi`
+被某个东西改写（或按另一个单位体系重算）。
+
+下一步（明确的）：
+1. 用 `AMREX_BACKTRACE=1` 或 gdb 在断言处取栈，确认是哪个构造函数/哪次改写；
+2. 在 `WarpX` 构造函数入口与 `AmrCore` 基类构造前各打印一次 `geometry.prob_lo`，把区间夹到具体语句；
+3. 检查 1D 下是否有代码把 `prob_lo` 与 `PlasmaInjector`/单位换算（`1e-10` 类）混用。
