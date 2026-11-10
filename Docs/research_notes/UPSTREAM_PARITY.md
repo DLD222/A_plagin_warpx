@@ -1062,3 +1062,25 @@ Python/PICMI → C++ 交接缺陷**，而 1D 的纯 C++ 路径正常（四维套
 
 下一步：在 `pywarpx` 的输入灌入路径（`create_argv_list`/`write_inputs` 的 C++ 侧）加边界检查，
 用 `-fsanitize=address` 构建一个 1D Python 模块跑该输入，直接定位越界写。
+
+#### 12.3.2 用 AMReX 内部打印锁定：`Geometry::prob_domain` 被覆写
+
+在 `Geometry::Setup` 与 `Geometry::computeRoundoffDomain` 各加一次打印（临时改的是
+**构建目录里的 AMReX 源**，随后已还原），同一输入运行得到：
+
+```
+[amrex-setup] gg=0x56647840f950 SPACEDIM=1 prob_lo= -5.6e-05 prob_hi= 1.2e-05 read_hi=1 read_extent=0
+[roundoff] this=0x56647846c620 prob_lo=-5.6e-05 prob_hi=1.2e-05 dom_len=256
+[roundoff] this=0x566478490300 prob_lo=-5.6e-05 prob_hi=1.2e-05 dom_len=256
+[roundoff] this=0x566478490300 prob_lo=-5.6e-05 prob_hi=1.2e-05 dom_len=256
+[roundoff] this=0x566478490300 prob_lo=1.72731e+97 prob_hi=120259 dom_len=256   ← 同一对象，被覆写
+```
+
+**结论**：`Geometry::Setup` 从 ParmParse 读到的值**完全正确**，`prob_domain` 也正确写入；
+随后**同一个 `Geometry` 对象**的 `prob_domain`（16 字节）在两次调用之间被别处覆写，
+而同一对象里的 `domain`（IntVect，256 格）保持正确 —— 典型的**相邻内存越界写**，
+不是解析、不是 addarr、也不是 argv 生命周期（把 `cargs` 改成 static 后仍然崩溃，已排除）。
+
+**下一步**：给 `Geometry` 的 `prob_domain` 加前后哨兵（canary）定位越界方向，
+或用 `MALLOC_PERTURB_`/编译期 `-DAMREX_DEBUG` 复现；也可在 `WarpX` 构造函数里
+对 `geom` 容器做一次"写入即校验"的断言。
