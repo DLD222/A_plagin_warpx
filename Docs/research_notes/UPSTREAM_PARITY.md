@@ -1545,3 +1545,27 @@ photon2 (N=1): OK
 |---|---|---|---|
 | `d3_bw_rel`（Breit-Wheeler 角分布，相对论） | openPMD，**仅粒子** | 粒子级 | **OK**（electron/positron 各 168 738） |
 | `d3_bw_many`（Breit-Wheeler 多光子） | plotfile，57 个场 | 场逐位 | **0.000e+00** |
+
+### 12.14 1D 的 A/B 也做成了（给上游打了两处补丁）
+
+之前记录"上游 26.10 无法构建 1D"，所以 1D 只能靠 checksum。本轮把这条路走通了——
+**只改 scratch 的上游参考树**（不动本仓库），补两处上游缺失：
+
+| 补丁 | 内容 |
+|---|---|
+| `MacroscopicProperties.H` | 上游在函数签名里用了 `amrex::EBFArrayBoxFactory*` 却**没有声明**该类型；补一行前置声明（本仓库早就有） |
+| `MacroscopicProperties.cpp` | 上游无条件 `#include <AMReX_EBFabFactory.H>`；用 `#if defined(AMREX_USE_EB)` 包住 |
+
+另外上游 1D 必须**用系统 OpenMPI 构建**（若按 conda 前缀构建，会同时链上 conda 的 MPICH，
+运行时 `MPII_Comm_set_attr: Invalid communicator`；已实测并纠正）。
+
+**1D 三个算例全部逐位相同**：
+
+| 算例 | 覆盖 | 场数 | 全局相对差 |
+|---|---|---|---|
+| `d1_langmuir` | 1D PIC | 39 | **0.000e+00** |
+| `d1_collision` | 1D 碰撞 | 30 | **0.000e+00** |
+| `d1_implicit` | 1D 隐式（theta pinch） | 39 | **0.000e+00** |
+
+**A/B 累计 24 个算例**：场逐位 21 个（20 个 0.000e+00、1 个 1.63e-11），粒子级 3 个（全部 OK）。
+四个维度（1D/2D/3D/RZ）现在都有逐算例对照。
