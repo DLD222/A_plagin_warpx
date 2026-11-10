@@ -962,3 +962,58 @@ error: no matching function for call to 'amrex::IntVectND<3>::IntVectND(const in
   依据仍是上游自带的 checksum 基准（本仓库全部通过，除 2 条平台校验和）。
 - **1D**：上游 1D 参考构建是 `WarpX_OPENPMD=OFF`，不产生场输出，无法对比。
 - 2D：上游无 2D 参考构建。
+
+---
+
+## 12. 覆盖核查：官方算例到底跑了多少（2026-11-10 晚，按用户要求重查）
+
+官方算例分布在 `Examples/Tests/`（92 个目录、399 个 `inputs_test_*`）与
+`Examples/Physics_applications/`（12 个目录、45 个输入，其 `inputs_test_*` 同样进 ctest）。
+合计 **407 个官方测试输入**。
+
+**核查方法**：把三个构建的 `ctest -N` 注册名与 `Examples/` 下全部 `inputs_test_*` 求差集。
+
+| 阶段 | 已注册/可运行 | 未覆盖 |
+|---|---|---|
+| 原三个构建（1D/3D/RZ、2D、2D+Python） | 334 | **73** |
+| 新增 `build_py_4d`（1D/3D/RZ + Python + FFT） | **391** | **16** |
+
+剩余 16 个及原因：
+
+| 原因 | 数量 | 条目 |
+|---|---|---|
+| PETSc（`AMReX_PETSC=ON`，未构建） | 9 | `test_{2d,rz,rcylinder}_curl_curl_petsc_pc`、`test_2d_semi_implicit_planar_pinch_petsc_snes`、`test_{2d,rz}_theta_implicit_*`、`test_3d_theta_implicit_jfnk_pcwidth` |
+| RCYLINDER / RSPHERE 维度（未构建） | 2 | `test_rcylinder_langmuir_multi`、`test_rsphere_langmuir_multi` |
+| 外部数据（`--prepare` 需联网下载） | 5 | `test_3d_focusing_gaussian_beam_from_openpmd{,_picmi}`、Lasy 文件类 |
+
+### 12.1 新构建立刻暴露了两个真问题（此前从未运行过）
+
+**（a）1D PICMI 算例崩溃 —— 真实缺陷，非环境问题**
+
+```
+$ mpiexec -n 1 python3 Examples/Physics_applications/laser_acceleration/inputs_test_1d_laser_acceleration_picmi.py
+Assertion `valid_domain' failed ... Msg: (RealBox 1.7273077714650454e+97 120259.08423199999 ) ((0) (255) (0))
+```
+
+Python 层写入的值是对的（实测 `prob_lo = [-2e-05]`、`prob_hi = [2e-05]`、`n_cell = [256]`），
+但 C++ 侧 `amrex::Geometry` 看到的定义域是 `lo = 1.7273e+97`、`hi = 120259.08` —— 完全乱码。
+同一输入在 **2D PICMI 下正常**（`build_py_opmd` 的 PICMI 套件 72/75），所以这是 **1D 特有的
+Python/PICMI → C++ 交接缺陷**，而 1D 的纯 C++ 路径正常（四维套件里 1D 全过）。
+
+受影响：`test_1d_laser_acceleration_picmi.{run,checksum}`、`test_1d_plasma_acceleration_picmi.{run,checksum}`。
+
+**（b）pytest 测试缺少运行时依赖**：`pytest.WarpX.{1d,3d,rz}` 报 `No module named pytest`；
+安装 `pytest`、`pytest-mpi` 后 3/3 通过。
+
+### 12.2 `build_py_4d` 全套件结果（724 个测试）
+
+693 通过 / 31 失败，构成：
+
+| 类别 | 数量 | 性质 |
+|---|---|---|
+| Lasy 外部数据（`*_lasy_file*` 的 `prepare`/`run`/`analysis`/`checksum`） | 17 | 环境（需联网下载） |
+| **1D PICMI 崩溃** | 4 | **真实缺陷**（见 12.1a） |
+| 3D PICMI 仅 checksum | 2 | 平台校验和（`.run` 通过） |
+| 既有平台校验和（3D EB macroscopic、RZ boosted） | 2 | 平台校验和 |
+| pytest 依赖 | 3 | 已修复（安装 pytest/pytest-mpi 后通过） |
+| 其余 | 3 | 见日志 |
