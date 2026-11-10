@@ -9,10 +9,10 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include "Utils/Parser/ParserUtils.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <AMReX_BoxArray.H>
 #include <AMReX_ParmParse.H>
@@ -56,6 +56,5 @@ const warpx::runtime::RuntimeData&
 ResamplingTrigger::data () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
+    return warpx::runtime::legacy_data();
 }

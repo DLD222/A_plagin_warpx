@@ -7,7 +7,7 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "EmbeddedBoundary/DistanceToEB.H"
 #include "Particles/ParticleBoundaryBuffer.H"
@@ -629,6 +629,5 @@ ParticleBoundaryBuffer::data () const
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
         return *m_runtime_context->data;
     }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
+    return warpx::runtime::legacy_data();
 }

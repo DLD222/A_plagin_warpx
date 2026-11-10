@@ -16,7 +16,7 @@
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXHostServices.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <ablastr/utils/Communication.H>
 
@@ -136,14 +136,12 @@ const warpx::runtime::RuntimeData&
 VarianceAccumulationBuffer::data () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) { return *m_runtime_context->data; }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
+    return warpx::runtime::legacy_data();
 }
 
 warpx::runtime::HostServices&
 VarianceAccumulationBuffer::host () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
-    static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
-    return legacy;
+    return warpx::runtime::legacy_host();
 }

@@ -10,6 +10,7 @@ foreach(D IN LISTS WarpX_DIMS)
         ../IO/FieldIO.cpp
 Runtime.cpp
         DataBus.cpp
+        LegacyServices.cpp
         PluginLoader.cpp
         PluginCAdapter.cpp
         KernelFactory.cpp

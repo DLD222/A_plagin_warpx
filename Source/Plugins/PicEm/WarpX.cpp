@@ -13,6 +13,8 @@
 #include "Runtime/SpectralSolverFactory.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/StateRegistry.H"
+#include "Runtime/LegacyServices.H"
+#include "RuntimeBridge/Runtime/WarpXRuntimeData.H"
 #include "WarpX.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/WarpXRuntimeData.H"
@@ -353,6 +355,16 @@ WarpX::Finalize()
 
 WarpX::WarpX ()
 {
+    // The particle containers are built below, before any runtime context exists, and
+    // they ask these providers for their services instead of naming WarpX.
+    warpx::runtime::set_legacy_data([]() -> warpx::runtime::RuntimeData& {
+        static warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
+        return legacy;
+    });
+    warpx::runtime::set_legacy_host([]() -> warpx::runtime::HostServices& {
+        static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
+        return legacy;
+    });
     m_instance = this; // This guarantees that GetInstance() can be
                        // indirectly used in WarpX constructor.
 
