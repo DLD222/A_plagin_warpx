@@ -3088,6 +3088,10 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     } // ElectromagneticSolverAlgo::PSATD
     else {
         m_fdtd_solver_fp[lev] = warpx::runtime::create_finite_difference_solver(electromagnetic_solver_id, dx, grid_type, m_runtime_context);
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            m_fdtd_solver_fp[lev] != nullptr,
+            "No finite-difference field-solver plugin is linked: no solver can be built for this "
+            "input. Rebuild with WarpX_PLUGIN_FIELDSOLVER=ON.");
     }
 
     //
@@ -3318,6 +3322,10 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         else {
             m_fdtd_solver_cp[lev] = warpx::runtime::create_finite_difference_solver(electromagnetic_solver_id, cdx,
                                                                              grid_type, m_runtime_context);
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+                m_fdtd_solver_cp[lev] != nullptr,
+                "No finite-difference field-solver plugin is linked: no solver can be built for this "
+                "input. Rebuild with WarpX_PLUGIN_FIELDSOLVER=ON.");
         }
     }
 

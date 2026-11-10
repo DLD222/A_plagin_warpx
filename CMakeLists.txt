@@ -71,6 +71,15 @@ option(WarpX_PLUGIN_COLLISION   "Build the collision plugin" ON)
 option(WarpX_PLUGIN_FIELDSOLVER "Build the field-solver plugin" ON)
 option(WarpX_PLUGIN_PARTICLECORE "Build the particle-core plugin (extracted particle units)" ON)
 option(WarpX_PLUGIN_IMPLICIT "Build the implicit solver (theta/Strang/semi-implicit/Darwin)" ON)
+
+# The implicit solver is built inside the field-solver plugin (it needs the
+# finite-difference solver to evaluate its right-hand side), so it cannot be
+# requested on its own.  Forcing it off keeps the kernel's implicit entry points
+# consistent with what is actually compiled instead of failing at link time.
+if(NOT WarpX_PLUGIN_FIELDSOLVER AND WarpX_PLUGIN_IMPLICIT)
+    message(STATUS "WarpX_PLUGIN_IMPLICIT forced OFF: the implicit solver requires WarpX_PLUGIN_FIELDSOLVER")
+    set(WarpX_PLUGIN_IMPLICIT OFF)
+endif()
 option(WarpX_QED           "QED support (requires PICSAR)"              ON)
 option(WarpX_QED_TABLE_GEN "QED table generation (requires PICSAR and Boost)"
                                                                         OFF)
