@@ -65,3 +65,33 @@ cmake -S . -B build_exotic -DWarpX_DIMS="RCYLINDER;RSPHERE" -DWarpX_OPENPMD=ON
 至少被一个构建使用。剩余 2 个是 `gaussian_beam` 的 openPMD 用例，**上游自己的 CMake 无法注册**
 （依赖的 `_prepare` 定义在其后，`if(dependency AND NOT TEST ${dependency}.run) return()` 必然为真），
 本仓库该文件与上游逐字节一致。
+
+## 插件开关的实测行为（判据 2 的"可关闭性"）
+
+每个开关都用**关闭后的构建**跑一个**请求该能力**的输入验证过。
+"必需能力"给出可操作错误并中止；"可选能力"记录高优先级警告并继续。
+
+| 开关置 OFF | 构建 | 请求该能力的输入 | 实测行为 |
+|---|---|---|---|
+| `WarpX_PLUGIN_FIELDSOLVER` | `build_nofs` | 任意电磁输入 | **错误**：`No finite-difference field-solver plugin is linked … Rebuild with WarpX_PLUGIN_FIELDSOLVER=ON.` |
+| `WarpX_PLUGIN_IMPLICIT` | `build_noimplicit` | `inputs_test_2d_theta_implicit_jfnk_vandb` | **错误**：`this input asks for an implicit evolve scheme, but this build has no implicit solver: rebuild with WarpX_PLUGIN_IMPLICIT=ON.` |
+| `WarpX_PLUGIN_PARTICLECORE` | `build_nocoll` | 含 `particle_thermalizer.normal` | **错误**：`particle_thermalizer is set in the inputs but the particle-core plugin is not linked: rebuild with WarpX_PLUGIN_PARTICLECORE=ON.` |
+| `WarpX_PLUGIN_COLLISION` | `build_nocoll` | `inputs_test_2d_collision_xz` | **警告**：`The input requests 3 collision(s) but this build has no collision plugin: they are skipped. Rebuild with WarpX_PLUGIN_COLLISION=ON …`，运行继续 |
+| `WarpX_PLUGIN_DIAGNOSTICS` | `build_nodiag` | 含 `diagnostics.diags_names` | **警告**：`The input requests 1 diagnostic(s) but this build has no diagnostics plugin: no output will be written. Rebuild with WarpX_PLUGIN_DIAGNOSTICS=ON …`，运行继续 |
+
+### 这两个警告是必要的，不是装饰
+
+修复前，关闭碰撞/诊断插件时**输入照样跑完、什么也不发生、也没有任何警告**——
+用户会得到与原输入描述**不同物理**的结果却毫无察觉。这是可关闭能力最危险的失败模式，
+所以两处都改成了高优先级警告（`WarnPriority::high`）。
+
+### 依赖关系
+
+`WarpX_PLUGIN_IMPLICIT` 依赖 `WarpX_PLUGIN_FIELDSOLVER`（隐式求解器编译在场求解器插件里，
+它需要有限差分求解器）。同时打开"场求解器 OFF + 隐式 ON"时 CMake 会强制关掉隐式并打印：
+
+```
+-- WarpX_PLUGIN_IMPLICIT forced OFF: the implicit solver requires WarpX_PLUGIN_FIELDSOLVER
+```
+
+否则内核会引用未编译的 `ImplicitSolver` vtable，在**链接期**失败（已实测）。
