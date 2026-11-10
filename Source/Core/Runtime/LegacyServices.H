@@ -12,6 +12,7 @@
 namespace warpx::runtime
 {
 
+class RuntimeConfig;
 class RuntimeData;
 class HostServices;
 
@@ -27,9 +28,11 @@ class HostServices;
  */
 void set_legacy_data (std::function<RuntimeData& ()> a_provider);
 void set_legacy_host (std::function<HostServices& ()> a_provider);
+void set_legacy_config (std::function<RuntimeConfig& ()> a_provider);
 
 [[nodiscard]] RuntimeData& legacy_data ();
 [[nodiscard]] HostServices& legacy_host ();
+[[nodiscard]] RuntimeConfig& legacy_config ();
 
 } // namespace warpx::runtime
 

@@ -8,6 +8,7 @@
 #ifndef WARPX_RUNTIME_RUNTIMECONFIG_H_
 #define WARPX_RUNTIME_RUNTIMECONFIG_H_
 
+#include <string>
 #include "Utils/WarpXAlgorithmSelection.H"
 
 #include <ablastr/utils/Enums.H>
@@ -69,6 +70,11 @@ public:
     [[nodiscard]] int n_field_gather_buffer () const;
     [[nodiscard]] int n_current_deposition_buffer () const;
     [[nodiscard]] bool particle_boundary_is_thermal () const;
+    //! How the external E field acting on the particles is specified (input:
+    //! particles.E_ext_particle_s).
+    [[nodiscard]] const std::string& E_ext_particle_s () const;
+    //! How the external B field acting on the particles is specified.
+    [[nodiscard]] const std::string& B_ext_particle_s () const;
     [[nodiscard]] bool refine_plasma () const;
     [[nodiscard]] const ablastr::utils::text::IntervalsParser& sort_intervals () const;
     [[nodiscard]] const amrex::IntVect& filter_npass_each_dir () const;

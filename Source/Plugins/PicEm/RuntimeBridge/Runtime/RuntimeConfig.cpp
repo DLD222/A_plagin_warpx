@@ -8,6 +8,7 @@
 #include "Runtime/RuntimeConfig.H"
 
 #include "WarpX.H"
+#include "Particles/MultiParticleContainer.H"
 
 namespace warpx::runtime
 {
@@ -308,6 +309,46 @@ int
 RuntimeConfig::end_moving_window_step () const
 {
     return WarpX::end_moving_window_step;
+}
+
+const std::string&
+RuntimeConfig::E_ext_particle_s () const
+{
+    return WarpX::GetInstance().GetPartContainer().E_ext_particle_s();
+}
+
+const std::string&
+RuntimeConfig::B_ext_particle_s () const
+{
+    return WarpX::GetInstance().GetPartContainer().B_ext_particle_s();
+}
+
+amrex::Real
+RuntimeConfig::moving_window_v () const
+{
+    return WarpX::moving_window_v;
+}
+
+int
+RuntimeConfig::n_field_gather_buffer () const
+{
+    return WarpX::n_field_gather_buffer;
+}
+
+int
+RuntimeConfig::n_current_deposition_buffer () const
+{
+    return WarpX::n_current_deposition_buffer;
+}
+
+bool
+RuntimeConfig::particle_boundary_is_thermal () const
+{
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) {
+        if (WarpX::particle_boundary_lo[idim] == ParticleBoundaryType::Thermal) { return true; }
+        if (WarpX::particle_boundary_hi[idim] == ParticleBoundaryType::Thermal) { return true; }
+    }
+    return WarpX::eb_particle_boundary == ParticleBoundaryType::Thermal;
 }
 
 RuntimeConfig

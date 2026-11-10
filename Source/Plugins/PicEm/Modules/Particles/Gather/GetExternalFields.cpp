@@ -3,13 +3,14 @@
 #include "AcceleratorLattice/AcceleratorLattice.H"
 
 #include "Particles/MultiParticleContainer.H"
+#include "WarpX.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/WarpXRuntimeData.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <AMReX_Vector.H>
 
@@ -24,6 +25,8 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
     static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
     const warpx::runtime::RuntimeData& d =
         (ctx != nullptr && ctx->data != nullptr) ? *ctx->data : static_cast<const warpx::runtime::RuntimeData&>(legacy);
+    const warpx::runtime::RuntimeConfig& cfg =
+        (ctx != nullptr && ctx->config != nullptr) ? *ctx->config : warpx::runtime::legacy_config();
     const auto& mypc = WarpX::GetInstance().GetPartContainer();
 
     const int lev = a_pti.GetLevel();
@@ -43,23 +46,23 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
     m_Etype = Unknown;
     m_Btype = Unknown;
 
-    if (mypc.E_ext_particle_s() == "none") { m_Etype = None; }
-    if (mypc.B_ext_particle_s() == "none") { m_Btype = None; }
+    if (cfg.E_ext_particle_s() == "none") { m_Etype = None; }
+    if (cfg.B_ext_particle_s() == "none") { m_Btype = None; }
 
     // These lines will be removed once the user interface is redefined and the CI tests updated
-    if (mypc.E_ext_particle_s() == "constant") { m_Etype = None; }
-    if (mypc.B_ext_particle_s() == "constant") { m_Btype = None; }
+    if (cfg.E_ext_particle_s() == "constant") { m_Etype = None; }
+    if (cfg.B_ext_particle_s() == "constant") { m_Btype = None; }
 
-    if (mypc.E_ext_particle_s() == "parse_e_ext_particle_function" ||
-        mypc.B_ext_particle_s() == "parse_b_ext_particle_function" ||
-        mypc.E_ext_particle_s() == "repeated_plasma_lens" ||
-        mypc.B_ext_particle_s() == "repeated_plasma_lens")
+    if (cfg.E_ext_particle_s() == "parse_e_ext_particle_function" ||
+        cfg.B_ext_particle_s() == "parse_b_ext_particle_function" ||
+        cfg.E_ext_particle_s() == "repeated_plasma_lens" ||
+        cfg.B_ext_particle_s() == "repeated_plasma_lens")
     {
         m_time = d.t_new(a_pti.GetLevel());
         m_get_position = GetParticlePosition<PIdx>(a_pti, a_offset);
     }
 
-    if (mypc.E_ext_particle_s() == "parse_e_ext_particle_function")
+    if (cfg.E_ext_particle_s() == "parse_e_ext_particle_function")
     {
         m_Etype = ExternalFieldInitType::Parser;
         m_Exfield_partparser = mypc.m_Ex_particle_parser->compile<4>();
@@ -67,7 +70,7 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
         m_Ezfield_partparser = mypc.m_Ez_particle_parser->compile<4>();
     }
 
-    if (mypc.B_ext_particle_s() == "parse_b_ext_particle_function")
+    if (cfg.B_ext_particle_s() == "parse_b_ext_particle_function")
     {
         m_Btype = ExternalFieldInitType::Parser;
         m_Bxfield_partparser = mypc.m_Bx_particle_parser->compile<4>();
@@ -75,11 +78,11 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
         m_Bzfield_partparser = mypc.m_Bz_particle_parser->compile<4>();
     }
 
-    if (mypc.E_ext_particle_s() == "repeated_plasma_lens" ||
-        mypc.B_ext_particle_s() == "repeated_plasma_lens")
+    if (cfg.E_ext_particle_s() == "repeated_plasma_lens" ||
+        cfg.B_ext_particle_s() == "repeated_plasma_lens")
     {
-        if (mypc.E_ext_particle_s() == "repeated_plasma_lens") { m_Etype = RepeatedPlasmaLens; }
-        if (mypc.B_ext_particle_s() == "repeated_plasma_lens") { m_Btype = RepeatedPlasmaLens; }
+        if (cfg.E_ext_particle_s() == "repeated_plasma_lens") { m_Etype = RepeatedPlasmaLens; }
+        if (cfg.B_ext_particle_s() == "repeated_plasma_lens") { m_Btype = RepeatedPlasmaLens; }
         m_dt = d.dt(a_pti.GetLevel());
         const auto& attribs = a_pti.GetAttribs();
         m_ux = attribs[PIdx::ux].dataPtr() + a_offset;
@@ -98,10 +101,10 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
     // (Hence of `None`, which ensures that the gather kernel is compiled without support
     // for external fields.) Instead, the external fields are added to the MultiFab
     // Efield_aux and Bfield_aux before the particles gather from these MultiFab.
-    if (mypc.E_ext_particle_s() == "read_from_file") {
+    if (cfg.E_ext_particle_s() == "read_from_file") {
         m_Etype = ExternalFieldInitType::None;
     }
-    if (mypc.B_ext_particle_s() == "read_from_file") {
+    if (cfg.B_ext_particle_s() == "read_from_file") {
         m_Btype = ExternalFieldInitType::None;
     }
 

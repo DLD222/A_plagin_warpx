@@ -361,6 +361,10 @@ WarpX::WarpX ()
         static warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
         return legacy;
     });
+    warpx::runtime::set_legacy_config([]() -> warpx::runtime::RuntimeConfig& {
+        static warpx::runtime::RuntimeConfig legacy;
+        return legacy;
+    });
     warpx::runtime::set_legacy_host([]() -> warpx::runtime::HostServices& {
         static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
         return legacy;
