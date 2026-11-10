@@ -178,3 +178,17 @@ Tools/verify/check_macroscopic_vacuum_limit.sh        # 打印 ratio = 2.000000�
 修好后用 `Tools/verify/check_macroscopic_vacuum_limit.sh`（应为 1.000000）与
 `test_1d_macroscopic_solver` 两个判据验收。**注意**：该文件同时服务 2D/3D 张量与亚像素材料，
 改动后必须重跑四维套件确认失败集不增。
+
+
+## 9. 跑套件前的两条硬规则（2026-11-10 又踩到一次）
+
+1. **先看有没有别的会话在跑**：`ps aux | grep -E "ctest|cmake --build"`。
+   本次在同一工作树里同时有 `cmake --build build_multi2` 与 `ctest --test-dir build_takeover`，
+   导致我的四维套件 25 分钟只跑了 30 个测试（正常应 ~470）。**争用下的失败一律作废**，
+   已在跑的会话优先，直接终止自己的一轮并改期。
+2. **导出 `MPLBACKEND=Agg`**：7 个分析脚本调用 `plt.show()`；有 `DISPLAY` 时 matplotlib 选 TkAgg
+   并阻塞在 `tkinter.mainloop()`，表现成"测试挂起"。Agg 下 `test_3d_linear_compton_bunch_laser.analysis`
+   0.5 秒通过（相对误差 7.87%，在容差内）。
+
+**因此**：四维的最终权威数字（导出 Agg 后应为 571/573）留给下一次无争用的运行确认；
+已确证的是 570/573（未导出 Agg 时）+ 单测证据（该分析测试在 Agg 下 0.51 秒通过）。
