@@ -26,7 +26,7 @@
 #include <petscmat.h> // must include before WarpX_PETSc.H
 #include <petscvec.h> // must include before WarpX_PETSc.H
 #include "WarpX_PETSc.H"
-#include "../ImplicitSolver.H"
+#include "../PETScImplicitBridge.H"
 
 namespace warpx_petsc {
 
@@ -903,8 +903,8 @@ void SNES_impl::computeRHS(VecType& a_F, const VecType& a_U)
             m_newton_params.UpdatePC(m_step, m_iter, m_pc_initialized);
     }
 
-    m_op->ComputeRHS(a_F, a_U, m_time, m_iter, from_jacobian,
-                     m_update_pc && !from_jacobian);
+    warpx::petsc::compute_rhs(m_op, a_F, a_U, m_time, m_iter, from_jacobian,
+                              m_update_pc && !from_jacobian);
     if (!from_jacobian) { m_iter++; }
 }
 
@@ -916,7 +916,7 @@ void SNES_impl::preLinearSolve()
     // m_U and m_F hold the current iterate and its RHS from the last residual evaluation
     dynamic_cast<JacobianFunctionMF<VecType,TIType>*>(m_linop.get())->setBaseSolution(this->m_U);
     dynamic_cast<JacobianFunctionMF<VecType,TIType>*>(m_linop.get())->setBaseRHS(m_F);
-    m_op->PreLinearSolve(m_update_pc);
+    warpx::petsc::pre_linear_solve(m_op, m_update_pc);
 
     // With -snes_fd, the residual evaluations that follow build the Jacobian
     m_fd_jac_in_progress = m_fd_jac_comput;

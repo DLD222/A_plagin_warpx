@@ -10,6 +10,7 @@ foreach(D IN LISTS WarpX_DIMS)
     target_sources(warpx_fieldsolver_${SD}
       PRIVATE
         DarwinLinearFieldOperator.cpp
+        PETScImplicitBridge.cpp
         ImplicitSolver.cpp
         SemiImplicitEM.cpp
         SemiImplicitDarwin.cpp

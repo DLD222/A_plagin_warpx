@@ -7,6 +7,7 @@
 #ifndef JACOBI_PC_H_
 #define JACOBI_PC_H_
 
+#include "../PETScImplicitBridge.H"
 #include "Preconditioner.H"
 #include "WeightedJacobiImpl.H"
 
@@ -94,9 +95,9 @@ void JacobiPC<T,Ops>::Define ( const T& a_U,
     amrex::ignore_unused(a_U);
 
     m_ops = a_ops;
-    m_num_amr_levels = m_ops->numAMRLevels();
+    m_num_amr_levels = warpx::petsc::num_amr_levels(m_ops);
 
-    m_matrix_ops = Ops::MakePCMatrixOps(m_ops);
+    m_matrix_ops = warpx::petsc::make_pc_matrix_ops(m_ops);
 
     m_solver.Define(m_matrix_ops.get(),
                     getEnumNameString(PreconditionerType::pc_jacobi));

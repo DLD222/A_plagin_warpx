@@ -7,6 +7,7 @@
 #ifndef EXTERNLIB_PC_H_
 #define EXTERNLIB_PC_H_
 
+#include "../PETScImplicitBridge.H"
 #include "Fields.H"
 #include "Preconditioner.H"
 #include "Utils/TextMsg.H"
@@ -61,7 +62,7 @@ class ExternLibPC : public Preconditioner<T,Ops>
                                  amrex::Gpu::DeviceVector<RT>& a_a_ij,
                                  int& a_n, int& a_ncols_max) override
         {
-            m_ops->GetPCMatrix(a_r_indices_g, a_num_nz, a_c_indices_g,
+            warpx::petsc::get_pc_matrix(m_ops, a_r_indices_g, a_num_nz, a_c_indices_g,
                                a_a_ij, a_n, a_ncols_max);
         }
 
@@ -125,12 +126,12 @@ void ExternLibPC<T,Ops>::Update ()
         IsDefined(),
         "ExternLibPC::Update() called on undefined object");
 
-    m_ops->AssemblePCMatrix();
+    warpx::petsc::assemble_pc_matrix(m_ops);
 
     if (m_verbose) {
         amrex::Print() << "Updated " << m_name
                        << " (ExternLibPC): theta*dt = "
-                       << m_ops->GetThetaForPC()*this->m_dt << "\n";
+                       << warpx::petsc::get_theta_for_pc(m_ops)*this->m_dt << "\n";
     }
 }
 

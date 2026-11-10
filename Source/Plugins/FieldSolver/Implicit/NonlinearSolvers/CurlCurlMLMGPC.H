@@ -7,6 +7,7 @@
 #ifndef CURL_CURL_MLMG_PC_H_
 #define CURL_CURL_MLMG_PC_H_
 
+#include "../PETScImplicitBridge.H"
 #include "Fields.H"
 #include "Utils/WarpXConst.H"
 #include "Utils/TextMsg.H"
@@ -212,7 +213,7 @@ void CurlCurlMLMGPC<T,Ops>::Define ( const T& a_U,
 
     // Set number of AMR levels and create geometry, grids, and
     // distribution mapping vectors.
-    m_num_amr_levels = m_ops->numAMRLevels();
+    m_num_amr_levels = warpx::petsc::num_amr_levels(m_ops);
     if (m_num_amr_levels > 1) {
         WARPX_ABORT_WITH_MESSAGE("CurlCurlMLMGPC::Define(): m_num_amr_levels > 1");
     }
@@ -220,7 +221,7 @@ void CurlCurlMLMGPC<T,Ops>::Define ( const T& a_U,
     m_grids.resize(m_num_amr_levels);
     m_dmap.resize(m_num_amr_levels);
     for (int n = 0; n < m_num_amr_levels; n++) {
-        m_geom[n] = m_ops->GetGeometry(n);
+        m_geom[n] = warpx::petsc::geometry(m_ops, n);
         m_dmap[n] = u_mfarrvec[n][0]->DistributionMap();
 
         BoxArray ba = u_mfarrvec[n][0]->boxArray();
@@ -229,7 +230,7 @@ void CurlCurlMLMGPC<T,Ops>::Define ( const T& a_U,
 
     // Construct the curl-curl linear operator and set its BCs
     m_curl_curl = std::make_unique<MLCurlCurl>(m_geom, m_grids, m_dmap, *m_info);
-    m_curl_curl->setDomainBC(m_ops->GetLinOpBCLo(), m_ops->GetLinOpBCHi());
+    m_curl_curl->setDomainBC(warpx::petsc::lin_op_bc_lo(m_ops), warpx::petsc::lin_op_bc_hi(m_ops));
 
     // Dummy value for alpha and beta to avoid abort due to degenerate matrix by MLMG solver
     m_curl_curl->setScalars(1.0, 1.0);
@@ -244,7 +245,7 @@ void CurlCurlMLMGPC<T,Ops>::Define ( const T& a_U,
     m_solver->setBottomVerbose(static_cast<int>(m_bottom_verbose));
     m_solver->setNoGpuSync(true);
 
-    m_bcoefs = m_ops->GetMassMatricesCoeff();
+    m_bcoefs = warpx::petsc::mass_matrices_coeff(m_ops);
     if (m_bcoefs != nullptr) { m_beta_scalar = false; }
 
     m_is_defined = true;
@@ -261,7 +262,7 @@ void CurlCurlMLMGPC<T,Ops>::Update ()
         "CurlCurlMLMGPC::Update() called on undefined object" );
 
     // set the alpha coefficient for the curl-curl op
-    const RT thetaDt = m_ops->GetThetaForPC()*this->m_dt;
+    const RT thetaDt = warpx::petsc::get_theta_for_pc(m_ops)*this->m_dt;
     if (thetaDt==0.) {
         std::stringstream warningMsg;
         warningMsg << "Light waves are not treated implicitly with the chosen time solver.\n";

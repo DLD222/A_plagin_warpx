@@ -7,6 +7,7 @@
 #ifndef ALGMG_PC_H_
 #define ALGMG_PC_H_
 
+#include "../PETScImplicitBridge.H"
 #include "Fields.H"
 #include "MatrixPCAlgMG.H"
 #include "Preconditioner.H"
@@ -115,20 +116,20 @@ void AlgMGPC<T,Ops>::Update ()
         IsDefined(),
         "AlgMGPC::Update() called on undefined object");
 
-    m_ops->AssemblePCMatrix();
+    warpx::petsc::assemble_pc_matrix(m_ops);
 
     // Without mass matrices, the matrix only depends on theta*dt.
     // Load balancing is not supported by the implicit solvers. If it is
     // supported in the future, the AlgMG partition needs to be updated when
     // the DistributionMapping changes.
-    const RT theta_dt = m_ops->GetThetaForPC()*this->m_dt;
-    const bool include_mass_matrices = (m_ops->GetMassMatricesCoeff() != nullptr);
+    const RT theta_dt = warpx::petsc::get_theta_for_pc(m_ops)*this->m_dt;
+    const bool include_mass_matrices = (warpx::petsc::mass_matrices_coeff(m_ops) != nullptr);
     if (include_mass_matrices || !m_algmg_is_set_up || theta_dt != m_algmg_theta_dt) {
         amrex::Gpu::DeviceVector<int> r_indices_g, num_nz, c_indices_g;
         amrex::Gpu::DeviceVector<RT> a_ij;
         int n = 0;
         int ncols_max = 0;
-        m_ops->GetPCMatrix(r_indices_g, num_nz, c_indices_g, a_ij, n, ncols_max);
+        warpx::petsc::get_pc_matrix(m_ops, r_indices_g, num_nz, c_indices_g, a_ij, n, ncols_max);
         m_algmg->Setup(n, ncols_max, num_nz.data(), c_indices_g.data(), a_ij.data());
         m_algmg_is_set_up = true;
         m_algmg_theta_dt = theta_dt;
