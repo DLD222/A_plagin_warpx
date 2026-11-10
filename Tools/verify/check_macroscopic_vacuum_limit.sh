@@ -8,12 +8,12 @@
 #
 # Usage: Tools/verify/check_macroscopic_vacuum_limit.sh [build-dir]
 #
-# Status 2026-11-10: FAILS.  max|Ex| is 7 356 721.232 for the macroscopic path
-# against 3 678 360.616 for Yee, i.e. a ratio of exactly 2.000000.  The cause is
-# localised: the node permittivity comes out as epsilon/2 because one of the two
-# neighbouring cells reads zero in the fill in
-# Source/Plugins/FieldSolver/FiniteDifference/MacroscopicProperties/
-# MacroscopicProperties.cpp (~lines 505-585).  See
+# Status 2026-11-10: PASSES.  yee max|Ex| = macro max|Ex| = 3 678 360.615965,
+# ratio = 1.000000, exit code 0.
+#
+# History: before 7a96278 the ratio was exactly 2.000000 (macro 7 356 721.232):
+# the node permittivity took its neighbour along a hard-coded axis, which in 1D
+# read past the row and produced epsilon/2.  See
 # Docs/research_notes/UPSTREAM_PARITY.md sections 10.1.1-10.1.5.
 set -euo pipefail
 
