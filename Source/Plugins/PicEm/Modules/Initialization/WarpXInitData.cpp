@@ -831,12 +831,34 @@ WarpX::InitData_BeforeInit ()
         m_legacy_config = std::make_unique<warpx::runtime::RuntimeConfig>(
             warpx::runtime::RuntimeConfig::FromLegacy());
         m_legacy_time = std::make_unique<warpx::runtime::TimeState>();
-        m_legacy_frame = std::make_unique<warpx::runtime::FrameState>();
+        // Fill the frame from the simulation instead of leaving a default-constructed
+        // one: FrameState::moving_window_dir is -1 by default, and the diagnostics
+        // index arrays with it (FullDiagnostics::MovingWindowAndGalileanDomainShift
+        // writes new_lo[moving_dir] / new_hi[moving_dir]), so a stale -1 corrupts the
+        // stack and Geometry::prob_domain with it.
+        m_legacy_frame = std::make_unique<warpx::runtime::FrameState>(
+            warpx::runtime::FrameState::FromLegacy());
         m_legacy_snapshot = std::make_unique<warpx::runtime::RuntimeConfigSnapshot>(
             warpx::runtime::RuntimeConfigSnapshot::FromLegacy());
         m_legacy_context = std::make_unique<warpx::runtime::RuntimeContext>(
             m_legacy_config.get(), m_legacy_time.get(), m_legacy_frame.get(),
-            m_legacy_data.get(), nullptr, m_legacy_host.get(), [] {},
+            m_legacy_data.get(), nullptr, m_legacy_host.get(),
+            [this] {
+                // Actually refresh the snapshot used by the services: a no-op here
+                // left every diagnostic reading the values captured at construction.
+                if (m_legacy_frame != nullptr) {
+                    *m_legacy_frame = warpx::runtime::FrameState::FromLegacy();
+                }
+                if (m_legacy_time != nullptr) {
+                    *m_legacy_time = warpx::runtime::TimeState{};
+                    m_legacy_time->step = istep[0];
+                    m_legacy_time->finest_level = finestLevel();
+                    m_legacy_time->istep = istep;
+                    m_legacy_time->nsubsteps = nsubsteps;
+                    m_legacy_time->dt = dt;
+                    m_legacy_time->valid = true;
+                }
+            },
             m_legacy_snapshot.get());
         SetRuntimeContext(m_legacy_context.get());
     }
