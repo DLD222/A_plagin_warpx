@@ -24,7 +24,7 @@
 | 套件 | 构建 | 通过/总数 | 残余 |
 |---|---|---|---|
 | 2D | `build_takeover`（openPMD=OFF） | 232/264 | 32，全部 openPMD 依赖 |
-| 2D | `build_2d_full`（openPMD+FFT） | 335/336 | 1 平台校验和 |
+| 2D | `build_2d_full`（openPMD+FFT） | 335/336 | 1 平台校验和（`test_2d_laser_ion_acc.checksum`，宏观修复前后逐条一致） |
 | 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **570/573** | **3**（见下） |
 | 2D PICMI | `build_py_opmd` | 72/75 | 3 平台校验和 |
 

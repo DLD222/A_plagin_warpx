@@ -803,3 +803,6 @@ if (!tensor_mode) {
 剩余 3 条：`test_3d_embedded_boundary_cube_macroscopic.checksum`（相对误差 1.21e-2 且最大项落在
 数值零附近的分量、`Ey/Ez` 仅 2.37e-7）、`test_3d_linear_compton_bunch_laser.analysis`（分析脚本在
 3D 数据集上挂起，环境）、`test_rz_laser_acceleration_boosted_opmd.checksum`（mode-1 的 1e-12 量级噪声）。
+
+**验收四：2D 完整特性套件（336 个测试）**：335 通过、1 条失败
+（`test_2d_laser_ion_acc.checksum`，平台校验和），与宏观修复前**逐条一致**。
