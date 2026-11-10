@@ -806,3 +806,30 @@ if (!tensor_mode) {
 
 **验收四：2D 完整特性套件（336 个测试）**：335 通过、1 条失败
 （`test_2d_laser_ion_acc.checksum`，平台校验和），与宏观修复前**逐条一致**。
+
+#### 10.2 第 2 条的真相：不是"挂起"，是 matplotlib 弹出 Tk 窗口
+
+`test_3d_linear_compton_bunch_laser.analysis` 之前记为"环境挂起（单跑 25 分钟不返回）"。
+用 `faulthandler` 抓取阻塞栈后真相明确：
+
+```
+Timeout (0:01:00)!
+  File ".../matplotlib/backends/_backend_tk.py", line 583 in start_main_loop
+  File ".../matplotlib/backend_bases.py", line 3710 in show
+  File ".../matplotlib/pyplot.py", line 646 in show
+  File "<string>", line 144 in <module>
+```
+
+分析脚本末尾调用 `plt.show()`；本机 matplotlib 选了 **Tk** 后端，于是阻塞在 GUI 事件循环里。
+
+**不需要改任何测试**——把后端固定为非交互式即可：
+
+```bash
+MPLBACKEND=Agg ctest --test-dir build_multi_hdf5_fft -R "^test_3d_linear_compton_bunch_laser\.analysis$"
+# → 1/1 Passed 0.51 sec
+MPLBACKEND=Agg python3 Examples/Tests/linear_compton/analysis_bunch_laser.py diags/diag1
+# → Relative error 7.87%（在容差内）
+```
+
+**因此本环境推荐始终导出 `MPLBACKEND=Agg`**（与上游 CI 的无头环境一致），四维残余从 3 条降为 **2 条**
+（两条 platform 校验和）。
