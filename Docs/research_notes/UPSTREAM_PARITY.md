@@ -1170,3 +1170,53 @@ warpx 模块与 amrex pybind 模块的 `AMREX_SPACEDIM` 都是 1（尺寸一致�
 
 **下一步**：在 `Geometry::define`、`Diagnostics::ResizeLevels`、以及 `m_geom_output` 的
 `resize()` 处加标记，确认第三次调用者，并检查是否存在对已搬移对象的续用。
+
+#### 12.3.7 P0 已修复：`legacy` 运行时上下文的 `FrameState` 是默认构造的
+
+**根因**（`WarpXInitData.cpp` 的 Python/PICMI 分支）：给服务层构造 legacy 上下文时
+`m_legacy_frame` 用的是 **默认构造的 `FrameState`**，且 `refresh_time` 传的是 **空 lambda**：
+
+```cpp
+m_legacy_frame = std::make_unique<warpx::runtime::FrameState>();   // moving_window_dir = -1
+...
+m_legacy_context = std::make_unique<...>(..., [] {}, ...);         // 刷新是空操作
+```
+
+`FrameState::moving_window_dir` 的默认值是 **-1**。而
+`FullDiagnostics::MovingWindowAndGalileanDomainShift` 用它做数组下标：
+
+```cpp
+new_lo[moving_dir] = ...;   // moving_dir = -1 → 写到栈上数组之前 1 个元素
+new_hi[moving_dir] = ...;
+m_geom_output[0][lev].ProbDomain( amrex::RealBox(new_lo, new_hi) );
+```
+
+于是 `new_lo/new_hi`（各 1 个 `Real` 的栈数组）被写坏，`RealBox` 得到
+`(1.727e+97, 120259)`，`Geometry::prob_domain` 随之错位 —— **这正是前几轮测到的 16 字节平移**。
+
+**修复**（`Source/Plugins/PicEm/Modules/Initialization/WarpXInitData.cpp`）：
+① legacy 的 `FrameState` 用 `FrameState::FromLegacy()` 初始化；
+② `refresh_time` 改成真正刷新 frame 与 time（`[this]` 捕获）。
+
+**验证**：
+
+```bash
+$ ctest --test-dir build_py_4d -R "^test_1d_laser_acceleration_picmi|^test_1d_plasma_acceleration_picmi"
+1/4 test_1d_laser_acceleration_picmi.run ......... Passed
+2/4 test_1d_laser_acceleration_picmi.checksum .... Passed
+3/4 test_1d_plasma_acceleration_picmi.run ........ Passed
+4/4 test_1d_plasma_acceleration_picmi.checksum ... Passed
+100% tests passed, 0 tests failed out of 4
+```
+
+**全量回归（724 个测试）**：失败 **31 → 26**，差异只有"减少"：
+
+```
+去掉：test_1d_laser_acceleration_picmi.{run,checksum}
+去掉：test_1d_plasma_acceleration_picmi.{run,checksum}
+去掉：pytest.WarpX.rz
+新增：（无）
+```
+
+剩余 26 条中：17 条 Lasy 外部数据、4 条平台校验和、3 条 pytest（`libamrex_3d` 里的段错误，
+是我为调试只重建了 1D 目标导致的**构建不一致**，非本修复引入）、2 条 3D PICMI 校验和。
