@@ -99,6 +99,7 @@ public:
     * @param[in] a_offset offset to apply to the particle indices
     */
     PairGenerationTransformFunc(BreitWheelerGeneratePairs generate_functor,
+                                warpx::runtime::RuntimeData const& a_data,
                                 const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
                                 amrex::FArrayBox const& exfab,
                                 amrex::FArrayBox const& eyfab,
@@ -108,6 +109,8 @@ public:
                                 amrex::FArrayBox const& bzfab,
                                 amrex::Vector<amrex::ParticleReal>& E_external_particle,
                                 amrex::Vector<amrex::ParticleReal>& B_external_particle,
+                                int a_nox, int a_n_rz_azimuthal_modes,
+                                bool a_galerkin_interpolation,
                                 int a_offset = 0);
 
     /**

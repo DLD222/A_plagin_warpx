@@ -6,6 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
+#include "Runtime/RuntimeData.H"
 #include "Particles/ElementaryProcess/QEDPairGeneration.H"
 
 #include "WarpX.H"
@@ -19,6 +20,7 @@
 
 PairGenerationTransformFunc::
 PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
+                             warpx::runtime::RuntimeData const& a_data,
                              const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
                              amrex::FArrayBox const& exfab,
                              amrex::FArrayBox const& eyfab,
@@ -28,6 +30,8 @@ PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
                              amrex::FArrayBox const& bzfab,
                              amrex::Vector<amrex::ParticleReal>& E_external_particle,
                              amrex::Vector<amrex::ParticleReal>& B_external_particle,
+                             int a_nox, int a_n_rz_azimuthal_modes,
+                             bool a_galerkin_interpolation,
                              int a_offset):
     m_generate_functor{generate_functor},
     m_Ex_external_particle{E_external_particle[0]},
@@ -36,9 +40,9 @@ PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
     m_Bx_external_particle{B_external_particle[0]},
     m_By_external_particle{B_external_particle[1]},
     m_Bz_external_particle{B_external_particle[2]},
-    m_galerkin_interpolation{WarpX::galerkin_interpolation},
-    m_nox{WarpX::nox},
-    m_n_rz_azimuthal_modes{WarpX::n_rz_azimuthal_modes}
+    m_galerkin_interpolation{a_galerkin_interpolation},
+    m_nox{a_nox},
+    m_n_rz_azimuthal_modes{a_n_rz_azimuthal_modes}
 {
 
     using namespace amrex::literals;
@@ -63,11 +67,11 @@ PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
     amrex::Box box = a_pti.tilebox();
     box.grow(ngEB);
 
-    const std::array<amrex::Real,3>& dx = WarpX::CellSize(std::max(lev, 0));
+    const std::array<amrex::Real,3> dx = a_data.cellSize(std::max(lev, 0));
     m_dinv = amrex::XDim3{1._rt/dx[0], 1._rt/dx[1], 1._rt/dx[2]};
 
     // Lower corner of tile box physical domain (take into account Galilean shift)
-    m_xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+    m_xyzmin = a_data.lowerCorner(box, lev, 0._rt);
 
     m_lo = amrex::lbound(box);
 }

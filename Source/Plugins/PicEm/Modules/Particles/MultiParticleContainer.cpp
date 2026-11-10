@@ -1835,12 +1835,15 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
             }
             auto wt = static_cast<amrex::Real>(amrex::second());
 
-            auto Transform = PairGenerationTransformFunc(pair_gen_functor,
+            auto Transform = PairGenerationTransformFunc(pair_gen_functor, data(),
                                                          pti, lev, Ex.nGrowVect(),
                                                          Ex[pti], Ey[pti], Ez[pti],
                                                          Bx[pti], By[pti], Bz[pti],
                                                          phys_pc_ptr->m_E_external_particle,
-                                                         phys_pc_ptr->m_B_external_particle);
+                                                         phys_pc_ptr->m_B_external_particle,
+                                                         config().nox(),
+                                                         config().n_rz_azimuthal_modes(),
+                                                         config().galerkin_interpolation());
 
             auto& src_tile = pc_source->ParticlesAt(lev, pti);
             auto& dst_ele_tile = pc_product_ele->ParticlesAt(lev, pti);
@@ -1915,12 +1918,15 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
             auto Transform = PhotonEmissionTransformFunc(
                   m_shr_p_qs_engine->build_optical_depth_functor(),
                   pc_source->GetRealCompIndex("opticalDepthQSR") - WarpXParticleContainer::NArrayReal,
-                  m_shr_p_qs_engine->build_phot_em_functor(),
+                  m_shr_p_qs_engine->build_phot_em_functor(), data(),
                   pti, lev, Ex.nGrowVect(),
                   Ex[pti], Ey[pti], Ez[pti],
                   Bx[pti], By[pti], Bz[pti],
                   phys_pc_ptr->m_E_external_particle,
-                  phys_pc_ptr->m_B_external_particle);
+                  phys_pc_ptr->m_B_external_particle,
+                  config().nox(),
+                  config().n_rz_azimuthal_modes(),
+                  config().galerkin_interpolation());
 
             auto& src_tile = pc_source->ParticlesAt(lev, pti);
             auto& dst_tile = pc_product_phot->ParticlesAt(lev, pti);

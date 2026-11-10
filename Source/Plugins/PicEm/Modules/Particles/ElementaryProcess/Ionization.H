@@ -71,7 +71,8 @@ struct IonizationFilterFunc
 
     amrex::Dim3 m_lo;
 
-    IonizationFilterFunc (const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
+    IonizationFilterFunc (warpx::runtime::RuntimeData const& a_data,
+                          const ParticleTileIter& a_pti, int lev, amrex::IntVect ngEB,
                           amrex::FArrayBox const& exfab,
                           amrex::FArrayBox const& eyfab,
                           amrex::FArrayBox const& ezfab,
@@ -88,6 +89,8 @@ struct IonizationFilterFunc
                           int a_comp,
                           int a_atomic_number,
                           int a_do_adk_correction,
+                          int a_nox, int a_n_rz_azimuthal_modes,
+                          bool a_galerkin_interpolation,
                           int a_offset = 0) noexcept;
 
     template <typename PData>

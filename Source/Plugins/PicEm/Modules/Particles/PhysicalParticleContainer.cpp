@@ -373,7 +373,7 @@ PhysicalParticleContainer::PhysicalParticleContainer (AmrCore* amr_core, int isp
     // same distribution is applied to all boundaries (the domain faces and,
     // when boundary.particle_eb = thermal, the embedded boundary)
     const amrex::ParmParse pp_species_boundary("boundary." + species_name);
-    if (WarpX::isAnyParticleBoundaryThermal()) {
+    if (config().particle_boundary_is_thermal()) {
         amrex::Real boundary_uth = 0;
         utils::parser::getWithParser(pp_species_boundary,"u_th",boundary_uth);
         m_boundary_conditions.SetThermalVelocity(boundary_uth);
@@ -536,8 +536,8 @@ PhysicalParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
 
     amrex::LayoutData<amrex::Real>* cost = data().costs(lev);
 
-    const iMultiFab* current_masks = WarpX::CurrentBufferMasks(lev);
-    const iMultiFab* gather_masks = WarpX::GatherBufferMasks(lev);
+    const iMultiFab* current_masks = data().currentBufferMasks(lev);
+    const iMultiFab* gather_masks = data().gatherBufferMasks(lev);
 
     const bool has_rho = fields.has(FieldType::rho_fp, lev);
     const bool has_J_buf = fields.has_vector(FieldType::current_buf, lev);
@@ -635,8 +635,8 @@ PhysicalParticleContainer::Evolve (ablastr::fields::MultiFabRegister& fields,
                 //    and (thus) the `np-nfine_deposit`/`np-nfine_gather` last particles
                 //    deposit/gather in the buffer
                 PartitionParticlesInBuffers( nfine_deposit, nfine_gather, np,
-                    pti, lev, WarpX::n_field_gather_buffer,
-                    WarpX::n_current_deposition_buffer, current_masks, gather_masks );
+                    pti, lev, config().n_field_gather_buffer(),
+                    config().n_current_deposition_buffer(), current_masks, gather_masks );
             }
 
             const long np_to_deposit = has_J_buf ? nfine_deposit : np;
@@ -1755,7 +1755,7 @@ PhysicalParticleContainer::getIonizationFunc (const ParticleTileIter& pti,
 {
     ABLASTR_PROFILE("PhysicalParticleContainer::getIonizationFunc()");
 
-    return {pti, lev, ngEB, Ex, Ey, Ez, Bx, By, Bz,
+    return {data(), pti, lev, ngEB, Ex, Ey, Ez, Bx, By, Bz,
                                 m_E_external_particle, m_B_external_particle,
                                 ionization_energies.dataPtr(),
                                 adk_prefactor.dataPtr(),
@@ -1764,7 +1764,10 @@ PhysicalParticleContainer::getIonizationFunc (const ParticleTileIter& pti,
                                 adk_correction_factors.dataPtr(),
                                 GetIntCompIndex("ionizationLevel"),
                                 ion_atomic_number,
-                                do_adk_correction};
+                                do_adk_correction,
+                                config().nox(),
+                                config().n_rz_azimuthal_modes(),
+                                config().galerkin_interpolation()};
 }
 
 PlasmaInjector* PhysicalParticleContainer::GetPlasmaInjector (int i)
@@ -2282,6 +2285,6 @@ PhysicalParticleContainer::AccumulateVelocitiesAndComputeTemperature (
 
         // Sum boundaries for accumulation MFs, apply normalization, and filter to end up with
         // temperature in K in T_vf
-        local_temperature_arrays->ConvertVarianceToTemperatureAndFilter(T_vf, Tnorm, WarpX::use_filter);
+        local_temperature_arrays->ConvertVarianceToTemperatureAndFilter(T_vf, Tnorm, config().use_filter());
     }
 }

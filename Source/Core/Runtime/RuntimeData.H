@@ -21,6 +21,7 @@
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>
 #include <AMReX_Geometry.H>
+#include <AMReX_iMultiFab.H>
 
 #include <stdexcept>
 #include <AMReX_LayoutData.H>
@@ -122,6 +123,13 @@ public:
     [[nodiscard]] virtual EvolveScheme evolveScheme () const = 0;
 
     [[nodiscard]] virtual amrex::LayoutData<amrex::Real>* costs (int lev) const = 0;
+    //! Guard-cell masks for the fine-patch current buffer / field-gather buffer
+    //! on a level (PIC kernels with mesh refinement).  A kernel without
+    //! particle buffering throws, like the other particle-only accessors.
+    [[nodiscard]] virtual const amrex::iMultiFab* currentBufferMasks (int lev) const
+    { throw std::logic_error("RuntimeData: this kernel provides no current buffer masks"); }
+    [[nodiscard]] virtual const amrex::iMultiFab* gatherBufferMasks (int lev) const
+    { throw std::logic_error("RuntimeData: this kernel provides no gather buffer masks"); }
     [[nodiscard]] virtual amrex::Real loadBalanceEfficiency (int lev) const = 0;
     [[nodiscard]] virtual LoadBalanceCostsUpdateAlgo loadBalanceCostsUpdateAlgo () const = 0;
     [[nodiscard]] virtual ablastr::utils::text::IntervalsParser loadBalanceIntervals () const = 0;
