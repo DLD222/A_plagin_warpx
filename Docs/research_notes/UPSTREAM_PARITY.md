@@ -1220,3 +1220,34 @@ $ ctest --test-dir build_py_4d -R "^test_1d_laser_acceleration_picmi|^test_1d_pl
 
 剩余 26 条中：17 条 Lasy 外部数据、4 条平台校验和、3 条 pytest（`libamrex_3d` 里的段错误，
 是我为调试只重建了 1D 目标导致的**构建不一致**，非本修复引入）、2 条 3D PICMI 校验和。
+
+### 12.4 P1 进展：覆盖 391 → 412 / 407（含新增两项维度）
+
+**① RCYLINDER / RSPHERE 维度**（新建 `build_exotic`）：
+
+```
+$ ctest --test-dir build_exotic -j 2
+1/6 test_rcylinder_langmuir_multi.run ........ Passed
+2/6 test_rsphere_langmuir_multi.run .......... Passed
+3/6 test_rsphere_langmuir_multi.analysis ..... Passed
+4/6 test_rcylinder_langmuir_multi.analysis ... Passed
+5/6 test_rcylinder_langmuir_multi.checksum ... Passed
+6/6 test_rsphere_langmuir_multi.checksum ..... Passed
+100% tests passed, 0 tests failed out of 6
+```
+
+**② Lasy 外部文件类**：缺的不是网络，而是 Python 包 `lasy`。安装 `lasy 0.7.0` 后：
+
+```
+$ ctest -R "lasy_file" -j 2
+100% tests passed, 0 tests failed out of 20
+```
+
+20 条 Lasy 用例（1D/3D/RZ × 普通/boost/RZ 文件）全部通过。
+
+**当前覆盖**：407 个官方 `inputs_test_*` 中 **393 已注册可跑**，剩 **14 条**：
+- **9 条 PETSc**（`AMReX_PETSC`，尚未构建）
+- **5 条 openPMD 示例数据集**（`test_3d_focusing_gaussian_beam_from_openpmd*`，需下载 example datasets）
+
+**`build_py_4d` 剩余失败 26 → 6**（20 条 Lasy 全部修复），6 条为：
+2 条 pytest（我调试时只重建 1D 目标导致的 `libamrex_3d` ABI 不一致）+ 4 条平台校验和。
