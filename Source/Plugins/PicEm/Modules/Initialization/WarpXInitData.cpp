@@ -8,6 +8,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Runtime/ServiceFactory.H"
 #include "Runtime/StagePoint.H"
 #include "WarpX.H"
 
@@ -864,6 +865,21 @@ WarpX::InitData_BeforeInit ()
     }
 
     // Diagnostics
+    if (!warpx::runtime::has_diagnostics_factory()) {
+        // Running without the diagnostics plugin is allowed, but an input that asked for
+        // output and silently gets none is the worst failure mode for a switched-off
+        // capability: say it loudly.
+        const amrex::ParmParse pp_diags("diagnostics");
+        amrex::Vector<std::string> diag_names;
+        if (pp_diags.queryarr("diags_names", diag_names) && !diag_names.empty()) {
+            ablastr::warn_manager::WMRecordWarning(
+                "WarpX",
+                "The input requests " + std::to_string(diag_names.size()) +
+                " diagnostic(s) but this build has no diagnostics plugin: no output will be "
+                "written. Rebuild with WarpX_PLUGIN_DIAGNOSTICS=ON for diagnostics.",
+                ablastr::warn_manager::WarnPriority::high);
+        }
+    }
     multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
     if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
         multi_diags->InitData(*mypc);
