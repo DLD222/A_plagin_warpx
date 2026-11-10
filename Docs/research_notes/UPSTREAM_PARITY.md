@@ -1039,3 +1039,26 @@ Python/PICMI → C++ 交接缺陷**，而 1D 的纯 C++ 路径正常（四维套
 1. 用 `AMREX_BACKTRACE=1` 或 gdb 在断言处取栈，确认是哪个构造函数/哪次改写；
 2. 在 `WarpX` 构造函数入口与 `AmrCore` 基类构造前各打印一次 `geometry.prob_lo`，把区间夹到具体语句；
 3. 检查 1D 下是否有代码把 `prob_lo` 与 `PlasmaInjector`/单位换算（`1e-10` 类）混用。
+
+#### 12.3.1 收敛过程：从"所有 1D PICMI 都崩"到"特定输入组合崩"
+
+用二分法逐块删除失败输入的内容（每次都只调用 `sim.initialize_warpx()`，不推进）：
+
+| 变体 | 结果 |
+|---|---|
+| 完整输入（去掉 `write_input_file`） | **崩溃** |
+| 去掉 `warpx_use_filter` / `warpx_serialize_initial_conditions` / `warpx_do_dynamic_scheduling` / `particle_shape`（逐个） | 仍崩溃 |
+| 去掉 `sim.add_species(...)` | 仍崩溃 |
+| 去掉 `sim.add_laser(...)` | 仍崩溃 |
+| **同时去掉两个 `sim.add_diagnostic(...)`** | **通过**（`initialize_warpx()` 返回 0） |
+| 只去掉 `particle_diag` | 仍崩溃 |
+| 只去掉 `field_diag` | 仍崩溃 |
+| 两个诊断都留、把 `field_diag` 改名 `diag2` | 仍崩溃 |
+| 最小脚本（`Cartesian1DGrid` + `ElectromagneticSolver`，同样的 `zmin=-56e-6/zmax=12e-6/nz=256`） | **通过** |
+
+**结论**：不是"1D PICMI 完全不可用"，而是**某个输入组合在 Python→ParmParse 的选项灌入阶段发生内存破坏**，
+破坏后 `geometry.prob_lo` 变成 `1.7e97`（未初始化），于是 AMReX 的 `valid_domain` 断言触发。
+两个诊断同时存在是目前的触发条件，但改名无效，说明不是重名冲突，更像是**选项条数跨过某个数组边界**。
+
+下一步：在 `pywarpx` 的输入灌入路径（`create_argv_list`/`write_inputs` 的 C++ 侧）加边界检查，
+用 `-fsanitize=address` 构建一个 1D Python 模块跑该输入，直接定位越界写。
