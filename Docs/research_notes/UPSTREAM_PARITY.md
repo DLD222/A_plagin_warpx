@@ -1267,3 +1267,27 @@ $ ctest --test-dir build_py_4d -R "load_external_field" -j 2
 **`build_py_4d` 全量：724 个测试，失败 6**（本轮起点是 31）：
 - 4 条平台校验和（`3d_embedded_boundary_cube_macroscopic`、`3d_laser_acceleration_picmi`、`3d_plasma_acceleration_picmi`、`rz_laser_acceleration_boosted_opmd`）
 - 2 条 pytest（`libamrex_3d` 段错误；我调试时只重建了 1D 目标导致的构建不一致，非代码缺陷）
+
+### 12.5 P2 进展：A/B 扩展到 2D（12 个算例，11 个逐位相同）
+
+为上游 26.10 补建 2D 二进制（`/tmp/warpx_up2610/build_2donly`，OPENPMD=ON、EB=ON），
+把我们这边 `build_2d_full` 的二进制与它跑同一输入：
+
+| 算例 | 维度 | 场数 | 全局相对差 |
+|---|---|---|---|
+| `d2_langmuir` | 2D | 41 | **0.000e+00** |
+| `d2_plasma_mirror` | 2D | 41 | **0.000e+00** |
+
+累计 A/B：RZ 7 个 + 3D 4 个 + 2D 2 个 = **13 个算例**，其中 **12 个逐位相同**，
+唯一差异仍是 `d3_eb` 的 1.63e-11（双精度舍入）。
+
+**上游 1D 无法构建（真实的上游限制）**：`MacroscopicProperties.H:146` 无条件引用
+`amrex::EBFArrayBoxFactory`，而 AMReX 在 1D 不提供该类型：
+
+```
+error: 'EBFArrayBoxFactory' in namespace 'amrex' does not name a type
+```
+
+关掉 `WarpX_EB` 也不行（那样 AMReX 自己就没有 EB 模块）。本仓库同一处有维度守卫，
+所以本仓库能建 1D。**因此 1D 的 A/B 无法以"上游自建二进制"的方式进行**；1D 的等价性依据是
+上游自带 checksum（本仓库全部通过）。
