@@ -912,3 +912,53 @@ ctest --test-dir build_multi_hdf5_fft -j 3 \
 **未在 HEAD 上再做 573 条全量**，阻塞是具体的：并行会话同时跑着 `build_2d_full -j8`
 （336 条）、`build_takeover -j2` 子集和 `build_multi_hdf5` 重编译，`loadavg` 31–34（24 核），
 此时跑全量只会得到资源争用造成的假失败（10.5 与 4.3.1 都记录过这种误判）。空闲窗口应补一次。
+
+---
+
+## 11. 与上游 26.10 的直接 A/B 运行（2026-11-10 晚）
+
+之前的等价性证据是"测试定义逐字节相同 + 上游自带 checksum 通过"，属于**间接**证据。
+本节是**直接**证据：用**上游 26.10 自己编译出的二进制**与我们的二进制跑同一个输入，
+再对最终 plotfile 的**全部场分量**逐点求差。
+
+**方法**：`/tmp/ab_test/run_ab.sh` 在 `up/` 与 `mine/` 两个目录下用相同输入、相同 MPI 进程数、
+相同线程数各跑一次；`compare3.py` 用 yt 读最后一份 plotfile，报告
+`max|diff| / max(|field|)`（分母取该 plotfile 所有场分量的全局最大值，避免"场本身≈0"时比值失真）。
+
+| 算例 | 维度 | 覆盖 | plotfile | 场数 | 全局相对差 |
+|---|---|---|---|---|---|
+| `rz_collision` | RZ | 库仑碰撞 | `diag1000150` | 33 | **0.000e+00** |
+| `rz_es` | RZ | 静电求解器 | `diag1000030` | 31 | **0.000e+00** |
+| `rz_es_eb` | RZ | 静电 + 嵌入边界 | `diag1000001` | 3 | **0.000e+00** |
+| `rz_btd` | RZ | BTD 诊断（boosted frame） | `diag1000289` | 9 | **0.000e+00** |
+| `rz_langmuir` | RZ | PIC 标准算例 | `diag1000080` | 41 | **0.000e+00** |
+| `rz_fluid` | RZ | 流体（矩）模型 | `diag1000080` | 6 | **0.000e+00** |
+| `rz_fusion` | RZ | 核聚变（D-T，QED 相关） | `diag1000001` | 91 | **0.000e+00** |
+| `d3_langmuir` | 3D | PIC 标准算例 | `diag1000040` | 37 | **0.000e+00** |
+| `d3_implicit` | 3D | **隐式求解器（theta/JFNK）** | `diag1000010` | 47 | **0.000e+00** |
+| `d3_laser` | 3D | 激光注入 | `diag1000020` | 8 | **0.000e+00** |
+| `d3_eb` | 3D | 嵌入边界 | `diag1000208` | 6 | 1.63e-11（双精度舍入） |
+
+**10 / 11 算例逐位相同**；唯一差异 `d3_eb` 的绝对差 7.6e-9 对应主分量 `Ex` 的 4.6e2，
+即 1.6e-11 的相对量级 —— 双精度舍入。`d3_implicit` 的逐位一致尤其重要：本会话把隐式求解器
+从内核拆成独立插件（服务袋 50+ 项），这是对那次重构最强的回归证明。
+
+### 顺带发现：上游 26.10 在本机 AMReX 版本下 3D 编译不过
+
+上游参考树 `Source/EmbeddedBoundary/EmbeddedBoundaryInit.cpp:351` 使用
+`amrex::IntVect const ng2dZ(ngZ[0], ngZ[1]);`（两参数构造），当前 AMReX（`008b67375`，
+与本仓库用的**同一个** revision）已移除该构造函数：
+
+```
+error: no matching function for call to 'amrex::IntVectND<3>::IntVectND(const int&, const int&)'
+```
+
+本仓库同一处有对应修复（`#if AMREX_SPACEDIM == 2` 分支 + 3D 用 `ng2dZ[2] = 0`）。
+为了让 3D A/B 能跑，**只在 scratch 的上游参考树里**打了同样的补丁（未提交到本仓库）。
+
+### 未做 A/B 的部分（诚实）
+
+- **PSATD / FFT 类**：上游参考构建是 `WarpX_FFT=OFF`，无法逐位对照；这些用例的等价性
+  依据仍是上游自带的 checksum 基准（本仓库全部通过，除 2 条平台校验和）。
+- **1D**：上游 1D 参考构建是 `WarpX_OPENPMD=OFF`，不产生场输出，无法对比。
+- 2D：上游无 2D 参考构建。
