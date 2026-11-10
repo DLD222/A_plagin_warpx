@@ -1151,3 +1151,22 @@ warpx 模块与 amrex pybind 模块的 `AMREX_SPACEDIM` 都是 1（尺寸一致�
 
 **下一步**：在 `FilterComputePackFlush` 到具体 diagnostic 的 `InitData` 之间继续二分，
 重点看诊断在 1D 下如何从 `Geom(lev)` 复制/构造几何（很可能是按 2/3 维写的 `RealBox` 构造）。
+
+#### 12.3.6 定位到 `FullDiagnostics::InitializeBufferData` 的 `define(...)`
+
+在 `FullDiagnostics.cpp:883` 的 `m_geom_output[i_buffer][lev].define(domain, &diag_dom, ...)` 前打印：
+
+```
+[diag-define] diag_dom lo=-5.6e-05 hi=1.2e-05 domain=((0) (255) (0))
+[roundoff] this=0x…d3a0 lo=-5.6e-05 hi=1.2e-05
+[roundoff] this=0x…d3a0 lo=-5.6e-05 hi=1.2e-05
+[roundoff] this=0x…d3a0 lo=1.727307771e+97 hi=120259.0842      ← 同一对象第三次调用
+```
+
+**传入的 `diag_dom` 是正确的**，`Geometry::define` 内部对同一对象的前两次 `computeRoundoffDomain`
+也正确，**第三次**就变成垃圾。`Geometry::define` 内部只有两处会触发它
+（`ProbDomain(rb)` 与 `Domain(bx)`），所以第三次调用来自**别的路径**，且它看到的对象已被破坏
+——这与"`Vector<Geometry>` 扩容导致引用/对象搬移"的形态一致。
+
+**下一步**：在 `Geometry::define`、`Diagnostics::ResizeLevels`、以及 `m_geom_output` 的
+`resize()` 处加标记，确认第三次调用者，并检查是否存在对已搬移对象的续用。
