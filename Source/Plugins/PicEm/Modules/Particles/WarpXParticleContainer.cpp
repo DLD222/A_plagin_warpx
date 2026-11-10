@@ -2865,7 +2865,7 @@ WarpXParticleContainer::PushX (int lev, amrex::Real dt)
 
     if (do_not_push) { return; }
 
-    amrex::LayoutData<amrex::Real>* costs = WarpX::getCosts(lev);
+    amrex::LayoutData<amrex::Real>* costs = data().costs(lev);
 
     // local copy for device lambda capture
     amrex::ParticleReal const mass = this->m_mass;
