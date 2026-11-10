@@ -56,9 +56,38 @@
 `HybridPICSolveE.cpp` → 改为接收 `HybridPICParameters` 参数块；
 `EvolveEPML.cpp` → PML 分裂场系数容器（`SigmaBox`/`MultiSigmaBox`）与 PML 电流核移入核心。
 
-### R5 功能完全覆盖原版（四维数值等价）——**未完成**
+### R5 功能完全覆盖原版（四维数值等价）——**571/573（99.65%），剩余为平台校验和**
 
-**最新状态（2026-11-09 09:50，第 1-3 项已有实测结果）**：37 条失败中 **26 条已清零**，剩 **11 条**：
+**最新状态（2026-11-10 09:57）**：四维套件（1D/3D/RZ，openPMD + FFT + 并行 HDF5，**573 条**）
+**571 通过、2 条失败，且两条都只是平台校验和**：
+
+| 剩余失败 | 实测幅度 | 定性 |
+|---|---|---|
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | `Bx` 4.27e-18 vs 4.32e-18（绝对差 5.2e-20，比主场 `By≈5.1e-3` 小 17 个量级）；`Ey/Ez` 相对 2.37e-7 | 平台校验和；OMP 1 vs 4 线程输出**逐位相同**，与求和顺序无关（`UPSTREAM_PARITY.md` §10.4） |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | 只在 mode-1 的 1e-12 量级分量（相对 2.2e-1）；主导分量与基准一致到 1e-15 | FFT/平台噪声 |
+
+本轮把 11-09 剩下的第 3 条 `test_3d_linear_compton_bunch_laser.analysis` 定性并清掉：**不是 openPMD
+读挂起，而是 `plt.show()` 在 Tk 后端阻塞在 GUI 事件循环**（`faulthandler` 栈见 `UPSTREAM_PARITY.md` §10.2）；
+`MPLBACKEND=Agg` 下 0.59 s 通过。`Tools/verify/build_and_run_4d.sh` 现在导出该变量（与上游 CI 的无头
+环境一致），并补齐了数据集 / blaspp 依赖说明。
+
+**不变量检查（2026-11-10 09:05，全绿）**：
+
+```bash
+export LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:/tmp/hdf5_mpi/lib:$LD_LIBRARY_PATH"
+Tools/verify/check_macroscopic_vacuum_limit.sh   # yee = macro = 3678360.615965, ratio = 1.000000, exit 0
+python3 Tools/Modularization/check_{core_purity,plugin_boundaries,kernel_coupling,build_boundaries}.py
+# core purity OK (0 known, 0 new) / plugin boundaries OK (0,0) / kernel coupling OK (0,0) / build boundaries OK
+```
+
+**全量复跑与 `/tmp/g113_failed.log` 对比**：`g113 = {110, 276, 555}` → 本轮 `= {110, 555}`，
+只少了 compton 分析（现在通过），**无新增失败**（`UPSTREAM_PARITY.md` §10.4）。
+
+---
+
+**以下为 2026-11-09 的历史记录。**
+
+**2026-11-09 09:50，第 1-3 项已有实测结果**：37 条失败中 **26 条已清零**，剩 **11 条**：
 RZ BTD 3 条、`boosted_opmd.checksum` 1 条、`pml_mr.run` 1 条（单独跑通过，待全量 `-j 4` 复核）、
 `ionization_dsmc.analysis` 1 条（需 `pywarpx`，验证构建 PYTHON=OFF）、`macroscopic_solver` 2 条、
 EB cube checksum 3 条。清零的是"缺外部测试数据"这一类（24 条），做法与上游 CI 一致

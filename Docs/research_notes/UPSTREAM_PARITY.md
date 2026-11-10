@@ -338,7 +338,7 @@ ctest --test-dir build_multi_hdf5_fft -j1 --timeout 350  -R "test_1d_particle_ab
 | 2 | `test_3d_embedded_boundary_cube_macroscopic.checksum` | 1 | 平台校验和 | 最大相对差 1.21e-2 出现在 `Bx = 4.27e-18`（数值零），`Ey/Ez` 仅 2.37e-7 |
 | 3 | `test_rz_laser_acceleration_boosted_opmd.checksum` | 1 | 平台/FFT 噪声 | 差异只在 mode-1 的 1e-12 量级分量（`Br_1_imag` 7.07e-12 vs 8.63e-12）；主导分量与基准一致（`S_SERIES_STATUS.md` R5 已逐键核过） |
 | 4 | `test_3d_ionization_electron_dsmc.analysis` | 1 | 环境（Python 绑定） | `ModuleNotFoundError: No module named 'pywarpx'`；本机所有构建 `WarpX_PYTHON=OFF` |
-| 5 | `test_3d_linear_compton_bunch_laser.analysis` | 1 | 环境/库层挂起 | `.run` 通过、输出完整；分析脚本在 `OpenPMDTimeSeries` 读 73 MB 3D 数据集时停在 futex（CPU 0%），单独跑 25 min 不返回；在 `build_multi_hdf5`（无 FFT）的同一输出上同样挂起 → 与本地改动无关 |
+| 5 | `test_3d_linear_compton_bunch_laser.analysis` | 1 | 环境（matplotlib 后端） | **不是 openPMD 读挂起**：`faulthandler` 抓到阻塞栈在 `plt.show()` → `_backend_tk.start_main_loop` → `tkinter.mainloop`（CPU 0% 的 futex 等待正是 Tk 事件循环）；`MPLBACKEND=Agg` 下同一脚本 0.59 s 通过、相对误差 7.87%（容差 8%）。见 §10.2、§10.4 |
 | 6 | `test_1d_macroscopic_solver.analysis` + `.checksum` | 2 | **真实数值发散（继承自上游基准）** | 见 4.4.1 |
 
 > 说明：#1–#3 是校验和；按 `AGENTS.md` 的口径不作为功能缺陷，且 #2/#3 的差异只落在数值零/噪声分量上。#4/#5 是环境。
@@ -846,3 +846,49 @@ MPLBACKEND=Agg python3 Examples/Tests/linear_compton/analysis_bunch_laser.py dia
 
 **因此四维在无头环境（`MPLBACKEND=Agg`）下的数字是 571/573**：176 个分析测试全绿，
 残余恰为两条平台校验和。这不是推算——两个分项都是本轮实测，且分项之和覆盖了全量失败集的构成。
+
+#### 10.4 单次全量复跑与 EB 校验和的线程无关性（2026-11-10 09:02–09:57）
+
+上一节的数字来自分项实测，本节补一次**单次全量**（573 条一条不落），并顺带把"平台校验和"这个
+说法钉死到可复现的证据上。
+
+```bash
+export LD_LIBRARY_PATH="$HOME/third_party/fftw/lib:/tmp/hdf5_mpi/lib:$LD_LIBRARY_PATH" MPLBACKEND=Agg
+ctest --test-dir build_multi_hdf5_fft -j 8 --timeout 2400 --output-on-failure
+# 571/573；失败 = #110 test_3d_embedded_boundary_cube_macroscopic.checksum
+#                  #555 test_rz_laser_acceleration_boosted_opmd.checksum
+# 第 573 条（#535/#536 test_3d_beam_beam_collision）在会话切换时被中断，补齐：
+ctest --test-dir build_multi_hdf5_fft -R "^test_3d_beam_beam_collision\." -j 2   # 2/2 Passed (512 s)
+```
+
+与 `/tmp/g113_failed.log` 逐条比对：`g113 = {110, 276, 555}`，本轮 `= {110, 555}`，
+**只少了 `test_3d_linear_compton_bunch_laser.analysis`（本轮 0.59 s 通过），没有新增失败**。
+`test_3d_linear_compton_bunch_laser` 三条在本轮分别是 run 21.02 s、analysis 0.59 s、checksum 1.36 s。
+
+**EB cube macroscopic 校验和不是 OpenMP 求和顺序问题**。用同一算例在 `OMP_NUM_THREADS=1` 与 `=4`
+各跑一次，再用测试自己的 `analysis_default_regression.py` 对比基准：
+
+| 线程数 | `lev=0,Bx` | `lev=0,Ey` |
+|---|---|---|
+| 1 | 4.318467838736486e-18 | 3.022897195538015e-05 |
+| 4 | 4.318467838736486e-18 | 3.022897195538015e-05 |
+| 基准 | 4.266736006843336e-18 | 3.022896477653753e-05 |
+
+两种线程数**逐位相同**，因此差异与线程/求和顺序无关；它是编译/平台层面的常量差：
+`Bx` 绝对差 5.2e-20，比同算例主场 `By≈5.1e-3` 小 17 个量级（数值零），`Ey/Ez` 相对差 2.37e-7。
+按 `AGENTS.md` 的"校验和可随平台变化"口径，这条不作为功能缺陷。
+
+```bash
+# 复现该对照（每次约 50 s）。注意校验和脚本用 CWD 的目录名当测试名，
+# 所以要建一个名字正好是测试名的目录，否则找不到 benchmarks_json/<name>.json。
+REPO=$HOME/WarpX_plugin
+EXE=$REPO/build_multi_hdf5_fft/bin/warpx.3d.MPI.OMP.DP.PDP.OPMD.FFT.EB.QED
+for t in 1 4; do
+  D=/tmp/ebprobe/t$t/test_3d_embedded_boundary_cube_macroscopic
+  mkdir -p "$D" && cd "$D"
+  AMREX_INPUTS_FILE_PREFIX=$REPO/Examples/Tests/embedded_boundary_cube \
+    OMP_NUM_THREADS=$t mpiexec -n 1 "$EXE" inputs_test_3d_embedded_boundary_cube_macroscopic
+  PYTHONPATH=$REPO/Regression/Checksum python3 \
+    $REPO/Examples/Tests/embedded_boundary_cube/analysis_default_regression.py --path diags/diag1000208
+done
+```

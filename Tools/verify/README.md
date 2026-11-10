@@ -26,6 +26,7 @@ Tools/verify/build_and_run_4d.sh build_multi_fft -DWarpX_FFT=ON   # 需要 PSATD
 | `*_boosted_opmd` | 需 `-DWarpX_FFT=ON`（`algo.maxwell_solver = psatd`） |
 | `load_external_field*` | 需 `openPMD-example-datasets`（输入里写 `../../../../openPMD-example-datasets/...`） |
 | `test_3d_particles_in_pml_mr` | 单独运行约 100 s，`-j 12` 下易超时 |
+| 调用 `plt.show()` 的分析脚本 | 需 `MPLBACKEND=Agg`：本机 `DISPLAY=:0` 时 matplotlib 选 TkAgg，`plt.show()` 会停在 `tkinter.mainloop()`（0% CPU、看起来像 openPMD 读挂起）。`build_and_run_4d.sh` 已导出该变量 |
 
 ## 2026-11-09 实测结果
 
