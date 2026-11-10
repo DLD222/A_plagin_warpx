@@ -1388,3 +1388,37 @@ $ ctest --test-dir build_petsc -R "petsc"
 
 **剩余覆盖**：9 条 PETSc 用例中，2D 的 3 条已可运行；其余 6 条需要 RZ / RCYLINDER / 3D 的
 PETSc 构建（同样的桥接代码，只是维度不同）。
+
+### 12.7 覆盖率精确核账：407 个官方输入中 403 个已被实际使用
+
+之前的统计按 `ctest -N` 的**测试名**做差集，会漏掉"测试名 ≠ 输入文件名"的情况。
+改为按 **CTest 命令里实际引用的输入文件**统计：
+
+```bash
+for b in build_py_4d build_2d_full build_py_opmd build_exotic build_petsc build_takeover; do
+  ctest --test-dir $b -N -V; done | grep "Test command" \
+  | grep -oE "inputs_test_[A-Za-z0-9_.]+|PICMI_inputs_[A-Za-z0-9_.]+" | sed 's/\.py$//' | sort -u | wc -l
+# → 403
+```
+
+**未被任何构建使用的官方输入只剩 4 个**，且每一个都有明确原因：
+
+| 输入 | 原因 |
+|---|---|
+| `inputs_test_3d_focusing_gaussian_beam_from_openpmd` | **上游 CMake 顺序缺陷**：`add_warpx_test` 里 `if(dependency AND NOT TEST ${dependency}.run) return()`，而该测试依赖的 `..._prepare` 在同一个文件里**定义在其后**，所以依赖检查必然失败、测试永远不注册。已核对本仓库与上游该文件的顺序**完全一致** |
+| `inputs_test_3d_focusing_gaussian_beam_from_openpmd_picmi` | 同上 |
+| `inputs_test_2d_python_wrappers_picmi` | 需要 **2D + FFT + Python** 三者同时开启（`if(WarpX_FFT)` 且是 PICMI 脚本）；现有构建里 2D 与 Python 分别在两个构建中 |
+| `inputs_test_3d_theta_implicit_jfnk_pcwidth` | 需要 **3D + PETSc**；PETSc 构建目前是 2D/RZ/RCYLINDER |
+
+### 12.8 PETSc 维度扩展完成（2D/RZ/RCYLINDER）
+
+```
+$ ctest --test-dir build_petsc -R "petsc" -j 2
+73% tests passed, 4 tests failed out of 15
+失败项：test_2d_curl_curl_petsc_pc.checksum、test_rz_curl_curl_petsc_pc.checksum、
+        test_2d_theta_implicit_planar_pinch_petsc_snes.checksum、
+        test_2d_semi_implicit_planar_pinch_petsc_snes.checksum
+```
+
+**15 个条目（5 个用例 × run/analysis/checksum）中 11 个通过**，4 个失败**全是 checksum**
+（依赖 PETSc 版本与平台），全部 `run` 与 `analysis` 通过。
