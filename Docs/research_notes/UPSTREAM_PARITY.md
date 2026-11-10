@@ -1422,3 +1422,26 @@ $ ctest --test-dir build_petsc -R "petsc" -j 2
 
 **15 个条目（5 个用例 × run/analysis/checksum）中 11 个通过**，4 个失败**全是 checksum**
 （依赖 PETSc 版本与平台），全部 `run` 与 `analysis` 通过。
+
+### 12.9 覆盖闭环：**405 / 407**，只剩两个上游无法注册的输入
+
+补齐最后两个可行项：
+
+| 构建 | 输入 | 结果 |
+|---|---|---|
+| `build_py_opmd`（2D + **FFT** + Python） | `inputs_test_2d_python_wrappers_picmi` | `run` ✅ `checksum` ✅ |
+| `build_petsc`（新增 **3D**） | `inputs_test_3d_theta_implicit_jfnk_pcwidth` | `run` ✅ `analysis` ✅ `checksum` ✅ |
+
+**最终核账**（按 CTest 命令实际引用的输入文件）：
+
+```
+# 405 个官方 inputs_test_*/PICMI_inputs_* 被至少一个构建使用
+# 剩 2 个：均为 gaussian_beam 的 openPMD 用例
+```
+
+两个剩余项是**上游 CMake 顺序缺陷**导致无法注册（依赖的 `_prepare` 定义在其后，
+`if(dependency AND NOT TEST ${dependency}.run) return()` 必然为真），本仓库该文件与上游
+**顺序完全一致**，属于"上游自身不可运行"，而非本仓库缺功能。
+
+**PETSc 全维度套件**：`test_3d_theta_implicit_jfnk_pcwidth` 的 run/analysis/checksum **全部通过**；
+其余 4 条失败仍是 checksum（PETSc 版本/平台差异）。
