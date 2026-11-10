@@ -1505,3 +1505,36 @@ BTD、流体、核聚变、激光加速、隐式求解器。
 
 因此"16/17 逐位相同"这一说法只覆盖**有场输出**的算例；纯粒子输出的 QED 算例
 （角分布、Compton 散射等）目前**没有**做逐位对照，只能依赖上游自带 checksum（本仓库全部通过）。
+
+### 12.13 粒子级比较器补齐：QED 纯粒子算例也能对照了
+
+上一节记录了"纯粒子输出无法对照"的边界。本轮补上了这个缺口：
+`Tools/verify/compare_particles_openpmd.py` 读 openPMD 的 dataframe 视图，按物种比较
+**粒子数**与**排序后的**位置/动量/权重——排序使比较与存储顺序无关。
+
+```
+$ compare_particles_openpmd.py d3_bw_ang/{up,mine}/diags/diag1
+iteration 10: species ['electron', 'positron']
+electron (N=174860): OK
+positron (N=174860): OK
+
+$ compare_particles_openpmd.py d3_compton2/{up,mine}/diags/diag1
+iteration 100: species ['electron1', 'electron2', 'photon1', 'photon2']
+electron1 (N=0): OK
+electron2 (N=1): OK
+photon1 (N=0): OK
+photon2 (N=1): OK
+```
+
+两条 QED 算例（Breit-Wheeler 角分布、Compton 两粒子）与上游二进制**一致**。
+
+**口径说明**：这是"同一批粒子（不计顺序）"，不是"逐位相同"。真正的物理差异会体现在排序后的数组上，
+单纯的顺序变化不会。工具同时明确写出了这一点，避免把结论说得比证据强。
+
+至此 A/B 的证据结构：
+
+| 层 | 算例数 | 结论 |
+|---|---|---|
+| 场逐位（plotfile） | 17 | 16 个 **0.000e+00**，1 个 1.63e-11 |
+| 粒子级（openPMD，排序后） | 2 | 全部 **OK** |
+| 合计 | **19** | — |
