@@ -25,15 +25,15 @@
 |---|---|---|---|
 | 2D | `build_takeover`（openPMD=OFF） | 232/264 | 32，全部 openPMD 依赖 |
 | 2D | `build_2d_full`（openPMD+FFT） | 335/336 | 1 平台校验和（`test_2d_laser_ion_acc.checksum`，宏观修复前后逐条一致） |
-| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **570/573**（导出 `MPLBACKEND=Agg` 后 **571/573**） | **3**，其中 1 条纯属后端配置（见下） |
+| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **571/573**（导出 `MPLBACKEND=Agg`；未导出时 570/573） | **2**，均为平台校验和 |
 | 2D PICMI | `build_py_opmd` | 72/75 | 3 平台校验和 |
 
-### 剩余 3 条（四维）
+### 剩余 2 条（四维）
 
 | 条目 | 性质 | 实测幅度 |
 |---|---|---|
 | `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 | 最大相对误差 1.21e-2，落在数值零附近分量；`Ey/Ez` 仅 2.37e-7 |
-| `test_3d_linear_compton_bunch_laser.analysis` | **环境：matplotlib 选 Tk 后端，`plt.show()` 阻塞在 GUI 事件循环**（faulthandler 抓到栈）；**导出 `MPLBACKEND=Agg` 后 0.51 秒通过、相对误差 7.87% 在容差内**，无需改测试 | `.run` 通过 |
+| ~~`test_3d_linear_compton_bunch_laser.analysis`~~ | **已解决（环境）**：matplotlib 选 Tk 后端使 `plt.show()` 阻塞在 GUI 事件循环（faulthandler 抓到栈）；导出 `MPLBACKEND=Agg` 后 176 个分析测试 **全部通过**，无需改测试 | 已消除 |
 | `test_rz_laser_acceleration_boosted_opmd.checksum` | FFT 噪声 | 差异只在 mode-1 的 1e-12 量级分量 |
 
 ### 本轮修复的真实缺陷（旗舰功能）
