@@ -115,3 +115,15 @@ $ ctest --test-dir build_petsc -R "external_plugin|nonpic_kernel"
 ```
 
 即在默认 2D 构建与 PETSc 构建（2D/RZ/RCYLINDER/3D）中**都通过**。
+
+## 回归记录
+
+| 日期 | 构建 | 结果 | 说明 |
+|---|---|---|---|
+| 2026-11-11 | `build_takeover` | 264 个测试 / 32 失败 | 与本文件表格逐条一致 |
+| 2026-11-11 | `build_2d_full` | **335/336** | 唯一失败 `test_2d_laser_ion_acc.checksum`，与基线一致 |
+| 2026-11-11 | `build_multi_hdf5_fft` | **570/573** | 3 条：2 平台校验和 + 1 需 Python 绑定 |
+| 2026-11-11 | `build_py_4d` | 见下 | P0 修复后 31 → 6 |
+
+每次回归都先确认没有别的会话在跑（`ps aux | grep -E "ctest|cmake --build"`），并导出
+`MPLBACKEND=Agg`、`OMP_NUM_THREADS=1`。
