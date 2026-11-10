@@ -65,6 +65,10 @@ public:
     [[nodiscard]] bool serialize_initial_conditions () const;
     [[nodiscard]] bool compute_max_step_from_btd () const;
     [[nodiscard]] bool do_dynamic_scheduling () const;
+    [[nodiscard]] amrex::Real moving_window_v () const;
+    [[nodiscard]] int n_field_gather_buffer () const;
+    [[nodiscard]] int n_current_deposition_buffer () const;
+    [[nodiscard]] bool particle_boundary_is_thermal () const;
     [[nodiscard]] bool refine_plasma () const;
     [[nodiscard]] const ablastr::utils::text::IntervalsParser& sort_intervals () const;
     [[nodiscard]] const amrex::IntVect& filter_npass_each_dir () const;
