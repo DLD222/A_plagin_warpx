@@ -127,3 +127,27 @@ $ ctest --test-dir build_petsc -R "external_plugin|nonpic_kernel"
 
 每次回归都先确认没有别的会话在跑（`ps aux | grep -E "ctest|cmake --build"`），并导出
 `MPLBACKEND=Agg`、`OMP_NUM_THREADS=1`。
+
+## 运行套件时的 MPI 选择（一次误判的教训）
+
+本机有两套 MPI：系统 **OpenMPI**（`/usr/bin/mpiexec`，`libmpi.so.40`）与 conda 的 **MPICH**
+（`$HOME/miniconda3/bin/mpiexec`，`libmpi.so.12`）。两者混用会在 `MPI_Init` 阶段直接失败。
+
+2026-11-11 的一次回归里，`build_py_4d` 从 6 条失败**跳到 18 条**，且新增的 12 条全是
+`*_picmi.run`。逐条查看后确认**不是代码回归**：
+
+```
+Abort: Fatal error in internal_Init_thread: Internal MPI error!
+       check_MPIR_CVAR_PMI_VERSION: Runtime environment uses unsupported PMI version PMIx
+```
+
+原因是那次跑套件时 `PATH` 里 `mpiexec` 指向系统 OpenMPI，而 conda 的 `mpi4py` 是 MPICH 构建。
+**用 conda 的 `mpiexec` 重跑，同样的测试立即通过。**
+
+| 套件 | 应使用的启动器 | 命令 |
+|---|---|---|
+| C++ 套件（`build_multi_hdf5_fft`、`build_2d_full`、`build_takeover`、`build_petsc`…） | 系统 OpenMPI | 直接 `ctest` |
+| **Python/PICMI 套件**（`build_py_4d`、`build_py_opmd`） | **conda 的 MPICH** | `export PATH="$HOME/miniconda3/bin:$PATH"` 后再 `ctest` |
+
+**判读规则**：如果一批 `*_picmi.run` 同时失败且错误里有 `PMI`/`Init_thread`，先查 MPI 启动器，
+不要急着怀疑代码。
