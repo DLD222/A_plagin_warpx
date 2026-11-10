@@ -129,3 +129,31 @@ build boundaries OK
 ```
 
 判据 3、4 与旗舰功能回归检查在收尾时**重新跑过**，不是引用旧数据。
+
+---
+
+## 7. 2026-11-11 更新（本轮目标）
+
+### P0 已修复：1D PICMI
+
+根因：Python/PICMI 路径的 legacy 运行时上下文给服务层的是**默认构造的 `FrameState`**
+（`moving_window_dir = -1`）加一个空刷新 lambda；诊断用它做数组下标
+（`new_lo[moving_window_dir]`），于是写坏栈、连带 `Geometry::prob_domain` 错位 16 字节。
+
+修复：`WarpXInitData.cpp` 用 `FrameState::FromLegacy()` 初始化，并让 `refresh_time` 真正刷新。
+
+验收：`test_1d_laser_acceleration_picmi`、`test_1d_plasma_acceleration_picmi` 的 run+checksum 全过；
+`build_py_4d` 全套件失败 **31 → 6**（只减不增）。
+
+### P1 覆盖：405 / 407
+
+RCYLINDER/RSPHERE 构建、`lasy`、openPMD 示例数据集、PETSc（2D/RZ/RCYLINDER/3D）、
+2D+FFT+Python 全部补齐。剩余 2 个是上游 CMake 无法注册的 gaussian_beam 用例。
+
+### P2 A/B：13 个算例，12 个逐位相同
+
+RZ 7 + 3D 4 + 2D 2；唯一差异 `d3_eb` 为 1.63e-11（双精度舍入）。上游无法构建 1D（EB 类型在 1D 不存在）。
+
+### 验证矩阵
+
+见 `VERIFICATION_MATRIX.md`：七个构建、选项、测试数、失败清单与归类、复现命令。
