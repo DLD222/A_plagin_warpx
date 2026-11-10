@@ -1445,3 +1445,21 @@ $ ctest --test-dir build_petsc -R "petsc" -j 2
 
 **PETSc 全维度套件**：`test_3d_theta_implicit_jfnk_pcwidth` 的 run/analysis/checksum **全部通过**；
 其余 4 条失败仍是 checksum（PETSc 版本/平台差异）。
+
+### 12.10 P0 修复后的四维 C++ 套件复跑（2026-11-11）
+
+`build_multi_hdf5_fft`（1D/3D/RZ，openPMD+FFT，`MPLBACKEND=Agg`）：
+
+```
+99% tests passed, 3 tests failed out of 573
+```
+
+| 失败 | 性质 |
+|---|---|
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 |
+| `test_3d_ionization_electron_dsmc.analysis` | 需要 Python 绑定，该构建 `WarpX_PYTHON=OFF` |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | 平台校验和 |
+
+与修复前的 6 条基线逐条比对：**只减少、不新增**——
+`test_1d_macroscopic_solver.{analysis,checksum}`（宏观求解器缺陷，已修）与
+`test_3d_linear_compton_bunch_laser.analysis`（matplotlib 后端，`MPLBACKEND=Agg` 已解决）都消失了。
