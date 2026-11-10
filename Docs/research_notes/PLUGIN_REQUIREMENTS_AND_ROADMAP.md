@@ -639,3 +639,25 @@ openPMD::error::WrongAPIUsage
 
 结论：要拆隐式求解器，先要在核心定义一组"内核服务"契约（场推进、边界、粒子快照、EB 掩膜、诊断），
 再由内核插件实现。这是 S5b 的正式内容，排在可拆分求解器落地之后。
+
+### P3（粒子系统出场）停止点与理由（2026-11-11）
+
+**已完成**：①容器类对内核静态量的读取全部改走 `config()`（3 处结构性例外已逐条记录）；
+②守护单元掩码与负载代价走 `IRuntimeData`；③新增服务定位器 `warpx::runtime::legacy_data/host/config`，
+初等过程（电离、QED 光子发射、QED 对产生）与三个粒子文件的 `WarpX::` 归零；
+④`RuntimeConfig` 补齐 `E_ext_particle_s`/`B_ext_particle_s`。
+
+**停止点**：整体搬迁（`git mv` 到 `Source/Plugins/ParticleCore/` + 开关）**未执行**。
+
+**理由（实测）**：内核侧对粒子类型仍有 42 处引用（`MultiParticleContainer` 21 个文件、
+`WarpXParticleContainer` 12 个、`ParticleBoundaryBuffer` 9 个），且内核调用了
+`mypc->` 上约 20 个不属于 `IParticleContainerAccess` 的方法（`Redistribute`、`DepositCurrent`、
+`PushP`、`DepositTemperatures`、`defineAllParticleTiles`、`m_external_particle_fields_metadata` 等）。
+要把它们全部搬进契约并切换，再搬 1.17 万行、30 余文件，是 10-20 轮的工程。
+
+**同时**：并发会话正在同一批文件里做同样的重构（`IParticleContainerAccess` 已由
+`MultiParticleContainer` 实现、掩码/代价/配置 getter 都是它加的）。**我在同一批文件上继续编辑
+已两次误删它的未提交改动**（见 fa80b21、54e617c），继续并行改动只会互相破坏。
+
+**结论**：P3 的剩余部分交由该会话（它有完整的上下文与正在进行的工作），本轮起我不再改动
+`Source/Plugins/PicEm/Modules/Particles/` 下的文件，转而为整个目标做**独立验证与证据固化**。
