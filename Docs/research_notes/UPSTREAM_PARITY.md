@@ -1310,3 +1310,25 @@ error: 'EBFArrayBoxFactory' in namespace 'amrex' does not name a type
 
 默认构建（PETSc=OFF）编译通过、四个检查器仍为 0、27 个隐式/Darwin 测试全过。
 PETSc 的 9 个用例因此**仍未运行**，阻塞点已从"工具链"变为"两处代码依赖"。
+
+#### 12.6.1 尝试用接口替换与结论：PETSc/PC 代码应该搬进隐式插件
+
+尝试把 `WarpX_PETSc.H` 的 `TIType` 从具体 `ImplicitSolver` 换成核心接口 `IImplicitSolver`。
+逐步补齐接口成员后，缺口反而扩大：
+
+| 需要的成员 | 来源 |
+|---|---|
+| `ComputeRHS`、`PreLinearSolve` | `JacobianFunctionMF.H`、`WarpX_PETSc.cpp` |
+| `GetThetaForPC`、`AssemblePCMatrix`、`GetPCMatrix` | `AlgMGPC.H`、`ExternLibPC.H`、`CurlCurlMLMGPC.H` |
+| `GetMassMatricesCoeff`、`numAMRLevels` | `AlgMGPC.H`、`JacobiPC.H`、`CurlCurlMLMGPC.H` |
+| **`MakePCMatrixOps`（嵌套类型）** | `JacobiPC.H` |
+
+到这一步可以看出：**这些 PC/PETSc 实现不是核心线性代数，而是隐式求解器的内部构件**——
+把它们塞进核心契约等于"契约 = 具体求解器的完整 API"，既臃肿也不合理。
+
+**结论（架构决定）**：应当把 `WarpX_PETSc.*`、`AlgMGPC.H`、`CurlCurlMLMGPC.H`、`JacobiPC.H`、
+`ExternLibPC.H`、`MassMatrixSolverOps.H` 等**移入 `Source/Plugins/FieldSolver/Implicit/`**，
+让它们作为插件内部代码直接使用 `ImplicitSolver`；核心只保留 `WarpXSolverVec`、`LinearFunction`、
+`MatrixSolverOps` 这类真正的通用代数。
+
+本轮已回退接口替换（默认构建仍绿、检查器仍为 0），并把该搬迁记为下一步。
