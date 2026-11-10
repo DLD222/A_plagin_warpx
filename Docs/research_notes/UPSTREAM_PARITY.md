@@ -1332,3 +1332,30 @@ PETSc 的 9 个用例因此**仍未运行**，阻塞点已从"工具链"变为"�
 `MatrixSolverOps` 这类真正的通用代数。
 
 本轮已回退接口替换（默认构建仍绿、检查器仍为 0），并把该搬迁记为下一步。
+
+#### 12.6.2 已执行：PETSc/PC 簇移入隐式插件（默认构建全绿）
+
+`Source/Core/NonlinearSolvers/`（27 个文件）整体移入
+`Source/Plugins/FieldSolver/Implicit/NonlinearSolvers/`，编译进 `warpx_fieldsolver_<dim>`；
+核心只保留 `PETScReinitialize.{H,cpp}`（内核注册的小契约）。
+
+**验证（默认构建，PETSc=OFF）**：
+
+```
+2D 构建            ✅ Built target app_2d
+隐式/Darwin 测试   ✅ 27/27 通过
+四个检查器         core purity 0 / plugin boundaries 0 / kernel coupling 0 / build boundaries OK
+```
+
+**PETSc 仍有一处编译障碍（已定位，非本次搬迁引入）**：
+`Source/Core/Utils/WarpXAlgorithmSelection.H` 在**全局作用域**声明
+`AMREX_ENUM(ReductionType, ...)`（上游也有），与 `petscvec.h:267` 的
+`typedef enum {...} ReductionType;` 冲突，**两种包含顺序都报错**：
+
+- PETSc 先 → `using typedef-name 'ReductionType' after 'enum'`
+- WarpX 先 → `conflicting declaration 'typedef enum ReductionType'`
+
+因此 `WarpX_PETSc.cpp` 无法在同一 TU 里同时看到 PETSc 头与 `ImplicitSolver.H`
+（后者间接引入该枚举）。**解决办法**：把需要完整类型的那两处调用
+（`m_op->ComputeRHS(...)`、`m_op->PreLinearSolve(...)`）隔离到一个**不包含 PETSc 头**的 TU 中，
+由它做 `ImplicitSolver` 适配，PETSc TU 只经一个薄接口调用。
