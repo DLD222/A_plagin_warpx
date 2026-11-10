@@ -386,7 +386,7 @@ AssertionError  (analysis_fields.py:64: assert rel_err < rel_tol_err)
 git show 50307e2:Source/Plugins/PicEm/Modules/FieldSolver/PSATD/SpectralFieldDataRZ.cpp > /tmp/SpectralFieldDataRZ_head.cpp
 cd build_multi_hdf5_fft/CMakeFiles/warpx_picem_rz.dir
 c++ $(sed -n 's/^CXX_DEFINES = //p' flags.make) \
-    -I/home/douliangduo/WarpX_plugin/Source/Plugins/PicEm/Modules/FieldSolver/PSATD \
+    -I$HOME/WarpX_plugin/Source/Plugins/PicEm/Modules/FieldSolver/PSATD \
     $(sed -n 's/^CXX_INCLUDES = //p' flags.make) \
     $(sed -n 's/^CXX_FLAGS = //p' flags.make) \
     -c /tmp/SpectralFieldDataRZ_head.cpp -o /tmp/head_test2.o
@@ -539,7 +539,7 @@ ctest --test-dir build_multi_hdf5_fft -R "<用例名>" --output-on-failure
 cd /tmp/warpx_up2610
 cmake -S . -B build_1d -DWarpX_DIMS=1 -DWarpX_COMPUTE=OMP -DWarpX_OPENPMD=OFF \
   -DWarpX_FFT=OFF -DWarpX_QED=OFF -DCMAKE_BUILD_TYPE=Release \
-  -DFETCHCONTENT_SOURCE_DIR_FETCHEDAMREX=/home/douliangduo/WarpX_plugin/build_2d_full/_deps/fetchedamrex-src
+  -DFETCHCONTENT_SOURCE_DIR_FETCHEDAMREX=$HOME/WarpX_plugin/build_2d_full/_deps/fetchedamrex-src
 cmake --build build_1d -j8
 ```
 

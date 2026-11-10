@@ -22,7 +22,7 @@ BUILD="${1:-$REPO/build_multi_hdf5_fft}"
 INPUTS="$REPO/Examples/Tests/macroscopic_solver/inputs_test_1d_macroscopic_solver"
 EXE="$BUILD/bin/warpx.1d.MPI.OMP.DP.PDP.OPMD.FFT.EB.QED"
 WORK="${WORK:-/tmp/macro_vacuum_limit}"
-PY="${PYTHON:-/home/douliangduo/miniconda3/bin/python3}"
+PY="${PYTHON:-$HOME/miniconda3/bin/python3}"
 
 run () { # $1 = tag, $2 = extra parameter
     rm -rf "$WORK/$1"; mkdir -p "$WORK/$1"; cd "$WORK/$1"

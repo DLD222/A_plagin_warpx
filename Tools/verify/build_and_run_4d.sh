@@ -14,7 +14,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 HDF5_ROOT="${HDF5_ROOT:-/tmp/hdf5_mpi}"
 BUILD="${BUILD:-$REPO/build_multi_hdf5}"
-CONDA="${CONDA_PREFIX_PREFIX:-/home/douliangduo/miniconda3}"
+CONDA="${CONDA_PREFIX_PREFIX:-$HOME/miniconda3}"
 
 cmake -S "$REPO" -B "$BUILD" \
     -DCMAKE_PREFIX_PATH="$CONDA" \

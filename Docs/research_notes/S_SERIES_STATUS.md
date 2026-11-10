@@ -67,7 +67,7 @@ EB cube checksum 3 条。清零的是"缺外部测试数据"这一类（24 条�
 上溯 4 层正好是仓库父目录。
 
 ```bash
-# 在 /home/douliangduo 下执行（仓库父目录），与上游 CI 相同
+# 在仓库父目录下执行，与上游 CI 相同
 git clone --depth 1 https://github.com/openPMD/openPMD-example-datasets.git
 # 只需其中 example-femm-3d.h5 (3.4 MB) 与 example-femm-thetaMode.h5 (84 KB)
 
@@ -100,13 +100,13 @@ ctest --test-dir build_multi_hdf5 -R "load_external_field|projection_div_cleaner
 **2026-11-09 09:50，第 2 项（FFT 构建）与第 3 项（慢测试）的实测结果**：
 
 第 2 项：RZ + FFT 需要 `blaspp`/`lapackpp`，本机没有系统 BLAS。依赖用 micromamba 装在
-`/home/douliangduo/third_party/fft-deps`（conda-forge `blaspp`/`lapackpp` 2025.05.28 + OpenBLAS），
-FFTW 沿用 `/home/douliangduo/third_party/fftw`。配置：
+`$HOME/third_party/fft-deps`（conda-forge `blaspp`/`lapackpp` 2025.05.28 + OpenBLAS），
+FFTW 沿用 `$HOME/third_party/fftw`。配置：
 
 ```bash
 cmake -S . -B build_multi_hdf5_fft -DCMAKE_BUILD_TYPE=Release -DWarpX_DIMS="1;3;RZ" \
   -DWarpX_COMPUTE=OMP -DWarpX_OPENPMD=ON -DWarpX_FFT=ON -DWarpX_MPI_THREAD_MULTIPLE=ON \
-  -DCMAKE_PREFIX_PATH="/home/douliangduo/miniconda3;/home/douliangduo/third_party/fftw;/home/douliangduo/third_party/fft-deps" \
+  -DCMAKE_PREFIX_PATH="$HOME/miniconda3;$HOME/third_party/fftw;$HOME/third_party/fft-deps" \
   -DHDF5_DIR=/tmp/hdf5_mpi/cmake -DHDF5_ROOT=/tmp/hdf5_mpi -DWarpX_CCACHE=ON
 cmake --build build_multi_hdf5_fft -j 20      # -> EXIT=0
 ```
