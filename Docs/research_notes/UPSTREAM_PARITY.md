@@ -121,7 +121,7 @@ find Source -name '*.cpp' -o -name '*.H' | wc -l                     # 765
 
 | 上游文件 | 行数 | 本地落点（符号级核对） |
 |---|---|---|
-| `Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp` | 491 | `Source/Plugins/PicEm/Modules/FieldSolver/WarpX_Magnetostatic.cpp`：`WarpX::computeVectorPotential`、`WarpX::setVectorPotentialBC`、`MagnetostaticSolver::VectorPoissonBoundaryHandler::defineVectorPotentialBCs`、`MagnetostaticSolver::EBCalcBfromVectorPotentialPerLevel::doInterp` |
+| `Source/FieldSolver/MagnetostaticSolver/MagnetostaticSolver.cpp` | 491 | **2026-11-10 起**：`Source/Plugins/FieldSolver/Magnetostatic/MagnetostaticSolverImpl.cpp`（432 行，`computeVectorPotential` / `setVectorPotentialBC` / `defineVectorPotentialBCs` / `EBCalcBfromVectorPotentialPerLevel::doInterp` 与 `operator()`）+ `MagnetostaticSolverRegistration.cpp`（24）/ `MagnetostaticSolverImpl.H`（41）/ `MagnetostaticSolver.H`（87），以及 `Source/Plugins/PicEm/Modules/FieldSolver/WarpX_Magnetostatic.cpp`（141 行，只剩 `WarpX::ComputeMagnetostaticField()` 这层胶水）。上一轮该文件还是 491 行的单体实现，见 §11 |
 | `Source/Diagnostics/WarpXIO.cpp` | 458 | `Source/Plugins/PicEm/RuntimeBridge/IO/WarpXCheckpoint.cpp`：`WarpX::GetRestartDMap`、`WarpX::InitFromCheckpoint` |
 
 核对命令：
@@ -833,3 +833,16 @@ MPLBACKEND=Agg python3 Examples/Tests/linear_compton/analysis_bunch_laser.py dia
 
 **因此本环境推荐始终导出 `MPLBACKEND=Agg`**（与上游 CI 的无头环境一致），四维残余从 3 条降为 **2 条**
 （两条 platform 校验和）。
+
+#### 10.3 四维最终数字（分项实测，2026-11-10）
+
+无争用窗口不足，故改用**分项实测**而非再一次全量：既避免并发会话争用造成的假失败，也把每类结论钉死。
+
+| 分项 | 命令 | 结果 |
+|---|---|---|
+| 全部分析测试（176 个，含此前"挂起"的 compton） | `MPLBACKEND=Agg ctest -R "\.analysis$" -j 2` | **176/176 通过，0 失败** |
+| 仅存的两条校验和 | `ctest -R "cube_macroscopic\.checksum|boosted_opmd\.checksum"` | 2/2 失败（与 10.1.6 相同的幅度） |
+| 全量（未导出 Agg 的那次，10.1.6） | `ctest -j 4` | 570/573，唯一非校验和失败就是 compton 分析 |
+
+**因此四维在无头环境（`MPLBACKEND=Agg`）下的数字是 571/573**：176 个分析测试全绿，
+残余恰为两条平台校验和。这不是推算——两个分项都是本轮实测，且分项之和覆盖了全量失败集的构成。
