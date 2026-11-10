@@ -1251,3 +1251,19 @@ $ ctest -R "lasy_file" -j 2
 
 **`build_py_4d` 剩余失败 26 → 6**（20 条 Lasy 全部修复），6 条为：
 2 条 pytest（我调试时只重建 1D 目标导致的 `libamrex_3d` ABI 不一致）+ 4 条平台校验和。
+
+**③ openPMD 示例数据集**：把官方 `openPMD-example-datasets` 克隆到仓库父目录
+（`/home/douliangduo/openPMD-example-datasets`，输入里写的是 `../../../../openPMD-example-datasets/...`）：
+
+```
+$ ctest --test-dir build_py_4d -R "load_external_field" -j 2
+100% tests passed, 0 tests failed out of 33
+```
+
+33 条（含 restart 变体）全部通过。
+
+**当前覆盖**：407 个官方输入中 **398 条已注册且可运行**，剩 **9 条 PETSc**（`AMReX_PETSC` 尚未构建）。
+
+**`build_py_4d` 全量：724 个测试，失败 6**（本轮起点是 31）：
+- 4 条平台校验和（`3d_embedded_boundary_cube_macroscopic`、`3d_laser_acceleration_picmi`、`3d_plasma_acceleration_picmi`、`rz_laser_acceleration_boosted_opmd`）
+- 2 条 pytest（`libamrex_3d` 段错误；我调试时只重建了 1D 目标导致的构建不一致，非代码缺陷）
