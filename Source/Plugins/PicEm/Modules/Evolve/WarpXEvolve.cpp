@@ -742,7 +742,24 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
             GetPartContainer(), *m_legacy_data, *m_legacy_config, host);
         m_legacy_collision_handler = std::move(handler);
         m_collision_handler = m_legacy_collision_handler.get();
-        if (m_collision_handler != nullptr) { m_collision_handler->AllocData(); }
+        if (m_collision_handler != nullptr) {
+            m_collision_handler->AllocData();
+        } else {
+            // The input asked for collisions but no collision plugin is linked.  Silently
+            // running without them would change the physics without telling anyone, so say
+            // it loudly: the run continues (collisions are an optional capability) but the
+            // user must know the result is not what the input described.
+            const amrex::ParmParse pp_collisions("collisions");
+            amrex::Vector<std::string> names;
+            if (pp_collisions.queryarr("collision_names", names) && !names.empty()) {
+                ablastr::warn_manager::WMRecordWarning(
+                    "WarpX",
+                    "The input requests " + std::to_string(names.size()) +
+                    " collision(s) but this build has no collision plugin: they are skipped. "
+                    "Rebuild with WarpX_PLUGIN_COLLISION=ON for collisions.",
+                    ablastr::warn_manager::WarnPriority::high);
+            }
+        }
     }
     if (m_collision_handler != nullptr) {
         m_collision_handler->doCollisions(step, cur_time, dt);
