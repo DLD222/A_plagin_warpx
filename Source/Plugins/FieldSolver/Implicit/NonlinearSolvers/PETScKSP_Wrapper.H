@@ -8,7 +8,7 @@
 #ifndef PETSC_KSP_WRAPPER_H_
 #define PETSC_KSP_WRAPPER_H_
 
-#include "PETScReinitialize.H"
+#include "NonlinearSolvers/PETScReinitialize.H"
 #include "LinearSolver.H"
 #include "WarpX_PETSc.H"
 

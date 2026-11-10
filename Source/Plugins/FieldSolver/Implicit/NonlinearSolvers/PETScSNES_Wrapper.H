@@ -8,7 +8,7 @@
 #ifndef PETSC_SNES_WRAPPER_H_
 #define PETSC_SNES_WRAPPER_H_
 
-#include "PETScReinitialize.H"
+#include "NonlinearSolvers/PETScReinitialize.H"
 #include "NewtonSolverParams.H"
 #include "NonlinearSolver.H"
 #include "WarpX_PETSc.H"

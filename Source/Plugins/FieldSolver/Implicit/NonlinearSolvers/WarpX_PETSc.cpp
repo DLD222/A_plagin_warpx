@@ -26,6 +26,7 @@
 #include <petscmat.h> // must include before WarpX_PETSc.H
 #include <petscvec.h> // must include before WarpX_PETSc.H
 #include "WarpX_PETSc.H"
+#include "../ImplicitSolver.H"
 
 namespace warpx_petsc {
 
