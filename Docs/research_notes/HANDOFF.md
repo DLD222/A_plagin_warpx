@@ -136,6 +136,11 @@ cmake -S . -B build_py_opmd -DWarpX_PYTHON=ON -DWarpX_OPENPMD=ON ...
 cmake --build build_py_opmd -j 16
 PYTHONPATH=$PWD/build_py_opmd/lib/site-packages ctest --test-dir build_py_opmd -j 4 -R picmi
 
+#    注意：导出 MPLBACKEND=Agg。7 个分析脚本会调 plt.show()，在有 DISPLAY 的机器上
+#    matplotlib 选 TkAgg 并阻塞在 tkinter.mainloop()（这就是 test_3d_linear_compton_bunch_laser
+#    曾"挂起 25 分钟"的原因）；Agg 后端下它 0.5 秒通过。
+export MPLBACKEND=Agg
+
 # 4) 用户自定义插件验收（ctest 里已含）
 ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2"
 
