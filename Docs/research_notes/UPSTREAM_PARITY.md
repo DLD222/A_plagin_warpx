@@ -892,3 +892,23 @@ for t in 1 4; do
     $REPO/Examples/Tests/embedded_boundary_cube/analysis_default_regression.py --path diags/diag1000208
 done
 ```
+
+#### 10.5 关于 HEAD：全量测的是哪一版二进制
+
+§10.4 的 573 条全量跑在 `7a96278` 的二进制上。此后 HEAD 多了 `f4e9708`（粒子容器改从运行时配置读
+设置）。逐条核过 `RuntimeConfig` 的访问器实现（`Source/Plugins/PicEm/RuntimeBridge/Runtime/RuntimeConfig.cpp`）：
+`particle_boundary_lo/hi`、`nox`、`galerkin_interpolation`、`do_shared_mem_current_deposition`
+都**直接返回同一个 `WarpX::` 静态量**，所以那是等价改写，不是快照。
+
+重建 `build_multi_hdf5_fft`（`EXIT=0`，223 个编译单元）后复验：
+
+```bash
+Tools/verify/check_macroscopic_vacuum_limit.sh          # ratio = 1.000000, exit 0
+ctest --test-dir build_multi_hdf5_fft -j 3 \
+  -R "cube_macroscopic\.checksum|boosted_opmd\.checksum|linear_compton_bunch_laser\.(analysis|checksum)"
+# 4/4 运行：compton analysis+checksum 通过；两条平台校验和照旧失败
+```
+
+**未在 HEAD 上再做 573 条全量**，阻塞是具体的：并行会话同时跑着 `build_2d_full -j8`
+（336 条）、`build_takeover -j2` 子集和 `build_multi_hdf5` 重编译，`loadavg` 31–34（24 核），
+此时跑全量只会得到资源争用造成的假失败（10.5 与 4.3.1 都记录过这种误判）。空闲窗口应补一次。

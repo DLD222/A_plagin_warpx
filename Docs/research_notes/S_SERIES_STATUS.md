@@ -83,6 +83,17 @@ python3 Tools/Modularization/check_{core_purity,plugin_boundaries,kernel_couplin
 **全量复跑与 `/tmp/g113_failed.log` 对比**：`g113 = {110, 276, 555}` → 本轮 `= {110, 555}`，
 只少了 compton 分析（现在通过），**无新增失败**（`UPSTREAM_PARITY.md` §10.4）。
 
+**关于 HEAD 的说明**：上面那次全量是在 `7a96278` 的二进制上跑的。之后 HEAD 多了
+`f4e9708`（"粒子容器从运行时配置读设置"）——该提交把 `WarpX::x` 换成 `config().x()`，而
+`RuntimeConfig` 的这些访问器（`particle_boundary_lo`、`nox`、`galerkin_interpolation`、
+`do_shared_mem_current_deposition`，见 `Runtime/RuntimeConfig.cpp`）**直接返回同一个 `WarpX::` 静态量**，
+因此是等价改写。重建后（`EXIT=0`）复验：真空极限 `ratio = 1.000000`；残余 4 条相关用例
+（`cube_macroscopic.checksum`、`boosted_opmd.checksum`、`compton.{analysis,checksum}`）**逐条同样结果**
+（前两条失败、后两条通过）。
+**本轮未再做一次 573 条全量**，具体阻塞：机器被并行会话的 3 个 ctest（`build_2d_full -j8`、
+`build_takeover -j2` 子集、`build_multi_hdf5` 重编译）打满（`loadavg` 31–34 / 24 核），
+全量会被拖成资源争用假失败；留到空闲窗口补跑。
+
 ---
 
 **以下为 2026-11-09 的历史记录。**
