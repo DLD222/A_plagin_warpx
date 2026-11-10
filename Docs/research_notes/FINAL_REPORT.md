@@ -104,3 +104,28 @@
 3. **PNG/ADIOS2/GPU 后端**：清单一致，无运行证据。
 
 因此**目标不标记为完成**。
+
+---
+
+## 6. 收尾复验（2026-11-10，本轮实测）
+
+```
+$ Tools/verify/check_macroscopic_vacuum_limit.sh
+yee   max|Ex| = 3678360.615965
+macro max|Ex| = 3678360.615965
+ratio         = 1.000000   (expected 1.000000)      exit=0
+
+$ ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2|runtime_snapshot_particles_2"
+nonpic_kernel_2 ................. Passed
+runtime_snapshot_particles_2 .... Passed
+external_plugin_2 ............... Passed
+100% tests passed, 0 tests failed out of 3
+
+$ python3 Tools/Modularization/check_{core_purity,plugin_boundaries,kernel_coupling,build_boundaries}.py
+core purity OK (0 known references, 0 new)
+plugin boundaries OK (0 known, 0 new)
+kernel coupling OK (0 known entries, 0 new)
+build boundaries OK
+```
+
+判据 3、4 与旗舰功能回归检查在收尾时**重新跑过**，不是引用旧数据。
