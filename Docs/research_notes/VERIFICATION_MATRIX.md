@@ -398,3 +398,34 @@ $ ctest --test-dir build_2d_full -j 12             # openPMD=ON
 ```
 
 同一个测试集在开 openPMD 的构建里**仍然注册并且通过**，说明不是把测试藏起来，而是让注册与构建能力一致。
+
+## 全量重跑（24 核，2026-11-12）
+
+之前用"分组抽样"是因为我把 `nproc` 的自造限制当成了机器规格。纠正后用 `-j 12` 跑全量：
+
+```
+$ ctest --test-dir build_py_4d -j 12 --timeout 2400
+99% tests passed, 7 tests failed out of 724
+```
+
+| 失败项 | 性质 | 处置 |
+|---|---|---|
+| `test_1d_ohm_solver_ion_beam_picmi.{run,analysis,checksum}` | `***Timeout 2400`（`-j 12` 争用下） | **单独重跑通过**：`run 108.18 s`，`100% tests passed, 0 failed out of 3` |
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 | 与上游基准的浮点差异 |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | 平台校验和 | 同上 |
+| `pytest.WarpX.1d`、`pytest.WarpX.3d` | **段错误（未修）** | 见下 |
+
+### 未修复项：`tests/unit` 的 pytest 段错误
+
+```
+Fatal Python error: Segmentation fault
+  File ".../pywarpx/_libwarpx.py", line 171 in initialize
+```
+
+- 位置：`LibWarpX.initialize()` 内部（`amrex_init` → `get_instance` → `initialize_data`），
+  调用方是 `tests/unit/test_charge_deposition.py` 的 `sim.initialize_warpx()`；
+- **PICMI 端到端用例不受影响**（PICMI 分组 100/100 通过），说明崩溃与单元测试的启动路径有关；
+- 在 `build_py_opmd`（2D Python 构建）里同样崩溃，**不是某个维度特有**；
+- 该条目在本项目早期基线里就已在失败清单中，**不是本轮改动引入**。
+
+**未修复，如实记录。** 需要带符号的调试构建才能继续定位（当前构建是 Release）。
