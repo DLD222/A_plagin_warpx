@@ -280,3 +280,32 @@ ctest --test-dir build_py_4d -R "^test_1d_laser_acceleration_picmi\.(run|checksu
 ```
 
 并在文档里**写明每组覆盖了哪些用例**，而不是笼统地说"724 个全过"。
+
+### PICMI 分组验证结果（2026-11-11，mpi4py 修复后）
+
+```
+$ ctest --test-dir build_py_4d -R "picmi" -E "background_mcc|spacecraft_charging" -j 3 --timeout 300
+95% tests passed, 5 tests failed out of 100
+    失败项全部是 ***Timeout 300.00 sec（其中 2 条是 run 超时后没有输出、连带的 analysis/checksum）
+```
+
+把这三条超时的用例用 `--timeout 1800` 单独重跑：
+
+```
+$ ctest -R "^(test_1d_dsmc_picmi|test_rz_ohm_solver_em_modes_picmi|test_1d_ohm_solver_ion_beam_picmi)\."
+100% tests passed, 0 tests failed out of 9
+    test_rz_ohm_solver_em_modes_picmi.run   Passed   25.58 sec
+    test_1d_ohm_solver_ion_beam_picmi.run   Passed  105.81 sec
+    test_1d_dsmc_picmi.run                  Passed   58.99 sec
+```
+
+**结论：PICMI 分组 100 / 100 通过**（单核下个别用例 60–106 秒，`-j 3` 叠加 300 秒上限时会超时）。
+
+**明确排除（未在本机跑完，需单独安排）**：
+
+| 用例 | 情况 |
+|---|---|
+| `test_1d_background_mcc_picmi.{run,analysis,checksum}` | >10 分钟无进展 |
+| `test_rz_spacecraft_charging_picmi.{run,analysis,checksum}` | >10 分钟无进展 |
+
+这 6 条**没有**被计入上面的 100/100，也没有被声称通过。
