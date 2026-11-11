@@ -413,7 +413,7 @@ $ ctest --test-dir build_py_4d -j 12 --timeout 2400
 | `test_1d_ohm_solver_ion_beam_picmi.{run,analysis,checksum}` | `***Timeout 2400`（`-j 12` 争用下） | **单独重跑通过**：`run 108.18 s`，`100% tests passed, 0 failed out of 3` |
 | `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 | 与上游基准的浮点差异 |
 | `test_rz_laser_acceleration_boosted_opmd.checksum` | 平台校验和 | 同上 |
-| `pytest.WarpX.1d`、`pytest.WarpX.3d` | **段错误（未修）** | 见下 |
+| `pytest.WarpX.1d`、`pytest.WarpX.3d` | **已修复** | 见下（拆成每测试一个进程 + 补 pybind11 接口注册） |
 
 ### 未修复项：`tests/unit` 的 pytest 段错误
 
@@ -473,3 +473,42 @@ add_test(NAME pytest.WarpX.${SD}
 而等价的独立脚本不崩。已排除 `argv` 与 `pytest-mpi`。下一步应对比 conftest 的 fixture 链
 （`warpx_lifecycle` 的 `monkeypatch.chdir(tmp_path)` 等）与脚本的差异，或用一个最小
 `conftest.py` 二分。**未修复。**
+
+## 已修复：`tests/unit` 的段错误（第 52 轮）
+
+### 根因一：一个进程跑 20 个模拟
+
+`add_warpx_pytest` 原来注册**一个** ctest，把全部 20 个单元测试放进同一进程，而 WarpX
+一个进程只能初始化一次：
+
+```
+# 第二个模拟（不 teardown）: amrex::Error::0::ParmParse::Initialize(): already initialized!
+# 第二个模拟（teardown 后）: *** MPI_Comm_dup() was called after MPI_FINALIZE
+```
+
+**修复**：配置时用 `pytest --collect-only -q` 枚举 node id，**每个测试一个 ctest 条目**
+（`pytest.WarpX.<dim>.<n>`）。
+
+### 根因二：`implicit_solver()` 返回未注册的接口指针
+
+```
+TypeError: Unregistered type : ThetaImplicitEM
+```
+
+内核的 `get_pointer_ImplicitSolver()` 返回核心接口 `IImplicitSolver*`，而 pybind11 只注册了
+`ImplicitSolver`（派生类），于是回退到具体类型 `ThetaImplicitEM` 并失败。
+
+**修复**：把 `IImplicitSolver` 注册为 pybind11 基类，并把求解器特有的两个方法通过
+`dynamic_cast` 暴露在基类绑定上——这样绑定里**不需要出现任何具体求解器类名**。
+
+### 验证
+
+```
+$ ctest --test-dir build_py_opmd -R "^pytest\.WarpX\." -j 8
+100% tests passed, 0 tests failed out of 20
+
+$ ctest --test-dir build_py_4d -R "^pytest\.WarpX\." -j 12
+100% tests passed, 0 tests failed out of 60        # 1D/3D/RZ 各 20
+```
+
+之前是"整个 pytest 进程段错误"，现在是 **80 条全过**。
