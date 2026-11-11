@@ -1618,3 +1618,26 @@ ctest --test-dir build_multi_hdf5_fft -R "^test_3d_ionization_electron_dsmc.anal
 的外部场契约搬迁）、残余 4 条复现原结论（compton 通过、两条平台校验和照旧失败）、
 `ionization_dsmc` 三条全通过。加上"`67fa04c..HEAD` 的 `Source/` 净增 42 行全在 abort 分支"，
 可以判定四维状态仍是 **571/573**，残余两条即 §10.6 的浮点噪声底。
+
+### 12.15 全部算例用一条命令复跑（2026-11-11）
+
+`Tools/verify/ab/run_all.sh` 一次跑完 17 个算例（另有 3 个纯粒子 QED 算例用
+`compare_particles_openpmd.py` 单独比较）：
+
+```
+ran 17 case(s), skipped 0
+```
+
+| 算例 | 场数 | 全局相对差 |
+|---|---|---|
+| `d1_collision` / `d1_implicit` / `d1_langmuir` | 30 / 39 / 39 | **0.000e+00** |
+| `d2_collision` / `d2_langmuir` / `d2_plasma_mirror` | 38 / 41 / 41 | **0.000e+00** |
+| `d3_bw_many` / `d3_bw_two` / `d3_collision` | 57 / 21 / 36 | **0.000e+00** |
+| `d3_implicit` / `d3_langmuir` | 47 / 37 | **0.000e+00** |
+| `d3_eb` | 6 | 1.63e-11 |
+| `rz_collision` / `rz_es` / `rz_langmuir` / `rz_laser` | 33 / 31 / 41 / 78 | **0.000e+00** |
+| `d3_laser` | — | openPMD 输出，yt 读不了，**未纳入** |
+
+**过程中又踩到同一个 MPI 坑**：上游的 2D 参考二进制是 conda 前缀构建的（链 MPICH），
+用系统 `mpiexec` 启动直接 `PMIx` 报错。用 `-DCMAKE_CXX_COMPILER=/usr/bin/mpicxx`、不带 conda 前缀
+重建 2D 参考树后，三个 2D 算例全部 **0.000e+00**。
