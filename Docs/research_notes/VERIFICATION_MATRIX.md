@@ -309,3 +309,16 @@ $ ctest -R "^(test_1d_dsmc_picmi|test_rz_ohm_solver_em_modes_picmi|test_1d_ohm_s
 | `test_rz_spacecraft_charging_picmi.{run,analysis,checksum}` | >10 分钟无进展 |
 
 这 6 条**没有**被计入上面的 100/100，也没有被声称通过。
+
+### 粒子插件关闭：「无粒子输入仍可运行」已实测
+
+`build_nocoll`（`WarpX_PLUGIN_PARTICLECORE=OFF`）跑一个**完全没有粒子物种**的输入：
+
+```bash
+# /tmp/nopar/inputs_noparticles：max_step=3、16x16、yee、periodic、无 particles.*
+build_nocoll/bin/warpx.2d.MPI.OMP.DP.PDP.EB.QED inputs_noparticles
+# exit=0, AMReX (...-dirty) finalized
+```
+
+这正是 P3 第 ④ 步的后半句（"关闭开关时……无粒子输入仍可运行"）的证据；
+前半句（有粒子输入给出可操作错误）由 `particle_thermalizer` 那条断言覆盖（见"插件开关的实测行为"）。
