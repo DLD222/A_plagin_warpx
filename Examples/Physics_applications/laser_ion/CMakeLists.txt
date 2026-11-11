@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_test_laser_ion.py diags/diagInst/"  # analysis
     "analysis_default_regression.py --path diags/diagInst/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(

@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_angular.py"  # analysis
     "analysis_default_regression.py --path diags/diag1 --skip-fields"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -19,6 +20,7 @@ add_warpx_test(
     "analysis_angular.py"  # analysis
     "analysis_default_regression.py --path diags/diag1 --skip-fields"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(

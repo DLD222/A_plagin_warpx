@@ -10,5 +10,6 @@ if(WarpX_EB)
         OFF  # analysis
         "analysis_default_regression.py --path diags/diag1000011 --rtol 1e-2"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()

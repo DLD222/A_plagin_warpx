@@ -80,6 +80,7 @@ add_warpx_test(
     OFF  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -113,6 +114,7 @@ add_warpx_test(
     OFF  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -133,6 +135,7 @@ add_warpx_test(
     OFF  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -143,6 +146,7 @@ add_warpx_test(
     "analysis_openpmd_rz.py diags/diag1/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(

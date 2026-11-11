@@ -9,4 +9,5 @@ add_warpx_test(
     "analysis_fel.py diags/diag_labframe"  # analysis
     "analysis_default_regression.py --path diags/diag_labframe"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

@@ -10,6 +10,7 @@ if(WarpX_FFT)
         "analysis.py"  # analysis
         "analysis_default_regression.py --path diags/diag1000001 --rtol 1e-2"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -22,5 +23,6 @@ if(WarpX_FFT)
         "analysis.py"  # analysis
         "analysis_default_regression.py --path diags/diag1000001 --rtol 1e-2"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()

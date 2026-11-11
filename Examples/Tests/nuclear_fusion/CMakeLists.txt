@@ -39,6 +39,7 @@ add_warpx_test(
     "analysis_fusion_anisotropic_beam_target.py"  # analysis
     "analysis_default_regression.py --path diags/diag1"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -69,6 +70,7 @@ add_warpx_test(
     "analysis_fusion_anisotropic_beam_target.py"  # analysis
     "analysis_default_regression.py --path diags/diag1"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(

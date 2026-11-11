@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_focusing_beam.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000000"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -19,6 +20,7 @@ add_warpx_test(
     "analysis.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000000"  # checksum
     test_3d_focusing_gaussian_beam_from_openpmd_prepare  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -59,6 +61,7 @@ add_warpx_test(
     "analysis_focusing_beam.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000000"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -69,4 +72,5 @@ add_warpx_test(
     "analysis_rotated_beam.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000000"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

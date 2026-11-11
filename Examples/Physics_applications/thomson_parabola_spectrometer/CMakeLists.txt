@@ -9,4 +9,5 @@ add_warpx_test(
     "analysis.py"  # analysis
     "analysis_default_regression.py --path diags/diag1"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

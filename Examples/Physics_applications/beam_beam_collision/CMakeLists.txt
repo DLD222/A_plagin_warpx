@@ -9,5 +9,6 @@ add_warpx_test(
     OFF  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 label_warpx_test(test_3d_beam_beam_collision slow)

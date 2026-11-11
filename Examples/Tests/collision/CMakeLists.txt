@@ -149,6 +149,7 @@ add_warpx_test(
     "analysis_test_2d_collisions_split_momentum_push.py --path diags/reducedfiles/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -159,6 +160,7 @@ add_warpx_test(
     "analysis_test_2d_collisions_split_momentum_push.py --path diags/reducedfiles/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -169,6 +171,7 @@ add_warpx_test(
     "analysis_test_2d_collisions_split_momentum_push.py --path diags/reducedfiles/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -179,4 +182,5 @@ add_warpx_test(
     "analysis_test_2d_collisions_split_momentum_push.py --path diags/reducedfiles/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

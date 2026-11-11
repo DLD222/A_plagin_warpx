@@ -33,9 +33,21 @@ function(add_warpx_test
     analysis
     checksum
     dependency
+    # optional eighth argument: the input asks for openPMD output, so the test can only be
+    # registered in a build that has that output format compiled in
 )
+    set(needs_openpmd OFF)
+    if(ARGC GREATER 7)
+        set(needs_openpmd ${ARGV7})
+    endif()
+
     # cannot run MPI tests w/o MPI build
     if(nprocs GREATER_EQUAL 2 AND NOT WarpX_MPI)
+        return()
+    endif()
+
+    # cannot run a test whose input asks for openPMD output in a build without it
+    if(needs_openpmd AND NOT WarpX_OPENPMD)
         return()
     endif()
 

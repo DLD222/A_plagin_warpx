@@ -9,4 +9,5 @@ add_warpx_test(
     "analysis_ion_beam_extraction.py diags/diag1/"  # analysis
     "analysis_default_regression.py --path diags/diag1/"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

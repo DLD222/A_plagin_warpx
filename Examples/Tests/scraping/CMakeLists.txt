@@ -10,6 +10,7 @@ if(WarpX_EB)
         "analysis_rz.py diags/diag1000037"  # analysis
         "analysis_default_regression.py --path diags/diag1000037"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -22,5 +23,6 @@ if(WarpX_EB)
         "analysis_rz_filter.py diags/diag1000037"  # analysis
         "analysis_default_regression.py --path diags/diag1000037"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()

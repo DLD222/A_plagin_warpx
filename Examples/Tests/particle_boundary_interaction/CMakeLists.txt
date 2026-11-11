@@ -28,5 +28,6 @@ if(WarpX_EB)
         "analysis.py diags/diag1/"  # analysis
         "analysis_default_regression.py --path diags/diag1/"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()

@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_particle_diags.py diags/diag1000200"  # analysis
     "analysis_default_regression.py --path diags/diag1000200"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 # FIXME

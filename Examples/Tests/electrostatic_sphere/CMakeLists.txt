@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000030"  # analysis
     "analysis_default_regression.py --path diags/diag1000030"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -19,6 +20,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000030"  # analysis
     "analysis_default_regression.py --path diags/diag1000030"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -29,6 +31,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000002"  # analysis
     "analysis_default_regression.py --path diags/diag1000002"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -39,6 +42,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000030"  # analysis
     "analysis_default_regression.py --path diags/diag1000030"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -49,6 +53,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000040"  # analysis
     "analysis_default_regression.py --path diags/diag1000040"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -59,6 +64,7 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000030"  # analysis
     "analysis_default_regression.py --path diags/diag1000030"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -69,4 +75,5 @@ add_warpx_test(
     "analysis_electrostatic_sphere.py diags/diag1000030" # analysis
     "analysis_default_regression.py --path diags/diag1000030"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

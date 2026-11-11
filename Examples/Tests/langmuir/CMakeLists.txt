@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_1d.py diags/diag1000080"  # analysis
     "analysis_default_regression.py --path diags/diag1000080"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -221,6 +222,7 @@ add_warpx_test(
     "analysis_3d.py diags/diag1000040"  # analysis
     "analysis_default_regression.py --path diags/diag1000040"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -231,6 +233,7 @@ add_warpx_test(
     "analysis_3d.py diags/diag1000040"  # analysis
     "analysis_default_regression.py --path diags/diag1000040"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -252,6 +255,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -264,6 +268,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -276,6 +281,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -288,6 +294,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -300,6 +307,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -312,6 +320,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -336,6 +345,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -348,6 +358,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -360,6 +371,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
 endif()
 
@@ -372,6 +384,7 @@ if(WarpX_FFT)
         "analysis_3d.py diags/diag1000040"  # analysis
         "analysis_default_regression.py --path diags/diag1000040"  # checksum
         OFF  # dependency
+    ON  # needs openPMD output
     )
     label_warpx_test(test_3d_langmuir_multi_psatd_vay_deposition_nodal slow)
 endif()
@@ -440,6 +453,7 @@ add_warpx_test(
     "analysis_r1d.py diags/diag1000080" # analysis
     "analysis_default_regression.py --path diags/diag1000080"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -450,4 +464,5 @@ add_warpx_test(
     "analysis_r1d.py diags/diag1000080"  # analysis
     "analysis_default_regression.py --path diags/diag1000080"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

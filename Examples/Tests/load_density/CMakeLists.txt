@@ -19,6 +19,7 @@ add_warpx_test(
     "analysis_1d.py"  # analysis
     "analysis_default_regression.py --path diags/diag/"   # checksum
     test_1d_load_density_prepare  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -39,6 +40,7 @@ add_warpx_test(
     "analysis_2d.py"  # analysis
     "analysis_default_regression.py --path diags/diag/"   # checksum
     test_2d_load_density_prepare  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -59,6 +61,7 @@ add_warpx_test(
     "analysis_3d.py"  # analysis
     "analysis_default_regression.py --path diags/diag/"   # checksum
     test_3d_load_density_prepare  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -79,4 +82,5 @@ add_warpx_test(
     "analysis_rz.py"  # analysis
     "analysis_default_regression.py --path diags/diag/"   # checksum
     test_rz_load_density_prepare  # dependency
+    ON  # needs openPMD output
 )

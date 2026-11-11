@@ -9,6 +9,7 @@ add_warpx_test(
     analysis_beamsize_effect.py  # analysis
     "analysis_default_regression.py --path diags/diag1"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -19,4 +20,5 @@ add_warpx_test(
     analysis_virtual_photons.py  # analysis
     "analysis_default_regression.py --path diags/diag1"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )

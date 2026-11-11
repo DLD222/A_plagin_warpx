@@ -9,6 +9,7 @@ add_warpx_test(
     "analysis_ionization_dsmc_3d.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000250"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -19,6 +20,7 @@ add_warpx_test(
     OFF # "analysis_ionization_dsmc_3d.py"  # analysis
     "analysis_default_regression.py --path diags/diag1000250"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -29,6 +31,7 @@ add_warpx_test(
     "analysis_ionization_dsmc_1d.py"  # analysis
     "analysis_default_regression.py --path diags/diag"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -39,6 +42,7 @@ add_warpx_test(
     "analysis_charge_exchange_dsmc_1d.py"  # analysis
     "analysis_default_regression.py --path diags/diag"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -49,6 +53,7 @@ add_warpx_test(
     "analysis_photoneutralization_dsmc_1d.py"  # analysis
     "analysis_default_regression.py --path diags/diag"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
 
 add_warpx_test(
@@ -59,4 +64,5 @@ add_warpx_test(
     "analysis_two_product_reaction_dsmc_1d.py"  # analysis
     "analysis_default_regression.py --path diags/diag"  # checksum
     OFF  # dependency
+    ON  # needs openPMD output
 )
