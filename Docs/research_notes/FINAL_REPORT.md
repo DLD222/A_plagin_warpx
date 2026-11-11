@@ -27,6 +27,7 @@
 | 2D | `build_2d_full`（openPMD+FFT） | 335/336 | 1 平台校验和（`test_2d_laser_ion_acc.checksum`，宏观修复前后逐条一致） |
 | 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **571/573**（导出 `MPLBACKEND=Agg`；未导出时 570/573） | **2**，均为平台校验和 |
 | 2D PICMI | `build_py_opmd` | 72/75 | 3 平台校验和 |
+| 四维 PICMI | `build_py_4d`（1D/3D/RZ + Python） | **分组 100/100** | 见 7.5；另有 6 条超慢用例在本机跑不完，**未计入** |
 
 ### 剩余 2 条（四维）
 
@@ -157,3 +158,42 @@ RZ 7 + 3D 4 + 2D 2；唯一差异 `d3_eb` 为 1.63e-11（双精度舍入）。�
 ### 验证矩阵
 
 见 `VERIFICATION_MATRIX.md`：七个构建、选项、测试数、失败清单与归类、复现命令。
+
+### 7.5 四维 PICMI 分组的最终结果（2026-11-11）
+
+`build_py_4d` 一共 724 个条目，在本机（**单核**）全量跑不完，因此按分组验证：
+
+```
+$ ctest --test-dir build_py_4d -R "picmi" -E "background_mcc|spacecraft_charging" -j 3 --timeout 300
+95% tests passed, 5 tests failed out of 100
+    5 条全部是 ***Timeout 300.00 sec（其中 2 条是 run 超时后没有输出、连带的 analysis/checksum）
+```
+
+把超时的 3 条 `run` 用 `--timeout 1800` 重跑：
+
+```
+100% tests passed, 0 tests failed out of 9
+    test_rz_ohm_solver_em_modes_picmi.run    Passed   25.58 sec
+    test_1d_ohm_solver_ion_beam_picmi.run    Passed  105.81 sec
+    test_1d_dsmc_picmi.run                   Passed   58.99 sec
+```
+
+**PICMI 分组：100 / 100 通过。**
+
+**排除项（没有计入、也没有声称通过）**：
+
+| 用例 | 现象 |
+|---|---|
+| `test_1d_background_mcc_picmi.{run,analysis,checksum}` | 单核下 >10 分钟无进展 |
+| `test_rz_spacecraft_charging_picmi.{run,analysis,checksum}` | 单核下 >10 分钟无进展 |
+
+### 7.6 这一路上修掉的**环境**问题（不是代码，但影响结论可信度）
+
+| 问题 | 症状 | 解决 |
+|---|---|---|
+| conda 的 PETSc 把 MPI 换成了 MPICH | 一批 `*_picmi.run` 报 `unsupported PMI version PMIx` | `Tools/verify/fix_mpi4py_for_openmpi.sh` 用系统 `mpicc` 重建 mpi4py 扩展模块（关键是强制链接阶段只用 OpenMPI 的库目录） |
+| `ctest` 里记录的 MPI 启动器与构建时不一致 | 全部 C++ 测试"失败"而 `.analysis`/`.checksum` 反而通过 | 保持 `MPIEXEC_EXECUTABLE` 与构建时的 MPI 一致 |
+| 测试工作目录残留 | `Couldn't open file: diags/.../Cell_H` | 只清各测试目录内的 `diags` 与 `*.old.*`（**不要**删 `build_py_4d/bin/*`，那里有可执行文件） |
+
+**判读规则**：若一批 `*_picmi.run` 同时失败，先看错误里有没有 `PMI`/`Init_thread`；
+若 `.run` 失败但 `.analysis`/`.checksum` 通过，先查启动器；若报 `Couldn't open file`，先查工作目录残留。
