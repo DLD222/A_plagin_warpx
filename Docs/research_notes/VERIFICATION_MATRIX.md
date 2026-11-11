@@ -162,6 +162,23 @@ Abort: Fatal error in internal_Init_thread: Internal MPI error!
 | 一批 `*_picmi.run` 同时失败，错误含 `PMI`/`Init_thread` | **MPI 启动器不对**：`ctest` 里记录的是配置时的 `/usr/bin/mpiexec`（OpenMPI），而 conda 的 `mpi4py` 是 MPICH。用 `-DMPIEXEC_EXECUTABLE=$HOME/miniconda3/bin/mpiexec` 重新配置后，这类错误消失 |
 | 仍有 `*_picmi.run` 失败，日志为 `Couldn't open file: diags/field_diag000000/Level_0/Cell_H` | **尚未定位**：诊断输出没有产生 |
 
-**不做猜测**：在把 `build_py_4d` 跑回 6 条之前，不能声称本轮的改动没有回归。
-下一步是拿一个具体用例（`test_1d_ohm_solver_em_modes_picmi`）对比"改动前/后"的运行目录与输出，
-必要时用 `git stash` 式的精确二分（只回退单个改动，不用 `git checkout`）。
+**本轮排查到的两个真实原因**（都不是代码改动）：
+
+1. **stale 输出目录**：这些 PICMI 测试在**同一个工作目录**里反复写 `diags/`。之前因 MPI 启动器
+   不匹配而中断的运行留下了不完整的 `diags/field_diag000000`（有目录、缺 `Level_0/Cell_H`），
+   后续分析测试读到它便报 `Couldn't open file`。清理该目录后单独跑，
+   `test_1d_ohm_solver_em_modes_picmi.run` **通过（17.17 s）**。
+2. **运行时间不稳定**：同一条 `.run` 在清理后跑是 17 s 通过，在并发构建/其他作业争用时
+   1.2 s 就失败 —— 说明还夹着资源争用，而不是确定性失败。
+
+**因此这个套件的失败数目前不可信**，需要在**干净状态 + 无并发**下重跑：
+
+```bash
+rm -rf build_py_4d/bin/*            # 清掉所有测试工作目录
+export PATH="$HOME/miniconda3/bin:$PATH"          # conda 的 mpiexec（MPICH）
+cmake -S . -B build_py_4d -DMPIEXEC_EXECUTABLE=$HOME/miniconda3/bin/mpiexec
+export MPLBACKEND=Agg OMP_NUM_THREADS=1
+ctest --test-dir build_py_4d -j 1 --timeout 2400   # 单线程，避免争用
+```
+
+得到干净数字之前，**不更新** `FINAL_REPORT` 里的 PICMI 结论。
