@@ -240,3 +240,19 @@ Fatal error in internal_Init_thread: ... unsupported PMI version PMIx
 2. 在系统 OpenMPI 下**干净地**重建 mpi4py（隔离 conda 的 include/lib）。
 
 在此之前，PICMI 的数字必须按"哪一类 MPI 环境"来读，不能与装 PETSc 之前的 6 条基线直接比较。
+
+### 2026-11-11 该问题已修复（并写成可复现脚本）
+
+`Tools/verify/fix_mpi4py_for_openmpi.sh` 用系统 `mpicc` 重建 mpi4py 的扩展模块，
+**关键是链接阶段**：若不加控制，conda 前缀自己的 `-L` 会排在前面，结果又链回 MPICH。
+脚本强制 `LDSHARED` 只用 OpenMPI 的库目录，并把 MPICH 的模块备份到 `mpi4py/.mpich-backup/`。
+
+```
+$ python3 -c "import mpi4py.MPI as m; print(m.get_vendor())"
+('Open MPI', (4, 1, 6))
+
+$ ctest --test-dir build_py_4d -R "ohm_solver_em_modes_picmi|darwin_solver|projection_div_cleaner_callback|spacecraft_charging"
+100% tests passed, 0 tests failed out of 14
+```
+
+**之前因 PMIx 失败的 14 条测试现在全部通过。** 全套件正在重跑以取得最终数字。
