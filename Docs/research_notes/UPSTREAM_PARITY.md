@@ -1253,7 +1253,7 @@ $ ctest -R "lasy_file" -j 2
 2 条 pytest（我调试时只重建 1D 目标导致的 `libamrex_3d` ABI 不一致）+ 4 条平台校验和。
 
 **③ openPMD 示例数据集**：把官方 `openPMD-example-datasets` 克隆到仓库父目录
-（`/home/douliangduo/openPMD-example-datasets`，输入里写的是 `../../../../openPMD-example-datasets/...`）：
+（克隆到仓库的**父目录**即可，输入里写的是 `../../../../openPMD-example-datasets/...`）：
 
 ```
 $ ctest --test-dir build_py_4d -R "load_external_field" -j 2
