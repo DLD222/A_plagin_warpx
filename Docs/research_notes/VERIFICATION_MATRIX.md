@@ -200,3 +200,43 @@ ctest --test-dir build_py_4d -j 1 --timeout 2400   # 单线程，避免争用
 ```
 
 得到干净数字之前，**不更新** `FINAL_REPORT` 里的 PICMI 结论。
+
+### 2026-11-11 干净重跑的真结果：40 条失败，全部可解释（环境，不是代码）
+
+在**原始配置**（`/usr/bin/mpiexec` = 系统 OpenMPI）、清空各测试输出、单机无并发下重跑：
+
+```
+724 个测试，40 条失败
+```
+
+**34 条是同一类**：PICMI 脚本里 `from mpi4py import MPI` 的用例（OHM 求解器、Darwin、
+projection div cleaner、spacecraft charging、secondary ion emission、effective potential）。
+
+**根因（已证实）**：
+
+```
+$ $HOME/miniconda3/bin/python3 -c "import mpi4py.MPI as m; print(m.get_vendor())"
+('MPICH', (5, 0, 1))
+```
+
+conda 的 `mpi4py` 是 **MPICH** 构建——它是 **P1 阶段安装 conda PETSc 时被一并带进来的**
+（`conda list` 显示 `mpich 5.0.1` + `petsc 3.26.1`）。而 WarpX 的可执行文件与 Python 扩展都是
+**系统 OpenMPI** 链接的。于是 `/usr/bin/mpiexec` 启动一个 MPICH 的 `mpi4py` 进程：
+
+```
+Fatal error in internal_Init_thread: ... unsupported PMI version PMIx
+```
+
+**对照证据**：不使用 mpi4py 的 PICMI 用例（如 `test_1d_laser_acceleration_picmi`）在同一环境下**通过**。
+
+**已尝试的修复（失败，已回滚）**：用 `MPICC=/usr/bin/mpicc pip install --no-binary mpi4py`
+重编 mpi4py，结果编译时仍吃到 conda 的头文件、链到 conda 的 `libmpi.so.12`，
+`ImportError: undefined symbol: ompi_mpi_logical8`。已恢复为可用的 wheel。
+
+**结论**：这是**环境不一致**，不是本仓库的代码回归。要彻底解决需二选一：
+
+1. 用 conda 的 MPI（MPICH）重建整个 `build_py_4d`（与 `Docs/source/install/cmake.rst` 的
+   `warpx-cpu-mpich-dev` 环境一致）；
+2. 在系统 OpenMPI 下**干净地**重建 mpi4py（隔离 conda 的 include/lib）。
+
+在此之前，PICMI 的数字必须按"哪一类 MPI 环境"来读，不能与装 PETSc 之前的 6 条基线直接比较。
