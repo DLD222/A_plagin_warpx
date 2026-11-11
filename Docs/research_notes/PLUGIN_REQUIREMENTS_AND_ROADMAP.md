@@ -661,3 +661,38 @@ openPMD::error::WrongAPIUsage
 
 **结论**：P3 的剩余部分交由该会话（它有完整的上下文与正在进行的工作），本轮起我不再改动
 `Source/Plugins/PicEm/Modules/Particles/` 下的文件，转而为整个目标做**独立验证与证据固化**。
+
+### P3 交接单：把容器家族搬进 `Source/Plugins/ParticleCore/` 的具体步骤
+
+现状：`Source/Plugins/ParticleCore/` **已存在且已接入构建开关**（`WarpX_PLUGIN_PARTICLECORE`），
+目前装着 `ParticleThermalizer`（346 行 + 注册 + 链接锚点）。**容器家族仍在
+`Source/Plugins/PicEm/Modules/Particles/`（12 个 .cpp + 头文件，约 1.17 万行）。**
+
+**为什么不能"一次搬一个文件"**：`PhysicalParticleContainer` 调用 `AddParticles`，
+`PhotonParticleContainer` 继承 `PhysicalParticleContainer`，后者的基类 `WarpXParticleContainer`
+又被内核的 12 个文件引用。搬任何一个，都立刻产生"内核/插件互相 include"的边界违规
+（`check_plugin_boundaries.py` 会直接报错）。**必须整体搬。**
+
+**步骤（每步都要能编译、并跑 2D 基线比对失败集）**
+
+1. **补契约**（`Source/Core/Runtime/`）：内核用到但契约里没有的 `MultiParticleContainer` 方法：
+   `Redistribute`、`DepositCurrent`、`DepositCharge`、`PushP`、`DepositTemperatures`、
+   `defineAllParticleTiles`、`nContainers`、`nSpeciesGatherFromMainGrid`、
+   `m_external_particle_fields_metadata`、`m_E_ext_particle_s`/`m_B_ext_particle_s`。
+   加到 `IParticleContainerAccess` 或新建 `IParticleSystem`，由 `MultiParticleContainer` 实现。
+2. **内核改走契约**：把 12 个内核文件里的 `mypc->X(...)` 改为 `data().particleAccess().X(...)`
+   （或 `particleSystem()`），逐个编译验证。
+3. **整体搬迁**：`git mv Source/Plugins/PicEm/Modules/Particles/* Source/Plugins/ParticleCore/`，
+   连同 `MultiParticleContainer`；把 `ParticleCore/CMakeLists.txt` 的源文件列表补齐；
+   `PicEm` 侧只保留对 `warpx_particlecore_${SD}` 的链接与工厂调用。
+4. **工厂**：新建 `create_particle_system(...)` 注册点（照 `create_particle_thermalizer` 的写法），
+   内核通过它拿到 `IParticleSystem`，不再 include 任何容器头。
+5. **关闭开关**：`WarpX_PLUGIN_PARTICLECORE=OFF` 时，
+   - 带粒子输入的运行给出可操作错误（照 `particle_thermalizer` 那条的写法）；
+   - **无粒子输入仍可运行**（这条用例要新加，例如一个纯场算例）。
+6. **回归**：`build_takeover` 264 条失败集逐条不变；`build_2d_full` 335/336 不变；
+   四个检查器仍 0/0/0/OK。
+
+**风险**：这批文件正在被另一会话并行重构（它加了 `IParticleContainerAccess`、掩码/代价与
+`RuntimeConfig` 的 getter）。**动之前先 `git status` 看清未提交改动**，不要用
+`git checkout -- <file>` 撤销自己的编辑——那会连带销毁别人的工作（本项目已发生两次）。
