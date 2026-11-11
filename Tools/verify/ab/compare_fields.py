@@ -27,7 +27,12 @@ def load(name, side):
     files = [f for f in sorted(glob.glob(f"{name}/{side}/diags/diag1*")) if not f.endswith(".old")]
     if not files:
         return None, None
-    ds = yt.load(files[-1])
+    try:
+        ds = yt.load(files[-1])
+    except Exception:
+        # an input can ask for openPMD output: it is a directory, not a plotfile, and yt
+        # cannot read it.  Say so once and let the caller skip the case.
+        return None, "openpmd"
     grid = ds.covering_grid(level=0, left_edge=ds.domain_left_edge, dims=ds.domain_dimensions)
     fields = {f: np.array(grid[f]) for f in ds.field_list if np.array(grid[f]).ndim > 0}
     return fields, os.path.basename(files[-1])
@@ -47,6 +52,9 @@ def main():
     for name in names:
         up, plotfile = load(name, "up")
         mine, _ = load(name, "mine")
+        if plotfile == "openpmd" or mine == "openpmd":
+            print(f"{name}: openPMD output, not comparable with yt - skipped")
+            continue
         if not up or not mine:
             print(f"{name}: missing plotfile on one side, skipped")
             continue
