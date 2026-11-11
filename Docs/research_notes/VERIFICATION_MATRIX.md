@@ -5,7 +5,7 @@
 
 | 构建 | 维度 | 特性 | 测试数 | 失败 | 归类 |
 |---|---|---|---|---|---|
-| `build_takeover` | 2 | EB、QED（openPMD=OFF） | 264 | 32 | 全部 openPMD 依赖（本构建未开 openPMD） |
+| `build_takeover` | 2 | EB、QED（openPMD=OFF） | **232** | **0** | 需要 openPMD 的测试已不再注册（见下） |
 | `build_2d_full` | 2 | EB、QED、**FFT**、**openPMD** | 336 | 1 | `test_2d_laser_ion_acc.checksum`（平台校验和） |
 | `build_multi_hdf5_fft` | 1、3、RZ | EB、QED、**FFT**、**openPMD**（并行 HDF5） | 573 | 3 | 2 条平台校验和 + 1 条需要 Python 绑定（本构建 PYTHON=OFF） |
 | `build_py_opmd` | 2 | EB、QED、**FFT**、**openPMD**、**Python** | 426 | 1 | `test_2d_ionization_picmi.checksum`（平台校验和） |
@@ -363,3 +363,38 @@ $ ctest -R "^test_2d_charge_exchange_dsmc\.run$" --output-on-failure
 - `build_takeover` **不再作为套件基线**。它的价值只剩"2D 无 openPMD 的快速编译检查"。
 - 2D 的权威数字用 `build_2d_full`（`WarpX_OPENPMD=ON`）：**335/336**，唯一失败是平台校验和。
 - 同理，任何套件的数字都必须与**能支撑其全部测试的配置**绑定，否则"与基线一致"毫无意义。
+
+### 已修复：`WarpX_OPENPMD=OFF` 的构建不再注册需要 openPMD 的测试
+
+**问题**：`build_takeover` 里曾有 32 条"失败"，全部是
+`### ERROR : To use openpmd output format, need to compile with USE_OPENPMD=TRUE`。
+把它们写进"264 个测试、与基线一致"是用错误的分母自证——那个构建**根本跑不了**这些测试。
+
+**修复**：`add_warpx_test` 增加可选的第 8 个参数 `needs_openpmd`：
+
+```cmake
+    set(needs_openpmd OFF)
+    if(ARGC GREATER 7)
+        set(needs_openpmd ${ARGV7})
+    endif()
+    if(needs_openpmd AND NOT WarpX_OPENPMD)
+        return()
+    endif()
+```
+
+判定依据是**输入文件的实际内容**（`<diag>.format = openpmd`），并且**跟随 `FILE =` 包含**——
+共享的碰撞基文件正是通过包含把 `diag1.format = openpmd` 带进来的，只扫顶层文件会漏掉。
+共标记 89 处注册。
+
+**验证**：
+
+```
+$ ctest --test-dir build_takeover -j 12            # openPMD=OFF
+100% tests passed, 0 tests failed out of 232
+
+$ ctest --test-dir build_2d_full -j 12             # openPMD=ON
+99% tests passed, 1 tests failed out of 336
+    唯一失败：test_2d_laser_ion_acc.checksum（平台校验和）
+```
+
+同一个测试集在开 openPMD 的构建里**仍然注册并且通过**，说明不是把测试藏起来，而是让注册与构建能力一致。
