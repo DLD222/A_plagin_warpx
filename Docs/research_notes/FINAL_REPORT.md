@@ -197,3 +197,58 @@ $ ctest --test-dir build_py_4d -R "picmi" -E "background_mcc|spacecraft_charging
 
 **判读规则**：若一批 `*_picmi.run` 同时失败，先看错误里有没有 `PMI`/`Init_thread`；
 若 `.run` 失败但 `.analysis`/`.checksum` 通过，先查启动器；若报 `Couldn't open file`，先查工作目录残留。
+
+---
+
+## 8. 从零复现清单
+
+按顺序执行，每步都给出验证输出的样子。所有命令都在仓库根目录。
+
+### 8.1 四个检查器（任何改动后都必须全 0/OK）
+
+```bash
+python3 Tools/Modularization/check_core_purity.py        # core purity OK (0 known references, 0 new)
+python3 Tools/Modularization/check_plugin_boundaries.py  # plugin boundaries OK (0 known, 0 new)
+python3 Tools/Modularization/check_kernel_coupling.py    # kernel coupling OK (0 known entries, 0 new)
+python3 Tools/Modularization/check_build_boundaries.py   # build boundaries OK
+```
+
+### 8.2 空腔真空极限（宏观求解器，一条命令）
+
+```bash
+Tools/verify/check_macroscopic_vacuum_limit.sh   # 末行必须是 ratio 1.000000
+```
+
+### 8.3 构建与套件
+
+见 `VERIFICATION_MATRIX.md` 的"复现命令"与"各构建的配置要点"。要点：
+
+- **C++ 套件**用系统 OpenMPI，`MPIEXEC_EXECUTABLE` 保持配置时的默认值；
+- **Python/PICMI 套件**要求 `mpi4py` 与 WarpX 用同一个 MPI：
+  `python3 -c "import mpi4py.MPI as m; print(m.get_vendor())"` 必须显示 `Open MPI`，
+  否则先跑 `Tools/verify/fix_mpi4py_for_openmpi.sh`；
+- 每个套件前 `export MPLBACKEND=Agg OMP_NUM_THREADS=1`，并确认没有并发构建。
+
+### 8.4 单个算例的对照（A/B）
+
+```bash
+export UP_BIN=<上游二进制> MINE_BIN=<本仓库二进制>
+/tmp/ab_test/run_ab.sh <case> warp:<输入文件>
+python3 /tmp/ab_test/compare_one.py <case>            # plotfile：逐字段 max|diff|/scale
+python3 Tools/verify/compare_particles_openpmd.py <a>/diags/diag1 <b>/diags/diag1   # 纯粒子输出
+```
+
+### 8.5 插件开关的行为
+
+```bash
+cmake -S . -B build_nofs -DWarpX_PLUGIN_FIELDSOLVER=OFF && cmake --build build_nofs -j 4
+build_nofs/bin/warpx.2d...<输入>   # 必须打印 "No finite-difference field-solver plugin is linked … rebuild with WarpX_PLUGIN_FIELDSOLVER=ON"
+```
+
+其余四个开关同样见 `VERIFICATION_MATRIX.md` 的"插件开关的实测行为"。
+
+### 8.6 判据 4 的两个验收
+
+```bash
+ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2"   # 2/2 Passed
+```
