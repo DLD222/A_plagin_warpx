@@ -252,3 +252,21 @@ build_nofs/bin/warpx.2d...<输入>   # 必须打印 "No finite-difference field-
 ```bash
 ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2"   # 2/2 Passed
 ```
+
+### 7.7 第 52–53 轮：修掉 Python 单元测试的段错误
+
+`tests/unit` 之前整进程段错误。两个独立根因、都已修复并验证：
+
+| 根因 | 修复 | 验证 |
+|---|---|---|
+| `add_warpx_pytest` 把 20 个单元测试放进**一个进程**，而 WarpX 一个进程只能初始化一次（`ParmParse::Initialize(): already initialized!` / `MPI_Comm_dup() after MPI_FINALIZE`） | 配置时枚举 node id，**每个测试一个 ctest 条目** | 2D：**20/20**；四维（1D/3D/RZ）：**60/60** |
+| `warpx.implicit_solver()` 返回核心接口 `IImplicitSolver*`，pybind11 没注册它，回退到具体类型后报 `Unregistered type : ThetaImplicitEM` | 把 `IImplicitSolver` 注册为基类，求解器方法通过 `dynamic_cast` 暴露在基类绑定上（绑定中不出现具体求解器类名） | 同上 |
+
+### 7.8 关于"失败项"的口径
+
+- **平台校验和**（`*.checksum`）：与上游录制的基准有浮点差异，AGENTS.md 明确允许忽略，**从未修改过任何容差/校验和/断言**；
+- **`-j` 争用下的超时**：单条重跑即通过（如 `test_1d_ohm_solver_ion_beam_picmi` 108 s 通过）；
+- **测试注册与构建能力不匹配**（缺 openPMD 的构建注册了需要 openPMD 的测试）：已通过
+  `add_warpx_pytest`/`add_warpx_test` 的 `needs_openpmd` 标记消除，而不是把失败写进基线。
+
+**没有一项是"已知失败所以不管"。**
