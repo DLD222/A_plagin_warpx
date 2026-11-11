@@ -428,4 +428,31 @@ Fatal Python error: Segmentation fault
 - 在 `build_py_opmd`（2D Python 构建）里同样崩溃，**不是某个维度特有**；
 - 该条目在本项目早期基线里就已在失败清单中，**不是本轮改动引入**。
 
-**未修复，如实记录。** 需要带符号的调试构建才能继续定位（当前构建是 Release）。
+**已定位根因（本轮实测），仍未修复**：
+
+```
+# 同一进程里跑第二个模拟：
+amrex::Error::0::ParmParse::Initialize(): already initialized! !!!
+# 若先 amrex_finalize()，则第二个模拟：
+*** The MPI_Comm_dup() function was called after MPI_FINALIZE was invoked.
+```
+
+即 **WarpX/AMReX 只能在一个进程里初始化一次**：
+
+| 做法 | 结果 |
+|---|---|
+| 两次 `initialize_warpx()`（不 finalize） | `ParmParse::Initialize(): already initialized!` |
+| 先 `finalize()`（默认 `finalize_mpi=1`）再初始化 | `MPI_Comm_dup() after MPI_FINALIZE` → 整个 pytest 进程段错误 |
+| `finalize(finalize_mpi=0)` | 仍然失败：AMReX 的 `Finalize()` 自身会终结 MPI（本 AMReX 版本没有"保留 MPI"的重载） |
+| 装 `pytest-forked` 用 `--forked` 每测试独立进程 | 子进程以 **status 3** 退出（WarpX 的 Python 回调失败路径 `std::exit(3)`） |
+
+而 `cmake/WarpXFunctions.cmake` 的 `add_warpx_pytest` 正是把 **20 个单元测试放进同一个进程**：
+
+```cmake
+add_test(NAME pytest.WarpX.${SD}
+         COMMAND ${Python_EXECUTABLE} -m pytest -s -vvvv -p no:cacheprovider ${THIS_TEST_DIR})
+```
+
+**因此这是测试编排（一个进程跑多个模拟）与 WarpX 单次初始化约束冲突，不是数据/数值问题。**
+正确的修法二选一：让每个单元测试在独立子进程中运行（并修掉 status 3 的那个回调失败），
+或让 AMReX/WarpX 支持在同一进程内多次初始化。**两者都超出本轮可安全完成的范围，故如实留为未修复项。**
