@@ -171,7 +171,23 @@ Abort: Fatal error in internal_Init_thread: Internal MPI error!
 2. **运行时间不稳定**：同一条 `.run` 在清理后跑是 17 s 通过，在并发构建/其他作业争用时
    1.2 s 就失败 —— 说明还夹着资源争用，而不是确定性失败。
 
-**因此这个套件的失败数目前不可信**，需要在**干净状态 + 无并发**下重跑：
+**本轮最终定位（第三条，也是真正的根因）**：我为了让 PICMI 测试用上 conda 的 MPI，
+把这个构建的 `MPIEXEC_EXECUTABLE` 改成了 conda 的 `mpiexec`（MPICH）——而 `build_py_4d` 的**所有**
+可执行文件都是**系统 OpenMPI** 链接的。于是 C++ 测试被 MPICH 启动，成批 `***Failed`，
+而它们的 `.analysis`/`.checksum` 反而通过（输出其实写对了，是启动器错了）。
+
+**验证**（改回 `/usr/bin/mpiexec` 后）：
+
+```
+1/5 test_rz_embedded_boundary_diffraction.run  Passed  1.00 sec
+4/5 test_1d_laser_acceleration_picmi.run       Passed  0.60 sec
+100% tests passed, 0 tests failed out of 5
+```
+
+**结论：`MPIEXEC_EXECUTABLE` 必须与构建时用的 MPI 一致（本机=系统 OpenMPI），不要按套件类型切换。**
+原先的 6 条失败基线就是在这个配置下测得的。
+
+需要在**干净状态 + 无并发**下重跑：
 
 ```bash
 # 只清每个测试工作目录里的输出，绝不要删 build_py_4d/bin/*：
