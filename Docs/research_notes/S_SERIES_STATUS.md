@@ -58,6 +58,31 @@
 
 ### R5 功能完全覆盖原版（四维数值等价）——**571/573（99.65%），剩余为平台校验和**
 
+**2026-11-11 09:00 例行检查**：`Tools/verify/check_macroscopic_vacuum_limit.sh` →
+`yee = macro = 3678360.615965`、`ratio = 1.000000`、退出码 0；四个检查器全部
+`OK (0 known, 0 new)`（`core_purity` / `plugin_boundaries` / `kernel_coupling` / `build_boundaries`）。
+源码相对 `67fa04c`（当前二进制的构建点）只多 3 个提交、`Source/` 净增 42 行，全部落在
+"插件未链接时给出明确警告/断言"的分支上（`WarpXEvolve.cpp` 的碰撞告警、`WarpXInitData.cpp`
+的诊断告警、`WarpX.cpp` 的场求解器断言），在全功能构建里一条都不会执行 → 数值等价。
+
+同日按"源码增量"做了分区核验（全量被并发会话挡住，见下）：
+
+| 分区 | 覆盖的源码增量 | 命令 | 结果 |
+|---|---|---|---|
+| 外部场族（8 用例 × run/analysis/checksum） | `67fa04c` 把外部场设置搬进契约 | `ctest -R "load_external_field\|projection_div_cleaner" -j 6` | **24/24 通过**（31.2 s） |
+| 残余 4 条 | —— | `ctest -R "cube_macroscopic\.checksum\|boosted_opmd\.checksum\|linear_compton_bunch_laser\.(analysis\|checksum)"` | compton analysis 0.86 s / checksum 1.55 s **通过**；两条平台校验和**照旧失败** |
+| `ionization_dsmc` 三条 | —— | 同上 + 链接 pywarpx 后 | run 61.7 s、analysis 2.26 s、checksum 1.68 s **全部通过** |
+
+`ionization_dsmc.analysis` 此前的失败是环境：验证构建是 `PYTHON=OFF`，而 ctest 的 `PYTHONPATH`
+在 configure 时写死、里面没有 pywarpx。修法（不改测试）：把 `build_py_4d/lib/site-packages/{pywarpx,amrex}`
+链进 `build_multi_hdf5_fft/lib/site-packages/`（该目录本就在 ctest 的 `PYTHONPATH` 里）。
+`Tools/verify/build_and_run_4d.sh` 现在会自动做这一步，并补上了 `LD_LIBRARY_PATH` 与 pywarpx 说明。
+
+**本轮没有跑成 573 条全量**：并行会话正在跑 `build_py_4d` 的 724 条 Python 套件（默认 `-j 24`）。
+实测我这边 5 分钟只推进 23/573，单个 3D 用例从 26 s 涨到 340 s（`test_3d_electrostatic_sphere.run`），
+`loadavg` 37/24 核。全量数字仍以 2026-11-10 的 **571/573** 为准；本轮用上表三个分区覆盖了源码增量，
+并用"`Source/` 只增 42 行且全在 abort 分支"证明了其余部分的数值等价。
+
 **最新状态（2026-11-10 09:57）**：四维套件（1D/3D/RZ，openPMD + FFT + 并行 HDF5，**573 条**）
 **571 通过、2 条失败，且两条都只是平台校验和**：
 

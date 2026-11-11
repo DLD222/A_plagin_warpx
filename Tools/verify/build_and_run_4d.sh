@@ -28,6 +28,20 @@ HDF5_ROOT="${HDF5_ROOT:-/tmp/hdf5_mpi}"
 BUILD="${BUILD:-$REPO/build_multi_hdf5}"
 CONDA="${CONDA_PREFIX_PREFIX:-$HOME/miniconda3}"
 
+# Runtime libraries: the parallel HDF5, FFTW and blaspp/lapackpp live outside
+# the default loader path.
+export LD_LIBRARY_PATH="${HDF5_ROOT}/lib:${HOME}/third_party/fftw/lib:${HOME}/third_party/fft-deps/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+# Some analysis scripts (e.g. ionization_dsmc) import pywarpx, which lives in the
+# site-packages of a Python build, not in this one.  Without it they fail with
+# ModuleNotFoundError -- an environment gap, not a physics failure.
+for _d in "$REPO"/build_py_4d "$REPO"/build_py_opmd "$REPO"/build_py; do
+    if [ -d "$_d/lib/site-packages/pywarpx" ]; then
+        export PYTHONPATH="$_d/lib/site-packages${PYTHONPATH:+:$PYTHONPATH}"
+        break
+    fi
+done
+
 cmake -S "$REPO" -B "$BUILD" \
     -DCMAKE_PREFIX_PATH="$CONDA" \
     -DHDF5_ROOT="$HDF5_ROOT" -DHDF5_DIR="$HDF5_ROOT" \
@@ -35,4 +49,23 @@ cmake -S "$REPO" -B "$BUILD" \
     -DWarpX_COMPUTE=OMP -DWarpX_QED=ON \
     "${@:2}"
 cmake --build "$BUILD" -j "$(nproc)"
+
+# Analyses that import pywarpx need the bindings.  ctest bakes PYTHONPATH at
+# configure time from $ENV{PYTHONPATH} plus <build>/lib/site-packages, so the
+# cheapest fix for a PYTHON=OFF verification build is to point the build's
+# site-packages at bindings that already exist (a PYTHON=ON build installs them
+# there itself).  Without this, e.g. test_3d_ionization_electron_dsmc.analysis
+# dies with ModuleNotFoundError.
+if [ ! -d "$BUILD/lib/site-packages/pywarpx" ]; then
+    for _d in "$REPO"/build_py_4d "$REPO"/build_py_opmd "$REPO"/build_py; do
+        if [ -d "$_d/lib/site-packages/pywarpx" ]; then
+            mkdir -p "$BUILD/lib/site-packages"
+            ln -sfn "$_d/lib/site-packages/pywarpx" "$BUILD/lib/site-packages/pywarpx"
+            ln -sfn "$_d/lib/site-packages/amrex"  "$BUILD/lib/site-packages/amrex"
+            echo "pywarpx: linked $_d/lib/site-packages into $BUILD/lib/site-packages"
+            break
+        fi
+    done
+fi
+
 ctest --test-dir "$BUILD" -j 8 --output-on-failure

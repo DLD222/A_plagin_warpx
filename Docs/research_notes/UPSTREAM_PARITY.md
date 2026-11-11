@@ -1569,3 +1569,52 @@ photon2 (N=1): OK
 
 **A/B 累计 24 个算例**：场逐位 21 个（20 个 0.000e+00、1 个 1.63e-11），粒子级 3 个（全部 OK）。
 四个维度（1D/2D/3D/RZ）现在都有逐算例对照。
+
+#### 10.6 为什么最后两条校验和"不可能"跨平台通过：基准把噪声当成了信号
+
+两条残余都不是"数值差一点"，而是**基准里存的量本身就在浮点噪声底**，而校验用的是纯相对容差：
+
+`Regression/Checksum/checksum.py:267` → `evaluate(rtol=1.0e-9, atol=1.0e-40)`，
+`np.isclose(self, benchmark, rtol=rtol, atol=atol)`。`atol=1e-40` 对这两个量等于 0，
+所以每个键都必须满足"相对误差 < 1e-9"。
+
+| 用例 | 出问题的键 | 基准值 | 同用例主场量级 | 比值 | 校验要求的绝对精度 |
+|---|---|---|---|---|---|
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | `Bx` | 4.2667e-18 | `By = 5.1018e-3` | **8.4e-16** | `1e-9 x 4.27e-18 = 4.3e-27` |
+| 同上 | `Ey`/`Ez` | 3.0229e-05 | 同 | 5.9e-3 | 3e-14（实测相对差 2.37e-7，安全） |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | `Br_1_imag` 等 mode-1 小分量 | 7.0713e-12 | `jr_1_imag = 1.5554e15` | **4.5e-27** | 7e-21 |
+
+也就是说：`Bx` 是 5e-3 量级的量相减后剩下的 8e-16（约 4 ulp），
+基准要求两个不同编译器在这上面一致到 **4e-27 绝对**——这在双精度里是构造上不可能的。
+RZ 那条同理：mode-1 的小分量是主场量的 4.5e-27。
+
+**这不是本项目的数值差异**：同一二进制在 `OMP_NUM_THREADS=1` 与 `=4` 下输出逐位相同（§10.4），
+`Ey/Ez` 的相对差只有 2.37e-7。要"清零"只能改基准（重新生成 `benchmarks_json`）或改容差，
+两者都在纪律禁止范围内（`AGENTS.md`：校验和随平台变化，不作功能缺陷；不许改容差）。
+**结论：这两条的定性已经到底，不是可推进项。**
+
+#### 10.7 `ionization_dsmc.analysis` 那次"失败"是 pywarpx 不在 import 路径上
+
+2026-11-11 的全量尝试里，`test_3d_ionization_electron_dsmc.analysis` 重新变成失败，
+报的还是 `ModuleNotFoundError: No module named 'pywarpx'`。原因不是代码，也不是测试：
+
+- 四维验证构建是 `WarpX_PYTHON=OFF`，本身没有绑定；
+- ctest 给 `.analysis` 测试的 `PYTHONPATH` 是 **configure 时**用 `${PYTHONPATH}` 写死的
+  （`Examples/CMakeLists.txt:220`），只含 `<build>/lib/site-packages` 和几个 PostProcessing 目录；
+- 因此"在 shell 里 export PYTHONPATH"对已经配好的测试无效——本轮先试过，无效，才找到这条机制。
+
+修法（不动测试）：把已有 Python 构建的绑定链进这个目录即可，它本来就在 `PYTHONPATH` 里：
+
+```bash
+ln -sfn "$PWD/build_py_4d/lib/site-packages/pywarpx" build_multi_hdf5_fft/lib/site-packages/pywarpx
+ln -sfn "$PWD/build_py_4d/lib/site-packages/amrex"  build_multi_hdf5_fft/lib/site-packages/amrex
+ctest --test-dir build_multi_hdf5_fft -R "^test_3d_ionization_electron_dsmc.analysis$"   # 1/1 Passed 2.26 s
+```
+
+`Tools/verify/build_and_run_4d.sh` 现在在 build 之后自动做这一步（找不到绑定就跳过并保持原样），
+顺带把 `LD_LIBRARY_PATH`（并行 HDF5 / FFTW / fft-deps）也写进脚本，避免"换一个 shell 就少一个变量"。
+
+**同日分区核验**（全量被并发会话的 724 条 Python 套件挡住）：外部场族 24/24 通过（覆盖 `67fa04c`
+的外部场契约搬迁）、残余 4 条复现原结论（compton 通过、两条平台校验和照旧失败）、
+`ionization_dsmc` 三条全通过。加上"`67fa04c..HEAD` 的 `Source/` 净增 42 行全在 abort 分支"，
+可以判定四维状态仍是 **571/573**，残余两条即 §10.6 的浮点噪声底。
