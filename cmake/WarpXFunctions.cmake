@@ -333,29 +333,61 @@ function(add_warpx_pytest dims)
         find_package(Python COMPONENTS Interpreter REQUIRED)
     endif()
 
-    add_test(
-        NAME ${name}
-        COMMAND
-            ${Python_EXECUTABLE} -m pytest -s -vvvv
-            -p no:cacheprovider
-            ${THIS_TEST_DIR}
-        WORKING_DIRECTORY ${THIS_WORKING_DIR}
+    # One process per test, not one process for the whole suite: a WarpX
+    # simulation can be initialized only once per process (a second amrex_init
+    # ends in "ParmParse::Initialize(): already initialized" or, after the
+    # teardown, in "MPI_Comm_dup() after MPI_FINALIZE"), and the unit tests each
+    # build a simulation.  The node ids are enumerated here, at configure time,
+    # and every one of them becomes its own ctest entry.
+    execute_process(
+        COMMAND ${Python_EXECUTABLE} -m pytest --collect-only -q ${THIS_TEST_DIR}
+        OUTPUT_VARIABLE _pytest_collected
+        ERROR_QUIET
+        RESULT_VARIABLE _pytest_collect_result
     )
+    if(NOT _pytest_collect_result EQUAL 0)
+        message(WARNING "add_warpx_pytest: could not collect tests from ${THIS_TEST_DIR}")
+        return()
+    endif()
 
-    # run all tests with 1 OpenMP thread by default
-    set_property(TEST ${name} APPEND PROPERTY ENVIRONMENT "OMP_NUM_THREADS=1")
+    string(REPLACE "\n" ";" _pytest_lines "${_pytest_collected}")
+    set(_pytest_index 0)
+    foreach(_line IN LISTS _pytest_lines)
+        # only "path::test[param]" lines are node ids; headers and the summary are not
+        if(NOT _line MATCHES "^([^:]+)::(.+)$")
+            continue()
+        endif()
+        set(_file ${CMAKE_MATCH_1})
+        set(_node ${CMAKE_MATCH_2})
+        # strip a trailing " - reason" that pytest appends to skipped node ids
+        string(REGEX REPLACE " - .*$" "" _node "${_node}")
+        # pytest reports node ids relative to the rootdir, which is the repository
+        # root here, not relative to the test directory
+        if(NOT IS_ABSOLUTE "${_file}")
+            if(EXISTS "${PROJECT_SOURCE_DIR}/${_file}")
+                set(_file "${PROJECT_SOURCE_DIR}/${_file}")
+            else()
+                set(_file "${THIS_TEST_DIR}/${_file}")
+            endif()
+        endif()
+        math(EXPR _pytest_index "${_pytest_index} + 1")
+        set(_test_name "${name}.${_pytest_index}")
+        add_test(
+            NAME ${_test_name}
+            COMMAND
+                ${Python_EXECUTABLE} -m pytest -s -vvvv
+                -p no:cacheprovider
+                "${_file}::${_node}"
+            WORKING_DIRECTORY ${THIS_WORKING_DIR}
+        )
+        set_property(TEST ${_test_name} APPEND PROPERTY LABELS "pytest")
+        set_property(TEST ${_test_name} APPEND PROPERTY ENVIRONMENT "OMP_NUM_THREADS=1")
+        set_property(TEST ${_test_name} APPEND PROPERTY ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+        set_property(TEST ${_test_name} APPEND PROPERTY ENVIRONMENT "WARPX_TEST_DIMS=${dims}")
+        warpx_test_set_pythonpath(${_test_name})
+    endforeach()
 
-    # the tests are run from the source directory: keep __pycache__ out of it,
-    # which also avoids concurrent writes when several dimensionalities run
-    set_property(TEST ${name} APPEND PROPERTY ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
-
-    # the dimensionality this process runs; a bare pytest run without it picks
-    # one of the built dimensionalities itself
-    set_property(TEST ${name} APPEND PROPERTY ENVIRONMENT "WARPX_TEST_DIMS=${dims}")
-
-    set_property(TEST ${name} APPEND PROPERTY LABELS "pytest")
-
-    warpx_test_set_pythonpath(${name})
+    # the per-test entries above each carry their own environment and PYTHONPATH
 endfunction()
 
 
