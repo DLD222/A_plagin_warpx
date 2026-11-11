@@ -322,3 +322,44 @@ build_nocoll/bin/warpx.2d.MPI.OMP.DP.PDP.EB.QED inputs_noparticles
 
 这正是 P3 第 ④ 步的后半句（"关闭开关时……无粒子输入仍可运行"）的证据；
 前半句（有粒子输入给出可操作错误）由 `particle_thermalizer` 那条断言覆盖（见"插件开关的实测行为"）。
+
+## 更正：本机是 24 核；`nproc` 报 1 是因为我导出了 `OMP_NUM_THREADS=1`
+
+**这是一个自造的约束，必须纠正。** GNU `nproc` 在设置了 `OMP_NUM_THREADS` 时会**返回该值**：
+
+```
+$ nproc                      # 在导出了 OMP_NUM_THREADS=1 的 shell 里
+1
+$ nproc --all
+24
+$ lscpu | grep '^CPU(s)'
+CPU(s): 24
+$ cat /sys/fs/cgroup/cpu.max
+max 100000                   # 无 CPU 配额
+$ python3 -c "import os; print(len(os.sched_getaffinity(0)))"
+24
+```
+
+我为了不给测试超订 CPU 而长期 `export OMP_NUM_THREADS=1`，随后把 `nproc` 的输出当成机器规格，
+于是得出"本机 1 核、跑不完套件"的错误结论，并据此把大量验证缩成分组抽样。
+**正确做法**：`nproc` 要配 `--all` 或用 `lscpu`；`OMP_NUM_THREADS=1` 只该限制每个测试进程内的 OpenMP 线程，
+不应限制 `ctest -j` 的并发度。
+
+## 更正：`build_takeover` 不能当作 2D 套件基线
+
+那张表里的"32 失败，与基线逐条一致"是**错误的表述**。查证结果：
+
+```
+$ ctest -R "^test_2d_charge_exchange_dsmc\.run$" --output-on-failure
+### ERROR : To use openpmd output format, need to compile with USE_OPENPMD=TRUE
+```
+
+`build_takeover` 配置时 `WarpX_OPENPMD=OFF`，而**这 32 条测试的输入里有 `diag1.format = openpmd`**。
+它们不是"已知失败"，而是**该构建根本不具备这些测试所需的能力**；上游同样无条件注册这些测试，
+所以换任何只关 openPMD 的构建都会得到同样的 32 条。
+
+**结论与处置**：
+
+- `build_takeover` **不再作为套件基线**。它的价值只剩"2D 无 openPMD 的快速编译检查"。
+- 2D 的权威数字用 `build_2d_full`（`WarpX_OPENPMD=ON`）：**335/336**，唯一失败是平台校验和。
+- 同理，任何套件的数字都必须与**能支撑其全部测试的配置**绑定，否则"与基线一致"毫无意义。
