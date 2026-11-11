@@ -456,3 +456,20 @@ add_test(NAME pytest.WarpX.${SD}
 **因此这是测试编排（一个进程跑多个模拟）与 WarpX 单次初始化约束冲突，不是数据/数值问题。**
 正确的修法二选一：让每个单元测试在独立子进程中运行（并修掉 status 3 的那个回调失败），
 或让 AMReX/WarpX 支持在同一进程内多次初始化。**两者都超出本轮可安全完成的范围，故如实留为未修复项。**
+
+### 进一步收窄（同一轮实测）：**即使只有第一个测试，在 pytest 里也失败**
+
+为排除"多测试同进程"这一层，做了三组对照：
+
+| # | 做法 | 结果 |
+|---|---|---|
+| 1 | 纯脚本：设 `pywarpx.geometry.dims='2'`，建 sim、`initialize_inputs()`、`initialize_warpx()` | **成功**，并正常 `AMReX ... finalized` |
+| 2 | 同上，但把 `sys.argv` 伪装成 pytest 的（`-m pytest -x -q <path>`） | **仍然成功** —— 排除 argv 解析 |
+| 3 | `pytest -x -q test_charge_deposition.py`（`WARPX_TEST_DIMS=2`，只有一个测试） | **在 `initialize_warpx()` 段错误** |
+| 4 | 同上加 `--forked`（每测试独立进程） | 子进程 `status 3`（WarpX 回调失败路径），且捕不到回调报错文本 |
+| 5 | 同上加 `-p no:mpi` | 仍段错误 —— 排除 pytest-mpi 插件 |
+
+**结论**：崩溃与"一个进程跑多个模拟"无关，是**在 pytest 进程里第一次初始化就崩**，
+而等价的独立脚本不崩。已排除 `argv` 与 `pytest-mpi`。下一步应对比 conftest 的 fixture 链
+（`warpx_lifecycle` 的 `monkeypatch.chdir(tmp_path)` 等）与脚本的差异，或用一个最小
+`conftest.py` 二分。**未修复。**
