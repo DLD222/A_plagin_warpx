@@ -256,3 +256,27 @@ $ ctest --test-dir build_py_4d -R "ohm_solver_em_modes_picmi|darwin_solver|proje
 ```
 
 **之前因 PMIx 失败的 14 条测试现在全部通过。** 全套件正在重跑以取得最终数字。
+
+### 全套件重跑在本机不现实（实测）
+
+修复 mpi4py 后，724 个测试的全量重跑**跑不完**：
+
+| 观察 | 数据 |
+|---|---|
+| 正常测试 | 0.5–5 s |
+| 个别测试 | `test_1d_particle_absorbing_boundary_direction_dependent_thresholds.run` **419 s** |
+| 会卡住的测试 | `test_1d_background_mcc_picmi.run`（>10 min 无进展）、`test_rz_spacecraft_charging_picmi.run`（>10 min） |
+| 进度 | 19 分钟才跑到第 37 个测试 |
+
+本机只有 **1 个 CPU 核**，而这些 Python/PICMI 用例在 `-n 2` 下还要跑长时程物理。
+
+**因此后续验证用"分组"而不是"全量"**：
+
+```bash
+# 只看某个物理族
+ctest --test-dir build_py_4d -R "picmi" -E "background_mcc|spacecraft_charging" -j 2
+# 只看某条具体用例
+ctest --test-dir build_py_4d -R "^test_1d_laser_acceleration_picmi\.(run|checksum)$"
+```
+
+并在文档里**写明每组覆盖了哪些用例**，而不是笼统地说"724 个全过"。
