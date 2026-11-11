@@ -174,7 +174,9 @@ Abort: Fatal error in internal_Init_thread: Internal MPI error!
 **因此这个套件的失败数目前不可信**，需要在**干净状态 + 无并发**下重跑：
 
 ```bash
-rm -rf build_py_4d/bin/*            # 清掉所有测试工作目录
+# 只清每个测试工作目录里的输出，绝不要删 build_py_4d/bin/*：
+# 那里同时放着可执行文件与 CTest 建好的工作目录，删掉会让 724 个测试全部 "Not Run"（我犯过）
+for d in build_py_4d/bin/test_*; do rm -rf "$d"/diags "$d"/*.old.* 2>/dev/null; done
 export PATH="$HOME/miniconda3/bin:$PATH"          # conda 的 mpiexec（MPICH）
 cmake -S . -B build_py_4d -DMPIEXEC_EXECUTABLE=$HOME/miniconda3/bin/mpiexec
 export MPLBACKEND=Agg OMP_NUM_THREADS=1
