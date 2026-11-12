@@ -353,6 +353,18 @@ WarpX::Finalize()
     ablastr::warn_manager::WMClear();
 }
 
+warpx::runtime::IParticleSystem&
+WarpX::particleSystem ()
+{
+    return *mypc;
+}
+
+const warpx::runtime::IParticleSystem&
+WarpX::particleSystem () const
+{
+    return *mypc;
+}
+
 WarpX::WarpX ()
 {
     // The particle containers are built below, before any runtime context exists, and

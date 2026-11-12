@@ -16,6 +16,7 @@
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
+#include "Runtime/IParticleSystem.H"
 #include "Runtime/IAmrPolicy.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"
@@ -200,6 +201,16 @@ public:
     void ImplicitComputeRHSE (int lev, PatchType patch_type, amrex::Real dt, WarpXSolverVec& a_Erhs_vec);
 
     MultiParticleContainer& GetPartContainer () { return *mypc; }
+
+    /** The particle system as the kernel sees it.
+     *
+     * Kernel code in this plugin that only pushes, deposits or redistributes uses this,
+     * so that it does not name a concrete container type.  The construction site still
+     * knows the concrete class (it builds it); everything else goes through the contract.
+     */
+    //! Defined in WarpX.cpp, where the concrete container type is complete.
+    [[nodiscard]] warpx::runtime::IParticleSystem& particleSystem ();
+    [[nodiscard]] const warpx::runtime::IParticleSystem& particleSystem () const;
     warpx::runtime::IParticleContainerAccess& GetPartContainerAccess ();
     MultiFluidContainer& GetFluidContainer () { return *myfl; }
     warpx::runtime::IElectrostaticSolver& GetElectrostaticSolver () {return *m_electrostatic_solver;}

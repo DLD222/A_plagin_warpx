@@ -88,7 +88,7 @@ public:
                         const amrex::MultiFab& Bx, const amrex::MultiFab& By,
                         const amrex::MultiFab& Bz,
                         MomentumPushType momentum_push_type,
-                        std::optional<FieldGatherOrders> gather_orders = std::nullopt) = 0;
+                        std::optional<warpx::particles::FieldGatherOrders> gather_orders = std::nullopt) = 0;
     //! Push the positions by dt without changing the momenta.
     virtual void PushX (amrex::Real dt) = 0;
 

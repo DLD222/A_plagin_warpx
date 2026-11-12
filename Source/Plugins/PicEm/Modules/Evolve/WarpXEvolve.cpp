@@ -28,8 +28,8 @@
 #   endif
 #endif
 #include "Parallelization/GuardCellManager.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Particles/ParticleBoundaryBuffer.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/Scheduler.H"
@@ -37,7 +37,6 @@
 #include "Runtime/WarpXRuntimeData.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
-#include "Particles/ParticleBoundaryBuffer.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -139,7 +138,7 @@ WarpX::SynchronizeVelocityWithPosition () {
         UpdateAuxiliaryData();
         FillBoundaryAux(guard_cells.ng_UpdateAux);
         for (int lev = 0; lev <= finest_level; ++lev) {
-            mypc->PushP(
+            particleSystem().PushP(
                 lev,
                 0.5_rt*dt[lev],
                 *m_fields.get(FieldType::Efield_aux, Direction{0}, lev),
@@ -241,7 +240,7 @@ WarpX::Evolve (int numsteps)
 #ifdef WARPX_QED
         // multi-physics: QED effects
         doQEDEvents();
-        mypc->doQEDSchwinger();
+        particleSystem().doQEDSchwinger();
 #endif
 
         // perform particle injection
@@ -253,7 +252,7 @@ WarpX::Evolve (int numsteps)
         // Resample particles
         // +1 is necessary here because value of step seen by user (first step is 1) is different than
         // value of step in code (first step is 0)
-        mypc->doResampling(Geom(), istep[0]+1, verbose_step);
+        particleSystem().doResampling(Geom(), istep[0]+1, verbose_step);
 
         if (evolve_scheme == EvolveScheme::Explicit) {
             applyMirrors(cur_time);
@@ -292,7 +291,7 @@ WarpX::Evolve (int numsteps)
             }
         }
 
-        mypc->ContinuousFluxInjection(cur_time, dt[0]);
+        particleSystem().ContinuousFluxInjection(cur_time, dt[0]);
 
         HandleParticlesAtBoundaries(step, cur_time, num_moved);
 
@@ -415,12 +414,12 @@ WarpX::Evolve (int numsteps)
                 auto pdm = DistributionMap(lev);
                 GetParGDB()->SetParticleBoxArray(lev, pba);
                 GetParGDB()->SetParticleDistributionMap(lev, pdm);
-                mypc->SetParticleBoxArray(lev, pba);
-                mypc->SetParticleDistributionMap(lev, pdm);
+                particleSystem().SetParticleBoxArray(lev, pba);
+                particleSystem().SetParticleDistributionMap(lev, pdm);
             }
-            mypc->AllocData();
-            mypc->Redistribute();
-            mypc->defineAllParticleTiles();
+            particleSystem().AllocData();
+            particleSystem().Redistribute();
+            particleSystem().defineAllParticleTiles();
         }
 
         if (checkStopSimulation(cur_time)) {
@@ -755,7 +754,7 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
         // Ask the core for the collision plugin instead of naming its classes;
         // without the plugin this stays null and collisions are skipped.
         auto handler = warpx::runtime::create_collision_handler(
-            GetPartContainer(), *m_legacy_data, *m_legacy_config, host);
+            particleSystem(), *m_legacy_data, *m_legacy_config, host);
         m_legacy_collision_handler = std::move(handler);
         m_collision_handler = m_legacy_collision_handler.get();
         if (m_collision_handler != nullptr) {
@@ -1016,7 +1015,7 @@ void WarpX::ExplicitFillBoundaryEBUpdateAux ()
         // on first step, push p by -0.5*dt
         for (int lev = 0; lev <= finest_level; ++lev)
         {
-            mypc->PushP(
+            particleSystem().PushP(
                 lev,
                 -0.5_rt*dt[lev],
                 *m_fields.get(FieldType::Efield_aux, Direction{0}, lev),
@@ -1059,7 +1058,7 @@ void WarpX::HandleParticlesAtBoundaries (int step, amrex::Real cur_time, int num
 {
     ExecutePythonCallback("particlescraper");
 
-    mypc->ApplyBoundaryConditions();
+    particleSystem().ApplyBoundaryConditions();
     m_particle_boundary_buffer->gatherParticlesFromDomainBoundaries(*mypc, cur_time);
 
     // Without mesh refinement, use a local redistribute when particles can only
@@ -1116,29 +1115,29 @@ void WarpX::HandleParticlesAtBoundaries (int step, amrex::Real cur_time, int num
             if (max_cells_travelled[d] >= domain_length[d]) { use_local_redistribute = false; }
         }
         if (use_local_redistribute) {
-            mypc->RedistributeLocal(max_cells_travelled);
+            particleSystem().RedistributeLocal(max_cells_travelled);
         } else {
-            mypc->Redistribute();
+            particleSystem().Redistribute();
         }
     }
     else {
-        mypc->Redistribute();
+        particleSystem().Redistribute();
     }
 
     // interact the particles with EB walls (if present)
     if (EB::enabled()) {
         using warpx::fields::FieldType;
-        mypc->ScrapeParticlesAtEB(m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level));
+        particleSystem().ScrapeParticlesAtEB(m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level));
         m_particle_boundary_buffer->gatherParticlesFromEmbeddedBoundaries(
             *mypc, m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level), cur_time);
         if (eb_particle_boundary == ParticleBoundaryType::Absorbing) {
             // If particles are simply absorbed, no need for a full Redistribute.
             // Instead: simply delete the absorbed particles
-            mypc->deleteInvalidParticles();
+            particleSystem().deleteInvalidParticles();
         } else {
             // For other particle boundary conditions (e.g. reflecting),
             // particles can move to a different sub-domain, so we need a full Redistribute
-            mypc->Redistribute();
+            particleSystem().Redistribute();
         }
     }
 
@@ -1146,7 +1145,7 @@ void WarpX::HandleParticlesAtBoundaries (int step, amrex::Real cur_time, int num
         if (verbose && !m_limit_verbose_step) {
             amrex::Print() << Utils::TextMsg::Info("re-sorting particles");
         }
-        mypc->SortParticlesByBin(
+        particleSystem().SortParticlesByBin(
             sort_bin_size, m_sort_particles_for_deposition, m_sort_idx_type);
     }
 }
@@ -1302,7 +1301,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
 
         // Deposit rho at relative time -dt
         // (dt[0] denotes the time step on mesh refinement level 0)
-        mypc->DepositCharge(rho_fp, -dt[0]);
+        particleSystem().DepositCharge(rho_fp, -dt[0]);
         SyncRho();     // Filter, exchange boundary, and interpolate across levels
         FinalizeRho(); // Apply boundary conditions to rho, and then apply volume scaling
         // Forward FFT of rho
@@ -1314,7 +1313,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
     if (time_dependency_J != TimeDependencyJ::Constant)
     {
         std::string const current_string = (do_current_centering) ? "current_fp_nodal" : "current_fp";
-        mypc->DepositCurrent( m_fields.get_mr_levels_alldirs(current_string, finest_level), dt[0], -dt[0]);
+        particleSystem().DepositCurrent( m_fields.get_mr_levels_alldirs(current_string, finest_level), dt[0], -dt[0]);
         // Synchronize J: filter, exchange boundary, and interpolate across levels.
         // With current centering, the nodal current is deposited in 'current',
         // namely 'current_fp_nodal': SyncCurrent stores the result of its centering
@@ -1349,7 +1348,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
         // Deposit new J at relative time t_deposit_current with time step dt
         // (dt[0] denotes the time step on mesh refinement level 0)
         std::string const current_string = (do_current_centering) ? "current_fp_nodal" : "current_fp";
-        mypc->DepositCurrent( m_fields.get_mr_levels_alldirs(current_string, finest_level), dt[0], t_deposit_current);
+        particleSystem().DepositCurrent( m_fields.get_mr_levels_alldirs(current_string, finest_level), dt[0], t_deposit_current);
         // Synchronize J: filter, exchange boundary, and interpolate across levels.
         // With current centering, the nodal current is deposited in 'current',
         // namely 'current_fp_nodal': SyncCurrent stores the result of its centering
@@ -1363,7 +1362,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
         if (time_dependency_J == TimeDependencyJ::Quadratic)
         {
             PSATDMoveJNewToJMid();
-            mypc->DepositCurrent(m_fields.get_mr_levels_alldirs(current_string, finest_level),
+            particleSystem().DepositCurrent(m_fields.get_mr_levels_alldirs(current_string, finest_level),
                                  dt[0], t_deposit_current + 0.5_rt*sub_dt);
             SyncCurrent("current_fp");
             FinalizeJ();
@@ -1383,7 +1382,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
             if (time_dependency_rho != TimeDependencyRho::Constant) { PSATDMoveRhoNewToRhoOld(); }
 
             // Deposit rho at relative time t_deposit_charge
-            mypc->DepositCharge(rho_fp, t_deposit_charge);
+            particleSystem().DepositCharge(rho_fp, t_deposit_charge);
             SyncRho();     // Filter, exchange boundary, and interpolate across levels
             FinalizeRho(); // Apply boundary conditions to rho, and then apply volume scaling
             // Forward FFT of rho
@@ -1393,7 +1392,7 @@ WarpX::OneStep_JRhom (const amrex::Real cur_time)
             if (time_dependency_rho == TimeDependencyRho::Quadratic)
             {
                 PSATDMoveRhoNewToRhoMid();
-                mypc->DepositCharge(rho_fp, t_deposit_charge + 0.5_rt*sub_dt);
+                particleSystem().DepositCharge(rho_fp, t_deposit_charge + 0.5_rt*sub_dt);
                 SyncRho();     // Filter, exchange boundary, and interpolate across levels
                 FinalizeRho(); // Apply boundary conditions to rho, and then apply volume scaling
                 PSATDForwardTransformRho(rho_fp_string, rho_cp_string, 0, rho_new);
@@ -1755,7 +1754,7 @@ WarpX::doFieldIonization ()
     using warpx::fields::FieldType;
 
     for (int lev = 0; lev <= finest_level; ++lev) {
-        mypc->doFieldIonization(
+        particleSystem().doFieldIonization(
             lev,
             *m_fields.get(FieldType::Efield_aux, Direction{0}, lev),
             *m_fields.get(FieldType::Efield_aux, Direction{1}, lev),
@@ -1775,7 +1774,7 @@ WarpX::doQEDEvents ()
     using warpx::fields::FieldType;
 
     for (int lev = 0; lev <= finest_level; ++lev) {
-        mypc->doQedEvents(
+        particleSystem().doQedEvents(
             lev,
             *m_fields.get(FieldType::Efield_aux, Direction{0}, lev),
             *m_fields.get(FieldType::Efield_aux, Direction{1}, lev),
@@ -1844,7 +1843,7 @@ WarpX::PushParticlesandDeposit (
         current_fp_string = "current_fp";
     }
 
-    mypc->Evolve(
+    particleSystem().Evolve(
         m_fields,
         lev,
         current_fp_string,
