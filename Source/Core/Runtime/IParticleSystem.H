@@ -101,6 +101,11 @@ public:
     //! Redistribute only particles that moved beyond max_cells_travelled.
     virtual void RedistributeLocal (const amrex::IntVect& max_cells_travelled) = 0;
 
+    //! Advance the injection plane of every continuously-injected species (moving window).
+    virtual void UpdateInjectionPositions (amrex::Real gamma_boost, amrex::Real beta_boost,
+                                           const amrex::Vector<int>& boost_direction,
+                                           int moving_window_dir, amrex::Real dt) = 0;
+
     //! Largest dt for which the particles are still stable.
     [[nodiscard]] virtual amrex::Real maxParticleDtInv () const = 0;
 

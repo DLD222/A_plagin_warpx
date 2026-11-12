@@ -375,6 +375,10 @@ public:
      *         in a boosted frame. Empty function for containers other than lasers.
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
+    //! IParticleSystem: advance the injection plane of continuously-injected species.
+    void UpdateInjectionPositions (amrex::Real gamma_boost, amrex::Real beta_boost,
+                                   const amrex::Vector<int>& boost_direction,
+                                   int moving_window_dir, amrex::Real dt) override;
 
     [[nodiscard]] int doContinuousInjection() const;
 
