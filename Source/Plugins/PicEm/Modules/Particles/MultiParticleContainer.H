@@ -376,6 +376,10 @@ public:
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
     //! IParticleSystem: advance the injection plane of continuously-injected species.
+    //! IParticleSystem: particle share of the load-balancing cost heuristic.
+    void AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
+                           amrex::Real weight) const override;
+
     void UpdateInjectionPositions (amrex::Real gamma_boost, amrex::Real beta_boost,
                                    const amrex::Vector<int>& boost_direction,
                                    int moving_window_dir, amrex::Real dt) override;

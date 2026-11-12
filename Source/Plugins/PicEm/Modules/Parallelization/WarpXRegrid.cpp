@@ -6,7 +6,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include "EmbeddedBoundary/Enabled.H"
@@ -406,20 +405,9 @@ WarpX::ComputeCostsHeuristic ()
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        const auto & mypc_ref = GetPartContainer();
-        const auto nSpecies = mypc_ref.nSpecies();
-
-        // Species loop
-        for (int i_s = 0; i_s < nSpecies; ++i_s)
-        {
-            auto & myspc = mypc_ref.GetParticleContainer(i_s);
-
-            // Particle loop
-            for (ParticleTileIter pti(myspc, lev); pti.isValid(); ++pti)
-            {
-                (*m_level_resources.level(lev).costs)[pti.index()] += costs_heuristic_particles_wt*pti.numParticles();
-            }
-        }
+        // The particle share of the cost: the per-tile loop is the system's business.
+        particleSystem().AddParticleCosts(
+            lev, *m_level_resources.level(lev).costs, costs_heuristic_particles_wt);
 
         // Cell loop
         MultiFab* Ex = m_fields.get(FieldType::Efield_fp, Direction{0}, lev);

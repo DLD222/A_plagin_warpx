@@ -999,6 +999,21 @@ MultiParticleContainer::ContinuousInjection (const RealBox& injection_box) const
 }
 
 void
+MultiParticleContainer::AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
+                                          amrex::Real weight) const
+{
+    // The per-tile particle count needs the AMReX tile iterator, which is exactly why this
+    // loop belongs here rather than in the kernel.
+    for (int i_s = 0; i_s < nSpecies(); ++i_s) {
+        auto& species = GetParticleContainer(i_s);
+        auto& concrete = dynamic_cast<WarpXParticleContainer&>(species);
+        for (ParticleTileIter pti(concrete, lev); pti.isValid(); ++pti) {
+            costs[pti.index()] += weight * pti.numParticles();
+        }
+    }
+}
+
+void
 MultiParticleContainer::UpdateInjectionPositions (
     const amrex::Real gamma_boost,
     const amrex::Real beta_boost,

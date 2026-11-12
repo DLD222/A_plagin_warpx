@@ -109,6 +109,11 @@ public:
     //! Largest dt for which the particles are still stable.
     [[nodiscard]] virtual amrex::Real maxParticleDtInv () const = 0;
 
+    //! Add the particles' share to a level's load-balancing cost array.
+    //! The kernel owns the cost arrays; the per-tile particle count is the system's business.
+    virtual void AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
+                                   amrex::Real weight) const = 0;
+
     //! Resample the particles (merge/split) when the input asks for it.
     virtual void doResampling (const amrex::Vector<amrex::Geometry>& geom, int timestep,
                                bool verbose) = 0;
