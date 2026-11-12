@@ -62,6 +62,39 @@ if allow_file.exists():
         if line and not line.startswith("#"):
             allowed.add(line)
 
+# Declared, one-way plugin dependencies: "PluginA -> PluginB" means A may include B's
+# headers.  The graph must be acyclic; Core still never includes a plugin.
+declared_edges = set()
+edge_file = ROOT / "Tools" / "Modularization" / "plugin_dependencies.txt"
+if edge_file.exists():
+    for line in edge_file.read_text().splitlines():
+        line = line.split("#")[0].strip()
+        if "->" not in line:
+            continue
+        a, b = (part.strip() for part in line.split("->", 1))
+        declared_edges.add(("plugin:" + a, "plugin:" + b))
+
+# Reject cycles in the declared graph: dependencies must form a DAG.
+def _has_cycle(edges):
+    graph = {}
+    for a, b in edges:
+        graph.setdefault(a, set()).add(b)
+    state = {}
+
+    def visit(node, stack):
+        if state.get(node) == 1:
+            return True
+        if state.get(node) == 2:
+            return False
+        state[node] = 1
+        for nxt in graph.get(node, ()):
+            if visit(nxt, stack + [node]):
+                return True
+        state[node] = 2
+        return False
+
+    return any(visit(node, []) for node in list(graph))
+
 errors = []
 violations = set()
 files = [p for p in SRC.rglob("*") if p.suffix in (".h", ".H", ".hpp", ".cpp")]
@@ -85,6 +118,11 @@ for path in files:
         elif there == "core":
             continue  # plugins may use the core
         else:
+            # A plugin may depend on another plugin when that edge is declared in
+            # plugin_dependencies.txt (the kernel host owns the implementation it links).
+            # The declared graph must stay acyclic; a cycle is reported below.
+            if (here, there) in declared_edges:
+                continue
             violations.add(f"Plugin->Plugin: {path.relative_to(ROOT)} includes {inc}")
 
 # A header that exists under both Core and a plugin with the same relative
@@ -114,6 +152,9 @@ if "--dump" in sys.argv:
     for v in sorted(violations):
         print(v)
     sys.exit(0)
+
+if _has_cycle(declared_edges):
+    errors.append("plugin_dependencies.txt declares a dependency cycle")
 
 errors = sorted(v for v in violations if v not in allowed)
 resolved = sorted(allowed - violations)

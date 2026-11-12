@@ -1,0 +1,11 @@
+# Declared one-way plugin dependencies.
+#
+# "A -> B" means plugin A may include plugin B's headers.  The graph must stay
+# acyclic (the checker fails on a cycle), and Core may never include a plugin:
+# the core stays physics-free.
+#
+# PicEm is the PIC kernel: it hosts the particle implementation it links, so the
+# remaining adapters (the factory construction site, the host-services bridge and
+# the fluid species that reuse the particle physics kernels) include its headers.
+# The particle side never includes PicEm - that is what the contract is for.
+PicEm -> ParticleCore
