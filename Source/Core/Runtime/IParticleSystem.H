@@ -101,6 +101,15 @@ public:
     //! Redistribute only particles that moved beyond max_cells_travelled.
     virtual void RedistributeLocal (const amrex::IntVect& max_cells_travelled) = 0;
 
+    //! Create the extra attributes the implicit push keeps (x_n, ux_n, nsuborbits, ...).
+    virtual void AddImplicitParticleAttributes (bool particle_suborbits) = 0;
+    //! Zero the implicit particle velocities before the solve.
+    virtual void ClearImplicitParticleVelocities () = 0;
+    //! Finish the implicit velocity update for every species.
+    virtual void FinishImplicitVelocityUpdate () = 0;
+    //! Copy the time-centered velocities into the deposition attributes.
+    virtual void PrepareImplicitVelocitiesForDeposition () = 0;
+
     //! Save the position and momentum at the start of the step (implicit advance needs them).
     virtual void SaveParticlesAtImplicitStepStart (int finest_level) = 0;
     //! Finish the implicit update: extrapolate every species from n+1/2 to n+1.

@@ -376,6 +376,12 @@ public:
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
     //! IParticleSystem: advance the injection plane of continuously-injected species.
+    //! IParticleSystem: the implicit push's per-tile work.
+    void AddImplicitParticleAttributes (bool particle_suborbits) override;
+    void ClearImplicitParticleVelocities () override;
+    void FinishImplicitVelocityUpdate () override;
+    void PrepareImplicitVelocitiesForDeposition () override;
+
     //! IParticleSystem: implicit-advance bookkeeping, looped here over the species.
     void SaveParticlesAtImplicitStepStart (int finest_level) override;
     void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,
