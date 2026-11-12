@@ -1991,7 +1991,7 @@ WarpX::LoadExternalFields (int const lev)
 #endif
 
         // Get meta data of field maps to get correct path per field map
-        const auto& metaB = mypc->m_external_particle_fields_metadata.m_B_field_metadata;
+        const auto& metaB = mypc->externalParticleFieldsMetadata().m_B_field_metadata;
         if (!metaB.empty()) {
             // Read multiple maps: each field map goes to component ic
             for (int ic = 0; ic < static_cast<int>(metaB.size()); ++ic) {
@@ -2018,7 +2018,7 @@ WarpX::LoadExternalFields (int const lev)
 #endif
 
         // Get meta data of field maps to get correct path per field map
-        const auto& metaE = mypc->m_external_particle_fields_metadata.m_E_field_metadata;
+        const auto& metaE = mypc->externalParticleFieldsMetadata().m_E_field_metadata;
         if (!metaE.empty()) {
             // Read multiple maps: each field map goes to component ic
             for (int ic = 0; ic < static_cast<int>(metaE.size()); ++ic) {

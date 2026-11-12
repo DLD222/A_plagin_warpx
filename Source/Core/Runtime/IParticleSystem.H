@@ -7,6 +7,7 @@
 #ifndef WARPX_RUNTIME_IPARTICLESYSTEM_H_
 #define WARPX_RUNTIME_IPARTICLESYSTEM_H_
 
+#include "Runtime/ExternalParticleFields.H"
 #include "Runtime/FieldGatherOrders.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeContext.H"
@@ -95,6 +96,26 @@ public:
 
     //! Largest dt for which the particles are still stable.
     [[nodiscard]] virtual amrex::Real maxParticleDtInv () const = 0;
+
+    //! Resample the particles (merge/split) when the input asks for it.
+    virtual void doResampling (const amrex::Vector<amrex::Geometry>& geom, int timestep,
+                               bool verbose) = 0;
+    //! Run the QED elementary processes for this step.
+    virtual void doQedEvents (int lev,
+                              const amrex::MultiFab& Ex, const amrex::MultiFab& Ey,
+                              const amrex::MultiFab& Ez,
+                              const amrex::MultiFab& Bx, const amrex::MultiFab& By,
+                              const amrex::MultiFab& Bz) = 0;
+
+    // ---- queries the kernel makes while setting up -------------------------
+    //! Number of species containers (including photon and laser ones).
+    [[nodiscard]] virtual int nContainers () const = 0;
+    //! Number of species whose charge is deposited on the main grid.
+    [[nodiscard]] virtual int nSpeciesDepositOnMainGrid () const = 0;
+    //! Number of species whose fields are gathered from the main grid.
+    [[nodiscard]] virtual int nSpeciesGatherFromMainGrid () const = 0;
+    //! Description of the user-declared external E/B fields acting on the particles.
+    [[nodiscard]] virtual const ExternalParticleFields& externalParticleFieldsMetadata () const = 0;
 };
 
 } // namespace warpx::runtime

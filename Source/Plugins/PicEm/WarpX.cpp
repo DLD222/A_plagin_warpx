@@ -3170,7 +3170,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         auto *Bfield_aux_levl_2 = m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
 
         // Number of components is taken directly from the extern field data
-        const int ncomp_ext_B = mypc->m_external_particle_fields_metadata.m_nBfields;
+        const int ncomp_ext_B = mypc->externalParticleFieldsMetadata().m_nBfields;
 
         // Same as Bfield_fp for reading external field data, except for allocating as many components as external B fields are provided
         AllocLevelFieldOnBA("B_external_particle_field_x", FieldType::B_external_particle_field, Direction{0}, lev,
@@ -3193,7 +3193,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         auto *Efield_aux_levl_2 = m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
 
         // Number of components is taken directly from the extern field data
-        const int ncomp_ext_E = mypc->m_external_particle_fields_metadata.m_nEfields;
+        const int ncomp_ext_E = mypc->externalParticleFieldsMetadata().m_nEfields;
 
         // Same as Efield_fp for reading external field data, except for allocating as many components as external E fields are provided
         AllocLevelFieldOnBA("E_external_particle_field_x", FieldType::E_external_particle_field, Direction{0}, lev,

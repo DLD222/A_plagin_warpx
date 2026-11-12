@@ -26,7 +26,7 @@
 #include "Runtime/ISpeciesMetadata.H"
 #include "WarpXParticleContainer.H"
 #include "Particles/ParticleBoundaries.H"
-#include "ExternalParticleFields.H"
+#include "Runtime/ExternalParticleFields.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 
@@ -350,14 +350,14 @@ public:
         return m_do_back_transformed_particles;
     }
 
-    [[nodiscard]] int nSpeciesDepositOnMainGrid () const
+    [[nodiscard]] int nSpeciesDepositOnMainGrid () const override
     {
         bool const onMainGrid = true;
         auto const & v = m_deposit_on_main_grid;
         return static_cast<int>(std::count( v.begin(), v.end(), onMainGrid ));
     }
 
-    [[nodiscard]] int nSpeciesGatherFromMainGrid() const
+    [[nodiscard]] int nSpeciesGatherFromMainGrid() const override
     {
         bool const fromMainGrid = true;
         auto const & v = m_gather_from_main_grid;
@@ -434,6 +434,11 @@ public:
 
     [[nodiscard]] int getSpeciesID (const std::string& product_str) const;
 
+    // ---- IParticleSystem: the metadata the kernel asks for -----------------
+    [[nodiscard]] const ExternalParticleFields& externalParticleFieldsMetadata () const override
+    {
+        return m_external_particle_fields_metadata;
+    }
     [[nodiscard]] bool initializesSelfFields (int index) const override
     {
         return allcontainers[index]->initialize_self_fields != 0;
