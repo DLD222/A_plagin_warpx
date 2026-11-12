@@ -27,7 +27,7 @@
 | 2D（全特性） | `build_2d_full`（openPMD+FFT） | **335/336** | 1 平台校验和（`test_2d_laser_ion_acc.checksum`） |
 | 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **570/573** | 2 平台校验和 + 1 条 `-j` 竞态（单独重跑 3/3 通过） |
 | 2D PICMI | `build_py_opmd` | **20/20** Python 单元测试 + 全部 PICMI 用例 | 平台校验和 |
-| 四维（C++ + PICMI） | `build_py_4d`（1D/3D/RZ + Python） | **778/781** | 2 平台校验和 + 1 条 `-j` 竞态（单独重跑 3/3 通过） |
+| 四维（C++ + PICMI） | `build_py_4d`（1D/3D/RZ + Python） | **721/724** | 2 平台校验和 + 1 条 `-j` 竞态（单独重跑 3/3 通过） |
 
 ### 剩余 2 条（四维）
 
@@ -265,3 +265,30 @@ ctest --test-dir build_takeover -R "external_plugin_2|nonpic_kernel_2"   # 2/2 P
   `add_warpx_pytest`/`add_warpx_test` 的 `needs_openpmd` 标记消除，而不是把失败写进基线。
 
 **没有一项是"已知失败所以不管"。**
+
+### 7.9 审计修复后的最终全量（2026-11-12 晚）
+
+审计的 5 项修复合入后重跑全部套件（`pytest` 条目改用 `tests/unit/run_tests.py`，
+每个维度一条，因此套件条目从 781 收敛到 **724**——单元测试仍是一个不落地执行，只是不再各占一条）：
+
+```
+$ ctest --test-dir build_py_4d -I 1,351   -j 12
+99% tests passed, 1 tests failed out of 351     # 3d_embedded_boundary_cube_macroscopic.checksum
+$ ctest --test-dir build_py_4d -I 352,724 -j 12
+99% tests passed, 2 tests failed out of 373
+    test_3d_reduced_diags_load_balance_costs_timers_picmi.analysis   # 单独重跑 3/3 通过
+    test_rz_laser_acceleration_boosted_opmd.checksum                 # 平台校验和
+```
+
+**合计 721 / 724**。
+
+| 套件 | 结果 |
+|---|---|
+| `build_takeover`（2D 无 openPMD） | 232/232 |
+| `build_2d_full`（2D 全特性） | 335/336 |
+| `build_multi_hdf5_fft`（1D/3D/RZ） | 570/573 |
+| `build_py_4d`（1D/3D/RZ + Python） | **721/724** |
+| 插件验收（`external_plugin_2`、`nonpic_kernel_2`、`plugin_*`…） | **13/13** |
+| `pytest.WarpX.{1d,3d,rz}` | **3/3**（各 20 个单元测试） |
+
+全部残余均为**平台校验和**或 **`-j` 竞态（单独重跑通过）**，没有一条是已知功能缺陷。
