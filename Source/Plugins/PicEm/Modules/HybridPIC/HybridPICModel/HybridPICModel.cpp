@@ -23,7 +23,6 @@
 #include "Python/callbacks.H"
 #include "Fields.H"
 #include "Fluids/QdsmcParticleContainer.H"
-#include "Particles/MultiParticleContainer.H"
 #include "ExternalVectorPotential.H"
 
 #include <AMReX_Random.H>
@@ -321,7 +320,7 @@ void HybridPICModel::AllocateLevelMFs (
     // global current_fp / rho_fp; Vs_fp_s is the bulk velocity J_s/rho_s
     // used by the resistive-drag operator.
     if (m_need_per_species_fields) {
-        auto const & mypc = WarpX::GetInstance().GetPartContainer();
+        auto const & mypc = WarpX::GetInstance().particleSystem();
         for (auto const & spec : mypc.GetSpeciesNames()) {
             if (mypc.GetParticleContainerFromName(spec).getCharge() == 0._prt) { continue; }
             fields.alloc_init("current_fp_" + spec, Direction{0},
@@ -435,7 +434,7 @@ void HybridPICModel::InitData (const ablastr::fields::MultiFabRegister& fields)
     // containers (needed to reject uncharged species) exist only now.
     {
         const amrex::ParmParse pp_hybrid_init("hybrid_pic_model");
-        auto const & mypc = WarpX::GetInstance().GetPartContainer();
+        auto const & mypc = WarpX::GetInstance().particleSystem();
         for (auto const & spec_name : mypc.GetSpeciesNames()) {
             std::string const param_name =
                 "plasma_resistivity_" + spec_name + "(rho_s,rho,Te,J,J_s,B,t)";
@@ -494,7 +493,7 @@ void HybridPICModel::InitData (const ablastr::fields::MultiFabRegister& fields)
     // (see HybridPICSolveE), so the drag must cover every charged species
     // for the friction to stay momentum-conserving.
     if (m_has_resistive_drag) {
-        auto const & mypc_drag = WarpX::GetInstance().GetPartContainer();
+        auto const & mypc_drag = WarpX::GetInstance().particleSystem();
         for (auto const & spec_name : mypc_drag.GetSpeciesNames()) {
             auto const & pc = mypc_drag.GetParticleContainerFromName(spec_name);
             if (pc.getCharge() == 0._prt || pc.doNotDeposit()) {
@@ -958,7 +957,7 @@ void HybridPICModel::CalculateIonFluidVelocity (const int lev) const
     using namespace ablastr::coarsen::sample;
 
     auto & warpx = WarpX::GetInstance();
-    auto const & mypc = warpx.GetPartContainer();
+    auto const & mypc = warpx.particleSystem();
 
     auto const Jx_stag = Jx_IndexType;
     auto const Jy_stag = Jy_IndexType;
@@ -1084,7 +1083,7 @@ void HybridPICModel::ComputeResistiveOverlay (int const lev) const
         overlay_mf[idim]->setVal(0.0_rt);
         coef_mf[idim]->setVal(0.0_rt);
     }
-    auto const & mypc = warpx.GetPartContainer();
+    auto const & mypc = warpx.particleSystem();
     auto const species_names = mypc.GetSpeciesNames();
     auto const t_new = warpx.gett_new(lev);
 
@@ -1545,7 +1544,7 @@ void HybridPICModel::QDSMCAddJouleHeating (int const lev, amrex::Real const dt,
     auto const K_per_eV    = PhysConst::q_e / PhysConst::kb;        // T[eV]*this = T[K]
     amrex::Real const Te_thresh_K = m_joule_redirect_Te_eV * K_per_eV;
 
-    auto & mypc = warpx.GetPartContainer();
+    auto & mypc = warpx.particleSystem();
 
     // Loop over every charged ion species and accumulate its per-cell
     // contribution to S_e into T_e directly. Each species contributes
@@ -1733,7 +1732,7 @@ void HybridPICModel::QDSMCAddTemperatureRelaxation (int const lev, amrex::Real c
     amrex::GpuArray<int, 3> const nodal   = {1, 1, 1};
     amrex::GpuArray<int, 3> const coarsen = {1, 1, 1};
 
-    auto & mypc = warpx.GetPartContainer();
+    auto & mypc = warpx.particleSystem();
     auto const species_names = mypc.GetSpeciesNames();
 
     // Sigma_t rho_fp_t (physical per-species charge densities) -> species
@@ -1862,7 +1861,7 @@ void HybridPICModel::QDSMCApplyIonHeating (int const lev, amrex::Real const dt,
 
     amrex::BoxArray const cc_ba = amrex::convert(Te.boxArray(), amrex::IntVect::TheCellVector());
 
-    auto & mypc = warpx.GetPartContainer();
+    auto & mypc = warpx.particleSystem();
     auto const species_names = mypc.GetSpeciesNames();
 
     // Charged-species component index for redirect_E (matches QDSMCAddJouleHeating:
@@ -2137,7 +2136,7 @@ void HybridPICModel::AdvanceElectronEnergyQDSMC (amrex::Real const dt) const
         bool redirect_active = m_include_joule_heating && m_joule_redirect_to_ions;
         int n_ion_species = 0;
         if (redirect_active) {
-            auto & mpc = warpx.GetPartContainer();
+            auto & mpc = warpx.particleSystem();
             for (auto const & nm : mpc.GetSpeciesNames()) {
                 if (mpc.GetParticleContainerFromName(nm).getCharge() != 0._prt) { ++n_ion_species; }
             }
@@ -2180,7 +2179,7 @@ void HybridPICModel::AdvanceElectronEnergyQDSMC (amrex::Real const dt) const
                 cc_r[d] = Tr_stag[d]; cc_t[d] = Tt_stag[d]; cc_z[d] = Tz_stag[d];
             }
 
-            auto & mpc_ti = warpx.GetPartContainer();
+            auto & mpc_ti = warpx.particleSystem();
             for (auto const & nm : mpc_ti.GetSpeciesNames()) {
                 auto & pc = mpc_ti.GetParticleContainerFromName(nm);
                 if (pc.getCharge() == 0._prt) { continue; }

@@ -709,3 +709,21 @@ openPMD::error::WrongAPIUsage
 | 审计修复 | C ABI 读场、冲突检测、stage 接管、嵌套访问控制、pytest 收集 —— 5 项已修并有回归 |
 
 判据 2 因此是**主体完成**，不是完成：最后一块（容器家族搬迁）的计划与验收标准在上面的交接单里。
+
+### 阶段 B 进展与"结构性保留"（2026-11-13）
+
+**已达成的**：内核目录里 `mypc->` 与 `GetPartContainer().` 形式的调用**归零**，
+粒子 include 从 39 降到 **16**。内核与粒子之间的交互全部经由
+`IParticleSystem` / `IParticleContainerAccess` / `IParticleBoundaryBuffer` 三个核心契约。
+
+**剩下的 16 个 include 里，结构性的部分**（不是"还没做"，而是"抽象不了"）：
+
+| 文件 | 需要具体类型的原因 |
+|---|---|
+| `WarpXRegrid.cpp`、`WarpXMovingWindow.cpp`、`WarpXImplicitOps.cpp`、`WarpX_ImplicitParticles.cpp` | 直接构造 `ParticleTileIter pti(pc, lev)` 遍历粒子 tile —— 这是 AMReX `ParticleContainer` 的内部数据布局，任何"接口化"都必须把 tile 迭代本身搬进契约，等于把容器的内存模型暴露给内核 |
+| `WarpXRuntimeData.cpp`、`WarpX.cpp` | 运行时数据/构造点：前者要把 `MultiParticleContainer&` 转成 `IParticleContainerAccess&`（需要完整类型），后者是**构造点**（Phase C 由工厂替代） |
+
+**结论**：阶段 B 的实际目标应表述为"内核不再通过具体类型**调用**粒子系统"
+（已达成），而不是"内核目录里一个 `Particles/` include 都不剩"——后者与 AMReX 的
+tile 迭代模型冲突。这个修正会影响阶段 B 的验收措辞，阶段 C 之后内核唯一需要具体类型的
+地方应该只剩**工厂注册**那一处。

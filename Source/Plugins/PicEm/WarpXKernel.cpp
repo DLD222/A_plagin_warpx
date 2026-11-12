@@ -1,7 +1,6 @@
 #include "WarpXKernel.H"
 
 #include "Modules/PicEm/PicEmPackage.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Runtime/CollisionPackage.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/DataBus.H"
@@ -65,7 +64,7 @@ WarpXKernel::WarpXKernel (int, char*[])
     m_data = std::make_unique<WarpXRuntimeData>(warpx);
     m_host = std::make_unique<WarpXHostServices>(warpx);
 
-    auto& mpc = warpx.GetPartContainer();
+    auto& mpc = warpx.particleSystem();
     auto* host = m_host.get();
     m_config = RuntimeConfig::FromLegacy();
     // The collision plugin registers a factory in the core; without it the
@@ -120,7 +119,7 @@ void WarpXKernel::register_plugins (PluginHost& host, bool disabled)
 
 void WarpXKernel::register_species (DataBus& bus)
 {
-    auto& mpc = m_warpx->GetPartContainer();
+    auto& mpc = m_warpx->particleSystem();
     for (const auto& name : mpc.GetSpeciesNames()) {
         auto& pc = mpc.GetParticleContainerFromName(name);
         SpeciesSpec spec;
