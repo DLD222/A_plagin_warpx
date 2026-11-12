@@ -1294,7 +1294,7 @@ error: 'EBFArrayBoxFactory' in namespace 'amrex' does not name a type
 
 ### 12.6 PETSc：装好了工具链，但同时暴露了上一轮搬迁的遗留问题
 
-**工具链**（单核机器上分批完成）：
+**工具链**（本机 24 核，分批完成）：
 `conda install -c conda-forge petsc`（3.26.1）需要配套编译器，再装 `gcc_linux-64`/`gxx_linux-64`
 后，用 conda 的 `mpicc`/`mpicxx` 可以配置：
 `-DWarpX_PETSC=ON -DAMReX_PETSC=ON -DCMAKE_C_COMPILER=<conda>/mpicc ...`（`cfg=0`）。

@@ -23,11 +23,11 @@
 
 | 套件 | 构建 | 通过/总数 | 残余 |
 |---|---|---|---|
-| 2D | `build_takeover`（openPMD=OFF） | 232/264 | 32，全部 openPMD 依赖 |
-| 2D | `build_2d_full`（openPMD+FFT） | 335/336 | 1 平台校验和（`test_2d_laser_ion_acc.checksum`，宏观修复前后逐条一致） |
-| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **571/573**（导出 `MPLBACKEND=Agg`；未导出时 570/573） | **2**，均为平台校验和 |
-| 2D PICMI | `build_py_opmd` | 72/75 | 3 平台校验和 |
-| 四维 PICMI | `build_py_4d`（1D/3D/RZ + Python） | **分组 100/100** | 见 7.5；另有 6 条超慢用例在本机跑不完，**未计入** |
+| 2D（无 openPMD） | `build_takeover` | **232/232** | 0（需要 openPMD 的测试不再注册，见 7.3） |
+| 2D（全特性） | `build_2d_full`（openPMD+FFT） | **335/336** | 1 平台校验和（`test_2d_laser_ion_acc.checksum`） |
+| 1D/3D/RZ | `build_multi_hdf5_fft`（openPMD+FFT+并行 HDF5） | **570/573** | 2 平台校验和 + 1 条 `-j` 竞态（单独重跑 3/3 通过） |
+| 2D PICMI | `build_py_opmd` | **20/20** Python 单元测试 + 全部 PICMI 用例 | 平台校验和 |
+| 四维（C++ + PICMI） | `build_py_4d`（1D/3D/RZ + Python） | **778/781** | 2 平台校验和 + 1 条 `-j` 竞态（单独重跑 3/3 通过） |
 
 ### 剩余 2 条（四维）
 
@@ -159,33 +159,28 @@ RZ 7 + 3D 4 + 2D 2；唯一差异 `d3_eb` 为 1.63e-11（双精度舍入）。�
 
 见 `VERIFICATION_MATRIX.md`：七个构建、选项、测试数、失败清单与归类、复现命令。
 
-### 7.5 四维 PICMI 分组的最终结果（2026-11-11）
+### 7.5 四维套件的最终结果（2026-11-12，781 条）
 
-`build_py_4d` 一共 724 个条目，在本机（**单核**）全量跑不完，因此按分组验证：
+**更正**：这里原先写"本机单核、全量跑不完、只能分组抽样"——**那是错的**。
+`nproc` 在导出 `OMP_NUM_THREADS=1` 时会直接返回 1，我把它当成了机器规格；
+本机实际是 **24 核**（`nproc --all` = 24，`lscpu` 24，cgroup 无配额）。
 
-```
-$ ctest --test-dir build_py_4d -R "picmi" -E "background_mcc|spacecraft_charging" -j 3 --timeout 300
-95% tests passed, 5 tests failed out of 100
-    5 条全部是 ***Timeout 300.00 sec（其中 2 条是 run 超时后没有输出、连带的 analysis/checksum）
-```
-
-把超时的 3 条 `run` 用 `--timeout 1800` 重跑：
+全量分两段跑完：
 
 ```
-100% tests passed, 0 tests failed out of 9
-    test_rz_ohm_solver_em_modes_picmi.run    Passed   25.58 sec
-    test_1d_ohm_solver_ion_beam_picmi.run    Passed  105.81 sec
-    test_1d_dsmc_picmi.run                   Passed   58.99 sec
+$ ctest --test-dir build_py_4d -I 1,351   -j 12 --timeout 3000
+99% tests passed, 1 tests failed out of 351      # test_3d_embedded_boundary_cube_macroscopic.checksum
+
+$ ctest --test-dir build_py_4d -I 352,781 -j 12 --timeout 3000
+99% tests passed, 2 tests failed out of 430
+    test_3d_reduced_diags_load_balance_costs_timers_picmi.analysis   # 单独重跑 3/3 通过
+    test_rz_laser_acceleration_boosted_opmd.checksum                 # 平台校验和
 ```
 
-**PICMI 分组：100 / 100 通过。**
+**合计 778 / 781 通过**；3 条残余中 2 条是平台校验和、1 条是 `-j` 竞态（单独重跑通过）。
+`pytest.WarpX.{1d,3d,rz}` 三条条目共 60 个单元测试全部通过（修复前是整个进程段错误）。
 
-**排除项（没有计入、也没有声称通过）**：
-
-| 用例 | 现象 |
-|---|---|
-| `test_1d_background_mcc_picmi.{run,analysis,checksum}` | 单核下 >10 分钟无进展 |
-| `test_rz_spacecraft_charging_picmi.{run,analysis,checksum}` | 单核下 >10 分钟无进展 |
+原来的"分组 100/100 + 6 条超慢用例"已被这一节的实数取代。
 
 ### 7.6 这一路上修掉的**环境**问题（不是代码，但影响结论可信度）
 
