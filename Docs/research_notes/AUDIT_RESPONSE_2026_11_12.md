@@ -84,3 +84,15 @@ node id；但干净构建时 pywarpx 尚未编译，收集失败 → 只打印 W
 
 A/B 三项逐位相同说明**发现 3 的语义修正确实没有改变物理结果**（in-tree 处理器仍替代核心，
 观察者路径不再误伤）。
+
+## 修复后的完整回归（同一天）
+
+| 套件 | 命令 | 结果 |
+|---|---|---|
+| 2D（无 openPMD） | `ctest --test-dir build_takeover -j 12` | **232 / 232** |
+| 2D（全特性） | `ctest --test-dir build_2d_full -j 12` | **335 / 336**（1 平台校验和：`test_2d_laser_ion_acc.checksum`） |
+| 1D/3D/RZ | `ctest --test-dir build_multi_hdf5_fft -j 12` | **570 / 573**（2 平台校验和 + 1 条 `-j` 竞态，单独重跑 3/3 通过） |
+| Python 单元测试 | `ctest --test-dir build_py_4d -R pytest -j 3` | **3 / 3 通过**（1D 18.5 s、3D 24.4 s、RZ 18.3 s） |
+| A/B 物理对照 | `Tools/verify/ab/run_all.sh d2_`（重建后） | 3 个 2D 算例全部 **0.000e+00** |
+
+对比修复前的基线，**没有任何套件的失败集增加**。
