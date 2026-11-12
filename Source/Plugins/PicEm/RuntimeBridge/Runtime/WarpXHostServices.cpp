@@ -1,4 +1,3 @@
-#include "Particles/ParticleBoundaryBuffer.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.
@@ -12,6 +11,7 @@
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
+#include "Particles/ElementaryProcess/VirtualPhotonCreation.H"
 #include "WarpX.H"
 
 #ifdef WARPX_USE_FFT
@@ -24,7 +24,6 @@
 #endif
 
 #ifdef WARPX_QED
-#include "Particles/ElementaryProcess/VirtualPhotonCreation.H"
 #endif
 
 #include <memory>
