@@ -60,6 +60,9 @@ public:
     //! Finish the implicit-particle update for this species on one level.
     virtual void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,
                                                int lev, amrex::Real t, amrex::Real dt) = 0;
+    //! Drop the saved implicit-step data for this species.
+    virtual void ResetImplicitParticleData (int lev) = 0;
+
     //! Inject particles continuously through the plane the input selected.
     virtual void ContinuousInjection (const amrex::RealBox& injection_box) = 0;
     //! Whether this species injects continuously (the kernel skips it otherwise).

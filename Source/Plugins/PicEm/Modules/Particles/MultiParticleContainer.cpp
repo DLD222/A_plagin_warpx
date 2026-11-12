@@ -999,6 +999,114 @@ MultiParticleContainer::ContinuousInjection (const RealBox& injection_box) const
 }
 
 void
+MultiParticleContainer::SaveParticlesAtImplicitStepStart (int finest_level)
+{
+    // The implicit advance routines require the particle velocity
+    // and position values at the beginning of the step to compute the
+    // time-centered position and velocity needed for the implicit stencil.
+    // Thus, we need to save this information.
+
+    // Every container, lasers included: the original kernel loop walked *mypc, not the
+    // species list, and a laser that does not save its positions breaks the implicit push.
+    for (int i_c = 0; i_c < nContainers(); ++i_c) {
+        auto& pc = dynamic_cast<WarpXParticleContainer&>(GetParticleContainer(i_c));
+
+        for (int lev = 0; lev <= finest_level; ++lev) {
+#ifdef AMREX_USE_OMP
+#pragma omp parallel
+#endif
+            {
+
+            auto particle_comps = pc.GetRealSoANames();
+
+            for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
+
+                const auto getPosition = GetParticlePosition(pti);
+
+                auto& attribs = pti.GetAttribs();
+                amrex::ParticleReal* const AMREX_RESTRICT ux = attribs[PIdx::ux].dataPtr();
+                amrex::ParticleReal* const AMREX_RESTRICT uy = attribs[PIdx::uy].dataPtr();
+                amrex::ParticleReal* const AMREX_RESTRICT uz = attribs[PIdx::uz].dataPtr();
+
+#if !defined(WARPX_DIM_1D_Z)
+                amrex::ParticleReal* x_n = pti.GetAttribs("x_n").dataPtr();
+#endif
+#if defined(WARPX_DIM_3D) || defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                amrex::ParticleReal* y_n = pti.GetAttribs("y_n").dataPtr();
+#endif
+#if !defined(WARPX_DIM_RCYLINDER)
+                amrex::ParticleReal* z_n = pti.GetAttribs("z_n").dataPtr();
+#endif
+                amrex::ParticleReal* ux_n = pti.GetAttribs("ux_n").dataPtr();
+                amrex::ParticleReal* uy_n = pti.GetAttribs("uy_n").dataPtr();
+                amrex::ParticleReal* uz_n = pti.GetAttribs("uz_n").dataPtr();
+
+                // Check if nsuborbits is present, and if so it is set to 1
+                int *nsuborbits = (pc.HasiAttrib("nsuborbits") ? pti.GetiAttribs("nsuborbits").dataPtr() : nullptr);
+
+                const long np = pti.numParticles();
+
+                amrex::ParallelFor( np, [=] AMREX_GPU_DEVICE (long ip)
+                {
+                    amrex::ParticleReal xp, yp, zp;
+                    getPosition(ip, xp, yp, zp);
+
+#if !defined(WARPX_DIM_1D_Z)
+                    x_n[ip] = xp;
+#endif
+#if defined(WARPX_DIM_3D) || defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    y_n[ip] = yp;
+#endif
+#if !defined(WARPX_DIM_RCYLINDER)
+                    z_n[ip] = zp;
+#endif
+
+                    ux_n[ip] = ux[ip];
+                    uy_n[ip] = uy[ip];
+                    uz_n[ip] = uz[ip];
+
+                    if (nsuborbits) {
+                        nsuborbits[ip] = 1;
+                    }
+
+                });
+
+            }
+            }
+
+        }
+
+    }
+
+}
+
+
+void
+MultiParticleContainer::FinishImplicitParticleUpdate (
+    ablastr::fields::MultiFabRegister& fields, int finest_level, amrex::Real time,
+    const amrex::Vector<amrex::Real>& dt)
+{
+    // The implicit advance routines use the time-centered position and momentum to advance
+    // the system in time, so at the end of the step every species extrapolates from n+1/2 to
+    // n+1 through its own virtual implementation.
+    for (int lev = 0; lev <= finest_level; ++lev) {
+        for (int i_c = 0; i_c < nContainers(); ++i_c) {
+            GetParticleContainer(i_c).FinishImplicitParticleUpdate(fields, lev, time, dt[lev]);
+        }
+    }
+}
+
+void
+MultiParticleContainer::ResetImplicitParticleData (int finest_level)
+{
+    for (int lev = 0; lev <= finest_level; ++lev) {
+        for (int i_c = 0; i_c < nContainers(); ++i_c) {
+            GetParticleContainer(i_c).ResetImplicitParticleData(lev);
+        }
+    }
+}
+
+void
 MultiParticleContainer::AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
                                           amrex::Real weight) const
 {

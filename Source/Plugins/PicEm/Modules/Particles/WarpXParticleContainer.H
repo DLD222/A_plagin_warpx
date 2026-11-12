@@ -229,7 +229,7 @@ public:
 
     /** \brief Reset the particle data to the values at the start of the step
      */
-    virtual void ResetImplicitParticleData (int lev);
+    void ResetImplicitParticleData (int lev) override;
 
     /**
      * \brief virtual function to deposit mass matrices for charged particles

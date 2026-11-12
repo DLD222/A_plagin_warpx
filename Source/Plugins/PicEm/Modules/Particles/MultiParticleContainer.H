@@ -376,6 +376,13 @@ public:
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
     //! IParticleSystem: advance the injection plane of continuously-injected species.
+    //! IParticleSystem: implicit-advance bookkeeping, looped here over the species.
+    void SaveParticlesAtImplicitStepStart (int finest_level) override;
+    void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,
+                                       int finest_level, amrex::Real time,
+                                       const amrex::Vector<amrex::Real>& dt) override;
+    void ResetImplicitParticleData (int finest_level) override;
+
     //! IParticleSystem: particle share of the load-balancing cost heuristic.
     void AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
                            amrex::Real weight) const override;

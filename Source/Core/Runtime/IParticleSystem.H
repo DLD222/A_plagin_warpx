@@ -101,6 +101,15 @@ public:
     //! Redistribute only particles that moved beyond max_cells_travelled.
     virtual void RedistributeLocal (const amrex::IntVect& max_cells_travelled) = 0;
 
+    //! Save the position and momentum at the start of the step (implicit advance needs them).
+    virtual void SaveParticlesAtImplicitStepStart (int finest_level) = 0;
+    //! Finish the implicit update: extrapolate every species from n+1/2 to n+1.
+    virtual void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,
+                                               int finest_level, amrex::Real time,
+                                               const amrex::Vector<amrex::Real>& dt) = 0;
+    //! Drop the saved implicit data (start of a new substepping sequence).
+    virtual void ResetImplicitParticleData (int finest_level) = 0;
+
     //! Advance the injection plane of every continuously-injected species (moving window).
     virtual void UpdateInjectionPositions (amrex::Real gamma_boost, amrex::Real beta_boost,
                                            const amrex::Vector<int>& boost_direction,
