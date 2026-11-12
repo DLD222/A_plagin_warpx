@@ -298,3 +298,31 @@ $ ctest --test-dir build_py_4d -I 352,724 -j 12
 | `pytest.WarpX.{1d,3d,rz}` | **3/3**（各 20 个单元测试） |
 
 全部残余均为**平台校验和**或 **`-j` 竞态（单独重跑通过）**，没有一条是已知功能缺陷。
+
+---
+
+## 9. 终局核对（2026-11-12，第 60 轮）
+
+全部为实测，命令与输出如下。
+
+| 项目 | 命令 | 结果 |
+|---|---|---|
+| 四个检查器 | `check_{core_purity,plugin_boundaries,kernel_coupling,build_boundaries}.py` | 全部 `OK / 0` |
+| CI 三条 gate | `Tools/verify/run_gates.sh` | compliance / audit / route 全 OK |
+| 与远端同步 | `git log origin/main -1` | `977c60b`，工作树仅有并发会话的 4 个未提交文件（未触碰） |
+| **P0 验收** | `ctest -R "^test_1d_(laser\|plasma)_acceleration_picmi\."` | **4/4 通过**（两条 run + 两条 checksum） |
+| **判据 4 验收** | `ctest -R "external_plugin_2\|nonpic_kernel_2"` | **2/2 通过** |
+| 真空极限 | `Tools/verify/check_macroscopic_vacuum_limit.sh` | `ratio = 1.000000`（期望 1.000000） |
+
+### 四条判据的终局判断
+
+| 判据 | 判断 | 依据 |
+|---|---|---|
+| 1 功能与上游相同 | **达成（可测范围内）** | P0 4/4；覆盖 405/407；721/724、335/336、570/573、232/232；A/B 17 例（16 逐位）+ 3 粒子级 |
+| 2 插件化 | **主体完成，未达"完成"** | 五类能力全部出场且开关行为实测；审计 5 项缺陷已修；**容器家族（1.17 万行）未搬入 ParticleCore** |
+| 3 模块化 | **达成** | 四个检查器全 0 |
+| 4 用户插件 | **达成** | 13/13（含仓库外裸 C 插件与无粒子内核） |
+
+**目标不标记为完成**：判据 2 的最后一块未交付。这不是"做不到"，而是"在剩余轮次内无法安全完成"——
+它是 10–20 轮的工程，且需要与正在该目录工作的并行会话协调。完整方案见
+`PLUGIN_REQUIREMENTS_AND_ROADMAP.md` 的"P3 交接单"。
