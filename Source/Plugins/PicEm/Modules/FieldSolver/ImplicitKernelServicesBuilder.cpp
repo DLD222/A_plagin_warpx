@@ -9,7 +9,6 @@
 
 #include "WarpX.H"
 
-#include "Particles/MultiParticleContainer.H"
 #include "Python/callbacks.H"
 
 #include "Runtime/ImplicitKernelServices.H"
@@ -134,15 +133,15 @@ BuildImplicitKernelServices (WarpX& warpx)
                                           amrex::MultiFab const& By, amrex::MultiFab const& Bz,
                                           MomentumPushType push_type,
                                           std::optional<warpx::particles::FieldGatherOrders> gather) {
-        warpx.GetPartContainer().PushP(lev, dt, Ex, Ey, Ez, Bx, By, Bz, push_type, gather);
+        warpx.particleSystem().PushP(lev, dt, Ex, Ey, Ez, Bx, By, Bz, push_type, gather);
     };
     s.deposit_current_all_species =
         [&warpx] (ablastr::fields::MultiLevelVectorField const& J, amrex::Real dt,
                   amrex::Real time_dilation, PushType push_type, int particle_shape) {
-            warpx.GetPartContainer().DepositCurrent(J, dt, time_dilation, push_type, particle_shape);
+            warpx.particleSystem().DepositCurrent(J, dt, time_dilation, push_type, particle_shape);
         };
     s.push_particles_position = [&warpx] (amrex::Real dt) {
-        warpx.GetPartContainer().PushX(dt);
+        warpx.particleSystem().PushX(dt);
     };
     s.run_python_callback = [&warpx] (char const* name) {
         amrex::ignore_unused(warpx);
@@ -156,18 +155,18 @@ BuildImplicitKernelServices (WarpX& warpx)
     s.add_implicit_particle_attributes = [&warpx] (bool particle_suborbits) {
         warpx.AddImplicitParticleAttributes(particle_suborbits);
     };
-    s.num_species = [&warpx] { return warpx.GetPartContainer().nSpecies(); };
+    s.num_species = [&warpx] { return warpx.particleSystem().nSpecies(); };
     s.species_name = [&warpx] (int ispecies) {
-        return warpx.GetPartContainer().GetParticleContainer(ispecies).getName();
+        return warpx.particleSystem().GetParticleContainer(ispecies).getName();
     };
     s.species_has_attrib = [&warpx] (int ispecies, std::string const& attrib) {
         auto& pc = dynamic_cast<WarpXParticleContainer&>(
-            warpx.GetPartContainer().GetParticleContainer(ispecies));
+            warpx.particleSystem().GetParticleContainer(ispecies));
         return pc.HasiAttrib(attrib);
     };
     s.count_suborbits = [&warpx] (int ispecies, int threshold, amrex::Long* counter) {
         auto& pc = dynamic_cast<WarpXParticleContainer&>(
-            warpx.GetPartContainer().GetParticleContainer(ispecies));
+            warpx.particleSystem().GetParticleContainer(ispecies));
         for (int lev = 0; lev <= warpx.finestLevel(); ++lev) {
 #ifdef AMREX_USE_OMP
 #pragma omp parallel

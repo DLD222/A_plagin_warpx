@@ -12,7 +12,6 @@
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #ifdef WARPX_USE_FFT
@@ -69,7 +68,7 @@ WarpXHostServices::depositCurrent (int lev, amrex::Real dt)
         m_warpx.m_fields.get_alldirs(FieldType::current_fp, lev)
     };
 
-    auto& mypc = m_warpx.GetPartContainer();
+    auto& mypc = m_warpx.particleSystem();
     mypc.DepositCurrent(current_fp_temp, dt, 0.0);
 
     for (int idim = 0; idim < 3; ++idim) {
@@ -86,7 +85,7 @@ void
 WarpXHostServices::depositCharge (ablastr::fields::MultiLevelScalarField const& rho,
                                  amrex::Real relative_time)
 {
-    m_warpx.GetPartContainer().DepositCharge(rho, relative_time);
+    m_warpx.particleSystem().DepositCharge(rho, relative_time);
 }
 
 std::unique_ptr<amrex::MultiFab>
@@ -94,14 +93,14 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
 {
     std::unique_ptr<amrex::MultiFab> rho;
     if (species_index == -1) {
-        auto& mypc = m_warpx.GetPartContainer();
+        auto& mypc = m_warpx.particleSystem();
         rho = mypc.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
         if (m_warpx.DoFluidSpecies()) {
             auto& myfl = m_warpx.GetFluidContainer();
             myfl.DepositCharge(m_warpx.m_fields, *rho, lev);
         }
     } else {
-        auto& mypc = m_warpx.GetPartContainer().GetParticleContainer(species_index);
+        auto& mypc = m_warpx.particleSystem().GetParticleContainer(species_index);
         rho = mypc.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
     }
 
@@ -266,19 +265,19 @@ WarpXHostServices::computeDiagnostics (int step)
 void
 WarpXHostServices::calculateNuei (const std::string& species)
 {
-    m_warpx.GetPartContainer().CalculateNuei(species);
+    m_warpx.particleSystem().CalculateNuei(species);
 }
 
 void
 WarpXHostServices::transformMomentumToCurvilinear (bool forward)
 {
-    m_warpx.GetPartContainer().TransformMomentumToCurvilinear(forward);
+    m_warpx.particleSystem().TransformMomentumToCurvilinear(forward);
 }
 
 void
 WarpXHostServices::generateGlobalDebyeLength ()
 {
-    m_warpx.GetPartContainer().GenerateGlobalDebyeLength();
+    m_warpx.particleSystem().GenerateGlobalDebyeLength();
 }
 
 void
@@ -286,7 +285,7 @@ WarpXHostServices::generateVirtualPhotons ()
 {
 #if defined(WARPX_QED)
     collision::binarycollision::virtualphotons::GenerateVirtualPhotons(
-        &m_warpx.GetPartContainer());
+        &m_warpx.particleSystem());
 #endif
 }
 
@@ -318,7 +317,7 @@ WarpXHostServices::checkpointPML (int lev, const std::string& prefix,
 
 std::vector<bool> WarpXHostServices::pmlDirections () const { return m_warpx.getPMLdirections(); }
 std::string WarpXHostServices::authors () const { return m_warpx.GetAuthors(); }
-void WarpXHostServices::writeParticleHeader (std::ostream& os) { m_warpx.GetPartContainer().WriteHeader(os); }
+void WarpXHostServices::writeParticleHeader (std::ostream& os) { m_warpx.particleSystem().WriteHeader(os); }
 void WarpXHostServices::writeReducedDiagCheckpoint (const std::string& dir) { m_warpx.reduced_diags->WriteCheckpointData(dir); }
 amrex::Vector<int> WarpXHostServices::nsubsteps () const { return m_warpx.getnsubsteps(); }
 amrex::Vector<amrex::Real> WarpXHostServices::tNew () const { return m_warpx.gett_new(); }

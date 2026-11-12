@@ -152,6 +152,10 @@ public:
     virtual void CalculateNuei (std::string const& electron_species_name) = 0;
     virtual void GenerateGlobalDebyeLength () = 0;
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> GetGlobalPlasmaFrequency (int lev) = 0;
+    //! The charge density of every species on one level, optionally without the final
+    //! boundary/volume treatment (the caller decides when to finalize).
+    [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>
+    GetChargeDensityOnLevel (int lev, bool local, bool finalize) = 0;
 };
 
 } // namespace warpx::runtime
