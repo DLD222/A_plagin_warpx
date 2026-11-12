@@ -160,4 +160,27 @@ public:
 
 } // namespace warpx::runtime
 
-#endif // WARPX_RUNTIME_IPARTICLESYSTEM_H_
+
+namespace warpx::runtime
+{
+
+/** Factory the PIC plugin registers so the kernel can build a particle system.
+ *
+ * The kernel constructs the system once, at startup, and only ever holds the contract.  The
+ * plugin supplies the concrete class, which is why this is a registration rather than a
+ * direct include: swapping or replacing the particle implementation is then a link-time
+ * decision, not a kernel edit.
+ */
+// The owner is the kernel object (opaque here: Core must not name it).  The PIC plugin
+// knows what it is and binds the concrete constructor.
+using ParticleSystemFactory = std::unique_ptr<IParticleSystem> (*) (void* owner);
+
+void register_particle_system_factory (ParticleSystemFactory factory);
+
+//! Build the particle system the registered plugin provides; nullptr when none is linked.
+[[nodiscard]] std::unique_ptr<IParticleSystem>
+create_particle_system (void* owner);
+
+} // namespace warpx::runtime
+
+#endif

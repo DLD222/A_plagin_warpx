@@ -36,6 +36,7 @@ struct Registry
     FiniteDifferenceSolverFactory finite_difference = nullptr;
     MacroscopicPropertiesFactory macroscopic = nullptr;
     ParticleThermalizerFactory particle_thermalizer = nullptr;
+    ParticleSystemFactory particle_system = nullptr;
 };
 
 Registry& registry ()
@@ -115,6 +116,19 @@ bool
 has_particle_thermalizer_factory ()
 {
     return registry().particle_thermalizer != nullptr;
+}
+
+void
+register_particle_system_factory (ParticleSystemFactory factory)
+{
+    registry().particle_system = factory;
+}
+
+std::unique_ptr<IParticleSystem>
+create_particle_system (void* owner)
+{
+    if (registry().particle_system == nullptr) { return nullptr; }
+    return registry().particle_system(owner);
 }
 
 std::unique_ptr<IParticleThermalizer>
