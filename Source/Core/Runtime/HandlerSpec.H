@@ -84,9 +84,12 @@ public:
         validate(spec);
         for (const auto& existing : m_specs) {
             if (!(existing.point == spec.point)) { continue; }
+            // Use the same key matching as the ordering edges below (KeyMatch.H): with
+            // plain string equality, "Efield_fp" and "Efield_fp_x" were considered
+            // independent here and dependent there, so the two decisions disagreed.
             for (const auto& w : spec.writes_fields) {
                 for (const auto& ew : existing.writes_fields) {
-                    if (w == ew) {
+                    if (key_matches(w, ew)) {
                         throw std::runtime_error(
                             "PluginHost: handlers '" + existing.name + "' and '" +
                             spec.name + "' both write field '" + w +
@@ -100,6 +103,18 @@ public:
                         throw std::runtime_error(
                             "PluginHost: handlers '" + existing.name + "' and '" +
                             spec.name + "' both write scalar '" + w +
+                            "' at the same StagePoint");
+                    }
+                }
+            }
+            // Species were not checked at all: two handlers writing the same species at
+            // one StagePoint raced with last-writer-wins and no diagnostic.
+            for (const auto& w : spec.writes_species) {
+                for (const auto& ew : existing.writes_species) {
+                    if (w == ew) {
+                        throw std::runtime_error(
+                            "PluginHost: handlers '" + existing.name + "' and '" +
+                            spec.name + "' both write species '" + w +
                             "' at the same StagePoint");
                     }
                 }

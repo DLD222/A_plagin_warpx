@@ -586,8 +586,15 @@ WarpX::RunPushStage (amrex::Real a_cur_time, amrex::Real a_dt, int a_step)
         // S1: run the whole [before_push, after_push) interval, so a stage a
         // plugin inserted between the standard ones runs without edits here.
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
-        if (scheduler.run(ctx, warpx::runtime::Stage::BeforePush,
-                          warpx::runtime::Stage::AfterPush) > 0) { return; }
+        // Run the whole interval so that a plugin inserted between the standard stages
+        // still runs.  Only a handler registered *at* the core point replaces the core
+        // algorithm: a read-only observer sitting at BeforePush must not freeze the
+        // particles, which is what counting every executed handler did.
+        const bool core_replaced = scheduler.has_handlers(
+            warpx::runtime::Stage::Push, warpx::runtime::Stage::Push + 1);
+        scheduler.run(ctx, warpx::runtime::Stage::BeforePush,
+                      warpx::runtime::Stage::AfterPush);
+        if (core_replaced) { return; }
     }
     OneStep_PushParticles(a_cur_time, a_dt, a_step);
 }
@@ -607,8 +614,11 @@ WarpX::RunFinalizeStage ()
                                          m_runtime_context->host, m_runtime_context->data,
                                          m_runtime_context->config_snapshot};
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
-        if (scheduler.run(ctx, warpx::runtime::Stage::AfterPush,
-                          warpx::runtime::Stage::BeforeCollisions) > 0) { return; }
+        const bool core_replaced = scheduler.has_handlers(
+            warpx::runtime::Stage::AfterPush, warpx::runtime::Stage::AfterPush + 1);
+        scheduler.run(ctx, warpx::runtime::Stage::AfterPush,
+                      warpx::runtime::Stage::BeforeCollisions);
+        if (core_replaced) { return; }
     }
     OneStep_FinalizeDeposition();
 }
@@ -629,8 +639,11 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
                                          m_runtime_context->config_snapshot};
         ctx.time = a_cur_time;
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
-        if (scheduler.run(ctx, warpx::runtime::Stage::BeforeFieldSolve,
-                          warpx::runtime::Stage::AfterFieldSolve) > 0) { return; }
+        const bool core_replaced = scheduler.has_handlers(
+            warpx::runtime::Stage::FieldSolve, warpx::runtime::Stage::FieldSolve + 1);
+        scheduler.run(ctx, warpx::runtime::Stage::BeforeFieldSolve,
+                      warpx::runtime::Stage::AfterFieldSolve);
+        if (core_replaced) { return; }
     }
     OneStep_FieldSolve(a_cur_time);
 }
@@ -692,8 +705,11 @@ WarpX::RunDiagnosticsStage (int step)
                                          m_runtime_context->config_snapshot};
         ctx.step = step;
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
-        if (scheduler.run(ctx, warpx::runtime::Stage::Diagnostics,
-                          warpx::runtime::Stage::Finalize) > 0) { return; }
+        const bool core_replaced = scheduler.has_handlers(
+            warpx::runtime::Stage::Diagnostics, warpx::runtime::Stage::Diagnostics + 1);
+        scheduler.run(ctx, warpx::runtime::Stage::Diagnostics,
+                      warpx::runtime::Stage::Finalize);
+        if (core_replaced) { return; }
     }
     FlushDiagnostics(step);
 }

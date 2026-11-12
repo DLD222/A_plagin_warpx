@@ -294,10 +294,64 @@ extern "C" int32_t
 warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab)
 {
     if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
-    const amrex::MultiFab* field = ctx->bus->field(std::string(name), lev);
-    if (field == nullptr) { return 0; }
-    if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
-    return 1;
+    // This is the read entry point: go through the const overload, which checks the
+    // handler's declared read access.  Calling the non-const one asked for write access,
+    // so a read-only handler was rejected - and the exception crossed the C boundary and
+    // terminated the process.
+    //
+    // A vector field (Efield_fp, Bfield_fp, current_fp, ...) is stored per direction, so
+    // fall back to its components when the aggregate name itself is not a field: the C
+    // plugin cannot see them otherwise.
+    try {
+        const warpx::runtime::DataBus& bus = *ctx->bus;
+        const amrex::MultiFab* field = bus.field(std::string(name), lev);
+        if (field == nullptr) { return 0; }
+        if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
+}
+
+extern "C" int32_t
+warpx_stage_has_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir, int32_t lev)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    if (dir < 0 || dir > 2) { return 0; }
+    return ctx->bus->has(std::string(name), dir, lev) ? 1 : 0;
+}
+
+extern "C" int32_t
+warpx_stage_read_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir,
+                            int32_t lev, void** multifab)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    if (dir < 0 || dir > 2) { return 0; }
+    try {
+        const warpx::runtime::DataBus& bus = *ctx->bus;
+        const amrex::MultiFab* field = bus.field(std::string(name), dir, lev);
+        if (field == nullptr) { return 0; }
+        if (multifab != nullptr) { *multifab = const_cast<amrex::MultiFab*>(field); }
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
+}
+
+extern "C" int32_t
+warpx_stage_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir,
+                       int32_t lev, void** multifab)
+{
+    if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
+    if (dir < 0 || dir > 2) { return 0; }
+    try {
+        amrex::MultiFab* field = ctx->bus->field(std::string(name), dir, lev);
+        if (field == nullptr) { return 0; }
+        if (multifab != nullptr) { *multifab = field; }
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }
 
 extern "C" int32_t

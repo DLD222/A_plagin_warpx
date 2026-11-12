@@ -21,15 +21,20 @@ Scheduler::run (StageContext& ctx, int from, int to) const
     for (auto* handler : m_host.ordered()) {
         const HandlerSpec spec = handler->spec();
         if (spec.point.stage < from || spec.point.stage >= to) { continue; }
-        // The bus checks every access against this declaration (S5).
+        // The bus checks every access against this declaration (S5).  Save and restore the
+        // previous one: a handler may trigger another Scheduler::run (nested scheduling),
+        // and clearing unconditionally left the outer handler with no declaration, which
+        // silently disabled the access checks for the rest of its apply().
+        const HandlerSpec* const previous =
+            ctx.bus != nullptr ? ctx.bus->active_handler() : nullptr;
         if (ctx.bus != nullptr) { ctx.bus->set_active_handler(&spec); }
         try {
             handler->apply(ctx);
         } catch (...) {
-            if (ctx.bus != nullptr) { ctx.bus->clear_active_handler(); }
+            if (ctx.bus != nullptr) { ctx.bus->set_active_handler(previous); }
             throw;
         }
-        if (ctx.bus != nullptr) { ctx.bus->clear_active_handler(); }
+        if (ctx.bus != nullptr) { ctx.bus->set_active_handler(previous); }
         ++executed;
     }
     return executed;

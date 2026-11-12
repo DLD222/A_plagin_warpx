@@ -140,6 +140,16 @@ int32_t warpx_stage_read_field (WarpXStageContext* ctx, const char* name, int32_
 /* Write access: the handler must have declared the field in writes_fields. */
 int32_t warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab);
 
+/* Vector fields (Efield_fp, Bfield_fp, current_fp, ...) are stored one MultiFab
+ * per direction.  Use these variants for them: dir is 0, 1, 2 for x, y, z.
+ * The scalar-named functions above only see non-vector fields. */
+int32_t warpx_stage_has_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir,
+                                   int32_t lev);
+int32_t warpx_stage_read_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir,
+                                    int32_t lev, void** multifab);
+int32_t warpx_stage_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir,
+                               int32_t lev, void** multifab);
+
 /* Declare a field the core must own (allocated on every level, remade on
  * regrid, written to checkpoints when checkpoint != 0).
  * Returns 1 on success, 0 on failure (never throws across the C boundary). */
