@@ -9,7 +9,6 @@
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXRuntimeData.H"
 #include "Runtime/LegacyServices.H"
 
 #include <AMReX_Vector.H>
@@ -22,9 +21,8 @@ template <typename ParIterType>
 GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
                                         const warpx::runtime::RuntimeContext* ctx) noexcept
 {
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
     const warpx::runtime::RuntimeData& d =
-        (ctx != nullptr && ctx->data != nullptr) ? *ctx->data : static_cast<const warpx::runtime::RuntimeData&>(legacy);
+        (ctx != nullptr && ctx->data != nullptr) ? *ctx->data : warpx::runtime::legacy_data();
     const warpx::runtime::RuntimeConfig& cfg =
         (ctx != nullptr && ctx->config != nullptr) ? *ctx->config : warpx::runtime::legacy_config();
     const auto& mypc = WarpX::GetInstance().GetPartContainer();

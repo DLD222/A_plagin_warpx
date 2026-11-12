@@ -757,7 +757,7 @@ public:
 private:
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     amrex::AmrCore* m_amr_core = nullptr;
-    mutable std::unique_ptr<warpx::runtime::WarpXHostServices> m_legacy_host;
+
     void particlePostLocate(ParticleType& p, const amrex::ParticleLocData& pld, int lev) override;
 
 };

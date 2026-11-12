@@ -30,8 +30,8 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXHostServices.H"
-#include "Runtime/WarpXRuntimeData.H"
+#include "Runtime/LegacyServices.H"
+#include "Runtime/LegacyServices.H"
 #include "WarpX.H"
 
 #include <ablastr/coarsen/average.H>
@@ -3210,8 +3210,7 @@ WarpXParticleContainer::data () const
     if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
         return *m_runtime_context->data;
     }
-    static const warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-    return legacy;
+    return warpx::runtime::legacy_data();
 }
 
 const warpx::runtime::FrameState&
@@ -3229,8 +3228,7 @@ warpx::runtime::HostServices&
 WarpXParticleContainer::host () const
 {
     if (m_runtime_context != nullptr && m_runtime_context->host != nullptr) { return *m_runtime_context->host; }
-    if (!m_legacy_host) { m_legacy_host = std::make_unique<warpx::runtime::WarpXHostServices>(WarpX::GetInstance()); }
-    return *m_legacy_host;
+    return warpx::runtime::legacy_host();
 }
 
 warpx::runtime::IParticleContainer::MomentumSum

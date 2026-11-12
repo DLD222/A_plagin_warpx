@@ -14,8 +14,6 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXHostServices.H"
-#include "Runtime/WarpXRuntimeData.H"
 #include "Runtime/LegacyServices.H"
 
 #include <ablastr/utils/Communication.H>

@@ -6,7 +6,6 @@
 
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/WarpXRuntimeData.H"
 #include "Runtime/LegacyServices.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "EmbeddedBoundary/DistanceToEB.H"
