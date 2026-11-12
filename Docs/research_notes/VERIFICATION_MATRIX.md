@@ -512,3 +512,28 @@ $ ctest --test-dir build_py_4d -R "^pytest\.WarpX\." -j 12
 ```
 
 之前是"整个 pytest 进程段错误"，现在是 **80 条全过**。
+
+## `build_py_4d` 全量最终结果（781 条，2026-11-12）
+
+pytest 修复后条目从 724 增加到 **781**（每个单元测试独立成条目）。分两段跑完：
+
+```
+$ ctest --test-dir build_py_4d -I 1,351   -j 12
+99% tests passed, 1 tests failed out of 351
+    test_3d_embedded_boundary_cube_macroscopic.checksum        （平台校验和）
+
+$ ctest --test-dir build_py_4d -I 352,781 -j 12
+99% tests passed, 2 tests failed out of 430
+    test_3d_reduced_diags_load_balance_costs_timers_picmi.analysis   （单独重跑通过）
+    test_rz_laser_acceleration_boosted_opmd.checksum                 （平台校验和）
+```
+
+**合计 778 / 781 通过**，剩余 3 条的性质：
+
+| 条目 | 性质 | 复验 |
+|---|---|---|
+| `test_3d_embedded_boundary_cube_macroscopic.checksum` | 平台校验和 | AGENTS.md 允许忽略 |
+| `test_rz_laser_acceleration_boosted_opmd.checksum` | 平台校验和 | 同上 |
+| `test_3d_reduced_diags_load_balance_costs_timers_picmi.analysis` | `-j 12` 下的竞态 | **单独重跑：100% tests passed, 0 failed out of 3** |
+
+其中 `pytest.WarpX.{1d,3d,rz}` 共 **60 条**全部通过（第 52 轮修复前是整个进程段错误）。
