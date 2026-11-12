@@ -6,6 +6,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include "BoundaryConditions/PML.H"
@@ -13,7 +14,6 @@
 #   include "BoundaryConditions/PML_RZ.H"
 #endif
 #include "Initialization/ExternalField.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Fields.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
@@ -394,7 +394,7 @@ WarpX::MoveWindow (const int step, bool move_j)
     const int dir = moving_window_dir;
 
     // Update current injection position for all containers
-    ::UpdateInjectionPosition(*mypc, gamma_boost, beta_boost, boost_direction, moving_window_dir, dt[0]);
+    ::UpdateInjectionPosition(GetPartContainer(), gamma_boost, beta_boost, boost_direction, moving_window_dir, dt[0]);
 
     // Update antenna position for all lasers
     // TODO Make this specific to lasers only

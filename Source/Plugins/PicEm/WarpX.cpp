@@ -359,6 +359,20 @@ WarpX::particleSystem ()
     return *mypc;
 }
 
+// Only the structural users (tile iteration) and the Python bindings call this; everything
+// else goes through particleSystem().
+MultiParticleContainer&
+WarpX::GetPartContainer ()
+{
+    return static_cast<MultiParticleContainer&>(*mypc);
+}
+
+const MultiParticleContainer&
+WarpX::GetPartContainer () const
+{
+    return static_cast<const MultiParticleContainer&>(*mypc);
+}
+
 const warpx::runtime::IParticleSystem&
 WarpX::particleSystem () const
 {
@@ -409,7 +423,12 @@ WarpX::WarpX ()
     t_old.resize(nlevs_max, std::numeric_limits<Real>::lowest());
     dt.resize(nlevs_max, std::numeric_limits<Real>::max());
 
-    mypc = std::make_unique<MultiParticleContainer>(this);
+    // The concrete class is the plugin's business: register it once and ask the core.
+    warpx::runtime::register_particle_system_factory(
+        [](void* owner) -> std::unique_ptr<warpx::runtime::IParticleSystem> {
+            return std::make_unique<MultiParticleContainer>(static_cast<WarpX*>(owner));
+        });
+    mypc = warpx::runtime::create_particle_system(this);
 
     // Loop over species (particles and lasers)
     // and set current injection position per species

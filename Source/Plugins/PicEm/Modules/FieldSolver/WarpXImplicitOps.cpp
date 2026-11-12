@@ -143,7 +143,7 @@ WarpX::SaveParticlesAtImplicitStepStart ( )
     // time-centered position and velocity needed for the implicit stencil.
     // Thus, we need to save this information.
 
-    for (auto const& pc : *mypc) {
+    for (auto const& pc : GetPartContainer()) {
 
         for (int lev = 0; lev <= finest_level; ++lev) {
 #ifdef AMREX_USE_OMP
@@ -227,7 +227,7 @@ WarpX::FinishImplicitParticleUpdate (amrex::Real time)
     // and momentum.
 
     for (int lev = 0; lev <= finest_level; ++lev) {
-        for (auto const& pc : *mypc) {
+        for (auto const& pc : GetPartContainer()) {
             pc->FinishImplicitParticleUpdate(m_fields, lev, time, dt[lev]);
         }
     }
@@ -241,7 +241,7 @@ WarpX::ResetImplicitParticleData ()
 
     // Reset the particle data when starting substepping.
     for (int lev = 0; lev <= finest_level; ++lev) {
-        for (auto const& pc : *mypc) {
+        for (auto const& pc : GetPartContainer()) {
             pc->ResetImplicitParticleData(lev);
         }
     }

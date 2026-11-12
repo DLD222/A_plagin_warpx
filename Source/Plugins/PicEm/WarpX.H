@@ -201,7 +201,14 @@ public:
     void ImplicitComputeRHSE (int lev, amrex::Real dt, WarpXSolverVec& a_Erhs_vec);
     void ImplicitComputeRHSE (int lev, PatchType patch_type, amrex::Real dt, WarpXSolverVec& a_Erhs_vec);
 
-    MultiParticleContainer& GetPartContainer () { return *mypc; }
+    /** The concrete container.
+     *
+     * Only for the few places that genuinely need AMReX tile iteration over a species
+     * (regrid cost accumulation, the implicit particle update) and for the Python bindings;
+     * everything else uses particleSystem().
+     */
+    MultiParticleContainer& GetPartContainer ();
+    const MultiParticleContainer& GetPartContainer () const;
 
     /** The particle system as the kernel sees it.
      *
@@ -1502,7 +1509,8 @@ private:
     bool m_safe_guard_cells = false;
 
     // Particle container
-    std::unique_ptr<MultiParticleContainer> mypc;
+    //! Built once through the plugin factory; the kernel only needs the contract.
+    std::unique_ptr<warpx::runtime::IParticleSystem> mypc;
     std::unique_ptr<warpx::runtime::IDiagnosticsService> multi_diags;
     std::shared_ptr<warpx::runtime::IAmrPolicy> m_amr_policy;
 

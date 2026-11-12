@@ -882,7 +882,7 @@ WarpX::InitData_BeforeInit ()
     }
     multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
     if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
-        multi_diags->InitData(*mypc);
+        multi_diags->InitData(particleSystem());
         multi_diags = std::make_unique<warpx::runtime::NullDiagnosticsService>();
     }
 
@@ -1000,7 +1000,7 @@ WarpX::InitData_FieldSolve ()
         // Field solve step for electrostatic solvers, or when
         // any species has initialize_self_fields = true, or when boundary potential is specified
         bool has_initialize_self_fields = false;
-        for (auto const& species : *mypc) {
+        for (auto const& species : GetPartContainer()) {
             has_initialize_self_fields |= species->initialize_self_fields;
         }
         const bool has_boundary_potential = m_electrostatic_solver->boundaryPotentialSpecified();
@@ -1168,7 +1168,7 @@ WarpX::AddExternalFields (int const lev)
 
 void
 WarpX::InitDiagnostics () {
-    multi_diags->InitData(*mypc);
+    multi_diags->InitData(particleSystem());
     reduced_diags->InitData();
 }
 
