@@ -24,7 +24,6 @@
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX.H>

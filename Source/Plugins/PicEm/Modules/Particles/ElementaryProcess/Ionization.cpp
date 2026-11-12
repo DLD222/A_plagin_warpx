@@ -9,7 +9,6 @@
 #include "Runtime/RuntimeData.H"
 #include "Particles/ElementaryProcess/Ionization.H"
 
-#include "WarpX.H"
 
 #include <AMReX_Box.H>
 #include <AMReX_FArrayBox.H>

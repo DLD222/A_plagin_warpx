@@ -21,7 +21,6 @@
 #include "Runtime/FrameState.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
 
 #include <AMReX_Array.H>
 #include <AMReX_Array4.H>

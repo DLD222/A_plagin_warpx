@@ -18,7 +18,6 @@
 #include "Particles/RigidInjectedParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
 
 #include "ablastr/fields/MultiFabRegister.H"
 #include <ablastr/utils/text/StreamUtils.H>

@@ -47,7 +47,6 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/LegacyServices.H"
 #include "Runtime/LegacyServices.H"
-#include "WarpX.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/profiler/ProfilerWrapper.H>

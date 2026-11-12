@@ -9,7 +9,6 @@
 #include "Runtime/RuntimeData.H"
 #include "Particles/ElementaryProcess/QEDPairGeneration.H"
 
-#include "WarpX.H"
 
 #include <AMReX_Box.H>
 #include <AMReX_FArrayBox.H>
