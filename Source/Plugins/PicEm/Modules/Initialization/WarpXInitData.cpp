@@ -1063,7 +1063,7 @@ WarpX::InitData_Diagnostics ()
     ::PerformanceHints(total_nboxes, nprocs);
 
     const bool external_particle_field_used = (
-        mypc->m_B_ext_particle_s != "none" || mypc->m_E_ext_particle_s != "none");
+        m_runtime_context->config->B_ext_particle_s() != "none" || m_runtime_context->config->E_ext_particle_s() != "none");
 
     const bool is_any_boundary_pml =(
         (std::find(do_pml_Lo[0].begin(), do_pml_Lo[0].end(), true ) != do_pml_Lo[0].end()) ||
@@ -1931,8 +1931,8 @@ WarpX::LoadExternalFields (int const lev)
     // fields should be updated every time the window moves.
     if ( (m_p_ext_field_params->B_ext_grid_type == ExternalFieldType::read_from_file) ||
          (m_p_ext_field_params->E_ext_grid_type == ExternalFieldType::read_from_file) ||
-         (mypc->m_B_ext_particle_s == "read_from_file") ||
-         (mypc->m_E_ext_particle_s == "read_from_file") ) {
+         (m_runtime_context->config->B_ext_particle_s() == "read_from_file") ||
+         (m_runtime_context->config->E_ext_particle_s() == "read_from_file") ) {
 
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             WarpX::do_moving_window == 0,
@@ -1984,7 +1984,7 @@ WarpX::LoadExternalFields (int const lev)
     }
 
     // External particle B fields
-    if (mypc->m_B_ext_particle_s == "read_from_file") {
+    if (m_runtime_context->config->B_ext_particle_s() == "read_from_file") {
 #if defined(WARPX_DIM_RZ)
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(n_rz_azimuthal_modes == 1,
                                          "External field reading is not implemented for more than one RZ mode (see #3829)");
@@ -2011,7 +2011,7 @@ WarpX::LoadExternalFields (int const lev)
     }
 
     //  External particle E fields
-    if (mypc->m_E_ext_particle_s == "read_from_file") {
+    if (m_runtime_context->config->E_ext_particle_s() == "read_from_file") {
 #if defined(WARPX_DIM_RZ)
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(n_rz_azimuthal_modes == 1,
                                          "External field reading is not implemented for more than one RZ mode (see #3829)");

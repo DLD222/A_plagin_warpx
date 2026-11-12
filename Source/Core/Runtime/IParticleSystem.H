@@ -17,11 +17,14 @@
 
 #include <ablastr/fields/MultiFabRegister.H>
 
+#include <AMReX_BoxArray.H>
+#include <AMReX_DistributionMapping.H>
 #include <AMReX_IntVect.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_REAL.H>
 
 #include <optional>
+#include <memory>
 #include <string>
 
 namespace warpx::runtime
@@ -116,6 +119,35 @@ public:
     [[nodiscard]] virtual int nSpeciesGatherFromMainGrid () const = 0;
     //! Description of the user-declared external E/B fields acting on the particles.
     [[nodiscard]] virtual const ExternalParticleFields& externalParticleFieldsMetadata () const = 0;
+
+    // ---- restart and mesh bookkeeping --------------------------------------
+    virtual void PostRestart () = 0;
+    virtual void SetParticleBoxArray (int lev, amrex::BoxArray& new_ba) = 0;
+    virtual void SetParticleDistributionMap (int lev, amrex::DistributionMapping& new_dm) = 0;
+    virtual void SortParticlesByBin (const amrex::IntVect& bin_size,
+                                     bool sort_particles_for_deposition,
+                                     const amrex::IntVect& sort_idx_type) = 0;
+    virtual void deleteInvalidParticles () = 0;
+    virtual void ApplyBoundaryConditions () = 0;
+    virtual void ScrapeParticlesAtEB (
+        ablastr::fields::MultiLevelScalarField const& distance_to_eb) = 0;
+    virtual void TransformMomentumToCurvilinear (bool forward) = 0;
+
+    // ---- optional physics the kernel drives when the input asks for it -----
+    virtual void doFieldIonization (int lev,
+                                    const amrex::MultiFab& Ex, const amrex::MultiFab& Ey,
+                                    const amrex::MultiFab& Ez,
+                                    const amrex::MultiFab& Bx, const amrex::MultiFab& By,
+                                    const amrex::MultiFab& Bz) = 0;
+    virtual void doQEDSchwinger () = 0;
+    virtual void DepositMassMatrices (ablastr::fields::MultiFabRegister& fields, int lev,
+                                      amrex::Real dt,
+                                      ImplicitOptions const& implicit_options) = 0;
+    virtual void ContinuousFluxInjection (amrex::Real t, amrex::Real dt) const = 0;
+    virtual void UpdateAntennaPosition (amrex::Real dt) const = 0;
+    virtual void CalculateNuei (std::string const& electron_species_name) = 0;
+    virtual void GenerateGlobalDebyeLength () = 0;
+    [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> GetGlobalPlasmaFrequency (int lev) = 0;
 };
 
 } // namespace warpx::runtime

@@ -3119,7 +3119,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
             m_fields.alias_init(FieldType::Efield_aux, FieldType::Efield_avg_fp, Direction{1}, lev, 0.0_rt);
             m_fields.alias_init(FieldType::Efield_aux, FieldType::Efield_avg_fp, Direction{2}, lev, 0.0_rt);
         } else {
-            if (mypc->m_B_ext_particle_s == "read_from_file") {
+            if (m_runtime_context->config->B_ext_particle_s() == "read_from_file") {
                 AllocLevelField("Bfield_aux_x", FieldType::Bfield_aux, Direction{0}, lev, ba, dm, ncomps, Bx_nodal_flag, ngEB);
                 AllocLevelField("Bfield_aux_y", FieldType::Bfield_aux, Direction{1}, lev, ba, dm, ncomps, By_nodal_flag, ngEB);
                 AllocLevelField("Bfield_aux_z", FieldType::Bfield_aux, Direction{2}, lev, ba, dm, ncomps, Bz_nodal_flag, ngEB);
@@ -3129,7 +3129,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                 m_fields.alias_init(FieldType::Bfield_aux, FieldType::Bfield_fp, Direction{1}, lev, 0.0_rt);
                 m_fields.alias_init(FieldType::Bfield_aux, FieldType::Bfield_fp, Direction{2}, lev, 0.0_rt);
             }
-            if (mypc->m_E_ext_particle_s == "read_from_file") {
+            if (m_runtime_context->config->E_ext_particle_s() == "read_from_file") {
                 AllocLevelField("Efield_aux_x", FieldType::Efield_aux, Direction{0}, lev, ba, dm, ncomps, Ex_nodal_flag, ngEB);
                 AllocLevelField("Efield_aux_y", FieldType::Efield_aux, Direction{1}, lev, ba, dm, ncomps, Ey_nodal_flag, ngEB);
                 AllocLevelField("Efield_aux_z", FieldType::Efield_aux, Direction{2}, lev, ba, dm, ncomps, Ez_nodal_flag, ngEB);
@@ -3163,7 +3163,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
                            amrex::convert(ba, m_fields.get(FieldType::Bfield_fp, Direction{2}, lev)->ixType()),
                            dm, ncomps, ngEB);
     }
-    if (mypc->m_B_ext_particle_s == "read_from_file") {
+    if (m_runtime_context->config->B_ext_particle_s() == "read_from_file") {
         //  These fields will be added to the fields that the particles see, and need to match the index type
         auto *Bfield_aux_levl_0 = m_fields.get(FieldType::Bfield_aux, Direction{0}, lev);
         auto *Bfield_aux_levl_1 = m_fields.get(FieldType::Bfield_aux, Direction{1}, lev);
@@ -3186,7 +3186,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         AllocLevelFieldOnBA("Efield_fp_external_y", FieldType::Efield_fp_external, Direction{1}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{1}, lev)->ixType()), dm, ncomps, ngEB);
         AllocLevelFieldOnBA("Efield_fp_external_z", FieldType::Efield_fp_external, Direction{2}, lev, amrex::convert(ba, m_fields.get(FieldType::Efield_fp, Direction{2}, lev)->ixType()), dm, ncomps, ngEB);
     }
-    if (mypc->m_E_ext_particle_s == "read_from_file") {
+    if (m_runtime_context->config->E_ext_particle_s() == "read_from_file") {
         //  These fields will be added to the fields that the particles see, and need to match the index type
         auto *Efield_aux_levl_0 = m_fields.get(FieldType::Efield_aux, Direction{0}, lev);
         auto *Efield_aux_levl_1 = m_fields.get(FieldType::Efield_aux, Direction{1}, lev);

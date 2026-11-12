@@ -512,7 +512,7 @@ WarpX::UpdateAuxiliaryData ()
     for (int lev = 0; lev <= finest_level; ++lev) {
 
         // External particle E-field maps.
-        if (mypc->m_E_ext_particle_s == "read_from_file") {
+        if (m_runtime_context->config->E_ext_particle_s() == "read_from_file") {
             ablastr::fields::VectorField E_aux = m_fields.get_alldirs(FieldType::Efield_aux, lev);
             const auto& E_ext = m_fields.get_alldirs(FieldType::E_external_particle_field, lev);
 
@@ -540,7 +540,7 @@ WarpX::UpdateAuxiliaryData ()
         }
 
         // External particle B-field maps.
-        if (mypc->m_B_ext_particle_s == "read_from_file") {
+        if (m_runtime_context->config->B_ext_particle_s() == "read_from_file") {
             ablastr::fields::VectorField B_aux = m_fields.get_alldirs(FieldType::Bfield_aux, lev);
             const auto& B_ext = m_fields.get_alldirs(FieldType::B_external_particle_field, lev);
 
