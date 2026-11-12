@@ -16,7 +16,6 @@
 #   include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
 #endif
 #include "Fields.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
@@ -116,7 +115,7 @@ WarpX::ComputeDt ()
 amrex::Real
 WarpX::GlobalPlasmaFrequencyMax ()
 {
-    const std::unique_ptr<amrex::MultiFab> global_plasma_frequency = mypc->GetGlobalPlasmaFrequency(0);
+    const std::unique_ptr<amrex::MultiFab> global_plasma_frequency = particleSystem().GetGlobalPlasmaFrequency(0);
     const amrex::Real global_plasma_frequency_max = global_plasma_frequency->max(0);
     return global_plasma_frequency_max;
 }
@@ -205,10 +204,10 @@ WarpX::GlobalCyclotronFrequencyMax ()
 
     amrex::Real omegac_max = 0.;
 
-    const int n_containers = mypc->nContainers();
+    const int n_containers = particleSystem().nContainers();
     for (int i = 0; i < n_containers; i++)
     {
-        const warpx::runtime::IParticleContainer& pc = mypc->GetParticleContainer(i);
+        const warpx::runtime::IParticleContainer& pc = particleSystem().GetParticleContainer(i);
         if (pc.getMass() > 0.) {
             const amrex::Real pc_omegac = std::abs(pc.getCharge())*B_max/pc.getMass();
             omegac_max = std::max(omegac_max, pc_omegac);
@@ -273,7 +272,7 @@ WarpX::ApplyDtLimiters (int const step)
     using namespace amrex::literals;
 
     // Calculate limiting values from the simulation conditions
-    const amrex::Real max_dt_inv = mypc->maxParticleDtInv();  // max value of abs(vp_i/dx[i])
+    const amrex::Real max_dt_inv = particleSystem().maxParticleDtInv();  // max value of abs(vp_i/dx[i])
     const amrex::Real omegap_max = m_max_omegap_dt.has_value() ? GlobalPlasmaFrequencyMax() : 0._rt;
     const amrex::Real omegac_max = m_max_omegac_dt.has_value() ? GlobalCyclotronFrequencyMax() : 0._rt;
 

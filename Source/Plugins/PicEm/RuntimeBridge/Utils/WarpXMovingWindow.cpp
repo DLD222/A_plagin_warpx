@@ -398,7 +398,7 @@ WarpX::MoveWindow (const int step, bool move_j)
 
     // Update antenna position for all lasers
     // TODO Make this specific to lasers only
-    mypc->UpdateAntennaPosition(dt[0]);
+    particleSystem().UpdateAntennaPosition(dt[0]);
 
     // compute the number of cells to shift on the base level
     amrex::Real new_lo[AMREX_SPACEDIM];
@@ -628,10 +628,10 @@ WarpX::MoveWindow (const int step, bool move_j)
     }
 
     // Loop over species (particles and lasers)
-    const int n_containers = mypc->nContainers();
+    const int n_containers = particleSystem().nContainers();
     for (int i=0; i<n_containers; i++)
     {
-        WarpXParticleContainer& pc = static_cast<WarpXParticleContainer&>(mypc->GetParticleContainer(i));
+        WarpXParticleContainer& pc = static_cast<WarpXParticleContainer&>(particleSystem().GetParticleContainer(i));
 
         // Continuously inject plasma in new cells (by default only on level 0)
         if (pc.doContinuousInjection())

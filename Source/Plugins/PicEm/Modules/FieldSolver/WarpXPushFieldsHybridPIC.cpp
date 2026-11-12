@@ -9,7 +9,6 @@
  */
 #include "Fields.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"
@@ -300,8 +299,8 @@ void WarpX::HybridPICDepositRhoAndJ ()
             rho_species_sum[lev]->setVal(0._rt);
             for (int idim = 0; idim < 3; ++idim) { current_fp[lev][idim]->setVal(0._rt); }
         }
-        for (auto const & spec : mypc->GetSpeciesNames()) {
-            auto & pc = mypc->GetParticleContainerFromName(spec);
+        for (auto const & spec : particleSystem().GetSpeciesNames()) {
+            auto & pc = particleSystem().GetParticleContainerFromName(spec);
             if (pc.getCharge() == 0._prt || pc.doNotDeposit()) { continue; }
             auto J_spec = m_fields.get_mr_levels_alldirs("current_fp_" + spec, finest_level);
             auto rho_spec = m_fields.get_mr_levels("rho_fp_" + spec, finest_level);
@@ -388,13 +387,13 @@ void WarpX::HybridPICDepositRhoAndJ ()
         // feature consumes the per-species fields, so skip the per-species
         // deposits and guard-cell sums entirely. Zeroing and the RZ inverse
         // volume scaling (for J, not rho) are handled inside.
-        mypc->DepositCharge(rho_fp, 0._rt);
-        mypc->DepositCurrent(current_fp, dt[0], -0.5_rt * dt[0]);
+        particleSystem().DepositCharge(rho_fp, 0._rt);
+        particleSystem().DepositCurrent(current_fp, dt[0], -0.5_rt * dt[0]);
     }
 
     // TODO: Perhaps add flag here for when using temperature accumulation in Hybrid
     // Perform Temperature Deposition at time t_{n}
-    mypc->DepositTemperatures(m_fields, 0.0_rt);
+    particleSystem().DepositTemperatures(m_fields, 0.0_rt);
 
     // Deposit cold-relativistic fluid charge and current
     if (do_fluid_species) {

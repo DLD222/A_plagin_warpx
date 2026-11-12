@@ -308,7 +308,9 @@ storePhiOnParticles ( WarpXParticleContainer::Base& tmp,
 
 void
 storeFieldOnParticles ( WarpXParticleContainer::Base& tmp,
-    const warpx::runtime::RuntimeData& data, bool is_full_diagnostic,
+    const warpx::runtime::RuntimeData& data,
+    const warpx::runtime::RuntimeConfigSnapshot& config,
+    bool is_full_diagnostic,
                         bool save_Ex, bool save_Ey, bool save_Ez,
                         bool save_Bx, bool save_By, bool save_Bz) {
 
@@ -340,13 +342,13 @@ storeFieldOnParticles ( WarpXParticleContainer::Base& tmp,
 
     auto & fields = const_cast<ablastr::fields::MultiFabRegister&>(data.fields());
 
-    const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
-    const int nox = WarpX::nox;
-    const bool galerkin_interpolation = WarpX::galerkin_interpolation;
+    const int n_rz_azimuthal_modes = config.n_rz_azimuthal_modes;
+    const int nox = config.nox;
+    const bool galerkin_interpolation = config.galerkin_interpolation;
 
     for (int lev=0; lev<=data.finestLevel(); lev++) {
 
-        const amrex::XDim3 dinv = WarpX::InvCellSize(lev);
+        const amrex::XDim3 dinv = data.invCellSize(lev);
 
         amrex::MultiFab & Ex = *fields.get(FieldType::Efield_aux, Direction{0}, lev);
         amrex::MultiFab & Ey = *fields.get(FieldType::Efield_aux, Direction{1}, lev);
@@ -361,7 +363,7 @@ storeFieldOnParticles ( WarpXParticleContainer::Base& tmp,
         for (PinnedParIter pti(tmp, lev); pti.isValid(); ++pti) {
 
             const amrex::Box box = pti.tilebox();
-            const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, lev, 0._rt);
+            const amrex::XDim3 xyzmin = data.lowerCorner(box, lev, 0._rt);
             const Dim3 lo = lbound(box);
 
             FArrayBox const* exfab = &Ex[pti];

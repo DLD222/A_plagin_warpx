@@ -10,6 +10,7 @@
  */
 #include "Runtime/ServiceFactory.H"
 #include "Runtime/StagePoint.H"
+#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include <cstdlib>
@@ -36,7 +37,6 @@
 #include "Filter/NCIGodfreyFilter.H"
 #include "Initialization/ExternalField.H"
 #include "Initialization/DivCleaner/ProjectionDivCleaner.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Utils/Logo/GetLogo.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
@@ -1185,8 +1185,8 @@ WarpX::InitFromScratch ()
         m_implicit_solver->CreateParticleAttributes();
     }
 
-    mypc->AllocData();
-    mypc->InitData();
+    particleSystem().AllocData();
+    particleSystem().InitData();
 
     InitPML();
 
@@ -1408,7 +1408,7 @@ WarpX::InitFilter (){
 void
 WarpX::PostRestart ()
 {
-    mypc->PostRestart();
+    particleSystem().PostRestart();
     for (int lev = 0; lev <= maxLevel(); ++lev) {
         LoadExternalFields(lev);
     }
@@ -1991,7 +1991,7 @@ WarpX::LoadExternalFields (int const lev)
 #endif
 
         // Get meta data of field maps to get correct path per field map
-        const auto& metaB = mypc->externalParticleFieldsMetadata().m_B_field_metadata;
+        const auto& metaB = particleSystem().externalParticleFieldsMetadata().m_B_field_metadata;
         if (!metaB.empty()) {
             // Read multiple maps: each field map goes to component ic
             for (int ic = 0; ic < static_cast<int>(metaB.size()); ++ic) {
@@ -2018,7 +2018,7 @@ WarpX::LoadExternalFields (int const lev)
 #endif
 
         // Get meta data of field maps to get correct path per field map
-        const auto& metaE = mypc->externalParticleFieldsMetadata().m_E_field_metadata;
+        const auto& metaE = particleSystem().externalParticleFieldsMetadata().m_E_field_metadata;
         if (!metaE.empty()) {
             // Read multiple maps: each field map goes to component ic
             for (int ic = 0; ic < static_cast<int>(metaE.size()); ++ic) {

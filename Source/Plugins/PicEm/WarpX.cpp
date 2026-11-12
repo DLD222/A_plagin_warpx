@@ -414,10 +414,10 @@ WarpX::WarpX ()
     // Loop over species (particles and lasers)
     // and set current injection position per species
     if (do_moving_window){
-        const int n_containers = mypc->nContainers();
+        const int n_containers = particleSystem().nContainers();
         for (int i=0; i<n_containers; i++)
         {
-            warpx::runtime::IParticleContainer& pc = mypc->GetParticleContainer(i);
+            warpx::runtime::IParticleContainer& pc = particleSystem().GetParticleContainer(i);
 
             // Storing injection position for all species, regardless of whether
             // they are continuously injected, since it makes looping over the
@@ -2622,7 +2622,7 @@ WarpX::AllocLevelData (int lev, const BoxArray& ba, const DistributionMapping& d
     }
 
 
-    if (mypc->nSpeciesDepositOnMainGrid() && n_current_deposition_buffer == 0) {
+    if (particleSystem().nSpeciesDepositOnMainGrid() && n_current_deposition_buffer == 0) {
         n_current_deposition_buffer = 1;
         // This forces the allocation of buffers and allows the code associated
         // with buffers to run. But the buffer size of `1` is in fact not used,
@@ -3182,7 +3182,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         auto *Bfield_aux_levl_2 = m_fields.get(FieldType::Bfield_aux, Direction{2}, lev);
 
         // Number of components is taken directly from the extern field data
-        const int ncomp_ext_B = mypc->externalParticleFieldsMetadata().m_nBfields;
+        const int ncomp_ext_B = particleSystem().externalParticleFieldsMetadata().m_nBfields;
 
         // Same as Bfield_fp for reading external field data, except for allocating as many components as external B fields are provided
         AllocLevelFieldOnBA("B_external_particle_field_x", FieldType::B_external_particle_field, Direction{0}, lev,
@@ -3205,7 +3205,7 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
         auto *Efield_aux_levl_2 = m_fields.get(FieldType::Efield_aux, Direction{2}, lev);
 
         // Number of components is taken directly from the extern field data
-        const int ncomp_ext_E = mypc->externalParticleFieldsMetadata().m_nEfields;
+        const int ncomp_ext_E = particleSystem().externalParticleFieldsMetadata().m_nEfields;
 
         // Same as Efield_fp for reading external field data, except for allocating as many components as external E fields are provided
         AllocLevelFieldOnBA("E_external_particle_field_x", FieldType::E_external_particle_field, Direction{0}, lev,
@@ -3345,12 +3345,12 @@ WarpX::AllocLevelMFs (int lev, const BoxArray& ba, const DistributionMapping& dm
     // Copy of the coarse aux
     //
     if (lev > 0 && (n_field_gather_buffer > 0 || n_current_deposition_buffer > 0 ||
-                    mypc->nSpeciesGatherFromMainGrid() > 0))
+                    particleSystem().nSpeciesGatherFromMainGrid() > 0))
     {
         BoxArray cba = ba;
         cba.coarsen(refRatio(lev-1));
 
-        if (n_field_gather_buffer > 0 || mypc->nSpeciesGatherFromMainGrid() > 0) {
+        if (n_field_gather_buffer > 0 || particleSystem().nSpeciesGatherFromMainGrid() > 0) {
             if (aux_is_nodal) {
                 BoxArray const& cnba = amrex::convert(cba,IntVect::TheNodeVector());
                 // Create the MultiFabs for B
@@ -3996,7 +3996,7 @@ void
 WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
 {
     m_runtime_context = context;
-    if (mypc != nullptr) { mypc->setRuntimeContext(context); }
+    if (mypc != nullptr) { particleSystem().setRuntimeContext(context); }
 }
 
 warpx::runtime::IParticleContainerAccess&

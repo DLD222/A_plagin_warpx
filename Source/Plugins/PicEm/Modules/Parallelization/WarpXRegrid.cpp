@@ -6,6 +6,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include "EmbeddedBoundary/Enabled.H"
@@ -13,7 +14,6 @@
 #include "Fields.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Initialization/ExternalField.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/ParticleBoundaryBuffer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
@@ -159,8 +159,8 @@ WarpX::LoadBalance ()
     }
     if (loadBalancedAnyLevel)
     {
-        mypc->Redistribute();
-        mypc->defineAllParticleTiles();
+        particleSystem().Redistribute();
+        particleSystem().defineAllParticleTiles();
 
         // redistribute particle boundary buffer
         m_particle_boundary_buffer->redistribute();

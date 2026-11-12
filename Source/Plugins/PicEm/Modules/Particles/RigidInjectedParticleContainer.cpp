@@ -300,8 +300,8 @@ RigidInjectedParticleContainer::Evolve (ablastr::fields::MultiFabRegister& field
 #else
     const int zindex = 0;
 #endif
-    done_injecting_lev = ((zinject_plane_levels[lev] < plo[zindex] && WarpX::moving_window_v + frame().beta_boost*PhysConst::c >= 0.) ||
-                           (zinject_plane_levels[lev] > phi[zindex] && WarpX::moving_window_v + frame().beta_boost*PhysConst::c <= 0.));
+    done_injecting_lev = ((zinject_plane_levels[lev] < plo[zindex] && config().moving_window_v() + frame().beta_boost*PhysConst::c >= 0.) ||
+                           (zinject_plane_levels[lev] > phi[zindex] && config().moving_window_v() + frame().beta_boost*PhysConst::c <= 0.));
 
     PhysicalParticleContainer::Evolve(fields,
                                       lev,

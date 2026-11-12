@@ -18,7 +18,6 @@
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Parallelization/WarpXComm_K.H"
 #include "Parallelization/WarpXSumGuardCells.H"
-#include "Particles/MultiParticleContainer.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/coarsen/average.H>
@@ -516,7 +515,7 @@ WarpX::UpdateAuxiliaryData ()
             ablastr::fields::VectorField E_aux = m_fields.get_alldirs(FieldType::Efield_aux, lev);
             const auto& E_ext = m_fields.get_alldirs(FieldType::E_external_particle_field, lev);
 
-            const auto& metaE = mypc->externalParticleFieldsMetadata().m_E_field_metadata;
+            const auto& metaE = particleSystem().externalParticleFieldsMetadata().m_E_field_metadata;
             const int ncomp_src = E_ext[0]->nComp();
 
             // The number of external particle fields must match the field metadata.
@@ -544,7 +543,7 @@ WarpX::UpdateAuxiliaryData ()
             ablastr::fields::VectorField B_aux = m_fields.get_alldirs(FieldType::Bfield_aux, lev);
             const auto& B_ext = m_fields.get_alldirs(FieldType::B_external_particle_field, lev);
 
-            const auto& metaB = mypc->externalParticleFieldsMetadata().m_B_field_metadata;
+            const auto& metaB = particleSystem().externalParticleFieldsMetadata().m_B_field_metadata;
             const int ncomp_src = B_ext[0]->nComp();
 
             // The number of external particle fields must match the field metadata.

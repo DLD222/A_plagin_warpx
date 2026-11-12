@@ -318,7 +318,7 @@ WarpX::DepositMassMatrices (amrex::Real a_dt, ImplicitOptions const& implicit_op
 
     for (int lev = 0; lev <= finest_level; ++lev)
     {
-        mypc->DepositMassMatrices(
+        particleSystem().DepositMassMatrices(
             m_fields,
             lev,
             dt[lev]*dt_scale,

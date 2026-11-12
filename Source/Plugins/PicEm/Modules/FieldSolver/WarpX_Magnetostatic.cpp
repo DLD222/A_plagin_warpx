@@ -9,7 +9,6 @@
 #include "Fields.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Parallelization/GuardCellManager.H"
-#include "Particles/MultiParticleContainer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Python/callbacks.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -108,8 +107,8 @@ WarpX::ComputeMagnetostaticField()
     // The three operations that are still kernel work travel as callbacks.
     config.deposit_current = [this] (ablastr::fields::MultiFabRegister& fields,
                                      amrex::Real step_dt) {
-        for (int ispecies = 0; ispecies < mypc->nSpecies(); ispecies++) {
-            warpx::runtime::IParticleContainer& species = mypc->GetParticleContainer(ispecies);
+        for (int ispecies = 0; ispecies < particleSystem().nSpecies(); ispecies++) {
+            warpx::runtime::IParticleContainer& species = particleSystem().GetParticleContainer(ispecies);
             if (!species.doNotDeposit()) {
                 species.DepositCurrent(
                     fields.get_mr_levels_alldirs(warpx::fields::FieldType::current_fp, finest_level),

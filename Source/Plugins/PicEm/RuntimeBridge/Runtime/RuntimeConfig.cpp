@@ -8,7 +8,6 @@
 #include "Runtime/RuntimeConfig.H"
 
 #include "WarpX.H"
-#include "Particles/MultiParticleContainer.H"
 
 namespace warpx::runtime
 {
