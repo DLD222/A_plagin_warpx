@@ -11,7 +11,6 @@
 
 #include "Fluids/MultiFluidContainer.H"
 
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 #include "Runtime/IMacroscopicProperties.H"
 
@@ -52,10 +51,10 @@ WarpXRuntimeData::w () const
 ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () { return w().GetMultiFabRegister(); }
 const ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () const { return w().GetMultiFabRegister(); }
 amrex::AmrCore& WarpXRuntimeData::amrCore () const { return w(); }
-ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () { return w().GetPartContainer(); }
-IParticleContainerAccess& WarpXRuntimeData::particleAccess () { return w().GetPartContainer(); }
-const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return w().GetPartContainer(); }
-const IParticleContainerAccess& WarpXRuntimeData::particleAccess () const { return w().GetPartContainer(); }
+ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () { return w().particleSystem(); }
+IParticleContainerAccess& WarpXRuntimeData::particleAccess () { return w().particleSystem(); }
+const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return w().particleSystem(); }
+const IParticleContainerAccess& WarpXRuntimeData::particleAccess () const { return w().particleSystem(); }
 
 warpx::runtime::IFluidModel* WarpXRuntimeData::fluids () { auto& warpx = w(); return warpx.DoFluidSpecies() ? &warpx.GetFluidContainer() : nullptr; }
 int WarpXRuntimeData::finestLevel () const { return w().finestLevel(); }

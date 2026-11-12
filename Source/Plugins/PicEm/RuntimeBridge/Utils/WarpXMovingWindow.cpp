@@ -6,7 +6,6 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include "BoundaryConditions/PML.H"

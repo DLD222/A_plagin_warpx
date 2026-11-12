@@ -10,7 +10,6 @@
  */
 #include "Runtime/ServiceFactory.H"
 #include "Runtime/StagePoint.H"
-#include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
 
 #include <cstdlib>
@@ -1000,8 +999,8 @@ WarpX::InitData_FieldSolve ()
         // Field solve step for electrostatic solvers, or when
         // any species has initialize_self_fields = true, or when boundary potential is specified
         bool has_initialize_self_fields = false;
-        for (auto const& species : GetPartContainer()) {
-            has_initialize_self_fields |= species->initialize_self_fields;
+        for (int i_s = 0; i_s < particleSystem().nSpecies(); ++i_s) {
+            has_initialize_self_fields |= particleSystem().initializesSelfFields(i_s);
         }
         const bool has_boundary_potential = m_electrostatic_solver->boundaryPotentialSpecified();
         if( (electrostatic_solver_id != ElectrostaticSolverAlgo::None ||
