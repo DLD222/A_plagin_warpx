@@ -9,6 +9,7 @@
 
 #include <AMReX_ParticleContainer.H>
 #include <AMReX_REAL.H>
+#include <AMReX_RealBox.H>
 #include <cstdint>
 #include <optional>
 #include <memory>
@@ -54,6 +55,17 @@ public:
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& BExternalParticle () const = 0;
     [[nodiscard]] virtual amrex::Real currentInjectionPosition () const = 0;
+
+    // ---- the species-level work the kernel drives --------------------------
+    //! Finish the implicit-particle update for this species on one level.
+    virtual void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,
+                                               int lev, amrex::Real t, amrex::Real dt) = 0;
+    //! Inject particles continuously through the plane the input selected.
+    virtual void ContinuousInjection (const amrex::RealBox& injection_box) = 0;
+    //! Whether this species injects continuously (the kernel skips it otherwise).
+    [[nodiscard]] virtual bool doContinuousInjection () const = 0;
+    //! Move a laser's antenna when the frame is boosted.
+    virtual void UpdateAntennaPosition (amrex::Real dt) = 0;
     virtual void setCurrentInjectionPosition (amrex::Real) = 0;
     [[nodiscard]] virtual int doNotDeposit () const = 0;
     [[nodiscard]] virtual bool getTemperatureDepositionFlag () const noexcept = 0;

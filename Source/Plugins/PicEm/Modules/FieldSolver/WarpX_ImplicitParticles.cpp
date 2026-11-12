@@ -11,7 +11,6 @@
 #include "WarpX.H"
 
 #include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 
 #include <AMReX_GpuAtomic.H>

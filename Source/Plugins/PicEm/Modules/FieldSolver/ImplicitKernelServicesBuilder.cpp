@@ -10,7 +10,6 @@
 #include "WarpX.H"
 
 #include "Particles/MultiParticleContainer.H"
-#include "Particles/WarpXParticleContainer.H"
 #include "Python/callbacks.H"
 
 #include "Runtime/ImplicitKernelServices.H"

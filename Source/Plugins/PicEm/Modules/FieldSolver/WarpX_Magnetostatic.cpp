@@ -9,7 +9,6 @@
 #include "Fields.H"
 #include "EmbeddedBoundary/Enabled.H"
 #include "Parallelization/GuardCellManager.H"
-#include "Particles/WarpXParticleContainer.H"
 #include "Python/callbacks.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXConst.H"
