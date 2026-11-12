@@ -14,7 +14,6 @@
 #include "Fields.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Initialization/ExternalField.H"
-#include "Particles/ParticleBoundaryBuffer.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

@@ -354,6 +354,25 @@ int WarpXHostServices::getNumParticlesInContainer (const std::string& species, i
 {
     return m_warpx.GetParticleBoundaryBuffer().getNumParticlesInContainer(species, boundary, local);
 }
+void WarpXHostServices::gatherParticlesFromDomainBoundaries (
+    warpx::runtime::IParticleSystem& particles, amrex::Real cur_time)
+{
+    m_warpx.GetParticleBoundaryBuffer().gatherParticlesFromDomainBoundaries(particles, cur_time);
+}
+
+void WarpXHostServices::gatherParticlesFromEmbeddedBoundaries (
+    warpx::runtime::IParticleSystem& particles,
+    ablastr::fields::MultiLevelScalarField const& distance_to_eb, amrex::Real cur_time)
+{
+    m_warpx.GetParticleBoundaryBuffer().gatherParticlesFromEmbeddedBoundaries(
+        particles, distance_to_eb, cur_time);
+}
+
+void WarpXHostServices::redistribute ()
+{
+    m_warpx.GetParticleBoundaryBuffer().redistribute();
+}
+
 std::string WarpXHostServices::boundaryName (int boundary)
 {
     return m_warpx.GetParticleBoundaryBuffer().boundaryName(boundary);

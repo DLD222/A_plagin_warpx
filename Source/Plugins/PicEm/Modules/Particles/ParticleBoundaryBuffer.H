@@ -7,6 +7,7 @@
 #ifndef WARPX_PARTICLEBOUNDARYBUFFER_H_
 #define WARPX_PARTICLEBOUNDARYBUFFER_H_
 
+#include "Runtime/IParticleBoundaryBuffer.H"
 #include "Particles/MultiParticleContainer_fwd.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/export.H"
@@ -19,7 +20,7 @@
 /**
  *  This stores particles that have left / been absorbed by domain and embedded boundaries.
  */
-class WARPX_EXPORT ParticleBoundaryBuffer
+class WARPX_EXPORT ParticleBoundaryBuffer : public warpx::runtime::IParticleBoundaryBuffer
 {
 public:
     explicit ParticleBoundaryBuffer (const warpx::runtime::RuntimeContext* ctx = nullptr);
@@ -40,13 +41,14 @@ public:
 
     const std::vector<std::string>& getSpeciesNames() const;
 
-    void gatherParticlesFromDomainBoundaries (MultiParticleContainer& mypc, amrex::Real cur_time);
+    void gatherParticlesFromDomainBoundaries (warpx::runtime::IParticleSystem& particles,
+                                              amrex::Real cur_time) override;
     void gatherParticlesFromEmbeddedBoundaries (
-        MultiParticleContainer& mypc, ablastr::fields::MultiLevelScalarField const& distance_to_eb,
-        amrex::Real cur_time
-    );
+        warpx::runtime::IParticleSystem& particles,
+        ablastr::fields::MultiLevelScalarField const& distance_to_eb,
+        amrex::Real cur_time) override;
 
-    void redistribute ();
+    void redistribute () override;
     void clearParticles ();
     void clearParticles (int i);
 

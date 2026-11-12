@@ -11,6 +11,7 @@
 #include "Runtime/FieldGatherOrders.H"
 #include "Runtime/IParticleContainerAccess.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/RuntimeData.H"
 
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Utils/WarpXAlgorithmSelection.H"
@@ -44,6 +45,9 @@ class IParticleSystem : public IParticleContainerAccess
 {
 public:
     ~IParticleSystem () override = default;
+
+    //! The runtime data the particle code reads its geometry and time steps from.
+    [[nodiscard]] virtual const RuntimeData& data () const = 0;
 
     // ---- setup -------------------------------------------------------------
     //! Give the system the runtime context; called once before the first step.

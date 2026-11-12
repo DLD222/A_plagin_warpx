@@ -29,7 +29,6 @@
 #endif
 #include "Parallelization/GuardCellManager.H"
 #include "Runtime/RuntimeConfig.H"
-#include "Particles/ParticleBoundaryBuffer.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/Scheduler.H"
@@ -1059,7 +1058,7 @@ void WarpX::HandleParticlesAtBoundaries (int step, amrex::Real cur_time, int num
     ExecutePythonCallback("particlescraper");
 
     particleSystem().ApplyBoundaryConditions();
-    m_particle_boundary_buffer->gatherParticlesFromDomainBoundaries(*mypc, cur_time);
+    m_particle_boundary_buffer->gatherParticlesFromDomainBoundaries(particleSystem(), cur_time);
 
     // Without mesh refinement, use a local redistribute when particles can only
     // have moved by a small number of cells; otherwise fall back to a global one.
@@ -1129,7 +1128,8 @@ void WarpX::HandleParticlesAtBoundaries (int step, amrex::Real cur_time, int num
         using warpx::fields::FieldType;
         particleSystem().ScrapeParticlesAtEB(m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level));
         m_particle_boundary_buffer->gatherParticlesFromEmbeddedBoundaries(
-            *mypc, m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level), cur_time);
+            particleSystem(),
+            m_fields.get_mr_levels(FieldType::distance_to_eb, finest_level), cur_time);
         if (eb_particle_boundary == ParticleBoundaryType::Absorbing) {
             // If particles are simply absorbed, no need for a full Redistribute.
             // Instead: simply delete the absorbed particles

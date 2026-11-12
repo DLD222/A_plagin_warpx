@@ -16,6 +16,7 @@
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
+#include "Runtime/IParticleBoundaryBuffer.H"
 #include "Runtime/IParticleSystem.H"
 #include "Runtime/IAmrPolicy.H"
 #include "Runtime/RuntimeConfig.H"
@@ -219,7 +220,7 @@ public:
     [[nodiscard]] warpx::runtime::IImplicitSolver * get_pointer_ImplicitSolver () const { return m_implicit_solver.get(); }
     void DefineImplicitSolver (bool from_restart = false);
     warpx::runtime::IDiagnosticsService& GetMultiDiags () {return *multi_diags;}
-    ParticleBoundaryBuffer& GetParticleBoundaryBuffer () { return *m_particle_boundary_buffer; }
+    warpx::runtime::IParticleBoundaryBuffer& GetParticleBoundaryBuffer () { return *m_particle_boundary_buffer; }
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > >& GetEBUpdateEFlag_fp() { return m_eb_update_E_fp; }
     amrex::Vector<std::array< std::unique_ptr<amrex::iMultiFab>,3 > >& GetEBUpdateBFlag_fp() { return m_eb_update_B_fp; }
     amrex::Vector< std::unique_ptr<amrex::iMultiFab> > const & GetEBReduceParticleShapeFlag() const { return m_eb_reduce_particle_shape; }
@@ -1763,7 +1764,7 @@ private:
     amrex::IntVect numprocs{0};
 
     //! particle buffer for scraped particles on the boundaries
-    std::unique_ptr<ParticleBoundaryBuffer> m_particle_boundary_buffer;
+    std::unique_ptr<warpx::runtime::IParticleBoundaryBuffer> m_particle_boundary_buffer;
 
 
     //

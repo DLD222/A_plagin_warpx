@@ -12,7 +12,6 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Parallelization/GuardCellManager.H"
 #include "Particles/MultiParticleContainer.H"
-#include "Particles/ParticleBoundaryBuffer.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

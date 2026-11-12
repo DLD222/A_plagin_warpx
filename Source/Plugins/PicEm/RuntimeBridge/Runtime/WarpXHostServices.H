@@ -42,6 +42,15 @@ public:
     void* getParticleBufferPointer (const std::string& s, int b) override;
     void clearParticles (int b) override;
 
+    // The kernel drives the boundary buffers through the same contract.
+    void gatherParticlesFromDomainBoundaries (warpx::runtime::IParticleSystem& particles,
+                                              amrex::Real cur_time) override;
+    void gatherParticlesFromEmbeddedBoundaries (
+        warpx::runtime::IParticleSystem& particles,
+        ablastr::fields::MultiLevelScalarField const& distance_to_eb,
+        amrex::Real cur_time) override;
+    void redistribute () override;
+
     void prepareFieldsForDiagnostics () override;
     void computeDivB (amrex::MultiFab& divB, int dcomp,
                       ablastr::fields::VectorField const& B,

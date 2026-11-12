@@ -361,7 +361,7 @@ void ParticleBoundaryBuffer::clearParticles (int const i) {
     }
 }
 
-void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (MultiParticleContainer& mypc, amrex::Real cur_time)
+void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (warpx::runtime::IParticleSystem& mypc, amrex::Real cur_time)
 {
     ABLASTR_PROFILE("ParticleBoundaryBuffer::gatherParticles");
 
@@ -472,7 +472,8 @@ void ParticleBoundaryBuffer::gatherParticlesFromDomainBoundaries (MultiParticleC
 }
 
 void ParticleBoundaryBuffer::gatherParticlesFromEmbeddedBoundaries (
-    MultiParticleContainer& mypc, ablastr::fields::MultiLevelScalarField const& distance_to_eb, amrex::Real cur_time)
+    warpx::runtime::IParticleSystem& mypc,
+    ablastr::fields::MultiLevelScalarField const& distance_to_eb, amrex::Real cur_time)
 {
     if (EB::enabled()) {
         ABLASTR_PROFILE("ParticleBoundaryBuffer::gatherParticles::EB");

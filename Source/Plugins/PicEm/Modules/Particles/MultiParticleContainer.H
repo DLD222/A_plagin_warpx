@@ -76,7 +76,7 @@ public:
     explicit MultiParticleContainer (amrex::AmrCore* amr_core);
 
     [[nodiscard]] const warpx::runtime::RuntimeConfig& config () const;
-    [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    [[nodiscard]] const warpx::runtime::RuntimeData& data () const override;
     [[nodiscard]] warpx::runtime::HostServices& host () const;
 
     ~MultiParticleContainer() = default;
