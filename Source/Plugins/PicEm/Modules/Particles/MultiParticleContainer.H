@@ -22,6 +22,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/IParticleContainerAccess.H"
+#include "Runtime/IParticleSystem.H"
 #include "Runtime/ISpeciesMetadata.H"
 #include "WarpXParticleContainer.H"
 #include "Particles/ParticleBoundaries.H"
@@ -67,7 +68,7 @@
  * - Functions that specifically handle multiple species (for instance
  *   ReadParameters or mapSpeciesProduct).
  */
-class MultiParticleContainer : public warpx::runtime::IParticleContainerAccess
+class MultiParticleContainer : public warpx::runtime::IParticleSystem
 {
 
 public:
@@ -110,6 +111,9 @@ public:
     }
 
     amrex::ParticleReal maxParticleDtInv();
+
+    //! IParticleSystem: the const form used by the kernel through the contract.
+    [[nodiscard]] amrex::Real maxParticleDtInv () const override { return const_cast<MultiParticleContainer*>(this)->maxParticleDtInv(); }
 
     void TransformMomentumToCurvilinear (bool forward);
 

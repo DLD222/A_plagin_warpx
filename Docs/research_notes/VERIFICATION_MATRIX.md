@@ -540,3 +540,22 @@ $ ctest --test-dir build_py_4d -I 352,781 -j 12
 | `test_3d_reduced_diags_load_balance_costs_timers_picmi.analysis` | `-j 12` 下的竞态 | **单独重跑：100% tests passed, 0 failed out of 3** |
 
 其中 `pytest.WarpX.{1d,3d,rz}` 共 **60 条**全部通过（第 52 轮修复前是整个进程段错误）。
+
+## 磁盘写满导致的假失败（2026-11-12 晚，新增）
+
+一次 `ctest -j 12` 报了 **103/232 失败**，错误是 `Signal: Bus error` 与
+`OPAL ERROR: Error in file ext3x_client.c`——**根因是磁盘 100% 满**（`/dev/sdd 1007G 956G used, 16K avail`），
+不是代码问题。多个构建目录的 `bin/test_*/diags` 累积到 152G+139G+107G。
+
+**清理后立即恢复**：`build_takeover` **232/232**、`build_2d_full` **335/336**、A/B 三个算例仍逐位 `0.000e+00`。
+
+**因此跑套件前应加一条检查**：
+
+```bash
+df -h / | tail -1          # 至少留出几十 GB
+du -sh build_*/bin | sort -rh | head   # 找出测试输出占用
+find build_*/bin -maxdepth 2 -name diags -type d -prune -exec rm -rf {} +
+```
+
+**判读规则补充**：若出现 `Bus error`、`OPAL ERROR`、`MPI_Init_thread` 失败，**先查磁盘与 /dev/shm**，
+不要先怀疑代码。

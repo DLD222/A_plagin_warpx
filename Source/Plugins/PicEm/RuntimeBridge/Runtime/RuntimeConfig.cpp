@@ -314,13 +314,31 @@ RuntimeConfig::end_moving_window_step () const
 const std::string&
 RuntimeConfig::E_ext_particle_s () const
 {
-    return WarpX::GetInstance().GetPartContainer().E_ext_particle_s();
+    // Read from the input deck, not from the particle container: the container is a plugin
+    // and must not be the place a kernel-side configuration value comes from.
+    static const std::string value = [] {
+        std::string s = "none";
+        amrex::ParmParse const pp("particles");
+        pp.query("E_ext_particle_init_style", s);
+        std::transform(s.begin(), s.end(), s.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return s;
+    }();
+    return value;
 }
 
 const std::string&
 RuntimeConfig::B_ext_particle_s () const
 {
-    return WarpX::GetInstance().GetPartContainer().B_ext_particle_s();
+    static const std::string value = [] {
+        std::string s = "none";
+        amrex::ParmParse const pp("particles");
+        pp.query("B_ext_particle_init_style", s);
+        std::transform(s.begin(), s.end(), s.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return s;
+    }();
+    return value;
 }
 
 amrex::Real
