@@ -1,5 +1,4 @@
 #include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
-#include <WarpX.H>
 /* Copyright 2023-2024 The WarpX Community
  *
  * This file is part of WarpX.

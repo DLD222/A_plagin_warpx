@@ -1,5 +1,4 @@
 #include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
-#include <WarpX.H>
 /* Copyright 2024 David Grote
  *
  * This file is part of WarpX.
