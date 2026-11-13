@@ -56,6 +56,10 @@ Kippenhahn, Weigert & Weiss, *Stellar Structure and Evolution*, 2nd ed., Ch. 2�
 
 ### 1.4 验收（解析解）
 
+**参考实现**：`Tools/star/gravity_reference.py`（`--selftest` 自检通过）。解析式与本节表格
+一一对应；自检用的是**独立恒等式**（Gauss 定律在表面、壳层定理、势在表面连续、外部势退化为
+点质量），因此求解器与参考实现不会"一起错"。
+
 | 用例 | 解析式 | 容差 | 状态 |
 |---|---|---|---|
 | 均匀球内部 | g(r) = (4/3)πGρr | 相对误差 < 1e-3 | `[test]` |
