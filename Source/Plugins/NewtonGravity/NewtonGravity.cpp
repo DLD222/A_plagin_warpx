@@ -38,9 +38,13 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     amrex::MultiFab rhs(rho.boxArray(), rho.DistributionMap(), 1, 0);
     amrex::MultiFab::Copy(rhs, rho, 0, 0, 1, 0);
 
+    // ablastr solves div(beta grad phi) = rhs and requires beta < 1, so the 4 pi is carried by
+    // beta rather than by the right-hand side: with beta = 1/(4 pi) the equation becomes
+    // div(grad phi) = 4 pi G (rho - <rho>), which is what we want.
+    amrex::Real const beta_scalar = 1.0 / (4.0 * M_PI);
     amrex::Real const mean = rhs.sum(0) / geom.ProbSize();
-    rhs.plus(-mean * 4.0 * M_PI * G_newton, 0);
-    rhs.mult(4.0 * M_PI * G_newton, 0);
+    rhs.plus(-mean, 0, 1);
+    rhs.mult(G_newton, 0);
 
     // phi itself is what the caller gets; the layout must match what the solver expects
     // (cell-centred, one component, no ghosts beyond what the geometry provides).
@@ -60,7 +64,7 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     options.absolute_tolerance = amrex::Real(0.0);
     options.verbosity = 0;
 
-    std::array<amrex::Real, 3> const beta{1.0, 1.0, 1.0};
+    std::array<amrex::Real, 3> const beta{beta_scalar, beta_scalar, beta_scalar};
     ablastr::fields::computePhi(
         rho_ml, phi_ml, beta, options, geom_v, dmap_v, grids_v,
         ablastr::utils::enums::GridType::Collocated,
