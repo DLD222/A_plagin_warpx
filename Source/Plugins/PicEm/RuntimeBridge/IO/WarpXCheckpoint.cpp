@@ -20,7 +20,6 @@
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "Modules/Particles/ParticleTileIter.H"
 #include "Python/callbacks.H"
 #include "Utils/TextMsg.H"
 

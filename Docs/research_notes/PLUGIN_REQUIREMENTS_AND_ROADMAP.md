@@ -773,3 +773,30 @@ build boundaries），且 `build_takeover` **232/232**。此前一次搬迁失�
 
 **遗留**：阶段 D（`WARPX_PLUGIN_PARTICLECORE=OFF` 的两条负向测试）尚未做；
 另有并发会话遗留的 `Source/Plugins/Diagnostics/WarpXOpenPMD.cpp` 未提交改动，本轮未触碰。
+
+### 阶段 D 的实测阻塞点（2026-11-13）
+
+`WARPX_PLUGIN_PARTICLECORE=OFF` 的完整配置与编译**已经做过一次**（`/tmp/b_nopc`，配置 18 分钟、
+编译 20 分钟），结果是**链接失败**，20 条未定义符号，全部来自 `ParticleTileIter` 与
+`ParticleUtils::findParticlesInEachCell`。这说明：
+
+> **"include 归零"不等于"不链接具体实现"。** 阶段 C 的验收判据低估了真实依赖，
+> 检查器看不到代码级的 tile 遍历。
+
+逐个清点后，内核里仍有 3 个文件在用粒子内部结构：
+
+| 文件 | 用法 | 处置 |
+|---|---|---|
+| `FieldSolver/ImplicitKernelServicesBuilder.cpp` | `count_suborbits` 逐 tile 统计 | ✅ 已搬进粒子插件（`countParticlesWithSuborbits`） |
+| `HybridPIC/HybridPICModel.cpp` | `QDSMCApplyIonHeating` 逐 tile 的 Ornstein-Uhlenbeck 更新（216 行） | ❌ 尝试搬移后**回滚**，见下 |
+| `RuntimeBridge/IO/WarpXCheckpoint.cpp` | 仅一个未使用的 include | ✅ 删除 |
+| `Python/Particles/*`、`pyWarpX.cpp` | Python 粒子绑定 | 只在 `WarpX_PYTHON=ON` 时编译；OFF 配置不涉及 |
+
+**`QDSMCApplyIonHeating` 为什么不能简单搬走**：它虽然遍历粒子，但依赖 `HybridPICModel` 的
+私有成员（`m_n_floor`、`m_nu_ei`、`CalculateIonFluidVelocity` 等）以及 `warpx.m_fields` 里的
+混合模型诊断场。搬到 `MultiParticleContainer` 后编译失败（`CalculateIonFluidVelocity` 未声明等）。
+它本质是**混合 PIC 模型的算法**，不是通用粒子机械。
+
+**因此阶段 D 的正确做法是**：`WARPX_PLUGIN_PARTICLECORE=OFF` 时**不构建 HybridPIC 模块**
+（混合 PIC 本身就需要粒子），并在内核里对相关调用点加编译期保护或给出可操作错误；
+而不是把混合模型物理硬塞进粒子插件。这是一次**构建裁剪**，不是又一次搬迁。
