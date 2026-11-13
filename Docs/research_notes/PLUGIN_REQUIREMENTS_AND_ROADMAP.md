@@ -753,3 +753,23 @@ tile 迭代模型冲突。这个修正会影响阶段 B 的验收措辞，阶段
 这决定了阶段 C 的真实工作量：**不是移动 78 个文件，而是移动 78 个文件 + 6 个相邻模块**
 （约再多 30–40 个文件）。在最终移动前，先按上表逐项把"相邻模块"的边界理清，
 比一次性大搬迁安全。
+
+### 阶段 C 完成（2026-11-13）
+
+`Source/Plugins/PicEm/Modules/Particles` → **`Source/Plugins/ParticleCore/Particles`**，
+CMake 目标改为 `warpx_particlecore_<dim>`，内核通过**声明的单向依赖** `PicEm -> ParticleCore`
+访问（`Tools/Modularization/plugin_dependencies.txt`，检查器同时拒绝环）。
+
+搬迁成功的判据：四个检查器全绿（plugin boundaries / core purity / kernel coupling /
+build boundaries），且 `build_takeover` **232/232**。此前一次搬迁失败，原因是当时粒子树仍
+反向 include 内核 18 处；那些已在本阶段逐项清零。
+
+过程中两次"顺手改成更干净"都触发了真实回归，值得记账：
+
+| 改动 | 症状 | 正确做法 |
+|---|---|---|
+| 把 `use_fdtd_nci_corr` 的解析移进 config 并做 `static` 缓存 | NCI corrector 两个用例 checksum 相对误差 6.5e-5 / 2.1e-4 | 由内核在**与原先相同的时点**解析（建好粒子系统之后），行为逐位一致 |
+| 把 `Filter` 里的负载均衡代价数组直接置空 | 负载均衡计时被静默丢弃 | 新增 `legacy_costs()` 定位器，内核注册真实实现 |
+
+**遗留**：阶段 D（`WARPX_PLUGIN_PARTICLECORE=OFF` 的两条负向测试）尚未做；
+另有并发会话遗留的 `Source/Plugins/Diagnostics/WarpXOpenPMD.cpp` 未提交改动，本轮未触碰。
