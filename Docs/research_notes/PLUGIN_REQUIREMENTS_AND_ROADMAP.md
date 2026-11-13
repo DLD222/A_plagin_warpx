@@ -800,3 +800,19 @@ build boundaries），且 `build_takeover` **232/232**。此前一次搬迁失�
 **因此阶段 D 的正确做法是**：`WARPX_PLUGIN_PARTICLECORE=OFF` 时**不构建 HybridPIC 模块**
 （混合 PIC 本身就需要粒子），并在内核里对相关调用点加编译期保护或给出可操作错误；
 而不是把混合模型物理硬塞进粒子插件。这是一次**构建裁剪**，不是又一次搬迁。
+
+### 阶段 A/B/C 收尾状态（2026-11-13 晚）
+
+| 判据 | 状态 |
+|---|---|
+| 「内核不再通过具体类型调用粒子系统」 | ✅ `mypc->` / `GetPartContainer().` 归零 |
+| 粒子树 → 内核 include | ✅ 0（最后一个 `WarpX.H` 已消除） |
+| Core → 内核 include | ✅ `DefaultInitialization.H` 已清（PIdx / GetParticlePosition / Fields 改为显式包含） |
+| 粒子系统经工厂创建、内核只持有契约 | ✅ `create_particle_system()` + `std::unique_ptr<IParticleSystem>` |
+| 粒子目录搬到 `Plugins/ParticleCore/` | ✅ 154 个文件 + 6 个相邻模块（注入器、激光、滤波器、EB 粒子过程、加速器晶格、碰撞相关） |
+| 四个检查器 | ✅ 全绿 |
+| 跨插件棘轮 | 15 → **10**（Collision 四个头 + Core 的 DefaultInitialization 已偿还） |
+
+**阶段 D 未完成，且已量化**：`WARPX_PLUGIN_PARTICLECORE=OFF` 的构建仍缺 **65 个符号**，全部是
+内核调用随粒子搬走的模块（加速器晶格、注入器、沉积/推子内核、碰撞、QED）。这不是加一个宏能
+收尾的，需要逐组保护调用点，或继续把内核拆细。已实现的部分：缺插件时的可操作错误（运行期）。
