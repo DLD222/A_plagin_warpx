@@ -11,7 +11,7 @@
 #include "ExternalField.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>
@@ -59,7 +59,7 @@ namespace {
         } else if (u_mean_dist_s == "read_from_file") {
 #if defined(WARPX_USE_OPENPMD) && !defined(WARPX_DIM_RZ) && \
     !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-            if (WarpX::gamma_boost > 1.0) {
+            if (warpx::runtime::legacy_config().gamma_boost() > 1.0) {
                 WARPX_ABORT_WITH_MESSAGE(
                     dist_type_param + " = read_from_file is not "
                     "supported in boosted-frame simulations yet.");

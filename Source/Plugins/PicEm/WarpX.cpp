@@ -36,8 +36,8 @@
 #   endif // RZ ifdef
 #endif // use PSATD ifdef
 #include "FieldSolver/WarpX_FDTD.H"
-#include "Filter/NCIGodfreyFilter.H"
-#include "Initialization/ExternalField.H"
+#include "Particles/Filter/NCIGodfreyFilter.H"
+#include "Particles/Initialization/ExternalField.H"
 #include "Initialization/WarpXInit.H"
 #include "Particles/ParticleBoundaries.H"
 #include "Particles/MultiParticleContainer.H"
@@ -424,7 +424,17 @@ WarpX::WarpX ()
     dt.resize(nlevs_max, std::numeric_limits<Real>::max());
 
     // The concrete class is the plugin's business: register it once and ask the core.
-    warpx::runtime::register_particle_system_factory(
+        // The particle code reaches the frame state and the load-balancing costs through the core
+    // locators instead of including WarpX.H.
+    warpx::runtime::set_legacy_frame([]() -> warpx::runtime::FrameState& {
+        static warpx::runtime::FrameState frame = warpx::runtime::FrameState::FromLegacy();
+        return frame;
+    });
+    warpx::runtime::set_legacy_costs([](int lev) -> amrex::LayoutData<amrex::Real>* {
+        return WarpX::GetInstance().getCosts(lev);
+    });
+
+warpx::runtime::register_particle_system_factory(
         [](void* owner) -> std::unique_ptr<warpx::runtime::IParticleSystem> {
             return std::make_unique<MultiParticleContainer>(static_cast<WarpX*>(owner));
         });

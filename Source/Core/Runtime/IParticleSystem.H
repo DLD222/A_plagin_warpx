@@ -180,6 +180,25 @@ public:
     virtual void CalculateNuei (std::string const& electron_species_name) = 0;
     virtual void GenerateGlobalDebyeLength () = 0;
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab> GetGlobalPlasmaFrequency (int lev) = 0;
+    /** The repeated plasma lens a lattice may declare.
+     *  One query instead of five member reads, so the gather does not need the container.
+     */
+    struct RepeatedPlasmaLens
+    {
+        amrex::ParticleReal period = 0;
+        int n_lenses = 0;
+        amrex::ParticleReal const* starts = nullptr;
+        amrex::ParticleReal const* lengths = nullptr;
+        amrex::ParticleReal const* strengths_E = nullptr;
+        amrex::ParticleReal const* strengths_B = nullptr;
+    };
+    [[nodiscard]] virtual RepeatedPlasmaLens repeatedPlasmaLens () const = 0;
+
+    //! A user-declared external-field parser ("Ex", "By", ...), or null when none was given.
+    [[nodiscard]] virtual const amrex::Parser* externalFieldParser (const std::string& name) const = 0;
+    //! The accelerator lattice of one level as an opaque handle (its type is the plugin's).
+    [[nodiscard]] virtual const void* acceleratorLattice (int lev) const = 0;
+
     //! The charge density of every species on one level, optionally without the final
     //! boundary/volume treatment (the caller decides when to finalize).
     [[nodiscard]] virtual std::unique_ptr<amrex::MultiFab>

@@ -382,6 +382,12 @@ public:
     void FinishImplicitVelocityUpdate () override;
     void PrepareImplicitVelocitiesForDeposition () override;
 
+    [[nodiscard]] RepeatedPlasmaLens repeatedPlasmaLens () const override;
+
+    //! IParticleSystem: the external-field parsers and the accelerator lattice.
+    [[nodiscard]] const amrex::Parser* externalFieldParser (const std::string& name) const override;
+    [[nodiscard]] const void* acceleratorLattice (int lev) const override;
+
     //! IParticleSystem: implicit-advance bookkeeping, looped here over the species.
     void SaveParticlesAtImplicitStepStart (int finest_level) override;
     void FinishImplicitParticleUpdate (ablastr::fields::MultiFabRegister& fields,

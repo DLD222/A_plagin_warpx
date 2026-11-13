@@ -1280,6 +1280,39 @@ MultiParticleContainer::AddImplicitParticleAttributes (bool particle_suborbits)
     }
 }
 
+warpx::runtime::IParticleSystem::RepeatedPlasmaLens
+MultiParticleContainer::repeatedPlasmaLens () const
+{
+    RepeatedPlasmaLens lens;
+    lens.period = m_repeated_plasma_lens_period;
+    lens.n_lenses = static_cast<int>(h_repeated_plasma_lens_starts.size());
+    lens.starts = d_repeated_plasma_lens_starts.data();
+    lens.lengths = d_repeated_plasma_lens_lengths.data();
+    lens.strengths_E = d_repeated_plasma_lens_strengths_E.data();
+    lens.strengths_B = d_repeated_plasma_lens_strengths_B.data();
+    return lens;
+}
+
+const amrex::Parser*
+MultiParticleContainer::externalFieldParser (const std::string& name) const
+{
+    if (name == "Ex") { return m_Ex_particle_parser.get(); }
+    if (name == "Ey") { return m_Ey_particle_parser.get(); }
+    if (name == "Ez") { return m_Ez_particle_parser.get(); }
+    if (name == "Bx") { return m_Bx_particle_parser.get(); }
+    if (name == "By") { return m_By_particle_parser.get(); }
+    if (name == "Bz") { return m_Bz_particle_parser.get(); }
+    return nullptr;
+}
+
+const void*
+MultiParticleContainer::acceleratorLattice (int lev) const
+{
+    // The per-level lattice is a kernel resource, handed to the context as an opaque handle.
+    if (m_runtime_context == nullptr || !m_runtime_context->accelerator_lattice_at) { return nullptr; }
+    return m_runtime_context->accelerator_lattice_at(lev);
+}
+
 void
 MultiParticleContainer::AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
                                           amrex::Real weight) const

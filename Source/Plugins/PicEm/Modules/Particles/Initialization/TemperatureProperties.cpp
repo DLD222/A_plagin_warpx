@@ -12,7 +12,7 @@
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <AMReX_BoxArray.H>
 #include <AMReX_DistributionMapping.H>
@@ -78,7 +78,7 @@ parse_temperature_in_eV (
     else if (temperature_in_eV_dist_s == "read_from_file") {
 #if defined(WARPX_USE_OPENPMD) && !defined(WARPX_DIM_RZ) && \
     !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-        if (WarpX::gamma_boost > 1.0) {
+        if (warpx::runtime::legacy_config().gamma_boost() > 1.0) {
             WARPX_ABORT_WITH_MESSAGE(
                 dist_type_param + " = read_from_file is not "
                 "supported in boosted-frame simulations yet.");
@@ -182,7 +182,7 @@ TemperatureProperties::TemperatureProperties (const amrex::ParmParse& pp, std::s
             else if (u_std_dist_s == "read_from_file") {
 #if defined(WARPX_USE_OPENPMD) && !defined(WARPX_DIM_RZ) && \
     !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-                if (WarpX::gamma_boost > 1.0) {
+                if (warpx::runtime::legacy_config().gamma_boost() > 1.0) {
                     WARPX_ABORT_WITH_MESSAGE(
                         "maxwellian_u_std_distribution_type = read_from_file is not "
                         "supported in boosted-frame simulations yet.");

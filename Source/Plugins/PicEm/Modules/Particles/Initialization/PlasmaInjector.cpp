@@ -19,7 +19,7 @@
 #include "Particles/SpeciesUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
 
 #include <ablastr/warn_manager/WarnManager.H>
 
@@ -297,11 +297,11 @@ void PlasmaInjector::setupNRandomPerCell (amrex::ParmParse const& pp_species)
 {
     utils::parser::getWithParser(pp_species, source_name, "num_particles_per_cell", num_particles_per_cell);
 #if WARPX_DIM_RZ
-    if ((WarpX::n_rz_azimuthal_modes > 1) && (num_particles_per_cell < 2*WarpX::n_rz_azimuthal_modes)) {
+    if ((warpx::runtime::legacy_config().n_rz_azimuthal_modes() > 1) && (num_particles_per_cell < 2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())) {
         ablastr::warn_manager::WMRecordWarning("Species",
             "Too few particles per cell for cylindrical geometry: got "
             + std::to_string(num_particles_per_cell) + ", but at least "
-            + std::to_string(2*WarpX::n_rz_azimuthal_modes)
+            + std::to_string(2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())
             + " (2 x n_rz_azimuthal_modes) are recommended for accuracy. "
             "See https://github.com/ECP-WarpX/WarpX/pull/765 for details.",
             ablastr::warn_manager::WarnPriority::high);
@@ -328,11 +328,11 @@ void PlasmaInjector::setupNFluxPerCell (amrex::ParmParse const& pp_species)
 {
     utils::parser::getWithParser(pp_species, source_name, "num_particles_per_cell", num_particles_per_cell_real);
 #ifdef WARPX_DIM_RZ
-    if ((WarpX::n_rz_azimuthal_modes > 1) && (num_particles_per_cell_real < 2*WarpX::n_rz_azimuthal_modes)) {
+    if ((warpx::runtime::legacy_config().n_rz_azimuthal_modes() > 1) && (num_particles_per_cell_real < 2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())) {
         ablastr::warn_manager::WMRecordWarning("Species",
             "Too few particles per cell for cylindrical geometry: got "
             + std::to_string(num_particles_per_cell_real) + ", but at least "
-            + std::to_string(2*WarpX::n_rz_azimuthal_modes)
+            + std::to_string(2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())
             + " (2 x n_rz_azimuthal_modes) are recommended for accuracy. "
             "See https://github.com/ECP-WarpX/WarpX/pull/765 for details.",
             ablastr::warn_manager::WarnPriority::high);
@@ -443,12 +443,12 @@ void PlasmaInjector::setupNuniformPerCell (amrex::ParmParse const& pp_species)
     }
 
 #if WARPX_DIM_RZ
-    if ((WarpX::n_rz_azimuthal_modes > 1) && (num_particles_per_cell_each_dim[1] < 2*WarpX::n_rz_azimuthal_modes)) {
+    if ((warpx::runtime::legacy_config().n_rz_azimuthal_modes() > 1) && (num_particles_per_cell_each_dim[1] < 2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())) {
         ablastr::warn_manager::WMRecordWarning("Species",
             "Too few particles per cell in the theta direction for cylindrical "
             "geometry: got "
             + std::to_string(num_particles_per_cell_each_dim[1]) + ", but at least "
-            + std::to_string(2*WarpX::n_rz_azimuthal_modes)
+            + std::to_string(2*warpx::runtime::legacy_config().n_rz_azimuthal_modes())
             + " (2 x n_rz_azimuthal_modes) are recommended for accuracy. "
             "See https://github.com/ECP-WarpX/WarpX/pull/765 for details.",
             ablastr::warn_manager::WarnPriority::high);

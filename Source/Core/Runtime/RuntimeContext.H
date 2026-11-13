@@ -30,6 +30,8 @@ struct RuntimeConfigSnapshot;
  * destroyed. WarpX stores a raw pointer (nullptr on the legacy/Python path) and
  * falls back to its static state when it is null.
  */
+class IParticleSystem;
+
 struct RuntimeContext
 {
     RuntimeContext () = default;
@@ -56,6 +58,13 @@ struct RuntimeContext
     const RuntimeConfigSnapshot* config_snapshot = nullptr;
     //! Plugin-declared state the core owns (fields today; S3).
     StateRegistry* state = nullptr;
+    //! The particle system, when one is present.  Particle code that only receives a context
+    //! (the external-field gather, for instance) reaches its own implementation through this,
+    //! instead of asking the simulation object for it.
+    const IParticleSystem* particles = nullptr;
+    //! Per-level accelerator lattice, when the input declared one (opaque: its type is the
+    //! particle plugin's).
+    std::function<const void* (int lev)> accelerator_lattice_at{};
 
     //! Transitional live-clock hook: WarpX calls this at step boundaries and
     //! after InitData so TimeState is fresh when diagnostics run.

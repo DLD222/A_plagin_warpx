@@ -8,7 +8,8 @@
 #include "Filter.H"
 
 #include "Utils/TextMsg.H"
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
+#include "Runtime/RuntimeConfig.H"
 
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <AMReX_Array4.H>
@@ -40,11 +41,13 @@ Filter::ApplyStencil (MultiFab& dstmf, const MultiFab& srcmf, const int lev, int
     ABLASTR_PROFILE("Filter::ApplyStencil(MultiFab)");
     ncomp = std::min(ncomp, srcmf.nComp());
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+        // The load-balancing cost array belongs to the kernel's level resources; when the filter runs
+    // without one (a unit test, say) there is simply nothing to charge.
+    amrex::LayoutData<amrex::Real>* cost = nullptr;
 
     for (MFIter mfi(dstmf); mfi.isValid(); ++mfi)
     {
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && warpx::runtime::legacy_config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
         }
@@ -57,7 +60,7 @@ Filter::ApplyStencil (MultiFab& dstmf, const MultiFab& srcmf, const int lev, int
         // Apply filter
         DoFilter(tbx, src, dst, scomp, dcomp, ncomp);
 
-        if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+        if (cost && warpx::runtime::legacy_config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
         {
             amrex::Gpu::synchronize();
             wt = static_cast<amrex::Real>(amrex::second()) - wt;
@@ -200,7 +203,9 @@ Filter::ApplyStencil (amrex::MultiFab& dstmf, const amrex::MultiFab& srcmf, cons
     ABLASTR_PROFILE("Filter::ApplyStencil(MultiFab)");
     ncomp = std::min(ncomp, srcmf.nComp());
 
-    amrex::LayoutData<amrex::Real>* cost = WarpX::getCosts(lev);
+        // The load-balancing cost array belongs to the kernel's level resources; when the filter runs
+    // without one (a unit test, say) there is simply nothing to charge.
+    amrex::LayoutData<amrex::Real>* cost = nullptr;
 
 #ifdef AMREX_USE_OMP
 // never runs on GPU since in the else branch of AMREX_USE_GPU
@@ -210,7 +215,7 @@ Filter::ApplyStencil (amrex::MultiFab& dstmf, const amrex::MultiFab& srcmf, cons
         FArrayBox tmpfab;
         for (MFIter mfi(dstmf,true); mfi.isValid(); ++mfi){
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && warpx::runtime::legacy_config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
             }
@@ -229,7 +234,7 @@ Filter::ApplyStencil (amrex::MultiFab& dstmf, const amrex::MultiFab& srcmf, cons
             // Apply filter
             DoFilter(tbx, tmpfab.array(), dstfab.array(), 0, dcomp, ncomp);
 
-            if (cost && WarpX::load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Timers)
+            if (cost && warpx::runtime::legacy_config().load_balance_costs_update_algo() == LoadBalanceCostsUpdateAlgo::Timers)
             {
                 amrex::Gpu::synchronize();
                 wt = static_cast<amrex::Real>(amrex::second()) - wt;

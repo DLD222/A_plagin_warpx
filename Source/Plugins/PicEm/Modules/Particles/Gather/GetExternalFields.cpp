@@ -3,7 +3,6 @@
 #include "Particles/AcceleratorLattice/AcceleratorLattice.H"
 
 #include "Particles/MultiParticleContainer.H"
-#include "WarpX.H"
 #include "Particles/WarpXParticleContainer.H"
 #include "Utils/TextMsg.H"
 #include "Runtime/FrameState.H"
@@ -25,14 +24,19 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
         (ctx != nullptr && ctx->data != nullptr) ? *ctx->data : warpx::runtime::legacy_data();
     const warpx::runtime::RuntimeConfig& cfg =
         (ctx != nullptr && ctx->config != nullptr) ? *ctx->config : warpx::runtime::legacy_config();
-    const auto& mypc = WarpX::GetInstance().GetPartContainer();
+    // The container arrives through the context: particle code that only has a context must not
+    // ask the simulation object for its own implementation.
+    warpx::runtime::IParticleSystem const* ps = (ctx != nullptr) ? ctx->particles : nullptr;
+    const auto lens = (ps != nullptr) ? ps->repeatedPlasmaLens()
+                                     : warpx::runtime::IParticleSystem::RepeatedPlasmaLens{};
 
     const int lev = a_pti.GetLevel();
 
     const auto& dts = d.dtAll();
 
-    AcceleratorLattice const & accelerator_lattice = WarpX::GetInstance().get_accelerator_lattice(lev);
-    if (accelerator_lattice.m_lattice_defined) {
+    auto const* lattice_ptr = (ps != nullptr) ? static_cast<AcceleratorLattice const*>(ps->acceleratorLattice(lev)) : nullptr;
+    if (lattice_ptr != nullptr && lattice_ptr->m_lattice_defined) {
+        AcceleratorLattice const& accelerator_lattice = *lattice_ptr;
         d_lattice_element_finder = accelerator_lattice.GetFinderDeviceInstance(a_pti, static_cast<int>(a_offset), dts);
     }
 
@@ -63,17 +67,17 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
     if (cfg.E_ext_particle_s() == "parse_e_ext_particle_function")
     {
         m_Etype = ExternalFieldInitType::Parser;
-        m_Exfield_partparser = mypc.m_Ex_particle_parser->compile<4>();
-        m_Eyfield_partparser = mypc.m_Ey_particle_parser->compile<4>();
-        m_Ezfield_partparser = mypc.m_Ez_particle_parser->compile<4>();
+        m_Exfield_partparser = ps->externalFieldParser("Ex")->compile<4>();
+        m_Eyfield_partparser = ps->externalFieldParser("Ey")->compile<4>();
+        m_Ezfield_partparser = ps->externalFieldParser("Ez")->compile<4>();
     }
 
     if (cfg.B_ext_particle_s() == "parse_b_ext_particle_function")
     {
         m_Btype = ExternalFieldInitType::Parser;
-        m_Bxfield_partparser = mypc.m_Bx_particle_parser->compile<4>();
-        m_Byfield_partparser = mypc.m_By_particle_parser->compile<4>();
-        m_Bzfield_partparser = mypc.m_Bz_particle_parser->compile<4>();
+        m_Bxfield_partparser = ps->externalFieldParser("Bx")->compile<4>();
+        m_Byfield_partparser = ps->externalFieldParser("By")->compile<4>();
+        m_Bzfield_partparser = ps->externalFieldParser("Bz")->compile<4>();
     }
 
     if (cfg.E_ext_particle_s() == "repeated_plasma_lens" ||
@@ -86,12 +90,12 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
         m_ux = attribs[PIdx::ux].dataPtr() + a_offset;
         m_uy = attribs[PIdx::uy].dataPtr() + a_offset;
         m_uz = attribs[PIdx::uz].dataPtr() + a_offset;
-        m_repeated_plasma_lens_period = mypc.m_repeated_plasma_lens_period;
-        m_n_lenses = static_cast<int>(mypc.h_repeated_plasma_lens_starts.size());
-        m_repeated_plasma_lens_starts = mypc.d_repeated_plasma_lens_starts.data();
-        m_repeated_plasma_lens_lengths = mypc.d_repeated_plasma_lens_lengths.data();
-        m_repeated_plasma_lens_strengths_E = mypc.d_repeated_plasma_lens_strengths_E.data();
-        m_repeated_plasma_lens_strengths_B = mypc.d_repeated_plasma_lens_strengths_B.data();
+        m_repeated_plasma_lens_period = lens.period;
+        m_n_lenses = lens.n_lenses;
+        m_repeated_plasma_lens_starts = lens.starts;
+        m_repeated_plasma_lens_lengths = lens.lengths;
+        m_repeated_plasma_lens_strengths_E = lens.strengths_E;
+        m_repeated_plasma_lens_strengths_B = lens.strengths_B;
     }
 
     // When the external particle fields are read from file,

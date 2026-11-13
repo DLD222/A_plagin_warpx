@@ -4,7 +4,10 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "WarpX.H"
+#include "Runtime/LegacyServices.H"
+#include "Particles/AcceleratorLattice/AcceleratorLattice.H"
+#include "Runtime/RuntimeConfig.H"
+#include "Runtime/RuntimeData.H"
 #include "LatticeElementFinder.H"
 #include "LatticeElements/HardEdgedQuadrupole.H"
 #include "LatticeElements/HardEdgedPlasmaLens.H"
@@ -30,7 +33,7 @@ LatticeElementFinder::InitElementFinder (int const lev, const amrex::Real gamma_
     ignore_unused(box);
 #endif
 
-    m_dz = WarpX::CellSize(lev)[2];
+    m_dz = warpx::runtime::legacy_data().cellSize(lev)[2];
 
     m_gamma_boost = gamma_boost;
     m_uz_boost = std::sqrt(m_gamma_boost*m_gamma_boost - 1._prt)*PhysConst::c;
@@ -65,7 +68,7 @@ LatticeElementFinder::UpdateIndices (int const lev, amrex::MFIter const& a_mfi,
     // Note that the current box is used since the box may have been updated since
     // the initialization in InitElementFinder.
     const amrex::Box box = a_mfi.tilebox();
-    m_zmin = WarpX::LowerCorner(box, lev, 0._rt).z;
+    m_zmin = warpx::runtime::legacy_data().lowerCorner(box, lev, 0._rt).z;
     m_time = time[lev];
 
     if (accelerator_lattice.h_quad.nelements > 0) {
@@ -115,8 +118,8 @@ LatticeElementFinderDevice::InitLatticeElementFinderDevice (ParIterType const& a
         " (dts.size() = " + std::to_string(dts.size()) + ")");
     m_dt = dts[lev];
 
-    m_gamma_boost = WarpX::gamma_boost;
-    m_uz_boost = std::sqrt(WarpX::gamma_boost*WarpX::gamma_boost - 1._prt)*PhysConst::c;
+    m_gamma_boost = warpx::runtime::legacy_frame().gamma_boost;
+    m_uz_boost = std::sqrt(warpx::runtime::legacy_frame().gamma_boost*warpx::runtime::legacy_frame().gamma_boost - 1._prt)*PhysConst::c;
 
     m_nz = h_finder.m_nz;
     m_zmin = h_finder.m_zmin;
