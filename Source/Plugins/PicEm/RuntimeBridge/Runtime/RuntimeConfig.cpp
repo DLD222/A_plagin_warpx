@@ -317,29 +317,32 @@ RuntimeConfig::E_ext_particle_s () const
 {
     // Read from the input deck, not from the particle container: the container is a plugin
     // and must not be the place a kernel-side configuration value comes from.
-    static const std::string value = [] {
+    // Cached per RuntimeConfig instance, not per process: a function-level static would make
+    // a second simulation in the same process reuse the first one's mode.
+    if (m_E_ext_particle_s.empty()) {
         std::string s = "none";
         amrex::ParmParse const pp("particles");
         pp.query("E_ext_particle_init_style", s);
         std::transform(s.begin(), s.end(), s.begin(),
                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-        return s;
-    }();
-    return value;
+        m_E_ext_particle_s = s;
+    }
+    return m_E_ext_particle_s;
 }
 
 const std::string&
 RuntimeConfig::B_ext_particle_s () const
 {
-    static const std::string value = [] {
+    // Cached per RuntimeConfig instance; see the note on E_ext_particle_s().
+    if (m_B_ext_particle_s.empty()) {
         std::string s = "none";
         amrex::ParmParse const pp("particles");
         pp.query("B_ext_particle_init_style", s);
         std::transform(s.begin(), s.end(), s.begin(),
                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-        return s;
-    }();
-    return value;
+        m_B_ext_particle_s = s;
+    }
+    return m_B_ext_particle_s;
 }
 
 amrex::Real

@@ -20,6 +20,7 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/LegacyServices.H"
+#include "Runtime/RuntimeConfig.H"
 
 #include <ablastr/warn_manager/WarnManager.H>
 

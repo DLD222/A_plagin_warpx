@@ -5,6 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 #include "Runtime/LegacyServices.H"
+#include "Runtime/FrameState.H"
 #include "Particles/AcceleratorLattice/AcceleratorLattice.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"

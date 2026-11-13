@@ -259,7 +259,12 @@ public:
                             const amrex::MultiFab& Ex, const amrex::MultiFab& Ey, const amrex::MultiFab& Ez,
                             const amrex::MultiFab& Bx, const amrex::MultiFab& By, const amrex::MultiFab& Bz);
 
-    void setRuntimeContext (const warpx::runtime::RuntimeContext* ctx) { m_runtime_context = ctx; }
+    void setRuntimeContext (const warpx::runtime::RuntimeContext* ctx)
+    {
+        m_runtime_context = ctx;
+        // Every species needs it too: the gather paths only have a context to work from.
+        for (auto& pc : allcontainers) { pc->setRuntimeContext(ctx); }
+    }
 
     /**
     * \brief This function loops over all species and performs resampling if appropriate.

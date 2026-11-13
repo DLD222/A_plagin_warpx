@@ -427,7 +427,10 @@ WarpX::WarpX ()
         // The particle code reaches the frame state and the load-balancing costs through the core
     // locators instead of including WarpX.H.
     warpx::runtime::set_legacy_frame([]() -> warpx::runtime::FrameState& {
-        static warpx::runtime::FrameState frame = warpx::runtime::FrameState::FromLegacy();
+        // Refreshed on every call: a frozen snapshot would give a second simulation in the same
+        // process the first one's boost parameters.
+        static warpx::runtime::FrameState frame;
+        frame = warpx::runtime::FrameState::FromLegacy();
         return frame;
     });
     warpx::runtime::set_legacy_costs([](int lev) -> amrex::LayoutData<amrex::Real>* {
@@ -4033,7 +4036,18 @@ void
 WarpX::SetRuntimeContext (warpx::runtime::RuntimeContext* context)
 {
     m_runtime_context = context;
-    if (mypc != nullptr) { particleSystem().setRuntimeContext(context); }
+    if (mypc != nullptr) {
+        particleSystem().setRuntimeContext(context);   // accepts nullptr (finalize)
+        // The context carries the particle system and the per-level lattice so that particle
+        // code which only receives a context (the external-field gather) can reach them.
+        // clear() calls this with nullptr at finalize, so the writes are guarded.
+        if (context != nullptr) {
+            context->particles = mypc.get();
+            context->accelerator_lattice_at = [this] (int lev) -> const void* {
+                return &get_accelerator_lattice(lev);
+            };
+        }
+    }
 }
 
 warpx::runtime::IParticleContainerAccess&

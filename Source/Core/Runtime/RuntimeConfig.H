@@ -95,6 +95,12 @@ public:
 
     //! Compatibility factory; the object is stateless/live.
     [[nodiscard]] static RuntimeConfig FromLegacy ();
+
+private:
+    //! Per-instance caches: a function-level static would leak one simulation's input into the
+    //! next one in the same process (the Python interface runs several).
+    mutable std::string m_E_ext_particle_s{};
+    mutable std::string m_B_ext_particle_s{};
 };
 
 } // namespace warpx::runtime

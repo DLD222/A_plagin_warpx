@@ -51,6 +51,8 @@ public:
     [[nodiscard]] virtual bool isPhoton () const = 0;
     [[nodiscard]] virtual int DoQED () const = 0;
     [[nodiscard]] virtual MomentumSum sumParticleMomentum () const = 0;
+    //! Hand the species the runtime context (the system forwards it to every container).
+    virtual void setRuntimeContext (const RuntimeContext* ctx) = 0;
     [[nodiscard]] virtual const RuntimeContext* runtime_context () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& EExternalParticle () const = 0;
     [[nodiscard]] virtual const amrex::Vector<amrex::ParticleReal>& BExternalParticle () const = 0;

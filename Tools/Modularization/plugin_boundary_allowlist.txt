@@ -1,2 +1,21 @@
 # Known cross-plugin includes (ratchet).
-# Empty: no plugin includes another plugin's headers.
+#
+# 2026-11-13: the checker used to match only quoted includes, so these angle-bracket
+# dependencies were always there but invisible. They are recorded, not accepted as good:
+# the list may only shrink, and each entry is a real architectural debt.
+#
+Core->Plugin: Source/Core/Modules/Particles/ParticleCreation/DefaultInitialization.H includes WarpX.H
+Plugin->Plugin: Source/Plugins/Collision/BinaryCollision/Bremsstrahlung/PhotonCreationFunc.H includes WarpX.H
+Plugin->Plugin: Source/Plugins/Collision/BinaryCollision/DSMC/SplitAndScatterFunc.H includes WarpX.H
+Plugin->Plugin: Source/Plugins/Collision/BinaryCollision/NuclearFusion/NuclearFusionFunc.H includes WarpX.H
+Plugin->Plugin: Source/Plugins/Collision/BinaryCollision/ParticleCreationFunc.H includes WarpX.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/ImplicitSolver.cpp includes FieldSolver/Implicit/ImplicitSolver.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes Diagnostics/MultiDiagnostics.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes Diagnostics/ReducedDiags/MultiReducedDiags.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceSolver.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H
+Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/Implicit/ImplicitSolver.H

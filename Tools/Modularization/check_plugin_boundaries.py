@@ -15,7 +15,9 @@ picem_prefixes = ("Particles/", "Diagnostics/", "FieldSolver/", "Evolve/",
                   "Initialization/", "AcceleratorLattice/", "BoundaryConditions/",
                   "EmbeddedBoundary/", "Fluids/", "Laser/", "MomentsSolver/",
                   "NonlinearSolvers/", "Parallelization/", "Python/")
-inc_re = re.compile(r'#include\s+"([^"]+)"')
+# Both include styles count: `#include <WarpX.H>` is as much a dependency as the
+# quoted form, and matching only quotes hid a Core -> kernel include.
+inc_re = re.compile(r'#include\s+[<"]([^>"]+)[>"]')
 
 # Resolve an include the way the compiler does, so a directory name that exists
 # in two plugins (or in the core) is attributed to the file actually used.

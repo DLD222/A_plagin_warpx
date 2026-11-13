@@ -9,6 +9,7 @@
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/LegacyServices.H"
+#include "Runtime/RuntimeConfig.H"
 
 #include <AMReX_Vector.H>
 

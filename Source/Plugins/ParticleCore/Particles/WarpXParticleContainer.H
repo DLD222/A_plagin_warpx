@@ -178,6 +178,7 @@ public:
     [[nodiscard]] const warpx::runtime::RuntimeData& particleData () const override { return data(); }
     [[nodiscard]] warpx::runtime::HostServices& host () const;
     [[nodiscard]] const warpx::runtime::FrameState& frame () const;
+    void setRuntimeContext (const warpx::runtime::RuntimeContext* ctx) override { m_runtime_context = ctx; }
     [[nodiscard]] const warpx::runtime::RuntimeContext* runtime_context () const override { return m_runtime_context; }
     [[nodiscard]] amrex::AmrCore* amrCore () const { return m_amr_core; }
     ~WarpXParticleContainer() override;
