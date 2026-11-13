@@ -8,7 +8,7 @@
 #define WARPX_PARTICLEBOUNDARIES_K_H_
 
 #include "Particles/ParticleBoundaries.H"
-#include "Initialization/SampleGaussianFluxDistribution.H"
+#include "Particles/Initialization/SampleGaussianFluxDistribution.H"
 
 #include <AMReX_AmrCore.H>
 

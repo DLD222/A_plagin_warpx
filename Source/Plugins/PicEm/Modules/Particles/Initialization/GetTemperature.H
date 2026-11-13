@@ -10,7 +10,7 @@
 #define WARPX_GET_TEMPERATURE_H_
 
 #include "ExternalField.H"
-#include "TemperatureProperties.H"
+#include "Particles/Initialization/TemperatureProperties.H"
 
 #include <AMReX.H>
 

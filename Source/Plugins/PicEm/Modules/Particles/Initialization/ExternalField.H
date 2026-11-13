@@ -8,7 +8,7 @@
 #ifndef WARPX_EXTERNAL_FIELD_H_
 #define WARPX_EXTERNAL_FIELD_H_
 
-#include "ExternalField_fwd.H"
+#include "Particles/Initialization/ExternalField_fwd.H"
 
 #include <ablastr/math/LinearInterpolation.H>
 

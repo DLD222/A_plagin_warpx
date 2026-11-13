@@ -7,7 +7,7 @@
 #ifndef WARPX_WarpXFluidContainer_H_
 #define WARPX_WarpXFluidContainer_H_
 
-#include "Initialization/PlasmaInjector.H"
+#include "Particles/Initialization/PlasmaInjector.H"
 #include "MultiFluidContainer.H"
 
 #include <AMReX_Geometry.H>

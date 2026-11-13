@@ -8,10 +8,10 @@
 #ifndef WARPX_INJECTOR_MOMENTUM_H_
 #define WARPX_INJECTOR_MOMENTUM_H_
 
-#include "GetTemperature.H"
-#include "GetVelocity.H"
-#include "TemperatureProperties.H"
-#include "VelocityProperties.H"
+#include "Particles/Initialization/GetTemperature.H"
+#include "Particles/Initialization/GetVelocity.H"
+#include "Particles/Initialization/TemperatureProperties.H"
+#include "Particles/Initialization/VelocityProperties.H"
 #include "SampleGaussianFluxDistribution.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXConst.H"

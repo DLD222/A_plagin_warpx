@@ -5,7 +5,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "GetVelocity.H"
+#include "Particles/Initialization/GetVelocity.H"
 
 GetVelocityVector::GetVelocityVector (VelocityProperties const& vel) noexcept
     : m_type{vel.m_type}

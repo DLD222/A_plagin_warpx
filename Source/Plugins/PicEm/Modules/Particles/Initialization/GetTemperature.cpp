@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "GetTemperature.H"
+#include "Particles/Initialization/GetTemperature.H"
 
 // Constructor for single-component (scalar) temperature
 GetTemperature::GetTemperature (TemperatureProperties const& temp) noexcept

@@ -12,8 +12,8 @@
 #include "InjectorDensity.H"
 #include "InjectorFlux.H"
 #include "InjectorMomentum.H"
-#include "TemperatureProperties.H"
-#include "VelocityProperties.H"
+#include "Particles/Initialization/TemperatureProperties.H"
+#include "Particles/Initialization/VelocityProperties.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 #include "InjectorPosition_fwd.H"

@@ -6,7 +6,7 @@
  * License: BSD-3-Clause-LBNL
  */
 
-#include "VelocityProperties.H"
+#include "Particles/Initialization/VelocityProperties.H"
 
 #include "ExternalField.H"
 #include "Utils/Parser/ParserUtils.H"

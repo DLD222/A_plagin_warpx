@@ -8,7 +8,7 @@
 #ifndef WARPX_ADDPLASMAUTILITIES_H_
 #define WARPX_ADDPLASMAUTILITIES_H_
 
-#include "Initialization/PlasmaInjector.H"
+#include "Particles/Initialization/PlasmaInjector.H"
 
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"

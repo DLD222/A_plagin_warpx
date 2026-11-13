@@ -8,7 +8,7 @@
 #define WARPX_PARTICLEBOUNDARYPROCESS_H_
 
 #include "EmbeddedBoundary/DistanceToEB.H"
-#include "Initialization/SampleGaussianFluxDistribution.H"
+#include "Particles/Initialization/SampleGaussianFluxDistribution.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Modules/Particles/Pusher/UpdatePosition.H"
 #include "Particles/WarpXParticleContainer.H"

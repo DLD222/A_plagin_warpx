@@ -9,8 +9,8 @@
 
 #include <AMReX_Geometry.H>
 #include <AMReX_REAL.H>
-#include "Initialization/InjectorDensity.H"
-#include "Initialization/InjectorMomentum.H"
+#include "Particles/Initialization/InjectorDensity.H"
+#include "Particles/Initialization/InjectorMomentum.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"
 
 namespace SpeciesUtils {

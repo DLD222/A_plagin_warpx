@@ -5,7 +5,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "TemperatureProperties.H"
+#include "Particles/Initialization/TemperatureProperties.H"
 
 #include "ExternalField.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"

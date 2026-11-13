@@ -8,7 +8,7 @@
 #ifndef WARPX_VELOCITY_PROPERTIES_H_
 #define WARPX_VELOCITY_PROPERTIES_H_
 
-#include "ExternalField_fwd.H"
+#include "Particles/Initialization/ExternalField_fwd.H"
 
 #include <AMReX_Geometry.H>
 #include <AMReX_ParmParse.H>

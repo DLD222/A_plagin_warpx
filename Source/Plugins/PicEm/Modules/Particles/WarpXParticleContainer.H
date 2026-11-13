@@ -17,7 +17,7 @@
 #include "WarpXParticleContainer_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
 
-#include "Initialization/PlasmaInjector.H"
+#include "Particles/Initialization/PlasmaInjector.H"
 #include "Modules/Particles/Algorithms/KineticEnergy.H"
 #include "Particles/ParticleBoundaries.H"
 #include "Modules/Particles/SpeciesPhysicalProperties.H"

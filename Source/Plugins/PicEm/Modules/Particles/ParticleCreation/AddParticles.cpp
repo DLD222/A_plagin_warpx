@@ -8,9 +8,9 @@
 
 #include "AddPlasmaUtilities.H"
 #include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
-#include "Initialization/InjectorDensity.H"
-#include "Initialization/InjectorMomentum.H"
-#include "Initialization/InjectorPosition.H"
+#include "Particles/Initialization/InjectorDensity.H"
+#include "Particles/Initialization/InjectorMomentum.H"
+#include "Particles/Initialization/InjectorPosition.H"
 #ifdef WARPX_QED
 #   include "Particles/ElementaryProcess/QEDInternals/BreitWheelerEngineWrapper.H"
 #   include "Particles/ElementaryProcess/QEDInternals/QuantumSyncEngineWrapper.H"

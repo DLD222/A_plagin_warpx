@@ -9,7 +9,7 @@
 #ifndef WARPX_INJECTOR_DENSITY_H_
 #define WARPX_INJECTOR_DENSITY_H_
 
-#include "Initialization/ExternalField.H"
+#include "Particles/Initialization/ExternalField.H"
 
 #include <AMReX.H>
 #include <AMReX_Array.H>

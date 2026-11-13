@@ -9,7 +9,7 @@
 #define WARPX_GET_VELOCITY_H_
 
 #include "ExternalField.H"
-#include "VelocityProperties.H"
+#include "Particles/Initialization/VelocityProperties.H"
 
 #include <AMReX.H>
 #include <AMReX_Dim3.H>

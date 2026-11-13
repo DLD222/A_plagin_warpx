@@ -34,7 +34,7 @@
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
 #include "Particles/Filter/BilinearFilter.H"
 #include "Particles/Filter/NCIGodfreyFilter.H"
-#include "Initialization/ExternalField.H"
+#include "Particles/Initialization/ExternalField.H"
 #include "Initialization/DivCleaner/ProjectionDivCleaner.H"
 #include "Utils/Logo/GetLogo.H"
 #include "Utils/Parser/ParserUtils.H"

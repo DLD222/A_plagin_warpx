@@ -12,7 +12,7 @@
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
 #include "Fields.H"
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "Initialization/ExternalField.H"
+#include "Particles/Initialization/ExternalField.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 

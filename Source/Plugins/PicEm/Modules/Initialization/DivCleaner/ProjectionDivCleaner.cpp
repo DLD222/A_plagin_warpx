@@ -27,7 +27,7 @@
     #include <FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H>
 #endif
 #include "Fields.H"
-#include <Initialization/ExternalField.H>
+#include <Particles/Initialization/ExternalField.H>
 #include <ablastr/profiler/ProfilerWrapper.H>
 #include <ablastr/utils/Communication.H>
 

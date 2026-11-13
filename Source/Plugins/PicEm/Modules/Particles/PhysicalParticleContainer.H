@@ -10,7 +10,7 @@
 #ifndef WARPX_PhysicalParticleContainer_H_
 #define WARPX_PhysicalParticleContainer_H_
 
-#include "Initialization/PlasmaInjector.H"
+#include "Particles/Initialization/PlasmaInjector.H"
 #include "Particles/ElementaryProcess/Ionization.H"
 #ifdef WARPX_QED
 #    include "Particles/ElementaryProcess/QEDPairGeneration.H"
