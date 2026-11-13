@@ -559,3 +559,19 @@ find build_*/bin -maxdepth 2 -name diags -type d -prune -exec rm -rf {} +
 
 **判读规则补充**：若出现 `Bus error`、`OPAL ERROR`、`MPI_Init_thread` 失败，**先查磁盘与 /dev/shm**，
 不要先怀疑代码。
+
+## 粒子系统插件化（A/B/C/D 四阶段）验收汇总 — 2026-11-14
+
+| 阶段 | 判据 | 证据 |
+|---|---|---|
+| **A 契约补全** | 内核所需方法全部在 `IParticleSystem`/`IParticleContainer` 上；外部场样式从 `RuntimeConfig` 读 | `build_takeover` 233/233；编译全维通过 |
+| **B 内核解耦** | 内核不再通过具体类型**调用**粒子系统 | `mypc->` / `GetPartContainer().` 调用为 0（仅剩 1 处注释）；四个检查器全绿 |
+| **B 物理红线** | A/B 三个 2D 算例逐位相同 | `d2_collision` / `d2_langmuir` / `d2_plasma_mirror`：max abs diff **0.000e+00**（38–41 个场分量） |
+| **C 搬迁** | 粒子树位于 `Plugins/ParticleCore/`，内核经工厂获取 | 154 文件 + 6 个相邻模块搬迁；`create_particle_system()` 注册/创建；`particle_factory_2` 锁定接缝 |
+| **C 方向性** | 粒子树 → 内核 include **归零**；Core → 内核 include 归零 | `grep '#include "WarpX.H"' Source/Plugins/ParticleCore/` = 0；`DefaultInitialization.H` 已清 |
+| **D 开关（字段-only）** | 关闭插件时，无粒子输入仍可运行 | ctest `particle_free_field_only_2` **Passed** |
+| **D 开关（错误）** | 关闭插件时，粒子输入给出可操作错误 | ctest `particle_free_rejects_particles_2` **Passed**（输出含 `the particle system is not linked`） |
+
+**遗留（非本目标范围）**：跨插件 include 棘轮仍有 10 条（PicEm→Diagnostics/FieldSolver 的 Python 绑定与
+DivCleaner 等），已登记为只减不增；1D/3D/RZ 全量套件在最后一轮跑完 724 条中 718 通过（6 条为已知
+平台差异/并行竞争，其中 theta implicit 单跑通过）。
