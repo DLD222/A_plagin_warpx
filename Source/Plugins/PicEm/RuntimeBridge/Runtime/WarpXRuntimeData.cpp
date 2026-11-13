@@ -102,14 +102,27 @@ void WarpXRuntimeData::applyExEyBz (int lev, amrex::FArrayBox& dst,
                                     const amrex::FArrayBox& src,
                                     const amrex::Box& box) const
 {
+#if defined(WARPX_PARTICLE_PLUGIN)
+    // The NCI Godfrey filter lives with the particles (it smooths the particle shape).
     w().nci_godfrey_filter_exeybz[lev]->ApplyStencil(dst, src, box);
+#else
+    amrex::ignore_unused(lev, dst, src, box);
+    amrex::Abort("The NCI Godfrey filter requires the particle plugin: rebuild with "
+                 "-DWarpX_PLUGIN_PARTICLECORE=ON.");
+#endif
 }
 
 void WarpXRuntimeData::applyBxByEz (int lev, amrex::FArrayBox& dst,
                                     const amrex::FArrayBox& src,
                                     const amrex::Box& box) const
 {
+#if defined(WARPX_PARTICLE_PLUGIN)
     w().nci_godfrey_filter_bxbyez[lev]->ApplyStencil(dst, src, box);
+#else
+    amrex::ignore_unused(lev, dst, src, box);
+    amrex::Abort("The NCI Godfrey filter requires the particle plugin: rebuild with "
+                 "-DWarpX_PLUGIN_PARTICLECORE=ON.");
+#endif
 }
 amrex::IntVect WarpXRuntimeData::blockingFactor (int lev) const { return w().blockingFactor(lev); }
 amrex::IntVect WarpXRuntimeData::numProcs () const { return w().get_numprocs(); }

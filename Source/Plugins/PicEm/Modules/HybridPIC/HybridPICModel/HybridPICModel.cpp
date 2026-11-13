@@ -1806,6 +1806,7 @@ void HybridPICModel::QDSMCAddTemperatureRelaxation (int const lev, amrex::Real c
 }
 
 
+#if defined(WARPX_PARTICLE_PLUGIN)
 void HybridPICModel::QDSMCApplyIonHeating (int const lev, amrex::Real const dt,
                                            amrex::MultiFab const * const redirect_E,
                                            std::map<std::string, amrex::MultiFab*> const * const Ti_dep_by_species) const
@@ -2023,6 +2024,19 @@ void HybridPICModel::QDSMCApplyIonHeating (int const lev, amrex::Real const dt,
         }
     }
 }
+#else
+void HybridPICModel::QDSMCApplyIonHeating (int const /*lev*/, amrex::Real const /*dt*/,
+                                           amrex::MultiFab const * const /*redirect_E*/,
+                                           std::map<std::string, amrex::MultiFab*> const * const
+                                               /*Ti_dep_by_species*/) const
+{
+    // The ion-heating operator walks particles, so it does not exist without the particle
+    // plugin; a hybrid-PIC run needs that plugin by definition.
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        false, "hybrid PIC requires the particle plugin: rebuild with "
+               "-DWarpX_PLUGIN_PARTICLECORE=ON.");
+}
+#endif
 
 
 void HybridPICModel::QDSMCFillElectronPressureFromTe (

@@ -390,6 +390,12 @@ foreach(D IN LISTS WarpX_DIMS)
         if(WarpX_PLUGIN_PARTICLECORE)
             target_link_libraries(warpx_particlecore_${SD} PRIVATE warpx_core_${SD})
         endif()
+        # The kernel is built either way, so it needs to know whether a particle plugin is
+        # linked: the few places that walk particles have to be compiled out, and a run that
+        # asks for particles has to fail with a message instead of a link error.
+        if(WarpX_PLUGIN_PARTICLECORE)
+            target_compile_definitions(warpx_picem_${SD} PRIVATE WARPX_PARTICLE_PLUGIN)
+        endif()
 
         add_library(lib_${SD})
         add_library(WarpX::lib_${SD} ALIAS lib_${SD})

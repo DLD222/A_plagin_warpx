@@ -279,6 +279,7 @@ WarpXHostServices::generateGlobalDebyeLength ()
     m_warpx.particleSystem().GenerateGlobalDebyeLength();
 }
 
+#if defined(WARPX_PARTICLE_PLUGIN)
 void
 WarpXHostServices::generateVirtualPhotons ()
 {
@@ -287,6 +288,12 @@ WarpXHostServices::generateVirtualPhotons ()
         &m_warpx.particleSystem());
 #endif
 }
+#else
+void WarpXHostServices::generateVirtualPhotons ()
+{
+    // Virtual photons are created on the particles, so the call needs the particle plugin.
+}
+#endif
 
 void
 WarpXHostServices::fieldSolve (amrex::Real cur_time)
