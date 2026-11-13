@@ -159,6 +159,8 @@ RuntimeConfig::do_divb_cleaning () const
 bool
 RuntimeConfig::use_fdtd_nci_corr () const
 {
+    // Parsed by the kernel right after the particle system is built (it used to be parsed by
+    // the particle container itself), so the flag becomes visible at the same point in set-up.
     return WarpX::use_fdtd_nci_corr;
 }
 

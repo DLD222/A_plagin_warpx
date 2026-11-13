@@ -292,6 +292,7 @@ set(WARPX_MODULE_INCLUDE_DIRS
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm>
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules>
+    $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/ParticleCore>
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/PicEm/Modules/IO>
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins>
     $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Plugins/IO>
@@ -674,7 +675,6 @@ if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm/Modules/Initialization)
     add_subdirectory(Source/Core/NonlinearSolvers)
     add_subdirectory(Source/Plugins/PicEm/Modules/Parallelization)
-    add_subdirectory(Source/Plugins/PicEm/Modules/Particles)
     add_subdirectory(Source/Plugins/PicEm/Modules/Python)
     add_subdirectory(Source/Core/Runtime)
     add_subdirectory(Source/Core/Utils)

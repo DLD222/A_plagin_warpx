@@ -12,7 +12,7 @@
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
 #   include "BoundaryConditions/PML_RZ.H"
 #endif
-#include "Initialization/ExternalField.H"
+#include "Particles/Initialization/ExternalField.H"
 #include "Fields.H"
 #include "Fluids/MultiFluidContainer.H"
 #include "Fluids/WarpXFluidContainer.H"

@@ -8,6 +8,7 @@
 #define WARPX_PARTICLEIO_H_
 
 #include "Runtime/IParticleContainer.H"
+#include "Runtime/RuntimeConfigSnapshot.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 
 #include <ablastr/particles/NodalFieldGather.H>
@@ -97,6 +98,7 @@ storePhiOnParticles ( warpx::runtime::IParticleContainer::Base& tmp,
  *
  * \param tmp The particle container on which to store the gathered field
  * \param is_full_diagnostic Whether this diagnostic is a full diagnostic
+ * \param config settings snapshot (interpolation order, RZ modes)
  * \param save_Ex Whether the Ex field is saved
  * \param save_Ey Whether the Ex field is saved
  * \param save_Ez Whether the Ex field is saved
@@ -106,7 +108,8 @@ storePhiOnParticles ( warpx::runtime::IParticleContainer::Base& tmp,
  */
 void
 storeFieldOnParticles (warpx::runtime::IParticleContainer::Base& tmp,
-    const warpx::runtime::RuntimeData& data, bool is_full_diagnostic,
+    const warpx::runtime::RuntimeData& data,
+    const warpx::runtime::RuntimeConfigSnapshot& config, bool is_full_diagnostic,
                        bool save_Ex, bool save_Ey, bool save_Ez,
                        bool save_Bx, bool save_By, bool save_Bz);
 

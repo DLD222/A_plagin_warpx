@@ -1,5 +1,5 @@
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include "Filter/NCIGodfreyFilter.H"
+#include "Particles/Filter/NCIGodfreyFilter.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.

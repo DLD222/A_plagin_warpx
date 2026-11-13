@@ -14,3 +14,6 @@ foreach(D IN LISTS WarpX_DIMS)
     target_include_directories(warpx_particlecore_${SD} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach()
+
+# The particle implementation itself.
+add_subdirectory(Particles)

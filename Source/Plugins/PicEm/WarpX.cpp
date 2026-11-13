@@ -440,6 +440,14 @@ warpx::runtime::register_particle_system_factory(
         });
     mypc = warpx::runtime::create_particle_system(this);
 
+    // The NCI corrector flag used to be parsed by the particle container; the container is a
+    // plugin now, so the kernel parses it here - the same point in set-up as before, which
+    // matters because the filter is set up later in InitData.
+    {
+        amrex::ParmParse const pp_particles("particles");
+        pp_particles.query("use_fdtd_nci_corr", use_fdtd_nci_corr);
+    }
+
     // Loop over species (particles and lasers)
     // and set current injection position per species
     if (do_moving_window){

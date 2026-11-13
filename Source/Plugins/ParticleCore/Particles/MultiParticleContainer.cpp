@@ -344,7 +344,8 @@ MultiParticleContainer::ReadParameters ()
                 }
             }
         }
-        pp_particles.query("use_fdtd_nci_corr", WarpX::use_fdtd_nci_corr);
+        // use_fdtd_nci_corr is parsed by the kernel and read back through config(): the
+        // container is a plugin and no longer owns that input.
 #ifdef WARPX_DIM_RZ
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(config().use_fdtd_nci_corr()==0,
                             "ERROR: use_fdtd_nci_corr is not supported in RZ");
@@ -1108,7 +1109,7 @@ MultiParticleContainer::ResetImplicitParticleData (int finest_level)
 void
 MultiParticleContainer::ClearImplicitParticleVelocities ()
 {
-    BL_PROFILE("WarpX::ClearImplicitParticleVelocities()");
+    BL_PROFILE("MultiParticleContainer::ClearImplicitParticleVelocities()");
     // This function sets the particle velocities to zero since the "corrector"
     // velocity push only calculate the velocity due to acceleration from
     // the inductive E-field. The actual velocities are still stored in u_n.
@@ -1148,7 +1149,7 @@ MultiParticleContainer::ClearImplicitParticleVelocities ()
 void
 MultiParticleContainer::FinishImplicitVelocityUpdate ()
 {
-    BL_PROFILE("WarpX::FinishImplicitVelocityUpdate()");
+    BL_PROFILE("MultiParticleContainer::FinishImplicitVelocityUpdate()");
     // This function sets the particle velocities to include the acceleration
     // from both the electrostatic field (currently held in u_n) and the
     // inductive field (currently held in u)
@@ -1192,7 +1193,7 @@ MultiParticleContainer::FinishImplicitVelocityUpdate ()
 void
 MultiParticleContainer::PrepareImplicitVelocitiesForDeposition ()
 {
-    BL_PROFILE("WarpX::PrepareImplicitVelocitiesForDeposition()");
+    BL_PROFILE("MultiParticleContainer::PrepareImplicitVelocitiesForDeposition()");
     // On entry, u holds the velocity after the electrostatic-only push
     // (PushP in OneStep()) and u_n holds the velocity saved at the start of
     // the step (SaveParticlesAtImplicitStepStart()). This function sets u to

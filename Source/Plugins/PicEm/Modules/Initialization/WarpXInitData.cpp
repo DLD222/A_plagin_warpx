@@ -939,7 +939,7 @@ WarpX::InitData_AfterInit ()
 
     ComputePMLFactors();
 
-    if (WarpX::use_fdtd_nci_corr) {
+    if (GetRuntimeContext()->config->use_fdtd_nci_corr()) {
         WarpX::InitNCICorrector();
     }
 
@@ -1365,7 +1365,7 @@ void
 WarpX::InitNCICorrector ()
 {
 #if AMREX_SPACEDIM > 1
-    if (WarpX::use_fdtd_nci_corr)
+    if (GetRuntimeContext()->config->use_fdtd_nci_corr())
     {
         for (int lev = 0; lev <= max_level; ++lev)
         {
