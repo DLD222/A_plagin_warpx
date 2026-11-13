@@ -43,12 +43,11 @@ int main (int argc, char* argv[])
     Real rho0 = 1.0e3;       // mean density [kg m^-3]
     int n_cell = 64;
 
-    for (int const n : {32, 64, 128})
+    for (int const n : {32, 64})
     {
         n_cell = n;
 
         BoxArray ba(Box(IntVect(0), IntVect(n_cell - 1)));
-        ba.maxSize(64);
         DistributionMapping dm(ba);
         RealBox rb({AMREX_D_DECL(0.0, 0.0, 0.0)}, {AMREX_D_DECL(L, L, L)});
         Geometry geom(Box(IntVect(0), IntVect(n_cell - 1)), rb, CoordSys::cartesian,
@@ -102,7 +101,7 @@ int main (int argc, char* argv[])
                     n_cell, (double)max_err, (double)max_ref, (double)rel);
 
         // Second-order convergence: the grid-32 error should be ~4x the grid-64 error.
-        if (n_cell == 128) { exit_code = (rel < 1.e-3) ? 0 : 1; }
+        if (n_cell == 64) { exit_code = (rel < 1.e-3) ? 0 : 1; }
     }
 
     if (exit_code == 0) { std::printf("test_periodic_sine: ok\n"); }

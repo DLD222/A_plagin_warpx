@@ -7,7 +7,8 @@
  */
 #include "NewtonGravity.H"
 
-#include <ablastr/fields/PoissonSolver.H>
+#include <AMReX_MLABecLaplacian.H>
+#include <AMReX_MLMG.H>
 
 #include <AMReX_Array4.H>
 #include <AMReX_BLProfiler.H>
@@ -32,47 +33,52 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
 {
     BL_PROFILE("NewtonGravitySolver::solvePotential");
 
-    // Poisson's equation is solved as grad^2 phi = 4 pi G rho.  The ablastr solver computes
-    // grad^2 phi = rhs, so the right-hand side is 4 pi G rho.  In a periodic domain the
-    // monopole must vanish, hence the mean is subtracted (Jeans swindle).
-    amrex::MultiFab rhs(rho.boxArray(), rho.DistributionMap(), 1, 0);
+    // Solved directly with AMReX's MLABecLaplacian rather than through ablastr's computePhi:
+    // ablastr carries an EB callback contract this plugin has no use for, and defaults the
+    // domain to Dirichlet when no handler is given (PoissonSolver.H:396-403), which a periodic
+    // box rejects.  Going straight to AMReX keeps the plugin self-contained.
+    //
+    //   grad^2 phi = 4 pi G (rho - <rho>)   [the mean is removed: Jeans swindle]
+    //
+    // With MLABecLaplacian the operator is a*alpha*phi - b*div(beta grad phi), so alpha = 0,
+    // b = -1 and beta = 1 reproduce the plain Laplacian.
+
+    amrex::MultiFab rhs(rho.boxArray(), rho.DistributionMap(), 1, 1);
     amrex::MultiFab::Copy(rhs, rho, 0, 0, 1, 0);
 
-    // ablastr solves div(beta grad phi) = rhs and requires beta < 1, so the 4 pi is carried by
-    // beta rather than by the right-hand side: with beta = 1/(4 pi) the equation becomes
-    // div(grad phi) = 4 pi G (rho - <rho>), which is what we want.
-    amrex::Real const beta_scalar = 1.0 / (4.0 * M_PI);
-    amrex::Real const mean = rhs.sum(0) / geom.ProbSize();
+    amrex::Real const mean = rho.sum(0) / geom.ProbSize();
     rhs.plus(-mean, 0, 1);
-    rhs.mult(G_newton, 0);
+    rhs.mult(4.0 * M_PI * G_newton, 0);
+    rhs.FillBoundary(geom.periodicity());
 
-    // phi itself is what the caller gets; the layout must match what the solver expects
-    // (cell-centred, one component, no ghosts beyond what the geometry provides).
     phi.setVal(amrex::Real(0.0));
 
-    amrex::Vector<amrex::Geometry> geom_v{geom};
-    amrex::Vector<amrex::DistributionMapping> dmap_v{rhs.DistributionMap()};
-    amrex::Vector<amrex::BoxArray> grids_v{rhs.boxArray()};
+    // One level: the plugin solves on the level the caller hands it.
+    amrex::BoxArray const& ba = rhs.boxArray();
+    amrex::DistributionMapping const& dm = rhs.DistributionMap();
 
-    ablastr::fields::MultiLevelScalarField rho_ml(1);
-    ablastr::fields::MultiLevelScalarField phi_ml(1);
-    rho_ml[0] = &rhs;
-    phi_ml[0] = &phi;
+    amrex::LPInfo info;
+    amrex::MLABecLaplacian mlabec({geom}, {ba}, {dm}, info);
+    mlabec.setMaxOrder(2);
 
-    ablastr::fields::MLMGOptions options;
-    options.relative_tolerance = relative_tolerance;
-    options.absolute_tolerance = amrex::Real(0.0);
-    options.verbosity = 0;
+    auto const lobc = amrex::Array<amrex::LinOpBCType, AMREX_SPACEDIM>{AMREX_D_DECL(
+        amrex::LinOpBCType::Periodic, amrex::LinOpBCType::Periodic,
+        amrex::LinOpBCType::Periodic)};
+    mlabec.setDomainBC(lobc, lobc);
 
-    std::array<amrex::Real, 3> const beta{beta_scalar, beta_scalar, beta_scalar};
-    ablastr::fields::computePhi(
-        rho_ml, phi_ml, beta, options, geom_v, dmap_v, grids_v,
-        ablastr::utils::enums::GridType::Collocated,
-        /*is_solver_igf_on_lev0=*/false,
-        /*is_igf_2d=*/false);
+    amrex::MultiFab beta_fab(ba, dm, 1, 1);
+    beta_fab.setVal(amrex::Real(1.0));
+    mlabec.setLevelBC(0, &phi);
+    mlabec.setScalars(amrex::Real(0.0), amrex::Real(-1.0));
+    mlabec.setACoeffs(0, amrex::Real(0.0));
+    mlabec.setBCoeffs(0, amrex::Array<amrex::MultiFab const*, AMREX_SPACEDIM>{
+        AMREX_D_DECL(&beta_fab, &beta_fab, &beta_fab)});
 
-    // The solve returns phi up to an additive constant; zero the mean so repeated calls are
-    // comparable (and so the analytic comparison is well defined).
+    amrex::MLMG mlmg(mlabec);
+    mlmg.setVerbose(0);
+    mlmg.setMaxIter(200);
+    mlmg.solve({&phi}, {&rhs}, relative_tolerance, amrex::Real(0.0));
+
     amrex::Real const phi_mean = phi.sum(0) / geom.ProbSize();
     phi.plus(-phi_mean, 0, 1);
 }
