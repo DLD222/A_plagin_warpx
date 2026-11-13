@@ -270,3 +270,16 @@ L = **3.846e33 erg/s**（表 1 的 `[L_s]` 变体采用 3.828e33 erg/s）。
 6. 反应网络 + ε/ε_ν（41–48）
 7. 太阳算例 + 对比（49–56）
 8. 收尾：检查器、回归、文档（57–60）
+
+---
+
+## 6. 与既有实现的集成细节（实测记录）
+
+写 `NewtonGravitySolver` 时撞到的两个约束，记下来避免重复踩：
+
+1. **ablastr 的 `computePhi` 要求 β 的各分量 < 1**（断言在 `PoissonSolver.H`）。
+   它自己承担 4π 因子，所以本插件取 **β = 1/(4π)**、右端 `G(ρ − ⟨ρ⟩)`，
+   于是 `∇·(β∇φ) = G(ρ−⟨ρ⟩)` 等价于 `∇²φ = 4πG(ρ−⟨ρ⟩)`。
+2. **不传 `boundary_handler` 时，ablastr 默认把域边界设为 Dirichlet**（`PoissonSolver.H:396-403`）。
+   周期盒子因此触发 AMReX 的断言（要求 LinOp 全周期）。正确接法是提供一个带
+   `lobc`/`hibc` 的 handler，全维填 `LinOpBCType::Periodic`。
