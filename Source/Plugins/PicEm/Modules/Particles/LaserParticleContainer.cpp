@@ -9,7 +9,7 @@
 #include "LaserParticleContainer.H"
 
 #include "Fields.H"
-#include "Laser/LaserProfiles.H"
+#include "Particles/Laser/LaserProfiles.H"
 #include "Particles/LaserParticleContainer.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Particles/WarpXParticleContainer.H"

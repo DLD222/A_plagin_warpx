@@ -12,7 +12,7 @@
 #include "PhysicalParticleContainer.H"
 
 #include "Fields.H"
-#include "Filter/NCIGodfreyFilter.H"
+#include "Particles/Filter/NCIGodfreyFilter.H"
 #include "Initialization/PlasmaInjector.H"
 #include "MultiParticleContainer.H"
 #include "Parallelization/WarpXSumGuardCells.H"

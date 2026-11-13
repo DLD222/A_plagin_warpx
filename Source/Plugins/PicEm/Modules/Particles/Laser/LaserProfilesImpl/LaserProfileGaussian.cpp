@@ -5,7 +5,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
-#include "Laser/LaserProfiles.H"
+#include "Particles/Laser/LaserProfiles.H"
 
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"

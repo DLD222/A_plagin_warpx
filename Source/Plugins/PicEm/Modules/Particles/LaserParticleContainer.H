@@ -9,7 +9,7 @@
 #ifndef WARPX_LaserParticleContainer_H_
 #define WARPX_LaserParticleContainer_H_
 
-#include "Laser/LaserProfiles.H"
+#include "Particles/Laser/LaserProfiles.H"
 #include "WarpXParticleContainer.H"
 
 #include "Modules/FieldSolver/ImplicitOptions.H"
