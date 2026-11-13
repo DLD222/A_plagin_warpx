@@ -437,10 +437,14 @@ WarpX::WarpX ()
         return WarpX::GetInstance().getCosts(lev);
     });
 
-warpx::runtime::register_particle_system_factory(
+#if defined(WARPX_PARTICLE_PLUGIN)
+    // With the switch off the sources are still linked, but nothing registers: every caller sees
+    // a null particle system, which is what a particle-free run has to cope with.
+    warpx::runtime::register_particle_system_factory(
         [](void* owner) -> std::unique_ptr<warpx::runtime::IParticleSystem> {
             return std::make_unique<MultiParticleContainer>(static_cast<WarpX*>(owner));
         });
+#endif
     mypc = warpx::runtime::create_particle_system(this);
     if (!mypc) {
         // The particle plugin is not linked.  A run that needs particles has to say so

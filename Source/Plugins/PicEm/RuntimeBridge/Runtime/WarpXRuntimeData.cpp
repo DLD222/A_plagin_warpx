@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "Runtime/WarpXRuntimeData.H"
+#include "Runtime/EmptySpeciesMetadata.H"
 
 #include "Fluids/MultiFluidContainer.H"
 
@@ -51,9 +52,22 @@ WarpXRuntimeData::w () const
 ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () { return w().GetMultiFabRegister(); }
 const ablastr::fields::MultiFabRegister& WarpXRuntimeData::fields () const { return w().GetMultiFabRegister(); }
 amrex::AmrCore& WarpXRuntimeData::amrCore () const { return w(); }
-ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () { return w().particleSystem(); }
+namespace
+{
+    ISpeciesMetadata& species_metadata_of (WarpX& w)
+    {
+        // A run with no particle plugin has no species; answer that instead of dereferencing a
+        // null particle system.
+        static warpx::runtime::EmptySpeciesMetadata empty;
+        auto* ps = w.GetRuntimeContext() != nullptr ? w.GetRuntimeContext()->particles : nullptr;
+        return ps != nullptr ? static_cast<ISpeciesMetadata&>(*const_cast<warpx::runtime::IParticleSystem*>(ps))
+                             : static_cast<ISpeciesMetadata&>(empty);
+    }
+}
+
+ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () { return species_metadata_of(w()); }
 IParticleContainerAccess& WarpXRuntimeData::particleAccess () { return w().particleSystem(); }
-const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return w().particleSystem(); }
+const ISpeciesMetadata& WarpXRuntimeData::speciesMetadata () const { return species_metadata_of(w()); }
 const IParticleContainerAccess& WarpXRuntimeData::particleAccess () const { return w().particleSystem(); }
 
 warpx::runtime::IFluidModel* WarpXRuntimeData::fluids () { auto& warpx = w(); return warpx.DoFluidSpecies() ? &warpx.GetFluidContainer() : nullptr; }

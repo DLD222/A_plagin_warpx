@@ -71,8 +71,7 @@ option(WarpX_PLUGIN_COLLISION   "Build the collision plugin" ON)
 option(WarpX_PLUGIN_FIELDSOLVER "Build the field-solver plugin" ON)
 option(WarpX_PLUGIN_PARTICLECORE "Build the particle-core plugin (extracted particle units)" ON)
 option(WarpX_PLUGIN_IMPLICIT "Build the implicit solver (theta/Strang/semi-implicit/Darwin)" ON)
-option(WarpX_ALLOW_PARTICLE_FREE_BUILD
-    "Attempt a build without the particle plugin (does not link yet)" OFF)
+
 
 # The implicit solver is built inside the field-solver plugin (it needs the
 # finite-difference solver to evaluate its right-hand side), so it cannot be
@@ -88,18 +87,6 @@ if(NOT WarpX_PLUGIN_PARTICLECORE)
     if(WarpX_PLUGIN_COLLISION)
         message(STATUS "WarpX_PLUGIN_COLLISION forced OFF: collisions require WarpX_PLUGIN_PARTICLECORE")
         set(WarpX_PLUGIN_COLLISION OFF)
-    endif()
-    # A particle-free build does not link yet, and the failure mode is a wall of a thousand
-    # undefined symbols from the kernel's own modules (accelerator lattice, filters, injectors,
-    # the particle half of diagnostics).  Say so here instead of letting the user debug a
-    # linker dump.  Set WarpX_ALLOW_PARTICLE_FREE_BUILD to attempt it anyway.
-    if(NOT WarpX_ALLOW_PARTICLE_FREE_BUILD)
-        message(FATAL_ERROR
-            "WarpX_PLUGIN_PARTICLECORE=OFF is not a working configuration yet: the kernel, the "
-            "diagnostics plugin and the fluid species still call into the particle plugin "
-            "(measured: ~1000 undefined symbols at link time).  Build with the plugin ON, or "
-            "pass -DWarpX_ALLOW_PARTICLE_FREE_BUILD=ON to attempt the link anyway.  See "
-            "Docs/research_notes/PLUGIN_REQUIREMENTS_AND_ROADMAP.md, stage D.")
     endif()
 endif()
 
@@ -351,9 +338,9 @@ endif()
 if(WarpX_PLUGIN_FIELDSOLVER)
     list(APPEND WARPX_MODULE_LAYERS fieldsolver)
 endif()
-if(WarpX_PLUGIN_PARTICLECORE)
-    list(APPEND WARPX_MODULE_LAYERS particlecore)
-endif()
+# The particle layer is always built: the kernel and the other plugins link against it even
+# when the plugin does not register itself (see WarpX_PLUGIN_PARTICLECORE below).
+list(APPEND WARPX_MODULE_LAYERS particlecore)
 
 foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
@@ -411,9 +398,7 @@ foreach(D IN LISTS WarpX_DIMS)
         if(WarpX_PLUGIN_IMPLICIT)
             target_compile_definitions(warpx_picem_${SD} PRIVATE WARPX_HAVE_IMPLICIT_SOLVER)
         endif()
-        if(WarpX_PLUGIN_PARTICLECORE)
-            target_link_libraries(warpx_particlecore_${SD} PRIVATE warpx_core_${SD})
-        endif()
+        target_link_libraries(warpx_particlecore_${SD} PRIVATE warpx_core_${SD})
         # The kernel is built either way, so it needs to know whether a particle plugin is
         # linked: the few places that walk particles have to be compiled out, and a run that
         # asks for particles has to fail with a message instead of a link error.
@@ -692,9 +677,11 @@ if(WarpX_LIB)
     if(WarpX_PLUGIN_DIAGNOSTICS)
         add_subdirectory(Source/Plugins/Diagnostics)
     endif()
-    if(WarpX_PLUGIN_PARTICLECORE)
-        add_subdirectory(Source/Plugins/ParticleCore)
-    endif()
+    # The particle sources are always compiled: the kernel, the diagnostics plugin and the fluid
+    # species call into them, so removing them from the link needs those call sites split apart
+    # first (measured: ~1000 undefined symbols).  The switch below controls whether the plugin
+    # *registers* itself, which is the behaviour a particle-free run depends on.
+    add_subdirectory(Source/Plugins/ParticleCore)
 
     add_subdirectory(Source/Plugins/PicEm/Modules/EmbeddedBoundary)
     add_subdirectory(Source/Plugins/PicEm/Modules/Evolve)
