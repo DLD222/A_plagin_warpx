@@ -727,3 +727,29 @@ openPMD::error::WrongAPIUsage
 （已达成），而不是"内核目录里一个 `Particles/` include 都不剩"——后者与 AMReX 的
 tile 迭代模型冲突。这个修正会影响阶段 B 的验收措辞，阶段 C 之后内核唯一需要具体类型的
 地方应该只剩**工厂注册**那一处。
+
+### 阶段 C 的依赖清单（2026-11-13，实测）
+
+把 `Modules/Particles` 暂移到 `Plugins/ParticleCore/` 试跑后，边界检查器报出**反向**违规：
+粒子树仍在 include 内核头。逐条清点后，完整清单是 **18 处**：
+
+| 内核子目录 | 处数 | 内容 | 性质 |
+|---|---|---|---|
+| `Modules/Initialization` | 10 | `PlasmaInjector`、`InjectorDensity/Momentum/Position`、`SampleGaussianFluxDistribution` | 注入器，属于粒子族 |
+| `Modules/EmbeddedBoundary` | 3 | `ParticleBoundaryProcess`、`ParticleScraper`、`DistanceToEB` | EB 的**粒子**部分 |
+| `Modules/Laser` | 2 | `LaserProfiles` | 激光是粒子容器的一种 |
+| `Modules/Filter` | 1 | `NCIGodfreyFilter` | 粒子降噪滤波器 |
+| `Modules/AcceleratorLattice` | 1 | `AcceleratorLattice` | 粒子属性推进 |
+| `WarpX.H` | 1 | `Gather/GetExternalFields.cpp`（解析器成员 + 加速器晶格） | 需契约访问器 |
+
+**已清零的部分（本轮之前几轮的战果）**：内核桥接头 8/8、`WarpX.H` 13→1、
+`WarpX::GetInstance()` 在粒子树内 4→0、`WarpX::` 静态量 19→0。
+
+**结论**：粒子树与内核的耦合不是"几处漏网"，而是**这 18 处全部是"粒子族的相邻模块"**。
+干净的搬迁只有一种做法：把上表这些模块**随粒子一起**移入 `Plugins/ParticleCore/`
+（注入器、激光剖面、EB 粒子过程、滤波器、晶格查找器），而不是留一半在内核。
+剩下 `GetExternalFields` 的 `WarpX.H` 还需要两个契约访问器：外部场解析器、加速器晶格查找器。
+
+这决定了阶段 C 的真实工作量：**不是移动 78 个文件，而是移动 78 个文件 + 6 个相邻模块**
+（约再多 30–40 个文件）。在最终移动前，先按上表逐项把"相邻模块"的边界理清，
+比一次性大搬迁安全。
