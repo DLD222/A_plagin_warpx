@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-#include "AcceleratorLattice/AcceleratorLattice.H"
+#include "Particles/AcceleratorLattice/AcceleratorLattice.H"
 #include "BoundaryConditions/PML.H"
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
 

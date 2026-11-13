@@ -17,6 +17,7 @@ foreach(D IN LISTS WarpX_DIMS)
 endforeach()
 
 #add_subdirectory(Algorithms)
+add_subdirectory(AcceleratorLattice)
 add_subdirectory(Deposition)
 add_subdirectory(ElementaryProcess)
 add_subdirectory(Gather)

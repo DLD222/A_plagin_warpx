@@ -651,7 +651,6 @@ add_subdirectory(Source/Core/ablastr)
 
 if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm)
-    add_subdirectory(Source/Plugins/PicEm/Modules/AcceleratorLattice)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
     if(WarpX_PLUGIN_COLLISION)
         add_subdirectory(Source/Plugins/Collision)

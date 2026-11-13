@@ -48,7 +48,7 @@
 #   endif
 #endif
 
-#include "AcceleratorLattice/AcceleratorLattice.H"
+#include "Particles/AcceleratorLattice/AcceleratorLattice.H"
 #include "Fields.H"
 #include "Runtime/FieldSchema.H"
 #include "Runtime/IDiagnosticsService.H"

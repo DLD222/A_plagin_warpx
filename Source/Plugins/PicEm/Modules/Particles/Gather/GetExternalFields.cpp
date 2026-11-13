@@ -1,6 +1,6 @@
 #include "Modules/Particles/Gather/GetExternalFields.H"
 
-#include "AcceleratorLattice/AcceleratorLattice.H"
+#include "Particles/AcceleratorLattice/AcceleratorLattice.H"
 
 #include "Particles/MultiParticleContainer.H"
 #include "WarpX.H"
