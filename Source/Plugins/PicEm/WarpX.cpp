@@ -442,6 +442,22 @@ warpx::runtime::register_particle_system_factory(
             return std::make_unique<MultiParticleContainer>(static_cast<WarpX*>(owner));
         });
     mypc = warpx::runtime::create_particle_system(this);
+    if (!mypc) {
+        // The particle plugin is not linked.  A run that needs particles has to say so
+        // clearly instead of failing somewhere deep in the step; a field-only run is fine.
+        amrex::ParmParse const pp_species("particles");
+        amrex::Vector<std::string> species_names;
+        const bool has_particle_species = pp_species.queryarr("species_names", species_names)
+                                          && !species_names.empty();
+        std::string injection_style;
+        const bool has_injection = pp_species.query("E_ext_particle_init_style", injection_style);
+        amrex::ignore_unused(has_injection);
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            !has_particle_species,
+            "This input defines particle species (particles.species_names) but the particle "
+            "system is not linked: rebuild with -DWarpX_PLUGIN_PARTICLECORE=ON, or remove the "
+            "particle species for a field-only run.");
+    }
 
     // The NCI corrector flag used to be parsed by the particle container; the container is a
     // plugin now, so the kernel parses it here - the same point in set-up as before, which
