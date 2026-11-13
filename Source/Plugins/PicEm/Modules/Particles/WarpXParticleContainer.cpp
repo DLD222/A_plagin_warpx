@@ -32,7 +32,6 @@
 #include "Runtime/RuntimeData.H"
 #include "Runtime/LegacyServices.H"
 #include "Runtime/LegacyServices.H"
-#include "WarpX.H"
 
 #include <ablastr/coarsen/average.H>
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -138,13 +137,13 @@ namespace
 
 ParticleTileIter::ParticleTileIter (ContainerType& pc, int level)
     : amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(pc, level,
-             MFItInfo().SetDynamic(WarpX::do_dynamic_scheduling))
+             MFItInfo().SetDynamic(warpx::runtime::legacy_config().do_dynamic_scheduling()))
 {
 }
 
 ParticleTileIter::ParticleTileIter (ContainerType& pc, int level, MFItInfo& info)
     : amrex::ParIterSoA<PIdx::nattribs, 0, amrex::PolymorphicArenaAllocator>(pc, level,
-                   info.SetDynamic(WarpX::do_dynamic_scheduling))
+                   info.SetDynamic(warpx::runtime::legacy_config().do_dynamic_scheduling()))
 {
 }
 
@@ -154,9 +153,9 @@ WarpXParticleContainer::WarpXParticleContainer (AmrCore* amr_core, int ispecies,
     : IParticleContainer(amr_core->GetParGDB())
     , species_id(ispecies), species_name(name), m_amr_core(amr_core)
 {
-    if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
-        m_runtime_context = w->GetRuntimeContext();
-    }
+    // The context is handed over by setRuntimeContext() once the kernel has built it; until
+    // then data()/host()/config() use the core service locator, so this constructor does not
+    // need to know the kernel's type.
     SetArena(amrex::The_Arena());
     SetParticleSize();
     SetSoACompileTimeNames(

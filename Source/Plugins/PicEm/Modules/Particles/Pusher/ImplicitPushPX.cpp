@@ -4,6 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Fields.H"
 #include "Particles/PhysicalParticleContainer.H"
 
 #ifdef WARPX_QED
@@ -23,7 +24,8 @@
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
-#include "WarpX.H"
+
+constexpr int villasenor_mass_matrices_max_grid_crossings = 3;
 
 #include <ablastr/warn_manager/WarnManager.H>
 
@@ -435,7 +437,7 @@ PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
     if (np_to_push == 0) { return; }
 
     // Get cell size on gather_lev
-    const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(gather_lev,0));
+    const amrex::XDim3 dinv = data().invCellSize(std::max(gather_lev,0));
 
     // Get box from which field is gathered.
     // If not gathering from the finest level, the box is coarsened.
@@ -443,11 +445,11 @@ PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
     if (lev == gather_lev) {
         box = pti.tilebox();
     } else {
-        const amrex::IntVect& ref_ratio = WarpX::RefRatio(gather_lev);
+        const amrex::IntVect& ref_ratio = data().refRatio(gather_lev);
         box = amrex::coarsen(pti.tilebox(),ref_ratio);
     }
 
-    const int max_grid_crossings = WarpX::particle_max_grid_crossings;
+    const int max_grid_crossings = config().particle_max_grid_crossings();
 
     // Limit trial positions to max_grid_crossings beyond the valid nodal box,
     // leaving the remaining field guard cells available for the gather shape.
@@ -471,7 +473,7 @@ PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
     const amrex::ParticleReal Bz_external_particle = m_B_external_particle[2];
 
     // Lower corner of tile box physical domain (take into account Galilean shift)
-    const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, gather_lev, 0.0_rt);
+    const amrex::XDim3 xyzmin = data().lowerCorner(box, gather_lev, 0.0_rt);
     const amrex::Dim3 lo = lbound(box);
 
     amrex::Box domain_box = data().geom(0).Domain();
@@ -495,9 +497,9 @@ PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
         domain_double[idim][1] = static_cast<double>(domain_box.bigEnd(idim) - box.smallEnd(idim));
     }
 
-    const auto depos_type = WarpX::current_deposition_algo;
-    const int depos_order = WarpX::nox;
-    const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
+    const auto depos_type = config().current_deposition_algo();
+    const int depos_order = config().nox();
+    const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
 
     amrex::Array4<const amrex::Real> const& ex_arr = exfab->array();
     amrex::Array4<const amrex::Real> const& ey_arr = eyfab->array();
@@ -549,7 +551,7 @@ PhysicalParticleContainer::ImplicitPushXP (ParticleTileIter & pti,
     const amrex::ParticleReal q = this->m_charge;
     const amrex::ParticleReal mass = this->m_mass;
 
-    const auto pusher_algo = WarpX::particle_pusher_algo;
+    const auto pusher_algo = config().particle_pusher_algo();
     const auto do_crr = do_classical_radiation_reaction;
 #ifdef WARPX_QED
     const auto do_sync = m_do_qed_quantum_sync;
@@ -771,7 +773,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
     const auto depos_type = CurrentDepositionAlgo::Villasenor;
 
     // Get cell size on gather_lev
-    const amrex::XDim3 dinv = WarpX::InvCellSize(std::max(gather_lev,0));
+    const amrex::XDim3 dinv = data().invCellSize(std::max(gather_lev,0));
     const amrex::Real invvol = dinv.x*dinv.y*dinv.z;
 
     // Get box from which field is gathered.
@@ -780,11 +782,11 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
     if (lev == gather_lev) {
         box = pti.tilebox();
     } else {
-        const amrex::IntVect& ref_ratio = WarpX::RefRatio(gather_lev);
+        const amrex::IntVect& ref_ratio = data().refRatio(gather_lev);
         box = amrex::coarsen(pti.tilebox(),ref_ratio);
     }
 
-    const int max_grid_crossings = WarpX::particle_max_grid_crossings;
+    const int max_grid_crossings = config().particle_max_grid_crossings();
 
     // Limit trial positions to max_grid_crossings beyond the valid nodal box,
     // leaving the remaining field guard cells available for the gather shape.
@@ -808,7 +810,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
     const amrex::ParticleReal Bz_external_particle = m_B_external_particle[2];
 
     // Lower corner of tile box physical domain (take into account Galilean shift)
-    const amrex::XDim3 xyzmin = WarpX::LowerCorner(box, gather_lev, 0.0_rt);
+    const amrex::XDim3 xyzmin = data().lowerCorner(box, gather_lev, 0.0_rt);
     const amrex::Dim3 lo = lbound(box);
 
     amrex::Box domain_box = data().geom(0).Domain();
@@ -832,8 +834,8 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
         domain_double[idim][1] = static_cast<double>(domain_box.bigEnd(idim) - box.smallEnd(idim));
     }
 
-    const int depos_order = WarpX::nox;
-    const int n_rz_azimuthal_modes = WarpX::n_rz_azimuthal_modes;
+    const int depos_order = config().nox();
+    const int n_rz_azimuthal_modes = config().n_rz_azimuthal_modes();
 
     amrex::Array4<const amrex::Real> const & ex_arr = exfab->array();
     amrex::Array4<const amrex::Real> const & ey_arr = eyfab->array();
@@ -923,7 +925,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
     const amrex::ParticleReal q = this->m_charge;
     const amrex::ParticleReal mass = this->m_mass;
 
-    const auto pusher_algo = WarpX::particle_pusher_algo;
+    const auto pusher_algo = config().particle_pusher_algo();
     const auto do_crr = do_classical_radiation_reaction;
 #ifdef WARPX_QED
     const auto do_sync = m_do_qed_quantum_sync;
@@ -1169,7 +1171,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     if constexpr (depos_order_control == order_one) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<1,false,/*deposit_J=*/true,
-                                                              WarpX::villasenor_mass_matrices_max_grid_crossings>(
+                                                              villasenor_mass_matrices_max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1186,7 +1188,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_two) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<2,false,/*deposit_J=*/true,
-                                                              WarpX::villasenor_mass_matrices_max_grid_crossings>(
+                                                              villasenor_mass_matrices_max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1203,7 +1205,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_three) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<3,false,/*deposit_J=*/true,
-                                                              WarpX::villasenor_mass_matrices_max_grid_crossings>(
+                                                              villasenor_mass_matrices_max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1220,7 +1222,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_four) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<4,false,/*deposit_J=*/true,
-                                                              WarpX::villasenor_mass_matrices_max_grid_crossings>(
+                                                              villasenor_mass_matrices_max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
