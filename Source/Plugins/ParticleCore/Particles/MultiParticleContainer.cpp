@@ -101,9 +101,9 @@ namespace
 
 MultiParticleContainer::MultiParticleContainer (AmrCore* amr_core)
 {
-    if (auto* w = dynamic_cast<WarpX*>(amr_core)) {
-        m_runtime_context = w->GetRuntimeContext();
-    }
+    // The runtime context is handed over by setRuntimeContext() once the kernel has built it;
+    // until then data()/host()/config() fall back to the core service locator.  The container
+    // deliberately does not know the kernel's type.
 
     ReadParameters();
 

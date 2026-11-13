@@ -7,8 +7,9 @@
  */
 #ifndef WARPX_DEFAULTINITIALIZATION_H_
 #define WARPX_DEFAULTINITIALIZATION_H_
+#include "Modules/Particles/ParticleAttributes.H"
+#include "Modules/Particles/Pusher/GetAndSetPosition.H"
 #include "Modules/Particles/ParticleCreation/InitializationPolicy.H"
-#include <WarpX.H>
 
 #include "Runtime/RuntimeData.H"
 #ifdef WARPX_QED

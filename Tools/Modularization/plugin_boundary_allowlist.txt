@@ -4,9 +4,9 @@
 # dependencies were always there but invisible. They are recorded, not accepted as good:
 # the list may only shrink, and each entry is a real architectural debt.
 #
-# Already paid down: the four Collision headers that carried WarpX.H.
+# Paid down so far: the four Collision headers carrying WarpX.H, and Core's
+# DefaultInitialization.H (which had been leaning on it for PIdx, fields and WarpX).
 #
-Core->Plugin: Source/Core/Modules/Particles/ParticleCreation/DefaultInitialization.H includes WarpX.H
 Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H
 Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H
 Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H

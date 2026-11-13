@@ -7,6 +7,7 @@
 #ifndef WARPX_PARTICLES_COLLISION_BINARYCOLLISION_H_
 #define WARPX_PARTICLES_COLLISION_BINARYCOLLISION_H_
 
+#include "Fields.H"
 #include "Modules/Particles/Algorithms/KineticEnergy.H"
 #include "Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H"
 #include "Collision/BinaryCollision/Coulomb/PairWiseCoulombCollisionFunc.H"

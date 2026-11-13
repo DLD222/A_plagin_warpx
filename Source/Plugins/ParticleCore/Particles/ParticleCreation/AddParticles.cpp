@@ -4,6 +4,7 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Fields.H"
 #include "Particles/PhysicalParticleContainer.H"
 
 #include "AddPlasmaUtilities.H"

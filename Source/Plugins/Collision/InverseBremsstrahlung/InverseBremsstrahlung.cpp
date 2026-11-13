@@ -4,6 +4,8 @@
  *
  * License: BSD-3-Clause-LBNL
  */
+#include "Modules/Particles/Algorithms/KineticEnergy.H"
+#include <ablastr/warn_manager/WarnManager.H>
 #include "InverseBremsstrahlung.H"
 
 #include "Runtime/RuntimeConfig.H"
