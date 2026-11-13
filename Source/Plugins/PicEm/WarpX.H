@@ -18,6 +18,7 @@
 #include "Modules/FieldSolver/ImplicitOptions.H"
 #include "Runtime/IParticleBoundaryBuffer.H"
 #include "Runtime/IParticleSystem.H"
+#include "Runtime/NullParticleSystem.H"
 #include "Runtime/IAmrPolicy.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeConfigSnapshot.H"

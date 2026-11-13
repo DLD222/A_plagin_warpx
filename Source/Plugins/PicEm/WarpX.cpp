@@ -356,7 +356,11 @@ WarpX::Finalize()
 warpx::runtime::IParticleSystem&
 WarpX::particleSystem ()
 {
-    return *mypc;
+    // A run without the particle plugin gets an empty system rather than a null dereference:
+    // every count is zero and every operation is a no-op.
+    return mypc != nullptr ? static_cast<warpx::runtime::IParticleSystem&>(*mypc)
+                           : static_cast<warpx::runtime::IParticleSystem&>(
+                                 warpx::runtime::null_particle_system());
 }
 
 // Only the structural users (tile iteration) and the Python bindings call this; everything
@@ -376,7 +380,9 @@ WarpX::GetPartContainer () const
 const warpx::runtime::IParticleSystem&
 WarpX::particleSystem () const
 {
-    return *mypc;
+    return mypc != nullptr ? static_cast<const warpx::runtime::IParticleSystem&>(*mypc)
+                           : static_cast<const warpx::runtime::IParticleSystem&>(
+                                 warpx::runtime::null_particle_system());
 }
 
 WarpX::WarpX ()

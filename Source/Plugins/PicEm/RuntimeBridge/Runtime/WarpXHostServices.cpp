@@ -103,6 +103,18 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
         rho = mypc.GetChargeDensityOnLevel(lev, true, /*finalize*/false);
     }
 
+    if (!rho) {
+        // A run with no particle system has no charge to deposit; hand back an empty rho so the
+        // caller's filters and reductions still have something well-formed to work on.
+        // Built from the level geometry rather than from rho_fp, which the solver may not have
+        // allocated yet at this point.
+        // Nodal, one component, no ghosts: the layout this overload's caller checks for.
+        auto const ba = amrex::convert(m_warpx.boxArray(lev), amrex::IntVect::TheNodeVector());
+        rho = std::make_unique<amrex::MultiFab>(
+            ba, m_warpx.DistributionMap(lev), 1, 0);
+        rho->setVal(amrex::Real(0.0));
+    }
+
     m_warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
     m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 
@@ -130,6 +142,16 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
                                const amrex::IntVect& ngrow, bool allow_extra)
 {
     auto rho = computeRho(lev, species_index, apply_rz_psatd_filter);
+    if (m_warpx.GetRuntimeContext() == nullptr || m_warpx.GetRuntimeContext()->particles == nullptr)
+    {
+        // Nothing deposited anything, so build the layout the caller asked for instead of
+        // validating a deposit that never happened.
+        auto const ba = amrex::convert(m_warpx.boxArray(lev), nodal);
+        auto empty = std::make_unique<amrex::MultiFab>(
+            ba, m_warpx.DistributionMap(lev), ncomp, ngrow);
+        empty->setVal(amrex::Real(0.0));
+        return empty;
+    }
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
         rho->nComp() == ncomp || (allow_extra && rho->nComp() > ncomp),
         "computeRho: requested " + std::to_string(ncomp) + " components but the "
