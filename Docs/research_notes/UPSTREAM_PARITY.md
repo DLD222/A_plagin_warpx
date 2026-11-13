@@ -1641,3 +1641,18 @@ ran 17 case(s), skipped 0
 **过程中又踩到同一个 MPI 坑**：上游的 2D 参考二进制是 conda 前缀构建的（链 MPICH），
 用系统 `mpiexec` 启动直接 `PMIx` 报错。用 `-DCMAKE_CXX_COMPILER=/usr/bin/mpicxx`、不带 conda 前缀
 重建 2D 参考树后，三个 2D 算例全部 **0.000e+00**。
+
+## 搬迁与解耦之后的 A/B 复验（2026-11-13 晚）
+
+阶段 C 把粒子树整体搬到 `Plugins/ParticleCore/` 并修掉外部场回归之后，重新跑了
+`Tools/verify/ab/run_all.sh d2`（上游 `26.10` 参考构建 `/tmp/warpx_up2610/build_2d_sys`
+对照本仓库 `build_takeover`）：
+
+| 算例 | diag | 场分量 | max abs diff | 相对差 |
+|---|---|---|---|---|
+| `d2_collision` | `diag1000150` | 38 | 0.000e+00 | 0.00e+00 |
+| `d2_langmuir` | `diag1000080` | 41 | 0.000e+00 | 0.00e+00 |
+| `d2_plasma_mirror` | `diag1000020` | 41 | 0.000e+00 | 0.00e+00 |
+
+**结论：三个 2D 算例与上游逐位相同（bit-identical）**，即搬迁、契约化、外部场修复这一整串
+改动没有改变物理结果。这是阶段 B 的物理红线，现已在阶段 C 之后复验通过。
