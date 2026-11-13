@@ -38,8 +38,8 @@
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Utils/WarpXUtil.H"
-#include "EmbeddedBoundary/ParticleScraper.H"
-#include "EmbeddedBoundary/ParticleBoundaryProcess.H"
+#include "Particles/EmbeddedBoundary/ParticleScraper.H"
+#include "Particles/EmbeddedBoundary/ParticleBoundaryProcess.H"
 
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"

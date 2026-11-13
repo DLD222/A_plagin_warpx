@@ -74,8 +74,8 @@
 #include <AMReX_Random.H>
 #include <AMReX_Utility.H>
 #ifdef AMREX_USE_EB
-#   include "EmbeddedBoundary/ParticleBoundaryProcess.H"
-#   include "EmbeddedBoundary/ParticleScraper.H"
+#   include "Particles/EmbeddedBoundary/ParticleBoundaryProcess.H"
+#   include "Particles/EmbeddedBoundary/ParticleScraper.H"
 #endif
 
 #ifdef AMREX_USE_OMP

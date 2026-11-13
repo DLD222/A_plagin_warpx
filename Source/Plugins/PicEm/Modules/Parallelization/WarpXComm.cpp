@@ -13,7 +13,7 @@
 #   include "BoundaryConditions/PML_RZ.H"
 #endif
 #include "Fields.H"
-#include "Filter/BilinearFilter.H"
+#include "Particles/Filter/BilinearFilter.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Parallelization/WarpXComm_K.H"

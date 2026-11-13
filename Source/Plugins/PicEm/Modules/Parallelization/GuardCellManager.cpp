@@ -16,7 +16,7 @@
 #    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
 #    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
 #endif
-#include "Filter/NCIGodfreyFilter.H"
+#include "Particles/Filter/NCIGodfreyFilter.H"
 #include "Utils/Parser/ParserUtils.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

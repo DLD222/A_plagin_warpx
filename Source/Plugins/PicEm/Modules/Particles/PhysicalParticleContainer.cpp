@@ -42,8 +42,8 @@
 #include "Utils/WarpXConst.H"
 #include "EmbeddedBoundary/Enabled.H"
 #ifdef AMREX_USE_EB
-#   include "EmbeddedBoundary/ParticleBoundaryProcess.H"
-#   include "EmbeddedBoundary/ParticleScraper.H"
+#   include "Particles/EmbeddedBoundary/ParticleBoundaryProcess.H"
+#   include "Particles/EmbeddedBoundary/ParticleScraper.H"
 #endif
 #include "Runtime/FrameState.H"
 #include "Runtime/HostServices.H"
