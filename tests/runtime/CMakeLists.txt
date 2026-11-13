@@ -98,6 +98,25 @@ foreach(D IN LISTS WarpX_DIMS)
         set_tests_properties(runtime_snapshot_particles_${D} PROPERTIES
             WORKING_DIRECTORY ${runtime_snapshot_particles_${D}_dir})
 
+        # Stage D: when the particle plugin does not register, a field-only run must still work
+        # and a run that asks for particles must say so.  Both were verified by hand first; these
+        # two tests are the evidence the goal asks for.
+        if(NOT WarpX_PLUGIN_PARTICLECORE AND TARGET app_${SD})
+            warpx_runtime_test_workdir(particle_free_field_only_${D} particle_free_field_only_${D}_dir)
+            add_test(NAME particle_free_field_only_${D}
+                     COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_field_only)
+            set_tests_properties(particle_free_field_only_${D} PROPERTIES
+                WORKING_DIRECTORY ${particle_free_field_only_${D}_dir})
+
+            warpx_runtime_test_workdir(particle_free_rejects_${D} particle_free_rejects_${D}_dir)
+            add_test(NAME particle_free_rejects_particles_${D}
+                     COMMAND $<TARGET_FILE:app_${SD}> ${CMAKE_CURRENT_SOURCE_DIR}/inputs_2d_particles)
+            # The run aborts on purpose; the test passes if the message names the switch.
+            set_tests_properties(particle_free_rejects_particles_${D} PROPERTIES
+                WORKING_DIRECTORY ${particle_free_rejects_${D}_dir}
+                PASS_REGULAR_EXPRESSION "the particle system is not linked")
+        endif()
+
         if(WarpX_FFT AND TARGET app_${SD})
             warpx_runtime_test_workdir(runtime_psatd_${D} runtime_psatd_${D}_dir)
         add_test(NAME runtime_psatd_${D}

@@ -1,65 +1,22 @@
+# A run that asks for particles.  The particle-free build must refuse it with a message that
+# names the switch, instead of failing somewhere in the first step.
 max_step = 1
-stop_time = 1.0e-9
-
-amr.n_cell = 16 16
-amr.max_grid_size = 16
+amr.n_cell = 32 32
 amr.max_level = 0
 geometry.dims = 2
-geometry.prob_lo = -1.0 -1.0
-geometry.prob_hi =  1.0  1.0
-
-warpx.cfl = 0.4
-algo.maxwell_solver = yee
-algo.particle_shape = 1
+geometry.prob_lo = -1.e-4 -1.e-4
+geometry.prob_hi =  1.e-4  1.e-4
 boundary.field_lo = periodic periodic
 boundary.field_hi = periodic periodic
-
-warpx.reduced_diags_names = step_info field_energy field_max field_mom field_poynting field_reduce part_num part_energy part_mom rho_max lb_eff extrema
-step_info.type = Timestep
-step_info.intervals = 1
-field_energy.type = FieldEnergy
-field_energy.intervals = 1
-field_max.type = FieldMaximum
-field_max.intervals = 1
-field_mom.type = FieldMomentum
-field_mom.intervals = 1
-field_poynting.type = FieldPoyntingFlux
-field_poynting.intervals = 1
-field_reduce.type = FieldReduction
-field_reduce.reduction_type = Maximum
-field_reduce.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz) = "Ex"
-
-warpx.E_ext_grid_init_style = parse_E_ext_grid_function
-warpx.Ex_external_grid_function(x,y,z) = "1.0"
-warpx.Ey_external_grid_function(x,y,z) = "0.0"
-warpx.Ez_external_grid_function(x,y,z) = "0.0"
-
-warpx.B_ext_grid_init_style = constant
-warpx.B_external_grid = 0.0 1.0 0.0
-
-
+algo.particle_shape = 3
 particles.species_names = electrons
-electrons.species_type = electron
+electrons.charge = -q_e
+electrons.mass = m_e
 electrons.injection_style = NUniformPerCell
 electrons.num_particles_per_cell_each_dim = 1 1
-electrons.xmin = -1.0
-electrons.xmax = 1.0
-electrons.zmin = -1.0
-electrons.zmax = 1.0
 electrons.profile = constant
-electrons.density = 1.0e18
-electrons.momentum_distribution_type = at_rest
-
-part_num.type = ParticleNumber
-part_num.intervals = 1
-part_energy.type = ParticleEnergy
-part_energy.intervals = 1
-part_mom.type = ParticleMomentum
-part_mom.intervals = 1
-rho_max.type = RhoMaximum
-rho_max.intervals = 1
-lb_eff.type = LoadBalanceEfficiency
-lb_eff.intervals = 1
-extrema.type = ParticleExtrema
-extrema.intervals = 1
-extrema.species = electrons
+electrons.density = 1.e20
+electrons.momentum_distribution_type = constant
+electrons.ux = 0.0
+electrons.uy = 0.0
+electrons.uz = 0.0

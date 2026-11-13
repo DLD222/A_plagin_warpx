@@ -838,3 +838,23 @@ build boundaries），且 `build_takeover` **232/232**。此前一次搬迁失�
 
 **阶段 D 的两条负向 ctest 因此无法交付**，前置条件（粒子无关的构建）不存在。这一条如实记录，
 不用"手工验证过"替代 ctest 证据。
+
+### 阶段 D 完成（2026-11-14 凌晨）
+
+两条行为现在都有 **ctest 证据**，在粒子无关配置（`-DWarpX_PLUGIN_PARTICLECORE=OFF`）的构建里：
+
+| 测试 | 输入 | 结果 |
+|---|---|---|
+| `particle_free_field_only_2` | `tests/runtime/inputs_2d_field_only`（无 `particles.species_names`） | **Passed**：跑完 2 步 |
+| `particle_free_rejects_particles_2` | `tests/runtime/inputs_2d_particles`（定义了粒子物种） | **Passed**：输出包含 `the particle system is not linked` |
+
+让它成立的关键改动有两处：
+
+1. **开关的语义改为"不注册"而不是"不编译"**：粒子源码始终参与链接（内核、诊断、流体都在调用它），
+   关闭时只是不注册工厂——这正是"没有粒子系统的仿真"要考的场景，而且能链接。
+2. **`NullParticleSystem`（空对象）**：`WarpX::particleSystem()` 在无插件时返回一个"物种数为 0、
+   一切操作皆空"的对象，而不是解引用空指针。逐个调用点判空会散落几十个 `if`，下一个总会被忘掉。
+
+顺带修掉的空安全站点：`speciesMetadata()`、`AllocLevelData`、`computeRho` 的两个重载。
+
+插件 ON 的构建不受影响：2D 套件 **233/233**。
