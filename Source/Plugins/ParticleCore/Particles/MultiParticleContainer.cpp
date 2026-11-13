@@ -1315,6 +1315,32 @@ MultiParticleContainer::acceleratorLattice (int lev) const
 }
 
 void
+MultiParticleContainer::countParticlesWithSuborbits (int ispecies, int threshold,
+                                                     amrex::Long* counter) const
+{
+    // The sub-orbit count needs the AMReX tile iteration, which is why it lives here rather
+    // than in the implicit solver that asks for it.
+    auto& pc = dynamic_cast<WarpXParticleContainer&>(GetParticleContainer(ispecies));
+    const int n_levs = static_cast<int>(data().dtAll().size());
+    for (int lev = 0; lev < n_levs; ++lev) {
+#ifdef AMREX_USE_OMP
+#pragma omp parallel
+#endif
+        {
+            for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
+                int const* const nsuborbits = pti.GetiAttribs("nsuborbits").dataPtr();
+                long const np = pti.numParticles();
+                amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (long ip) {
+                    if (nsuborbits[ip] >= threshold) {
+                        amrex::Gpu::Atomic::Add(counter, amrex::Long(1));
+                    }
+                });
+            }
+        }
+    }
+}
+
+void
 MultiParticleContainer::AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
                                           amrex::Real weight) const
 {

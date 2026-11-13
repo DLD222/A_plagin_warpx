@@ -165,24 +165,8 @@ BuildImplicitKernelServices (WarpX& warpx)
         return pc.HasiAttrib(attrib);
     };
     s.count_suborbits = [&warpx] (int ispecies, int threshold, amrex::Long* counter) {
-        auto& pc = dynamic_cast<WarpXParticleContainer&>(
-            warpx.particleSystem().GetParticleContainer(ispecies));
-        for (int lev = 0; lev <= warpx.finestLevel(); ++lev) {
-#ifdef AMREX_USE_OMP
-#pragma omp parallel
-#endif
-            {
-                for (ParticleTileIter pti(pc, lev); pti.isValid(); ++pti) {
-                    int const* const nsuborbits = pti.GetiAttribs("nsuborbits").dataPtr();
-                    long const np = pti.numParticles();
-                    amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (long ip) {
-                        if (nsuborbits[ip] >= threshold) {
-                            amrex::Gpu::Atomic::Add(counter, amrex::Long(1));
-                        }
-                    });
-                }
-            }
-        }
+        // Per-tile counting is the particle system's business; the solver only asks.
+        warpx.particleSystem().countParticlesWithSuborbits(ispecies, threshold, counter);
     };
     return s;
 }

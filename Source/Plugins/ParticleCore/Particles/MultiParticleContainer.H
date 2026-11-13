@@ -381,6 +381,10 @@ public:
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
     //! IParticleSystem: advance the injection plane of continuously-injected species.
+    //! IParticleSystem: sub-orbit counting for the implicit solver.
+    void countParticlesWithSuborbits (int ispecies, int threshold,
+                                      amrex::Long* counter) const override;
+
     //! IParticleSystem: the implicit push's per-tile work.
     void AddImplicitParticleAttributes (bool particle_suborbits) override;
     void ClearImplicitParticleVelocities () override;

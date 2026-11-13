@@ -127,6 +127,10 @@ public:
     //! Largest dt for which the particles are still stable.
     [[nodiscard]] virtual amrex::Real maxParticleDtInv () const = 0;
 
+    //! Count the particles whose "nsuborbits" attribute is at least the threshold.
+    virtual void countParticlesWithSuborbits (int ispecies, int threshold,
+                                              amrex::Long* counter) const = 0;
+
     //! Add the particles' share to a level's load-balancing cost array.
     //! The kernel owns the cost arrays; the per-tile particle count is the system's business.
     virtual void AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
