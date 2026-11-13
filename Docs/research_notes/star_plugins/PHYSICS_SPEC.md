@@ -283,3 +283,21 @@ L = **3.846e33 erg/s**（表 1 的 `[L_s]` 变体采用 3.828e33 erg/s）。
 2. **不传 `boundary_handler` 时，ablastr 默认把域边界设为 Dirichlet**（`PoissonSolver.H:396-403`）。
    周期盒子因此触发 AMReX 的断言（要求 LinOp 全周期）。正确接法是提供一个带
    `lobc`/`hibc` 的 handler，全维填 `LinOpBCType::Periodic`。
+
+---
+
+## 7. 实现进度（截至第 10 轮）
+
+| 部件 | 状态 |
+|---|---|
+| 物理规格表（常数/引力/流体/反应/验收） | ✅ 定稿（§1–§5） |
+| CF88 反应率 11 条 | ✅ 逐字转录（§3.3） |
+| 标准太阳模型参考值 | ✅ 转录（§4.1），与剖面文件交叉验证一致 |
+| SSM 结构剖面 + GONG 解析器 | ✅ `data/ssm_S_profile.csv`、`Tools/star/parse_fgong.py` |
+| 引力解析参考 + 自检 | ✅ `Tools/star/gravity_reference.py` |
+| NewtonGravity 插件层 | ✅ 独立层，`MLABecLaplacian` 直接求解 |
+| 周期解析测试 | ✅ ctest `gravity_periodic_sine_2`，二阶收敛（32→64 误差降 4.00 倍） |
+| 均匀球 / 点质量 / 双球壳 | ⬜ 下一批 |
+| FluidMoments 插件 | ⬜ 未开始 |
+
+**已知未解决问题**：`128²` 网格在 MLMG 内中止，原因未查清；当前测试用 32/64 两档已足够钉住二阶收敛。
