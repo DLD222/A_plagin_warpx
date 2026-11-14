@@ -1,7 +1,7 @@
 # 3D spherical solar model with AMR, driven by the star runtime plugins.
 # The domain covers +-1.2 R_sun; the sphere is filled from the standard solar model by the plugin.
 stop_time = 1.0e30
-max_step = 3
+max_step = 200
 amr.n_cell = 32 32 32
 amr.max_level = 2
 amr.ref_ratio = 2 2

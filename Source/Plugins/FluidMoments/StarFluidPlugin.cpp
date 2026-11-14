@@ -327,7 +327,7 @@ void fluid_step (WarpXStageContext* ctx, void*)
 
     g_energy = state.sum(g_layout.energy());
     (void)warpx_stage_set_scalar(ctx, "star_energy", g_energy);
-    if (g_steps <= 3.0) {
+    if (g_steps <= 3.0 || std::fmod(g_steps, 50.0) == 0.0) {
         std::printf("[fluid] step %.0f: %d sub-steps, energy = %g, g: %s, E/B: %s,"
                     " max|E| = %g, joule = %g, Mach = %.3e\n",
                     g_steps, n_sub, g_energy, have_g ? "yes" : "no",
