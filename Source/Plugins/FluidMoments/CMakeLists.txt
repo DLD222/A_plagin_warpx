@@ -11,6 +11,18 @@ foreach(D IN LISTS WarpX_DIMS)
     )
     target_include_directories(warpx_fluidmoments_${SD} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # Static variant for out-of-tree runtime plugins (see the gravity plugin for the rationale).
+    if(NOT TARGET warpx_fluidmoments_static_${SD})
+        add_library(warpx_fluidmoments_static_${SD} STATIC FluidMoments.cpp)
+        target_include_directories(warpx_fluidmoments_static_${SD} PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR})
+        target_link_libraries(warpx_fluidmoments_static_${SD} PUBLIC ablastr_${SD})
+        if(TARGET warpx_newtongravity_static_${SD})
+            target_link_libraries(warpx_fluidmoments_static_${SD} PUBLIC
+                warpx_newtongravity_static_${SD})
+        endif()
+    endif()
 endforeach()
 
 # Acceptance tests.  Both run a one-dimensional problem inside the build's dimensionality, so

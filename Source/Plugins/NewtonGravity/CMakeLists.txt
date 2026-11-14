@@ -11,6 +11,16 @@ foreach(D IN LISTS WarpX_DIMS)
     # PUBLIC so another plugin (the fluid one) can link this layer and use its header.
     target_include_directories(warpx_newtongravity_${SD} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # A static variant exists so that an out-of-tree runtime plugin (a shared library loaded
+    # through WARPX_PLUGIN_PATH) can link this layer: an OBJECT library has no archive to link
+    # against.  Same sources, same include directories, no extra dependency.
+    if(NOT TARGET warpx_newtongravity_static_${SD})
+        add_library(warpx_newtongravity_static_${SD} STATIC NewtonGravity.cpp)
+        target_include_directories(warpx_newtongravity_static_${SD} PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR})
+        target_link_libraries(warpx_newtongravity_static_${SD} PUBLIC ablastr_${SD})
+    endif()
 endforeach()
 
 # Analytic acceptance test: a periodic sine density has a closed-form potential.
