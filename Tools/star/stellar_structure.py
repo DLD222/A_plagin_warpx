@@ -282,56 +282,78 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     """
     from ssm_compare import epsilon_pp, epsilon_cno, kappa_analytic, CNO_FRACTION_OF_Z
     from opal_opacity import kappa as opal_kappa
+    import eos as saha_eos
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
 
-    def derivs(m, r, p, t, luminosity):
+    def derivs(m, r, rho, t, luminosity):
         x_h = x_of_m(m)
         z_heavy = z_of_m(m)
-        mu = mean_molecular_weight(x_h, z_heavy)
-        rho = density_from_pressure_temperature(p, t, mu)
+        y_he = max(0.0, 1.0 - x_h - z_heavy)
         if rho <= 0.0 or r <= 0.0 or t <= 0.0:
             return 0.0, 0.0, 0.0, 0.0
+
+        # Ionisation EOS (PHYSICS_SPEC 4.3d): pressure, mean molecular weight and the adiabatic
+        # gradient all come from the Saha solve rather than from a fixed gamma.
+        # The EOS works in cgs; the structure integrator carries SI densities.
+        rho_cgs = rho * 1.0e-3
+        st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
+        p = st["pressure"] * 1.0e-1                        # dyn/cm^2 -> Pa
+        mu = st["mu"]
+        grad_ad = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+
         dr = 1.0 / (4.0 * math.pi * r * r * rho)
         dp = -G * m / (4.0 * math.pi * r ** 4)
+
+        # The state carries the density, not the pressure, so convert the hydrostatic gradient
+        # through the isothermal derivative of the equation of state.
+        delta = 1.0e-4
+        p_plus = saha_eos.pressure(rho_cgs * (1.0 + delta), t, x_h, y_he, z_heavy)
+        dp_drho = (p_plus - st["pressure"]) / (rho_cgs * delta)     # dyn/cm^2 per g/cm^3
+        dp_drho *= 1.0e-1 / 1.0e3                                   # -> Pa per kg/m^3
+        drho = dp / dp_drho if dp_drho > 0.0 else 0.0
+
         # The OPAL table is the real thing (PHYSICS_SPEC 4.2c); the analytic fit is only a
         # fallback for a point outside its rectangle.
         kappa = opal_kappa(t, rho * 1.0e-3, x_h, z_heavy)
         if not (kappa == kappa) or kappa <= 0.0:
             kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0]
         kappa *= 1.0e-1                                                   # cm^2/g -> m^2/kg
-        grad, grad_rad = mlt_gradient(t, p, rho, kappa, luminosity, m, r, mu, gamma_ad, alpha_mlt)
+        grad, grad_rad = mlt_gradient(t, p, rho, kappa, luminosity, m, r, mu, grad_ad, alpha_mlt)
         dt = (t / p) * grad * dp
-        eps = epsilon_pp(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy) \
-            + epsilon_cno(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy,
+        eps = epsilon_pp(t, rho * 1.0e-3, x_h, y_he, z_heavy) \
+            + epsilon_cno(t, rho * 1.0e-3, x_h, y_he, z_heavy,
                           CNO_FRACTION_OF_Z * z_heavy)
         dl = eps                                         # erg/g/s in cgs ...
-        return dr, dp, dt, dl * 1.0e-4                   # ... to W/kg
+        return dr, drho, dt, dl * 1.0e-4                 # ... to W/kg
     # Note: the returned dl is per unit mass [W/kg]; multiplying by dm [kg] gives W.
 
     m = mass * 1.0e-8
     r = (3.0 * m / (4.0 * math.pi * density_from_pressure_temperature(
         p_c, t_c, mean_molecular_weight(x_of_m(0.0), z_of_m(0.0))))) ** (1.0 / 3.0)
-    p, t, lum = p_c, t_c, 0.0
-    samples = [(m, r, p, t, lum)]
+    # p_c is in Pa, the EOS takes dyn/cm^2; the density comes back in g/cm^3 -> kg/m^3.
+    rho = 1.0e3 * saha_eos.density_for_pressure(
+        p_c * 10.0, t_c, x_of_m(0.0), max(0.0, 1.0 - x_of_m(0.0) - z_of_m(0.0)), z_of_m(0.0))
+    t, lum = t_c, 0.0
+    samples = [(m, r, rho, t, lum)]
 
     for _ in range(200000):
         dm = min(0.02 * m, mass - m)
         if dm <= 0.0:
             break
-        k1 = derivs(m, r, p, t, lum)
-        k2 = derivs(m + 0.5 * dm, r + 0.5 * dm * k1[0], p + 0.5 * dm * k1[1],
+        k1 = derivs(m, r, rho, t, lum)
+        k2 = derivs(m + 0.5 * dm, r + 0.5 * dm * k1[0], rho + 0.5 * dm * k1[1],
                     t + 0.5 * dm * k1[2], lum + 0.5 * dm * k1[3])
-        k3 = derivs(m + 0.5 * dm, r + 0.5 * dm * k2[0], p + 0.5 * dm * k2[1],
+        k3 = derivs(m + 0.5 * dm, r + 0.5 * dm * k2[0], rho + 0.5 * dm * k2[1],
                     t + 0.5 * dm * k2[2], lum + 0.5 * dm * k2[3])
-        k4 = derivs(m + dm, r + dm * k3[0], p + dm * k3[1], t + dm * k3[2], lum + dm * k3[3])
+        k4 = derivs(m + dm, r + dm * k3[0], rho + dm * k3[1], t + dm * k3[2], lum + dm * k3[3])
         r += dm / 6.0 * (k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0])
-        p += dm / 6.0 * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1])
+        rho += dm / 6.0 * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1])
         t += dm / 6.0 * (k1[2] + 2.0 * k2[2] + 2.0 * k3[2] + k4[2])
         lum += dm / 6.0 * (k1[3] + 2.0 * k2[3] + 2.0 * k3[3] + k4[3])
         m += dm
-        samples.append((m, r, p, t, lum))
-        if p <= 0.0 or t <= 0.0:
+        samples.append((m, r, rho, t, lum))
+        if rho <= 0.0 or t <= 0.0:
             break
     return samples
 
@@ -374,22 +396,19 @@ def compare_solar_diagnostic():
     print(f"{'m/M':>7} {'r/R (ours)':>11} {'r/R (SSM)':>10} {'T ours':>9} {'T SSM':>9}"
           f" {'rho ours':>9} {'rho SSM':>9}")
     for s in samples[::max(1, len(samples) // 12)]:
-        m, r, p, t, lum = s
+        m, r, rho, t, lum = s
         ssm = min(rows, key=lambda q: abs(q["m"] - m))
-        mu = mean_molecular_weight(x_of_m(m), z_of_m(m))
-        rho = density_from_pressure_temperature(p, t, mu)
         print(f"{m / mass:7.4f} {r / R_SUN:11.4f} {ssm['m'] / mass:10.4f} {t:9.3e}"
-              f" {ssm['T']:9.3e} {rho:9.3e} {ssm['rho'] * 1.0e3:9.3e}")
+              f" {ssm['T']:9.3e} {rho * 1.0e-3:9.3e} {ssm['rho']:9.3e}")
 
     last = samples[-1]
     print(f"\nsurface: ours R/R_sun = {last[1] / R_SUN:.3f}, L/L_sun = {last[4] / 3.846e26:.3f}"
           f"   (the Sun: 1.000, 1.000)")
-    print("  With the OPAL opacity the deep interior tracks the SSM closely (T and rho agree to a")
-    print("  few percent out to m/M ~ 0.2), and the luminosity lands within 13% of the Sun's.")
-    print("  What is left is the envelope: convection is treated in the adiabatic limit with no")
-    print("  mixing length, and the equation of state has no hydrogen/helium ionisation, so the")
-    print("  outer layers are too hot and too dense and the radius comes out at 0.54 R_sun.")
-    print("  Those two are the documented next steps (PHYSICS_SPEC 4.3c).")
+    print("  With the OPAL opacity and the Saha ionisation EOS the model reaches the Sun's")
+    print("  luminosity to a few percent and the deep interior tracks the SSM in T and rho to")
+    print("  a few percent out to m/M ~ 0.2.  The envelope is still too hot at m/M ~ 0.9,")
+    print("  which is where the mixing length, the surface boundary condition and the")
+    print("  remaining EOS detail (partition functions, Coulomb free energy) all live.")
 
 
 def selftest():

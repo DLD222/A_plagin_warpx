@@ -42,6 +42,10 @@ if("3" IN_LIST WarpX_DIMS)
         add_test(NAME fluid_opal_opacity
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/opal_opacity.py --selftest)
+        # The Saha ionisation EOS: fully ionised centre, neutral envelope, adiabatic gradient.
+        add_test(NAME fluid_saha_eos
+                 COMMAND ${Python3_EXECUTABLE}
+                         ${CMAKE_SOURCE_DIR}/Tools/star/eos.py --selftest)
         add_test(NAME fluid_lane_emden
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/stellar_structure.py --selftest)
