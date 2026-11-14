@@ -46,6 +46,10 @@ if("3" IN_LIST WarpX_DIMS)
         add_test(NAME fluid_saha_eos
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/eos.py --selftest)
+        # Regression baseline on the solar model's integrated output.
+        add_test(NAME fluid_solar_model
+                 COMMAND ${Python3_EXECUTABLE}
+                         ${CMAKE_SOURCE_DIR}/Tools/star/solar_compare_plot.py --check)
         add_test(NAME fluid_lane_emden
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/stellar_structure.py --selftest)

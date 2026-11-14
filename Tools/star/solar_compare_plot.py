@@ -115,6 +115,8 @@ def interpolate_ssm(ssm, mass):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--show", action="store_true")
+    ap.add_argument("--check", action="store_true",
+                    help="assert the model's integrated output (a regression baseline)")
     args = ap.parse_args()
 
     result = run_model()
@@ -174,6 +176,17 @@ def main():
               f" {result['T'][i] / ssm['T'][j]:8.3f} {result['rho'][i] / ssm['rho'][j]:10.3f}"
               f" {result['eps'][i] / max(ssm['eps'][j], 1e-30):10.3f}"
               f" {result['kappa'][i] / ssm['kappa'][j]:11.3f}")
+
+    if args.check:
+        # A regression baseline, not a pass/fail science criterion: the model is known to be too
+        # compact (PHYSICS_SPEC 4.3e), and these bounds pin the current integrated output so that
+        # a change to the EOS, the opacity or the mixing length cannot move it silently.
+        luminosity = result["L"][-1] / 3.846e26
+        radius = result["r"][-1] / R_SUN
+        print(f"\nregression baseline: L = {luminosity:.3f} L_sun, R = {radius:.3f} R_sun")
+        assert 0.97 < luminosity < 1.06, luminosity
+        assert 0.55 < radius < 0.63, radius
+        print("solar_compare_plot: the solar model's integrated output is unchanged")
 
     if args.show:
         plt.show()
