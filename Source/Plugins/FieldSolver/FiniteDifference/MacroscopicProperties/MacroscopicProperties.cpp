@@ -335,6 +335,14 @@ MacroscopicProperties::AllocateLevelMFs (
         m_eps_inv_node[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 3, ng_props);
         m_j0_node[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 9, ng_props);
         m_j1_node[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 9, ng_props);
+        // AMReX does not zero a new MultiFab.  The material builders below only write what their
+        // branch owns - a scalar material writes the diagonal - so the off-diagonal components of
+        // eps/sigma and any entry a branch leaves alone would be uninitialised, and the seed and
+        // the Gauss check would multiply E by garbage (a uniform periodic deck reported
+        // max|divD| = 1.7e267 before this).
+        m_eps_node[c]->setVal(amrex::Real(0.0));
+        m_sigma_node[c]->setVal(amrex::Real(0.0));
+        m_eps_inv_node[c]->setVal(amrex::Real(0.0));
         m_jcond[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 1, 0);
         m_jcond[c]->setVal(amrex::Real(0.0));
         m_j0_node[c]->setVal(amrex::Real(0.0));

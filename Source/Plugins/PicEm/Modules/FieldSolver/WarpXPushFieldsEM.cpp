@@ -1327,6 +1327,11 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                         rh(i,j,k) = (Dx(i,j) - Dx(i-1,j)) / dx
                                   + (Dy3(i,j) - Dy3(i,j-1)) / dy_seed
                                   + (Dz3(i,j,k) - Dz3(i,j,k-1)) / dz;
+#elif defined(WARPX_DIM_1D_Z)
+                        // 1D: one axis.  The two-term form read j-1, which is index -1 in the
+                        // collapsed dimension, and seeded rho_medium with that garbage.
+                        amrex::ignore_unused(Dx);
+                        rh(i,j,k) = (Dz(i,j) - Dz(i-1,j)) / dz;
 #else
                         rh(i,j,k) = (Dx(i,j) - Dx(i-1,j)) / dx
                                   + (Dz(i,j) - Dz(i,j-1)) / dz;
@@ -1399,8 +1404,14 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                                       + (jy(i,j,k) - jy(i,j-1,k)) / dy
                                       + (jz(i,j,k) - jz(i,j,k-1)) / dz);
 #else
+#if defined(WARPX_DIM_1D_Z)
+                    // 1D: the only axis is z, so there is one term and no j-1 read.  The
+                    // two-term form below double-counted and read index -1 in j.
+                    rh(i,j,k) += -dtl * (jz(i,j,k) - jz(i-1,j,k)) / dz;
+#else
                     rh(i,j,k) += -dtl * ((jx(i,j,k) - jx(i-1,j,k)) / dx
                                       + (jz(i,j,k) - jz(i,j-1,k)) / dz);
+#endif
 #endif
                 });
             }
@@ -1460,8 +1471,15 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                                  + en2(ii,jj,k,5)*ey(ii,jj,k)
                                  + en2(ii,jj,k,2)*ez(ii,jj,k);
                         };
+#if defined(WARPX_DIM_1D_Z)
+                        // 1D: one axis.  The two-term form read j-1 (index -1 in the collapsed
+                        // dimension) and produced a deterministic garbage divD of order 1e267.
+                        amrex::ignore_unused(Dx);
+                        amrex::Real const divD = (Dz(i,j) - Dz(i-1,j)) / dz;
+#else
                         amrex::Real const divD = (Dx(i,j) - Dx(i-1,j)) / dx
                                                + (Dz(i,j) - Dz(i,j-1)) / dz;
+#endif
                         amrex::Real const rp = (rho_p != nullptr) ? rp_arr(i,j,k) : amrex::Real(0.0);
                         amrex::Gpu::Atomic::Max(pmax, std::abs(divD - rh(i,j,k) - rp));
                         amrex::Gpu::Atomic::Max(pdiv, std::abs(divD));
