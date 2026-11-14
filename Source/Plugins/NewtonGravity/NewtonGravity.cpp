@@ -68,10 +68,14 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     amrex::MLABecLaplacian mlabec({geom}, {ba}, {dm}, info);
     mlabec.setMaxOrder(2);
 
+    // A periodic direction stays periodic even in "open" mode: AMReX asserts that the operator
+    // type matches the geometry, and a slab that is periodic across its width is exactly the
+    // case that needs it.  "open" therefore means Dirichlet on the non-periodic faces only.
     amrex::Array<amrex::LinOpBCType, AMREX_SPACEDIM> lobc;
     for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-        lobc[d] = (boundary == PotentialBoundary::periodic) ? amrex::LinOpBCType::Periodic
-                                                            : amrex::LinOpBCType::Dirichlet;
+        lobc[d] = ((boundary == PotentialBoundary::periodic) || geom.isPeriodic(d))
+                      ? amrex::LinOpBCType::Periodic
+                      : amrex::LinOpBCType::Dirichlet;
     }
     mlabec.setDomainBC(lobc, lobc);
 

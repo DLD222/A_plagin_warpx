@@ -27,11 +27,14 @@ if("3" IN_LIST WarpX_DIMS)
         endif()
     endforeach()
 
-    # The Jeans test drives the fluid with the gravity plugin's field, so it links both layers.
-    if(TARGET warpx_newtongravity_${SD} AND NOT TARGET test_fluid_jeans_${SD})
-        add_executable(test_fluid_jeans_${SD} test_jeans.cpp)
-        target_link_libraries(test_fluid_jeans_${SD}
-            PRIVATE warpx_fluidmoments_${SD} warpx_newtongravity_${SD} ablastr_${SD})
-        add_test(NAME fluid_jeans_3 COMMAND test_fluid_jeans_${SD})
-    endif()
+    # The Jeans and hydrostatic tests drive the fluid with the gravity plugin's field, so they
+    # link both layers.
+    foreach(case IN ITEMS jeans hydrostatic)
+        if(TARGET warpx_newtongravity_${SD} AND NOT TARGET test_fluid_${case}_${SD})
+            add_executable(test_fluid_${case}_${SD} test_${case}.cpp)
+            target_link_libraries(test_fluid_${case}_${SD}
+                PRIVATE warpx_fluidmoments_${SD} warpx_newtongravity_${SD} ablastr_${SD})
+            add_test(NAME fluid_${case}_3 COMMAND test_fluid_${case}_${SD})
+        endif()
+    endforeach()
 endif()

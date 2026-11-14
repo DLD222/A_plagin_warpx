@@ -31,8 +31,9 @@ enum class PotentialBoundary
      *  mean density is subtracted before the solve (the Jeans swindle, Binney & Tremaine
      *  section 2.1) and the returned potential has zero mean. */
     periodic,
-    /** Dirichlet phi = phi_boundary in every direction.  The caller supplies the boundary
-     *  values on the domain faces in the ghost cells of `phi` (see solvePotential). */
+    /** Dirichlet phi = phi_boundary on the non-periodic domain faces; directions the Geometry
+     *  declares periodic stay periodic.  The caller supplies the boundary values on the domain
+     *  faces in the ghost cells of `phi` (see solvePotential). */
     open
 };
 
