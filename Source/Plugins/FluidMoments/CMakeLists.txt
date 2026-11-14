@@ -55,13 +55,13 @@ endforeach()
 # dimension-generic.
 if("3" IN_LIST WarpX_DIMS)
     warpx_set_suffix_dims(SD 3)
-    foreach(case IN ITEMS sod_shock conservation smooth_wave species_advection cf88_rates network network_coupling extra_scalars ionization radiation conduction energy_budget angular_momentum composition neutrino degenerate_eos electromagnetic stellar_model solar_column)
+    foreach(case IN ITEMS sod_shock conservation smooth_wave species_advection cf88_rates network network_coupling extra_scalars ionization radiation conduction energy_budget angular_momentum composition neutrino degenerate_eos electromagnetic stellar_model solar_column solar_core)
         if(TARGET warpx_fluidmoments_${SD} AND NOT TARGET test_fluid_${case}_${SD})
             add_executable(test_fluid_${case}_${SD} test_${case}.cpp)
             target_link_libraries(test_fluid_${case}_${SD}
                 PRIVATE warpx_fluidmoments_${SD} ablastr_${SD})
             add_test(NAME fluid_${case}_3 COMMAND test_fluid_${case}_${SD})
-            if(case STREQUAL "solar_column")
+            if(case STREQUAL "solar_column" OR case STREQUAL "solar_core")
                 # the case reads the standard solar model from the repository
                 set_tests_properties(fluid_${case}_3 PROPERTIES
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
