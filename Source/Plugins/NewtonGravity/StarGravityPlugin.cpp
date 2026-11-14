@@ -207,6 +207,12 @@ static void fill_all_levels (WarpXStageContext* ctx)
         void* raw = nullptr;
         if (warpx_stage_field(ctx, "star_rho", lev, &raw) == 1 && raw != nullptr) {
             auto& rho = *static_cast<amrex::MultiFab*>(raw);
+            // The mass is what lies inside this level's own (already cut) box.  It is close to the
+            // whole star on every level because the box is a *cube* centred on the origin: level 1
+            // covers 12.5% of the domain volume, but its corners reach r = sqrt(3)/2 x 0.6 R_sun
+            // ~ 1.04 R_sun, i.e. past the surface.  An earlier note claimed the levels were not cut
+            // at all - the host's own summary shows they are (level 1: 12.5% of the domain, level 2:
+            // 5.27%), and this comment records the correction.
             std::printf("[gravity] level %d: %d boxes, mass = %.4e g (%.6f M_sun)\n",
                         lev, (int)rho.boxArray().size(), mass, mass / 1.989e33);
         }
