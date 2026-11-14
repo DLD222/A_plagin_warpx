@@ -209,12 +209,11 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
         // Node-centred eps^-1 rows (row c of inv(eps_node[c])): the SAME subpixel eps the
         // exponential step uses, so one field point never sees two different epsilons
         // (decision 5.0w: cell Kottke rows gave 4/5/6 vs node tau 2.5/3.0/1.714).
-        // Temporary A/B switch (controlled experiment, one binary):
-        //   WARPX_YEE_NODE_EPS set   -> node tau eps^-1 rows (option B)
-        //   unset                    -> cell Kottke eps^-1 rows (option A, the old path)
-        // default = node tau (the committed behaviour); set WARPX_YEE_CELL_EPS to get
-        // the old cell-Kottke path for the A/B comparison.
-        bool const use_node_eps = (std::getenv("WARPX_YEE_CELL_EPS") == nullptr);
+        // Fixed to the node tau rows (decision 5.0w).  This used to be an A/B switch read from
+        // the environment (WARPX_YEE_CELL_EPS), which meant two runs of the same input deck could
+        // take different numerical paths depending on how the shell was set up - the review's
+        // F-11.  A reproducible physical option belongs in the input deck, not in the environment.
+        constexpr bool use_node_eps = true;
 
         amrex::Array4<amrex::Real const> ein0 = macroscopic_properties->get_eps_inv_node_mf(0).const_array(mfi);
         amrex::Array4<amrex::Real const> ein1 = macroscopic_properties->get_eps_inv_node_mf(1).const_array(mfi);
@@ -258,7 +257,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // through the face interpolation: that made the vacuum side of a sigma
             // interface decay and locked E (and B) to zero inside the conductor
             // (c03-E6, 技术路径 §7.11). With sigma = 0 everywhere this is a no-op.
-            amrex::Real const sigma_interp = sigma_node;   // node sigma, not a cell interpolation
+            // CODE_REVIEW F-01: without the subpixel machinery the node sigma arrays do not exist,
+            // so the conductivity has to come from the cell field.  Reading sigma_node alone left
+            // it at zero and the default path had no damping at all.
+            amrex::Real const sigma_interp = has_sig_mat ? sigma_node
+                : ablastr::coarsen::sample::Interp(sigma_arr, sigma_stag, Ex_stag, macro_cr,
+                                                   i, j, k, scomp);
             // Interpolated permittivity, epsilon, to Ex position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ex_stag, macro_cr, i, j, k, scomp);
@@ -277,9 +281,11 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const ix0 = use_node_eps || !has_sub ? ein0(i,j,k,0) : eix(i,j,k,0);
             amrex::Real const ix1 = use_node_eps || !has_sub ? ein0(i,j,k,1) : eix(i,j,k,1);
             amrex::Real const ix2 = use_node_eps || !has_sub ? ein0(i,j,k,2) : eix(i,j,k,2);
-            Ex(i, j, k) = Ex(i, j, k)
-                        + dt * ( ix0*Dx + ix1*Dy + ix2*Dz )
-                        - dt * ix0 * jx(i, j, k);
+            // Backward Euler on dE/dt = (curl H - J - sigma E)/eps:
+            //   E^{n+1} = (E^n + dt eps^-1 (curl H - J)) / (1 + dt sigma/eps).
+            // sigma = 0 reduces this to the lossless Yee update exactly.
+            Ex(i, j, k) = (Ex(i, j, k) + dt * ( ix0*Dx + ix1*Dy + ix2*Dz ) - dt * ix0 * jx(i, j, k))
+                        / (amrex::Real(1.0) + dt * sigma_interp * ix0);
         });
 
         // Ey update
@@ -298,7 +304,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // through the face interpolation: that made the vacuum side of a sigma
             // interface decay and locked E (and B) to zero inside the conductor
             // (c03-E6, 技术路径 §7.11). With sigma = 0 everywhere this is a no-op.
-            amrex::Real const sigma_interp = sigma_node;   // node sigma, not a cell interpolation
+            // CODE_REVIEW F-01: without the subpixel machinery the node sigma arrays do not exist,
+            // so the conductivity has to come from the cell field.  Reading sigma_node alone left
+            // it at zero and the default path had no damping at all.
+            amrex::Real const sigma_interp = has_sig_mat ? sigma_node
+                : ablastr::coarsen::sample::Interp(sigma_arr, sigma_stag, Ey_stag, macro_cr,
+                                                   i, j, k, scomp);
             // Interpolated permittivity, epsilon, to Ey position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ey_stag, macro_cr, i, j, k, scomp);
@@ -314,9 +325,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const iy0 = use_node_eps || !has_sub ? ein1(i,j,k,0) : eiy(i,j,k,0);
             amrex::Real const iy1 = use_node_eps || !has_sub ? ein1(i,j,k,1) : eiy(i,j,k,1);
             amrex::Real const iy2 = use_node_eps || !has_sub ? ein1(i,j,k,2) : eiy(i,j,k,2);
-            Ey(i, j, k) = Ey(i, j, k)
-                        + dt * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0 )
-                        - dt * iy1 * jy(i, j, k);
+            Ey(i, j, k) = (Ey(i, j, k) + dt * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0 )
+                        - dt * iy1 * jy(i, j, k))
+                        / (amrex::Real(1.0) + dt * sigma_interp * iy1);
         });
 
         // Ez update
@@ -335,7 +346,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // through the face interpolation: that made the vacuum side of a sigma
             // interface decay and locked E (and B) to zero inside the conductor
             // (c03-E6, 技术路径 §7.11). With sigma = 0 everywhere this is a no-op.
-            amrex::Real const sigma_interp = sigma_node;   // node sigma, not a cell interpolation
+            // CODE_REVIEW F-01: without the subpixel machinery the node sigma arrays do not exist,
+            // so the conductivity has to come from the cell field.  Reading sigma_node alone left
+            // it at zero and the default path had no damping at all.
+            amrex::Real const sigma_interp = has_sig_mat ? sigma_node
+                : ablastr::coarsen::sample::Interp(sigma_arr, sigma_stag, Ez_stag, macro_cr,
+                                                   i, j, k, scomp);
             // Interpolated permittivity, epsilon, to Ez position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ez_stag, macro_cr, i, j, k, scomp);
@@ -351,9 +367,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const iz0 = use_node_eps || !has_sub ? ein2(i,j,k,0) : eiz(i,j,k,0);
             amrex::Real const iz1 = use_node_eps || !has_sub ? ein2(i,j,k,1) : eiz(i,j,k,1);
             amrex::Real const iz2 = use_node_eps || !has_sub ? ein2(i,j,k,2) : eiz(i,j,k,2);
-            Ez(i, j, k) = Ez(i, j, k)
-                        + dt * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0 )
-                        - dt * iz2 * jz(i, j, k);
+            Ez(i, j, k) = (Ez(i, j, k) + dt * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0 )
+                        - dt * iz2 * jz(i, j, k))
+                        / (amrex::Real(1.0) + dt * sigma_interp * iz2);
         });
         // P2: exact exponential step for the conductive cells:
         //     E^{n+1} = M1 E^n + M2 (curlH - J)
