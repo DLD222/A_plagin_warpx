@@ -1803,3 +1803,37 @@ OMP_NUM_THREADS=1 MPLBACKEND=Agg ctest --test-dir build_multi2 -j8 --timeout 240
 2. **清单的"逐字相同"要改口径**：89 个定义多了可选的 `needs_openpmd`；它只改注册条件，不改物理断言，但让无 openPMD 构建少跑 89 个用例。
 3. **2D 基线首次全绿（234/234）**，原因是跳过规则而非修复；真实缺陷面没有被掩盖 —— 需要在 openPMD 构建里跑（§10/§12 的数字仍有效）。
 4. **新的真实失败只有本地 gravity 插件 4 条**（WIP，非上游项）。
+
+### 13.7 2026-11-14：HEAD 编不过，以及"两个 MPI"的坑
+
+**HEAD（5ee4fb9）在 `OPENPMD=ON` 下编译失败。** `235434d`（2026-11-13 19:35，粒子树搬到
+`Plugins/ParticleCore`）把 `storeFieldOnParticles` 的签名改成
+`(..., const RuntimeConfigSnapshot& config, bool is_full_diagnostic, ...)`
+（`Source/Core/Modules/Particles/ParticleIO.H:111-113`），但调用点仍是旧参数：
+
+```
+Source/Plugins/Diagnostics/WarpXOpenPMD.cpp:608:42: error: invalid initialization of reference
+  of type 'const warpx::runtime::RuntimeConfigSnapshot&' from expression of type 'bool'
+```
+
+干净 worktree（在仓库父目录执行 `git worktree add $HOME/WarpX_head HEAD`）复现：首次 `cmake --build` **EXIT=2**，
+就是这一行。工作区里有一份未提交的一行修复：
+`storeFieldOnParticles(tmp, data, *m_runtime_context->config_snapshot, !use_pinned_pc, ...)`；
+把它应用后同一 worktree **EXIT=0**（573 个测试、三个可执行文件齐全）。**建议提交方尽快把这一行落库**，
+否则任何人从 HEAD 全新构建都过不了。
+
+**第二个坑：不要混用 conda 工具链和系统 OpenMPI。** 本机 shell 处于 `conda activate base`，
+它导出了 `CC/CXX/CFLAGS/CXXFLAGS/CMAKE_ARGS`（conda 的 gcc 15 + MPICH）以及含 conda 的
+`CMAKE_PREFIX_PATH`/`LD_LIBRARY_PATH`。在这样环境里新建构建目录会：
+1. 用 conda 的 `x86_64-conda-linux-gnu-c++` 编译，FindMPI 选到 `miniconda3/lib/libmpi.so`（MPICH）；
+2. 运行时却由系统 `/usr/bin/mpiexec`（OpenMPI）启动 → 每个用例一启动就
+   `MPII_Comm_set_attr: Invalid communicator` 并中止（573 个里 200+ 个在 1 秒内失败，很容易误判成大面积回归）。
+
+识别方法：`grep '^MPI_CXX_COMPILER\|^MPI_mpi_LIBRARY' build/CMakeCache.txt`，必须是
+`/usr/bin/mpicxx` + `/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so`。
+修法（已写进 `Tools/verify/build_and_run_4d.sh`）：`unset CC CXX CFLAGS ... CMAKE_ARGS LD_LIBRARY_PATH`，
+显式 `-DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DMPI_*=/usr/bin/...`。
+
+**本轮的做法**：不动他人工作区（里面有 NewtonGravity 的在建代码），改在主构建
+`build_multi_hdf5_fft` 上以 `-DWarpX_PLUGIN_NEWTONGRAVITY=OFF` 重建（HEAD + 上面那一行修复），
+`cmake --build` 721 个编译单元后 **EXIT=0**，再用系统 OpenMPI 跑套件。

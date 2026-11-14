@@ -23,6 +23,15 @@ set -euo pipefail
 
 export MPLBACKEND=Agg
 
+# One toolchain only.  Activating a conda environment exports its compiler and
+# MPI (CC/CXX/CFLAGS/CMAKE_ARGS, and CMAKE_PREFIX_PATH with the conda sysroot);
+# mixing that with the system OpenMPI that this recipe links against produces a
+# binary that aborts at startup with
+#   MPII_Comm_set_attr: Invalid communicator
+# on the very first run.  Build with the system gcc + system OpenMPI instead.
+unset CC CXX CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDFLAGS_LD CMAKE_ARGS LD_LIBRARY_PATH
+export CC=/usr/bin/gcc CXX=/usr/bin/g++
+
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 HDF5_ROOT="${HDF5_ROOT:-/tmp/hdf5_mpi}"
 BUILD="${BUILD:-$REPO/build_multi_hdf5}"
@@ -44,6 +53,9 @@ done
 
 cmake -S "$REPO" -B "$BUILD" \
     -DCMAKE_PREFIX_PATH="$CONDA" \
+    -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ \
+    -DMPI_C_COMPILER=/usr/bin/mpicc -DMPI_CXX_COMPILER=/usr/bin/mpicxx \
+    -DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec \
     -DHDF5_ROOT="$HDF5_ROOT" -DHDF5_DIR="$HDF5_ROOT" \
     -DWarpX_DIMS="1;3;RZ" -DWarpX_OPENPMD=ON -DWarpX_PYTHON=OFF \
     -DWarpX_COMPUTE=OMP -DWarpX_QED=ON \

@@ -56,7 +56,7 @@
 
 | 指标 | 变化 |
 |---|---|
-| 跨插件 include 违规 | **87 → 0**（棘轮已清空：没有任何插件包含另一个插件的头文件） |
+| 跨插件 include 违规 | 引号形式 **87 → 0**；11-13 修好检查器后，角括号形式另有 **10 条**既有债务留在棘轮清单（`Tools/Modularization/plugin_boundary_allowlist.txt`，只允许缩短；见 R5 的 2026-11-14 记录） |
 | 核心回调总线 | 已落地：`register/has/execute/remove_callback`，Python 绑定注册、求解器触发 |
 | 插件状态声明 | 插件在 `on_schema` 声明自有状态，核心随层分配（碰撞生产场为第一个实例） |
 
@@ -65,6 +65,48 @@
 `EvolveEPML.cpp` → PML 分裂场系数容器（`SigmaBox`/`MultiSigmaBox`）与 PML 电流核移入核心。
 
 ### R5 功能完全覆盖原版（四维数值等价）——**571/573（99.65%），剩余为平台校验和**
+
+**2026-11-14 例行检查：不变量仍然守住，但发现两处"环境/提交"级阻塞**
+
+| 检查 | 结果 |
+|---|---|
+| `Tools/verify/check_macroscopic_vacuum_limit.sh` | `yee = macro = 3678360.615965`、`ratio = 1.000000`、退出码 0 |
+| `check_core_purity.py` / `check_kernel_coupling.py` / `check_build_boundaries.py` | `0 known / 0 new`、OK |
+| `check_plugin_boundaries.py` | **`10 known, 0 new`**（不再是 0 known，原因见下） |
+
+`plugin_boundaries` 的 10 条**不是新增违规**：11-13 的 `baea579` 修掉了检查器"只匹配引号 include"的缺陷，
+角括号形式的跨插件依赖第一次被看见。已核实这 10 条早于该提交存在——`ProjectionDivCleaner.cpp` 4 条、
+`Modules/Python/WarpX.cpp` 6 条，正好等于允许清单的 10 条（清单只允许缩短）。因此本项的真实不变量应表述为
+"**0 new，允许清单只减不增**"，而不是"全 0"。
+
+**HEAD（5ee4fb9）在 `OPENPMD=ON` 下编不过**：`235434d` 把 `storeFieldOnParticles` 的签名改成
+多一个 `const RuntimeConfigSnapshot&`（`Source/Core/Modules/Particles/ParticleIO.H:111`），
+但 `Source/Plugins/Diagnostics/WarpXOpenPMD.cpp:608` 仍按旧签名传 `!use_pinned_pc`：
+
+```
+error: invalid initialization of reference of type 'const warpx::runtime::RuntimeConfigSnapshot&'
+       from expression of type 'bool'
+```
+
+干净 worktree 复现（首编 **EXIT=2**）；工作区有一份**未提交**的一行修复
+（`*m_runtime_context->config_snapshot`），应用后同一树 **EXIT=0**。详见 `UPSTREAM_PARITY.md` §13.7。
+
+**构建工具链陷阱**：本机 shell 在 `conda activate base` 下导出了 `CC/CXX/CMAKE_ARGS`（conda gcc15 + MPICH）
+与含 conda 的 `CMAKE_PREFIX_PATH/LD_LIBRARY_PATH`。这样新建构建目录会编出"MPICH 二进制 + 系统 OpenMPI 启动"
+的组合，所有 MPI 用例启动即 `MPII_Comm_set_attr: Invalid communicator`（573 里 200+ 条 1 秒内失败，
+极易被当成大面积回归）。`Tools/verify/build_and_run_4d.sh` 现在会 unset 这些变量并显式 pin
+`/usr/bin/gcc` + 系统 OpenMPI。
+
+本轮在主构建 `build_multi_hdf5_fft` 上用 **HEAD + 上面那一行修复**（`-DWarpX_PLUGIN_NEWTONGRAVITY=OFF`，
+避开正在开发的 NewtonGravity）重建：721 个编译单元，**EXIT=0**。验证结果：
+外部场族 + 粒子场诊断 **27/27 通过**（覆盖 P3-C 的外部场与 `storeFieldOnParticles` 改动）；
+残余 8 条（含各自的 run/analysis/checksum）里 compton 三条**全过**、EB cube 与 boosted 的 run/analysis
+通过、**只剩两条平台校验和失败**——失败集与 2026-11-10 的权威状态一致（`{110, 555}`，`276` 已通过）。
+
+**全量 573 条本轮仍未跑完**：并行会话在反复运行 `test_gravity_*` 可执行文件（单次占 ~21/24 核）。
+实测两次全量尝试：第一次 13 分钟推进 40/573、第二次 11 分钟推进 29/573，单个 3D 用例从 26 s 拖到 340 s 以上，
+`loadavg` 33–38；已完成的 29 条里**没有失败**。这是同一资源阻塞的第三次（11-10、11-11、11-14），
+不是代码问题；空闲窗口应补跑一次全量确认。
 
 **2026-11-11 09:00 例行检查**：`Tools/verify/check_macroscopic_vacuum_limit.sh` →
 `yee = macro = 3678360.615965`、`ratio = 1.000000`、退出码 0；四个检查器全部
