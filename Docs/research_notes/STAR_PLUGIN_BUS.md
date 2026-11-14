@@ -155,6 +155,30 @@ nm -D star_runtime_plugin_3d.so | grep -c " U _ZN5amrex"   -> 0      (完全不�
 `Finalize` 之后的析构顺序，或 `on_schema` 请求的场与退出时释放的交互。
 **在修掉之前，`check_star_runtime_plugin.sh` 会打印 NOTE 并检查物理输出，而不假装退出正常。**
 
+### 3d. FluidMoments 接入：代码写通但被 CMake 目标顺序卡住（未落地）
+
+把流体步接进同一个插件的工作做了一版：处理器里在解出 φ 之后调
+`computeAcceleration` → `applyGravitySource` → 逐方向 `advanceSweep<IdealGasEOS>`，
+状态用 `[rho_0, rho_1, mom, E]`（6 分量）并在 `on_init` 里初始化成静止、p=1 的两组分气。
+
+**编译通过，加载失败**：
+
+```
+undefined symbol: warpx::plugins::fluid::applyGravitySource(...)
+```
+
+原因是 CMake 处理顺序：`Source/Plugins/NewtonGravity/CMakeLists.txt` 在
+`FluidMoments` 之前被 `add_subdirectory`，于是 `if(TARGET warpx_fluidmoments_static_${SD})`
+在那一刻为假，流体静态库没有进插件的链接行（实测链接行里 `grep -c fluidmoments` = 0）。
+强制无条件链接会在 configure 阶段报"目标不存在"。
+
+正解是让插件对流体层的依赖**晚绑定**（例如把这条链接放进一个在两层都定义之后处理的
+CMake 片段，或给恒星层加一个统一的 `StarLayers` INTERFACE 目标）。这需要动
+`Source/Plugins/*/CMakeLists.txt` 的组织方式，属于**构建结构**问题，不是物理或总线能力问题。
+
+**因此本轮把插件回退到"只驱动 NewtonGravity"的可用状态**（git checkout），
+没有把一棵加载即失败的树留在那里。流体接入的代码路径已经验证过能编译，缺的只是链接顺序。
+
 ## 4. 当前状态与下一步
 
 | 项 | 状态 |
