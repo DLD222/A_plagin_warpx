@@ -68,19 +68,19 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
 
     if (m_fdtd_algo == ElectromagneticSolverAlgo::ECT && config().ect_conformal_E() > 0) {
         EvolveECartesianECT ( fields, Efield, Bfield, Jfield, eb_update_E, 0, dt,
-                              macroscopic_properties );
+                              &macroscopic_properties );
     } else if (m_fdtd_algo == ElectromagneticSolverAlgo::Yee) {
 
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::LaxWendroff) {
 
             MacroscopicEvolveECartesian <CartesianYeeAlgorithm, LaxWendroffAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
 
         }
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::BackwardEuler) {
 
             MacroscopicEvolveECartesian <CartesianYeeAlgorithm, BackwardEulerAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
 
         }
 
@@ -91,12 +91,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
         if (macroscopic_solver_algo == MacroscopicSolverAlgo::LaxWendroff) {
 
             MacroscopicEvolveECartesian <CartesianCKCAlgorithm, LaxWendroffAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
 
         } else if (macroscopic_solver_algo == MacroscopicSolverAlgo::BackwardEuler) {
 
             MacroscopicEvolveECartesian <CartesianCKCAlgorithm, BackwardEulerAlgo>
-                       ( Efield, Bfield, Jfield, eb_update_E, dt, *macroscopic_properties);
+                       ( Efield, Bfield, Jfield, eb_update_E, dt, macroscopic_properties);
 
         }
 
@@ -399,8 +399,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
         // (which the exponential step below otherwise would, and a NaN there spreads).
         amrex::Vector<amrex::MultiFab> eold3(3);
         for (int c = 0; c < 3; ++c) {
-            eold3[c].define(amrex::grow(Efield[c]->boxArray(), 1), Efield[c]->DistributionMap(), 3,
-                            0);
+            amrex::BoxArray grown_ba = Efield[c]->boxArray();
+            grown_ba.grow(1);
+            eold3[c].define(grown_ba, Efield[c]->DistributionMap(), 3, 0);
             eold3[c].setVal(amrex::Real(0.0));
             for (int d = 0; d < 3; ++d) {
                 eold3[c].ParallelCopy(*Efield[d], 0, d, 1);

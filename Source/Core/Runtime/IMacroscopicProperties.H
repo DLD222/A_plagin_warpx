@@ -18,6 +18,7 @@
 #include <AMReX_REAL.H>
 
 #include <memory>
+#include <cstdlib>
 #include <string>
 
 namespace amrex { class EBFArrayBoxFactory; }
@@ -116,6 +117,7 @@ protected:
         amrex::Abort(std::string("material model does not provide ") + what
                      + ": it reports has_sigma_matrices() == false, so the subpixel exponential "
                        "step is not available for it (CODE_REVIEW F-08).");
+        std::abort();   // amrex::Abort is not marked noreturn for every compiler
     }
 };
 

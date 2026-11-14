@@ -46,6 +46,18 @@ static void advance_star_state (WarpXStageContext* ctx, void* user_data)
     void* raw = NULL;
     if (warpx_stage_field(ctx, "star_state", 0, &raw) != 1 || raw == NULL) { return; }
 
+    /* ABI v7: a solver plugin can now build its own operator.  This demo has no AMReX, so it
+     * proves the data is reachable by recording the domain it gets back. */
+    int32_t lo[3] = {0}, hi[3] = {0}, periodic[3] = {0,0,0};
+    double prob_lo[3] = {0.0}, prob_hi[3] = {0.0}, dx[3] = {0.0};
+    if (warpx_stage_geometry(ctx, 0, lo, hi, prob_lo, prob_hi, dx, periodic) == 1) {
+        if (g_space_steps <= 2.0) {
+            printf("[star]   geometry lev 0: index [%d,%d] domain [%g,%g] dx=%g periodic=%d\n",
+                   lo[0], hi[0], prob_lo[0], prob_hi[0], dx[0], periodic[0]);
+        }
+        (void)warpx_stage_set_scalar(ctx, "star_dx", dx[0]);
+    }
+
     /* Without an amrex::MultiFab here the plugin cannot touch the data (this demo deliberately
      * links no AMReX); it only records that the host handed it the field and advanced. */
     g_total_advance += warpx_stage_dt(ctx);
@@ -63,7 +75,7 @@ static void on_schema (WarpXStateRegistry* state)
     (void)warpx_state_request_field(state, "star_state", STAR_NCOMP, 2, 1);
 }
 
-static const char* star_scalars[] = {"star_steps"};
+static const char* star_scalars[] = {"star_steps", "star_dx"};
 static const char* star_writes[] = {"star_state"};
 
 static void register_handlers (WarpXPluginHost* host)
@@ -76,7 +88,7 @@ static void register_handlers (WarpXPluginHost* host)
     desc.writes_fields = star_writes;
     desc.n_writes_fields = 1;
     desc.writes_scalars = star_scalars;
-    desc.n_writes_scalars = 1;
+    desc.n_writes_scalars = 2;
     (void)warpx_host_add_handler(host, &desc);
 }
 

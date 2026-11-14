@@ -604,13 +604,13 @@ MacroscopicProperties::InitData (
                 amrex::Real const zn = zlo_n
                     + (normal ? amrex::Real(j) + amrex::Real(0.5) : amrex::Real(j)) * dz_n;
 #endif
-                amrex::Real nrmv[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
+                amrex::Real nrmv_t[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
                 if (iface_on_n) {
                     amrex::Real const hh0 = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
                     amrex::Real const gx0 = phi_n(xn + hh0, yn, zn) - phi_n(xn - hh0, yn, zn);
                     amrex::Real const gz0 = phi_n(xn, yn, zn + hh0) - phi_n(xn, yn, zn - hh0);
                     amrex::Real const gn0 = std::sqrt(gx0*gx0 + gz0*gz0);
-                    if (gn0 > amrex::Real(1e-30)) { nrmv[0] = gx0/gn0; nrmv[2] = gz0/gn0; }
+                    if (gn0 > amrex::Real(1e-30)) { nrmv_t[0] = gx0/gn0; nrmv_t[2] = gz0/gn0; }
                 }
 
                 bool const m1L = iface_on_n ? (phi_n(xn, yn, zn - amrex::Real(0.25)*dz_n) > amrex::Real(0.0)) : true;
@@ -691,7 +691,7 @@ MacroscopicProperties::InitData (
                     if (!iface_on_n) {
                         s3 = m1L ? sL : sR;
                     } else {
-                        warpx::subpixel::Mat3 const R  = warpx::subpixel::frame(nrmv);
+                        warpx::subpixel::Mat3 const R  = warpx::subpixel::frame(nrmv_t);
                         warpx::subpixel::Mat3 const Rt = warpx::subpixel::transpose(R);
                         warpx::subpixel::Mat3 const sLh = warpx::subpixel::mul(warpx::subpixel::mul(Rt, sL), R);
                         warpx::subpixel::Mat3 const sRh = warpx::subpixel::mul(warpx::subpixel::mul(Rt, sR), R);

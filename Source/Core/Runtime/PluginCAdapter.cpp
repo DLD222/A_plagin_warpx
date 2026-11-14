@@ -13,6 +13,7 @@
 
 #include "Runtime/DataBus.H"
 #include "Runtime/PluginManifest.H"
+#include "Runtime/RuntimeData.H"
 #include "Runtime/StateRegistry.H"
 #include "Runtime/HandlerSpec.H"
 #include "Runtime/StageRegistry.H"
@@ -281,6 +282,25 @@ extern "C" double
 warpx_stage_dt (const WarpXStageContext* ctx)
 {
     return ctx != nullptr ? ctx->dt : 0.0;
+}
+
+extern "C" int32_t
+warpx_stage_geometry (WarpXStageContext* ctx, int32_t lev, int32_t lo[3], int32_t hi[3],
+                      double prob_lo[3], double prob_hi[3], double dx[3], int32_t periodic[3])
+{
+    if (ctx == nullptr || ctx->data == nullptr || lev < 0) { return 0; }
+    amrex::Geometry const& g = ctx->data->geom(lev);
+    amrex::Box const& domain = g.Domain();
+    for (int d = 0; d < 3; ++d) {
+        bool const used = (d < AMREX_SPACEDIM);
+        if (lo != nullptr) { lo[d] = used ? domain.smallEnd(d) : 0; }
+        if (hi != nullptr) { hi[d] = used ? domain.bigEnd(d) : 0; }
+        if (prob_lo != nullptr) { prob_lo[d] = used ? g.ProbLo(d) : 0.0; }
+        if (prob_hi != nullptr) { prob_hi[d] = used ? g.ProbHi(d) : 0.0; }
+        if (dx != nullptr) { dx[d] = used ? g.CellSize(d) : 1.0; }
+        if (periodic != nullptr) { periodic[d] = (used && g.isPeriodic(d)) ? 1 : 0; }
+    }
+    return 1;
 }
 
 extern "C" int32_t

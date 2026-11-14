@@ -24,7 +24,7 @@
 
 /* Version of the layout below.  Bump on any change to WarpXHandlerDesc,
  * WarpXPluginDesc, the WarpXStage ordinals, or the exported functions. */
-#define WARPX_PLUGIN_ABI_VERSION 6u
+#define WARPX_PLUGIN_ABI_VERSION 7u
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,6 +155,16 @@ int32_t warpx_stage_field_dir (WarpXStageContext* ctx, const char* name, int32_t
  * Returns 1 on success, 0 on failure (never throws across the C boundary). */
 int32_t warpx_state_request_field (WarpXStateRegistry* state, const char* name,
                                    int32_t ncomp, int32_t ngrow, int32_t checkpoint);
+
+/* Geometry of one level: the index bounds, the physical bounds, the cell size and the periodic
+ * flags.  A solver plugin needs these to build its own operator - a field pointer alone does not
+ * tell it the domain, and without one the star-physics solvers cannot be called from a runtime
+ * plugin (see Docs/research_notes/STAR_PLUGIN_BUS.md).  Arrays are [3] and may be NULL if that
+ * piece is not wanted.  Returns 1 on success, 0 if the level does not exist. */
+int32_t warpx_stage_geometry (WarpXStageContext* ctx, int32_t lev,
+                              int32_t lo[3], int32_t hi[3],
+                              double prob_lo[3], double prob_hi[3], double dx[3],
+                              int32_t periodic[3]);
 
 /* Named scalar state.  Read needs reads_scalars (or writes_scalars), write
  * needs writes_scalars.  Return 1 on success, 0 when unavailable/undeclared. */
