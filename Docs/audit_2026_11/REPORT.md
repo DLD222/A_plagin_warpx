@@ -441,8 +441,10 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 | `Docs/audit_2026_11/AUDIT_PLAN.md` | 方法与口径 |
 | `Docs/audit_2026_11/CASE_RESULTS.md` | 398 个共享用例的逐案判定 |
 | `Docs/audit_2026_11/NUMERIC_DIFFS_fork_vs_official.md` | 数值差异逐案（最差字段/量级） |
+| `Docs/audit_2026_11/CASE_CAUSES.md` | 79 个 fork 代码差异按物理类别聚合的逐案原因索引 |
 | `Docs/audit_2026_11/ATTRIBUTION.md` | fork vs official_amrex 隔离归因 |
 | `Docs/audit_2026_11/reviews/*.md` | 17 份逐文件代码审查报告（189 条问题） |
+| `Docs/audit_2026_11/CASE_CAUSES.md` | 79 个 fork 代码差异按物理类别聚合的逐案原因索引 |
 | `Docs/audit_2026_11/ATTRIBUTION.md` | 129 个数值差异用例的逐案归因（42 AMReX / 80 fork / 7 未归因） |
 | `Docs/audit_2026_11/scripts/` | 全部可复现脚本（构建环境、跑套件、对比、归因、汇总） |
 | `audit_build/`、`audit_runs/` | 三套构建树与全部运行输出（已 gitignore，不提交） |
