@@ -1260,6 +1260,9 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             auto& sig = m_macroscopic_properties->getsigma_mf();
             auto& eps = m_macroscopic_properties->getepsilon_mf();
             amrex::Real const dx = Geom(lev).CellSize(0);
+#if defined(WARPX_DIM_3D)
+            amrex::Real const dy_seed = Geom(lev).CellSize(1);
+#endif
             amrex::Real const dz = Geom(lev).CellSize(AMREX_SPACEDIM-1);
             amrex::Real const dtl = a_dt;
             // Boundary nodes in non-periodic directions carry a surface charge (a
@@ -1294,6 +1297,9 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                     // small (see 5.0ad).
                     auto const& en0 = m_macroscopic_properties->get_eps_node_mf(0).const_array(mfi);
                     auto const& en2 = m_macroscopic_properties->get_eps_node_mf(2).const_array(mfi);
+#if defined(WARPX_DIM_3D)
+                    auto const& en1 = m_macroscopic_properties->get_eps_node_mf(1).const_array(mfi);
+#endif
                     amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                         auto Dx = [&](int ii, int jj) {
                             return en0(ii,jj,k,0)*ex(ii,jj,k)
@@ -1305,8 +1311,26 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                                  + en2(ii,jj,k,5)*ey(ii,jj,k)
                                  + en2(ii,jj,k,2)*ez(ii,jj,k);
                         };
+#if defined(WARPX_DIM_3D)
+                        auto Dy3 = [&](int ii, int jj) {
+                            return en1(ii,jj,k,3)*ex(ii,jj,k)
+                                 + en1(ii,jj,k,4)*ey(ii,jj,k)
+                                 + en1(ii,jj,k,5)*ez(ii,jj,k);
+                        };
+                        auto Dz3 = [&](int ii, int jj, int kk) {
+                            return en2(ii,jj,kk,4)*ex(ii,jj,kk)
+                                 + en2(ii,jj,kk,5)*ey(ii,jj,kk)
+                                 + en2(ii,jj,kk,2)*ez(ii,jj,kk);
+                        };
+                        // F-02: in 3D the second index is y and the third is z, so the z
+                        // difference must move in k and the y term must be present.
+                        rh(i,j,k) = (Dx(i,j) - Dx(i-1,j)) / dx
+                                  + (Dy3(i,j) - Dy3(i,j-1)) / dy_seed
+                                  + (Dz3(i,j,k) - Dz3(i,j,k-1)) / dz;
+#else
                         rh(i,j,k) = (Dx(i,j) - Dx(i-1,j)) / dx
                                   + (Dz(i,j) - Dz(i,j-1)) / dz;
+#endif
                     });
                 }
                 m_macroscopic_properties->set_rho_medium_seeded();
@@ -1346,6 +1370,10 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             auto& Jcz = m_macroscopic_properties->get_jcond_mf(2);
             amrex::Real const dx = Geom(lev).CellSize(0);
             amrex::Real const dz = Geom(lev).CellSize(AMREX_SPACEDIM-1);
+#if defined(WARPX_DIM_3D)
+            auto& Jcy = m_macroscopic_properties->get_jcond_mf(1);
+            amrex::Real const dy = Geom(lev).CellSize(1);
+#endif
             amrex::Real const dtl = a_dt;
             amrex::IntVect bnd_shrink = amrex::IntVect::TheZeroVector();
             for (int d = 0; d < AMREX_SPACEDIM; ++d) {
@@ -1353,14 +1381,27 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             }
             Jcx.FillBoundary(Geom(lev).periodicity());
             Jcz.FillBoundary(Geom(lev).periodicity());
+#if defined(WARPX_DIM_3D)
+            Jcy.FillBoundary(Geom(lev).periodicity());
+#endif
             for (amrex::MFIter mfi(*rho, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
                 amrex::Box const bx = mfi.tilebox(rho->ixType().toIntVect()).grow(-bnd_shrink);
                 auto const& rh = rho->array(mfi);
                 auto const& jx = Jcx.const_array(mfi);
                 auto const& jz = Jcz.const_array(mfi);
+#if defined(WARPX_DIM_3D)
+                auto const& jy = Jcy.const_array(mfi);
+#endif
                 amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+#if defined(WARPX_DIM_3D)
+                    // F-02: the z difference moves in k, and the y term was missing.
+                    rh(i,j,k) += -dtl * ((jx(i,j,k) - jx(i-1,j,k)) / dx
+                                      + (jy(i,j,k) - jy(i,j-1,k)) / dy
+                                      + (jz(i,j,k) - jz(i,j,k-1)) / dz);
+#else
                     rh(i,j,k) += -dtl * ((jx(i,j,k) - jx(i-1,j,k)) / dx
                                       + (jz(i,j,k) - jz(i,j-1,k)) / dz);
+#endif
                 });
             }
         }
