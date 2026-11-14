@@ -193,3 +193,24 @@ CMake 片段，或给恒星层加一个统一的 `StarLayers` INTERFACE 目标�
 下一步的顺序是明确的：先加 `warpx_stage_geometry`（以及 OBJECT 库的 STATIC 变体），
 再把 `star_plugin.c` 从"记录步进"升级为"解势 + 推流体"，最后用一个算例验证引力-流体耦合
 在真实 WarpX 时间循环里成立。
+
+
+---
+
+# 第四次尝试与结论：这条路在"不改核心"的约束内走不通
+
+第 25、26 轮又试了两种组合：
+
+1. 把运行时插件目标移到流体层（让两个静态库都已存在）、链接流体静态库 → **编译通过，加载即崩（exit 11，无输出）**；
+2. 再把两个静态库的 `ablastr` 改成 `PRIVATE`、模块只用 `$<TARGET_PROPERTY:amrex_${SD},...>` 取头文件 → **编译期仍取到 2D AMReX 配置**（`IntVectND<2>` 与 3D 插件不匹配）。
+
+两次都已回退，仓库保持在可用提交态（插件加载、每步解出势、退出崩溃为已知问题）。
+
+**结论**：`build_multi` 的 AMReX 配置来源本身就不干净——早前查到的 `AMReX_SOURCE_DIR` 指向另一个 forkl 的 **2D 构建目录**下的 `fetchedamrex-src`，
+也就是说**多维构建用的 AMReX 头文件来自一个 2D 构建**。下游目标无论如何取，都拿不到与 3D 匹配的配置。
+
+因此 §15.4 的流体部分不是"再多改几行 CMakeLists"，而是要先修**AMReX 配置在多维构建中的来源**，
+这会触及 `cmake/` 与顶层 `CMakeLists.txt`，超出"不改核心"的授权范围。**我停止尝试**，
+把选择权交回：选项 A（授权改构建组织）/ B（接受当前状态）/ C（改用无 AMReX 的 C 插件）。
+
+已交付且可复现的部分不受影响：`NewtonGravity` 可由加载插件驱动（`Tools/verify/check_star_runtime_plugin.sh`）。
