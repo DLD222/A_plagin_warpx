@@ -18,7 +18,7 @@ endforeach()
 # dimension-generic.
 if("3" IN_LIST WarpX_DIMS)
     warpx_set_suffix_dims(SD 3)
-    foreach(case IN ITEMS sod_shock conservation smooth_wave species_advection cf88_rates)
+    foreach(case IN ITEMS sod_shock conservation smooth_wave species_advection cf88_rates network)
         if(TARGET warpx_fluidmoments_${SD} AND NOT TARGET test_fluid_${case}_${SD})
             add_executable(test_fluid_${case}_${SD} test_${case}.cpp)
             target_link_libraries(test_fluid_${case}_${SD}
