@@ -54,8 +54,8 @@ int main (int argc, char* argv[])
     std::vector<Real> l1_species0;
     std::vector<Real> l1_species1;
 
-    std::printf("\n two species advected: rho_0 = 0.5(1 + %.1f sin 2pi x), rho_1 = 0.5, u = 1, p = 1\n",
-                (double)delta);
+    std::printf("\n two species advected: rho_0 = 0.5(1 + %.1f sin 2pi x), rho_1 = 0.5,"
+                " u = 1, p = 1\n", (double)delta);
     std::printf(" %6s %10s %14s %14s %14s\n", "n", "steps", "L1(rho_0)", "L1(rho_1)",
                 "min rho_1");
 

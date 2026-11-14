@@ -45,22 +45,23 @@ namespace warpx::plugins::fluid
 class SolarNetwork
 {
 public:
-    enum Species : int { p = 0, d = 1, he3 = 2, he4 = 3, c12 = 4, c13 = 5, n14 = 6, n15 = 7 };
-    static constexpr int n_species = 8;
+    enum Species : int { p = 0, d = 1, he3 = 2, he4 = 3, be7 = 4,
+                         c12 = 5, c13 = 6, n14 = 7, n15 = 8 };
+    static constexpr int n_species = 9;
 
     //! Mass numbers, used to turn mass densities into number densities.
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static amrex::Real massNumber (int s) noexcept
     {
-        constexpr amrex::Real a[n_species] = {1.0, 2.0, 3.0, 4.0, 12.0, 13.0, 14.0, 15.0};
+        constexpr amrex::Real a[n_species] = {1.0, 2.0, 3.0, 4.0, 7.0, 12.0, 13.0, 14.0, 15.0};
         return a[s];
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static const char* speciesName (int s) noexcept
     {
-        constexpr const char* names[n_species] = {"p", "d", "he3", "he4", "c12", "c13", "n14",
-                                                  "n15"};
+        constexpr const char* names[n_species] = {"p", "d", "he3", "he4", "be7", "c12", "c13",
+                                                  "n14", "n15"};
         return names[s];
     }
 
@@ -77,7 +78,11 @@ public:
         int cf88_entry;      //!< CF88 entry number, i.e. the fit that drives it
     };
 
-    static constexpr int n_reactions = 7;
+    static constexpr int n_reactions = 9;
+
+    /** The last two reactions are the pp-II branch; pp-II and pp-III can be switched off so that
+     *  the pp-I-only analytic solution stays testable (see PHYSICS_SPEC 3.3c). */
+    static constexpr int first_pp2_reaction = 7;
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static Reaction reaction (int r) noexcept
@@ -96,7 +101,14 @@ public:
             {c12, p,   1, c13, -1,  -1,   4.165, 0.7067, 61},
             {c13, p,   1, n14, -1,  -1,   7.551, 0.0,   64},
             {n14, p,   1, n15, -1,  -1,  10.051, 0.9965, 71},
-            {n15, p,   2, c12, he4, -1,   4.966, 0.0,   78}
+            {n15, p,   2, c12, he4, -1,   4.966, 0.0,   78},
+            // pp-II: 3He(alpha,gamma)7Be, then 7Be(e-,nu)7Li followed by the very fast
+            // 7Li(p,alpha)4He.  The last one is in quasi-equilibrium (its S-factor is large and
+            // its fuel scarce), so it is folded into the electron capture: 7Be + p -> 2 4He.
+            // Q = 0.862 (capture) + 17.34695 (7Li(p,a), TUNL A=8 evaluation); the neutrino
+            // carries the 0.862 MeV of the capture.
+            {he3, he4, 1, be7, -1,  -1,   1.588, 0.0,   24},
+            {be7, p,   2, he4, he4, -1,  18.209, 0.862, 41}
         };
         return table[r];
     }
@@ -114,6 +126,7 @@ public:
             case 2:  f = f2(t9);  break;
             case 4:  f = f4(t9);  break;
             case 18: f = f18(t9); break;
+            case 24: f = f24(t9); break;
             case 61: f = f61(t9); break;
             case 64: f = f64(t9); break;
             case 71: f = f71(t9); break;
@@ -154,6 +167,19 @@ public:
                                       amrex::Real t9) noexcept
     {
         Reaction const re = reaction(r);
+        if (re.cf88_entry == 41) {
+            // 7Be(e-,nu)7Li is a *decay* whose rate is set by the electron density at the
+            // nucleus: lambda = rho (1+X)/2 f41 (the f41 fit is already in cm^3/mol/s, so the
+            // Avogadro factors cancel), capped by the source's 1.51e-7 /s ceiling.
+            amrex::Real rho_total = 0.0;
+            for (int s = 0; s < n_species; ++s) { rho_total += rho_species_g_cm3[s]; }
+            if (rho_total <= 0.0) { return 0.0; }
+            amrex::Real const x_h = rho_species_g_cm3[p] / rho_total;
+            amrex::Real const lambda = std::min(
+                rho_total * (amrex::Real(1.0) + x_h) / amrex::Real(2.0) * cf88::f41(t9),
+                amrex::Real(1.51e-7));
+            return lambda * numberDensity(rho_species_g_cm3[be7]) / massNumber(be7);
+        }
         amrex::Real const n_a = numberDensity(rho_species_g_cm3[re.a])
                               / massNumber(re.a);
         amrex::Real const n_b = numberDensity(rho_species_g_cm3[re.b])
@@ -173,7 +199,7 @@ public:
     /** Right-hand side of the network: species event rates [cm^-3 s^-1] and the energy release
      *  per volume [erg cm^-3 s^-1], given mass densities in g/cm^3. */
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static void rightHandSide (amrex::Real const* rho_cgs, amrex::Real t9,
+    static void rightHandSide (amrex::Real const* rho_cgs, amrex::Real t9, bool include_pp2,
                                amrex::Real* event_rate, amrex::Real& energy_rate,
                                amrex::Real& neutrino_rate, amrex::Real& rate_he4) noexcept
     {
@@ -183,6 +209,7 @@ public:
         rate_he4 = 0.0;
         for (int r = 0; r < n_reactions; ++r)
         {
+            if (!include_pp2 && r >= first_pp2_reaction) { continue; }
             Reaction const re = reaction(r);
             amrex::Real const rate = ratePerVolume(r, rho_cgs, t9);
             energy_rate += (energyPerReaction(r) - neutrinoEnergyPerReaction(r)) * rate;
@@ -214,7 +241,8 @@ public:
      *  reaction and hydrodynamic timescales are far apart), and it keeps every density positive
      *  for a network of this form.
      */
-    static StepResult advance (amrex::Real* rho_si, amrex::Real dt, amrex::Real t9)
+    static StepResult advance (amrex::Real* rho_si, amrex::Real dt, amrex::Real t9,
+                               bool include_pp2 = true)
     {
         constexpr amrex::Real m_u = 1.66053906660e-24;      // g
         constexpr int n = n_species;
@@ -229,7 +257,8 @@ public:
             amrex::Real event_rate[n];
             amrex::Real energy_rate = 0.0;
             amrex::Real he4_rate = 0.0;
-            rightHandSide(rho, t9, event_rate, energy_rate, neutrino_rate, he4_rate);
+            rightHandSide(rho, t9, include_pp2, event_rate, energy_rate, neutrino_rate,
+                          he4_rate);
             for (int s = 0; s < n; ++s) {
                 f[s] = event_rate[s] * massNumber(s) * m_u;
             }
@@ -246,19 +275,20 @@ public:
         {
             iterations = iter;
             amrex::Real const energy_rate = rhs(y, f);
-            amrex::Real residual_norm = 0.0;
+            // Two measures: the per-species relative residual decides convergence (a trace
+            // species such as 7Be must not be rounded to zero by a tolerance set by the
+            // hydrogen), while the absolute residual drives the line search, because a step that
+            // does not move the dominant species is not a useful step.
+            amrex::Real residual_abs = 0.0;
+            amrex::Real residual_rel = 0.0;
             for (int s = 0; s < n; ++s) {
                 residual[s] = y[s] - rho_si[s] * amrex::Real(1.e-3) - dt * f[s];
-                residual_norm = std::max(residual_norm, std::abs(residual[s]));
+                residual_abs = std::max(residual_abs, std::abs(residual[s]));
+                amrex::Real const magnitude = std::max(
+                    std::max(std::abs(y[s]), std::abs(dt * f[s])), amrex::Real(1.e-300));
+                residual_rel = std::max(residual_rel, std::abs(residual[s]) / magnitude);
             }
-            amrex::Real scale = 0.0;
-            for (int s = 0; s < n; ++s) { scale = std::max(scale, std::abs(y[s])); }
-            if (residual_norm <= amrex::Real(1.e-14) * scale) {
-                // erg/cm^3 -> J/m^3 is a factor 0.1; times dt for the step's energy.
-                result.energy_density = energy_rate * amrex::Real(0.1) * dt;
-                result.neutrino_density = neutrino_rate * amrex::Real(0.1) * dt;
-                break;
-            }
+            if (residual_rel <= amrex::Real(1.e-8)) { break; }
 
             // Numerical Jacobian of the residual: dR_s/dy_t = delta_st - dt * df_s/dy_t.
             for (int t = 0; t < n; ++t) {
@@ -305,17 +335,26 @@ public:
                     ? sum / matrix[s][s] : amrex::Real(0.0);
             }
 
-            // Damped update: halve the step until every density stays positive.
+            // Damped update with projection.  Species that have not been produced yet sit at
+            // exactly zero, and a Newton step that wants to make one of them negative can never
+            // be rescued by shrinking it - so the trial state is projected onto the positive
+            // orthant and accepted only if the residual actually falls (a line search).
             amrex::Real damping = amrex::Real(1.0);
             bool accepted = false;
-            for (int attempt = 0; attempt < 30; ++attempt) {
-                bool positive = true;
-                amrex::Real trial[n];
+            amrex::Real trial[n];
+            amrex::Real f_trial[n];
+            for (int attempt = 0; attempt < 40; ++attempt) {
                 for (int s = 0; s < n; ++s) {
-                    trial[s] = y[s] + damping * delta[s];
-                    if (trial[s] < amrex::Real(0.0)) { positive = false; }
+                    trial[s] = std::max(y[s] + damping * delta[s], amrex::Real(0.0));
                 }
-                if (positive) {
+                rhs(trial, f_trial);
+                amrex::Real trial_norm = 0.0;
+                for (int s = 0; s < n; ++s) {
+                    amrex::Real const value =
+                        trial[s] - rho_si[s] * amrex::Real(1.e-3) - dt * f_trial[s];
+                    trial_norm = std::max(trial_norm, std::abs(value));
+                }
+                if (trial_norm < residual_abs) {
                     for (int s = 0; s < n; ++s) { y[s] = trial[s]; }
                     accepted = true;
                     break;
@@ -325,6 +364,12 @@ public:
             if (!accepted) { break; }
         }
         result.iterations = iterations;
+
+        // The energies are evaluated at the state the solve actually accepted, so a step that
+        // stopped at the iteration cap still reports the energy of the composition it returns.
+        amrex::Real const energy_rate = rhs(y, f);
+        result.energy_density = energy_rate * amrex::Real(0.1) * dt;      // erg/cm^3 -> J/m^3
+        result.neutrino_density = neutrino_rate * amrex::Real(0.1) * dt;
 
         // cgs -> SI (1 g/cm^3 = 1e3 kg/m^3).
         for (int s = 0; s < n; ++s) { rho_si[s] = y[s] * amrex::Real(1.e3); }

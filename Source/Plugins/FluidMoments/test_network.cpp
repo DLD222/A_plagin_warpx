@@ -110,7 +110,8 @@ int main (int argc, char* argv[])
         he4_initial = rho[SolarNetwork::he4];
         while (t < t_end)
         {
-            auto const step = SolarNetwork::advance(rho, dt, t9);
+            // pp-I only: the closed-form decay below is derived for the pure pp-I chain.
+            auto const step = SolarNetwork::advance(rho, dt, t9, /*include_pp2=*/false);
             energy_total += step.energy_density;
             neutrino_total += step.neutrino_density;
             t += dt;
@@ -268,6 +269,63 @@ int main (int argc, char* argv[])
         if (rho[SolarNetwork::n14] <= rho[SolarNetwork::c12]) {
             std::printf(" FAILED: 14N (%.3e) should dominate 12C (%.3e) at steady state\n",
                         (double)rho[SolarNetwork::n14], (double)rho[SolarNetwork::c12]);
+            exit_code = 1;
+        }
+    }
+
+    // 4. pp-II branch: 3He + 4He -> 7Be followed by the 7Be electron capture.  The branch runs
+    //    alongside pp-I, so the *total* energy per 4He must stay 26.732 MeV (the branches only
+    //    move energy from the gas to the neutrinos), while the neutrino share must rise above the
+    //    pp-I 0.53 MeV because the 7Be neutrino is 0.862 MeV.
+    {
+        Real const t9 = Real(1.563376e7) / Real(1.e9);
+        Real const rho_total = Real(1.526990e5);
+        Real rho[SolarNetwork::n_species] = {0.0};
+        // A solar *composition* (X = 0.34, Y = 0.64): without the pre-existing helium the
+        // pp-II branch has no 4He to capture on and is invisible.
+        rho[SolarNetwork::p] = Real(0.34) * rho_total;
+        rho[SolarNetwork::he4] = Real(0.64) * rho_total;
+
+        Real const n_p0 = numberDensityCgs(rho[SolarNetwork::p], 1.0);
+        Real const n_he4_0 = numberDensityCgs(rho[SolarNetwork::he4], 4.0);
+        Real const dt = Real(1.e14);
+        Real t = 0.0;
+        Real energy_total = 0.0;
+        Real neutrino_total = 0.0;
+        Real be7_max = 0.0;
+        while (t < Real(1.e17))
+        {
+            auto const step = SolarNetwork::advance(rho, dt, t9, /*include_pp2=*/true);
+            energy_total += step.energy_density;
+            neutrino_total += step.neutrino_density;
+            t += dt;
+            be7_max = std::max(be7_max, rho[SolarNetwork::be7]);
+        }
+        Real const n_he4_made = numberDensityCgs(rho[SolarNetwork::he4], 4.0) - n_he4_0;
+        Real const total_per_he4 = (energy_total + neutrino_total)
+                                 / (n_he4_made * Real(1.e6) * Real(1.602176634e-13));
+        Real const nu_per_he4 = neutrino_total
+                              / (n_he4_made * Real(1.e6) * Real(1.602176634e-13));
+        Real const burned = 1.0 - numberDensityCgs(rho[SolarNetwork::p], 1.0) / n_p0;
+        std::printf("\n pp-I + pp-II (X = 0.34, Y = 0.64): burned %.3f, 4He made = %.4e cm^-3,"
+                    " 7Be max = %.3e kg/m^3\n", (double)burned, (double)n_he4_made,
+                    (double)be7_max);
+        std::printf("   energy per 4He: total %.3f MeV (26.732 expected), neutrino %.3f MeV"
+                    " (> 0.530, since the 7Be neutrino is 0.862)\n",
+                    (double)total_per_he4, (double)nu_per_he4);
+        if (std::abs(total_per_he4 - Real(26.732)) > Real(5.e-2)) {
+            std::printf(" FAILED: the total energy per 4He changed when the pp-II branch was"
+                        " switched on\n");
+            exit_code = 1;
+        }
+        if (!(nu_per_he4 > Real(0.530) && nu_per_he4 < Real(1.40))) {
+            std::printf(" FAILED: the neutrino share %.3f MeV is not a pp/7Be mixture\n",
+                        (double)nu_per_he4);
+            exit_code = 1;
+        }
+        if (!(be7_max > 0.0) || be7_max > Real(1.e-3) * rho_total) {
+            std::printf(" FAILED: 7Be should be a trace species, reached %.3e kg/m^3\n",
+                        (double)be7_max);
             exit_code = 1;
         }
     }
