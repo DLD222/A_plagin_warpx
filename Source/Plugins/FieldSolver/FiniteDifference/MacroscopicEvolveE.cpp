@@ -392,9 +392,16 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
         // c=0,1), which injects O(A dt) per step and is invisible while M1 is diagonal
         // (5.0ae). ParallelCopy is a pure index copy: all three E components live on
         // the same index space, only their box TYPES differ.
+        // F-04: the three E components live on three different staggered index spaces, so a
+        // ParallelCopy between them fills only the intersection of their box sets.  Defining the
+        // snapshot on the boxArray grown by one and zero-filling it first means every valid cell
+        // of every source lands inside it, and nothing reads uninitialised memory at the edges
+        // (which the exponential step below otherwise would, and a NaN there spreads).
         amrex::Vector<amrex::MultiFab> eold3(3);
         for (int c = 0; c < 3; ++c) {
-            eold3[c].define(Efield[c]->boxArray(), Efield[c]->DistributionMap(), 3, 0);
+            eold3[c].define(amrex::grow(Efield[c]->boxArray(), 1), Efield[c]->DistributionMap(), 3,
+                            0);
+            eold3[c].setVal(amrex::Real(0.0));
             for (int d = 0; d < 3; ++d) {
                 eold3[c].ParallelCopy(*Efield[d], 0, d, 1);
             }
