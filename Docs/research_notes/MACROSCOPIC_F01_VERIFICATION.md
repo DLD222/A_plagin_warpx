@@ -58,3 +58,30 @@ not sit on the analytic frequency and this ratio would move with the grid.
 This closes the verification gap recorded when F-03 was fixed: the fix is no longer "correct by
 construction", it reproduces the analytic cavity mode in the dimension and on the component it is
 about.
+
+
+---
+
+# F-04 verification: the exponential step runs and its snapshot is initialised
+
+F-04 was the uninitialised `E^n` snapshot: the three E components live on three staggered index
+spaces, so the collocated copy filled only the intersection of their box sets and the exponential
+step read the edges uninitialised.
+
+`Tools/verify/check_macroscopic_subpixel_step.sh` runs the only configuration that enters that branch
+(`algo.macroscopic_subpixel = 1` with `sigma = 0.001`) and checks two things: no NaN anywhere in the
+run, and the mode decaying like the analytic rate:
+
+```
+t0=0.0000e+00 s a0=0.984377  t1=5.2119e-09 s a1=0.556970
+amplitude ratio: measured 0.565810   expected 0.532215   (sigma=0.001 S/m)
+```
+
+The exponential integrator gives 0.565810 where the backward-Euler path of the same deck gives
+0.567072 - a 0.2% difference, exactly the size expected for `sigma dt / eps ~ 2e-3`, and the same
+0.67 factor against the simple `sigma/(2 eps)` estimate that F-01's note records and does not
+explain.
+
+What this establishes: the branch runs, the fields stay finite, and the result is consistent with
+the other integrator. What it does not establish is bit-level agreement with the old (broken)
+snapshot, which by construction no longer exists.
