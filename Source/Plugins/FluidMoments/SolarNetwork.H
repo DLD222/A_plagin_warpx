@@ -72,7 +72,8 @@ public:
         int c;               //!< first product
         int e;               //!< second product (-1 when unused)
         int third;           //!< third product (-1 when unused)
-        amrex::Real q_mev;   //!< energy release of the tabulated entry [MeV]
+        amrex::Real q_mev;   //!< total energy release [MeV]
+        amrex::Real q_nu_mev;//!< part of it carried away by neutrinos [MeV]
         int cf88_entry;      //!< CF88 entry number, i.e. the fit that drives it
     };
 
@@ -83,14 +84,19 @@ public:
     {
         // The p+p and 3He+3He reactions have repeated products (2p) or identical reactants; the
         // product list below spells them out so that the stoichiometry is readable.
+        // The Q values are the CF88 table's, plus the beta decays that are folded into entries
+        // 61 and 71 (PHYSICS_SPEC 3.4 and its transcription notes): 13N -> 13C + e+ + nu with
+        // Q = 2.221 MeV and 15O -> 15N + e+ + nu with Q = 2.754 MeV.  The neutrino column holds
+        // the mean neutrino energies: 0.265 MeV for p+p, 0.7067 MeV for 13N and 0.9965 MeV for
+        // 15O.
         constexpr Reaction table[n_reactions] = {
-            {p,   p,   1, d,   -1,  -1,  1.442, 2},
-            {d,   p,   1, he3, -1,  -1,  5.494, 4},
-            {he3, he3, 3, he4, p,   p,   12.860, 18},
-            {c12, p,   1, c13, -1,  -1,  1.944, 61},
-            {c13, p,   1, n14, -1,  -1,  7.551, 64},
-            {n14, p,   1, n15, -1,  -1,  7.297, 71},
-            {n15, p,   2, c12, he4, -1,  4.966, 78}
+            {p,   p,   1, d,   -1,  -1,   1.442, 0.265,  2},
+            {d,   p,   1, he3, -1,  -1,   5.494, 0.0,    4},
+            {he3, he3, 3, he4, p,   p,   12.860, 0.0,   18},
+            {c12, p,   1, c13, -1,  -1,   4.165, 0.7067, 61},
+            {c13, p,   1, n14, -1,  -1,   7.551, 0.0,   64},
+            {n14, p,   1, n15, -1,  -1,  10.051, 0.9965, 71},
+            {n15, p,   2, c12, he4, -1,   4.966, 0.0,   78}
         };
         return table[r];
     }
@@ -124,6 +130,13 @@ public:
         return reaction(r).q_mev * amrex::Real(1.602176634e-6);
     }
 
+    /** Part of that energy carried away by neutrinos [erg]; it does not heat the gas. */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static amrex::Real neutrinoEnergyPerReaction (int r) noexcept
+    {
+        return reaction(r).q_nu_mev * amrex::Real(1.602176634e-6);
+    }
+
     /** Number density [cm^-3] of a species from its mass density [g/cm^3]. */
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static amrex::Real numberDensity (amrex::Real rho_g_cm3) noexcept
@@ -151,9 +164,10 @@ public:
 
     struct StepResult
     {
-        amrex::Real energy_density = 0.0;   //!< nuclear energy released per volume [J m^-3]
-        amrex::Real rate_he4 = 0.0;         //!< net 4He production [cm^-3 s^-1], for the tests
-        int iterations = 0;                 //!< Newton iterations used, for diagnostics
+        amrex::Real energy_density = 0.0;    //!< energy deposited in the gas per volume [J m^-3]
+        amrex::Real neutrino_density = 0.0;  //!< energy escaping as neutrinos per volume [J m^-3]
+        amrex::Real rate_he4 = 0.0;          //!< net 4He production [cm^-3 s^-1], for the tests
+        int iterations = 0;                  //!< Newton iterations used, for diagnostics
     };
 
     /** Right-hand side of the network: species event rates [cm^-3 s^-1] and the energy release
@@ -161,16 +175,18 @@ public:
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static void rightHandSide (amrex::Real const* rho_cgs, amrex::Real t9,
                                amrex::Real* event_rate, amrex::Real& energy_rate,
-                               amrex::Real& rate_he4) noexcept
+                               amrex::Real& neutrino_rate, amrex::Real& rate_he4) noexcept
     {
         for (int s = 0; s < n_species; ++s) { event_rate[s] = 0.0; }
         energy_rate = 0.0;
+        neutrino_rate = 0.0;
         rate_he4 = 0.0;
         for (int r = 0; r < n_reactions; ++r)
         {
             Reaction const re = reaction(r);
             amrex::Real const rate = ratePerVolume(r, rho_cgs, t9);
-            energy_rate += energyPerReaction(r) * rate;
+            energy_rate += (energyPerReaction(r) - neutrinoEnergyPerReaction(r)) * rate;
+            neutrino_rate += neutrinoEnergyPerReaction(r) * rate;
 
             event_rate[re.a] -= rate;
             event_rate[re.b] -= rate;
@@ -208,11 +224,12 @@ public:
         for (int s = 0; s < n; ++s) { y[s] = rho_si[s] * amrex::Real(1.e-3); }
 
         // f(rho)_s = A_s m_u * event_rate_s  [g cm^-3 s^-1]
+        amrex::Real neutrino_rate = 0.0;
         auto rhs = [&] (amrex::Real const* rho, amrex::Real* f) {
             amrex::Real event_rate[n];
             amrex::Real energy_rate = 0.0;
             amrex::Real he4_rate = 0.0;
-            rightHandSide(rho, t9, event_rate, energy_rate, he4_rate);
+            rightHandSide(rho, t9, event_rate, energy_rate, neutrino_rate, he4_rate);
             for (int s = 0; s < n; ++s) {
                 f[s] = event_rate[s] * massNumber(s) * m_u;
             }
@@ -237,7 +254,9 @@ public:
             amrex::Real scale = 0.0;
             for (int s = 0; s < n; ++s) { scale = std::max(scale, std::abs(y[s])); }
             if (residual_norm <= amrex::Real(1.e-14) * scale) {
-                result.energy_density = energy_rate * amrex::Real(0.1) * dt;   // erg/cm^3 -> J/m^3
+                // erg/cm^3 -> J/m^3 is a factor 0.1; times dt for the step's energy.
+                result.energy_density = energy_rate * amrex::Real(0.1) * dt;
+                result.neutrino_density = neutrino_rate * amrex::Real(0.1) * dt;
                 break;
             }
 

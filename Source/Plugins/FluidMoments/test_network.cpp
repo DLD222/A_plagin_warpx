@@ -105,12 +105,14 @@ int main (int argc, char* argv[])
         // comparison is made once 5% of the protons have burned, where that is long past.
         Real worst = 0.0;
         Real energy_total = 0.0;
+        Real neutrino_total = 0.0;
         Real he4_initial = 0.0;
         he4_initial = rho[SolarNetwork::he4];
         while (t < t_end)
         {
             auto const step = SolarNetwork::advance(rho, dt, t9);
             energy_total += step.energy_density;
+            neutrino_total += step.neutrino_density;
             t += dt;
 
             Real const n_p = numberDensityCgs(rho[SolarNetwork::p], 1.0);
@@ -136,8 +138,14 @@ int main (int argc, char* argv[])
         // 26.732 MeV in joules: 26.732 * 1.602176634e-13 J/MeV = 4.283e-12 J.
         Real const expected = Real(2.0 * 1.442 + 2.0 * 5.494 + 12.860) * Real(1.602176634e-13);
         std::printf(" burned fraction %.3f, 4He = %.4e cm^-3\n", (double)burned, (double)n_he4);
-        std::printf(" energy per 4He = %.6e J = %.3f MeV   (expected 26.732 MeV)\n",
-                    (double)energy_per_he4, (double)(energy_per_he4 / 1.602176634e-13));
+        Real const neutrino_per_he4 = neutrino_total / (n_he4_made * Real(1.e6));
+        Real const total_per_he4 = energy_per_he4 + neutrino_per_he4;
+        std::printf(" energy per 4He: deposited %.3f MeV, neutrino %.3f MeV, total %.3f MeV\n",
+                    (double)(energy_per_he4 / 1.602176634e-13),
+                    (double)(neutrino_per_he4 / 1.602176634e-13),
+                    (double)(total_per_he4 / 1.602176634e-13));
+        std::printf("   (pp-I releases 26.732 MeV per 4He, of which the two pp neutrinos take"
+                    " 2 x 0.265 = 0.530 MeV)\n");
 
         if (n_he4_made <= 0.0) {
             std::printf(" FAILED: no helium was produced\n");
@@ -151,8 +159,15 @@ int main (int argc, char* argv[])
         // Per step the deposited energy and the 4He produced come from the same rates, so the
         // ratio is the Q sum exactly; integrated over a thousand steps it deviates by the
         // departure from exact quasi-equilibrium (measured 7e-6), which sets the tolerance.
-        if (std::abs(energy_per_he4 - expected) / expected > Real(1.e-4)) {
-            std::printf(" FAILED: energy per 4He is not the pp-I Q sum\n");
+        if (std::abs(total_per_he4 - expected) / expected > Real(1.e-4)) {
+            std::printf(" FAILED: the total energy per 4He is not the pp-I Q sum\n");
+            exit_code = 1;
+        }
+        // The neutrino share is exactly 2 x 0.265 MeV per 4He for pp-I.
+        Real const expected_nu = Real(2.0 * 0.265) * Real(1.602176634e-13);
+        if (std::abs(neutrino_per_he4 - expected_nu) / expected_nu > Real(1.e-4)) {
+            std::printf(" FAILED: neutrino energy per 4He is %.6f MeV, expected 0.530\n",
+                        (double)(neutrino_per_he4 / 1.602176634e-13));
             exit_code = 1;
         }
     }
@@ -181,10 +196,26 @@ int main (int argc, char* argv[])
 
         Real const dt = Real(10.0);
         Real t = 0.0;
+        Real energy_total = 0.0;
+        Real neutrino_total = 0.0;
+        // The energy per 4He is only the clean Q sum once the cycle is in steady state: while the
+        // intermediates fill up, the counts of the four steps differ and the stored chemical
+        // energy shows up in the ratio.  The ratio is therefore measured over the second half.
+        Real energy_mid = -1.0;
+        Real neutrino_mid = 0.0;
+        Real he4_mid = 0.0;
+        Real const t_mid = Real(5.e3);
         while (t < Real(1.e4))
         {
-            SolarNetwork::advance(rho, dt, t9);
+            auto const step = SolarNetwork::advance(rho, dt, t9);
+            energy_total += step.energy_density;
+            neutrino_total += step.neutrino_density;
             t += dt;
+            if (energy_mid < 0.0 && t >= t_mid) {
+                energy_mid = energy_total;
+                neutrino_mid = neutrino_total;
+                he4_mid = numberDensityCgs(rho[SolarNetwork::he4], 4.0);
+            }
         }
         Real const cn_final = cn_number();
         Real const protons_burned = n_p_initial - numberDensityCgs(rho[SolarNetwork::p], 1.0);
@@ -216,6 +247,21 @@ int main (int argc, char* argv[])
             // the cycle settles.
             std::printf(" FAILED: %.6f protons per 4He instead of 4\n",
                         (double)(protons_burned / he4_made));
+            exit_code = 1;
+        }
+        // Energy per 4He: with the beta decays folded in, the four CNO steps sum to
+        // 4.165 + 7.551 + 10.051 + 4.966 = 26.733 MeV, and the two beta neutrinos carry
+        // 0.7067 + 0.9965 = 1.7032 MeV of it.
+        Real const he4_late = numberDensityCgs(rho[SolarNetwork::he4], 4.0) - he4_mid;
+        Real const total_cno = ((energy_total - energy_mid) + (neutrino_total - neutrino_mid))
+                             / (he4_late * Real(1.e6) * Real(1.602176634e-13));
+        Real const nu_cno = (neutrino_total - neutrino_mid)
+                          / (he4_late * Real(1.e6) * Real(1.602176634e-13));
+        std::printf("   steady-state energy per 4He: total %.4f MeV (26.733 expected), neutrino"
+                    " %.4f MeV (1.7032 expected)\n", (double)total_cno, (double)nu_cno);
+        if (std::abs(total_cno - Real(26.733)) > Real(2.e-2)
+            || std::abs(nu_cno - Real(1.7032)) > Real(2.e-2)) {
+            std::printf(" FAILED: the CNO energy per 4He does not match its Q values\n");
             exit_code = 1;
         }
         // In steady state the chain piles up in 14N, whose proton capture is the slow step.
