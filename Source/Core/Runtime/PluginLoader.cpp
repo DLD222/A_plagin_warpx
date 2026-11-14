@@ -23,8 +23,23 @@ namespace warpx::runtime
 {
 
 void
-PluginLoader::load (const std::string& path, PluginHost& host)
+PluginLoader::load (const std::string& paths, PluginHost& host)
 {
+    // A search-path style list, so that independent plugins can be composed without merging them
+    // into one library: "a.so:b.so" loads both, each one keeping its own handlers and state.  A
+    // single path behaves exactly as before.
+    if (paths.find(':') != std::string::npos) {
+        std::string::size_type begin = 0;
+        while (begin <= paths.size()) {
+            std::string::size_type const end = paths.find(':', begin);
+            std::string const one = paths.substr(begin, end - begin);
+            if (!one.empty()) { PluginLoader::load(one, host); }
+            if (end == std::string::npos) { break; }
+            begin = end + 1;
+        }
+        return;
+    }
+    std::string const& path = paths;
     void* handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
     if (handle == nullptr) {
         throw std::runtime_error(

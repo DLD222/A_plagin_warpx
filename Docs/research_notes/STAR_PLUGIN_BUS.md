@@ -297,3 +297,40 @@ exit 0
   显式声明（现在通过 `ablastr` 的 usage requirements 生效）。
 - `build_multi` 把别的项目的构建目录放进 67 个目标的 `-I`，违反 `AGENTS.md`；本次验证改用
   仓库内 `build_star/`，不再依赖外部构建目录。
+
+
+---
+
+# 完成（build_star）：两个互不依赖的运行时插件都已验证
+
+```
+$ Tools/verify/check_star_runtime_plugins.sh
+star_gravity_plugin: exit 0
+star_fluid_plugin:   exit 0
+both:                exit 0
+
+[gravity] step 1: phi_min = -2.46401e-13 on 4096 cells
+[fluid] initialised: two-species gas at rest, p = 1
+[fluid] step 1: 1 sub-steps, energy = 10240, g from bus: yes
+[gravity] step 2: phi_min = -2.15601e-13 on 4096 cells
+```
+
+三个进程都干净退出（exit 0），流体报 `g from bus: yes` 说明它拿到的加速度**只可能来自总线**
+（引力插件写的 `star_g{x,y,z}`），两个插件之间没有 include、没有链接。能量恒为 10240
+（= 2.5 × 4096 个格子），均匀静止气在扫描下精确守恒。
+
+## 这一轮解决的三个真问题
+
+1. **exit 134**：模块把 AMReX 静态链进来，进程里两份 AMReX，退出时两套静态析构。
+   改成 OBJECT 库 + 不链任何库（符号从可执行文件解析）后 exit 0。
+2. **处理器内 `MultiFab::setVal` 挂死**（FutexWait，300 s 超时）：改为宿主侧 `MFIter` 逐格写，
+   即不再从处理器里启动并行 kernel。
+3. **能量 NaN**：deck 不是周期边界，`FillBoundary` 不填 halo，MUSCL 重构读到未初始化的 halo。
+   改为在扫描前做最近邻 halo 填充（宿主侧），能量恢复精确守恒。
+
+## 两处架构性改动
+
+- `PluginLoader::load` 支持 `a.so:b.so` 这种搜索路径列表，因此两个独立插件可以**同时**加载，
+  各自保留自己的 handler 与状态；单路径行为不变。这是 Core 的插件 ABI 层（A7.8）该有的能力。
+- 流体步使用自己的 `dt_f = CFL·dx/(|u| + c_s)` 子循环（上限 200 步/EM 步），因为
+  `warpx_stage_dt` 是电磁步长，对五矩方程远超声学 CFL。

@@ -34,11 +34,20 @@ foreach(D IN LISTS WarpX_DIMS)
 
     # Runtime plugin for this layer.  It knows nothing about the gravity plugin: the coupling is
     # the four field names it reads from the bus (A7: plugins are independent).
-    # A runtime plugin for this layer is NOT registered yet: the module builds and the data bus
-    # allocates its state (6 components, 2 ghosts, verified), but any write to that state from
-    # inside the handler hangs the process, and advancing the Euler sweep at the electromagnetic
-    # step violates the acoustic CFL anyway.  Both are recorded in STAR_PLUGIN_BUS.md; the gravity
-    # layer's plugin (NewtonGravity/StarGravityPlugin.cpp) is the verified one.
+    # Runtime plugin for this layer.  It knows nothing about the gravity plugin: the coupling is
+    # the four field names it reads from the bus (A7: plugins are independent).  Built like the
+    # gravity module - an OBJECT library for the compile flags, a MODULE that links nothing - so
+    # the process keeps a single copy of AMReX.
+    if(NOT TARGET star_fluid_plugin_${SD})
+        add_library(star_fluid_objs_${SD} OBJECT StarFluidPlugin.cpp FluidMoments.cpp)
+        target_link_libraries(star_fluid_objs_${SD} PRIVATE ablastr_${SD})
+        target_include_directories(star_fluid_objs_${SD} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+        add_library(star_fluid_plugin_${SD} MODULE $<TARGET_OBJECTS:star_fluid_objs_${SD}>)
+        set_target_properties(star_fluid_plugin_${SD} PROPERTIES
+            PREFIX "" OUTPUT_NAME "star_fluid_plugin"
+            POSITION_INDEPENDENT_CODE ON LINKER_LANGUAGE CXX)
+    endif()
 endforeach()
 
 # Acceptance tests.  Both run a one-dimensional problem inside the build's dimensionality, so
