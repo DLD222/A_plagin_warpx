@@ -46,10 +46,16 @@ namespace warpx::plugins::fluid
  *  three dimensions needs 5; a full solar network with a few species stays well below 16. */
 constexpr int max_components = 16;
 
-/** Component layout of the state: [rho_0 .. rho_{ns-1}, mom_x, mom_y, mom_z, E]. */
+/** Component layout of the state:
+ *  [rho_0 .. rho_{ns-1}, mom_x, mom_y, mom_z, E, extra_0 .. extra_{ne-1}].
+ *
+ *  The extras are passively advected conserved densities (ionisation fraction densities, radiation
+ *  energy, angular-momentum density, ...): they ride the same HLLC flux as the species, so their
+ *  conservation is the same statement as mass conservation. */
 struct StateLayout
 {
     int n_species = 1;
+    int n_extra = 0;
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     int density (int s) const noexcept { return s; }
@@ -61,7 +67,10 @@ struct StateLayout
     int energy () const noexcept { return n_species + AMREX_SPACEDIM; }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    int n_comp () const noexcept { return n_species + AMREX_SPACEDIM + 1; }
+    int extra (int j) const noexcept { return n_species + AMREX_SPACEDIM + 1 + j; }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    int n_comp () const noexcept { return n_species + AMREX_SPACEDIM + 1 + n_extra; }
 };
 
 /** Ideal gas: p = (gamma - 1) e, with e the internal energy per unit volume.
@@ -135,6 +144,9 @@ void physicalFlux (amrex::Real const* U, amrex::Real* F, int dir, StateLayout co
         F[layout.momentum(d)] = U[layout.momentum(d)] * un + ((d == dir) ? p : amrex::Real(0.0));
     }
     F[layout.energy()] = (E + p) * un;
+    for (int j = 0; j < layout.n_extra; ++j) {
+        F[layout.extra(j)] = U[layout.extra(j)] * un;
+    }
 }
 
 /** HLLC flux between the reconstructed states UL and UR (equations 2.9a-2.9d). */
@@ -200,6 +212,13 @@ void hllcFlux (amrex::Real const* UL, amrex::Real const* UR, amrex::Real* F, int
     amrex::Real const Ustar =
         factor * (E / rho + (SM - u) * (SM + p / (rho * (S - u))));
     F[layout.energy()] = FK[layout.energy()] + S * (Ustar - U[layout.energy()]);
+
+    // Passive conserved densities follow the species rule: the star state carries the same
+    // factor (S - u)/(S - SM), because they are densities advected with the flow.
+    for (int j = 0; j < layout.n_extra; ++j) {
+        amrex::Real const Ustar_e = U[layout.extra(j)] * (S - u) / (S - SM);
+        F[layout.extra(j)] = FK[layout.extra(j)] + S * (Ustar_e - U[layout.extra(j)]);
+    }
 }
 
 /** One cell's conserved state, read from the Array4 with the face/cell offset applied. */
