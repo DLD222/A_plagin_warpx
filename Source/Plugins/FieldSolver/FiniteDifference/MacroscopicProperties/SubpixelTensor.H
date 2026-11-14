@@ -87,6 +87,7 @@ Mat3 transpose (const Mat3& A)
 /** Rotation whose first column is the interface normal.
  *  In 2D (nx, 0, nz) the second axis is (0,1,0), which is automatically orthogonal,
  *  and the third is n x e2 = (-nz, 0, nx). det = |n|^2 = 1 for a unit normal. */
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Mat3 frame (const amrex::Real n_in[3])
 {
     // General Gram-Schmidt frame (columns: n, t1, t2), matching the Python
