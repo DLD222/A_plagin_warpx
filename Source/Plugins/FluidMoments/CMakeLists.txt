@@ -18,6 +18,8 @@ foreach(D IN LISTS WarpX_DIMS)
         target_include_directories(warpx_fluidmoments_static_${SD} PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR})
         target_link_libraries(warpx_fluidmoments_static_${SD} PUBLIC ablastr_${SD})
+        # PIC so a shared runtime plugin can link this archive (the "bad value" link error).
+        set_target_properties(warpx_fluidmoments_static_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)
         if(TARGET warpx_newtongravity_static_${SD})
             target_link_libraries(warpx_fluidmoments_static_${SD} PUBLIC
                 warpx_newtongravity_static_${SD})

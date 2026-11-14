@@ -20,8 +20,12 @@ foreach(D IN LISTS WarpX_DIMS)
         target_include_directories(star_runtime_plugin_${SD} PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${PROJECT_SOURCE_DIR}/Source/Core)
+        # Only the star layer is linked in; AMReX and ablastr symbols stay undefined and are
+        # resolved from the loading executable at dlopen time.  Linking a second copy of AMReX
+        # into a plugin makes both copies run their static destructors at exit and corrupts the
+        # heap - that was the shutdown crash this plugin had.
         target_link_libraries(star_runtime_plugin_${SD} PRIVATE
-            warpx_newtongravity_${SD} ablastr_${SD})
+            warpx_newtongravity_static_${SD})
         set_target_properties(star_runtime_plugin_${SD} PROPERTIES
             PREFIX "" OUTPUT_NAME "star_runtime_plugin_${SD}")
     endif()
@@ -34,6 +38,8 @@ foreach(D IN LISTS WarpX_DIMS)
         target_include_directories(warpx_newtongravity_static_${SD} PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR})
         target_link_libraries(warpx_newtongravity_static_${SD} PUBLIC ablastr_${SD})
+        # PIC so a shared runtime plugin can link this archive (the "bad value" link error).
+        set_target_properties(warpx_newtongravity_static_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)
     endif()
 endforeach()
 

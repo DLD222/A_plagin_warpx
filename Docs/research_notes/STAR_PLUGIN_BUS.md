@@ -90,7 +90,32 @@ NewtonGravitySolver::solvePotential(rho, phi, geom, 1e-13);
 2. **边界类型**：默认的 `PotentialBoundary::periodic` 与几何的非周期标志冲突，触发 AMReX
    `MLLinOp` 断言。改用 `PotentialBoundary::open`（非周期面 Dirichlet、周期方向保持周期）后正常。
 
-## 3c. 已知缺陷：加载插件后进程在退出时崩溃（未修）
+## 3c. 崩溃的定位（本轮）：`ngrow > 0` 的插件自声明场
+
+按"逐个关掉再跑"的方式二分，结论明确：
+
+| 改动 | 结果 |
+|---|---|
+| 关掉 `solvePotential` | 仍崩溃（exit 134） |
+| 关掉 `on_init` | 仍崩溃 |
+| 关掉 handler 注册 | 仍崩溃 |
+| 关掉 `on_schema`（不声明任何场） | 不崩溃，干净报错（exit 6，因为没有 `star_rho`） |
+| `ngrow` 从 1 改成 0 | 不崩溃，干净报错（exit 6，求解需要 ghost） |
+| 插件只链静态恒星层、AMReX 符号由宿主解析 | 仍崩溃 |
+| 静态库加 PIC | 仍崩溃 |
+
+所以**不是**求解器、不是 `on_init`、不是 handler、不是"第二份 AMReX"，而是
+**`warpx_state_request_field(name, ncomp, ngrow>0, checkpoint)` 声明的自有场在退出时造成堆损坏**。
+对照：仓库自带的 demo 插件也声明场，但 `ngrow = 0`，退出干净（exit 0）。
+
+这条指向**核心的 state registry / 插件自有场分配**，不是插件的逻辑。它是一条**新发现的缺陷**，
+不在 11 条 review 项里；我把它记为独立问题，没有为了让自己的验证变绿而绕过它。
+
+**未修**：需要读 `StateRegistry` 的分配与释放路径（它给插件场的 ghost 是如何分配、
+在 `Finalize` 之后由谁释放）。在此之前，`check_star_runtime_plugin.sh` 检查物理输出、
+单独打印退出状态。
+
+## 3c-old. 原始记录
 
 同一算例**不加载插件**时干净退出（exit 0）；加载后物理全部正确完成（三步都解出势），
 但**退出阶段**在 `std::deque<std::tuple<...>>` 析构里堆损坏（exit 134）。
