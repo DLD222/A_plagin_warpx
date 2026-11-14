@@ -27,6 +27,16 @@ if("3" IN_LIST WarpX_DIMS)
         endif()
     endforeach()
 
+    # Layer-by-layer comparison against the standard solar model: a Python tool that evaluates
+    # the same physics at the SSM's thermodynamic conditions (PHYSICS_SPEC section 4.3).  It is
+    # registered here because it is the reaction network that it exercises.
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME fluid_ssm_epsilon
+                 COMMAND ${Python3_EXECUTABLE}
+                         ${CMAKE_SOURCE_DIR}/Tools/star/ssm_compare.py --selftest)
+    endif()
+
     # The Jeans and hydrostatic tests drive the fluid with the gravity plugin's field, so they
     # link both layers.
     foreach(case IN ITEMS jeans hydrostatic)
