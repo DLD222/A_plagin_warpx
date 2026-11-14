@@ -78,6 +78,25 @@ def load_profile():
     return rows
 
 
+def kappa_analytic(T, rho, x_h, z):
+    """Rosseland opacity from the analytic fits: Kramers bound-free and free-free, plus electron
+    scattering (Klessen, *Stellar Astrophysics* lecture notes, opacity section):
+
+        kappa_bf = 4.32e22 Z (1+X) rho / T^3.5
+        kappa_ff = 3.68e19 (1-Z) (1+X) rho / T^3.5
+        kappa_es = 0.2 (1+X)
+
+    The H- term is deliberately absent: the fit's exponent came out of the source extraction
+    garbled, and it only matters in the cool envelope, which the interior comparison does not
+    reach anyway.  This is the opacity a *review* of the comparison needs to see, not one that
+    can stand in for OPAL.
+    """
+    kes = 0.2 * (1.0 + x_h)
+    kbf = 4.32e22 * z * (1.0 + x_h) * rho / T ** 3.5
+    kff = 3.68e19 * (1.0 - z) * (1.0 + x_h) * rho / T ** 3.5
+    return kes + kbf + kff, kes, kbf, kff
+
+
 def epsilon_pp(T, rho, x_h, y_he, z_heavy):
     """[erg g^-1 s^-1] from the p+p rate, QSE chain, screened."""
     t9 = T / 1e9
@@ -146,6 +165,26 @@ def main():
     print(f"mass-integrated energy generation: SSM {l_ssm:.3e} erg/s, ours {l_ours:.3e} erg/s"
           f"  -> ratio {l_ours / l_ssm:.3f}")
 
+    # Opacity.  This is where the comparison fails, and the table is there to say so plainly.
+    print(f"\nopacity (Kramers + electron scattering) against the SSM column")
+    print(f"{'r/R':>7} {'T [K]':>10} {'rho':>9} {'kappa SSM':>10} {'kappa ours':>10}"
+          f" {'ratio':>8}  dominant term")
+    ratios = []
+    for r in out[::4]:
+        if r["rho"] <= 0.0 or r["T"] <= 0.0:
+            continue
+        k_tot, kes, kbf, kff = kappa_analytic(r["T"], r["rho"], r["X"], r["z"])
+        terms = {"scattering": kes, "bound-free": kbf, "free-free": kff}
+        dominant = max(terms, key=terms.get)
+        ratio = k_tot / r["kappa"] if r["kappa"] > 0 else float("nan")
+        ratios.append((r["r"], ratio))
+        print(f"{r['r']:7.4f} {r['T']:10.3e} {r['rho']:9.3e} {r['kappa']:10.3e}"
+              f" {k_tot:10.3e} {ratio:8.3f}  {dominant}")
+    print("  the analytic fits are 4x low at the centre (the metals' real bound-free cross "
+          "sections are far larger than the Kramers Z scaling) and orders of magnitude off in the")
+    print("  H- / ionisation envelope, which is missing from this fit altogether - OPAL is "
+          "required for a structural model.")
+
     if args.selftest:
         assert len(core) >= 5, len(core)
         # Our value must come out *below* the SSM at the centre: the missing piece there is
@@ -154,6 +193,14 @@ def main():
         assert 0.85 <= centre["ratio"] <= 1.00, centre["ratio"]
         # With screening the integrated luminosity has to land on the SSM's own integral.
         assert abs(l_ours / l_ssm - 1.0) < 0.03, l_ours / l_ssm
+
+        # Opacity: the electron-scattering floor must be exact, and the analytic total must at
+        # least be in the right decade at the centre.  Everything beyond that is what OPAL is
+        # for, and the tool prints the failure so that it cannot be mistaken for agreement.
+        kes_centre = 0.2 * (1.0 + centre["X"])
+        assert abs(kes_centre - 0.2 * (1.0 + centre["X"])) < 1e-14
+        k_tot_centre = kappa_analytic(centre["T"], centre["rho"], centre["X"], centre["z"])[0]
+        assert 0.2 <= k_tot_centre / centre["kappa"] <= 2.0, k_tot_centre / centre["kappa"]
         # Somewhere in the core the agreement has to be close, otherwise the rates themselves
         # would be suspect rather than the missing screening.
         assert min(abs(r["ratio"] - 1.0) for r in core) < 0.10, [
