@@ -660,10 +660,10 @@ MacroscopicProperties::InitData (
                 //   coupling       : arithmetic (recorded as first order).
                 if (m_has_sig_tensor) {
                     warpx::subpixel::Mat3 sL{}, sR{};
-                    sL.m[0]=st1(iL,jL,k,0); sL.m[4]=st1(iL,jL,k,1); sL.m[8]=st1(iL,jL,k,2);
-                    sL.m[1]=sL.m[3]=st1(iL,jL,k,3); sL.m[2]=sL.m[6]=st1(iL,jL,k,4); sL.m[5]=sL.m[7]=st1(iL,jL,k,5);
-                    sR.m[0]=st1(iR,jR,k,0); sR.m[4]=st1(iR,jR,k,1); sR.m[8]=st1(iR,jR,k,2);
-                    sR.m[1]=sR.m[3]=st1(iR,jR,k,3); sR.m[2]=sR.m[6]=st1(iR,jR,k,4); sR.m[5]=sR.m[7]=st1(iR,jR,k,5);
+                    sL.m[0]=st1(iL,jL,kL,0); sL.m[4]=st1(iL,jL,kL,1); sL.m[8]=st1(iL,jL,kL,2);
+                    sL.m[1]=sL.m[3]=st1(iL,jL,kL,3); sL.m[2]=sL.m[6]=st1(iL,jL,kL,4); sL.m[5]=sL.m[7]=st1(iL,jL,kL,5);
+                    sR.m[0]=st1(iR,jR,kR,0); sR.m[4]=st1(iR,jR,kR,1); sR.m[8]=st1(iR,jR,kR,2);
+                    sR.m[1]=sR.m[3]=st1(iR,jR,kR,3); sR.m[2]=sR.m[6]=st1(iR,jR,kR,4); sR.m[5]=sR.m[7]=st1(iR,jR,kR,5);
                     warpx::subpixel::Mat3 s3{};
                     if (!iface_on_n) {
                         s3 = m1L ? sL : sR;
@@ -698,6 +698,16 @@ MacroscopicProperties::InitData (
                 }
             });
         }
+
+    // F-06: the node arrays are read by the rho_medium seed, the conduction-charge update and the
+    // Gauss residual diagnostic, all of which reach one cell into the ghosts.  Without this the
+    // ghosts hold whatever the allocation left there (zero), so on a periodic seam those
+    // diagnostics report a conservation error that the solve itself does not have.
+    for (int c = 0; c < 3; ++c) {
+        m_eps_node[c]->FillBoundary(geom.periodicity());
+        m_sigma_node[c]->FillBoundary(geom.periodicity());
+        m_eps_inv_node[c]->FillBoundary(geom.periodicity());
+    }
     }
     // Node-centred inverse permittivity rows: row c of inv(eps_node[c]). Built here so
     // the BE branch and the exponential step consume the SAME eps at a field point.
