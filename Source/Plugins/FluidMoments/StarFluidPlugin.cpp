@@ -32,6 +32,7 @@ namespace
 {
 double g_steps = 0.0;
 double g_energy = 0.0;
+double g_mach = 0.0;
 bool g_initialised = false;
 
 /** The fluid state this plugin owns: two species, the momentum and the total energy. */
@@ -221,13 +222,35 @@ void fluid_step (WarpXStageContext* ctx, void*)
         }
     }
 
+    // Mach number of the state: the solar column must stay subsonic, which is the dynamical
+    // statement of hydrostatic equilibrium that a running model can actually claim.
+    amrex::Real mach = 0.0;
+    for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
+        amrex::Box const& bx = mfi.validbox();
+        auto const s = state.const_array(mfi);
+        for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
+            amrex::Real const rho = s(i, 0, 0, g_layout.density(0));
+            if (rho <= 0.0) { continue; }
+            amrex::Real mom2 = 0.0;
+            for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+                amrex::Real const m = s(i, 0, 0, g_layout.momentum(d));
+                mom2 += m * m;
+            }
+            amrex::Real const p = 0.4 * (s(i, 0, 0, g_layout.energy()) - 0.5 * mom2 / rho);
+            if (p <= 0.0) { continue; }
+            mach = amrex::max(mach, std::sqrt(mom2) / rho / std::sqrt(1.4 * p / rho));
+        }
+    }
+    g_mach = mach;
+    (void)warpx_stage_set_scalar(ctx, "star_mach", mach);
+
     g_energy = state.sum(g_layout.energy());
     (void)warpx_stage_set_scalar(ctx, "star_energy", g_energy);
     if (g_steps <= 3.0) {
         std::printf("[fluid] step %.0f: %d sub-steps, energy = %g, g: %s, E/B: %s,"
-                    " max|E| = %g, joule = %g\n",
+                    " max|E| = %g, joule = %g, Mach = %.3e\n",
                     g_steps, n_sub, g_energy, have_g ? "yes" : "no",
-                    have_em ? "yes" : "no", g_emax, joule);
+                    have_em ? "yes" : "no", g_emax, joule, g_mach);
     }
 }
 
@@ -236,7 +259,7 @@ void on_schema (WarpXStateRegistry* state)
     (void)warpx_state_request_field(state, "star_state", 2 + AMREX_SPACEDIM + 1, 2, 0);
 }
 
-const char* kScalars[] = {"star_energy"};
+const char* kScalars[] = {"star_energy", "star_mach"};
 const char* kReads[] = {"star_gx", "star_gy", "star_gz", "Efield_fp", "Bfield_fp"};
 const char* kWrites[] = {"star_state"};
 
@@ -253,7 +276,7 @@ void register_handlers (WarpXPluginHost* host)
     desc.writes_fields = kWrites;
     desc.n_writes_fields = 1;
     desc.writes_scalars = kScalars;
-    desc.n_writes_scalars = 1;
+    desc.n_writes_scalars = 2;
     (void)warpx_host_add_handler(host, &desc);
 }
 
