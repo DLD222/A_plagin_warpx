@@ -86,7 +86,8 @@ int main (int argc, char* argv[])
         }
         rho.FillBoundary(geom.periodicity());
 
-        // Dirichlet data: the analytic potential at the centres of the ghost cells.
+        // Dirichlet data: the analytic potential on the domain faces (AMReX's convention), which
+        // is the ghost-cell value with its normal coordinate clamped to the boundary.
         for (MFIter mfi(phi, TilingIfNotGPU()); mfi.isValid(); ++mfi)
         {
             Box const& bx = mfi.growntilebox(1);
