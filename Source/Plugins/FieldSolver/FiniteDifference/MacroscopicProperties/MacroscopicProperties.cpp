@@ -542,12 +542,17 @@ MacroscopicProperties::InitData (
                 // The interface normal is taken along z (finding F-05), so the two sides are
                 // the z-neighbour cells: in 3D that is the k direction, not j.
                 int const jL = j, jR = j;
-                int const kL = amrex::max(k - 1, klo_dom);
-                int const kR = amrex::min(k, khi_dom);
+                // Ez is cell-centred in z (Ez_nodal = (1,1,0)), so its sample sits inside cell
+                // k and both sides are that same cell; Ex/Ey are nodal in z and sit between
+                // k-1 and k (CODE_REVIEW F-03).
+                int const kL = normal ? k : amrex::max(k - 1, klo_dom);
+                int const kR = normal ? k : amrex::min(k, khi_dom);
 #else
+                // Same distinction one dimension down: Ez is cell-centred in z in 2D XZ too.
                 int const jm = amrex::max(j - 1, jlo_dom);
                 int const jp = amrex::min(j, jhi_dom);
-                int const jL = jm, jR = jp;
+                int const jL = normal ? j : jm;
+                int const jR = normal ? j : jp;
                 int const kL = k, kR = k;
 #endif
 #endif
@@ -567,10 +572,14 @@ MacroscopicProperties::InitData (
                 amrex::Real const xn = xlo_n + amrex::Real(i) * dx_n;
 #if defined(WARPX_DIM_3D)
                 amrex::Real const yn = ylo_n + amrex::Real(j) * dy_n;
-                amrex::Real const zn = zlo_n + amrex::Real(k) * dz_n;
+                // F-03: a nodal index means i*dx, a cell-centred one (j+0.5)*dx.  Ez is
+                // cell-centred in z, so its sample must be at the cell centre.
+                amrex::Real const zn = zlo_n
+                    + (normal ? amrex::Real(k) + amrex::Real(0.5) : amrex::Real(k)) * dz_n;
 #else
                 amrex::Real const yn = amrex::Real(0.0);
-                amrex::Real const zn = zlo_n + amrex::Real(j) * dz_n;
+                amrex::Real const zn = zlo_n
+                    + (normal ? amrex::Real(j) + amrex::Real(0.5) : amrex::Real(j)) * dz_n;
 #endif
                 amrex::Real nrmv[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
                 if (iface_on_n) {
