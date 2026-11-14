@@ -25,8 +25,14 @@
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace
 {
@@ -34,6 +40,50 @@ double g_steps = 0.0;
 double g_energy = 0.0;
 double g_mach = 0.0;
 bool g_initialised = false;
+
+/** Standard-solar-model rows (r in cm), read once from WARPX_STAR_PROFILE. */
+struct SsmRow { double r, rho, T, P; };
+static std::vector<SsmRow> g_rows;
+static bool g_loaded = false;
+
+static void load_profile ()
+{
+    if (g_loaded) { return; }
+    g_loaded = true;
+    const char* path = std::getenv("WARPX_STAR_PROFILE");
+    if (path == nullptr) { return; }
+    std::ifstream in(path);
+    if (!in) { return; }
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty() || line[0] == '#' || line.rfind("r_over_R", 0) == 0) { continue; }
+        std::stringstream ss(line);
+        std::string tok;
+        std::vector<double> v;
+        while (std::getline(ss, tok, ',')) { v.push_back(std::stod(tok)); }
+        if (v.size() < 10) { continue; }
+        g_rows.push_back(SsmRow{v[0] * 6.957e10, v[3], v[2], v[4]});
+    }
+    std::sort(g_rows.begin(), g_rows.end(), [](SsmRow const& a, SsmRow const& b) { return a.r < b.r; });
+    std::printf("[fluid] profile loaded: %d rows\n", (int)g_rows.size());
+}
+
+/** The model at radius r; zero outside the star. */
+static SsmRow model_at (double r)
+{
+    if (g_rows.empty() || r >= g_rows.back().r) { return SsmRow{0.0, 0.0, 0.0, 0.0}; }
+    if (r <= g_rows.front().r) { return g_rows.front(); }
+    std::size_t hi = 1;
+    while (hi < g_rows.size() && g_rows[hi].r < r) { ++hi; }
+    if (hi >= g_rows.size()) { return g_rows.back(); }
+    double const t = (r - g_rows[hi - 1].r) / (g_rows[hi].r - g_rows[hi - 1].r);
+    SsmRow out{};
+    out.r = r;
+    out.rho = std::exp(std::log(g_rows[hi - 1].rho) + t * (std::log(g_rows[hi].rho) - std::log(g_rows[hi - 1].rho)));
+    out.T = std::exp(std::log(g_rows[hi - 1].T) + t * (std::log(g_rows[hi].T) - std::log(g_rows[hi - 1].T)));
+    out.P = std::exp(std::log(g_rows[hi - 1].P) + t * (std::log(g_rows[hi].P) - std::log(g_rows[hi - 1].P)));
+    return out;
+}
 
 /** The fluid state this plugin owns: two species, the momentum and the total energy. */
 warpx::plugins::fluid::StateLayout const g_layout{2};
@@ -102,6 +152,12 @@ void fluid_step (WarpXStageContext* ctx, void*)
     auto& state = *static_cast<amrex::MultiFab*>(raw_state);
 
     if (!g_initialised) {
+        load_profile();
+        int lo[3] = {0,0,0}, hi[3] = {0,0,0}, per[3] = {0,0,0};
+        double plo[3] = {0,0,0}, phi[3] = {0,0,0}, d[3] = {0,0,0};
+        try { (void)warpx_stage_geometry(ctx, 0, lo, hi, plo, phi, d, per); } catch (...) { }
+        double mass = 0.0;
+        double const cell_volume = d[0] * d[1] * d[2];
         // Host-side loop on purpose: the handler is dispatched from the host, and a device/parallel
         // kernel launched here deadlocked the process (FutexWait, 300 s timeout) in the first
         // attempt.  Setting the state through a plain MFIter keeps everything on the calling thread.
@@ -112,15 +168,40 @@ void fluid_step (WarpXStageContext* ctx, void*)
                 for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
                     for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
                         for (int c = 0; c < g_layout.n_comp(); ++c) { s(i, j, k, c) = 0.0; }
-                        s(i, j, k, g_layout.density(0)) = 1.0;
-                        s(i, j, k, g_layout.density(1)) = 0.1;
-                        s(i, j, k, g_layout.energy()) = 2.5;   // p = 1 with gamma = 1.4
+                        // spherical standard-solar-model initialisation, same table as gravity
+                        double const xc = plo[0] + (i + 0.5) * d[0];
+                        double const yc = (AMREX_SPACEDIM > 1) ? plo[1] + (j + 0.5) * d[1] : 0.0;
+                        double const zc = (AMREX_SPACEDIM > 2) ? plo[2] + (k + 0.5) * d[2] : 0.0;
+                        SsmRow const row = model_at(std::sqrt(xc*xc + yc*yc + zc*zc));
+                        if (row.rho > 0.0) {
+                            s(i, j, k, g_layout.density(0)) = row.rho;
+                            s(i, j, k, g_layout.energy()) = row.P / 0.4;
+                            mass += row.rho * cell_volume;
+                        }
                     }
                 }
             }
         }
         g_initialised = true;
-        std::printf("[fluid] initialised: two-species gas at rest, p = 1\n");
+        std::printf("[fluid] initialised from the solar model: %.4f M_sun\n", mass / 1.989e33);
+    }
+
+    // A stellar fluid has vacuum outside the star, and the Riemann solver cannot handle rho = p = 0
+    // (the first solar initialisation produced NaNs exactly there).  Apply a floor before the
+    // advance and record that this is what makes the exterior well defined.
+    for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
+        amrex::Box const& bx = mfi.validbox();
+        auto s = state.array(mfi);
+        for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
+            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                    amrex::Real& rho = s(i, j, k, g_layout.density(0));
+                    amrex::Real& ee = s(i, j, k, g_layout.energy());
+                    if (rho < 1.0e-10) { rho = 1.0e-10; }
+                    if (ee < 1.0e-6) { ee = 1.0e-6; }
+                }
+            }
+        }
     }
 
     // g comes from the bus; if the gravity plugin is not loaded the fields are absent and the
