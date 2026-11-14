@@ -17,9 +17,12 @@ foreach(D IN LISTS WarpX_DIMS)
     # linked into the executable - the core never names it (CODE_REVIEW section 15.4).
     if(NOT TARGET star_runtime_plugin_${SD})
         add_library(star_runtime_plugin_${SD} MODULE StarRuntimePlugin.cpp)
+        # Headers only from AMReX: the plugin needs the types, not the archive (see the PRIVATE
+        # ablastr note above - two AMReX copies corrupt the heap at exit).
         target_include_directories(star_runtime_plugin_${SD} PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
-            ${PROJECT_SOURCE_DIR}/Source/Core)
+            ${PROJECT_SOURCE_DIR}/Source/Core
+            $<TARGET_PROPERTY:AMReX::amrex,INTERFACE_INCLUDE_DIRECTORIES>)
         # Only the star layer is linked in; AMReX and ablastr symbols stay undefined and are
         # resolved from the loading executable at dlopen time.  Linking a second copy of AMReX
         # into a plugin makes both copies run their static destructors at exit and corrupts the
@@ -36,7 +39,13 @@ foreach(D IN LISTS WarpX_DIMS)
     if(NOT TARGET warpx_newtongravity_static_${SD})
         add_library(warpx_newtongravity_static_${SD} STATIC NewtonGravity.cpp)
         target_include_directories(warpx_newtongravity_static_${SD} PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR})
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${PROJECT_SOURCE_DIR}/Source/Core)
+        # PUBLIC so consumers get the includes.  KNOWN ISSUE: this also drags ablastr and, through
+        # it, AMReX into a *shared* plugin's image, so the plugin and the executable each have a
+        # copy of AMReX and their static destructors corrupt the heap at exit.  Making this PRIVATE
+        # breaks the include propagation for the module target; the real fix is a separate
+        # interface target for the headers (see STAR_PLUGIN_BUS.md section 3c).
         target_link_libraries(warpx_newtongravity_static_${SD} PUBLIC ablastr_${SD})
         # PIC so a shared runtime plugin can link this archive (the "bad value" link error).
         set_target_properties(warpx_newtongravity_static_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)

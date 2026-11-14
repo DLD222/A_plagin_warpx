@@ -121,6 +121,24 @@ C demo 插件 + ngrow=1 场   -> exit 0
 那种情况下 C 插件不会幸免。真正要查的是 C++ 插件里与 AMReX 相关的**静态初始化/析构**或
 inline 符号在 .so 与宿主之间的重复。
 
+### 3c-2 根因已确证：插件自带了一份 AMReX
+
+```
+nm -D star_runtime_plugin_3d.so | grep -c " T _ZN5amrex"   -> 1382   (定义在 .so 里)
+nm -D star_runtime_plugin_3d.so | grep -c " U _ZN5amrex"   -> 0      (完全不从宿主解析)
+```
+
+宿主导出 1684 个 amrex 符号，插件却**一个都不用**——它把 `libamrex.a` 整份链进了自己的映像。
+于是退出时**两份 AMReX 的静态析构器**都跑，堆被破坏。这与"纯 C 插件不崩"完全一致
+（C 插件不链 AMReX）。
+
+**修法明确但未落地**：给恒星层做只含头文件的 **INTERFACE 目标**，让 MODULE 插件只取 include、
+不取 archive。我试过把静态库的 `ablastr` 依赖改成 `PRIVATE`（正是为了切断这条链），
+但那样插件的 include 传播也断了；而改用
+`$<TARGET_PROPERTY:AMReX::amrex,INTERFACE_INCLUDE_DIRECTORIES>` 补头文件时，又取到了**共享 AMReX
+构建的 2D 配置**（`IntVectND<2>` 与 3D 插件不匹配）。这条路上 2D/3D 配置的分离是另一个待理清的
+构建问题，我把 CMake 回退到**能工作但带已知缺陷**的版本，并把问题写在这里，而不是留一个编不过的树。
+
 **这条归因的修正是本轮最重要的产出之一**：如果停在"核心有缺陷"的结论上，就会把一条自己引入的
 问题挂到别人账上。
 
