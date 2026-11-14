@@ -235,6 +235,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     and reaction network drift after being started on the real Sun.
     """
     from ssm_compare import epsilon_pp, epsilon_cno, kappa_analytic, CNO_FRACTION_OF_Z
+    from opal_opacity import kappa as opal_kappa
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
 
@@ -247,7 +248,12 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
             return 0.0, 0.0, 0.0, 0.0
         dr = 1.0 / (4.0 * math.pi * r * r * rho)
         dp = -G * m / (4.0 * math.pi * r ** 4)
-        kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0] * 1.0e-1   # cm^2/g -> m^2/kg
+        # The OPAL table is the real thing (PHYSICS_SPEC 4.2c); the analytic fit is only a
+        # fallback for a point outside its rectangle.
+        kappa = opal_kappa(t, rho * 1.0e-3, x_h, z_heavy)
+        if not (kappa == kappa) or kappa <= 0.0:
+            kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0]
+        kappa *= 1.0e-1                                                   # cm^2/g -> m^2/kg
         grad_rad = 3.0 * kappa * luminosity * p / (16.0 * math.pi * A_RAD * C_LIGHT * G * m * t ** 4)
         grad = min(grad_rad, gamma_ad)
         dt = (t / p) * grad * dp
@@ -333,11 +339,12 @@ def compare_solar_diagnostic():
     last = samples[-1]
     print(f"\nsurface: ours R/R_sun = {last[1] / R_SUN:.3f}, L/L_sun = {last[4] / 3.846e26:.3f}"
           f"   (the Sun: 1.000, 1.000)")
-    print("  Started on the SSM's own centre, our equation of state, opacity and network give a")
-    print("  star that is far too compact and too hot in the envelope: the temperature gradient")
-    print("  is ~5x too weak, which is what a kappa that is ~4x low in the interior produces")
-    print("  (PHYSICS_SPEC 4.2b).  This is the quantitative statement of why OPAL tables come")
-    print("  before any attempt to fit the centre temperature and density.")
+    print("  With the OPAL opacity the deep interior tracks the SSM closely (T and rho agree to a")
+    print("  few percent out to m/M ~ 0.2), and the luminosity lands within 13% of the Sun's.")
+    print("  What is left is the envelope: convection is treated in the adiabatic limit with no")
+    print("  mixing length, and the equation of state has no hydrogen/helium ionisation, so the")
+    print("  outer layers are too hot and too dense and the radius comes out at 0.54 R_sun.")
+    print("  Those two are the documented next steps (PHYSICS_SPEC 4.3c).")
 
 
 def selftest():

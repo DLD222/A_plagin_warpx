@@ -37,6 +37,11 @@ if("3" IN_LIST WarpX_DIMS)
                          ${CMAKE_SOURCE_DIR}/Tools/star/ssm_compare.py --selftest)
         # The structural machinery (hydrostatic integration in the mass coordinate) is validated
         # against the Lane-Emden polytropes, whose solution is known independently.
+        # The OPAL opacity table (extracted, not transcribed) must reproduce the SSM's own
+        # opacity column before it is trusted anywhere else.
+        add_test(NAME fluid_opal_opacity
+                 COMMAND ${Python3_EXECUTABLE}
+                         ${CMAKE_SOURCE_DIR}/Tools/star/opal_opacity.py --selftest)
         add_test(NAME fluid_lane_emden
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/stellar_structure.py --selftest)
