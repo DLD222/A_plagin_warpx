@@ -247,3 +247,53 @@ AMReX 的多维配置头按 `AMREX_SPACEDIM` 选择 per-dimension 设置，**没
 把选择权交回：选项 A（授权改构建组织）/ B（接受当前状态）/ C（改用无 AMReX 的 C 插件）。
 
 已交付且可复现的部分不受影响：`NewtonGravity` 可由加载插件驱动（`Tools/verify/check_star_runtime_plugin.sh`）。
+
+
+---
+
+# 重做结果（build_star，仓库内自建 AMReX）
+
+用仓库内的 `build_star/`（AMReX 由本仓库自己下载、自己配置）重做，结果分三块：
+
+## 1. 退出崩溃的根因已确证并修掉
+
+对照非常干净：
+
+| 插件映像里有没有 AMReX | 结果 |
+|---|---|
+| 链了 `ablastr`（→ `libamrex_3d.a`，`.so` 内 1382 个 defined amrex 符号） | 物理全对，**exit 134**，`free(): invalid pointer` |
+| 不链任何库（`.so` 内 0 个 defined amrex 符号，符号从可执行文件解析） | 物理全对，**exit 0** |
+
+做法：把本插件的 TU 编进一个 **OBJECT 库**（借 `ablastr_${SD}` 的 usage requirements：include、
+`AMREX_SPACEDIM`、OpenMP 标志），再用 `$<TARGET_OBJECTS:...>` 包成 MODULE，**MODULE 不链任何库**。
+这样进程里只有一份 AMReX，静态析构只跑一次。前提是可执行文件导出所需符号——已核对
+`amrex::ParallelDescriptor::Arecv<char>` 在 `warpx.3d` 的动态符号表里。
+
+## 2. 引力插件已验证
+
+```
+[gravity] step 1: phi_min = -2.46401e-13 on 4096 cells
+[gravity] step 2: phi_min = -2.15601e-13 on 4096 cells
+[gravity] step 3: phi_min = -1.84148e-13 on 4096 cells
+exit 0
+```
+
+用 `WARPX_PLUGIN_PATH` 加载，几何来自 ABI v7 的 `warpx_stage_geometry`，求解器是本层自己的。
+
+## 3. 流体插件：已构建、已接通总线，但**没有注册**，两个真实缺陷未解决
+
+- 模块能编译、能 dlopen，`star_state` 也由总线分配出来（实测 `nComp=6, nghost=2, boxes=8`），
+  契约检查也按预期拦下了未声明的写访问；
+- 但**只要在处理器里写这个状态就挂死**（`setVal` 进去后进程进入 futex 等待，300 s 超时）；
+- 此外，`warpx_stage_dt` 给的是**电磁**步长，对五矩方程远超声学 CFL，直接推进也不成立。
+
+因此把 `StarFluidPlugin.cpp` 撤出（不留一个会挂死的目标），在 `FluidMoments/CMakeLists.txt`
+里写明原因。要恢复它需要两件事：把处理器内的 AMReX 写入路径查清（疑似线程/并行区域问题），
+以及给流体一个自循环的 `dt_f = CFL dx / (|u| + c_s)`。
+
+## 4. 顺带纠正
+
+- `AMREX_SPACEDIM` 未声明会导致 AMReX 按 2D 编译——这是 `IntVectND<2>` 的真正原因，已在模块里
+  显式声明（现在通过 `ablastr` 的 usage requirements 生效）。
+- `build_multi` 把别的项目的构建目录放进 67 个目标的 `-I`，违反 `AGENTS.md`；本次验证改用
+  仓库内 `build_star/`，不再依赖外部构建目录。

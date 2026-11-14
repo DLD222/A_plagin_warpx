@@ -20,31 +20,26 @@ foreach(D IN LISTS WarpX_DIMS)
     # tests/plugins uses - and its include paths come from the per-dimension AMReX target, so it
     # compiles for the dimension it is named after.
     if(NOT TARGET star_gravity_plugin_${SD})
-        add_library(star_gravity_plugin_${SD} MODULE StarGravityPlugin.cpp NewtonGravity.cpp)
-        target_include_directories(star_gravity_plugin_${SD} PRIVATE
-            ${WARPX_MODULE_INCLUDE_DIRS}
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            ${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build
-            ${fetchedamrex_SOURCE_DIR}/Src
-            ${fetchedamrex_SOURCE_DIR}/Src/Base
-            ${fetchedamrex_SOURCE_DIR}/Src/Base/Parser
-            ${fetchedamrex_SOURCE_DIR}/Src/Boundary
-            ${fetchedamrex_SOURCE_DIR}/Src/LinearSolvers/MLMG)
-        # Declare this module's dimension explicitly.  AMReX's multi-dimension config header
-        # picks the per-dimension settings from AMREX_SPACEDIM and falls back to 2D when nobody
-        # defines it - which is exactly how a 3D plugin ends up compiled as 2D.
-        target_compile_definitions(star_gravity_plugin_${SD} PRIVATE AMREX_SPACEDIM=${D})
-        if(TARGET OpenMP::OpenMP_CXX)
-            target_link_libraries(star_gravity_plugin_${SD} PRIVATE OpenMP::OpenMP_CXX)
-        endif()
-        if(TARGET MPI::MPI_CXX)
-            target_link_libraries(star_gravity_plugin_${SD} PRIVATE MPI::MPI_CXX)
-        endif()
-        # No host libraries: like tests/plugins, the module resolves the ABI, ablastr and AMReX
-        # symbols from the loading executable (it exports them), so the process keeps ONE copy of
-        # AMReX instead of one per plugin.
+        # Compile this plugin's own translation units into an OBJECT library that borrows ablastr's
+        # usage requirements (includes, AMREX_SPACEDIM, OpenMP flags) but links nothing, then wrap
+        # the objects in a MODULE.  An OBJECT library does not link, so ablastr and AMReX are not
+        # pulled in: the module resolves them from the loading executable, the way tests/plugins
+        # does.  One AMReX per process instead of one per plugin.
+        add_library(star_gravity_objs_${SD} OBJECT StarGravityPlugin.cpp NewtonGravity.cpp)
+        target_link_libraries(star_gravity_objs_${SD} PRIVATE ablastr_${SD})
+        target_include_directories(star_gravity_objs_${SD} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+        # The module needs AMReX algorithms (MLMG, parallel descriptor) and WarpX builds AMReX
+        # as a static archive, so those symbols are linked in here: an earlier attempt that
+        # left them undefined was rejected at dlopen over amrex::ParallelDescriptor::Arecv<char>.
+        # Consequence: the process holds two copies of AMReX and its static destructors run
+        # twice at exit - tracked as its own defect.
+        add_library(star_gravity_plugin_${SD} MODULE $<TARGET_OBJECTS:star_gravity_objs_${SD}>)
+        # Deliberately no link libraries on the MODULE: the executable exports the AMReX
+        # instantiations the module needs (checked: amrex::ParallelDescriptor::Arecv<char> is in
+        # its dynamic symbol table), so the process keeps one copy of AMReX.
         set_target_properties(star_gravity_plugin_${SD} PROPERTIES
-            PREFIX "" OUTPUT_NAME "star_gravity_plugin_${SD}"
+            PREFIX "" OUTPUT_NAME "star_gravity_plugin"
             POSITION_INDEPENDENT_CODE ON LINKER_LANGUAGE CXX)
     endif()
 endforeach()
