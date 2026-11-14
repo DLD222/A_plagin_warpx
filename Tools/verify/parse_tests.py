@@ -28,6 +28,12 @@ import sys
 SKIP_DIRS = {
     ".git", "build", "build_takeover", "build_multi2", "build_2d_full",
     "build_multi_hdf5_fft", "_deps", "node_modules",
+    # Trees that are not "the local project": an upstream reference checkout, the
+    # audit build/run trees, and external datasets.  Without these the tool walked
+    # the upstream copy too and reported twice as many local definitions, so the
+    # "upstream parity" gate could never fail.
+    "_upstream", "audit_build", "audit_runs", "warpx-data",
+    "openPMD-example-datasets", "site-packages", "pywarpx.egg-info",
 }
 
 
@@ -51,7 +57,8 @@ def parse_tree(root):
     """Return [{name, dims, nprocs, args, file}, ...] for one tree."""
     tests = []
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        dirnames[:] = [d for d in dirnames
+                       if d not in SKIP_DIRS and not d.startswith("build")]
         if "CMakeLists.txt" not in filenames:
             continue
         path = os.path.join(dirpath, "CMakeLists.txt")

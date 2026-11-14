@@ -226,6 +226,7 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 | `test_2d_theta_implicit_jfnk_vandb(_picmi/_filtered)` | divE | 3.8e7（rel ~1e-10） | fork 代码 | 隐式求解器迭代/预条件差异；`WeightedJacobi` omega 每步被 Gershgorin 覆盖（FieldSolver_B F3） |
 | `test_2d_laser_ion_acc(_picmi)` | E/j/rho | 1e14（rel 0.07–0.97） | fork 代码 | 电离 + 外场路径；与 `GetExternalEBField` 不传 context 的空指针/静默零场（ParticleCore_A F1）方向一致 |
 | `test_rz_langmuir_multi_psatd_current_correction` | divE | 3.7e2 | fork 代码 | RZ + PSATD 电流修正 |
+| `test_rz_ohm_solver_resistive_drag_species_fields_picmi` | `current_fp_ions[dir=z]`、`rho_ions` | 7.8e5 / 7.8（总量场一致） | fork 代码 | **逐格定位**：只在 `z` 上边界一排（第 15 列）以及个别角点不同，官方 `rho_ions=23.84`、fork `31.67`；总场 `rho`/`E` 一致 → 问题在**逐物种诊断量的边界处理**（`FinalizeRho`/per-species 场未做与总场一致的边界处理），不是求解器 |
 | `test_2d_darwin_solver_em_modes_es_picmi` | Ez | 2.9e4 | fork 代码 | Darwin 求解器（预条件系数改动，FieldSolver_B F2） |
 
 重要结论：**没有一个是“fork 崩溃/官方正常”**；也没有发现“某类算例整体无法运行”。差异集中在
@@ -385,6 +386,22 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 - 修法：改用 `config().ncomps()`。
 - 回归：`test_2d_theta_implicit_jfnk_vandb*`、`test_rz_psatd_JRhom_LL2`、
   `test_3d_divb_cleaning` 全部通过；2D 用例的 divE 残差为 rel~1e-9（舍入级），与修复前一致。
+
+### 7.8 两个“验证工具”恒过（已修复，2 个脚本）
+
+这两处直接推翻了仓库文档里“0 已知/0 新增”的证据链，因此按缺陷处理：
+
+1. `Tools/Modularization/check_plugin_boundaries.py`
+   - 现象：结尾 `errors = sorted(v for v in violations if v not in allowed)` **覆盖**了前面
+     “重复头文件”和“依赖环”累积到 `errors` 的条目 → 两条检查永远不生效（合成反例实测
+     `plugin boundaries OK`、exit 0）。
+   - 修法：`errors = <violations> + errors`（保留已有条目）。
+   - 验证：仓库上运行仍为 `OK (0 known, 0 new)`；重复头文件/环现在会进入 `errors` 并 exit 1。
+2. `Tools/verify/parse_tests.py`
+   - 现象：`SKIP_DIRS` 没有排除 `_upstream/`、`audit_build/`、`audit_runs/` 等目录，于是把
+     官方参考树也当成“本地树”遍历：本地定义数翻倍（832 vs 408），上游一致性门恒过。
+   - 修法：补齐跳过目录，并通用跳过 `build*`。
+   - 验证：现在报告 `local 424` vs `reference 408`，与 §3.2 的 13 个 fork 独有定义一致。
 
 ---
 

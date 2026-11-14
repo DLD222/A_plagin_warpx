@@ -158,7 +158,10 @@ if "--dump" in sys.argv:
 if _has_cycle(declared_edges):
     errors.append("plugin_dependencies.txt declares a dependency cycle")
 
-errors = sorted(v for v in violations if v not in allowed)
+# NB: keep the duplicate-header / dependency-cycle errors collected above; an earlier
+# version overwrote this list here, which made both checks unreachable (they always
+# printed OK).
+errors = sorted(v for v in violations if v not in allowed) + errors
 resolved = sorted(allowed - violations)
 if resolved:
     print("note: allowlist entries no longer violate (remove them):")
