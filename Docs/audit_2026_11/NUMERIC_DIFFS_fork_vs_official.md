@@ -1,8 +1,8 @@
-# Numeric-difference analysis (fork vs official 26.10, after the 2026-11 fixes)
+# Numeric-difference analysis (fork vs official 26.10, 全 398 用例可运行后)
 
-- cases with numeric differences: 123
-- cases with only log/text differences: 18
-- cases with only metadata/used-inputs differences: 220
+- cases with numeric differences: 132
+- cases with only log/text differences: 20
+- cases with only metadata/used-inputs differences: 233
 
 ## Cases with numeric differences (worst field per case)
 
@@ -16,6 +16,7 @@
 | test_2d_theta_implicit_jfnk_vandb | boxlib/divE | 1599 | 3.840e+07 | 8.870e-11 | 0 |
 | test_2d_theta_implicit_jfnk_vandb_picmi | boxlib/divE | 1600 | 3.265e+07 | 1.144e-10 | 0 |
 | test_2d_theta_implicit_jfnk_vandb_filtered | boxlib/divE | 1596 | 1.581e+07 | 5.169e-11 | 0 |
+| test_2d_charge_exchange_dsmc | /data/2000/fields/j/x | 256 | 1.465e+07 | 1.209e-07 | 0 |
 | test_3d_ion_beam_extraction | /data/0/fields/E/z | 5516 | 1.136e+07 | 5.205e+02 | 30 |
 | test_rz_ohm_solver_resistive_drag_species_fields_picmi | /data/1/fields/current_fp_ions[dir=z] | 8 | 7.823e+05 | 2.470e-01 | 0 |
 | test_2d_theta_implicit_symmetry | boxlib/divE | 256 | 6.213e+05 | 2.193e-10 | 0 |
@@ -50,6 +51,7 @@
 | test_1d_pierce_diode | /data/5000/fields/j/z | 4 | 7.274e+00 | 1.877e-01 | 0 |
 | test_rz_psatd_JRhom_LL2 | boxlib/jz | 1975 | 6.609e+00 | 9.616e-09 | 0 |
 | test_2d_laser_injection_implicit | boxlib/Ex | 165890 | 4.150e+00 | 1.966e-08 | 0 |
+| test_2d_embedded_circle | /data/5/particles/electrons/nx | 192 | 1.997e+00 | 4.316e+01 | 307 |
 | test_2d_laser_acceleration_boosted | boxlib/jz | 64 | 5.293e-01 | 1.378e-10 | 0 |
 | test_2d_ohm_solver_magnetic_reconnection_picmi | boxlib/phi | 16384 | 1.460e-01 | 1.693e-01 | 0 |
 | test_rz_langmuir_multi | boxlib/jr | 1551 | 1.276e-01 | 1.731e-09 | 0 |
@@ -81,6 +83,7 @@
 | test_rz_particle_boundary_interaction_reflecting | /data/0/fields/E/r | 4072 | 1.403e-08 | 3.832e+01 | 0 |
 | test_3d_embedded_boundary_cube_macroscopic | boxlib/Ex | 32768 | 9.906e-09 | 1.265e+03 | 0 |
 | test_3d_embedded_boundary_cube | boxlib/Ez | 32768 | 9.906e-09 | 1.265e+03 | 0 |
+| test_2d_background_mcc | all/particle_position_x | 971415 | 3.164e-09 | 1.281e-07 | 0 |
 | test_2d_particle_thermal_boundary | boxlib/rho | 156 | 2.546e-09 | 2.094e-01 | 0 |
 | test_rz_ohm_solver_em_modes_picmi | /data/90/fields/E/r | 8190 | 1.773e-09 | 8.821e-10 | 0 |
 | test_2d_embedded_boundary_cube | boxlib/Ex | 482 | 2.582e-10 | 7.320e+02 | 0 |
@@ -114,14 +117,20 @@
 | test_2d_runtime_components_picmi | boxlib/phi | 4096 | 3.352e-15 | 7.831e-09 | 0 |
 | test_rz_electrostatic_sphere | all/particle_theta | 74 | 6.661e-16 | 1.124e-15 | 0 |
 | test_rz_electrostatic_sphere_uniform_weighting | all/particle_theta | 177 | 6.661e-16 | 1.343e-15 | 0 |
+| test_3d_projection_div_cleaner_picmi | raw/Bz_aux | 207762 | 4.944e-16 | 1.325e-13 | 0 |
 | test_3d_projection_div_cleaner_callback_picmi | boxlib/Bz | 40947 | 4.441e-16 | 4.337e-16 | 0 |
 | test_3d_electrostatic_sphere_adaptive | all/particle_position_z | 8171 | 3.886e-16 | 9.833e-15 | 0 |
 | test_3d_electrostatic_sphere | all/particle_position_x | 8452 | 2.220e-16 | 5.574e-15 | 0 |
 | test_3d_electrostatic_sphere_rel_nodal | all/particle_position_x | 8452 | 2.220e-16 | 5.574e-15 | 0 |
+| test_rz_projection_div_cleaner | raw/Bz_aux | 3602 | 7.112e-17 | 1.529e-14 | 0 |
 | test_3d_electrostatic_sphere_lab_frame_mr_emass_10 | boxlib/Ex | 2093920 | 3.643e-17 | 2.989e-12 | 0 |
 | test_3d_hard_edged_quadrupoles_moving | boxlib/Ez | 2048 | 2.680e-18 | 1.814e-10 | 0 |
 | test_3d_hard_edged_quadrupoles | boxlib/Ex | 2048 | 6.065e-20 | 1.805e-07 | 0 |
+| test_1d_photoneutralization_dsmc | /data/100/fields/rho | 2 | 5.421e-20 | 2.725e-16 | 0 |
+| test_1d_two_product_reaction_dsmc | /data/30/fields/rho | 1 | 5.421e-20 | 1.651e-16 | 0 |
+| test_2d_background_mcc_picmi | boxlib/rho_electrons | 7 | 1.355e-20 | 4.406e-16 | 0 |
 | test_rz_galilean_psatd_current_correction | boxlib/rho | 8192 | 6.255e-21 | 6.950e-08 | 0 |
+| test_1d_dsmc_picmi | boxlib/rho_he_ions | 1 | 4.235e-22 | 1.755e-16 | 0 |
 | test_rz_embedded_boundary_em_particle_absorption_sh_factor_1 | /data/1/fields/rho | 4 | 6.019e-36 | 2.706e-16 | 0 |
 | test_rz_embedded_boundary_em_particle_absorption_sh_factor_2 | /data/1/fields/rho | 4 | 6.019e-36 | 2.706e-16 | 0 |
 | test_rz_embedded_boundary_em_particle_absorption_sh_factor_3 | /data/1/fields/rho | 8 | 6.019e-36 | 3.386e-16 | 0 |
@@ -153,6 +162,8 @@
 | test_2d_pec_field_insulator_implicit | diags/reducedfiles/fieldenergy.txt | 2 |
 | test_2d_pec_field_insulator_implicit_restart | diags/reducedfiles/fieldenergy.txt | 2 |
 | test_3d_deuterium_deuterium_fusion_intraspecies | reduced_diags/particle_number.txt | 20 |
+| test_3d_ionization_electron_dsmc | diags/counts.txt | 28 |
+| test_3d_ionization_ion_dsmc | diags/counts.txt | 54 |
 | test_3d_linear_breit_wheeler_angular | diags/reducedfiles/ParticleEnergy.txt | 22 |
 | test_3d_linear_breit_wheeler_angular | diags/reducedfiles/ParticleMomentum.txt | 22 |
 | test_3d_linear_breit_wheeler_angular_relativistic | diags/reducedfiles/ParticleEnergy.txt | 22 |
@@ -176,10 +187,13 @@
 
 | case | lines |
 |---|---|
+| test_1d_background_mcc_picmi | 23 |
+| test_1d_charge_exchange_dsmc | 1 |
 | test_1d_collision_z | 1 |
 | test_1d_collision_z_correct_conservation | 1 |
 | test_1d_collision_z_modulus_shuffle | 1 |
 | test_1d_fel | 1 |
+| test_1d_ionization_neutral_dsmc | 1 |
 | test_1d_langmuir_fluid | 1 |
 | test_1d_langmuir_multi | 1 |
 | test_1d_laser_injection | 1 |
@@ -300,7 +314,9 @@
 | test_3d_collision_iso_subcycle | 1 |
 | test_3d_collision_xyz | 1 |
 | test_3d_deuterium_deuterium_fusion | 1 |
+| test_3d_deuterium_deuterium_fusion_anisotropic_beam_target_uz_10pct | 1 |
 | test_3d_deuterium_tritium_fusion | 1 |
+| test_3d_deuterium_tritium_fusion_anisotropic_beam_target_uz_10pct | 1 |
 | test_3d_diff_lumi_diag_leptons | 1 |
 | test_3d_diff_lumi_diag_leptons_mr | 1 |
 | test_3d_diff_lumi_diag_photons | 1 |
@@ -340,6 +356,13 @@
 | test_3d_linear_breit_wheeler_two_photons | 1 |
 | test_3d_linear_compton_bunch_laser | 1 |
 | test_3d_linear_compton_two_particles | 1 |
+| test_3d_load_external_field_grid_picmi | 1 |
+| test_3d_load_external_field_particle_multi_time | 1 |
+| test_3d_load_external_field_particle_multi_time_picmi | 1 |
+| test_3d_load_external_field_particle_picmi | 1 |
+| test_3d_load_external_field_particle_time | 1 |
+| test_3d_load_external_field_particle_time_picmi | 1 |
+| test_3d_load_external_field_particle_time_restart | 1 |
 | test_3d_ohm_solver_cylinder_compression_picmi | 5 |
 | test_3d_open_bc_poisson_solver | 1 |
 | test_3d_open_bc_poisson_solver_sliced | 1 |
@@ -390,5 +413,9 @@
 | test_rz_langmuir_multi_picmi | 1 |
 | test_rz_laser_injection_from_RZ_lasy_file | 1 |
 | test_rz_laser_injection_from_lasy_file | 1 |
+| test_rz_load_external_field_grid | 1 |
+| test_rz_load_external_field_grid_restart | 1 |
+| test_rz_load_external_field_particles | 1 |
+| test_rz_load_external_field_particles_restart | 1 |
 | test_rz_point_of_contact_eb | 3 |
 | test_rz_silver_mueller_z | 1 |

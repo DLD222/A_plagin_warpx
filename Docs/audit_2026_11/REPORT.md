@@ -16,11 +16,11 @@
 
 2. **全量算例对比已完成**：官方 26.10 注册 **398** 个 ctest 用例，本 fork 注册 **411** 个；
    两者共享的 **398** 个用例全部逐一运行、逐一对比（fork 独有的 13 个用例单列）。
-   在 398 个共享用例中：
-   - **37 个逐字节完全相同**（连 `warpx_job_info` 都相同）；
-   - **215 个数值逐位相同**，只有构建元数据（`warpx_job_info` 里的编译时间/路径/flags）
+   在 398 个共享用例中（**全部 398 个两侧都能运行且通过**）：
+   - **13 个逐字节完全相同**（连 `warpx_job_info` 都相同）；
+   - **233 个数值逐位相同**，只有构建元数据（`warpx_job_info` 里的编译时间/路径/flags）
      或 `warpx_used_inputs` 的默认参数差异（AMReX 版本默认值 `amrex.handle_crt_reports`）；
-   - **129 个存在数值差异**（plotfile/openPMD 数据集层面），另有 **17 个**只有日志文本差异。
+   - **132 个存在数值差异**（plotfile/openPMD 数据集层面），另有 **20 个**只有日志文本差异。
 
 3. **差异归因**（fork vs 官方 26.10，以及 fork vs “官方源码 + fork 同款 AMReX” 的隔离对照）
    见 §4。凡能归因到 AMReX 版本演进的，都不是 fork 的 bug；隔离对照后仍存在的差异才是
@@ -82,6 +82,9 @@
   `AMREX_INPUTS_FILE_PREFIX`、`OMP_NUM_THREADS=1`、`amrex.abort_on_unused_inputs=1` 等运行时参数）；
   2-rank 用例按注册的 `-np 2` 运行。
 - 运行日志与 JUnit：`audit_runs/ctest_{fork,official}.log`、`audit_runs/*_junit.xml`。
+- 外部数据：`warpx-data/`、`openPMD-example-datasets/` 是指向本机数据副本的符号链接
+  （WarpX 官方 CI 同样要求它们在仓库同级），用于 DSMC/电离截面与 `load_external_field*` 用例；
+  没有它们时这 27 个用例会在两侧同样失败。
 
 复现：
 
@@ -128,20 +131,31 @@ Docs/audit_2026_11/scripts/analyze_results.py --dir audit_runs/compare_fork_vs_o
 
 | 类别 | 数量 | 含义 |
 |---|---|---|
-| 逐字节完全相同 | 37 | 连 `warpx_job_info` 都一致 |
-| 仅元数据/默认输入差异 | 220 | 数值输出逐位相同；差异只在 `warpx_job_info` 与/或 `warpx_used_inputs`（`amrex.handle_crt_reports`） |
-| 仅日志文本差异 | 18 | 数值输出相同，stdout/日志行不同（多为警告/打印差异，见 `NUMERIC_DIFFS_fork_vs_official.md`） |
-| **数值差异** | **123** | plotfile/openPMD dataset 层面存在差异（下表）；修复后已从 129 降到 123 |
+| 逐字节完全相同 | 13 | 连 `warpx_job_info` 都一致 |
+| 仅元数据/默认输入差异 | 233 | 数值输出逐位相同；差异只在 `warpx_job_info` 与/或 `warpx_used_inputs`（`amrex.handle_crt_reports`） |
+| 仅日志文本差异 | 20 | 数值输出相同，stdout/日志行不同（多为警告/打印差异，见 `NUMERIC_DIFFS_fork_vs_official.md`） |
+| **数值差异** | **132** | plotfile/openPMD dataset 层面存在差异（下表） |
 
 两侧失败情况：
 
 | 类别 | 数量 | 说明 |
 |---|---|---|
-| 两侧都失败 | 27 | 环境/数据缺失（截面数据文件、openPMD 外部数据集、`load_external_field*` 的外部数据），两侧失败集合完全相同，与代码无关（清单见 §3.1） |
-| 仅官方失败 | 0（修复环境后） | 官方 PICMI 用例在 `picmistandard 0.34` 下全部通过；环境修复前为 55 |
-| 仅 fork 失败 | 0 | **fork 没有出现“官方能跑、fork 崩”的用例** |
+| 两侧都失败 | **0** | 见 §3.1：补齐外部数据后，原先 27 个失败用例在两侧**全部通过** |
+| 仅官方失败 | **0** | 官方 PICMI 用例在 `picmistandard 0.34` 下全部通过 |
+| 仅 fork 失败 | **0** | **fork 没有出现“官方能跑、fork 崩”的用例** |
 
-### 3.1 两侧都失败的 27 个用例（环境/数据前提缺失，非代码问题）
+→ **398 个共享用例在两侧都能运行、都能通过**；对比覆盖 398/398。
+
+### 3.1 曾因外部数据缺失而失败的 27 个用例（已补齐数据，全部通过）
+
+这 27 个用例的输入引用 `../../../../warpx-data/...`（DSMC/电离截面表）与
+`../../../../openPMD-example-datasets/...`（`load_external_field*` 的 openPMD 文件）——
+WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审计在仓库根创建了两个
+**符号链接**（`warpx-data`、`openPMD-example-datasets`，已 gitignore）指向本机已有的
+数据副本，重跑后 27/27 在 fork 与官方两侧**全部通过**，并已纳入对比。
+（此前把它们记为“环境失败”是当时数据未就位；现在没有任何用例因环境而不参与对比。）
+
+原失败清单（供追溯）：
 
 `test_1d_background_mcc_picmi`、`test_1d_charge_exchange_dsmc`、`test_1d_dsmc_picmi`、
 `test_1d_ionization_neutral_dsmc`、`test_1d_photoneutralization_dsmc`、
@@ -158,9 +172,9 @@ Docs/audit_2026_11/scripts/analyze_results.py --dir audit_runs/compare_fork_vs_o
 `test_rz_load_external_field_particles`、`test_rz_load_external_field_particles_restart`、
 `test_rz_projection_div_cleaner`。
 
-前两类原因：① 碰撞/电离用例需要一个未随仓库分发的截面数据文件
-（`Failed to open cross-section data file`）；② `load_external_field*` 需要外部
-openPMD 示例数据集（官方 CI 里单独下载）。这两类在官方 26.10 与 fork 上同样失败。
+原因：① `Failed to open cross-section data file`——碰撞/电离用例的截面表在 `warpx-data`；
+② `load_external_field*` 需要 `openPMD-example-datasets`。补齐后两侧均通过；
+其数值对比结果也已并入 §3/§4 的统计。
 
 ### 3.2 fork 独有的 13 个用例（官方 26.10 未注册）
 
@@ -176,16 +190,16 @@ openPMD 示例数据集（官方 CI 里单独下载）。这两类在官方 26.1
 
 ## 4. 差异归因
 
-对 123 个数值差异用例，在 `official_amrex`（官方源码 + fork 同款 AMReX `008b6737`）
+对 132 个数值差异用例，在 `official_amrex`（官方源码 + fork 同款 AMReX `008b6737`）
 上重跑同一用例并再次对比（149 个用例已跑，3 个 >10 分钟的重算例未跑）：
 
 | 归因 | 数量 | 含义 |
 |---|---|---|
-| **AMReX / 上游演进** | **42** | 换成同款 AMReX 后与 fork **数值一致**；差异来自 AMReX `008b6737` vs tag `26.10` 以及 fork 基线包含的 26.10 之后上游提交 |
-| **fork 代码行为差异** | **74** | 同款 AMReX 下仍不同；需要看 fork 的改动 |
-| 未归因 | 7 | `official_amrex` 未运行（3 个极重算例 + 4 个因环境失败） |
+| **AMReX / 上游演进** | **45** | 换成同款 AMReX 后与 fork **数值一致**；差异来自 AMReX `008b6737` vs tag `26.10` 以及 fork 基线包含的 26.10 之后上游提交 |
+| **fork 代码行为差异** | **79** | 同款 AMReX 下仍不同；需要看 fork 的改动 |
+| 未归因 | 8 | `official_amrex` 未运行（3 个极重算例 + 4 个因环境失败） |
 
-74 个 fork 代码差异按“与 official_amrex 的最差相对差”分布：
+79 个 fork 代码差异按“与 official_amrex 的最差相对差”分布：
 
 | 相对差 | 数量 | 解读 |
 |---|---|---|

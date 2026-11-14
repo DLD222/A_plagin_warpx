@@ -110,3 +110,7 @@ _upstream/
 audit_build/
 audit_runs/
 Docs/audit_2026_11/runs/
+
+# Audit: external reference datasets (symlinks, not tracked)
+warpx-data
+openPMD-example-datasets
