@@ -12,6 +12,20 @@ foreach(D IN LISTS WarpX_DIMS)
     target_include_directories(warpx_newtongravity_${SD} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 
+    # The loadable runtime plugin: a MODULE library the host picks up through WARPX_PLUGIN_PATH.
+    # Built by this project so it inherits the right AMReX configuration, but *loaded* rather than
+    # linked into the executable - the core never names it (CODE_REVIEW section 15.4).
+    if(NOT TARGET star_runtime_plugin_${SD})
+        add_library(star_runtime_plugin_${SD} MODULE StarRuntimePlugin.cpp)
+        target_include_directories(star_runtime_plugin_${SD} PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${PROJECT_SOURCE_DIR}/Source/Core)
+        target_link_libraries(star_runtime_plugin_${SD} PRIVATE
+            warpx_newtongravity_${SD} ablastr_${SD})
+        set_target_properties(star_runtime_plugin_${SD} PROPERTIES
+            PREFIX "" OUTPUT_NAME "star_runtime_plugin_${SD}")
+    endif()
+
     # A static variant exists so that an out-of-tree runtime plugin (a shared library loaded
     # through WARPX_PLUGIN_PATH) can link this layer: an OBJECT library has no archive to link
     # against.  Same sources, same include directories, no extra dependency.
