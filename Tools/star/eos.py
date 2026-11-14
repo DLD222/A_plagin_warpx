@@ -204,6 +204,43 @@ def density_for_pressure(p_target, t_k, x_h, y_he, z_metal, tolerance=1.0e-10):
     return 10.0 ** (0.5 * (lo + hi))
 
 
+def density_for_pressure_safe(p_target, t_k, x_h, y_he, z_metal, rho_guess=None,
+                              iterations=40):
+    """Invert rho(P, T) with a bracket-keeping Newton and a bisection fallback.
+
+    The pressure is monotone in density at fixed temperature, so a bracket can be grown from the
+    guess until it contains the target; Newton steps are then taken inside it but are thrown away
+    in favour of the bisection midpoint whenever they leave it.  This is what the structure
+    integrator needs: the plain Newton (density_newton) is faster but was seeded from a cache that
+    the Runge-Kutta stages overwrite, which is not a property a thermodynamic routine should have.
+    """
+    def log_p(log_rho):
+        return pressure(10.0 ** log_rho, t_k, x_h, y_he, z_metal)
+
+    if rho_guess is None or not (rho_guess > 0.0):
+        rho_guess = 1.0
+    lo = math.log10(rho_guess) - 0.5
+    hi = lo + 1.0
+    for _ in range(60):
+        if log_p(lo) <= p_target:
+            break
+        lo -= 1.0
+    for _ in range(60):
+        if log_p(hi) >= p_target:
+            break
+        hi += 1.0
+    for _ in range(iterations):
+        mid = 0.5 * (lo + hi)
+        p_mid = log_p(mid)
+        if p_mid < p_target:
+            lo = mid
+        else:
+            hi = mid
+        if hi - lo < 1.0e-12:
+            break
+    return 10.0 ** (0.5 * (lo + hi))
+
+
 def nabla_ad(rho, t_k, x_h, y_he, z_metal, relative_step=1.0e-4):
     """Adiabatic temperature gradient from the first law, du + P d(1/rho) = 0.
 
@@ -222,7 +259,7 @@ def nabla_ad(rho, t_k, x_h, y_he, z_metal, relative_step=1.0e-4):
     lo = math.log10(rho * 0.5)
     hi = math.log10(rho * 1.5)
     f_lo = adiabatic_residual(10.0 ** lo)
-    for _ in range(22):
+    for _ in range(18):
         mid = 0.5 * (lo + hi)
         f_mid = adiabatic_residual(10.0 ** mid)
         if (f_mid > 0.0) == (f_lo > 0.0):
@@ -267,7 +304,13 @@ def selftest():
     assert abs(deep - 0.4) < 0.02, deep
     assert ionization < deep, (ionization, deep)
 
-    # 5. Density inversion round trip.
+    # 5. The bracket-keeping inversion (used by any formulation that needs rho(P, T)).
+    rho_safe = density_for_pressure_safe(1.0e15, 6.0e6, 0.70, 0.28, 0.02, 1.0)
+    p_safe = pressure(rho_safe, 6.0e6, 0.70, 0.28, 0.02)
+    print(f"safe inversion: rho = {rho_safe:.4e} g/cm^3 -> P = {p_safe * 0.1:.4e} Pa")
+    assert abs(p_safe / 1.0e15 - 1.0) < 1e-6, p_safe
+
+    # 6. Density inversion round trip.
     rho = density_for_pressure(1.0e15, 6.0e6, 0.70, 0.28, 0.02)
     p_back = pressure(rho, 6.0e6, 0.70, 0.28, 0.02)
     print(f"density inversion: rho = {rho:.4e} g/cm^3 -> P = {p_back * 0.1:.4e} Pa"
