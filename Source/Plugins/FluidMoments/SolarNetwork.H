@@ -150,6 +150,43 @@ public:
         return reaction(r).q_nu_mev * amrex::Real(1.602176634e-6);
     }
 
+    /** Charge number of each species, for the mean molecular weight of a fully ionised gas. */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static amrex::Real chargeNumber (int s) noexcept
+    {
+        constexpr amrex::Real z[n_species] = {1.0, 1.0, 2.0, 2.0, 4.0, 6.0, 6.0, 7.0, 7.0};
+        return z[s];
+    }
+
+    /** Mean molecular weight of a fully ionised mixture, 1/mu = sum_s X_s (1 + Z_s)/A_s.
+     *
+     *  This is the textbook definition for a fully ionised gas (Kippenhahn et al. section 3):
+     *  the electrons count once more per nucleus.  Pure ionised hydrogen gives mu = 0.5 and the
+     *  solar mixture (X = 0.70, Y = 0.28, Z = 0.02) about 0.62. */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static amrex::Real meanMolecularWeight (amrex::Real const* mass_fractions) noexcept
+    {
+        amrex::Real inverse_mu = 0.0;
+        for (int s = 0; s < n_species; ++s) {
+            inverse_mu += mass_fractions[s] * (amrex::Real(1.0) + chargeNumber(s))
+                        / massNumber(s);
+        }
+        return (inverse_mu > 0.0) ? amrex::Real(1.0) / inverse_mu : amrex::Real(0.0);
+    }
+
+    /** Temperature [K] of an ideal gas with pressure p [Pa = kg m^-1 s^-2], mass density
+     *  rho [kg m^-3] and the given mass fractions: p = rho k_B T / (mu m_u). */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static amrex::Real temperature (amrex::Real p, amrex::Real rho,
+                                    amrex::Real const* mass_fractions) noexcept
+    {
+        constexpr amrex::Real m_u = 1.66053906660e-27;      // kg
+        constexpr amrex::Real k_B = 1.380649e-23;           // J/K
+        amrex::Real const mu = meanMolecularWeight(mass_fractions);
+        if (rho <= 0.0 || mu <= 0.0) { return 0.0; }
+        return p * mu * m_u / (rho * k_B);
+    }
+
     /** Number density [cm^-3] of a species from its mass density [g/cm^3]. */
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static amrex::Real numberDensity (amrex::Real rho_g_cm3) noexcept

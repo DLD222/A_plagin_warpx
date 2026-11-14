@@ -374,6 +374,20 @@ void applyGravitySource (amrex::MultiFab& state,
 void computeTotalDensity (amrex::MultiFab const& state, amrex::MultiFab& density,
                           StateLayout const& layout);
 
+/** Apply the solar reaction network to a fluid state over dt (PHYSICS_SPEC 3.4 and 2.4).
+ *
+ *  Per cell: the temperature follows from the pressure of the ideal-gas equation of state and
+ *  the composition (through the mean molecular weight), the network advances every species
+ *  density, and the energy it deposits is added to the total energy density.  The neutrino
+ *  energy is *not* added - it leaves the gas - and is returned per cell so a caller can account
+ *  for it.
+ *
+ *  Operator split from the hydrodynamic sweep, first order in dt: the reaction timescales of this
+ *  project are many orders longer than the hydrodynamic ones.
+ */
+void applySolarNetwork (amrex::MultiFab& state, amrex::Real dt, amrex::Real gamma,
+                        StateLayout const& layout, amrex::MultiFab* neutrino_energy = nullptr);
+
 /** Compiled entry point for the ideal-gas case, so the plugin has a non-template translation unit
  *  (and an obvious place to grow the EOS-injection layer). */
 void advanceIdealGas (amrex::MultiFab& state, amrex::Geometry const& geom, int dir,
