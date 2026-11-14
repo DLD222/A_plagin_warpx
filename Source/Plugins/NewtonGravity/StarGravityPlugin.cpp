@@ -41,12 +41,12 @@ double g_phi_min = 0.0;
 static bool g_levels_filled = false;
 static void fill_all_levels (WarpXStageContext* ctx);
 
-/** Build a level-0 Geometry from what the ABI exposes. */
-amrex::Geometry geometry_from_context (WarpXStageContext* ctx)
+/** Build the Geometry of a level from what the ABI exposes. */
+amrex::Geometry geometry_from_context (WarpXStageContext* ctx, int lev = 0)
 {
     int lo[3] = {0, 0, 0}, hi[3] = {0, 0, 0}, periodic[3] = {0, 0, 0};
     double prob_lo[3] = {0.0, 0.0, 0.0}, prob_hi[3] = {1.0, 1.0, 1.0}, dx[3] = {0.0, 0.0, 0.0};
-    if (warpx_stage_geometry(ctx, 0, lo, hi, prob_lo, prob_hi, dx, periodic) != 1) {
+    if (warpx_stage_geometry(ctx, lev, lo, hi, prob_lo, prob_hi, dx, periodic) != 1) {
         return amrex::Geometry();
     }
     amrex::Box const domain(amrex::IntVect{lo[0], lo[1], lo[2]},
@@ -86,6 +86,44 @@ void gravity_step (WarpXStageContext* ctx, void*)
         if (warpx_stage_field(ctx, name, 0, &raw_g) == 1 && raw_g != nullptr) {
             auto& g = *static_cast<amrex::MultiFab*>(raw_g);
             g.setVal(0.0);
+        }
+    }
+
+    // Solve on every level.  This is a per-level solve, not a composite MLMG one: each level sees
+    // its own density with its own geometry, so the coarse-fine correction of a true multilevel
+    // operator (the reason MLMG exists) is missing.  On the solar case the levels are nested cubes
+    // with the same centre, so the neglected term is a boundary effect of the fine levels - it is
+    // recorded here as the limitation it is rather than described as a full AMR Poisson solve.
+    for (int lev = 1; lev < 8; ++lev) {
+        void* raw_rho_l = nullptr;
+        try {
+            if (warpx_stage_read_field(ctx, "star_rho", lev, &raw_rho_l) != 1 || raw_rho_l == nullptr) {
+                break;
+            }
+        } catch (...) {
+            break;
+        }
+        void* raw_phi_l = nullptr;
+        try {
+            if (warpx_stage_field(ctx, "star_phi", lev, &raw_phi_l) != 1 || raw_phi_l == nullptr) {
+                break;
+            }
+        } catch (...) {
+            break;
+        }
+        amrex::Geometry const geom_l = geometry_from_context(ctx, lev);
+        if (geom_l.Domain().isEmpty()) { break; }
+        try {
+            warpx::plugins::gravity::NewtonGravitySolver::solvePotential(
+                *static_cast<amrex::MultiFab*>(raw_rho_l),
+                *static_cast<amrex::MultiFab*>(raw_phi_l), geom_l, 1.0e-13,
+                warpx::plugins::gravity::PotentialBoundary::open);
+            double const phi_l = static_cast<amrex::MultiFab*>(raw_phi_l)->min(0);
+            std::printf("[gravity] step %.0f level %d: phi_min = %g on %d cells\n",
+                        g_steps, lev, phi_l, (int)geom_l.Domain().numPts());
+        } catch (std::exception const& e) {
+            std::printf("[gravity] step %.0f level %d: solve unavailable (%s)\n",
+                        g_steps, lev, e.what());
         }
     }
 
