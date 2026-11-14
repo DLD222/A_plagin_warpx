@@ -106,9 +106,13 @@ inline void applyOpticallyThinCooling (amrex::MultiFab& state, amrex::Real dt, a
                     amrex::Real const T = (gamma - Real(1.0)) * e_int
                                         / (rho / radiation::m_proton * (Real(1.0) + x)
                                            * Real(1.380649e-16));
-                    amrex::Real const dE = radiation::cooling_rate(rho, T, x) * dt;
-                    // never cool below a floor: an unbounded sink makes a cold cell unphysical
-                    e_int = amrex::max(e_int - dE, Real(1.0e-30));
+                    amrex::Real dE = radiation::cooling_rate(rho, T, x) * dt;
+                    // A sink must never add energy.  Clamping at a small positive floor did exactly
+                    // that when the requested loss exceeded the available internal energy (the
+                    // ledger asserts the sign, which is how this was caught), and a non-finite rate
+                    // has to be treated the same way rather than propagating.
+                    if (!std::isfinite(dE) || dE > e_int) { dE = e_int; }
+                    e_int = amrex::max(e_int - dE, Real(0.0));
                     s(i, j, k, layout.energy()) = e_int + Real(0.5) * mom2 / rho;
                 }
             }
