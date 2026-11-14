@@ -38,6 +38,8 @@ namespace
 {
 double g_steps = 0.0;
 double g_phi_min = 0.0;
+static bool g_levels_filled = false;
+static void fill_all_levels (WarpXStageContext* ctx);
 
 /** Build a level-0 Geometry from what the ABI exposes. */
 amrex::Geometry geometry_from_context (WarpXStageContext* ctx)
@@ -58,6 +60,10 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx)
 void gravity_step (WarpXStageContext* ctx, void*)
 {
     g_steps += 1.0;
+    if (!g_levels_filled) {
+        g_levels_filled = true;
+        fill_all_levels(ctx);
+    }
 
     void* raw_rho = nullptr;
     void* raw_phi = nullptr;
@@ -187,6 +193,24 @@ static double fill_sphere (WarpXStageContext* ctx, int lev, double r_star)
         }
     }
     return mass;
+}
+
+/** Fill every level and report its mass.  Called from the first handler invocation, because the
+ *  level boxes are only cut by the refinement tags after on_init has run. */
+static void fill_all_levels (WarpXStageContext* ctx)
+{
+    load_profile();
+    double const r_star = g_rows.empty() ? 0.0 : g_rows.back().r;
+    for (int lev = 0; lev < 8; ++lev) {
+        double const mass = fill_sphere(ctx, lev, r_star);
+        if (mass < 0.0) { break; }
+        void* raw = nullptr;
+        if (warpx_stage_field(ctx, "star_rho", lev, &raw) == 1 && raw != nullptr) {
+            auto& rho = *static_cast<amrex::MultiFab*>(raw);
+            std::printf("[gravity] level %d: %d boxes, mass = %.4e g (%.6f M_sun)\n",
+                        lev, (int)rho.boxArray().size(), mass, mass / 1.989e33);
+        }
+    }
 }
 
 void on_init (WarpXStageContext* ctx)
