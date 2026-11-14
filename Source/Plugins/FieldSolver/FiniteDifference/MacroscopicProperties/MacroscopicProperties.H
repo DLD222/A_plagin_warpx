@@ -79,12 +79,12 @@ public:
     /** return MultiFab, epsilon (permittivity) of the medium. */
     amrex::MultiFab& getepsilon_mf  () override {return (*m_eps_mf);}
     amrex::MultiFab& get_eps_node_mf (int c) override {return (*m_eps_node[c]);}
-    amrex::MultiFab& get_sigma_m1_node_mf (int c) {return (*m_m1_node[c]);}
-    amrex::MultiFab& get_sigma_m2_node_mf (int c) {return (*m_m2_node[c]);}
-    amrex::MultiFab& get_sigma_node_mf (int c) {return (*m_sigma_node[c]);}
-    amrex::MultiFab& get_eps_inv_node_mf (int c) {return (*m_eps_inv_node[c]);}
-    amrex::MultiFab& get_j0_node_mf (int c) {return (*m_j0_node[c]);}
-    amrex::MultiFab& get_j1_node_mf (int c) {return (*m_j1_node[c]);}
+    amrex::MultiFab& get_sigma_m1_node_mf (int c) override {return (*m_m1_node[c]);}
+    amrex::MultiFab& get_sigma_m2_node_mf (int c) override {return (*m_m2_node[c]);}
+    amrex::MultiFab& get_sigma_node_mf (int c) override {return (*m_sigma_node[c]);}
+    amrex::MultiFab& get_eps_inv_node_mf (int c) override {return (*m_eps_inv_node[c]);}
+    amrex::MultiFab& get_j0_node_mf (int c) override {return (*m_j0_node[c]);}
+    amrex::MultiFab& get_j1_node_mf (int c) override {return (*m_j1_node[c]);}
     amrex::MultiFab& get_jcond_mf (int c) override {return (*m_jcond[c]);}
     /** return MultiFab, mu (permeability) of the medium. */
     amrex::MultiFab& getmu_mf  () override {return (*m_mu_mf);}
@@ -95,18 +95,28 @@ public:
      *  they are diagonal (1/eps), so enabling this costs the same as the scalar
      *  path but lets the kernel support anisotropic materials later.
      *  Allocated only when `algo.macroscopic_subpixel = 1`. */
-    amrex::MultiFab& geteps_inv_x_mf () {return (*m_eps_inv_x);}
-    amrex::MultiFab& geteps_inv_y_mf () {return (*m_eps_inv_y);}
-    amrex::MultiFab& geteps_inv_z_mf () {return (*m_eps_inv_z);}
+    amrex::MultiFab& geteps_inv_x_mf () override {return (*m_eps_inv_x);}
+    amrex::MultiFab& geteps_inv_y_mf () override {return (*m_eps_inv_y);}
+    amrex::MultiFab& geteps_inv_z_mf () override {return (*m_eps_inv_z);}
     /** true when the subpixel rows were allocated (kernel can use them) */
     bool has_subpixel_rows () const override {return m_subpixel;}
     /** M1 = exp(-eps^-1 sigma dt) and M2 = (1-exp(-A dt)) A^-1 eps^-1, stored as
      *  9 components each on a cell-centred MultiFab. Filled only where sigma > 0;
      *  sigma = 0 cells fall back to the plain Yee branch (bit-for-bit). */
-    amrex::MultiFab& get_sigma_m1_mf () {return (*m_sigma_m1);}
-    amrex::MultiFab& get_sigma_m2_mf () {return (*m_sigma_m2);}
-    bool has_sigma_matrices () const {return m_sigma_mat_ready;}
-    amrex::Real get_sigma_dt () const {return m_sigma_dt;}
+    amrex::MultiFab& get_sigma_m1_mf () override {return (*m_sigma_m1);}
+    amrex::MultiFab& get_sigma_m2_mf () override {return (*m_sigma_m2);}
+    bool has_sigma_matrices () const override {return m_sigma_mat_ready;}
+    amrex::Real get_sigma_dt () const override {return m_sigma_dt;}
+
+    // Staggering accessors required by the E push (CODE_REVIEW F-08): the solver talks to the
+    // contract, not to this class, so these must be part of it.
+    amrex::GpuArray<int, 3> const& sigma_stag () const override { return sigma_IndexType; }
+    amrex::GpuArray<int, 3> const& mu_stag () const override { return mu_IndexType; }
+    amrex::GpuArray<int, 3> const& epsilon_stag () const override { return epsilon_IndexType; }
+    amrex::GpuArray<int, 3> const& Ex_stag () const override { return Ex_IndexType; }
+    amrex::GpuArray<int, 3> const& Ey_stag () const override { return Ey_IndexType; }
+    amrex::GpuArray<int, 3> const& Ez_stag () const override { return Ez_IndexType; }
+    amrex::GpuArray<int, 3> const& macro_cr () const override { return macro_cr_ratio; }
     /** Per-instance (not process-static) seed flag for rho_medium; a second run in the
      *  same process must re-seed. */
     bool rho_medium_seeded () const override {return m_rho_medium_seeded;}

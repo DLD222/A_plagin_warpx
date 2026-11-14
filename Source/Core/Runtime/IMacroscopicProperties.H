@@ -18,6 +18,7 @@
 #include <AMReX_REAL.H>
 
 #include <memory>
+#include <string>
 
 namespace amrex { class EBFArrayBoxFactory; }
 
@@ -74,6 +75,48 @@ public:
 
     //! Named material descriptions parsed from the input file.
     [[nodiscard]] virtual const MaterialRegistry& materials () const = 0;
+
+    // ---------------------------------------------------------------------------------------
+    // What the E push needs beyond the coefficient fields.  These were previously reached by a
+    // dynamic_cast to the concrete implementation, which meant a third-party material model
+    // satisfying this contract was still rejected at run time (CODE_REVIEW_2026-11-14, F-08).
+    // ---------------------------------------------------------------------------------------
+
+    //! Staggering of each material field, and the refinement ratio to the E components.
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& sigma_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& mu_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& epsilon_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& Ex_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& Ey_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& Ez_stag () const = 0;
+    [[nodiscard]] virtual amrex::GpuArray<int, 3> const& macro_cr () const = 0;
+
+    /** \brief Optional capability: the exact exponential step for conductive cells.
+     *
+     * A material model that does not build M1/M2 returns false from has_sigma_matrices() and
+     * never has any of the accessors below called; they abort with a message naming what was
+     * missing rather than silently returning a stale field. */
+    [[nodiscard]] virtual bool has_sigma_matrices () const { return false; }
+    [[nodiscard]] virtual amrex::Real get_sigma_dt () const { return amrex::Real(0.0); }
+    [[nodiscard]] virtual amrex::MultiFab& get_sigma_m1_mf () { return unavailable("get_sigma_m1_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_sigma_m2_mf () { return unavailable("get_sigma_m2_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_sigma_m1_node_mf (int) { return unavailable("get_sigma_m1_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_sigma_m2_node_mf (int) { return unavailable("get_sigma_m2_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_sigma_node_mf (int) { return unavailable("get_sigma_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_j0_node_mf (int) { return unavailable("get_j0_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_j1_node_mf (int) { return unavailable("get_j1_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& get_eps_inv_node_mf (int) { return unavailable("get_eps_inv_node_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& geteps_inv_x_mf () { return unavailable("geteps_inv_x_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& geteps_inv_y_mf () { return unavailable("geteps_inv_y_mf"); }
+    [[nodiscard]] virtual amrex::MultiFab& geteps_inv_z_mf () { return unavailable("geteps_inv_z_mf"); }
+
+protected:
+    [[noreturn]] static amrex::MultiFab& unavailable (const char* what)
+    {
+        amrex::Abort(std::string("material model does not provide ") + what
+                     + ": it reports has_sigma_matrices() == false, so the subpixel exponential "
+                       "step is not available for it (CODE_REVIEW F-08).");
+    }
 };
 
 /** \brief Material model factory (S6): returns nullptr when no plugin is linked. */

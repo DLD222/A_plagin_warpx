@@ -50,11 +50,10 @@ void FiniteDifferenceSolver::MacroscopicEvolveE (
 {
     // Plugin-internal narrowing: the contract above is what the core and the
     // kernel see; this solver owns the concrete material implementation.
-    auto* macroscopic_properties =
-        dynamic_cast<MacroscopicProperties*>(&macroscopic_properties_contract);
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        macroscopic_properties != nullptr,
-        "MacroscopicEvolveE expects the material model of this plugin");
+    // The material model is reached through its contract only (CODE_REVIEW F-08): the optional
+    // subpixel capability is advertised by has_sigma_matrices() and the accessors that go with it
+    // are part of IMacroscopicProperties, so a third-party model is no longer rejected here.
+    auto& macroscopic_properties = macroscopic_properties_contract;
 
     // Select algorithm (The choice of algorithm is a runtime option,
     // but we compile code for each algorithm, using templates)
@@ -121,25 +120,23 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
     amrex::Real const dt,
     warpx::runtime::IMacroscopicProperties& macroscopic_properties_contract)
 {
-    // Plugin-internal narrowing: the contract above is what the core and the
-    // kernel see; this solver owns the concrete material implementation.
-    auto* macroscopic_properties =
-        dynamic_cast<MacroscopicProperties*>(&macroscopic_properties_contract);
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        macroscopic_properties != nullptr,
-        "MacroscopicEvolveE expects the material model of this plugin");
-    amrex::MultiFab& sigma_mf = macroscopic_properties->getsigma_mf();
-    amrex::MultiFab& epsilon_mf = macroscopic_properties->getepsilon_mf();
-    amrex::MultiFab& mu_mf = macroscopic_properties->getmu_mf();
+    // Reached through the contract only (CODE_REVIEW F-08).  The optional subpixel capability is
+    // advertised by has_sigma_matrices(); the accessors that go with it are part of
+    // IMacroscopicProperties and abort with a named message if a model claims the capability and
+    // then does not provide it.
+    auto& macroscopic_properties = macroscopic_properties_contract;
+    amrex::MultiFab& sigma_mf = macroscopic_properties.getsigma_mf();
+    amrex::MultiFab& epsilon_mf = macroscopic_properties.getepsilon_mf();
+    amrex::MultiFab& mu_mf = macroscopic_properties.getmu_mf();
 
     // Index type required for calling ablastr::coarsen::sample::Interp to interpolate macroscopic
     // properties from their respective staggering to the Ex, Ey, Ez locations
-    amrex::GpuArray<int, 3> const& sigma_stag = macroscopic_properties->sigma_IndexType;
-    amrex::GpuArray<int, 3> const& epsilon_stag = macroscopic_properties->epsilon_IndexType;
-    amrex::GpuArray<int, 3> const& macro_cr     = macroscopic_properties->macro_cr_ratio;
-    amrex::GpuArray<int, 3> const& Ex_stag = macroscopic_properties->Ex_IndexType;
-    amrex::GpuArray<int, 3> const& Ey_stag = macroscopic_properties->Ey_IndexType;
-    amrex::GpuArray<int, 3> const& Ez_stag = macroscopic_properties->Ez_IndexType;
+    amrex::GpuArray<int, 3> const& sigma_stag = macroscopic_properties.sigma_stag();
+    amrex::GpuArray<int, 3> const& epsilon_stag = macroscopic_properties.epsilon_stag();
+    amrex::GpuArray<int, 3> const& macro_cr     = macroscopic_properties.macro_cr();
+    amrex::GpuArray<int, 3> const& Ex_stag = macroscopic_properties.Ex_stag();
+    amrex::GpuArray<int, 3> const& Ey_stag = macroscopic_properties.Ey_stag();
+    amrex::GpuArray<int, 3> const& Ez_stag = macroscopic_properties.Ez_stag();
 
     // Loop through the grids, and over the tiles within each grid
 #ifdef AMREX_USE_OMP
@@ -172,29 +169,29 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
 
         // P0: per-component eps^-1 rows (3 comps each). When the subpixel path is off
         // we fall back to the scalar 1/eps on the diagonal, i.e. the original behaviour.
-        bool const has_sub = macroscopic_properties->has_subpixel_rows();
+        bool const has_sub = macroscopic_properties.has_subpixel_rows();
         amrex::Array4<amrex::Real const> eix, eiy, eiz;
         if (has_sub) {
-            eix = macroscopic_properties->geteps_inv_x_mf().const_array(mfi);
-            eiy = macroscopic_properties->geteps_inv_y_mf().const_array(mfi);
-            eiz = macroscopic_properties->geteps_inv_z_mf().const_array(mfi);
+            eix = macroscopic_properties.geteps_inv_x_mf().const_array(mfi);
+            eiy = macroscopic_properties.geteps_inv_y_mf().const_array(mfi);
+            eiz = macroscopic_properties.geteps_inv_z_mf().const_array(mfi);
         }
 
         // P2: sigma > 0 cells take the exact exponential step instead of the
         // backward-Euler alpha/beta update. M1/M2 are cell-centred (collocated),
         // so the three E components read the same matrix at the same index.
-        bool const has_sig_mat = macroscopic_properties->has_sigma_matrices();
+        bool const has_sig_mat = macroscopic_properties.has_sigma_matrices();
         if (has_sig_mat) {
             // M1/M2 were built with the dt recorded at initialisation; a different dt
             // here would silently use stale matrices (see 技术路径 §7.7).
             AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
-                macroscopic_properties->get_sigma_dt() == dt,
+                macroscopic_properties.get_sigma_dt() == dt,
                 "macroscopic sigma exponential: dt changed after M1/M2 were built");
         }
         amrex::Array4<amrex::Real const> m1a, m2a;
         if (has_sig_mat) {
-            m1a = macroscopic_properties->get_sigma_m1_mf().const_array(mfi);
-            m2a = macroscopic_properties->get_sigma_m2_mf().const_array(mfi);
+            m1a = macroscopic_properties.get_sigma_m1_mf().const_array(mfi);
+            m2a = macroscopic_properties.get_sigma_m2_mf().const_array(mfi);
         }
         // Node-centred material data (§4.1): the node holds the ONE value shared by both
         // grid copies. BE must use it for BOTH the skip test and alpha/beta -- if the
@@ -202,9 +199,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
         // ~sigma/2 and the over-damped lock would return in another form.
         amrex::Array4<amrex::Real const> sn0{}, sn1{}, sn2{};
         if (has_sig_mat) {
-            sn0 = macroscopic_properties->get_sigma_node_mf(0).const_array(mfi);
-            sn1 = macroscopic_properties->get_sigma_node_mf(1).const_array(mfi);
-            sn2 = macroscopic_properties->get_sigma_node_mf(2).const_array(mfi);
+            sn0 = macroscopic_properties.get_sigma_node_mf(0).const_array(mfi);
+            sn1 = macroscopic_properties.get_sigma_node_mf(1).const_array(mfi);
+            sn2 = macroscopic_properties.get_sigma_node_mf(2).const_array(mfi);
         }
         // Node-centred eps^-1 rows (row c of inv(eps_node[c])): the SAME subpixel eps the
         // exponential step uses, so one field point never sees two different epsilons
@@ -215,9 +212,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
         // F-11.  A reproducible physical option belongs in the input deck, not in the environment.
         constexpr bool use_node_eps = true;
 
-        amrex::Array4<amrex::Real const> ein0 = macroscopic_properties->get_eps_inv_node_mf(0).const_array(mfi);
-        amrex::Array4<amrex::Real const> ein1 = macroscopic_properties->get_eps_inv_node_mf(1).const_array(mfi);
-        amrex::Array4<amrex::Real const> ein2 = macroscopic_properties->get_eps_inv_node_mf(2).const_array(mfi);
+        amrex::Array4<amrex::Real const> ein0 = macroscopic_properties.get_eps_inv_node_mf(0).const_array(mfi);
+        amrex::Array4<amrex::Real const> ein1 = macroscopic_properties.get_eps_inv_node_mf(1).const_array(mfi);
+        amrex::Array4<amrex::Real const> ein2 = macroscopic_properties.get_eps_inv_node_mf(2).const_array(mfi);
 
         // Extract stencil coefficients
         Real const * const AMREX_RESTRICT coefs_x = m_stencil_coefs_x.dataPtr();
@@ -382,7 +379,7 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
     // is written in its own component layout, so BOTH grid copies of a shared node get
     // the same value -- this is what makes the result independent of where the sigma
     // interface sits relative to the grid boundaries (V1, see 技术路径 §7.11 / §4.1).
-    if (macroscopic_properties->has_sigma_matrices()) {
+    if (macroscopic_properties.has_sigma_matrices()) {
         Real const * const cxs = m_stencil_coefs_x.dataPtr();
         auto const ncx = static_cast<int>(m_stencil_coefs_x.size());
         Real const * const cys = m_stencil_coefs_y.dataPtr();
@@ -403,14 +400,14 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             }
         }
         for (int c = 0; c < 3; ++c) {
-            auto const& m1n = macroscopic_properties->get_sigma_m1_node_mf(c);
-            auto const& m2n = macroscopic_properties->get_sigma_m2_node_mf(c);
-            auto const& snn = macroscopic_properties->get_sigma_node_mf(c);            auto const& j0m = macroscopic_properties->get_j0_node_mf(c);
-            auto const& j1m = macroscopic_properties->get_j1_node_mf(c);
-            auto& jcm = macroscopic_properties->get_jcond_mf(c);
+            auto const& m1n = macroscopic_properties.get_sigma_m1_node_mf(c);
+            auto const& m2n = macroscopic_properties.get_sigma_m2_node_mf(c);
+            auto const& snn = macroscopic_properties.get_sigma_node_mf(c);            auto const& j0m = macroscopic_properties.get_j0_node_mf(c);
+            auto const& j1m = macroscopic_properties.get_j1_node_mf(c);
+            auto& jcm = macroscopic_properties.get_jcond_mf(c);
             for (MFIter mfi_n(*Efield[c], TilingIfNotGPU()); mfi_n.isValid(); ++mfi_n) {
                 Box const& tb = mfi_n.validbox();
-                auto const mun = macroscopic_properties->getmu_mf().array(mfi_n);
+                auto const mun = macroscopic_properties.getmu_mf().array(mfi_n);
                 auto const b0 = Bfield[0]->array(mfi_n);
                 auto const b1 = Bfield[1]->array(mfi_n);
                 auto const b2 = Bfield[2]->array(mfi_n);
