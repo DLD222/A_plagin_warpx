@@ -108,8 +108,21 @@ NewtonGravitySolver::solvePotential(rho, phi, geom, 1e-13);
 **`warpx_state_request_field(name, ncomp, ngrow>0, checkpoint)` 声明的自有场在退出时造成堆损坏**。
 对照：仓库自带的 demo 插件也声明场，但 `ngrow = 0`，退出干净（exit 0）。
 
-这条指向**核心的 state registry / 插件自有场分配**，不是插件的逻辑。它是一条**新发现的缺陷**，
-不在 11 条 review 项里；我把它记为独立问题，没有为了让自己的验证变绿而绕过它。
+**但我随后做了一个决定性的对照，纠正了这个归因**：把**纯 C 的 demo 插件**（`star_plugin.c`，
+不链接 AMReX）也加一个 `ngrow = 1` 的场，退出 **0**（干净）。
+
+```
+C demo 插件 + ngrow=1 场   -> exit 0
+我的 C++ 插件 + ngrow=1 场 -> exit 134
+```
+
+所以**核心的 state registry / 场分配这条路径是好的**，崩溃是**我的 C++ 插件**特有的
+（它链接了恒星层的静态库，AMReX 符号从宿主解析）。这与"第二份 AMReX"的假设也不同——
+那种情况下 C 插件不会幸免。真正要查的是 C++ 插件里与 AMReX 相关的**静态初始化/析构**或
+inline 符号在 .so 与宿主之间的重复。
+
+**这条归因的修正是本轮最重要的产出之一**：如果停在"核心有缺陷"的结论上，就会把一条自己引入的
+问题挂到别人账上。
 
 **未修**：需要读 `StateRegistry` 的分配与释放路径（它给插件场的 ghost 是如何分配、
 在 `Finalize` 之后由谁释放）。在此之前，`check_star_runtime_plugin.sh` 检查物理输出、
