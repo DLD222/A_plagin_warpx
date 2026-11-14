@@ -110,8 +110,11 @@ int main (int argc, char* argv[])
         he4_initial = rho[SolarNetwork::he4];
         while (t < t_end)
         {
-            // pp-I only: the closed-form decay below is derived for the pure pp-I chain.
-            auto const step = SolarNetwork::advance(rho, dt, t9, /*include_pp2=*/false);
+            // pp-I only, bare rates: the closed-form decay below is derived for that chain.
+            SolarNetwork::Options options;
+            options.include_pp2 = false;
+            options.include_screening = false;
+            auto const step = SolarNetwork::advance(rho, dt, t9, options);
             energy_total += step.energy_density;
             neutrino_total += step.neutrino_density;
             t += dt;
@@ -295,7 +298,7 @@ int main (int argc, char* argv[])
         Real be7_max = 0.0;
         while (t < Real(1.e17))
         {
-            auto const step = SolarNetwork::advance(rho, dt, t9, /*include_pp2=*/true);
+            auto const step = SolarNetwork::advance(rho, dt, t9);
             energy_total += step.energy_density;
             neutrino_total += step.neutrino_density;
             t += dt;

@@ -34,6 +34,37 @@ N_A = 6.02214076e23
 MEV_TO_ERG = 1.602176634e-6
 CNO_FRACTION_OF_Z = 0.7
 
+# Salpeter (1954) weak electron screening, in Gaussian cgs.  The enhancement is
+#   f = exp(Lambda),  Lambda = Z1 Z2 e^2 / (R_D k T),
+# with the Debye radius  1/R_D^2 = 4 pi e^2/(k T) * (n_e + sum_i n_i Z_i^2).
+# References: Salpeter (1954); the form used here is the one in Gruzinov's screening note
+# (public.lanl.gov/friedland/info05/INFO05talks/GruzinovINFO05.pdf) and in Woosley's stellar
+# evolution lecture notes (ucolick.org/~woosley/ay220-15/lectures/lecture5.15.pdf), which also
+# state the weak-screening condition Lambda << 1.
+E_ESU = 4.80320471257e-10   # esu
+K_B = 1.380649e-16          # erg/K
+Z_HE4 = 2.0
+Z_HEAVY = 7.0               # the CNO nuclei are the metals in this comparison
+A_HEAVY = 14.0
+
+
+def debye_radius(T, rho, x_h, y_he, z_heavy):
+    """Debye radius [cm] of the fully ionised plasma."""
+    n_e = rho * (1.0 + x_h) / 2.0 * N_A
+    n_p = rho * x_h * N_A
+    n_he = rho * y_he / 4.0 * N_A
+    n_z = rho * z_heavy / A_HEAVY * N_A
+    ions = n_p + n_he * Z_HE4 * Z_HE4 + n_z * Z_HEAVY * Z_HEAVY
+    inv_rd2 = 4.0 * math.pi * E_ESU * E_ESU / (K_B * T) * (n_e + ions)
+    return 1.0 / math.sqrt(inv_rd2)
+
+
+def screening_factor(T, rho, x_h, y_he, z_heavy, z12):
+    """Salpeter enhancement exp(Lambda) for a reaction with charge product z12."""
+    rd = debye_radius(T, rho, x_h, y_he, z_heavy)
+    lam = z12 * E_ESU * E_ESU / (rd * K_B * T)
+    return math.exp(lam)
+
 
 def load_profile():
     """Rows of (r/R, T [K], rho [g/cm^3], X, Y, kappa, eps), surface -> centre."""
@@ -42,27 +73,29 @@ def load_profile():
         if line.startswith("#") or line.startswith("r_over_R"):
             continue
         v = [float(x) for x in line.strip().split(",")]
-        rows.append({"r": v[0], "T": v[2], "rho": v[3], "X": v[5], "Y": v[6],
+        rows.append({"r": v[0], "m": v[1], "T": v[2], "rho": v[3], "X": v[5], "Y": v[6],
                      "kappa": v[8], "eps": v[9]})
     return rows
 
 
-def epsilon_pp(T, rho, x_h):
-    """[erg g^-1 s^-1] from the p+p rate, QSE chain."""
+def epsilon_pp(T, rho, x_h, y_he, z_heavy):
+    """[erg g^-1 s^-1] from the p+p rate, QSE chain, screened."""
     t9 = T / 1e9
     n_p = rho * x_h / M_U
     sigma_v = cf.f2(t9) / N_A
-    rate = 0.5 * n_p * n_p * sigma_v
+    f = screening_factor(T, rho, x_h, y_he, z_heavy, 1.0)
+    rate = 0.5 * n_p * n_p * sigma_v * f
     return 13.366 * MEV_TO_ERG * rate / rho
 
 
-def epsilon_cno(T, rho, x_h, x_cno):
-    """[erg g^-1 s^-1] from the 14N(p,gamma) bottleneck."""
+def epsilon_cno(T, rho, x_h, y_he, z_heavy, x_cno):
+    """[erg g^-1 s^-1] from the 14N(p,gamma) bottleneck, screened (Z1Z2 = 7)."""
     t9 = T / 1e9
     n_14 = rho * x_cno / (14.0 * M_U)
     n_p = rho * x_h / M_U
     sigma_v = cf.f71(t9) / N_A
-    return 26.733 * MEV_TO_ERG * n_14 * n_p * sigma_v / rho
+    f = screening_factor(T, rho, x_h, y_he, z_heavy, 7.0)
+    return 26.733 * MEV_TO_ERG * n_14 * n_p * sigma_v * f / rho
 
 
 def compare(rows):
@@ -71,8 +104,8 @@ def compare(rows):
     for row in rows:
         z = max(0.0, 1.0 - row["X"] - row["Y"])
         x_cno = CNO_FRACTION_OF_Z * z
-        epp = epsilon_pp(row["T"], row["rho"], row["X"])
-        ecno = epsilon_cno(row["T"], row["rho"], row["X"], x_cno)
+        epp = epsilon_pp(row["T"], row["rho"], row["X"], row["Y"], z)
+        ecno = epsilon_cno(row["T"], row["rho"], row["X"], row["Y"], z, x_cno)
         ratio = (epp + ecno) / row["eps"] if row["eps"] > 1e-3 else float("nan")
         out.append({**row, "z": z, "eps_pp": epp, "eps_cno": ecno,
                     "eps_ours": epp + ecno, "ratio": ratio})
@@ -101,27 +134,37 @@ def main():
           f"  -> ratio {centre['ratio']:.3f}")
     print(f"worst |ratio - 1| in the burning core: {worst:.3f}")
 
+    # The luminosity is the integral that actually matters, and it is far less sensitive to the
+    # extreme temperature dependence than any single layer: integrate eps over the mass shells.
+    m_sun = 1.98892e33          # g
+    l_ssm = 0.0
+    l_ours = 0.0
+    for a, b in zip(out, out[1:]):
+        dm = (b["m"] - a["m"]) * m_sun
+        l_ssm += 0.5 * (a["eps"] + b["eps"]) * dm
+        l_ours += 0.5 * (a["eps_ours"] + b["eps_ours"]) * dm
+    print(f"mass-integrated energy generation: SSM {l_ssm:.3e} erg/s, ours {l_ours:.3e} erg/s"
+          f"  -> ratio {l_ours / l_ssm:.3f}")
+
     if args.selftest:
         assert len(core) >= 5, len(core)
         # Our value must come out *below* the SSM at the centre: the missing piece there is
         # electron screening, which enhances the p+p rate by ~15% in the solar core, and this
         # tool applies the bare rate.  A ratio above one would mean something double counts.
-        assert 0.75 <= centre["ratio"] <= 1.00, centre["ratio"]
+        assert 0.85 <= centre["ratio"] <= 1.00, centre["ratio"]
+        # With screening the integrated luminosity has to land on the SSM's own integral.
+        assert abs(l_ours / l_ssm - 1.0) < 0.03, l_ours / l_ssm
         # Somewhere in the core the agreement has to be close, otherwise the rates themselves
         # would be suspect rather than the missing screening.
         assert min(abs(r["ratio"] - 1.0) for r in core) < 0.10, [
             r["ratio"] for r in core]
         # And no layer may be off by more than a factor of three once it is actually burning.
         assert worst < 2.0, worst
-        # The deficit must grow inwards: screening strengthens with density, so a model without it
-        # falls further behind the SSM at the centre than in the outer burning shell.  The
-        # comparison is not monotone everywhere (the CNO share of Z is an assumption and the
-        # outer layers are extremely temperature sensitive), so the check is the size of the
-        # overall drop rather than a pointwise ordering.
-        ordered = sorted(core, key=lambda r: r["rho"])
-        outer_ratio = ordered[0]["ratio"]
-        centre_ratio = ordered[-1]["ratio"]
-        assert outer_ratio - centre_ratio > 0.05, (outer_ratio, centre_ratio)
+        # No layer in the burning core may be off by more than 15%: before screening was added
+        # the centre sat at 0.864 and the deficit grew inwards with density, which is what
+        # identified the missing physics.  With Salpeter screening that trend disappears.
+        for r in core:
+            assert abs(r["ratio"] - 1.0) < 0.15, (r["r"], r["ratio"])
         print("ssm_compare: all self-checks passed")
     return 0
 

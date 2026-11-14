@@ -84,6 +84,14 @@ public:
      *  the pp-I-only analytic solution stays testable (see PHYSICS_SPEC 3.3c). */
     static constexpr int first_pp2_reaction = 7;
 
+    /** What to switch on.  The defaults are the full physics; the flags exist so that the
+     *  closed-form pp-I decay can be tested against the bare rate (no screening, no pp-II). */
+    struct Options
+    {
+        bool include_pp2 = true;
+        bool include_screening = true;
+    };
+
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static Reaction reaction (int r) noexcept
     {
@@ -111,6 +119,38 @@ public:
             {be7, p,   2, he4, he4, -1,  18.209, 0.862, 41}
         };
         return table[r];
+    }
+
+    /** Salpeter (1954) weak-screening enhancement f = exp(Lambda) for a reaction whose charge
+     *  product is z1z2, with Lambda = z1z2 e^2/(R_D k T) and the Debye radius
+     *  1/R_D^2 = 4 pi e^2/(k T) (n_e + sum_i n_i Z_i^2).
+     *
+     *  Sources: Salpeter (1954); the cgs form used here is the one in Gruzinov's screening note
+     *  (public.lanl.gov/friedland/info05/INFO05talks/GruzinovINFO05.pdf) and in Woosley's stellar
+     *  evolution notes (ucolick.org/~woosley/ay220-15/lectures/lecture5.15.pdf).  In the solar
+     *  core Lambda ~ 0.05, i.e. weak screening (Lambda << 1), enhancing the rates by ~5%. */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static amrex::Real screeningFactor (amrex::Real const* rho_cgs, amrex::Real t9,
+                                        amrex::Real z1z2) noexcept
+    {
+        constexpr amrex::Real e_esu = 4.80320471257e-10;    // esu
+        constexpr amrex::Real k_B = 1.380649e-16;           // erg/K
+        constexpr amrex::Real m_u = 1.66053906660e-24;      // g
+        amrex::Real rho = 0.0;
+        for (int s = 0; s < n_species; ++s) { rho += rho_cgs[s]; }
+        if (rho <= 0.0) { return 1.0; }
+        amrex::Real const x_h = rho_cgs[p] / rho;
+        amrex::Real const n_e = rho * (amrex::Real(1.0) + x_h) / amrex::Real(2.0) * cf88::N_A;
+        amrex::Real ions = 0.0;
+        for (int s = 0; s < n_species; ++s) {
+            amrex::Real const n_i = rho_cgs[s] / (massNumber(s) * m_u);
+            ions += n_i * chargeNumber(s) * chargeNumber(s);
+        }
+        amrex::Real const kT = k_B * t9 * amrex::Real(1.e9);
+        amrex::Real const inv_rd2 = 4.0 * M_PI * e_esu * e_esu / kT * (n_e + ions);
+        if (inv_rd2 <= 0.0) { return 1.0; }
+        amrex::Real const rd = 1.0 / std::sqrt(inv_rd2);
+        return std::exp(z1z2 * e_esu * e_esu / (rd * kT));
     }
 
     /** <sigma v> of reaction r in cm^3/s at T9 = T / 1e9 K.
@@ -201,7 +241,7 @@ public:
      *  symmetry factor 1/2. */
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static amrex::Real ratePerVolume (int r, amrex::Real const* rho_species_g_cm3,
-                                      amrex::Real t9) noexcept
+                                      amrex::Real t9, bool include_screening) noexcept
     {
         Reaction const re = reaction(r);
         if (re.cf88_entry == 41) {
@@ -222,7 +262,10 @@ public:
         amrex::Real const n_b = numberDensity(rho_species_g_cm3[re.b])
                               / massNumber(re.b);
         amrex::Real const symmetry = (re.a == re.b) ? amrex::Real(0.5) : amrex::Real(1.0);
-        return symmetry * n_a * n_b * sigmaV(r, t9);
+        amrex::Real const f = include_screening
+            ? screeningFactor(rho_species_g_cm3, t9, chargeNumber(re.a) * chargeNumber(re.b))
+            : amrex::Real(1.0);
+        return symmetry * n_a * n_b * sigmaV(r, t9) * f;
     }
 
     struct StepResult
@@ -236,7 +279,7 @@ public:
     /** Right-hand side of the network: species event rates [cm^-3 s^-1] and the energy release
      *  per volume [erg cm^-3 s^-1], given mass densities in g/cm^3. */
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static void rightHandSide (amrex::Real const* rho_cgs, amrex::Real t9, bool include_pp2,
+    static void rightHandSide (amrex::Real const* rho_cgs, amrex::Real t9, Options options,
                                amrex::Real* event_rate, amrex::Real& energy_rate,
                                amrex::Real& neutrino_rate, amrex::Real& rate_he4) noexcept
     {
@@ -246,9 +289,9 @@ public:
         rate_he4 = 0.0;
         for (int r = 0; r < n_reactions; ++r)
         {
-            if (!include_pp2 && r >= first_pp2_reaction) { continue; }
+            if (!options.include_pp2 && r >= first_pp2_reaction) { continue; }
             Reaction const re = reaction(r);
-            amrex::Real const rate = ratePerVolume(r, rho_cgs, t9);
+            amrex::Real const rate = ratePerVolume(r, rho_cgs, t9, options.include_screening);
             energy_rate += (energyPerReaction(r) - neutrinoEnergyPerReaction(r)) * rate;
             neutrino_rate += neutrinoEnergyPerReaction(r) * rate;
 
@@ -278,8 +321,13 @@ public:
      *  reaction and hydrodynamic timescales are far apart), and it keeps every density positive
      *  for a network of this form.
      */
+    static StepResult advance (amrex::Real* rho_si, amrex::Real dt, amrex::Real t9)
+    {
+        return advance(rho_si, dt, t9, Options{});
+    }
+
     static StepResult advance (amrex::Real* rho_si, amrex::Real dt, amrex::Real t9,
-                               bool include_pp2 = true)
+                               Options const& options)
     {
         constexpr amrex::Real m_u = 1.66053906660e-24;      // g
         constexpr int n = n_species;
@@ -294,7 +342,7 @@ public:
             amrex::Real event_rate[n];
             amrex::Real energy_rate = 0.0;
             amrex::Real he4_rate = 0.0;
-            rightHandSide(rho, t9, include_pp2, event_rate, energy_rate, neutrino_rate,
+            rightHandSide(rho, t9, options, event_rate, energy_rate, neutrino_rate,
                           he4_rate);
             for (int s = 0; s < n; ++s) {
                 f[s] = event_rate[s] * massNumber(s) * m_u;
