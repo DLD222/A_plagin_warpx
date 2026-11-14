@@ -486,6 +486,13 @@ MacroscopicProperties::InitData (
     amrex::Real const zlo_n = geom.ProbDomain().lo(AMREX_SPACEDIM-1);
     amrex::Real const dx_n = geom.CellSize(0);
     amrex::Real const dz_n = geom.CellSize(AMREX_SPACEDIM-1);
+#if defined(WARPX_DIM_3D)
+    // F-02: in 3D the second index is y and the third is z.  The builder used to sample the
+    // interface at (i, 0, j*dz) and to take the neighbour cells along j, so a y-varying material
+    // was invisible and the z direction was never sampled at all.
+    amrex::Real const ylo_n = geom.ProbDomain().lo(1);
+    amrex::Real const dy_n = geom.CellSize(1);
+#endif
     amrex::Real const eps2_sc = (m_epsilon2 > amrex::Real(0.0)) ? m_epsilon2 : m_epsilon;
     // Temporary mechanism-probe switch (default 0 = physical harmonic normal mean):
     //   1 = arithmetic normal mean, giving the interface node conduction even when
@@ -516,6 +523,10 @@ MacroscopicProperties::InitData (
 #else
             int const jlo_dom = geom.Domain().smallEnd(1);
             int const jhi_dom = geom.Domain().bigEnd(1);
+#if defined(WARPX_DIM_3D)
+            int const klo_dom = geom.Domain().smallEnd(2);
+            int const khi_dom = geom.Domain().bigEnd(2);
+#endif
 #endif
             amrex::ParallelFor(b, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                 int const ii = amrex::min(amrex::max(i, ilo), ihi);
@@ -524,13 +535,23 @@ MacroscopicProperties::InitData (
                 int const iL = amrex::max(i - 1, ilo_dom);
                 int const iR = amrex::min(i, ihi_dom);
                 int const jL = j, jR = j;
+                int const kL = k, kR = k;
 #else
                 int const iL = ii, iR = ii;
+#if defined(WARPX_DIM_3D)
+                // The interface normal is taken along z (finding F-05), so the two sides are
+                // the z-neighbour cells: in 3D that is the k direction, not j.
+                int const jL = j, jR = j;
+                int const kL = amrex::max(k - 1, klo_dom);
+                int const kR = amrex::min(k, khi_dom);
+#else
                 int const jm = amrex::max(j - 1, jlo_dom);
                 int const jp = amrex::min(j, jhi_dom);
                 int const jL = jm, jR = jp;
+                int const kL = k, kR = k;
 #endif
-                amrex::Real const sL = sc(iL, jL, k), sR = sc(iR, jR, k);
+#endif
+                amrex::Real const sL = sc(iL, jL, kL), sR = sc(iR, jR, kR);
                 // Mechanism-probe flag (NOT physics): use the arithmetic normal mean
                 // instead of the harmonic one, so the interface node keeps conduction
                 // when one side is an exact insulator (sigma1 = 0). The harmonic mean is
@@ -544,41 +565,45 @@ MacroscopicProperties::InitData (
                     : ((sL <= amrex::Real(0.0) || sR <= amrex::Real(0.0))
                         ? amrex::Real(0.0) : amrex::Real(0.5) * (sL + sR));
                 amrex::Real const xn = xlo_n + amrex::Real(i) * dx_n;
+#if defined(WARPX_DIM_3D)
+                amrex::Real const yn = ylo_n + amrex::Real(j) * dy_n;
+                amrex::Real const zn = zlo_n + amrex::Real(k) * dz_n;
+#else
+                amrex::Real const yn = amrex::Real(0.0);
                 amrex::Real const zn = zlo_n + amrex::Real(j) * dz_n;
+#endif
                 amrex::Real nrmv[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
                 if (iface_on_n) {
                     amrex::Real const hh0 = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
-                    amrex::Real const gx0 = phi_n(xn + hh0, amrex::Real(0.0), zn)
-                                         - phi_n(xn - hh0, amrex::Real(0.0), zn);
-                    amrex::Real const gz0 = phi_n(xn, amrex::Real(0.0), zn + hh0)
-                                         - phi_n(xn, amrex::Real(0.0), zn - hh0);
+                    amrex::Real const gx0 = phi_n(xn + hh0, yn, zn) - phi_n(xn - hh0, yn, zn);
+                    amrex::Real const gz0 = phi_n(xn, yn, zn + hh0) - phi_n(xn, yn, zn - hh0);
                     amrex::Real const gn0 = std::sqrt(gx0*gx0 + gz0*gz0);
                     if (gn0 > amrex::Real(1e-30)) { nrmv[0] = gx0/gn0; nrmv[2] = gz0/gn0; }
                 }
 
-                bool const m1L = iface_on_n ? (phi_n(xn, amrex::Real(0.0), zn - amrex::Real(0.25)*dz_n) > amrex::Real(0.0)) : true;
-                bool const m1R = iface_on_n ? (phi_n(xn, amrex::Real(0.0), zn + amrex::Real(0.25)*dz_n) > amrex::Real(0.0)) : true;
+                bool const m1L = iface_on_n ? (phi_n(xn, yn, zn - amrex::Real(0.25)*dz_n) > amrex::Real(0.0)) : true;
+                bool const m1R = iface_on_n ? (phi_n(xn, yn, zn + amrex::Real(0.25)*dz_n) > amrex::Real(0.0)) : true;
                 warpx::subpixel::Mat3 eL{}, eR{};
                 if (m1L) {
                     if (has_t1) {
-                        eL.m[0]=et1(iL,jL,k,0); eL.m[4]=et1(iL,jL,k,1); eL.m[8]=et1(iL,jL,k,2);
-                        eL.m[1]=eL.m[3]=et1(iL,jL,k,3); eL.m[2]=eL.m[6]=et1(iL,jL,k,4); eL.m[5]=eL.m[7]=et1(iL,jL,k,5);
-                    } else { eL = warpx::subpixel::diag3(ec(iL,jL,k)); }
+                        eL.m[0]=et1(iL,jL,kL,0); eL.m[4]=et1(iL,jL,kL,1); eL.m[8]=et1(iL,jL,kL,2);
+                        eL.m[1]=eL.m[3]=et1(iL,jL,kL,3); eL.m[2]=eL.m[6]=et1(iL,jL,kL,4); eL.m[5]=eL.m[7]=et1(iL,jL,kL,5);
+                    } else { eL = warpx::subpixel::diag3(ec(iL,jL,kL)); }
                 } else {
                     if (has_t2) {
-                        eL.m[0]=et2(iL,jL,k,0); eL.m[4]=et2(iL,jL,k,1); eL.m[8]=et2(iL,jL,k,2);
-                        eL.m[1]=eL.m[3]=et2(iL,jL,k,3); eL.m[2]=eL.m[6]=et2(iL,jL,k,4); eL.m[5]=eL.m[7]=et2(iL,jL,k,5);
+                        eL.m[0]=et2(iL,jL,kL,0); eL.m[4]=et2(iL,jL,kL,1); eL.m[8]=et2(iL,jL,kL,2);
+                        eL.m[1]=eL.m[3]=et2(iL,jL,kL,3); eL.m[2]=eL.m[6]=et2(iL,jL,kL,4); eL.m[5]=eL.m[7]=et2(iL,jL,kL,5);
                     } else { eL = warpx::subpixel::diag3(eps2_sc); }
                 }
                 if (m1R) {
                     if (has_t1) {
-                        eR.m[0]=et1(iR,jR,k,0); eR.m[4]=et1(iR,jR,k,1); eR.m[8]=et1(iR,jR,k,2);
-                        eR.m[1]=eR.m[3]=et1(iR,jR,k,3); eR.m[2]=eR.m[6]=et1(iR,jR,k,4); eR.m[5]=eR.m[7]=et1(iR,jR,k,5);
-                    } else { eR = warpx::subpixel::diag3(ec(iR,jR,k)); }
+                        eR.m[0]=et1(iR,jR,kR,0); eR.m[4]=et1(iR,jR,kR,1); eR.m[8]=et1(iR,jR,kR,2);
+                        eR.m[1]=eR.m[3]=et1(iR,jR,kR,3); eR.m[2]=eR.m[6]=et1(iR,jR,kR,4); eR.m[5]=eR.m[7]=et1(iR,jR,kR,5);
+                    } else { eR = warpx::subpixel::diag3(ec(iR,jR,kR)); }
                 } else {
                     if (has_t2) {
-                        eR.m[0]=et2(iR,jR,k,0); eR.m[4]=et2(iR,jR,k,1); eR.m[8]=et2(iR,jR,k,2);
-                        eR.m[1]=eR.m[3]=et2(iR,jR,k,3); eR.m[2]=eR.m[6]=et2(iR,jR,k,4); eR.m[5]=eR.m[7]=et2(iR,jR,k,5);
+                        eR.m[0]=et2(iR,jR,kR,0); eR.m[4]=et2(iR,jR,kR,1); eR.m[8]=et2(iR,jR,kR,2);
+                        eR.m[1]=eR.m[3]=et2(iR,jR,kR,3); eR.m[2]=eR.m[6]=et2(iR,jR,kR,4); eR.m[5]=eR.m[7]=et2(iR,jR,kR,5);
                     } else { eR = warpx::subpixel::diag3(eps2_sc); }
                 }
                 if (!tensor_mode) {
@@ -591,8 +616,8 @@ MacroscopicProperties::InitData (
                 } else if (!iface_on_n) {
                     for (int q = 0; q < 6; ++q) {
                         en(i,j,k,q) = m1L
-                            ? (has_t1 ? et1(iR,jR,k,q) : (q < 3 ? ec(iR,jR,k) : amrex::Real(0.0)))
-                            : (has_t2 ? et2(iR,jR,k,q) : (q < 3 ? eps2_sc : amrex::Real(0.0)));
+                            ? (has_t1 ? et1(iR,jR,kR,q) : (q < 3 ? ec(iR,jR,kR) : amrex::Real(0.0)))
+                            : (has_t2 ? et2(iR,jR,kR,q) : (q < 3 ? eps2_sc : amrex::Real(0.0)));
                     }
                     for (int q = 0; q < 3; ++q) { sn(i,j,k,q) = sv; }
                     for (int q = 3; q < 6; ++q) { sn(i,j,k,q) = amrex::Real(0.0); }
@@ -811,6 +836,11 @@ MacroscopicProperties::InitSubpixelRows (
         amrex::Real const plo_z = geom.ProbDomain().lo(AMREX_SPACEDIM-1);
         amrex::Real const dxs = geom.CellSize(0);
         amrex::Real const dzs = geom.CellSize(AMREX_SPACEDIM-1);
+#if defined(WARPX_DIM_3D)
+        // F-02: in 3D the second index is y and the third is z.
+        amrex::Real const plo_y = geom.ProbDomain().lo(1);
+        amrex::Real const dys = geom.CellSize(1);
+#endif
         auto const phi_s = iface_on ? m_interface_parser->compile<3>() : amrex::ParserExecutor<3>{};
         constexpr int nsub2 = 4;
         amrex::Real const inv_ns = amrex::Real(1.0) / static_cast<amrex::Real>(nsub2);
@@ -840,13 +870,19 @@ MacroscopicProperties::InitSubpixelRows (
                 amrex::Real f1 = amrex::Real(1.0);
                 if (iface_on) {
                     amrex::Real const xc = plo_x + (static_cast<amrex::Real>(i) + amrex::Real(0.5)) * dxs;
+#if defined(WARPX_DIM_3D)
+                    amrex::Real const yc = plo_y + (static_cast<amrex::Real>(j) + amrex::Real(0.5)) * dys;
+                    amrex::Real const zc = plo_z + (static_cast<amrex::Real>(k) + amrex::Real(0.5)) * dzs;
+#else
+                    amrex::Real const yc = amrex::Real(0.0);
                     amrex::Real const zc = plo_z + (static_cast<amrex::Real>(j) + amrex::Real(0.5)) * dzs;
+#endif
                     int n1 = 0;
                     for (int a = 0; a < nsub2; ++a) {
                         for (int b = 0; b < nsub2; ++b) {
                             amrex::Real const x = xc + (static_cast<amrex::Real>(a) + amrex::Real(0.5)) * inv_ns * dxs - amrex::Real(0.5) * dxs;
                             amrex::Real const z = zc + (static_cast<amrex::Real>(b) + amrex::Real(0.5)) * inv_ns * dzs - amrex::Real(0.5) * dzs;
-                            if (phi_s(x, amrex::Real(0.0), z) > amrex::Real(0.0)) { ++n1; }
+                            if (phi_s(x, yc, z) > amrex::Real(0.0)) { ++n1; }
                         }
                     }
                     f1 = static_cast<amrex::Real>(n1) * inv_ns * inv_ns;
