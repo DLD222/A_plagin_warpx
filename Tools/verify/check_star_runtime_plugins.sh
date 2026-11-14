@@ -28,5 +28,22 @@ WARPX_PLUGIN_PATH="$build/lib/star_gravity_plugin.so:$build/lib/star_fluid_plugi
   "$build/bin/warpx.3d" inputs_test_3d_particle_boundaries > both.log 2>&1
 echo "both: exit $?"
 grep -q "\[gravity\] step 1" both.log
+# electromagnetic coupling: a prescribed E field must be read from the bus and heat the fluid
+python3 - <<'PY'
+deck = open('inputs_test_3d_particle_boundaries').read()
+deck += """
+warpx.E_ext_grid_init_style = parse_e_ext_grid_function
+warpx.Ex_external_grid_function(x,y,z) = 1.0e3
+warpx.Ey_external_grid_function(x,y,z) = 0.0
+warpx.Ez_external_grid_function(x,y,z) = 0.0
+"""
+open('inputs_em', 'w').write(deck)
+PY
+WARPX_PLUGIN_PATH="$build/lib/star_gravity_plugin.so:$build/lib/star_fluid_plugin.so" \
+  "$build/bin/warpx.3d" inputs_em > em.log 2>&1
+grep -q "max|E| = 1000" em.log
+grep -E "joule = [1-9]" em.log > /dev/null
+echo "electromagnetic coupling: E read from the bus, Joule heating non-zero"
+grep "\[fluid\] step 1" em.log
 grep -q "g from bus: yes" both.log
 grep "\[gravity\]\|\[fluid\]" both.log | head -4

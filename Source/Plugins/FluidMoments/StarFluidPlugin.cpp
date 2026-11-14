@@ -14,6 +14,7 @@
  *
  * It includes nothing from another plugin - the coupling is four field names on the bus.
  */
+#include "Electromagnetic.H"
 #include "FluidMoments.H"
 
 #include "Runtime/PluginCApi.H"
@@ -87,6 +88,10 @@ amrex::Real acoustic_dt (amrex::MultiFab const& state, amrex::Geometry const& ge
     return (speed > 1.0e-30) ? amrex::Real(cfl) * dx / speed : amrex::Real(1.0e30);
 }
 
+/** Electrical conductivity of the stellar plasma [1/s]; a deck could expose this, the plugin does not. */
+constexpr amrex::Real sigma_em = 1.0e4;
+double g_emax = 0.0;   //!< largest |E| component read from the bus, for the log line
+
 void fluid_step (WarpXStageContext* ctx, void*)
 {
     g_steps += 1.0;
@@ -137,6 +142,44 @@ void fluid_step (WarpXStageContext* ctx, void*)
     }
     amrex::ignore_unused(gx, gy, gz);
 
+    // Electromagnetic coupling: E and B are NOT computed here.  The existing electromagnetic plugin
+    // publishes them on the bus and this reads them through the ABI - the one cross-plugin channel
+    // the architecture allows.  If the deck has no fields (or the names are absent) the step simply
+    // runs without them.
+    bool have_em = true;
+    for (int d = 0; d < 3 && have_em; ++d) {
+        void* raw_e = nullptr;
+        void* raw_b = nullptr;
+        if (warpx_stage_read_field_dir(ctx, "Efield_fp", d, 0, &raw_e) != 1 || raw_e == nullptr) {
+            have_em = false;
+        }
+        if (warpx_stage_read_field_dir(ctx, "Bfield_fp", d, 0, &raw_b) != 1 || raw_b == nullptr) {
+            have_em = false;
+        }
+    }
+    amrex::Real joule = 0.0;
+    if (have_em) {
+        amrex::Vector<amrex::MultiFab const*> ev(AMREX_SPACEDIM, nullptr);
+        amrex::Vector<amrex::MultiFab const*> bv(AMREX_SPACEDIM, nullptr);
+        for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+            void* raw_e = nullptr;
+            void* raw_b = nullptr;
+            (void)warpx_stage_read_field_dir(ctx, "Efield_fp", d, 0, &raw_e);
+            (void)warpx_stage_read_field_dir(ctx, "Bfield_fp", d, 0, &raw_b);
+            ev[d] = static_cast<amrex::MultiFab const*>(raw_e);
+            bv[d] = static_cast<amrex::MultiFab const*>(raw_b);
+        }
+        // record what the bus actually delivered, so "E/B: yes" is not the only evidence
+        amrex::Real emax = 0.0;
+        for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+            emax = amrex::max(emax, ev[d]->max(0));
+        }
+        g_emax = amrex::max(g_emax, std::abs(emax));
+        joule = warpx::plugins::fluid::applyElectromagneticSources(state, ev, bv, sigma_em,
+                                                                  warpx_stage_dt(ctx), g_layout);
+        (void)warpx_stage_set_scalar(ctx, "star_joule", joule);
+    }
+
     // Advance with the plugin's own step: the EM step is far too large for the Euler sweep.
     amrex::Geometry const geom = geometry_from_context(ctx);
     amrex::Real const dt_em = warpx_stage_dt(ctx);
@@ -181,8 +224,10 @@ void fluid_step (WarpXStageContext* ctx, void*)
     g_energy = state.sum(g_layout.energy());
     (void)warpx_stage_set_scalar(ctx, "star_energy", g_energy);
     if (g_steps <= 3.0) {
-        std::printf("[fluid] step %.0f: %d sub-steps, energy = %g, g from bus: %s\n",
-                    g_steps, n_sub, g_energy, have_g ? "yes" : "no");
+        std::printf("[fluid] step %.0f: %d sub-steps, energy = %g, g: %s, E/B: %s,"
+                    " max|E| = %g, joule = %g\n",
+                    g_steps, n_sub, g_energy, have_g ? "yes" : "no",
+                    have_em ? "yes" : "no", g_emax, joule);
     }
 }
 
@@ -192,7 +237,7 @@ void on_schema (WarpXStateRegistry* state)
 }
 
 const char* kScalars[] = {"star_energy"};
-const char* kReads[] = {"star_gx", "star_gy", "star_gz"};
+const char* kReads[] = {"star_gx", "star_gy", "star_gz", "Efield_fp", "Bfield_fp"};
 const char* kWrites[] = {"star_state"};
 
 void register_handlers (WarpXPluginHost* host)
@@ -204,7 +249,7 @@ void register_handlers (WarpXPluginHost* host)
     desc.sub = 1;                   // after the gravity plugin at the same stage
     desc.apply = &fluid_step;
     desc.reads_fields = kReads;
-    desc.n_reads_fields = 3;
+    desc.n_reads_fields = 5;
     desc.writes_fields = kWrites;
     desc.n_writes_fields = 1;
     desc.writes_scalars = kScalars;
