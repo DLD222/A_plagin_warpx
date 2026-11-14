@@ -281,7 +281,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     and reaction network drift after being started on the real Sun.
     """
     from ssm_compare import epsilon_pp, epsilon_cno, kappa_analytic, CNO_FRACTION_OF_Z
-    from opal_opacity import kappa as opal_kappa
+    from opal_opacity import kappa_combined
     import eos as saha_eos
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
@@ -315,7 +315,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
 
         # The OPAL table is the real thing (PHYSICS_SPEC 4.2c); the analytic fit is only a
         # fallback for a point outside its rectangle.
-        kappa = opal_kappa(t, rho * 1.0e-3, x_h, z_heavy)
+        kappa = kappa_combined(t, rho * 1.0e-3, x_h, z_heavy)
         if not (kappa == kappa) or kappa <= 0.0:
             kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0]
         kappa *= 1.0e-1                                                   # cm^2/g -> m^2/kg

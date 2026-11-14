@@ -24,6 +24,8 @@ so this is very nearly a test of the extraction and the interpolation rather tha
 import argparse
 from pathlib import Path
 
+import math
+
 import numpy as np
 
 DATA = (Path(__file__).resolve().parent.parent.parent
@@ -112,6 +114,30 @@ def kappa(t_k, rho_cgs, x_h, z_metal, path=DATA, log10_out=False):
         return np.nan
     log_kappa = total / norm
     return log_kappa if log10_out else 10.0 ** log_kappa
+
+
+def kappa_combined(t_k, rho_cgs, x_h, z_metal):
+    """Opacity for a stellar model: the OPAL table where it is valid, the analytic fits in the
+    cool corner where OPAL is blank.
+
+    The published tables leave the cool dilute corner blank, and that corner is exactly the
+    solar envelope, where H^- bound-free absorption dominates.  The H^- fit used there is
+
+        kappa_H- = 2.5e-31 (Z/0.02) rho^(1/2) T^9  cm^2/g
+
+    with T in kelvin (Prialnik, *An Introduction to the Theory of Stellar Structure and
+    Evolution*; also in Klessen's lecture notes and in the astrophysics lecture notes at
+    Wyoming), which is only valid for T <~ 1e4 K and is switched off above that.
+    """
+    from ssm_compare import kappa_analytic
+    opal = kappa(t_k, rho_cgs, x_h, z_metal)
+    fits = kappa_analytic(t_k, rho_cgs, x_h, z_metal)[0]
+    hminus = 0.0
+    if t_k < 1.2e4:
+        hminus = 2.5e-31 * (z_metal / 0.02) * math.sqrt(max(rho_cgs, 0.0)) * t_k ** 9
+    if not np.isfinite(opal) or t_k < 1.2e4:
+        return fits + hminus
+    return opal
 
 
 def selftest():
