@@ -268,7 +268,7 @@ def mlt_gradient(t_k, p, rho, kappa, luminosity, m, r, mu, grad_ad, alpha_mlt):
 
 
 def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verbose=False,
-                              alpha_mlt=1.5):
+                              alpha_mlt=1.5, formulation="pressure"):
     """Integrate the four structure equations outward from the centre.
 
     dr/dm = 1/(4 pi r^2 rho)
@@ -286,44 +286,62 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
 
-    def derivs(m, r, rho, t, luminosity):
+    if formulation not in ("pressure", "density"):
+        raise ValueError("unknown formulation %r" % (formulation,))
+
+    def derivs(m, r, state2, t, luminosity):
+        """The four structure equations in the mass coordinate.
+
+        state2 is the pressure [Pa] in the default "pressure" formulation and the density
+        [kg/m^3] in the "density" one.
+
+        The density branch is kept only as the record of a mistake (PHYSICS_SPEC 4.3h): it
+        integrates d rho/dm = (dP/dm)/(dP/drho) and so drops the (d rho/dT)_P dT/dm term, because
+        the temperature also varies along the mass coordinate.  That incomplete chain rule is
+        exactly the 10% luminosity difference that took two rounds to find; use the pressure
+        formulation.
+        """
         x_h = x_of_m(m)
         z_heavy = z_of_m(m)
         y_he = max(0.0, 1.0 - x_h - z_heavy)
-        if rho <= 0.0 or r <= 0.0 or t <= 0.0:
+        if state2 <= 0.0 or r <= 0.0 or t <= 0.0:
             return 0.0, 0.0, 0.0, 0.0
 
-        # Ionisation EOS (PHYSICS_SPEC 4.3d): pressure, mean molecular weight and the adiabatic
-        # gradient all come from the Saha solve rather than from a fixed gamma.
-        # The EOS works in cgs; the structure integrator carries SI densities.
-        rho_cgs = rho * 1.0e-3
-        st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
-        p = st["pressure"] * 1.0e-1                        # dyn/cm^2 -> Pa
-        mu = st["mu"]
-        grad_ad = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+        if formulation == "pressure":
+            p = state2
+            rho = 1.0e3 * saha_eos.density_for_pressure_safe(
+                p * 10.0, t, x_h, y_he, z_heavy, state2)
+            rho_cgs = rho * 1.0e-3
+            st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
+            mu = st["mu"]
+            grad_ad = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+            dr = 1.0 / (4.0 * math.pi * r * r * rho)
+            dp = -G * m / (4.0 * math.pi * r ** 4)
+            drho = dp                                  # the state variable is the pressure
+        else:
+            rho = state2
+            rho_cgs = rho * 1.0e-3
+            st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
+            p = st["pressure"] * 1.0e-1                # dyn/cm^2 -> Pa
+            mu = st["mu"]
+            grad_ad = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+            dr = 1.0 / (4.0 * math.pi * r * r * rho)
+            dp = -G * m / (4.0 * math.pi * r ** 4)
+            # Convert the hydrostatic gradient through the isothermal EOS derivative.
+            delta = 1.0e-4
+            p_plus = saha_eos.pressure(rho_cgs * (1.0 + delta), t, x_h, y_he, z_heavy)
+            dp_drho = (p_plus - st["pressure"]) / (rho_cgs * delta)  # dyn/cm^2 per g/cm^3
+            dp_drho *= 1.0e-1 / 1.0e3                                # -> Pa per kg/m^3
+            drho = dp / dp_drho if dp_drho > 0.0 else 0.0
 
-        dr = 1.0 / (4.0 * math.pi * r * r * rho)
-        dp = -G * m / (4.0 * math.pi * r ** 4)
-
-        # The state carries the density, not the pressure, so convert the hydrostatic gradient
-        # through the isothermal derivative of the equation of state.
-        delta = 1.0e-4
-        p_plus = saha_eos.pressure(rho_cgs * (1.0 + delta), t, x_h, y_he, z_heavy)
-        dp_drho = (p_plus - st["pressure"]) / (rho_cgs * delta)     # dyn/cm^2 per g/cm^3
-        dp_drho *= 1.0e-1 / 1.0e3                                   # -> Pa per kg/m^3
-        drho = dp / dp_drho if dp_drho > 0.0 else 0.0
-
-        # The OPAL table is the real thing (PHYSICS_SPEC 4.2c); the analytic fit is only a
-        # fallback for a point outside its rectangle.
-        kappa = kappa_combined(t, rho * 1.0e-3, x_h, z_heavy)
+        kappa = kappa_combined(t, rho_cgs, x_h, z_heavy)
         if not (kappa == kappa) or kappa <= 0.0:
-            kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0]
+            kappa = kappa_analytic(t, rho_cgs, x_h, z_heavy)[0]
         kappa *= 1.0e-1                                                   # cm^2/g -> m^2/kg
         grad, grad_rad = mlt_gradient(t, p, rho, kappa, luminosity, m, r, mu, grad_ad, alpha_mlt)
         dt = (t / p) * grad * dp
-        eps = epsilon_pp(t, rho * 1.0e-3, x_h, y_he, z_heavy) \
-            + epsilon_cno(t, rho * 1.0e-3, x_h, y_he, z_heavy,
-                          CNO_FRACTION_OF_Z * z_heavy)
+        eps = epsilon_pp(t, rho_cgs, x_h, y_he, z_heavy) \
+            + epsilon_cno(t, rho_cgs, x_h, y_he, z_heavy, CNO_FRACTION_OF_Z * z_heavy)
         dl = eps                                         # erg/g/s in cgs ...
         return dr, drho, dt, dl * 1.0e-4                 # ... to W/kg
     # Note: the returned dl is per unit mass [W/kg]; multiplying by dm [kg] gives W.
@@ -335,25 +353,32 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     rho = 1.0e3 * saha_eos.density_for_pressure(
         p_c * 10.0, t_c, x_of_m(0.0), max(0.0, 1.0 - x_of_m(0.0) - z_of_m(0.0)), z_of_m(0.0))
     t, lum = t_c, 0.0
+    state2 = (p_c if formulation == "pressure" else rho)
     samples = [(m, r, rho, t, lum)]
 
     for _ in range(200000):
-        dm = min(0.02 * m, mass - m)
+        dm = min(0.02 * m, mass - m, mass / n_steps)
         if dm <= 0.0:
             break
-        k1 = derivs(m, r, rho, t, lum)
-        k2 = derivs(m + 0.5 * dm, r + 0.5 * dm * k1[0], rho + 0.5 * dm * k1[1],
+        k1 = derivs(m, r, state2, t, lum)
+        k2 = derivs(m + 0.5 * dm, r + 0.5 * dm * k1[0], state2 + 0.5 * dm * k1[1],
                     t + 0.5 * dm * k1[2], lum + 0.5 * dm * k1[3])
-        k3 = derivs(m + 0.5 * dm, r + 0.5 * dm * k2[0], rho + 0.5 * dm * k2[1],
+        k3 = derivs(m + 0.5 * dm, r + 0.5 * dm * k2[0], state2 + 0.5 * dm * k2[1],
                     t + 0.5 * dm * k2[2], lum + 0.5 * dm * k2[3])
-        k4 = derivs(m + dm, r + dm * k3[0], rho + dm * k3[1], t + dm * k3[2], lum + dm * k3[3])
+        k4 = derivs(m + dm, r + dm * k3[0], state2 + dm * k3[1], t + dm * k3[2], lum + dm * k3[3])
         r += dm / 6.0 * (k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0])
-        rho += dm / 6.0 * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1])
+        state2 += dm / 6.0 * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1])
         t += dm / 6.0 * (k1[2] + 2.0 * k2[2] + 2.0 * k3[2] + k4[2])
         lum += dm / 6.0 * (k1[3] + 2.0 * k2[3] + 2.0 * k3[3] + k4[3])
         m += dm
-        samples.append((m, r, rho, t, lum))
-        if rho <= 0.0 or t <= 0.0:
+        if formulation == "pressure":
+            rho_here = 1.0e3 * saha_eos.density_for_pressure_safe(
+                state2 * 10.0, t, x_of_m(m), max(0.0, 1.0 - x_of_m(m) - z_of_m(m)), z_of_m(m),
+                rho * 1.0e-3)
+        else:
+            rho_here = state2
+        samples.append((m, r, rho_here, t, lum))
+        if state2 <= 0.0 or t <= 0.0:
             break
     return samples
 

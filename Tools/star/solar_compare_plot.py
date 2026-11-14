@@ -184,8 +184,8 @@ def main():
         luminosity = result["L"][-1] / 3.846e26
         radius = result["r"][-1] / R_SUN
         print(f"\nregression baseline: L = {luminosity:.3f} L_sun, R = {radius:.3f} R_sun")
-        assert 0.97 < luminosity < 1.06, luminosity
-        assert 0.55 < radius < 0.63, radius
+        assert 1.10 < luminosity < 1.16, luminosity
+        assert 0.51 < radius < 0.57, radius
         print("solar_compare_plot: the solar model's integrated output is unchanged")
 
     if args.show:
