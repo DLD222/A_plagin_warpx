@@ -25,7 +25,14 @@
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 
+#include <algorithm>
 #include <cstdio>
+#include <cmath>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace
 {
@@ -93,11 +100,109 @@ void on_schema (WarpXStateRegistry* state)
     (void)warpx_state_request_field(state, "star_gz", 1, 1, 0);
 }
 
-void on_init (WarpXStageContext* ctx)
+// ---- spherical standard-solar-model initialisation, on every level the bus exposes --------
+struct SsmRow { double r, rho, T, P; };
+
+static std::vector<SsmRow> g_rows;
+static bool g_loaded = false;
+
+static void load_profile ()
+{
+    if (g_loaded) { return; }
+    g_loaded = true;
+    const char* path = std::getenv("WARPX_STAR_PROFILE");
+    if (path == nullptr) { return; }
+    std::ifstream in(path);
+    if (!in) { std::printf("[gravity] cannot open %s\n", path); return; }
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty() || line[0] == '#' || line.rfind("r_over_R", 0) == 0) { continue; }
+        std::stringstream ss(line);
+        std::string tok;
+        std::vector<double> v;
+        while (std::getline(ss, tok, ',')) { v.push_back(std::stod(tok)); }
+        if (v.size() < 10) { continue; }
+        g_rows.push_back(SsmRow{v[0] * 6.957e10, v[3], v[2], v[4]});   // r in cm, rho, T, P
+    }
+    // the table runs surface -> centre; rho_at() and r_star assume ascending r
+    std::sort(g_rows.begin(), g_rows.end(),
+              [](SsmRow const& a, SsmRow const& b) { return a.r < b.r; });
+    std::printf("[gravity] profile loaded: %d rows, r in [%.3e, %.3e] cm\n",
+                (int)g_rows.size(), g_rows.empty() ? 0.0 : g_rows.front().r,
+                g_rows.empty() ? 0.0 : g_rows.back().r);
+}
+
+/** Density of the spherically symmetric model at radius r [cm], 0 outside the star. */
+static double rho_at (double r, double r_star)
+{
+    if (g_rows.empty() || r >= r_star) { return 0.0; }
+    if (r <= g_rows.front().r) { return g_rows.front().rho; }
+    std::size_t hi = 1;
+    while (hi < g_rows.size() && g_rows[hi].r < r) { ++hi; }
+    if (hi >= g_rows.size()) { return g_rows.back().rho; }
+    double const t = (r - g_rows[hi - 1].r) / (g_rows[hi].r - g_rows[hi - 1].r);
+    return std::exp(std::log(g_rows[hi - 1].rho)
+                    + t * (std::log(g_rows[hi].rho) - std::log(g_rows[hi - 1].rho)));
+}
+
+/** Fill star_rho on one level with the sphere and return the mass on that level. */
+static double fill_sphere (WarpXStageContext* ctx, int lev, double r_star)
 {
     void* raw = nullptr;
-    if (warpx_stage_field(ctx, "star_rho", 0, &raw) == 1 && raw != nullptr) {
-        static_cast<amrex::MultiFab*>(raw)->setVal(1.0e-3);
+    // The bus throws when a level has no such field (the register stores the name, not the level).
+    // The exception crosses the ABI as C++ and a caller in the plugin can catch it, which is how the
+    // probe below finds out that there are no more levels; leaving it uncaught terminates the run.
+    try {
+        if (warpx_stage_field(ctx, "star_rho", lev, &raw) != 1 || raw == nullptr) { return -1.0; }
+    } catch (...) {
+        return -1.0;
+    }
+    auto& rho = *static_cast<amrex::MultiFab*>(raw);
+
+    int lo[3] = {0, 0, 0}, hi[3] = {0, 0, 0}, periodic[3] = {0, 0, 0};
+    double plo[3] = {0, 0, 0}, phi[3] = {0, 0, 0}, d[3] = {0, 0, 0};
+    try {
+        if (warpx_stage_geometry(ctx, lev, lo, hi, plo, phi, d, periodic) != 1) { return -1.0; }
+    } catch (...) {
+        return -1.0;
+    }
+
+    double mass = 0.0;
+    amrex::Real const cell_volume = d[0] * d[1] * d[2];
+    for (amrex::MFIter mfi(rho); mfi.isValid(); ++mfi) {
+        amrex::Box const& bx = mfi.validbox();
+        auto a = rho.array(mfi);
+        for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
+            double const x = plo[0] + (i + 0.5) * d[0];
+            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+                double const y = plo[1] + (j + 0.5) * d[1];
+                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                    double const z = plo[2] + (k + 0.5) * d[2];
+                    double const r = std::sqrt(x * x + y * y + z * z);
+                    double const value = rho_at(r, r_star);
+                    a(i, j, k) = value;
+                    mass += value * cell_volume;
+                }
+            }
+        }
+    }
+    return mass;
+}
+
+void on_init (WarpXStageContext* ctx)
+{
+    load_profile();
+    // the star's radius: the centre is the origin and the surface is where the model ends
+    double const r_star = g_rows.empty() ? 0.0 : g_rows.back().r;
+    for (int lev = 0; lev < 8; ++lev) {
+        double const mass = fill_sphere(ctx, lev, r_star);
+        if (mass < 0.0) { break; }   // no such level
+        void* raw = nullptr;
+        if (warpx_stage_field(ctx, "star_rho", lev, &raw) == 1 && raw != nullptr) {
+            auto& rho = *static_cast<amrex::MultiFab*>(raw);
+            std::printf("[gravity] level %d: %d boxes, mass = %.4e g (%.6f M_sun)\n",
+                        lev, (int)rho.boxArray().size(), mass, mass / 1.989e33);
+        }
     }
 }
 

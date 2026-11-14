@@ -1,0 +1,27 @@
+# 3D spherical solar model with AMR, driven by the star runtime plugins.
+# The domain covers +-1.2 R_sun; the sphere is filled from the standard solar model by the plugin.
+stop_time = 1.0e30
+max_step = 3
+amr.n_cell = 32 32 32
+amr.max_level = 2
+amr.ref_ratio = 2 2
+amr.regrid_int = 2
+amr.blocking_factor = 8
+geometry.dims = 3
+geometry.coord_sys = 0
+geometry.prob_lo = -8.3484e10 -8.3484e10 -8.3484e10
+geometry.prob_hi =  8.3484e10  8.3484e10  8.3484e10
+boundary.field_lo = periodic periodic periodic
+boundary.field_hi = periodic periodic periodic
+warpx.cfl = 1.0
+warpx.verbose = 1
+# refinement on the stellar density, which the gravity plugin fills
+# WarpX requires a static fine patch alongside the refinement indicators
+warpx.fine_tag_lo = -2.1e10 -2.1e10 -2.1e10
+warpx.fine_tag_hi =  2.1e10  2.1e10  2.1e10
+warpx.fine_tag_lo2 = -7.0e9 -7.0e9 -7.0e9
+warpx.fine_tag_hi2 =  7.0e9  7.0e9  7.0e9
+amr.refinement_indicators = dense
+amr.dense.field_name = star_rho
+amr.dense.value_greater = 1.0
+amr.dense.max_level = 2
