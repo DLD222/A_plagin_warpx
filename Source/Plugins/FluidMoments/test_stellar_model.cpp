@@ -220,6 +220,52 @@ int main (int argc, char* argv[])
             (void)e_g;
         }
 
+        // ---- second phase: with the sources off, gas + gravitational potential is conserved ----
+        // A static potential phi with g = -grad(phi) makes the work the field does exactly the
+        // change of sum(rho phi), so the *combination* must be conserved even though neither part
+        // is.  That is a stronger statement than the per-operator bookkeeping above and it only
+        // holds if the gravity kick and the energy kick are consistent with each other.
+        amrex::Real const g0 = 1.0e-3;
+        auto const phi_at = [&](amrex::Real x) { return -g0 * x; };
+        auto total_with_potential = [&]() {
+            amrex::Real sum = 0.0;
+            for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
+                auto const s = state.const_array(mfi);
+                amrex::Box const& bx = mfi.validbox();
+                for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
+                    amrex::Real const x = (static_cast<amrex::Real>(i) + 0.5) * dx;
+                    amrex::Real rho = 0.0;
+                    for (int a = 0; a < layout.n_species; ++a) {
+                        rho += s(i, 0, 0, layout.density(a));
+                    }
+                    sum += s(i, 0, 0, layout.energy()) + rho * phi_at(x);
+                }
+            }
+            return sum;
+        };
+        for (amrex::MFIter mfi(gx); mfi.isValid(); ++mfi) {
+            auto g = gx[mfi].array();
+            amrex::Box const& bx = mfi.validbox();
+            for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
+                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) { g(i, j, k) = g0; }
+                }
+            }
+        }
+        amrex::Real const conserved0 = total_with_potential();
+        for (int step = 0; step < 20; ++step) {
+            warpx::plugins::fluid::applyGravitySource(state, gvec, dt, layout);
+            warpx::plugins::fluid::DegenerateElectronEOS eos2;
+            eos2.gamma = gas_gamma;
+            for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
+                state.FillBoundary(geom.periodicity());
+                warpx::plugins::fluid::advanceSweep(state, geom, dir, dt, eos2, layout);
+            }
+        }
+        amrex::Real const conserved1 = total_with_potential();
+        amrex::Real const conserved_error = std::abs(conserved1 - conserved0)
+                                          / amrex::max(std::abs(conserved0), 1.0e-30);
+
         amrex::Real const mass1 = total_density(state, layout);
         amrex::Real const L1 = warpx::plugins::fluid::total_angular_momentum(state, geom, layout, 1);
         amrex::Real const mass_error = std::abs(mass1 - mass0) / mass0;
@@ -231,6 +277,8 @@ int main (int argc, char* argv[])
         std::printf("[model] mass error = %.3e, angular-momentum error = %.3e\n",
                     (double)mass_error, (double)L_error);
         std::printf("[model] ledger/operator closure = %.3e\n", (double)worst_booking);
+        std::printf("[model] gas + potential conserved over 20 steps: relative error = %.3e\n",
+                    (double)conserved_error);
         std::printf("[model] min density = %.3e, radiation energy = %.3e, neutrino energy = %.3e\n",
                     (double)rho_min, (double)rad_total, (double)nu_total);
 
@@ -239,7 +287,7 @@ int main (int argc, char* argv[])
         // conservation statement lives in test_angular_momentum (rotation only, no advection); here
         // the check is that the drift stays small, which is what a coupled run can claim.
         bool const ok = (mass_error < 1.0e-12) && (L_error < 1.0e-3)
-                     && (worst_booking < 1.0e-10) && (rho_min > 0.0)
+                     && (worst_booking < 1.0e-10) && (conserved_error < 1.0e-10) && (rho_min > 0.0)
                      && std::isfinite(rad_total) && (rad_total >= 0.0)
                      && std::isfinite(nu_total) && (nu_total >= 0.0);
         std::printf("[model] %s\n", ok ? "PASSED" : "FAILED");
