@@ -8,13 +8,13 @@
 #include "GuardCellManager.H"
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
-#    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
+#    include "Numerics/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
 #elif defined(WARPX_DIM_RSPHERE)
-#    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
+#    include "Numerics/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
 #else
-#    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
-#    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
-#    include "FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
+#    include "Numerics/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
+#    include "Numerics/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
+#    include "Numerics/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
 #endif
 #include "Particles/Filter/NCIGodfreyFilter.H"
 #include "Utils/Parser/ParserUtils.H"

@@ -9,13 +9,13 @@
 #include "EmbeddedBoundary/WarpXFaceInfoBox.H"
 #include "Fields.H"
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
-#   include "FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
 #elif defined(WARPX_DIM_RSPHERE)
-#   include "FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
 #else
-#   include "FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
-#   include "FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
-#   include "FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H"
 #endif
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

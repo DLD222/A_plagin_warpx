@@ -214,7 +214,7 @@ public:
         const ablastr::fields::MultiLevelVectorField* a_in_ref = nullptr,
         const ablastr::fields::MultiLevelVectorField* a_baseline = nullptr,
         amrex::Real a_scale = 1.0,
-        bool a_zero_out_first = false );
+        bool a_zero_out_first = false ) override;
 
     /**
      * \brief Half-width, in cells and per direction, of the stencil that
@@ -242,7 +242,7 @@ public:
     /**
      * \brief Finish filling the mass matrices after deposit
      */
-    void FinishMassMatricesDeposition ();
+    void FinishMassMatricesDeposition () override;
 
     /**
      * \brief Communicate Mass Matrices used for PC and apply boundary conditions

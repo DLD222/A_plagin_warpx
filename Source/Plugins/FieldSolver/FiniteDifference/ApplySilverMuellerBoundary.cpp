@@ -7,7 +7,7 @@
 #include "FiniteDifferenceSolver.H"
 
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
-#   include "FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
 #endif
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXAlgorithmSelection.H"

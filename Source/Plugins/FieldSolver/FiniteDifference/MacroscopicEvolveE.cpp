@@ -3,9 +3,9 @@
 
 #if !defined(WARPX_DIM_RZ) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
     // currently works only for 3D
-#   include "FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
-#   include "FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
-#   include "FiniteDifferenceAlgorithms/FieldAccessorFunctors.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianCKCAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/FieldAccessorFunctors.H"
 #endif
 #include "EmbeddedBoundary/Enabled.H"
 #include "MacroscopicProperties/MacroscopicProperties.H"

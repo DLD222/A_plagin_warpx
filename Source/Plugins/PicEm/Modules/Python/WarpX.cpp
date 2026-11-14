@@ -9,23 +9,14 @@
 // see WarpX.cpp - full includes for _fwd.H headers
 #include <BoundaryConditions/PEC_Insulator.H>
 #include <BoundaryConditions/PML.H>
-#include <Diagnostics/MultiDiagnostics.H>
-#include <Diagnostics/ReducedDiags/MultiReducedDiags.H>
 #include <EmbeddedBoundary/WarpXFaceInfoBox.H>
-#include <FieldSolver/FiniteDifference/FiniteDifferenceSolver.H>
-#include <FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H>
 #include "HybridPIC/HybridPICModel/HybridPICModel.H"
-#include <FieldSolver/Implicit/ImplicitSolver.H>
 #ifdef WARPX_USE_FFT
-#   include <FieldSolver/PSATD/SpectralKSpace.H>
 #   ifdef WARPX_DIM_RZ
-#       include <FieldSolver/PSATD/SpectralSolverRZ.H>
 #       include <BoundaryConditions/PML_RZ.H>
 #   else
-#       include <FieldSolver/PSATD/SpectralSolver.H>
 #   endif // RZ ifdef
 #endif // use PSATD ifdef
-#include <FieldSolver/WarpX_FDTD.H>
 #include <Particles/Filter/NCIGodfreyFilter.H>
 #include <Particles/Initialization/ExternalField.H>
 #include <Particles/MultiParticleContainer.H>

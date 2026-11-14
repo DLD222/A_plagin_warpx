@@ -1,19 +1,14 @@
 # Known cross-plugin includes (ratchet).
 #
-# 2026-11-13: the checker used to match only quoted includes, so these angle-bracket
-# dependencies were always there but invisible. They are recorded, not accepted as good:
-# the list may only shrink, and each entry is a real architectural debt.
+# 2026-11-14: emptied.  The ten entries that were here are gone:
+#   - five unused includes in Python/WarpX.cpp (the type names appeared only on the include
+#     line, so the file never used them);
+#   - the implicit-solver binding, which named the concrete solver only to reach two operations
+#     that are now on the core contract (IImplicitSolver::FinishMassMatricesDeposition and
+#     ApplyMassMatrices);
+#   - four Yee/Nodal stencil headers that the divergence cleaner needed: those headers are pure
+#     numerics (AMReX + WarpXConst only) and moved to Source/Core/Numerics/FiniteDifferenceAlgorithms,
+#     so both the field-solver plugin and the kernel reach them through the core.
 #
-# Paid down so far: the four Collision headers carrying WarpX.H, and Core's
-# DefaultInitialization.H (which had been leaning on it for PIdx, fields and WarpX).
-#
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianNodalAlgorithm.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Initialization/DivCleaner/ProjectionDivCleaner.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/ImplicitSolver.cpp includes FieldSolver/Implicit/ImplicitSolver.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes Diagnostics/MultiDiagnostics.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes Diagnostics/ReducedDiags/MultiReducedDiags.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/FiniteDifference/FiniteDifferenceSolver.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.H
-Plugin->Plugin: Source/Plugins/PicEm/Modules/Python/WarpX.cpp includes FieldSolver/Implicit/ImplicitSolver.H
+# This file stays so the ratchet can be re-armed if a new violation is ever justified; the check
+# fails on any unlisted violation.

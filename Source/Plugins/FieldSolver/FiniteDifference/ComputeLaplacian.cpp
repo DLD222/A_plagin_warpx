@@ -11,11 +11,11 @@
 
 #include "EmbeddedBoundary/Enabled.H"
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER)
-#   include "FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CylindricalYeeAlgorithm.H"
 #elif defined(WARPX_DIM_RSPHERE)
-#   include "FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/SphericalYeeAlgorithm.H"
 #else
-#   include "FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
+#   include "Numerics/FiniteDifferenceAlgorithms/CartesianYeeAlgorithm.H"
 #endif
 
 #include "Utils/TextMsg.H"
