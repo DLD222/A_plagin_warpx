@@ -52,6 +52,7 @@ int main (int argc, char* argv[])
     std::vector<Real> outside_errors;
     std::vector<Real> inside_rms;
     std::vector<Real> outside_rms;
+    int exit_code = 0;
 
     std::printf("\n uniform sphere: rho = %.1f kg/m^3, R = %.4e m, M = %.4e kg, box = %.1f R\n",
                 (double)density, (double)radius, (double)mass, (double)(side / radius));
@@ -118,6 +119,14 @@ int main (int argc, char* argv[])
 
         auto const g_exact = [&] (Real r) { return test::gUniformSphere(r, radius, density); };
 
+        // Gravitational energy of the sphere: E = -3 G M^2 / (5 R) (Binney & Tremaine section
+        // 2.2 for the definition, the coefficient from integrating a uniform sphere).
+        Real const energy_num = NewtonGravitySolver::gravitationalEnergy(rho, phi, geom);
+        Real const energy_exact = -Real(0.6) * test::G_newton * mass * mass / radius;
+        std::printf("   E_grav: numeric %.6e  analytic %.6e  rel %.3e\n",
+                    (double)energy_num, (double)energy_exact,
+                    (double)std::abs(energy_num - energy_exact) / std::abs(energy_exact));
+
         test::CompareRegion inside;
         inside.bands = {{Real(0.2) * radius, Real(0.8) * radius}};
         inside.surfaces = {radius};
@@ -135,6 +144,10 @@ int main (int argc, char* argv[])
         test::ErrorStats const err_out =
             test::compareAcceleration(gx, gy, gz, geom, g_exact, outside);
 
+        if (std::abs(energy_num - energy_exact) / std::abs(energy_exact) > Real(1.e-2)) {
+            std::printf(" FAILED: gravitational energy off by more than 1%%\n");
+            exit_code = 1;
+        }
         inside_errors.push_back(err_in.max_rel);
         outside_errors.push_back(err_out.max_rel);
         inside_rms.push_back(err_in.rms_rel);
@@ -169,7 +182,6 @@ int main (int argc, char* argv[])
     // that a locally bad cell cannot hide.  At the outer edge of the exterior band the
     // central-difference gradient contributes (dx/r)^2, which is why the max is a few times
     // larger there than the RMS.
-    int exit_code = 0;
     Real const tol = 1.e-3;
     Real const tol_max_outside = 5.e-3;
     if (inside_rms.back() > tol) {

@@ -16,6 +16,7 @@
 #include <AMReX_GpuLaunch.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_REAL.H>
+#include <AMReX_Vector.H>
 
 #include <cmath>
 
@@ -358,6 +359,20 @@ amrex::Real maxWaveSpeed (amrex::MultiFab const& state, EOS const& eos, StateLay
     }
     return speed.norminf(0);
 }
+
+/** Explicit gravity kick over dt: (rho u) += dt rho g, E += dt (rho u) . g (PHYSICS_SPEC 2.4a).
+ *
+ * `g` holds one MultiFab per direction with the same BoxArray and DistributionMapping as the
+ * state.  Strang splitting is the caller's job: kick half a step, sweep, solve again, kick the
+ * other half (PHYSICS_SPEC 2.4).
+ */
+void applyGravitySource (amrex::MultiFab& state,
+                         amrex::Vector<amrex::MultiFab const*> const& g,
+                         amrex::Real dt, StateLayout const& layout);
+
+/** Sum of the species densities in one state cell, used to build the gravity source. */
+void computeTotalDensity (amrex::MultiFab const& state, amrex::MultiFab& density,
+                          StateLayout const& layout);
 
 /** Compiled entry point for the ideal-gas case, so the plugin has a non-template translation unit
  *  (and an obvious place to grow the EOS-injection layer). */

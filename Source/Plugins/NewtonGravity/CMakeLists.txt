@@ -8,7 +8,8 @@ foreach(D IN LISTS WarpX_DIMS)
       PRIVATE
         NewtonGravity.cpp
     )
-    target_include_directories(warpx_newtongravity_${SD} PRIVATE
+    # PUBLIC so another plugin (the fluid one) can link this layer and use its header.
+    target_include_directories(warpx_newtongravity_${SD} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach()
 
