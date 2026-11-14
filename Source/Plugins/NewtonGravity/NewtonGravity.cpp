@@ -65,6 +65,12 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     amrex::DistributionMapping const& dm = rhs.DistributionMap();
 
     amrex::LPInfo info;
+#if defined(WARPX_DIM_RZ)
+    amrex::Abort("NewtonGravity: this plugin solves the Poisson equation with the Cartesian "
+                 "multigrid operator, which does not carry the 1/r measure of an RZ geometry.  "
+                 "The potential, and therefore the acceleration, would be wrong.  Use a 1D, XZ or "
+                 "3D build, or wire a cylindrical Poisson solve (PHYSICS_SPEC section 1.4).");
+#endif
     amrex::MLABecLaplacian mlabec({geom}, {ba}, {dm}, info);
     mlabec.setMaxOrder(2);
 
@@ -130,10 +136,14 @@ void NewtonGravitySolver::computeAcceleration (amrex::MultiFab const& phi,
             gx_arr(i,j,k) = -(phi_arr(i+1,j,k) - phi_arr(i-1,j,k)) / (2.0 * dx[0]);
             gy_arr(i,j,k) = amrex::Real(0.0);
             gz_arr(i,j,k) = -(phi_arr(i,j+1,k) - phi_arr(i,j-1,k)) / (2.0 * dx[1]);
-#else
+#elif defined(WARPX_DIM_1D_Z) || (AMREX_SPACEDIM == 1)
+            // One-dimensional builds have a single index, i, and the physical axis is z.  Using
+            // j +/- 1 here (as an earlier version did) is an out-of-bounds read that AMReX's
+            // linear indexing aliases onto neighbouring i cells, so the difference is taken along
+            // the wrong "axis" and the result is silently wrong rather than a crash.
             gx_arr(i,j,k) = amrex::Real(0.0);
             gy_arr(i,j,k) = amrex::Real(0.0);
-            gz_arr(i,j,k) = -(phi_arr(i,j+1,k) - phi_arr(i,j-1,k)) / (2.0 * dx[0]);
+            gz_arr(i,j,k) = -(phi_arr(i+1,j,k) - phi_arr(i-1,j,k)) / (2.0 * dx[0]);
 #endif
         });
     }

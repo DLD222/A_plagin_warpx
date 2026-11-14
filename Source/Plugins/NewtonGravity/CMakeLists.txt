@@ -15,6 +15,12 @@ endforeach()
 
 # Analytic acceptance test: a periodic sine density has a closed-form potential.
 foreach(D IN LISTS WarpX_DIMS)
+    if(D STREQUAL "RZ")
+        # The plugin refuses RZ at run time: the multigrid operator it uses is Cartesian and does
+        # not carry the 1/r measure, so the potential would be wrong
+        # (CODE_REVIEW_2026-11-14, finding F-10).
+        continue()
+    endif()
     warpx_set_suffix_dims(SD ${D})
     if(TARGET warpx_newtongravity_${SD} AND NOT TARGET test_gravity_periodic_sine_${SD})
         add_executable(test_gravity_periodic_sine_${SD} test_periodic_sine.cpp)

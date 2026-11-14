@@ -55,6 +55,9 @@ int main (int argc, char* argv[])
 
         MultiFab rho(ba, dm, 1, 1);
         MultiFab phi(ba, dm, 1, 1);
+        MultiFab gx(ba, dm, 1, 1);
+        MultiFab gy(ba, dm, 1, 1);
+        MultiFab gz(ba, dm, 1, 1);
 
         Real const k = 2.0 * pi / L;
         for (MFIter mfi(rho, TilingIfNotGPU()); mfi.isValid(); ++mfi)
@@ -75,9 +78,16 @@ int main (int argc, char* argv[])
         warpx::plugins::gravity::NewtonGravitySolver::solvePotential(rho, phi, geom, 1.e-13);
         phi.FillBoundary(geom.periodicity());
 
+        // The acceleration must be checked too: the potential alone does not exercise
+        // computeAcceleration, and the 1D branch of that function was wrong for a long time
+        // without any test noticing (CODE_REVIEW_2026-11-14 F-10).
+        warpx::plugins::gravity::NewtonGravitySolver::computeAcceleration(phi, gx, gy, gz, geom);
+
         // Analytic solution, mean subtracted (the solver zeroes phi's mean).
         Real max_err = 0.0;
         Real max_ref = 0.0;
+        Real max_g_err = 0.0;
+        Real max_g_ref = 0.0;
         Real const dx = geom.CellSize(0);
         Real const x0 = geom.ProbLo(0);
         for (MFIter mfi(phi, TilingIfNotGPU()); mfi.isValid(); ++mfi)
@@ -99,15 +109,27 @@ int main (int argc, char* argv[])
 #endif
                 max_err = std::max(max_err, (double)err);
                 max_ref = std::max(max_ref, (double)std::abs(exact));
+
+                // g = -grad phi along the axis the density varies on (x in every build here).
+                Real const g_exact = (4.0 * pi * G * amp / k) * std::cos(k * x);
+#if AMREX_SPACEDIM == 1
+                Real const g_num = gz.const_array(mfi)(i, 0, 0);
+#else
+                Real const g_num = gx.const_array(mfi)(i, bx.smallEnd(1), 0);
+#endif
+                max_g_err = std::max(max_g_err, (double)std::abs(g_num - g_exact));
+                max_g_ref = std::max(max_g_ref, (double)std::abs(g_exact));
             }
         }
 
         Real const rel = max_err / max_ref;
-        std::printf("n=%4d  max|phi_num-phi_exact| = %.6e  max|phi_exact| = %.6e  rel = %.3e\n",
-                    n_cell, (double)max_err, (double)max_ref, (double)rel);
+        Real const rel_g = max_g_err / max_g_ref;
+        std::printf("n=%4d  max|phi_num-phi_exact| = %.6e  max|phi_exact| = %.6e  rel = %.3e"
+                    "   |g| rel = %.3e\n",
+                    n_cell, (double)max_err, (double)max_ref, (double)rel, (double)rel_g);
 
         // Second-order convergence: the grid-32 error should be ~4x the grid-64 error.
-        if (n_cell == 64) { exit_code = (rel < 1.e-3) ? 0 : 1; }
+        if (n_cell == 64) { exit_code = (rel < 1.e-3 && rel_g < 5.e-3) ? 0 : 1; }
     }
 
     if (exit_code == 0) { std::printf("test_periodic_sine: ok\n"); }
