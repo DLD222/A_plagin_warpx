@@ -47,17 +47,6 @@ JFunctor::operator() (amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer*/
     {
         host().particleServices().depositCurrent(m_lev, data().dt(m_lev));
 
-        // Sum/fill the guard cells of the three current components before they are
-        // interpolated to the cell centers below.  Upstream WarpX does the same
-        // (`current_fp_temp` + FillBoundary in JFunctor::operator()`); without it the
-        // cells next to a box boundary see only part of the deposited current and the
-        // diagnostic disagrees with the reference implementation.
-        auto& fields = const_cast<ablastr::fields::MultiFabRegister&>(data().fields());
-        auto const& periodicity = data().geom(m_lev).periodicity();
-        for (int idim = 0; idim < 3; ++idim) {
-            amrex::MultiFab* jf = fields.get(FieldType::current_fp, Direction{idim}, m_lev);
-            if (jf != nullptr) { jf->FillBoundary(periodicity); }
-        }
     }
 
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_mf_src != nullptr, "m_mf_src can't be a nullptr.");

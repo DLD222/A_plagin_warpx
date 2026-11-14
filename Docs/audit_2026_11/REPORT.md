@@ -129,9 +129,9 @@ Docs/audit_2026_11/scripts/analyze_results.py --dir audit_runs/compare_fork_vs_o
 | 类别 | 数量 | 含义 |
 |---|---|---|
 | 逐字节完全相同 | 37 | 连 `warpx_job_info` 都一致 |
-| 仅元数据/默认输入差异 | 215 | 数值输出逐位相同；差异只在 `warpx_job_info` 与/或 `warpx_used_inputs`（`amrex.handle_crt_reports`） |
-| 仅日志文本差异 | 17 | 数值输出相同，stdout/日志行不同（多为警告/打印差异，见 `NUMERIC_DIFFS_fork_vs_official.md`） |
-| **数值差异** | **129** | plotfile/openPMD dataset 层面存在差异（下表） |
+| 仅元数据/默认输入差异 | 220 | 数值输出逐位相同；差异只在 `warpx_job_info` 与/或 `warpx_used_inputs`（`amrex.handle_crt_reports`） |
+| 仅日志文本差异 | 18 | 数值输出相同，stdout/日志行不同（多为警告/打印差异，见 `NUMERIC_DIFFS_fork_vs_official.md`） |
+| **数值差异** | **123** | plotfile/openPMD dataset 层面存在差异（下表）；修复后已从 129 降到 123 |
 
 两侧失败情况：
 
@@ -176,16 +176,16 @@ openPMD 示例数据集（官方 CI 里单独下载）。这两类在官方 26.1
 
 ## 4. 差异归因
 
-对 129 个数值差异用例，在 `official_amrex`（官方源码 + fork 同款 AMReX `008b6737`）
+对 123 个数值差异用例，在 `official_amrex`（官方源码 + fork 同款 AMReX `008b6737`）
 上重跑同一用例并再次对比（149 个用例已跑，3 个 >10 分钟的重算例未跑）：
 
 | 归因 | 数量 | 含义 |
 |---|---|---|
 | **AMReX / 上游演进** | **42** | 换成同款 AMReX 后与 fork **数值一致**；差异来自 AMReX `008b6737` vs tag `26.10` 以及 fork 基线包含的 26.10 之后上游提交 |
-| **fork 代码行为差异** | **80** | 同款 AMReX 下仍不同；需要看 fork 的改动 |
+| **fork 代码行为差异** | **74** | 同款 AMReX 下仍不同；需要看 fork 的改动 |
 | 未归因 | 7 | `official_amrex` 未运行（3 个极重算例 + 4 个因环境失败） |
 
-80 个 fork 代码差异按“与 official_amrex 的最差相对差”分布：
+74 个 fork 代码差异按“与 official_amrex 的最差相对差”分布：
 
 | 相对差 | 数量 | 解读 |
 |---|---|---|
@@ -205,8 +205,8 @@ openPMD 示例数据集（官方 CI 里单独下载）。这两类在官方 26.1
 
 | 用例 | 最差字段 | 最大绝对差 | 归因 | 备注/候选根因 |
 |---|---|---|---|---|
-| `test_2d_energy_conserving_thermal_plasma` | jx/jy/jz（step 0） | 2.0e17（场量级 4e17，≈25–50%） | fork 代码 | step 0 的 **j 诊断**在 40/64 个格点不同，而粒子位置/动量只差 1e-16；候选：`JFunctor` 在 ES 求解器下自行沉积电流的路径（fork 直接写 live 场、上游先填 guard cell）。已做了与上游对齐的 FillBoundary 修复，但该用例数值未变 → 根因**未定**，见 §8 |
-| `test_1d/2d_collision_xz(_global_debye)`、`test_3d_collision_xyz` | jx/jz | 1e7–1e8 | fork 代码 | 碰撞重构后**随机数流**或粒子对索引改变；`coll-b` 已指出 `pulsed_decay` 的 RNG 流改变、benchmark 被整份重生成 |
+| `test_2d_energy_conserving_thermal_plasma` | jx/jy/jz（step 0） | 2.0e17 → **3.6e5**（rel 3.5e-9） | fork 代码（已修） | **根因已定位并修复**：诊断 J 走的 `depositCurrent` 服务额外做了 `WarpXSumGuardCells` + `FinalizeJOnLevel`，上游只做 `FillBoundary`。修复后 1D 用例逐位一致、2D 从 25% 降到 3.5e-9。见 §7.6 |
+| `test_1d/2d_collision_xz(_global_debye)`、`test_3d_collision_xyz` | jx/jz | 1e7–1e8 → **0** | fork 代码（已修） | 原以为与碰撞 RNG 有关；实际同样是诊断 J 的沉积路径（§7.6），修复后**逐位一致** |
 | `test_3d_acceleration_psatd(_time_avg)(_restart)` | jz | 2.4e5（rel 9e-5） | fork 代码 | PSATD 谱路径；与 `SpectralSolverRegistration`/PML 的 `lev`、`n_rz_azimuthal_modes` 参数缺失（FieldSolver_B F1）方向一致，尚需定点验证 |
 | `test_2d_theta_implicit_jfnk_vandb(_picmi/_filtered)` | divE | 3.8e7（rel ~1e-10） | fork 代码 | 隐式求解器迭代/预条件差异；`WeightedJacobi` omega 每步被 Gershgorin 覆盖（FieldSolver_B F3） |
 | `test_2d_laser_ion_acc(_picmi)` | E/j/rho | 1e14（rel 0.07–0.97） | fork 代码 | 电离 + 外场路径；与 `GetExternalEBField` 不传 context 的空指针/静默零场（ParticleCore_A F1）方向一致 |
@@ -335,6 +335,41 @@ openPMD 示例数据集（官方 CI 里单独下载）。这两类在官方 26.1
 - **诚实说明**：在 `test_1d/2d_energy_conserving_thermal_plasma` 上重跑后数值**没有变化**
   （该 `current_fp` 的 ngrow 为 0，FillBoundary 是空操作），所以它是行为对齐而不是已证实的修复；
   那些用例的根因仍未定（见 §5、§8）。
+
+### 7.6 诊断 J 的电流沉积路径与上游不一致（1 个服务实现）
+
+- 位置：`Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp::depositCurrent`
+- 现象：该服务只被诊断 `JFunctor` 使用。它先 `mypc.DepositCurrent`，再做
+  `WarpXSumGuardCells`，最后 `FinalizeJOnLevel`；而上游 26.10 的 `JFunctor` 只做
+  `DepositCurrent` + `FillBoundary`（`_upstream/.../JFunctor.cpp:46-55`）。
+  多出来的两步会改变诊断值，并且**修改了后续求解器要用的 live 电流**。
+- 依据：上游对应实现逐行对照（上游没有 SumGuardCells/FinalizeJ）。
+- 修法：服务里只保留 `FillBoundary`（三个分量、按 `Geom(lev).periodicity()`）。
+- 回归证据（修复前 → 修复后，vs 官方 26.10 的最大绝对差）：
+
+| 用例 | 修复前 | 修复后 |
+|---|---|---|
+| `test_1d_energy_conserving_thermal_plasma` | 1.75e17 | **0（逐位一致）** |
+| `test_2d_energy_conserving_thermal_plasma` | 1.99e17 | 3.6e5（rel 3.5e-9） |
+| `test_2d_collision_xz` | 1.15e8 | **0** |
+| `test_2d_collision_xz_global_debye` | 8.64e7 | **0** |
+| `test_3d_collision_xyz` | 8.88e7 | **0** |
+| `test_1d_resample_velocity_coincidence_thinning(_cartesian)` | 5.3e306 / 7.7e282 | **0 / 0** |
+
+  35 个带 j 诊断的用例全部重跑并通过；9 个的差异显著缩小或归零。
+
+### 7.7 `divE`/`divB` 诊断用快照 `ncomps`（2 个文件）
+
+- 位置：`Source/Plugins/Diagnostics/ComputeDiagFunctors/DivEFunctor.cpp:56`、`DivBFunctor.cpp:37`
+- 现象：用 `config_snapshot().ncomps` 分配临时 MultiFab；legacy/PICMI 路径下快照的
+  `ncomps` 在 `AllocLevelMFs` 之前恒为默认 1，而 RZ 的 `ncomps` 应为 `2m-1` →
+  `ComputeDivECylindrical` 按 `2m-1` 写 1 分量 MultiFab，越界写。
+- 依据：`RuntimeConfig::ncomps()` 是活配置（`RuntimeConfig.H:90`），
+  `RuntimeConfigSnapshot::ncomps{1}` 是默认值（`RuntimeConfigSnapshot.H:48`）；
+  仓库 HANDOFF 也明确记录“InitData 期间不能读 snapshot”。
+- 修法：改用 `config().ncomps()`。
+- 回归：`test_2d_theta_implicit_jfnk_vandb*`、`test_rz_psatd_JRhom_LL2`、
+  `test_3d_divb_cleaning` 全部通过；2D 用例的 divE 残差为 rel~1e-9（舍入级），与修复前一致。
 
 ---
 

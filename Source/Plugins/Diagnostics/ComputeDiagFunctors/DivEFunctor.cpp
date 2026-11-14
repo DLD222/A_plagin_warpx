@@ -53,7 +53,9 @@ DivEFunctor::operator()(amrex::MultiFab& mf_dst, const int dcomp, const int /*i_
 #endif
 
     const amrex::BoxArray& ba = amrex::convert(data().boxArray(m_lev), cell_type);
-    amrex::MultiFab divE(ba, data().distributionMap(m_lev), config_snapshot().ncomps, ng );
+    // ncomps() is 2*n_rz_azimuthal_modes-1 in RZ and is only finalised when the level
+    // MultiFabs are allocated; the config snapshot may still hold the default 1 here.
+    amrex::MultiFab divE(ba, data().distributionMap(m_lev), config().ncomps(), ng );
     host().fieldAlgebra().computeDivE(divE, m_lev);
 
 #ifdef WARPX_DIM_RZ

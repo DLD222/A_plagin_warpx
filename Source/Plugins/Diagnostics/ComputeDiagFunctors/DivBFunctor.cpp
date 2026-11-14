@@ -34,7 +34,8 @@ DivBFunctor::operator()(amrex::MultiFab& mf_dst, int dcomp, const int /*i_buffer
     constexpr int ng = 1;
     // A cell-centered divB multifab spanning the entire domain is generated
     // and divB is computed on the cell-center, with ng=1.
-    amrex::MultiFab divB( data().boxArray(m_lev), data().distributionMap(m_lev), config_snapshot().ncomps, ng );
+    // See DivEFunctor: use the live config, not the pre-allocation snapshot (RZ needs 2m-1).
+    amrex::MultiFab divB( data().boxArray(m_lev), data().distributionMap(m_lev), config().ncomps(), ng );
     host().fieldAlgebra().computeDivB(divB, 0, m_arr_mf_src, data().cellSize(m_lev));
     // // Coarsen and Interpolate from divB to coarsened/reduced_domain mf_dst
     // ablastr::coarsen::sample::Coarsen( mf_dst, divB, dcomp, 0, nComp(), 0, m_crse_ratio);
