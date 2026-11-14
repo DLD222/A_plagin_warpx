@@ -418,7 +418,16 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 4. **Tools 不变量检查器**（C7）：建议按 `reviews/Tools_Tests.md` 的逐条修法修复，
    否则“0 已知缺陷”的结论不可信。
 5. **测试容差被放宽的 6 处**（Python.md F3）：需要你确认这是有意为之还是为了让 CI 变绿。
-6. **Bremsstrahlung 顺序**（Collision_A F1）：fork 的写法在物理上更自洽（先降 `fmulti` 再夹
+6. **`GetExternalEBField` 缺 context**（ParticleCore_A/B F1）：修法已核清——给
+   `IonizationFilterFunc`、`QEDPairGenerationTransformFunc`、`QEDPhotonEmissionTransformFunc`
+   的构造函数各加一个 `warpx::runtime::RuntimeContext const* a_ctx` 末参，内部把
+   `GetExternalEBField(a_pti, a_offset, a_ctx)` 传下去；三个构造点分别是
+   `PhysicalParticleContainer::getIonizationFunc`（已有 `runtime_context()`）与
+   `MultiParticleContainer` 的 QED 循环（同样有 `runtime_context()`）。
+   这样三条路径不再得到 `ps == nullptr`，既消除 `parser` 分支的空指针解引用，也恢复
+   加速器晶格/重复等离子体透镜场。改动 6 个文件、纯参数穿透，建议单独 PR + 跑
+   `test_*_ionization*`、`test_*_qed*`、`test_*_load_external_field*` 回归。
+7. **Bremsstrahlung 顺序**（Collision_A F1）：fork 的写法在物理上更自洽（先降 `fmulti` 再夹
    `arg=1`），官方写法因先置 `arg=1` 而使 `fmulti/arg` 成为 no-op。**我没有改回官方写法**，
    因为那会把一个可能正确的修复改错；请确认是否有意偏离。
 
