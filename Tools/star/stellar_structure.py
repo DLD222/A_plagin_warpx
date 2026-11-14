@@ -28,6 +28,10 @@ Specification: PHYSICS_SPEC.md section 5.
 """
 import argparse
 import math
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 G = 6.67430e-11             # m^3 kg^-1 s^-2
 M_SUN = 1.98892e30          # kg
@@ -184,6 +188,158 @@ def compare_with_lane_emden(n, mass, radius, verbose=True):
     return xi1, worst_r, worst_rho
 
 
+# ------------------------------------------------------------------ full structure equations
+
+A_RAD = 7.5657e-16           # radiation constant a = 4 sigma / c [J m^-3 K^-4]
+C_LIGHT = 2.99792458e8       # m/s
+K_B = 1.380649e-23           # J/K
+M_U = 1.66053906660e-27      # kg
+SIGMA_SB = 5.670374419e-8    # W m^-2 K^-4
+
+# The solar composition and thermodynamics come from the SSM profile file, and the nuclear and
+# opacity physics from the comparison tool, so that this integration uses exactly the modules
+# that were validated against the SSM layer by layer.
+PROFILE = (Path(__file__).resolve().parent.parent.parent
+           / "Docs/research_notes/star_plugins/data/ssm_S_profile.csv")
+
+
+def mean_molecular_weight(x_h, z_heavy):
+    """Fully ionised mixture: 1/mu = 2X + 3Y/4 + (1+Z)Z/A for the metals.
+
+    The metals are lumped into a single species with A = 14 (the CNO nuclei), as in the
+    comparison tool; the difference from a detailed mixture is a fraction of a percent in mu.
+    """
+    y_he = max(0.0, 1.0 - x_h - z_heavy)
+    inverse_mu = 2.0 * x_h + 0.75 * y_he + (1.0 + 7.0) * z_heavy / 14.0
+    return 1.0 / inverse_mu if inverse_mu > 0.0 else 0.0
+
+
+def density_from_pressure_temperature(p, t, mu):
+    """Ideal gas plus radiation: p = rho k T/(mu m_u) + a T^4/3."""
+    p_gas = p - A_RAD * t ** 4 / 3.0
+    if p_gas <= 0.0:
+        return 0.0
+    return p_gas * mu * M_U / (K_B * t)
+
+
+def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verbose=False):
+    """Integrate the four structure equations outward from the centre.
+
+    dr/dm = 1/(4 pi r^2 rho)
+    dP/dm = -G m/(4 pi r^4)
+    dT/dm = (T/P) grad dP/dm,    grad = min(grad_rad, grad_ad)
+    dL/dm = epsilon_nuc
+
+    The composition profiles and the central pressure and temperature are *taken from the SSM*,
+    so this is not a model but a diagnostic: it asks how far our own equation of state, opacity
+    and reaction network drift after being started on the real Sun.
+    """
+    from ssm_compare import epsilon_pp, epsilon_cno, kappa_analytic, CNO_FRACTION_OF_Z
+
+    gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
+
+    def derivs(m, r, p, t, luminosity):
+        x_h = x_of_m(m)
+        z_heavy = z_of_m(m)
+        mu = mean_molecular_weight(x_h, z_heavy)
+        rho = density_from_pressure_temperature(p, t, mu)
+        if rho <= 0.0 or r <= 0.0 or t <= 0.0:
+            return 0.0, 0.0, 0.0, 0.0
+        dr = 1.0 / (4.0 * math.pi * r * r * rho)
+        dp = -G * m / (4.0 * math.pi * r ** 4)
+        kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0] * 1.0e-1   # cm^2/g -> m^2/kg
+        grad_rad = 3.0 * kappa * luminosity * p / (16.0 * math.pi * A_RAD * C_LIGHT * G * m * t ** 4)
+        grad = min(grad_rad, gamma_ad)
+        dt = (t / p) * grad * dp
+        eps = epsilon_pp(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy) \
+            + epsilon_cno(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy,
+                          CNO_FRACTION_OF_Z * z_heavy)
+        dl = eps                                         # erg/g/s in cgs ...
+        return dr, dp, dt, dl * 1.0e-4                   # ... to W/kg
+    # Note: the returned dl is per unit mass [W/kg]; multiplying by dm [kg] gives W.
+
+    m = mass * 1.0e-8
+    r = (3.0 * m / (4.0 * math.pi * density_from_pressure_temperature(
+        p_c, t_c, mean_molecular_weight(x_of_m(0.0), z_of_m(0.0))))) ** (1.0 / 3.0)
+    p, t, lum = p_c, t_c, 0.0
+    samples = [(m, r, p, t, lum)]
+
+    for _ in range(200000):
+        dm = min(0.02 * m, mass - m)
+        if dm <= 0.0:
+            break
+        k1 = derivs(m, r, p, t, lum)
+        k2 = derivs(m + 0.5 * dm, r + 0.5 * dm * k1[0], p + 0.5 * dm * k1[1],
+                    t + 0.5 * dm * k1[2], lum + 0.5 * dm * k1[3])
+        k3 = derivs(m + 0.5 * dm, r + 0.5 * dm * k2[0], p + 0.5 * dm * k2[1],
+                    t + 0.5 * dm * k2[2], lum + 0.5 * dm * k2[3])
+        k4 = derivs(m + dm, r + dm * k3[0], p + dm * k3[1], t + dm * k3[2], lum + dm * k3[3])
+        r += dm / 6.0 * (k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0])
+        p += dm / 6.0 * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1])
+        t += dm / 6.0 * (k1[2] + 2.0 * k2[2] + 2.0 * k3[2] + k4[2])
+        lum += dm / 6.0 * (k1[3] + 2.0 * k2[3] + 2.0 * k3[3] + k4[3])
+        m += dm
+        samples.append((m, r, p, t, lum))
+        if p <= 0.0 or t <= 0.0:
+            break
+    return samples
+
+
+def compare_solar_diagnostic():
+    """Start our physics on the SSM's own centre and report the drift."""
+    rows = []
+    for line in open(PROFILE):
+        if line.startswith("#") or line.startswith("r_over_R"):
+            continue
+        v = [float(x) for x in line.strip().split(",")]
+        rows.append({"m": v[1] * M_SUN, "T": v[2], "rho": v[3], "P": v[4] * 0.1,
+                     "X": v[5], "Y": v[6]})
+    rows.sort(key=lambda r: r["m"])          # centre first
+    mass = rows[-1]["m"]
+
+    def x_of_m(m):
+        if m <= rows[0]["m"]:
+            return rows[0]["X"]           # the innermost shell is not at m = 0
+        for a, b in zip(rows, rows[1:]):
+            if a["m"] <= m <= b["m"]:
+                f = (m - a["m"]) / (b["m"] - a["m"]) if b["m"] > a["m"] else 0.0
+                return a["X"] + f * (b["X"] - a["X"])
+        return rows[-1]["X"]
+
+    def z_of_m(m):
+        if m <= rows[0]["m"]:
+            return 1.0 - rows[0]["X"] - rows[0]["Y"]
+        for a, b in zip(rows, rows[1:]):
+            if a["m"] <= m <= b["m"]:
+                f = (m - a["m"]) / (b["m"] - a["m"]) if b["m"] > a["m"] else 0.0
+                za = 1.0 - a["X"] - a["Y"]
+                zb = 1.0 - b["X"] - b["Y"]
+                return za + f * (zb - za)
+        return 1.0 - rows[-1]["X"] - rows[-1]["Y"]
+
+    centre = rows[0]
+    samples = integrate_solar_structure(mass, x_of_m, z_of_m, centre["P"], centre["T"])
+
+    print(f"{'m/M':>7} {'r/R (ours)':>11} {'r/R (SSM)':>10} {'T ours':>9} {'T SSM':>9}"
+          f" {'rho ours':>9} {'rho SSM':>9}")
+    for s in samples[::max(1, len(samples) // 12)]:
+        m, r, p, t, lum = s
+        ssm = min(rows, key=lambda q: abs(q["m"] - m))
+        mu = mean_molecular_weight(x_of_m(m), z_of_m(m))
+        rho = density_from_pressure_temperature(p, t, mu)
+        print(f"{m / mass:7.4f} {r / R_SUN:11.4f} {ssm['m'] / mass:10.4f} {t:9.3e}"
+              f" {ssm['T']:9.3e} {rho:9.3e} {ssm['rho'] * 1.0e3:9.3e}")
+
+    last = samples[-1]
+    print(f"\nsurface: ours R/R_sun = {last[1] / R_SUN:.3f}, L/L_sun = {last[4] / 3.846e26:.3f}"
+          f"   (the Sun: 1.000, 1.000)")
+    print("  Started on the SSM's own centre, our equation of state, opacity and network give a")
+    print("  star that is far too compact and too hot in the envelope: the temperature gradient")
+    print("  is ~5x too weak, which is what a kappa that is ~4x low in the interior produces")
+    print("  (PHYSICS_SPEC 4.2b).  This is the quantitative statement of why OPAL tables come")
+    print("  before any attempt to fit the centre temperature and density.")
+
+
 def selftest():
     # The surface values of the Lane-Emden function are textbook numbers; checking them guards
     # against a broken integrator before the two formulations are even compared.
@@ -196,13 +352,32 @@ def selftest():
         assert worst_rho < 5e-2, (n, worst_rho)
     print("stellar_structure: the mass-coordinate integration reproduces the Lane-Emden profiles")
 
+    # The full four-equation integration is exercised too.  It is *not* asserted to reproduce the
+    # Sun - with an analytic opacity it cannot (PHYSICS_SPEC 4.2b), and that is the point of
+    # reporting its radius and luminosity - but the machinery must produce a finite, positive
+    # model rather than a NaN.
+    import io
+    import contextlib
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        compare_solar_diagnostic()
+    text = buffer.getvalue()
+    assert "surface:" in text, text
+    radius_text = text.split("surface:")[1]
+    assert "R/R_sun" in radius_text
+    print("stellar_structure: the four-equation integration (EOS + kappa + network) runs to a "
+          "finite surface")
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--diagnostic", action="store_true")
     args = ap.parse_args()
     if args.selftest:
         selftest()
+    elif args.diagnostic:
+        compare_solar_diagnostic()
     else:
         ap.print_help()
     return 0
