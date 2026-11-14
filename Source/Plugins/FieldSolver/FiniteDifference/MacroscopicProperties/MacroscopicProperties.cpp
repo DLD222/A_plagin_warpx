@@ -530,6 +530,29 @@ MacroscopicProperties::InitData (
 #endif
             amrex::ParallelFor(b, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                 int const ii = amrex::min(amrex::max(i, ilo), ihi);
+                // F-05: which component is "the normal one" follows the interface normal from
+                // grad(phi), not the assumption that it is always the z component.  For a
+                // z-normal interface (the case every deck in the repository uses) this gives
+                // exactly the old classification, so it is a strict generalisation.
+                // The probe sits on the nodal z; the staggered sample below refines it for the
+                // tensor rotation.
+                amrex::Real nrmv[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
+                if (iface_on_n) {
+                    amrex::Real const xn0 = xlo_n + amrex::Real(i) * dx_n;
+#if defined(WARPX_DIM_3D)
+                    amrex::Real const yn0 = ylo_n + amrex::Real(j) * dy_n;
+                    amrex::Real const zn0 = zlo_n + amrex::Real(k) * dz_n;
+#else
+                    amrex::Real const yn0 = amrex::Real(0.0);
+                    amrex::Real const zn0 = zlo_n + amrex::Real(j) * dz_n;
+#endif
+                    amrex::Real const hh0 = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
+                    amrex::Real const gx0 = phi_n(xn0 + hh0, yn0, zn0) - phi_n(xn0 - hh0, yn0, zn0);
+                    amrex::Real const gz0 = phi_n(xn0, yn0, zn0 + hh0) - phi_n(xn0, yn0, zn0 - hh0);
+                    amrex::Real const gn0 = std::sqrt(gx0*gx0 + gz0*gz0);
+                    if (gn0 > amrex::Real(1e-30)) { nrmv[0] = gx0/gn0; nrmv[2] = gz0/gn0; }
+                }
+                bool const normal = (std::abs(nrmv[c]) > amrex::Real(0.5));
 #if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
                 // the neighbour cells of a node lie along the only dimension
                 int const iL = amrex::max(i - 1, ilo_dom);
