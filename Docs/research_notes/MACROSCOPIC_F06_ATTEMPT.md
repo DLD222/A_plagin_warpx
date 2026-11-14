@@ -37,3 +37,44 @@ diagnostic can say anything about ghost filling.  Two candidate reasons, neither
 I stopped rather than guessing.  F-06's fix therefore remains verified by construction (the arrays
 are filled where they are built, and the main solve never depended on the missing ghosts), and this
 note records why the intended end-to-end verification did not happen.
+
+
+---
+
+# F-06: the deck now works, and what it shows
+
+The earlier attempt failed for two mundane reasons, both fixed in the deck rather than the solver:
+
+* the 1D divergence bug (N-01, commit `7e5bb6d`) was what made the run look like it diverged;
+* the E field was never initialised: the deck set `B_ext_grid_init_style` but not
+  `E_ext_grid_init_style`, and the style string is lower case (`parse_e_ext_grid_function`).  Also all
+  three components must be given - `Store_parserString` reads an array, so defining only `Ez` aborts
+  inside `ParmParse::getarr` with no message.
+
+The working deck is `Examples/Tests/macroscopic_solver/inputs_1d_periodic_interface` (periodic,
+interface at x = 0.5, subpixel rows on, `Ez = 1e-3 cos(2 pi z)` so divD is non-zero), reproducible
+with `Tools/verify/check_macroscopic_periodic_interface.sh`.
+
+Result with the ghost fill (F-06's fix) in place:
+
+```
+[GAUSS] step 20  max|divD - (rho_p + rho_m)| = 0  max|divD| = 5.664973506e-13  max|rho_m| = 5.664973506e-13
+[GAUSS] step 40  ... = 0  ... = 5.664973506e-13  ...
+```
+
+and with the fill disabled (A/B, rebuilt for the comparison):
+
+```
+[GAUSS] step 20  max|divD - (rho_p + rho_m)| = 0  max|divD| = 1.699492052e-12  max|rho_m| = 1.699492052e-12
+```
+
+So the honest statement of what F-06 does and does not affect:
+
+* the **residual stays exactly zero either way**, because the seed and the diagnostic read the same
+  ghosts - self-consistency cannot detect the defect;
+* the **value the seed computes changes by a factor 3** (`5.66e-13` against `1.70e-12`) when the
+  ghosts are zeros instead of the wrapped values.  That is the measurable consequence, and the fill
+  is what makes the seam value the wrapped one.
+
+F-06 is therefore no longer "verified by construction only": there is a deck, an A/B measurement and
+a documented reason why the residual is not the discriminating quantity.
