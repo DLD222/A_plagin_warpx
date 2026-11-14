@@ -22,13 +22,23 @@ def load_cases(d):
 
 
 def classify(row, rec):
-    """Return a verdict string for one case."""
+    """Return a verdict string for one case (mirrors analyze_results.py)."""
     kinds = set((row.get("kinds") or "").split(";")) - {""}
     data_kinds = kinds - {"build_metadata_diff", "used_inputs_diff"}
     if row.get("identical") == "True":
         return "identical"
     if row.get("identical") in ("None", ""):
         return "not-run"
+    if rec is not None:
+        numeric = any(f.get("n_differ") or f.get("shape_mismatch")
+                      for p in rec.get("plotfiles", []) for f in p.get("fields", []))
+        numeric = numeric or any(ds.get("n_differ") or ds.get("shape_mismatch")
+                                 for e in rec.get("details", []) if e.get("kind") == "hdf5_diff"
+                                 for ds in e.get("datasets", []))
+        if numeric:
+            return "data-differs"
+        if "text_diff" in data_kinds:
+            return "log-only"
     if not data_kinds:
         return "metadata-only"
     return "data-differs"

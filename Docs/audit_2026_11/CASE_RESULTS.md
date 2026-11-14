@@ -2,19 +2,18 @@
 
 cases: 398
 
-- data-differs: 158
+- data-differs: 138
 - identical: 13
+- log-only: 20
 - metadata-only: 227
 
 ## Cases whose numeric output differs
 
 | case | diffs | max abs | max rel | kinds | fork status | official status |
 |---|---|---|---|---|---|---|
-| test_1d_collision_z_Bremsstrahlung | 6 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_1d_collision_z_inverse_Bremsstrahlung | 12 | 9.99977793693828e-07 | 83414.75370934811 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_1d_darwin_solver_em_modes_picmi | 16 | 1019.1315170663001 | 9.999999999999999e+299 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | failed |
 | test_1d_dsmc_picmi | 3 | 4.235164736271502e-22 | 1.7547554892271674e-16 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
-| test_1d_energy_conserving_thermal_plasma | 4 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_1d_laser_acceleration | 5 | 1.8189894035458565e-12 | 1.6023389170591465e-16 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_1d_laser_acceleration_fluid_boosted | 4 | 1724161248754.875 | 0.05402205612529946 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_1d_laser_acceleration_picmi | 6 | 1.8189894035458565e-12 | 1.6023389170591465e-16 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
@@ -32,8 +31,6 @@ cases: 398
 | test_2d_background_mcc | 10 | 3.1638885053530963e-09 | 0.02087790074351062 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_2d_background_mcc_picmi | 7 | 1.3552527156068805e-20 | 4.4056365222124805e-16 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_2d_charge_exchange_dsmc | 5 | 14645052.0 | 3.556043532082173e-05 | hdf5_diff;text_diff;used_inputs_diff | passed | passed |
-| test_2d_collisions_split_momentum_push_electromagnetic | 3 | 0.0 | 0.0 | text_diff;used_inputs_diff | passed | passed |
-| test_2d_collisions_split_momentum_push_electromagnetic_vay | 3 | 0.0 | 0.0 | text_diff;used_inputs_diff | passed | passed |
 | test_2d_collisions_split_momentum_push_electrostatic | 5 | 1.7435172437126816e+17 | 85633.71931028098 | hdf5_diff;text_diff;used_inputs_diff | passed | passed |
 | test_2d_darwin_solver_em_modes_es_picmi | 19 | 29225.478673513553 | 9.999999999999999e+299 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | failed |
 | test_2d_dirichlet_bc | 102 | 9.48017451207761e-07 | 3.2557013523451184e+38 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
@@ -53,8 +50,6 @@ cases: 398
 | test_2d_laser_ion_acc_picmi | 10 | 81735687538271.69 | 3.655327255719425 | binary_diff;hdf5_diff;text_diff;used_inputs_diff | passed | passed |
 | test_2d_load_density | 66 | 1.1641532182693481e-10 | 4.3759842169844794e-16 | hdf5_diff;used_inputs_diff | passed | passed |
 | test_2d_macroscopic_solver | 6 | 2.1606683731079102e-07 | 1.1306090085251453e-12 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
-| test_2d_ohm_solver_checkpoint_picmi | 9 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | failed |
-| test_2d_ohm_solver_checkpoint_picmi_restart | 6 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | failed |
 | test_2d_ohm_solver_electron_energy_adiabat_picmi | 11 | 27.634670250517047 | 1.0 | hdf5_diff;used_inputs_diff | passed | failed |
 | test_2d_ohm_solver_electron_energy_joule_picmi | 8 | 15452.975893395953 | 19.241556961261225 | hdf5_diff;text_diff;used_inputs_diff | passed | failed |
 | test_2d_ohm_solver_electron_energy_qei_picmi | 11 | 160845.328335294 | 299852.97691392136 | hdf5_diff;used_inputs_diff | passed | failed |
@@ -65,11 +60,8 @@ cases: 398
 | test_2d_ohm_solver_resistive_drag_picmi | 7 | 15228.96458470542 | 7.078214710568445 | hdf5_diff;text_diff;used_inputs_diff | passed | failed |
 | test_2d_particle_attr_access_picmi | 8 | 1.0282621261214044e-14 | 7.743005766228754e-09 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_2d_particle_attr_access_unique_picmi | 8 | 1.0282621261214044e-14 | 7.743005766228754e-09 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
-| test_2d_particle_boundary_interaction_thermal | 4 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_2d_particle_reflection_picmi | 7 | 4.131610978674871e-06 | 2804.0729044418727 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_2d_particle_thermal_boundary | 11 | 2.546357791288756e-09 | 0.20937015087214195 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_2d_pec_field_insulator_implicit | 23 | 134014.61160545144 | 0.8936548079352381 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_2d_pec_field_insulator_implicit_restart | 12 | 30450.484309987747 | 0.7714386919822692 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_2d_prev_positions_picmi | 11 | 0.00043892569965464645 | 75461.49999964861 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_2d_projection_div_cleaner_initial_analytical_field_picmi | 13 | 3.8546943414985435e-13 | 3.567146578120628e+287 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_2d_repelling_particles | 65 | 26624.0 | 2.469812548921979e+284 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
@@ -87,7 +79,6 @@ cases: 398
 | test_3d_acceleration_psatd_time_avg_restart | 37 | 367764.33338946704 | 2.2120407130973036e+47 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_beam_beam_collision | 10 | 3005.5 | 0.0003858541310759061 | hdf5_diff;text_diff | passed | passed |
 | test_3d_collision_pulsed_decay | 13 | 0.0 | 0.0 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_3d_deuterium_deuterium_fusion_intraspecies | 13 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_3d_effective_potential_electrostatic_picmi | 5 | 0.002040202422546542 | 9.029842556581187e+266 | hdf5_diff;used_inputs_diff | passed | failed |
 | test_3d_electrostatic_sphere | 12 | 2.220446049250313e-16 | 1.827152144485348e-12 | binary_diff;build_metadata_diff;hdf5_diff;used_inputs_diff | passed | passed |
 | test_3d_electrostatic_sphere_adaptive | 25 | 3.885780586188048e-16 | 1.6381229273155366e-12 | binary_diff;build_metadata_diff;hdf5_diff;text_diff;used_inputs_diff | passed | passed |
@@ -106,16 +97,11 @@ cases: 398
 | test_3d_hard_edged_quadrupoles_moving | 10 | 2.6798004868757927e-18 | 3.3648566952910943e-10 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_initial_distribution | 3 | 4.513898307157584e-36 | 2.9619619130218704e-11 | hdf5_diff;text_diff;used_inputs_diff | passed | passed |
 | test_3d_ion_beam_extraction | 4 | 11357066.211156225 | 1.7315626221003555e+293 | hdf5_diff;used_inputs_diff | passed | passed |
-| test_3d_ionization_electron_dsmc | 4 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_3d_ionization_ion_dsmc | 4 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_3d_laser_acceleration | 3 | 1.0913936421275139e-11 | 4.697259232899143e-16 | hdf5_diff;used_inputs_diff | passed | passed |
 | test_3d_laser_acceleration_btd | 19 | 10.0 | 1.900070098619224e-11 | binary_diff;build_metadata_diff;hdf5_diff;used_inputs_diff | passed | passed |
 | test_3d_laser_acceleration_picmi | 6 | 1.0913936421275139e-11 | 4.697259232899143e-16 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_laser_acceleration_python | 3 | 1.0913936421275139e-11 | 4.697259232899143e-16 | hdf5_diff;used_inputs_diff | passed | passed |
 | test_3d_laser_acceleration_single_precision_comms | 3 | 1.0913936421275139e-11 | 4.697259232899143e-16 | hdf5_diff;used_inputs_diff | passed | passed |
-| test_3d_linear_breit_wheeler_angular | 3 | 0.0 | 0.0 | text_diff;used_inputs_diff | passed | passed |
-| test_3d_linear_breit_wheeler_angular_relativistic | 4 | 0.0 | 0.0 | text_diff;used_inputs_diff | passed | passed |
-| test_3d_linear_breit_wheeler_many_photons | 55 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_3d_load_density | 15 | 2.3283064365386963e-10 | 5.645074044583491e-16 | hdf5_diff;used_inputs_diff | passed | passed |
 | test_3d_magnetostatic_eb | 8 | 10175.060287153945 | 2.927345865710862e+282 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_magnetostatic_eb_picmi | 10 | 8261.58237059516 | 1.6263032587282567e+281 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
@@ -125,11 +111,6 @@ cases: 398
 | test_3d_projection_div_cleaner_applied_field_picmi | 7 | 1.7569279364693102e-14 | 1.9961976057168008e+43 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_3d_projection_div_cleaner_callback_picmi | 8 | 4.440892098500626e-16 | 1.1176398061555543e-14 | binary_diff;build_metadata_diff;used_inputs_diff | passed | failed |
 | test_3d_projection_div_cleaner_picmi | 28 | 4.9439619065339e-16 | 6.699482064928583e+33 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
-| test_3d_reduced_diags | 6 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_3d_reduced_diags_load_balance_costs_heuristic | 4 | 0.0 | 0.0 | build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_3d_reduced_diags_load_balance_costs_timers | 7 | 0.0 | 0.0 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
-| test_3d_reduced_diags_load_balance_costs_timers_picmi | 7 | 0.0 | 0.0 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | failed |
-| test_3d_reduced_diags_load_balance_costs_timers_psatd | 7 | 1.0 | 0.49612403100775193 | binary_diff;build_metadata_diff;text_diff;used_inputs_diff | passed | passed |
 | test_3d_relativistic_space_charge_initialization | 11 | 4.088490749679702e+179 | 2.4945670877160346e+255 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_space_charge_initialization | 11 | 2.0747847884194925e-12 | 1.6412137586671915e-09 | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |
 | test_3d_theta_implicit_jfnk_direct | 10 | 2.828165709969193e+307 | inf | binary_diff;build_metadata_diff;used_inputs_diff | passed | passed |

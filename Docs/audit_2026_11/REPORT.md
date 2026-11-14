@@ -20,7 +20,8 @@
    - **13 个逐字节完全相同**（连 `warpx_job_info` 都相同）；
    - **233 个数值逐位相同**，只有构建元数据（`warpx_job_info` 里的编译时间/路径/flags）
      或 `warpx_used_inputs` 的默认参数差异（AMReX 版本默认值 `amrex.handle_crt_reports`）；
-   - **132 个存在数值差异**（plotfile/openPMD 数据集层面），另有 **20 个**只有日志文本差异。
+   - **132 个存在可定位的数值差异**（plotfile/openPMD 数据集层面；另有 6 个仅二进制差异），
+     另有 **20 个**只有日志文本差异。
 
 3. **差异归因**（fork vs 官方 26.10，以及 fork vs “官方源码 + fork 同款 AMReX” 的隔离对照）
    见 §4。凡能归因到 AMReX 版本演进的，都不是 fork 的 bug；隔离对照后仍存在的差异才是
@@ -134,7 +135,7 @@ Docs/audit_2026_11/scripts/analyze_results.py --dir audit_runs/compare_fork_vs_o
 | 逐字节完全相同 | 13 | 连 `warpx_job_info` 都一致 |
 | 仅元数据/默认输入差异 | 233 | 数值输出逐位相同；差异只在 `warpx_job_info` 与/或 `warpx_used_inputs`（`amrex.handle_crt_reports`） |
 | 仅日志文本差异 | 20 | 数值输出相同，stdout/日志行不同（多为警告/打印差异，见 `NUMERIC_DIFFS_fork_vs_official.md`） |
-| **数值差异** | **132** | plotfile/openPMD dataset 层面存在差异（下表） |
+| **非元数据差异** | **138** | 其中 **132** 个能定位到具体 plotfile/openPMD 变量（下表）；另 6 个只表现为二进制文件不同、未能定位到变量 |
 
 两侧失败情况：
 
