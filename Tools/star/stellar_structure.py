@@ -222,7 +222,53 @@ def density_from_pressure_temperature(p, t, mu):
     return p_gas * mu * M_U / (K_B * t)
 
 
-def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verbose=False):
+def mlt_gradient(t_k, p, rho, kappa, luminosity, m, r, mu, grad_ad, alpha_mlt):
+    """Temperature gradient from mixing-length theory (Weiss, *Stellar Structure*, ch. 2).
+
+    The convective flux is
+
+        F_conv = rho c_P T sqrt(g) l^2/(4 sqrt(2)) H_P^(-3/2) (grad - grad_ad)^(3/2)
+
+    with l = alpha_MLT H_P, and the radiative flux is F_rad = A_r grad where A_r is fixed by the
+    definition of the radiative gradient, F = A_r grad_rad.  Requiring the total flux to equal
+    L/(4 pi r^2) leaves a monotone equation for x = grad - grad_ad,
+
+        A_c x^(3/2) + A_r x = A_r (grad_rad - grad_ad),
+
+    which is solved by bisection.  x = 0 is the radiative solution, x -> grad_rad - grad_ad the
+    adiabatic (efficient convection) limit.
+
+    Returns (grad, grad_rad).
+    """
+    g = G * m / (r * r)
+    flux = luminosity / (4.0 * math.pi * r * r)
+    # F_rad = (4 a c T^3/(3 kappa rho)) |dT/dr| = a_r * grad, and grad_rad is defined by
+    # F = a_r grad_rad; together these give grad_rad = 3 kappa L P/(16 pi a c G m T^4), which
+    # reproduces the SSM's own radiative gradient to within a percent (checked against the
+    # profile's d ln T / d ln P).
+    a_r = 4.0 * A_RAD * C_LIGHT * t_k ** 4 * g / (3.0 * kappa * p)
+    grad_rad = flux / a_r if a_r > 0.0 else 0.0
+    if grad_rad <= grad_ad or alpha_mlt <= 0.0:
+        return grad_rad, grad_rad
+
+    h_p = p / (rho * g)                     # pressure scale height
+    length = alpha_mlt * h_p                # mixing length
+    c_p = 2.5 * K_B / (mu * M_U)            # monatomic ideal gas
+    a_c = rho * c_p * t_k * math.sqrt(g) * length ** 2 / (4.0 * math.sqrt(2.0) * h_p ** 1.5)
+
+    target = a_r * (grad_rad - grad_ad)
+    lo, hi = 0.0, grad_rad - grad_ad
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        if a_c * mid ** 1.5 + a_r * mid < target:
+            lo = mid
+        else:
+            hi = mid
+    return grad_ad + 0.5 * (lo + hi), grad_rad
+
+
+def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verbose=False,
+                              alpha_mlt=1.5):
     """Integrate the four structure equations outward from the centre.
 
     dr/dm = 1/(4 pi r^2 rho)
@@ -254,8 +300,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
         if not (kappa == kappa) or kappa <= 0.0:
             kappa = kappa_analytic(t, rho * 1.0e-3, x_h, z_heavy)[0]
         kappa *= 1.0e-1                                                   # cm^2/g -> m^2/kg
-        grad_rad = 3.0 * kappa * luminosity * p / (16.0 * math.pi * A_RAD * C_LIGHT * G * m * t ** 4)
-        grad = min(grad_rad, gamma_ad)
+        grad, grad_rad = mlt_gradient(t, p, rho, kappa, luminosity, m, r, mu, gamma_ad, alpha_mlt)
         dt = (t / p) * grad * dp
         eps = epsilon_pp(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy) \
             + epsilon_cno(t, rho * 1.0e-3, x_h, 1.0 - x_h - z_heavy, z_heavy,
@@ -358,6 +403,37 @@ def selftest():
         assert worst_r < 5e-3, (n, worst_r)
         assert worst_rho < 5e-2, (n, worst_rho)
     print("stellar_structure: the mass-coordinate integration reproduces the Lane-Emden profiles")
+
+    # Mixing-length solver: the two limits must be the radiative one (small alpha_MLT, no
+    # convective transport) and the adiabatic one (large alpha_MLT, convection carries everything).
+    import math as _m
+    # A flux large enough that the radiative gradient exceeds the adiabatic one.
+    t, p_pt, rho, kappa, lum, m_pt, r = 1.0e6, 1.0e12, 1.0e2, 0.1, 1.0e30, 1.0e30, 0.5e9
+    mu = 0.62
+    grad_ad = 0.4
+    # The mixing length has to be minute indeed for convection to be negligible when the
+    # radiative gradient is hundreds: the convective flux grows as alpha^2.
+    grad_small, grad_rad_small = mlt_gradient(t, p_pt, rho, kappa, lum, m_pt, r, mu,
+                                              grad_ad, 1.0e-6)
+    grad_large, grad_rad_large = mlt_gradient(t, p_pt, rho, kappa, lum, m_pt, r, mu,
+                                              grad_ad, 1.0e2)
+    assert grad_rad_large > grad_ad, grad_rad_large
+    assert abs(grad_small - grad_rad_large) < 1e-2 * grad_rad_large, (grad_small, grad_rad_large)
+    assert abs(grad_large - grad_ad) < 0.02 * (grad_rad_large - grad_ad), (grad_large, grad_ad)
+    # Flux conservation: F_rad + F_conv must equal L/(4 pi r^2) for any alpha_MLT.
+    for alpha in (0.5, 1.5, 5.0):
+        grad, grad_rad = mlt_gradient(t, p_pt, rho, kappa, lum, m_pt, r, mu, grad_ad, alpha)
+        g = G * m_pt / (r * r)
+        a_r = 4.0 * A_RAD * C_LIGHT * t ** 4 * g / (3.0 * kappa * p_pt)
+        h_p = p_pt / (rho * g)
+        c_p = 2.5 * K_B / (mu * M_U)
+        length = alpha * h_p
+        a_c = rho * c_p * t * _m.sqrt(g) * length ** 2 / (4.0 * _m.sqrt(2.0) * h_p ** 1.5)
+        x = grad - grad_ad
+        total = a_r * grad + a_c * max(x, 0.0) ** 1.5
+        assert abs(total / (lum / (4.0 * _m.pi * r * r)) - 1.0) < 1e-6, (alpha, total)
+    print("stellar_structure: the mixing-length solver gives back the radiative and adiabatic "
+          "limits and conserves the flux")
 
     # The full four-equation integration is exercised too.  It is *not* asserted to reproduce the
     # Sun - with an analytic opacity it cannot (PHYSICS_SPEC 4.2b), and that is the point of
