@@ -35,6 +35,11 @@ if("3" IN_LIST WarpX_DIMS)
         add_test(NAME fluid_ssm_epsilon
                  COMMAND ${Python3_EXECUTABLE}
                          ${CMAKE_SOURCE_DIR}/Tools/star/ssm_compare.py --selftest)
+        # The structural machinery (hydrostatic integration in the mass coordinate) is validated
+        # against the Lane-Emden polytropes, whose solution is known independently.
+        add_test(NAME fluid_lane_emden
+                 COMMAND ${Python3_EXECUTABLE}
+                         ${CMAKE_SOURCE_DIR}/Tools/star/stellar_structure.py --selftest)
     endif()
 
     # The Jeans and hydrostatic tests drive the fluid with the gravity plugin's field, so they
