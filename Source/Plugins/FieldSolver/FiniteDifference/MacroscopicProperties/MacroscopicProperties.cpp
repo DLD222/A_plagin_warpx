@@ -562,20 +562,26 @@ MacroscopicProperties::InitData (
 #else
                 int const iL = ii, iR = ii;
 #if defined(WARPX_DIM_3D)
-                // The interface normal is taken along z (finding F-05), so the two sides are
-                // the z-neighbour cells: in 3D that is the k direction, not j.
                 int const jL = j, jR = j;
-                // Ez is cell-centred in z (Ez_nodal = (1,1,0)), so its sample sits inside cell
-                // k and both sides are that same cell; Ex/Ey are nodal in z and sit between
-                // k-1 and k (CODE_REVIEW F-03).
-                int const kL = normal ? k : amrex::max(k - 1, klo_dom);
-                int const kR = normal ? k : amrex::min(k, khi_dom);
+                amrex::Real const hh3 = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
+                amrex::Real const zn_here3 = zlo_n
+                    + (normal ? amrex::Real(k) + amrex::Real(0.5) : amrex::Real(k)) * dz_n;
+                int kL = static_cast<int>(std::floor((zn_here3 - hh3 * nrmv[2] - zlo_n) / dz_n));
+                int kR = static_cast<int>(std::floor((zn_here3 + hh3 * nrmv[2] - zlo_n) / dz_n));
+                kL = amrex::min(amrex::max(kL, klo_dom), khi_dom);
+                kR = amrex::min(amrex::max(kR, klo_dom), khi_dom);
 #else
-                // Same distinction one dimension down: Ez is cell-centred in z in 2D XZ too.
-                int const jm = amrex::max(j - 1, jlo_dom);
-                int const jp = amrex::min(j, jhi_dom);
-                int const jL = normal ? j : jm;
-                int const jR = normal ? j : jp;
+                // F-05: the two sides are the cells at x -/+ h*n along the interface normal, not
+                // the z-neighbours.  For a z-normal interface (n = ez, the case every deck here
+                // uses) the projection lands exactly on (j-1, j), so this is a strict
+                // generalisation and the existing results cannot move.
+                amrex::Real const hh = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
+                amrex::Real const zn_here = zlo_n
+                    + (normal ? amrex::Real(j) + amrex::Real(0.5) : amrex::Real(j)) * dz_n;
+                int jL = static_cast<int>(std::floor((zn_here - hh * nrmv[2] - zlo_n) / dz_n));
+                int jR = static_cast<int>(std::floor((zn_here + hh * nrmv[2] - zlo_n) / dz_n));
+                jL = amrex::min(amrex::max(jL, jlo_dom), jhi_dom);
+                jR = amrex::min(amrex::max(jR, jlo_dom), jhi_dom);
                 int const kL = k, kR = k;
 #endif
 #endif
