@@ -605,7 +605,7 @@ for (const auto & particle_diag : particle_diags) {
     }
     if (particle_diag.m_plot_Ex || particle_diag.m_plot_Ey || particle_diag.m_plot_Ez ||
         particle_diag.m_plot_Bx || particle_diag.m_plot_By || particle_diag.m_plot_Bz) {
-        storeFieldOnParticles(tmp, data, !use_pinned_pc,
+        storeFieldOnParticles(tmp, data, *m_runtime_context->config_snapshot, !use_pinned_pc,
                               particle_diag.m_plot_Ex, particle_diag.m_plot_Ey, particle_diag.m_plot_Ez,
                               particle_diag.m_plot_Bx, particle_diag.m_plot_By, particle_diag.m_plot_Bz);
     }

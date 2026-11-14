@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Copyright 2026 DLD222
+#
+# This file is part of WarpX.
+#
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 # F-06: on a periodic seam with a material interface, the node-material ghosts must hold the
 # wrapped values, otherwise the rho_medium seed is computed from zeros at the seam.
 #

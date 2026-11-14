@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Copyright 2026 DLD222
+#
+# This file is part of WarpX.
+#
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 # F-03 verification: the 2D XZ normal component (Ez) is sampled at its real position.
 #
 # The 2D cavity deck oscillates as By = cos(kx x) cos(kz z) cos(omega t) with

@@ -197,6 +197,39 @@ CMake 片段，或给恒星层加一个统一的 `StarLayers` INTERFACE 目标�
 
 ---
 
+---
+
+# 更正（重要）：之前把原因归到"AMReX 头文件来自 2D 构建目录"是错的
+
+那段结论是**推断冒充实测**，撤回。真实情况分两条，互不相干：
+
+**一、`AMReX_SOURCE_DIR` 指向别的仓库只是"共用源码"，本身无害。**
+AMReX 在每个构建目录里各自生成配置（`AMReX_Config_1D/2D/3D.H`），源码放哪儿不影响维度。
+真正该管的是 `AGENTS.md` 的规定：**构建目录必须在本仓库内，不能指向仓库外的构建目录**。
+`build_multi` 把另一个项目构建目录下的 `fetchedamrex-build` 放进了 67 个目标的 `-I` 里，这违反该规定，也让构建依赖别人的目录（人家一删就配不起来）。
+
+**二、`IntVectND<2>` 的真正原因：模块没声明自己的维度。**
+AMReX 的多维配置头按 `AMREX_SPACEDIM` 选择 per-dimension 设置，**没人定义时默认 2D**。
+我的插件目标既没有链 `amrex_${D}d`，也没有写 `AMREX_SPACEDIM`，于是它按 2D 编译——
+这就是"3D 代码里冒出 2D 类型"的全部原因。
+
+## 按模块化要求重做的落点
+
+原先的做法是**一个进程里把两个恒星插件链在一起**（`StarRuntimePlugin.cpp` include 了
+`FluidMoments.H`、并把两个 archive 链进同一个 .so），违反两条边界：
+插件之间不得互相包含；插件必须能独立构建/独立加载。已删除该文件，改为：
+
+| 文件 | 职责 | 依赖 |
+|---|---|---|
+| `Source/Plugins/NewtonGravity/StarGravityPlugin.cpp` | 读 `star_rho`，解势，写 `star_phi` 与 `star_g{x,y,z}` | 只依赖自己的层 + ABI + AMReX |
+| `Source/Plugins/FluidMoments/StarFluidPlugin.cpp` | 读 `star_g{x,y,z}`，推进流体步，写 `star_energy` | 同上，**不认识引力插件** |
+
+两者之间只有**总线上的四个字段名**，没有 include、没有互相链接。各自的目标在自己的
+`CMakeLists.txt` 里声明，并显式 `target_compile_definitions(... AMREX_SPACEDIM=${D})`。
+
+仍在做的：用仓库内的新构建目录（`build_star`，AMReX 由本仓库自己下载）把这两个模块编出来、
+加载、验证退出码。
+
 # 第四次尝试与结论：这条路在"不改核心"的约束内走不通
 
 第 25、26 轮又试了两种组合：

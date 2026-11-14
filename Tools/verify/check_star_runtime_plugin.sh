@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Copyright 2026 DLD222
+#
+# This file is part of WarpX.
+#
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 # Load the star runtime plugin into a real WarpX run and check that it drives NewtonGravity.
 #
 # The plugin is a MODULE built by the plugin's own CMakeLists (target star_runtime_plugin_3d) and

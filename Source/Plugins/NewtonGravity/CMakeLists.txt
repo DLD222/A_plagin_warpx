@@ -15,40 +15,37 @@ foreach(D IN LISTS WarpX_DIMS)
     # The loadable runtime plugin: a MODULE library the host picks up through WARPX_PLUGIN_PATH.
     # Built by this project so it inherits the right AMReX configuration, but *loaded* rather than
     # linked into the executable - the core never names it (CODE_REVIEW section 15.4).
-    if(NOT TARGET star_runtime_plugin_${SD})
-        add_library(star_runtime_plugin_${SD} MODULE StarRuntimePlugin.cpp)
-        # Headers only from AMReX: the plugin needs the types, not the archive (see the PRIVATE
-        # ablastr note above - two AMReX copies corrupt the heap at exit).
-        target_include_directories(star_runtime_plugin_${SD} PRIVATE
+    # Runtime plugin for this layer (A7: one plugin, one job).  It links no host code - the ABI
+    # entry points and AMReX resolve from the loading executable, which is the pattern
+    # tests/plugins uses - and its include paths come from the per-dimension AMReX target, so it
+    # compiles for the dimension it is named after.
+    if(NOT TARGET star_gravity_plugin_${SD})
+        add_library(star_gravity_plugin_${SD} MODULE StarGravityPlugin.cpp NewtonGravity.cpp)
+        target_include_directories(star_gravity_plugin_${SD} PRIVATE
+            ${WARPX_MODULE_INCLUDE_DIRS}
             ${CMAKE_CURRENT_SOURCE_DIR}
-            ${PROJECT_SOURCE_DIR}/Source/Core
-            $<TARGET_PROPERTY:AMReX::amrex,INTERFACE_INCLUDE_DIRECTORIES>)
-        # Only the star layer is linked in; AMReX and ablastr symbols stay undefined and are
-        # resolved from the loading executable at dlopen time.  Linking a second copy of AMReX
-        # into a plugin makes both copies run their static destructors at exit and corrupts the
-        # heap - that was the shutdown crash this plugin had.
-        target_link_libraries(star_runtime_plugin_${SD} PRIVATE
-            warpx_newtongravity_static_${SD})
-        set_target_properties(star_runtime_plugin_${SD} PROPERTIES
-            PREFIX "" OUTPUT_NAME "star_runtime_plugin_${SD}")
-    endif()
-
-    # A static variant exists so that an out-of-tree runtime plugin (a shared library loaded
-    # through WARPX_PLUGIN_PATH) can link this layer: an OBJECT library has no archive to link
-    # against.  Same sources, same include directories, no extra dependency.
-    if(NOT TARGET warpx_newtongravity_static_${SD})
-        add_library(warpx_newtongravity_static_${SD} STATIC NewtonGravity.cpp)
-        target_include_directories(warpx_newtongravity_static_${SD} PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            ${PROJECT_SOURCE_DIR}/Source/Core)
-        # PUBLIC so consumers get the includes.  KNOWN ISSUE: this also drags ablastr and, through
-        # it, AMReX into a *shared* plugin's image, so the plugin and the executable each have a
-        # copy of AMReX and their static destructors corrupt the heap at exit.  Making this PRIVATE
-        # breaks the include propagation for the module target; the real fix is a separate
-        # interface target for the headers (see STAR_PLUGIN_BUS.md section 3c).
-        target_link_libraries(warpx_newtongravity_static_${SD} PUBLIC ablastr_${SD})
-        # PIC so a shared runtime plugin can link this archive (the "bad value" link error).
-        set_target_properties(warpx_newtongravity_static_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+            ${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build
+            ${fetchedamrex_SOURCE_DIR}/Src
+            ${fetchedamrex_SOURCE_DIR}/Src/Base
+            ${fetchedamrex_SOURCE_DIR}/Src/Base/Parser
+            ${fetchedamrex_SOURCE_DIR}/Src/Boundary
+            ${fetchedamrex_SOURCE_DIR}/Src/LinearSolvers/MLMG)
+        # Declare this module's dimension explicitly.  AMReX's multi-dimension config header
+        # picks the per-dimension settings from AMREX_SPACEDIM and falls back to 2D when nobody
+        # defines it - which is exactly how a 3D plugin ends up compiled as 2D.
+        target_compile_definitions(star_gravity_plugin_${SD} PRIVATE AMREX_SPACEDIM=${D})
+        if(TARGET OpenMP::OpenMP_CXX)
+            target_link_libraries(star_gravity_plugin_${SD} PRIVATE OpenMP::OpenMP_CXX)
+        endif()
+        if(TARGET MPI::MPI_CXX)
+            target_link_libraries(star_gravity_plugin_${SD} PRIVATE MPI::MPI_CXX)
+        endif()
+        # No host libraries: like tests/plugins, the module resolves the ABI, ablastr and AMReX
+        # symbols from the loading executable (it exports them), so the process keeps ONE copy of
+        # AMReX instead of one per plugin.
+        set_target_properties(star_gravity_plugin_${SD} PROPERTIES
+            PREFIX "" OUTPUT_NAME "star_gravity_plugin_${SD}"
+            POSITION_INDEPENDENT_CODE ON LINKER_LANGUAGE CXX)
     endif()
 endforeach()
 

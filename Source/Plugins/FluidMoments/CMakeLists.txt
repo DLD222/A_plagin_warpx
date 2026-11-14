@@ -31,6 +31,35 @@ foreach(D IN LISTS WarpX_DIMS)
                 warpx_newtongravity_static_${SD})
         endif()
     endif()
+
+    # Runtime plugin for this layer.  It knows nothing about the gravity plugin: the coupling is
+    # the four field names it reads from the bus (A7: plugins are independent).
+    if(NOT TARGET star_fluid_plugin_${SD})
+        add_library(star_fluid_plugin_${SD} MODULE StarFluidPlugin.cpp FluidMoments.cpp)
+        target_include_directories(star_fluid_plugin_${SD} PRIVATE
+            ${WARPX_MODULE_INCLUDE_DIRS}
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build
+            ${fetchedamrex_SOURCE_DIR}/Src
+            ${fetchedamrex_SOURCE_DIR}/Src/Base
+            ${fetchedamrex_SOURCE_DIR}/Src/Base/Parser
+            ${fetchedamrex_SOURCE_DIR}/Src/Boundary
+            ${fetchedamrex_SOURCE_DIR}/Src/LinearSolvers/MLMG)
+        # Declare this module's dimension explicitly.  AMReX's multi-dimension config header
+        # picks the per-dimension settings from AMREX_SPACEDIM and falls back to 2D when nobody
+        # defines it - which is exactly how a 3D plugin ends up compiled as 2D.
+        target_compile_definitions(star_fluid_plugin_${SD} PRIVATE AMREX_SPACEDIM=${D})
+        if(TARGET OpenMP::OpenMP_CXX)
+            target_link_libraries(star_fluid_plugin_${SD} PRIVATE OpenMP::OpenMP_CXX)
+        endif()
+        if(TARGET MPI::MPI_CXX)
+            target_link_libraries(star_fluid_plugin_${SD} PRIVATE MPI::MPI_CXX)
+        endif()
+        # No host libraries, for the same reason as the gravity module.
+        set_target_properties(star_fluid_plugin_${SD} PROPERTIES
+            PREFIX "" OUTPUT_NAME "star_fluid_plugin_${SD}"
+            POSITION_INDEPENDENT_CODE ON LINKER_LANGUAGE CXX)
+    endif()
 endforeach()
 
 # Acceptance tests.  Both run a one-dimensional problem inside the build's dimensionality, so

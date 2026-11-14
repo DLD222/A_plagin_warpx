@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Copyright 2026 DLD222
+#
+# This file is part of WarpX.
+#
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 # F-04 verification: the exponential step runs, and its E^n snapshot is fully initialised.
 #
 # The deck is the 1D cavity with algo.macroscopic_subpixel = 1 and sigma = 0.001, which is the only

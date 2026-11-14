@@ -1,3 +1,5 @@
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 import sys, numpy as np, yt
 yt.funcs.mylog.setLevel(50)
 c = 2.99792458e8; eps0 = 8.8541878128e-12; pi = np.pi

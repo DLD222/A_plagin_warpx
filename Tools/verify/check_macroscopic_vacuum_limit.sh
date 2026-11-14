@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# License: BSD-3-Clause
+# SPDX-License-Identifier: BSD-3-Clause
 # Does the macroscopic (tensor-medium) E-update reduce to Yee in vacuum?
 #
 # The strongest check available for the material solver: with epsilon = epsilon0,

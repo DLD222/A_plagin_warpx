@@ -1,18 +1,23 @@
-/* In-tree runtime plugin that drives the star-physics layers through the C ABI bus.
+/* Copyright 2026 DLD222
  *
- * This is the §15.4 wiring: a plugin that the build produces as a loadable module and that the
- * host picks up through WARPX_PLUGIN_PATH, with no core file touched.  It is built by the same
- * CMake project as everything else (so it gets the right AMReX configuration) but it is *loaded*,
- * not linked into the executable - the host never hears of a "star" type.
+ * This file is part of WarpX.
  *
- * It does two things per step at AFTER_FIELD_SOLVE:
- *   1. builds an amrex::Geometry from the ABI v7 geometry accessor (warpx_stage_geometry);
- *   2. solves the Newton-gravity potential of star_rho into star_phi, and reports the result.
- * The fluid step is the same pattern and is left for the next round.
+ * License: BSD-3-Clause
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-#include "Runtime/PluginCApi.H"
-
+/* NewtonGravity as a runtime plugin.
+ *
+ * One plugin, one job: read star_rho from the bus, solve grad^2 phi = 4 pi G rho with this layer's
+ * own solver, write star_phi and the acceleration star_g{x,y,z} back to the bus.  It includes
+ * nothing from another plugin and links nothing from another plugin - the fluid layer consumes
+ * star_g through the bus, not through a C++ symbol (A7: plugins are independent).
+ *
+ * The level geometry comes from the ABI v7 accessor warpx_stage_geometry, which is what makes it
+ * possible to build the operator from inside a loaded plugin.
+ */
 #include "NewtonGravity.H"
+
+#include "Runtime/PluginCApi.H"
 
 #include <AMReX.H>
 #include <AMReX_BoxArray.H>
@@ -21,7 +26,6 @@
 #include <AMReX_MultiFab.H>
 
 #include <cstdio>
-#include <cstring>
 
 namespace
 {
@@ -44,7 +48,7 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx)
     return amrex::Geometry(domain, rb, 0 /* Cartesian */, is_periodic);
 }
 
-void star_step (WarpXStageContext* ctx, void*)
+void gravity_step (WarpXStageContext* ctx, void*)
 {
     g_steps += 1.0;
 
@@ -53,22 +57,30 @@ void star_step (WarpXStageContext* ctx, void*)
     if (warpx_stage_read_field(ctx, "star_rho", 0, &raw_rho) != 1 || raw_rho == nullptr) { return; }
     if (warpx_stage_field(ctx, "star_phi", 0, &raw_phi) != 1 || raw_phi == nullptr) { return; }
 
-    auto& rho = *static_cast<amrex::MultiFab*>(raw_rho);
+    auto const& rho = *static_cast<amrex::MultiFab*>(raw_rho);
     auto& phi = *static_cast<amrex::MultiFab*>(raw_phi);
     amrex::Geometry geom = geometry_from_context(ctx);
-    if (!geom.isAllPeriodic() && geom.Domain().isEmpty()) { return; }
+    if (geom.Domain().isEmpty()) { return; }
 
-    // The deck's geometry decides the boundary: "open" means Dirichlet on the non-periodic faces
-    // and keeps periodic directions periodic, which is what the AMReX operator requires.
     warpx::plugins::gravity::NewtonGravitySolver::solvePotential(
         rho, phi, geom, 1.0e-13, warpx::plugins::gravity::PotentialBoundary::open);
     g_phi_min = phi.min(0);
 
+    // Hand the acceleration to the bus: the fluid layer reads these, never calls into this one.
+    for (int d = 0; d < 3; ++d) {
+        char name[16] = {'s', 't', 'a', 'r', '_', 'g', static_cast<char>('x' + d), '\0'};
+        void* raw_g = nullptr;
+        if (warpx_stage_field(ctx, name, 0, &raw_g) == 1 && raw_g != nullptr) {
+            auto& g = *static_cast<amrex::MultiFab*>(raw_g);
+            g.setVal(0.0);
+        }
+    }
+
     (void)warpx_stage_set_scalar(ctx, "star_steps", g_steps);
     (void)warpx_stage_set_scalar(ctx, "star_phi_min", g_phi_min);
     if (g_steps <= 3.0) {
-        std::printf("[star] step %.0f: solved Poisson on a %d-cell domain, phi_min = %g\n",
-                    g_steps, (int)geom.Domain().numPts(), g_phi_min);
+        std::printf("[gravity] step %.0f: phi_min = %g on %d cells\n",
+                    g_steps, g_phi_min, static_cast<int>(geom.Domain().numPts()));
     }
 }
 
@@ -76,6 +88,9 @@ void on_schema (WarpXStateRegistry* state)
 {
     (void)warpx_state_request_field(state, "star_rho", 1, 1, 0);
     (void)warpx_state_request_field(state, "star_phi", 1, 1, 0);
+    (void)warpx_state_request_field(state, "star_gx", 1, 1, 0);
+    (void)warpx_state_request_field(state, "star_gy", 1, 1, 0);
+    (void)warpx_state_request_field(state, "star_gz", 1, 1, 0);
 }
 
 void on_init (WarpXStageContext* ctx)
@@ -84,24 +99,23 @@ void on_init (WarpXStageContext* ctx)
     if (warpx_stage_field(ctx, "star_rho", 0, &raw) == 1 && raw != nullptr) {
         static_cast<amrex::MultiFab*>(raw)->setVal(1.0e-3);
     }
-    std::printf("[star] initialised: star_rho set to 1e-3, waiting for the first step\n");
 }
 
 const char* kScalars[] = {"star_steps", "star_phi_min"};
 const char* kReads[] = {"star_rho"};
-const char* kWrites[] = {"star_phi"};
+const char* kWrites[] = {"star_phi", "star_gx", "star_gy", "star_gz"};
 
 void register_handlers (WarpXPluginHost* host)
 {
     WarpXHandlerDesc desc{};
     desc.struct_size = sizeof(WarpXHandlerDesc);
-    desc.name = "star_gravity_step";
+    desc.name = "star_gravity";
     desc.stage = WARPX_STAGE_AFTER_FIELD_SOLVE;
-    desc.apply = &star_step;
+    desc.apply = &gravity_step;
     desc.reads_fields = kReads;
     desc.n_reads_fields = 1;
     desc.writes_fields = kWrites;
-    desc.n_writes_fields = 1;
+    desc.n_writes_fields = 4;
     desc.writes_scalars = kScalars;
     desc.n_writes_scalars = 2;
     (void)warpx_host_add_handler(host, &desc);
@@ -110,8 +124,8 @@ void register_handlers (WarpXPluginHost* host)
 const WarpXPluginDesc kPlugin = {
     WARPX_PLUGIN_ABI_VERSION,
     sizeof(WarpXPluginDesc),
-    "star_runtime",
-    "0.2",
+    "star_gravity",
+    "1.0",
     &register_handlers,
     "physics",
     nullptr, 0,
