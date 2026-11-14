@@ -127,7 +127,7 @@ def state(rho, t_k, x_h, y_he, z_metal):
     lo = math.log10(max(1.0e-30, 1.0e-10 * n_h_tot))
     hi = math.log10(max(1.0, 10.0 * (n_h_tot + n_he_tot + Z_HEAVY * n_z)))
     flo = charge_residual(10.0 ** lo)
-    for _ in range(200):
+    for _ in range(50):
         mid = 0.5 * (lo + hi)
         fmid = charge_residual(10.0 ** mid)
         if (fmid > 0.0) == (flo > 0.0):
@@ -152,7 +152,7 @@ def state(rho, t_k, x_h, y_he, z_metal):
         lo = math.log10(max(1.0e-30, 1.0e-10 * n_h_tot))
         hi = math.log10(max(1.0, 10.0 * (n_h_tot + n_he_tot + Z_HEAVY * n_z)))
         flo = charge_residual(10.0 ** lo)
-        for _ in range(120):
+        for _ in range(40):
             mid = 0.5 * (lo + hi)
             fmid = charge_residual(10.0 ** mid)
             if (fmid > 0.0) == (flo > 0.0):
@@ -192,7 +192,7 @@ def density_for_pressure(p_target, t_k, x_h, y_he, z_metal, tolerance=1.0e-10):
     well posed; the only subtlety is that a cold, mostly neutral gas needs a wide bracket.
     """
     lo, hi = -30.0, 12.0
-    for _ in range(200):
+    for _ in range(45):
         mid = 0.5 * (lo + hi)
         p = pressure(10.0 ** mid, t_k, x_h, y_he, z_metal)
         if p < p_target:
@@ -222,7 +222,7 @@ def nabla_ad(rho, t_k, x_h, y_he, z_metal, relative_step=1.0e-4):
     lo = math.log10(rho * 0.5)
     hi = math.log10(rho * 1.5)
     f_lo = adiabatic_residual(10.0 ** lo)
-    for _ in range(200):
+    for _ in range(22):
         mid = 0.5 * (lo + hi)
         f_mid = adiabatic_residual(10.0 ** mid)
         if (f_mid > 0.0) == (f_lo > 0.0):

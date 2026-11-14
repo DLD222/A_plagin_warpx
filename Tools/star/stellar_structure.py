@@ -411,6 +411,108 @@ def compare_solar_diagnostic():
     print("  remaining EOS detail (partition functions, Coulomb free energy) all live.")
 
 
+SIGMA_SB = 5.670374419e-8    # W m^-2 K^-4
+
+
+def surface_conditions(r, lum, mass, x_h, y_he, z_metal, effective_temperature):
+    """Photospheric boundary: P = (2/3) g/kappa and T = T_eff = (L/(4 pi R^2 sigma))^(1/4)."""
+    g = G * mass / (r * r)
+    rho_guess = 1.0e-4                       # g/cm^3, only to evaluate the surface opacity
+    from opal_opacity import kappa_combined
+    from ssm_compare import kappa_analytic
+    kappa = kappa_combined(effective_temperature, rho_guess, x_h, z_metal)
+    if not (kappa > 0.0):
+        kappa = kappa_analytic(effective_temperature, rho_guess, x_h, z_metal)[0]
+    kappa *= 1.0e-1                          # cm^2/g -> m^2/kg
+    pressure = 2.0 / 3.0 * g / kappa         # Pa
+    return pressure
+
+
+def effective_temperature(lum, r):
+    return (lum / (4.0 * math.pi * r * r * SIGMA_SB)) ** 0.25
+
+
+def solve_solar_model(mass, x_of_m, z_of_m, p_c, t_c, alpha_mlt=1.5, max_iterations=25,
+                      verbose=True):
+    """Shoot on (Pc, Tc) so that the model meets the photospheric boundary conditions.
+
+    Residuals: log(P(M)/P_phot) and log(T(M)/T_eff).  The integration always runs to m = M, and
+    the photospheric pressure and temperature are evaluated from the model's own radius and
+    luminosity, so this is a two-by-two root find on (log Pc, log Tc).
+    """
+    import copy
+
+    def evaluate(log_p, log_t):
+        centre = (10.0 ** log_p, 10.0 ** log_t)
+        samples = integrate_solar_structure(mass, x_of_m, z_of_m, centre[0], centre[1],
+                                            n_steps=200, alpha_mlt=alpha_mlt)
+        last = samples[-1]
+        m_last, r, rho, t, lum = last
+        if r <= 0.0 or lum <= 0.0 or t <= 0.0:
+            return None
+        t_eff = effective_temperature(lum, r)
+        p_phot = surface_conditions(r, lum, mass, x_of_m(mass), max(0.0, 1.0 - x_of_m(mass)
+                                                                   - z_of_mass(z_of_m, mass)),
+                                    z_of_m(mass), t_eff)
+        # The model's own pressure at its last point.
+        import eos as saha_eos
+        p_last = saha_eos.pressure(rho * 1.0e-3, t, x_of_m(m_last),
+                                   max(0.0, 1.0 - x_of_m(m_last) - z_of_m(m_last)),
+                                   z_of_m(m_last)) * 0.1
+        return {"r": r, "lum": lum, "t": t, "p": p_last, "t_eff": t_eff,
+                "p_phot": p_phot, "mass_reached": m_last, "samples": samples}
+
+    log_p, log_t = math.log10(p_c), math.log10(t_c)
+    best = None
+    for iteration in range(max_iterations):
+        out = evaluate(log_p, log_t)
+        if out is None:
+            log_t += 0.05
+            continue
+        r1 = math.log10(max(out["p"], 1e-30) / max(out["p_phot"], 1e-30))
+        r2 = math.log10(out["t"] / out["t_eff"])
+        mass_miss = (mass - out["mass_reached"]) / mass
+        if verbose:
+            print(f"  iter {iteration:2d}: logPc={log_p:.4f} logTc={log_t:.4f}"
+                  f"  R={out['r'] / R_SUN:.3f} R_sun  L={out['lum'] / 3.846e26:.3f} L_sun"
+                  f"  r1={r1:+.3f} r2={r2:+.3f} mass_miss={mass_miss:.1e}")
+        score = abs(r1) + abs(r2) + 50.0 * max(0.0, mass_miss)
+        if best is None or score < best[0]:
+            best = (score, log_p, log_t, out)
+        if abs(r1) < 1.0e-3 and abs(r2) < 1.0e-3 and mass_miss < 1.0e-3:
+            return out, (log_p, log_t), iteration
+        # Numerical Jacobian by forward differences.
+        delta = 1.0e-3
+        out_p = evaluate(log_p + delta, log_t)
+        out_t = evaluate(log_p, log_t + delta)
+        if out_p is None or out_t is None:
+            log_p += 0.02
+            continue
+        j11 = (math.log10(max(out_p["p"], 1e-30) / out_p["p_phot"]) - r1) / delta
+        j21 = (math.log10(out_p["t"] / out_p["t_eff"]) - r2) / delta
+        j12 = (math.log10(max(out_t["p"], 1e-30) / out_t["p_phot"]) - r1) / delta
+        j22 = (math.log10(out_t["t"] / out_t["t_eff"]) - r2) / delta
+        det = j11 * j22 - j12 * j21
+        if abs(det) < 1.0e-14:
+            log_p += 0.02
+            continue
+        step_p = (-r1 * j22 + r2 * j12) / det
+        step_t = (-r2 * j11 + r1 * j21) / det
+        # Damped update: the integration is only locally well behaved.
+        damping = 1.0
+        for _ in range(20):
+            if abs(damping * step_p) < 0.3 and abs(damping * step_t) < 0.3:
+                break
+            damping *= 0.5
+        log_p += damping * step_p
+        log_t += damping * step_t
+    return best[3], (best[1], best[2]), max_iterations
+
+
+def z_of_mass(z_of_m, m):
+    return z_of_m(m)
+
+
 def selftest():
     # The surface values of the Lane-Emden function are textbook numbers; checking them guards
     # against a broken integrator before the two formulations are even compared.
