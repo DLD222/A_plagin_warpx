@@ -29,7 +29,8 @@ namespace
 void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
                                           amrex::MultiFab& phi,
                                           amrex::Geometry const& geom,
-                                          amrex::Real relative_tolerance)
+                                          amrex::Real relative_tolerance,
+                                          PotentialBoundary boundary)
 {
     BL_PROFILE("NewtonGravitySolver::solvePotential");
 
@@ -38,7 +39,8 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     // domain to Dirichlet when no handler is given (PoissonSolver.H:396-403), which a periodic
     // box rejects.  Going straight to AMReX keeps the plugin self-contained.
     //
-    //   grad^2 phi = 4 pi G (rho - <rho>)   [the mean is removed: Jeans swindle]
+    //   periodic:  grad^2 phi = 4 pi G (rho - <rho>)   [the mean is removed: Jeans swindle]
+    //   open:      grad^2 phi = 4 pi G rho,  phi = given on the boundary
     //
     // With MLABecLaplacian the operator is a*alpha*phi - b*div(beta grad phi), so alpha = 0,
     // b = -1 and beta = 1 reproduce the plain Laplacian.
@@ -46,12 +48,17 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     amrex::MultiFab rhs(rho.boxArray(), rho.DistributionMap(), 1, 1);
     amrex::MultiFab::Copy(rhs, rho, 0, 0, 1, 0);
 
-    amrex::Real const mean = rho.sum(0) / geom.ProbSize();
-    rhs.plus(-mean, 0, 1);
+    if (boundary == PotentialBoundary::periodic) {
+        amrex::Real const mean = rho.sum(0) / geom.ProbSize();
+        rhs.plus(-mean, 0, 1);
+    }
     rhs.mult(4.0 * M_PI * G_newton, 0);
     rhs.FillBoundary(geom.periodicity());
 
-    phi.setVal(amrex::Real(0.0));
+    // The interior is the initial guess: the open case must keep the caller's ghost cells,
+    // which hold the Dirichlet data, so only the valid cells are touched here.
+    phi.setVal(amrex::Real(0.0), 0, 1, 0);
+    if (boundary == PotentialBoundary::periodic) { phi.FillBoundary(geom.periodicity()); }
 
     // One level: the plugin solves on the level the caller hands it.
     amrex::BoxArray const& ba = rhs.boxArray();
@@ -61,9 +68,11 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     amrex::MLABecLaplacian mlabec({geom}, {ba}, {dm}, info);
     mlabec.setMaxOrder(2);
 
-    auto const lobc = amrex::Array<amrex::LinOpBCType, AMREX_SPACEDIM>{AMREX_D_DECL(
-        amrex::LinOpBCType::Periodic, amrex::LinOpBCType::Periodic,
-        amrex::LinOpBCType::Periodic)};
+    amrex::Array<amrex::LinOpBCType, AMREX_SPACEDIM> lobc;
+    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+        lobc[d] = (boundary == PotentialBoundary::periodic) ? amrex::LinOpBCType::Periodic
+                                                            : amrex::LinOpBCType::Dirichlet;
+    }
     mlabec.setDomainBC(lobc, lobc);
 
     amrex::MultiFab beta_fab(ba, dm, 1, 1);
@@ -79,8 +88,12 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     mlmg.setMaxIter(200);
     mlmg.solve({&phi}, {&rhs}, relative_tolerance, amrex::Real(0.0));
 
-    amrex::Real const phi_mean = phi.sum(0) / geom.ProbSize();
-    phi.plus(-phi_mean, 0, 1);
+    if (boundary == PotentialBoundary::periodic) {
+        // The operator annihilates constants, so the periodic solution is fixed by asking for
+        // zero mean.
+        amrex::Real const phi_mean = phi.sum(0) / geom.ProbSize();
+        phi.plus(-phi_mean, 0, 1);
+    }
 }
 
 void NewtonGravitySolver::computeAcceleration (amrex::MultiFab const& phi,

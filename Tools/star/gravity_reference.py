@@ -42,6 +42,30 @@ def phi_uniform_sphere(r, radius, density):
     return -G * mass / r
 
 
+def phi_shell(r, r_in, r_out, density):
+    """Potential of one uniform shell r_in <= r <= r_out, referenced to zero at infinity.
+
+    phi(r) = -G * integral_r^inf M_enc(s)/s^2 ds, evaluated analytically in the three branches:
+    outside the shell it is the point-mass form, inside it is constant (the shell theorem), and
+    inside the material it carries the -(4 pi rho / 3)(b^2 - r^2)/2 term from the partial shell.
+    """
+    mass = 4.0 / 3.0 * math.pi * density * (r_out ** 3 - r_in ** 3)
+    if r >= r_out:
+        return -G * mass / r
+    partial = 4.0 / 3.0 * math.pi * density * (
+        0.5 * (r_out ** 2 - r ** 2) - r_in ** 3 * (r_out - r) / (r * r_out))
+    if r >= r_in:
+        return -G * (partial + mass / r_out)
+    partial = 4.0 / 3.0 * math.pi * density * (
+        0.5 * (r_out ** 2 - r_in ** 2) - r_in ** 3 * (r_out - r_in) / (r_in * r_out))
+    return -G * (partial + mass / r_out)
+
+
+def phi_two_shells(r, shells):
+    """Sum of phi_shell over a list of (r_in, r_out, density)."""
+    return sum(phi_shell(r, a, b, rho) for (a, b, rho) in shells)
+
+
 def phi_point_mass(r, mass):
     """phi = -G M / r, the r -> 0 limit of the sphere."""
     return -G * mass / r
@@ -116,7 +140,28 @@ def selftest():
     shells = [(0.5, 1.0, 1000.0), (2.0, 3.0, 500.0)]
     assert g_two_shells(0.4, shells) == 0.0
 
-    # 6. Jeans wavelength scales as c_s / sqrt(rho).
+    # 6. phi_shell is continuous where the density jumps, and its derivative is -g.
+    shells = [(0.8, 1.0, 1000.0), (2.0, 2.5, 500.0)]
+    for boundary in (0.8, 1.0, 2.0, 2.5):
+        inside = phi_shell(boundary * (1.0 - 1e-9), *shells[0] if boundary < 1.5 else shells[1])
+        outside = phi_shell(boundary * (1.0 + 1e-9), *shells[0] if boundary < 1.5 else shells[1])
+        assert abs(inside - outside) / abs(outside) < 1e-6, boundary
+
+    # 7. The radial component of g = -dphi/dr must reproduce the shell-theorem field.
+    #    g_two_shells returns |g|, which points inward, so dphi/dr = +|g|.
+    h = 1e-6
+    for r in (0.5, 1.1, 1.5, 2.2, 3.0):
+        dphi_dr = (phi_two_shells(r + h, shells) - phi_two_shells(r - h, shells)) / (2.0 * h)
+        assert abs(dphi_dr - g_two_shells(r, shells)) < 1e-5 * max(g_two_shells(r, shells), 1e-30), r
+
+    # 8. A shell with r_in = 0 is the uniform sphere, in phi as well as in g.
+    radius, density = 6.957e8, 1408.0
+    for r in (0.3 * radius, 0.9 * radius, 2.0 * radius):
+        assert abs(phi_shell(r, 0.0, radius, density)
+                   - phi_uniform_sphere(r, radius, density)) < 1e-12 * abs(
+                       phi_uniform_sphere(r, radius, density))
+
+    # 9. Jeans wavelength scales as c_s / sqrt(rho).
     lam1 = jeans_wavelength(1.0e4, 1.0e-19)
     lam2 = jeans_wavelength(2.0e4, 4.0e-19)
     assert abs(lam2 / lam1 - 1.0) < 1e-12      # doubling c_s and quadrupling rho cancel

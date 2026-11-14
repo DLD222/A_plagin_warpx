@@ -90,7 +90,13 @@ int main (int argc, char* argv[])
                 Real const exact = -(4.0 * pi * G * amp / (k * k)) * std::sin(k * x);
                 // The discrete solution of a periodic problem with a sine mode has no
                 // constant offset, so the comparison is direct.
+#if AMREX_SPACEDIM == 1
+                // A one-dimensional box has no second index to take; the Array4 is indexed
+                // (i, 0, 0) there.
+                Real const err = std::abs(phi_arr(i, 0, 0) - exact);
+#else
                 Real const err = std::abs(phi_arr(i, bx.smallEnd(1), 0) - exact);
+#endif
                 max_err = std::max(max_err, (double)err);
                 max_ref = std::max(max_ref, (double)std::abs(exact));
             }

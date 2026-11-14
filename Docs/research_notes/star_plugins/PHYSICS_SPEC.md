@@ -62,11 +62,18 @@ Kippenhahn, Weigert & Weiss, *Stellar Structure and Evolution*, 2nd ed., Ch. 2�
 
 | 用例 | 解析式 | 容差 | 状态 |
 |---|---|---|---|
-| 均匀球内部 | g(r) = (4/3)πGρr | 相对误差 < 1e-3 | `[test]` |
-| 均匀球外部 | g(r) = GM/r² | 相对误差 < 1e-3 | `[test]` |
-| 点质量势 | φ = −GM/r | 相对误差 < 1e-3 | `[test]` |
-| 双同心球壳 | 分段解析 | 相对误差 < 1e-3 | `[test]` |
-| 网格加密 | 误差随 dx 收敛 | 阶 ≥ 1.8 | `[test]` |
+| 均匀球内部 | g(r) = (4/3)πGρr | RMS 相对误差 < 1e-3，逐点最大 < 5e-3 | ✅ ctest `gravity_uniform_sphere_3` |
+| 均匀球外部 | g(r) = GM/r² | 同上 | ✅ 同上 |
+| 点质量势 | φ = −GM/r，g = GM/r² | φ 与 g 的 RMS 相对误差 < 1e-3，g 逐点最大 < 5e-3 | ✅ ctest `gravity_point_mass_3` |
+| 双同心球壳 | 分段解析（空腔 g=0、间隙 GM₁/r²、外部 G(M₁+M₂)/r²） | φ 的 RMS < 1e-3；g 的 RMS < 2e-3；空腔 max\|g\|/g_表面 < 2e-3 | ✅ ctest `gravity_two_shells_3` |
+| 网格加密 | 误差随 dx 收敛 | 阶 ≥ 1.8（对 RMS 误差） | ✅ 三个算例各自给出 |
+
+**容差的依据**（不是凑出来的，是二阶格式的下限）：
+- 势 φ 由二阶离散 Poisson 方程给出，φ 的 RMS 相对误差按二阶收敛，1e-3 在 96³ 上有余量。
+- 场 g = −∇φ 用二阶中心差分，其相对截断误差是 `(dx/r)²`（对 φ = −GM/r 可解析算出）。
+  在 r 较小的比较带（如双球壳的间隙 r ≈ 0.19L），96³ 上 `(dx/r)² ≈ 3e-3`，
+  因此 g 的判据按此放宽到 2e-3（RMS），并把 **收敛阶** 的要求放在 φ 上；
+  均匀球外部与点质量的比较带离中心足够远，g 的 RMS 仍在 1e-3 以内。
 
 ---
 
@@ -283,6 +290,16 @@ L = **3.846e33 erg/s**（表 1 的 `[L_s]` 变体采用 3.828e33 erg/s）。
 2. **不传 `boundary_handler` 时，ablastr 默认把域边界设为 Dirichlet**（`PoissonSolver.H:396-403`）。
    周期盒子因此触发 AMReX 的断言（要求 LinOp 全周期）。正确接法是提供一个带
    `lobc`/`hibc` 的 handler，全维填 `LinOpBCType::Periodic`。
+3. **Dirichlet 边界数据位于"面"上，不是网格中心**（实测）。`MLMGBndry::setBoxBC` 对物理边界
+   把数据位置偏移硬编码为 0，`setPhysBndryValues` 只是把 `phi` 的鬼格值搬进边界数组，
+   所以调用方必须把鬼格值填成**该面处**的势（法向坐标夹到域边界，切向取网格中心），
+   算符再用 `2φ_face − φ_内` 外推。若填成鬼格中心的值，等价于把边界平移半格，
+   实测误差立刻变成一阶（球算例 5%、收敛阶 1.0）。`setDomainBCLoc` 在这条路径上没有
+   改变结果，因此实现里干脆不用它，只依赖默认的"面"约定。
+4. **体积分数必须从格子下角起算**。子采样写成 `x + (a+0.5)h`（漏掉 `−dx/2`）会让
+   数字化后的球整体偏移半格，产生一个偶极矩；质量仍然守恒（差值 1e-5），但外部场错 2%~7%，
+   而且表现为一阶收敛。这个 bug 在球算例上曾伪装成"边界条件错"，查了三轮才对上账：
+   把子采样改回 `x − dx/2 + (a+0.5)h` 后，直接求和与解析解立刻回到 1e-5 量级。
 
 ---
 
@@ -294,10 +311,12 @@ L = **3.846e33 erg/s**（表 1 的 `[L_s]` 变体采用 3.828e33 erg/s）。
 | CF88 反应率 11 条 | ✅ 逐字转录（§3.3） |
 | 标准太阳模型参考值 | ✅ 转录（§4.1），与剖面文件交叉验证一致 |
 | SSM 结构剖面 + GONG 解析器 | ✅ `data/ssm_S_profile.csv`、`Tools/star/parse_fgong.py` |
-| 引力解析参考 + 自检 | ✅ `Tools/star/gravity_reference.py` |
-| NewtonGravity 插件层 | ✅ 独立层，`MLABecLaplacian` 直接求解 |
+| 引力解析参考 + 自检 | ✅ `Tools/star/gravity_reference.py`（含 φ_shell、双壳自检） |
+| NewtonGravity 插件层 | ✅ 独立层，`MLABecLaplacian` 直接求解；周期与开放两种边界 |
 | 周期解析测试 | ✅ ctest `gravity_periodic_sine_2`，二阶收敛（32→64 误差降 4.00 倍） |
-| 均匀球 / 点质量 / 双球壳 | ⬜ 下一批 |
-| FluidMoments 插件 | ⬜ 未开始 |
+| 均匀球（内部+外部） | ✅ ctest `gravity_uniform_sphere_3`：φ 阶 4.2（内）/1.9（外），g RMS 8.5e-5（内）/3.7e-4（外） |
+| 点质量 | ✅ ctest `gravity_point_mass_3`：φ 与 g 的阶 2.00/1.96，g RMS 6.2e-4 |
+| 双同心球壳 | ✅ ctest `gravity_two_shells_3`：空腔 \|g\| 为表面场的 4.3e-4，φ 阶 1.94/2.00 |
+| FluidMoments 插件 | ⬜ 未开始（下一轮） |
 
 **已知未解决问题**：`128²` 网格在 MLMG 内中止，原因未查清；当前测试用 32/64 两档已足够钉住二阶收敛。

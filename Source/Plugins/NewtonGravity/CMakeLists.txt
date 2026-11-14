@@ -23,3 +23,18 @@ foreach(D IN LISTS WarpX_DIMS)
                  COMMAND test_gravity_periodic_sine_${SD})
     endif()
 endforeach()
+
+# Open-boundary acceptance tests: uniform sphere, point mass, two concentric shells.
+# Their reference solution is the three-dimensional potential, so they are built for 3D only.
+if("3" IN_LIST WarpX_DIMS)
+    warpx_set_suffix_dims(SD 3)
+    foreach(case IN ITEMS uniform_sphere point_mass two_shells)
+        if(TARGET warpx_newtongravity_${SD} AND NOT TARGET test_gravity_${case}_${SD})
+            add_executable(test_gravity_${case}_${SD} test_${case}.cpp)
+            target_link_libraries(test_gravity_${case}_${SD}
+                PRIVATE warpx_newtongravity_${SD} ablastr_${SD})
+            add_test(NAME gravity_${case}_3 COMMAND test_gravity_${case}_${SD})
+        endif()
+    endforeach()
+endif()
+
