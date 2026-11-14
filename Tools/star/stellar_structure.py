@@ -285,6 +285,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     import eos as saha_eos
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
+    grad_ad_cache = [None]               # grad_ad varies slowly; one evaluation per step
 
     if formulation not in ("pressure", "density"):
         raise ValueError("unknown formulation %r" % (formulation,))
@@ -314,7 +315,9 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
             rho_cgs = rho * 1.0e-3
             st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
             mu = st["mu"]
-            grad_ad = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+            if grad_ad_cache[0] is None:
+                grad_ad_cache[0] = saha_eos.nabla_ad(rho_cgs, t, x_h, y_he, z_heavy)
+            grad_ad = grad_ad_cache[0]
             dr = 1.0 / (4.0 * math.pi * r * r * rho)
             dp = -G * m / (4.0 * math.pi * r ** 4)
             drho = dp                                  # the state variable is the pressure
@@ -357,6 +360,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
     samples = [(m, r, rho, t, lum)]
 
     for _ in range(200000):
+        grad_ad_cache[0] = None
         dm = min(0.02 * m, mass - m, mass / n_steps)
         if dm <= 0.0:
             break
@@ -532,6 +536,85 @@ def solve_solar_model(mass, x_of_m, z_of_m, p_c, t_c, alpha_mlt=1.5, max_iterati
         log_p += damping * step_p
         log_t += damping * step_t
     return best[3], (best[1], best[2]), max_iterations
+
+
+def fit_solar_model(mass, x_of_m, z_of_m, tc_guess, pc_guess, alpha_mlt=1.5,
+                    outer_iterations=6, inner_iterations=6, n_steps=200, verbose=True):
+    """Fit a solar model by nested shooting: the mass at the photosphere and the surface T.
+
+    For a given central temperature, the central pressure is adjusted so that the temperature
+    where the pressure reaches the photospheric value equals the effective temperature of the
+    (radius, luminosity) the model has there; then the central temperature is adjusted so that
+    the photosphere sits at m = M.  A nested secant is much more forgiving than a two-by-two
+    Newton on an integration that ends in a coordinate singularity.
+    """
+    from ssm_compare import CNO_FRACTION_OF_Z
+
+    def evaluate(log_pc, log_tc):
+        pc, tc = 10.0 ** log_pc, 10.0 ** log_tc
+        samples = integrate_solar_structure(mass, x_of_m, z_of_m, pc, tc, n_steps=n_steps,
+                                            alpha_mlt=alpha_mlt)
+        # Walk outwards to the photosphere: the point where P falls to P_phot of that state.
+        best = None
+        for m, r, rho, t, lum in samples:
+            if r <= 0.0 or lum <= 0.0 or t <= 0.0:
+                continue
+            t_eff = effective_temperature(lum, r)
+            p_phot = surface_conditions(r, lum, mass, x_of_m(m),
+                                        max(0.0, 1.0 - x_of_m(m) - z_of_m(m)), z_of_m(m), t_eff)
+            p_here = saha_pressure(rho, t, x_of_m(m), z_of_m(m))
+            if p_here <= p_phot:
+                best = {"m": m, "r": r, "t": t, "lum": lum, "t_eff": t_eff,
+                        "p_phot": p_phot, "p": p_here}
+                break
+        if best is None:
+            last = samples[-1]
+            best = {"m": last[0], "r": last[1], "t": last[3], "lum": last[4],
+                    "t_eff": effective_temperature(last[4], last[1]),
+                    "p_phot": 0.0, "p": saha_pressure(last[2], last[3], x_of_m(last[0]),
+                                                      z_of_m(last[0]))}
+        best["mass_miss"] = (mass - best["m"]) / mass
+        return best
+
+    def saha_pressure(rho_si, t, x_h, z_metal):
+        import eos as saha_eos
+        y_he = max(0.0, 1.0 - x_h - z_metal)
+        return saha_eos.pressure(max(rho_si * 1.0e-3, 1.0e-30), t, x_h, y_he, z_metal) * 0.1
+
+    log_tc = math.log10(tc_guess)
+    log_pc = math.log10(pc_guess)
+    model = None
+    for outer in range(outer_iterations):
+        # Inner: match the surface temperature to T_eff by moving log Pc.
+        history = []
+        for inner in range(inner_iterations):
+            out = evaluate(log_pc, log_tc)
+            residual = math.log10(max(out["t"], 1.0) / max(out["t_eff"], 1.0))
+            history.append((log_pc, residual))
+            if verbose:
+                print(f"  outer {outer} inner {inner}: logPc={log_pc:.4f} logTc={log_tc:.4f}"
+                      f"  m_surf/M={1.0 - out['mass_miss']:.4f}  R={out['r'] / R_SUN:.3f}"
+                      f"  L={out['lum'] / 3.846e26:.3f}  T_res={residual:+.3f}")
+            model = out
+            if abs(residual) < 2.0e-3:
+                break
+            if len(history) >= 2:
+                (p0, r0), (p1, r1) = history[-2], history[-1]
+                if abs(r1 - r0) > 1.0e-12:
+                    step = r1 * (p1 - p0) / (r1 - r0)
+                else:
+                    step = 0.05
+            else:
+                step = 0.05
+            log_pc -= min(max(step, -0.2), 0.2)
+        # Outer: move the photosphere to m = M by adjusting log Tc.
+        deficit = model["mass_miss"]
+        if verbose:
+            print(f"  --> outer {outer}: mass deficit {deficit:+.4f}")
+        if abs(deficit) < 5.0e-3 and abs(math.log10(model["t"] / model["t_eff"])) < 5.0e-3:
+            break
+        log_tc += 0.03 if deficit > 0.0 else -0.02
+    return model, (log_pc, log_tc)
 
 
 def z_of_mass(z_of_m, m):
