@@ -43,8 +43,12 @@ def main():
     ap.add_argument("--a", required=True)
     ap.add_argument("--b", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--ran", default="", help="file listing the cases that were run on the same-AMReX build")
     args = ap.parse_args()
     A, B = load(args.a), load(args.b)
+    ran = set()
+    if args.ran:
+        ran = {l.strip() for l in open(args.ran) if l.strip()}
     rows = []
     for name, rec in A.items():
         na = numeric(rec)
@@ -53,8 +57,9 @@ def main():
         nb = numeric(B[name]) if name in B else []
         worst = max(na, key=lambda x: x[3] or 0.0)
         worst_b = max(nb, key=lambda x: x[3] or 0.0) if nb else None
-        if name not in B:
-            verdict = "not-attributed (official_amrex 未运行)"
+        ran_here = (name in B) or (name in ran)
+        if not ran_here:
+            verdict = "not-attributed (official_amrex 未运行该用例)"
         elif not nb:
             verdict = "AMReX/上游演进（同 AMReX 下无差异）"
         else:

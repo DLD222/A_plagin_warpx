@@ -1,24 +1,24 @@
 # 差异归因（fork vs official 26.10，隔离对照：official + fork 同款 AMReX）
 
 - 参与归因的数值差异用例：132
-- 归因到 AMReX/上游演进（同 AMReX 构建下数值一致）：45
+- 归因到 AMReX/上游演进（同 AMReX 构建下数值一致）：50
 - 归因到 fork 代码（同 AMReX 构建下仍差）：79
-- 未归因（official_amrex 未运行该用例，多为 >10 分钟的重算例）：8
+- 未归因（official_amrex 未运行该用例，多为 >10 分钟的重算例）：3
 
 | case | 最差字段 | max abs (vs 官方) | 归因 |
 |---|---|---|---|
 | test_2d_collisions_split_momentum_push_electrostatic | /data/2000/fields/j/z | 1.744e+17 | fork 代码差异（同 AMReX 仍差，比值 3.3e-01） |
 | test_2d_laser_ion_acc | /data/100/meshes/data | 2.990e+14 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_2d_laser_ion_acc_picmi | /data/100/fields/j/x | 8.174e+13 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
-| test_1d_laser_acceleration_fluid_boosted | boxlib/jz | 1.724e+12 | not-attributed (official_amrex 未运行) |
+| test_1d_laser_acceleration_fluid_boosted | boxlib/jz | 1.724e+12 | not-attributed (official_amrex 未运行该用例) |
 | test_2d_field_probe | boxlib/Ex | 1.669e+10 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_theta_implicit_jfnk_vandb | boxlib/divE | 3.840e+07 | fork 代码差异（同 AMReX 仍差，比值 9.2e-01） |
 | test_2d_theta_implicit_jfnk_vandb_picmi | boxlib/divE | 3.265e+07 | fork 代码差异（同 AMReX 仍差，比值 8.4e-01） |
 | test_2d_theta_implicit_jfnk_vandb_filtered | boxlib/divE | 1.581e+07 | fork 代码差异（同 AMReX 仍差，比值 7.9e-01） |
-| test_2d_charge_exchange_dsmc | /data/2000/fields/j/x | 1.465e+07 | not-attributed (official_amrex 未运行) |
+| test_2d_charge_exchange_dsmc | /data/2000/fields/j/x | 1.465e+07 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_ion_beam_extraction | /data/0/fields/E/z | 1.136e+07 | fork 代码差异（同 AMReX 仍差，比值 4.9e-24） |
 | test_rz_ohm_solver_resistive_drag_species_fields_picmi | /data/1/fields/current_fp_ions[dir=z] | 7.823e+05 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
-| test_2d_theta_implicit_symmetry | boxlib/divE | 6.213e+05 | not-attributed (official_amrex 未运行) |
+| test_2d_theta_implicit_symmetry | boxlib/divE | 6.213e+05 | not-attributed (official_amrex 未运行该用例) |
 | test_2d_energy_conserving_thermal_plasma | boxlib/jx | 3.587e+05 | fork 代码差异（同 AMReX 仍差，比值 5.6e+11） |
 | test_3d_acceleration_psatd_restart | boxlib/jz | 2.408e+05 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_3d_acceleration_psatd | boxlib/jz | 2.408e+05 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
@@ -62,9 +62,9 @@
 | test_2d_prev_positions_picmi | boxlib/Ex | 4.389e-04 | fork 代码差异（同 AMReX 仍差，比值 4.1e+05） |
 | test_3d_electrostatic_sphere_eb_mixed_bc | boxlib/Ey | 7.454e-05 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_relativistic_space_charge_initialization | boxlib/Ey | 5.643e-05 | AMReX/上游演进（同 AMReX 下无差异） |
-| test_3d_electrostatic_sphere_eb | /data/0/fields/E/z | 1.668e-05 | not-attributed (official_amrex 未运行) |
+| test_3d_electrostatic_sphere_eb | /data/0/fields/E/z | 1.668e-05 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_electrostatic_sphere_eb_picmi | /data/0/fields/E/z | 1.668e-05 | AMReX/上游演进（同 AMReX 下无差异） |
-| test_rz_electrostatic_sphere_eb_mr | /data/0/fields/E/r | 8.766e-06 | not-attributed (official_amrex 未运行) |
+| test_rz_electrostatic_sphere_eb_mr | /data/0/fields/E/r | 8.766e-06 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_rz_electrostatic_sphere_eb | boxlib/Er | 8.766e-06 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_particle_reflection_picmi | boxlib/Ez | 4.132e-06 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_particle_scrape_picmi | boxlib/Ex | 3.815e-06 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
@@ -79,11 +79,11 @@
 | test_rz_spacecraft_charging_picmi | /data/80/fields/E/z | 1.037e-07 | fork 代码差异（同 AMReX 仍差，比值 2.3e-02） |
 | test_rz_secondary_ion_emission_picmi | /data/2/fields/E/r | 3.029e-08 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_rz_particle_boundary_interaction_picmi | /data/0/fields/E/r | 1.403e-08 | AMReX/上游演进（同 AMReX 下无差异） |
-| test_rz_particle_boundary_interaction_reflecting | /data/0/fields/E/r | 1.403e-08 | not-attributed (official_amrex 未运行) |
+| test_rz_particle_boundary_interaction_reflecting | /data/0/fields/E/r | 1.403e-08 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_embedded_boundary_cube_macroscopic | boxlib/Ex | 9.906e-09 | fork 代码差异（同 AMReX 仍差，比值 4.6e-05） |
 | test_3d_embedded_boundary_cube | boxlib/Ez | 9.906e-09 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_background_mcc | all/particle_position_x | 3.164e-09 | AMReX/上游演进（同 AMReX 下无差异） |
-| test_2d_particle_thermal_boundary | boxlib/rho | 2.546e-09 | not-attributed (official_amrex 未运行) |
+| test_2d_particle_thermal_boundary | boxlib/rho | 2.546e-09 | not-attributed (official_amrex 未运行该用例) |
 | test_rz_ohm_solver_em_modes_picmi | /data/90/fields/E/r | 1.773e-09 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_2d_embedded_boundary_cube | boxlib/Ex | 2.582e-10 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_load_density | /data/50/fields/rho | 2.328e-10 | AMReX/上游演进（同 AMReX 下无差异） |
@@ -101,7 +101,7 @@
 | test_1d_laser_acceleration_picmi | boxlib/rho | 1.819e-12 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_1d_laser_acceleration | boxlib/rho | 1.819e-12 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_3d_embedded_boundary_rotated_cube | raw/Ez_aux | 1.349e-12 | AMReX/上游演进（同 AMReX 下无差异） |
-| test_3d_point_of_contact_eb | /data/3/particles/electron/ny | 1.285e-12 | not-attributed (official_amrex 未运行) |
+| test_3d_point_of_contact_eb | /data/3/particles/electron/ny | 1.285e-12 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_embedded_boundary_rotated_cube | boxlib/Ez | 9.663e-13 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_space_charge_initialization | boxlib/Ez | 7.638e-13 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_2d_projection_div_cleaner_initial_analytical_field_picmi | boxlib/divB | 3.855e-13 | AMReX/上游演进（同 AMReX 下无差异） |
