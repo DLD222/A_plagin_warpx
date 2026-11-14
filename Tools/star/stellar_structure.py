@@ -286,6 +286,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
 
     gamma_ad = 0.4                       # monatomic ideal gas; radiation pressure is small here
     grad_ad_cache = [None]               # grad_ad varies slowly; one evaluation per step
+    rho_guess = [None]                   # starting density for the EOS inversion (speed only)
 
     if formulation not in ("pressure", "density"):
         raise ValueError("unknown formulation %r" % (formulation,))
@@ -310,9 +311,12 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
 
         if formulation == "pressure":
             p = state2
-            rho = 1.0e3 * saha_eos.density_for_pressure_safe(
-                p * 10.0, t, x_h, y_he, z_heavy, state2)
-            rho_cgs = rho * 1.0e-3
+            # The guess must be a *density*: passing the pressure here (as an earlier version
+            # did) starts the bracket a dozen decades away every single call.
+            rho_cgs = saha_eos.density_for_pressure_safe(
+                p * 10.0, t, x_h, y_he, z_heavy, rho_guess[0])
+            rho_guess[0] = rho_cgs
+            rho = rho_cgs * 1.0e3
             st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
             mu = st["mu"]
             if grad_ad_cache[0] is None:
@@ -324,6 +328,7 @@ def integrate_solar_structure(mass, x_of_m, z_of_m, p_c, t_c, n_steps=2000, verb
         else:
             rho = state2
             rho_cgs = rho * 1.0e-3
+            rho_guess[0] = rho_cgs
             st = saha_eos.state(rho_cgs, t, x_h, y_he, z_heavy)
             p = st["pressure"] * 1.0e-1                # dyn/cm^2 -> Pa
             mu = st["mu"]

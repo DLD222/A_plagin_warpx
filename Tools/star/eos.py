@@ -205,55 +205,55 @@ def density_for_pressure(p_target, t_k, x_h, y_he, z_metal, tolerance=1.0e-10):
 
 
 def density_for_pressure_safe(p_target, t_k, x_h, y_he, z_metal, rho_guess=None,
-                              iterations=40):
-    """Invert rho(P, T) with a bracket-keeping Newton and a bisection fallback.
+                              iterations=60):
+    """Invert rho(P, T).  The answer must not depend on the guess.
 
-    The pressure is monotone in density at fixed temperature, so a bracket can be grown from the
-    guess until it contains the target; Newton steps are then taken inside it but are thrown away
-    in favour of the bisection midpoint whenever they leave it.  This is what the structure
-    integrator needs: the plain Newton (density_newton) is faster but was seeded from a cache that
-    the Runge-Kutta stages overwrite, which is not a property a thermodynamic routine should have.
+    The bracket is grown outwards from the guess until it contains the target, then closed by
+    bisection with a Newton acceleration that can never leave the bracket.  An earlier version
+    clamped the Newton step to a quarter of a decade and ran out of iterations, so its answer
+    *did* depend on where it started - which is what made two runs of the structure integrator
+    disagree by 10% (PHYSICS_SPEC 4.3h).
     """
     def log_p(log_rho):
         return pressure(10.0 ** log_rho, t_k, x_h, y_he, z_metal)
 
     if rho_guess is None or not (rho_guess > 0.0):
         rho_guess = 1.0
-    lo = math.log10(rho_guess) - 0.5
-    hi = lo + 1.0
-    for _ in range(60):
-        if log_p(lo) <= p_target:
-            break
-        lo -= 1.0
-    for _ in range(60):
-        if log_p(hi) >= p_target:
-            break
-        hi += 1.0
-    # Newton inside the bracket (the density is well behaved there), with the bisection midpoint
-    # as the safety net.  Six or seven steps get to 1e-10 where forty bisections were needed.
+    lo = hi = math.log10(rho_guess)
+    p_here = log_p(lo)
+    if p_here > p_target:
+        for _ in range(80):
+            if log_p(lo - 1.0) <= p_target:
+                lo, hi = lo - 1.0, lo
+                break
+            lo -= 1.0
+    else:
+        for _ in range(80):
+            if log_p(hi + 1.0) >= p_target:
+                lo, hi = hi, hi + 1.0
+                break
+            hi += 1.0
+    if hi <= lo:
+        lo, hi = hi - 1.0, hi
+
     log_rho = 0.5 * (lo + hi)
-    p_here = log_p(log_rho)
     for _ in range(iterations):
-        if abs(p_here / p_target - 1.0) < 1.0e-10:
-            break
-        delta = 1.0e-4
-        dp = (log_p(log_rho + delta) - p_here) / delta
-        if not (dp > 0.0):
-            log_rho = 0.5 * (lo + hi)
-        else:
-            step = (p_here - p_target) / dp
-            candidate = log_rho + min(max(step, -0.25), 0.25)
-            if candidate <= lo or candidate >= hi:
-                log_rho = 0.5 * (lo + hi)
-            else:
-                log_rho = candidate
         p_here = log_p(log_rho)
         if p_here < p_target:
-            lo = max(lo, log_rho)
+            lo = log_rho
         else:
-            hi = min(hi, log_rho)
-        if hi - lo < 1.0e-12:
+            hi = log_rho
+        delta = 1.0e-4
+        dp = (log_p(log_rho + delta) - p_here) / delta
+        if dp > 0.0:
+            candidate = log_rho + (p_here - p_target) / dp
+        else:
+            candidate = 0.5 * (lo + hi)
+        if not (lo < candidate < hi):
+            candidate = 0.5 * (lo + hi)
+        if hi - lo < 1.0e-13:
             break
+        log_rho = candidate
     return 10.0 ** log_rho
 
 
@@ -320,13 +320,20 @@ def selftest():
     assert abs(deep - 0.4) < 0.02, deep
     assert ionization < deep, (ionization, deep)
 
-    # 5. The bracket-keeping inversion (used by any formulation that needs rho(P, T)).
+    # 5. The bracket-keeping inversion: different guesses must give the same answer, otherwise the
+    #    structure integrator picks up a dependence on its own history (PHYSICS_SPEC 4.3j).
+    answers = [density_for_pressure_safe(2.335e17, 1.558e7, 0.34, 0.64, 0.02, guess)
+               for guess in (1.0, 153.0, 1.0e-3, 1.0e6)]
+    print(f"guess independence: {['%.6f' % a for a in answers]} g/cm^3")
+    assert max(answers) - min(answers) < 1e-6 * answers[0], answers
+
+    # 6. The bracket-keeping inversion (used by any formulation that needs rho(P, T)).
     rho_safe = density_for_pressure_safe(1.0e15, 6.0e6, 0.70, 0.28, 0.02, 1.0)
     p_safe = pressure(rho_safe, 6.0e6, 0.70, 0.28, 0.02)
     print(f"safe inversion: rho = {rho_safe:.4e} g/cm^3 -> P = {p_safe * 0.1:.4e} Pa")
     assert abs(p_safe / 1.0e15 - 1.0) < 1e-6, p_safe
 
-    # 6. Density inversion round trip.
+    # 7. Density inversion round trip.
     rho = density_for_pressure(1.0e15, 6.0e6, 0.70, 0.28, 0.02)
     p_back = pressure(rho, 6.0e6, 0.70, 0.28, 0.02)
     print(f"density inversion: rho = {rho:.4e} g/cm^3 -> P = {p_back * 0.1:.4e} Pa"
