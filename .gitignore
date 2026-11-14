@@ -104,3 +104,9 @@ Docs/refs/*.pdf
 # Route automation state/logs
 .route_state.json
 .route_logs/
+
+# Audit workspace (2026-11): upstream clone, build trees, run outputs
+_upstream/
+audit_build/
+audit_runs/
+Docs/audit_2026_11/runs/

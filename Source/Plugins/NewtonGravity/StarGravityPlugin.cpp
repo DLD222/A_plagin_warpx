@@ -49,8 +49,10 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx, int lev = 0)
     if (warpx_stage_geometry(ctx, lev, lo, hi, prob_lo, prob_hi, dx, periodic) != 1) {
         return amrex::Geometry();
     }
-    amrex::Box const domain(amrex::IntVect{lo[0], lo[1], lo[2]},
-                            amrex::IntVect{hi[0], hi[1], hi[2]});
+    // AMREX_D_DECL keeps this compiling in 1D (IntVect has exactly AMREX_SPACEDIM entries;
+    // a 3-element brace list only works in 3D).
+    amrex::Box const domain(amrex::IntVect{AMREX_D_DECL(lo[0], lo[1], lo[2])},
+                            amrex::IntVect{AMREX_D_DECL(hi[0], hi[1], hi[2])});
     amrex::RealBox rb(prob_lo, prob_hi);
     amrex::Array<int, AMREX_SPACEDIM> is_periodic{};
     for (int d = 0; d < AMREX_SPACEDIM; ++d) { is_periodic[d] = periodic[d]; }

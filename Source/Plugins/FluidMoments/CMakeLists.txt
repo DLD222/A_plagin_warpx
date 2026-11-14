@@ -42,6 +42,9 @@ foreach(D IN LISTS WarpX_DIMS)
         add_library(star_fluid_objs_${SD} OBJECT StarFluidPlugin.cpp FluidMoments.cpp)
         target_link_libraries(star_fluid_objs_${SD} PRIVATE ablastr_${SD})
         target_include_directories(star_fluid_objs_${SD} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        # These objects end up in a MODULE (.so) plugin: PIC is required even if the
+        # global CMAKE_POSITION_INDEPENDENT_CODE setting is OFF.
+        set_target_properties(star_fluid_objs_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
         add_library(star_fluid_plugin_${SD} MODULE $<TARGET_OBJECTS:star_fluid_objs_${SD}>)
         set_target_properties(star_fluid_plugin_${SD} PROPERTIES

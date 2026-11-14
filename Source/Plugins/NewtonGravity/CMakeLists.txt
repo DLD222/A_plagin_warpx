@@ -28,6 +28,9 @@ foreach(D IN LISTS WarpX_DIMS)
         add_library(star_gravity_objs_${SD} OBJECT StarGravityPlugin.cpp NewtonGravity.cpp)
         target_link_libraries(star_gravity_objs_${SD} PRIVATE ablastr_${SD})
         target_include_directories(star_gravity_objs_${SD} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        # These objects end up in a MODULE (.so) plugin: PIC is required even if the
+        # global CMAKE_POSITION_INDEPENDENT_CODE setting is OFF.
+        set_target_properties(star_gravity_objs_${SD} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
         # The module needs AMReX algorithms (MLMG, parallel descriptor) and WarpX builds AMReX
         # as a static archive, so those symbols are linked in here: an earlier attempt that

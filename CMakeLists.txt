@@ -530,7 +530,7 @@ foreach(D IN LISTS WarpX_DIMS)
             $<BUILD_INTERFACE:${WarpX_SOURCE_DIR}/Source/Core/Utils>
         $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source>
             $<BUILD_INTERFACE:${WarpX_BINARY_DIR}/Source/Core>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build/share/amrex/C_scripts>
+        $<BUILD_INTERFACE:${AMREX_C_SCRIPTS_DIR}>
     )
     if(WarpX_LIB)
         target_include_directories(lib_${SD} PUBLIC ${WARPX_MODULE_INCLUDE_DIRS})

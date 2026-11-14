@@ -27,7 +27,7 @@ if(TARGET lib_2d)
     add_library(warpx_diagnostics_standalone_2d OBJECT EXCLUDE_FROM_ALL ${WARPX_DIAGNOSTICS_SOURCES})
     target_include_directories(warpx_diagnostics_standalone_2d PRIVATE
         $<TARGET_PROPERTY:lib_2d,INCLUDE_DIRECTORIES>
-        ${CMAKE_BINARY_DIR}/_deps/fetchedamrex-build/share/amrex/C_scripts)
+        ${AMREX_C_SCRIPTS_DIR})
     target_compile_definitions(warpx_diagnostics_standalone_2d PRIVATE
         $<TARGET_PROPERTY:lib_2d,COMPILE_DEFINITIONS>)
     target_compile_options(warpx_diagnostics_standalone_2d PRIVATE

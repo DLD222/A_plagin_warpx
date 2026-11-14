@@ -95,8 +95,9 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx)
     if (warpx_stage_geometry(ctx, 0, lo, hi, prob_lo, prob_hi, dx, periodic) != 1) {
         return amrex::Geometry();
     }
-    amrex::Box const domain(amrex::IntVect{lo[0], lo[1], lo[2]},
-                            amrex::IntVect{hi[0], hi[1], hi[2]});
+    // AMREX_D_DECL keeps this compiling in 1D/2D (IntVect holds exactly AMREX_SPACEDIM entries).
+    amrex::Box const domain(amrex::IntVect{AMREX_D_DECL(lo[0], lo[1], lo[2])},
+                            amrex::IntVect{AMREX_D_DECL(hi[0], hi[1], hi[2])});
     amrex::RealBox rb(prob_lo, prob_hi);
     amrex::Array<int, AMREX_SPACEDIM> is_periodic{};
     for (int d = 0; d < AMREX_SPACEDIM; ++d) { is_periodic[d] = periodic[d]; }
@@ -282,7 +283,7 @@ void fluid_step (WarpXStageContext* ctx, void*)
                 for (int k = gb.smallEnd(2); k <= gb.bigEnd(2); ++k) {
                     for (int j = gb.smallEnd(1); j <= gb.bigEnd(1); ++j) {
                         for (int i = gb.smallEnd(0); i <= gb.bigEnd(0); ++i) {
-                            if (bx.contains(amrex::IntVect{i, j, k})) { continue; }
+                            if (bx.contains(amrex::IntVect{AMREX_D_DECL(i, j, k)})) { continue; }
                             int const ii = amrex::min(amrex::max(i, bx.smallEnd(0)), bx.bigEnd(0));
                             int const jj = amrex::min(amrex::max(j, bx.smallEnd(1)), bx.bigEnd(1));
                             int const kk = amrex::min(amrex::max(k, bx.smallEnd(2)), bx.bigEnd(2));

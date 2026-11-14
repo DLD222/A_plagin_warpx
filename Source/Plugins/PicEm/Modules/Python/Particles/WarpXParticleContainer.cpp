@@ -21,6 +21,11 @@ void init_ParticleTileIter (py::module& m)
             py::arg("particle_container"), py::arg("level"),
             py::arg("info"))
     ;
+    // Backward compatibility: pywarpx has exposed this iterator as ``WarpXParIter`` since 2021
+    // (and Python/pywarpx/particle_containers.py still uses that name).  The C++ type was renamed
+    // to ParticleTileIter during the plugin refactor; keep the old attribute as an alias so that
+    // existing scripts keep working.
+    m.attr("WarpXParIter") = m.attr("ParticleTileIter");
 }
 
 void init_WarpXParticleContainer (py::module& m)
