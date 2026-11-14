@@ -3,7 +3,7 @@
 > 目标：证明或证伪「本项目功能完整覆盖 WarpX 官方 26.10」。
 >
 > 参考工作树：`/tmp/warpx_up2610`（git worktree，指向导入提交 `7bcb44a`，含 26.10 源码）。
-> 本轮执行时间：2026-11-09 09:30 +08:00 起。下文所有数字都可用本文给出的命令复现。
+> 首轮执行时间：2026-11-09 09:30 +08:00；最近一轮：**2026-11-14 09:30**（§13）。下文所有数字都可用本文给出的命令复现。
 
 ---
 
@@ -11,11 +11,11 @@
 
 | 维度 | 结论 |
 |---|---|
-| 测试清单 | **覆盖成立**：上游 420 个 `add_warpx_test` 定义全部存在，且参数逐字相同；本地多出 4 个 `dynamic_regrid` 测试（新增能力，不是缺口） |
-| 用例门控 | **覆盖成立**：`Examples/CMakeLists.txt`（`add_warpx_test` 本体、`if(WarpX_FFT)`、Python/PETSc 跳过逻辑）与上游逐字节相同 |
-| 源文件 | **覆盖成立**：上游独有的 2 个文件名均可符号级定位到迁移后的文件；没有任何同名文件被削减到上游的一半以下 |
-| 构建选项 | **覆盖成立**：上游 26 个 `WarpX_*` 选项全部存在；本地新增 3 个插件开关 |
-| 运行 | **覆盖成立**：完整特性构建（openPMD+FFT）下 2D **334/335（99.7%）**、1D/3D/RZ **567/573（99.0%）**；剩余 7 条（6 个用例）= 校验和 3 + 缺 Python 绑定 1 + 库层挂起 1 + 上游自带发散用例 2（第 4 节） |
+| 测试清单 | **覆盖成立**：上游 420 个 `add_warpx_test` 定义全部存在；本地多出 4 个 `dynamic_regrid` 测试。**2026-11-14 起**：89 个定义多一个可选第 8 参数 `needs_openpmd`（用例注册条件，不是物理参数，见 §13.1） |
+| 用例门控 | **覆盖成立**：`add_warpx_test` 在上游原逻辑之上只新增了可选的 `needs_openpmd`（12 行）；Examples 树共 36 个 CMakeLists 差异 = 89 行 `ON` 标记 + 12 行 harness + 1 行 `dynamic_regrid`（§13.1） |
+| 源文件 | **覆盖成立**：上游 636 个 `.cpp/.H`（628 个 basename），本地 799 个（784 个 basename）；上游独有的 2 个 basename 均可符号级定位到迁移后的文件 |
+| 构建选项 | **覆盖成立**：上游 26 个 `WarpX_*` 选项全部存在；本地新增 6 个插件开关（含 `WarpX_PLUGIN_NEWTONGRAVITY`） |
+| 运行 | **覆盖成立**。2026-11-14 实测：2D 基线 **234/234**；1D/3D/RZ 基线 **269/306**（37 条 = 30 条 openPMD + 3 条平台校验和 + 4 条本地 NewtonGravity 新用例，§13.3）；2D 完整特性抽查 53/53。完整特性全量数字见 §10/§12（2D 334/335、1D/3D/RZ 567/573，残余为构造上不可能通过的噪声底校验和） |
 | 真实缺陷 | 本轮确认 2 个，均已修复：**D1 RZ+FFT 配置编译中断**、**D2 粒子归约诊断用例输入漏列**（第 5 节） |
 
 一句话：**“功能完整覆盖 26.10”在清单、构建配置、运行三个层面都成立**；没有发现“上游有而本地缺失”的功能项。曾经让这句话不成立的是两个可复现缺陷（D1 使 RZ 维度根本无法编译），现已修复并有验证记录。
@@ -110,10 +110,10 @@ diff -rq /tmp/warpx_up2610/Examples Examples
 ```bash
 # Source/ 下 .cpp + .H
 find /tmp/warpx_up2610/Source -name '*.cpp' -o -name '*.H' | wc -l   # 636
-find Source -name '*.cpp' -o -name '*.H' | wc -l                     # 765
+find Source -name '*.cpp' -o -name '*.H' | wc -l                     # 799（2026-11-14）
 ```
 
-本地多出的 129 个文件名集中在 `Source/Core/Runtime/`、`Source/Core/Modules/`、`Source/Plugins/PicEm/RuntimeBridge/` 等新的运行时/插件基础设施，属于架构重构的新增件。
+本地多出的 163 个文件集中在 `Source/Core/Runtime/`、`Source/Core/Modules/`、`Source/Plugins/`（含本轮新增的 `Plugins/FieldSolver/Magnetostatic/`、`Plugins/NewtonGravity/`、`Plugins/ParticleCore/`）等运行时/插件基础设施，属于架构重构的新增件。
 
 ### 2.2 上游独有文件名 —— 都只是改名/拆分
 
@@ -140,10 +140,10 @@ done
 ### 2.4 构建选项
 
 ```bash
-grep -oE "option\(WarpX_[A-Za-z0-9_]+" CMakeLists.txt | sed 's/option(//' | sort -u | wc -l   # 26（上游）/ 29（本地）
+grep -oE "option\(WarpX_[A-Za-z0-9_]+" CMakeLists.txt | sed 's/option(//' | sort -u | wc -l   # 26（上游）/ 32（本地，2026-11-14）
 ```
 
-上游 26 个 `WarpX_*` 选项**全部存在**；本地新增 `WarpX_PLUGIN_DIAGNOSTICS`、`WarpX_PLUGIN_COLLISION`、`WarpX_PLUGIN_FIELDSOLVER`。
+上游 26 个 `WarpX_*` 选项**全部存在**；本地新增 6 个插件开关：`WarpX_PLUGIN_DIAGNOSTICS`、`WarpX_PLUGIN_COLLISION`、`WarpX_PLUGIN_FIELDSOLVER`、`WarpX_PLUGIN_IMPLICIT`、`WarpX_PLUGIN_PARTICLECORE`、`WarpX_PLUGIN_NEWTONGRAVITY`。
 
 ---
 
@@ -1656,3 +1656,150 @@ ran 17 case(s), skipped 0
 
 **结论：三个 2D 算例与上游逐位相同（bit-identical）**，即搬迁、契约化、外部场修复这一整串
 改动没有改变物理结果。这是阶段 B 的物理红线，现已在阶段 C 之后复验通过。
+
+---
+
+## 13. 2026-11-14 复核（第五轮）
+
+本轮独立重测：树状态 `HEAD = 5ee4fb9` + 工作区里未提交的 NewtonGravity 改动（他人 WIP）。
+下文所有数字都来自本轮新建/重建的构建，不复用旧日志。
+
+### 13.1 清单变化：`add_warpx_test` 新增可选第 8 参数 `needs_openpmd`
+
+```bash
+python3 Tools/verify/parse_tests.py --compare /tmp/warpx_up2610 .
+# reference: 420, local: 424
+# only in reference: []
+# only in local: 4 个 dynamic_regrid
+# tests whose full argument list differs: 89
+```
+
+89 个同名用例的参数列表比上游多一个 `ON`：
+
+```
+reference: [..., 'analysis_default_regression.py --path diags/diag', 'OFF']
+local    : [..., 'analysis_default_regression.py --path diags/diag', 'OFF', 'ON']
+```
+
+机制（`Examples/CMakeLists.txt`，+12 行）：
+
+```cmake
+# optional eighth argument: the input asks for openPMD output, so the test can only be
+# registered in a build that has that output format compiled in
+set(needs_openpmd OFF)
+if(ARGC GREATER 7)
+    set(needs_openpmd ${ARGV7})
+endif()
+# ...
+if(needs_openpmd AND NOT WarpX_OPENPMD)
+    return()
+endif()
+```
+
+树级核对：
+
+```bash
+# 36 个 CMakeLists 与上游不同；其中 34 个只新增了下面这一行（共 89 行）
+>     ON  # needs openPMD output
+# 另外两个：Examples/CMakeLists.txt 的 12 行 harness，Examples/Tests/CMakeLists.txt 的
+# +add_subdirectory(dynamic_regrid)
+```
+
+**怎么定性**：这不是容差/基准改动，物理断言一个都没变；它把"输入要写 openPMD"的用例在
+`WarpX_OPENPMD=OFF` 构建里**不注册**，而不是像上游那样注册后运行时 abort。效果：
+
+| 构建 | 注册用例 | 说明 |
+|---|---|---|
+| `build_takeover`（OPMD=OFF） | 264 → **234** | 30 条 openPMD 输出用例被跳过 |
+| `build_multi2`（OPMD=OFF） | 469 → **306** | 1D/3D/RZ 同理 |
+| `build_2d_full`（OPMD=ON） | **336** | 32 条 openPMD 条照常注册、照常跑 |
+
+代价必须写清楚：**无 openPMD 构建的回归面变小了**——那 89 个定义在该构建里不再被执行。
+它们仍然在 openPMD 构建里跑，所以"覆盖上游用例"不变，但"某个构建能发现多少回归"变了。
+
+另外，标记只覆盖"**输出**要 openPMD"的用例。仍然有两类用例在 OPMD=OFF 构建里失败，因为它们
+**读** openPMD 或依赖 openPMD 功能：`*_load_external_field*`（`ReadExternalFieldFromFile requires
+OpenPMD support`）与 `*_particle_absorbing_boundary*`（`ParticleHistogram2D: Needs openPMD-api`）。
+本轮 30 条 openPMD 失败全部来自这两类（§13.3）。
+
+### 13.2 源文件与构建选项
+
+| 项目 | 2026-11-11 | 2026-11-14 | 变化原因 |
+|---|---|---|---|
+| `.cpp/.H` 文件数（本地 / 上游） | 791 / 636 | **799 / 636** | 新增 `Plugins/NewtonGravity/` 与测试文件 |
+| unique basename（本地 / 上游） | 776 / 628 | **784 / 628** | 同上 |
+| 上游独有 basename | 2 | **2** | 落点未再移动（见 §2.2） |
+| `WarpX_*` 选项（本地 / 上游） | 31 / 26 | **32 / 26** | +`WarpX_PLUGIN_NEWTONGRAVITY` |
+| Examples 树差异文件 | 1 | **36** | §13.1 的 89 个 `ON` 标记 |
+
+上游独有 basename 的落点本轮复查：
+
+```bash
+grep -rln computeVectorPotential Source --include=*.cpp --include=*.H
+# Source/Plugins/FieldSolver/Magnetostatic/MagnetostaticSolverImpl.cpp（432 行）
+grep -rln GetRestartDMap Source --include=*.cpp --include=*.H
+# Source/Plugins/PicEm/RuntimeBridge/IO/WarpXCheckpoint.cpp（409 行）
+```
+
+### 13.3 构建与运行（本轮实测）
+
+| 构建 | dims | openPMD/FFT | 注册 | 结果 | 用时 |
+|---|---|---|---|---|---|
+| `build_takeover`（重建，0 error） | 2 | off/off | 234 | **234 / 234 通过** | 730 s |
+| `build_multi2`（删除后重新配置+构建，0 error） | 1;3;RZ | off/off | 306 | **269 / 306 通过** | 418 s |
+| `build_2d_full`（重建，0 error） | 2 | on/on | 336 | 抽查 **53 / 53 通过** | — |
+
+```bash
+OMP_NUM_THREADS=1 MPLBACKEND=Agg ctest --test-dir build_takeover -j8 --timeout 1800 --output-on-failure
+# 100% tests passed, 0 tests failed out of 234
+
+OMP_NUM_THREADS=1 MPLBACKEND=Agg ctest --test-dir build_multi2 -j8 --timeout 2400 --output-on-failure
+# 88% tests passed, 37 tests failed out of 306
+```
+
+`build_multi2` 的 37 条失败逐条分类（`Tools/verify/classify_ctest_log.py`）：
+
+| 类别 | 条目 | 用例 |
+|---|---|---|
+| openPMD 环境（读输入 / 直方图） | 30 | `test_{3d,rz}_load_external_field_*`（7 个）、`test_rz_projection_div_cleaner`、`test_1d_particle_absorbing_boundary{,_direction_dependent_thresholds}` |
+| 平台校验和 | 3 | `test_3d_embedded_boundary_cube{,_mr,_macroscopic}.checksum` |
+| **真实失败（本地新功能）** | 4 | `gravity_periodic_sine_1`、`gravity_uniform_sphere_3`、`gravity_two_shells_3`、`gravity_point_mass_3` |
+
+上一轮 `build_multi2` 是 469 个用例、202 条 openPMD 失败；本轮 306 个用例、30 条——差异来自
+§13.1 的跳过规则，**不是**这些用例被修好了。
+
+### 13.4 本轮唯一的新真实失败：本地 NewtonGravity 插件
+
+- **用例**：`gravity_periodic_sine_1`（1D）、`gravity_uniform_sphere_3`、`gravity_two_shells_3`、`gravity_point_mass_3`（3D）。
+- **错误原文**：
+
+  ```
+  n=  32  max|phi_num-phi_exact| = 9.821536e+119  max|phi_exact| = 2.114266e+10  rel = 4.645e+109
+  n=  64  max|phi_num-phi_exact| = 2.175178e+243  max|phi_exact| = 2.121937e+10  rel = 1.025e+233
+  test_periodic_sine: FAILED (relative error above 1e-3)
+  ```
+
+- **是否上游引入**：**否**。上游 26.10 没有 gravity 插件，这 4 个用例是本仓库新增（`Source/Plugins/NewtonGravity/`、`tests/` 下的 `gravity_*`）。它们不影响"覆盖上游 26.10"的结论，但说明该新功能当前数值发散。
+- **是否 WIP**：构建时工作区含未提交改动（`NewtonGravity.H/.cpp`、`test_uniform_sphere.cpp`、`CMakeLists.txt`），因此这条失败对应的不是提交态；按纪律没有改这些文件。
+- **修复建议**：先做单步验证 —— 均匀密度球/点质量的解析 `phi` 与 `g = -grad phi` 在**同一次应用后**比较（而不是多步迭代后）；重点查 Poisson 右端是否漏了 `4*pi*G` 或单位（`rho` 是 SI 还是归一化）、周期解是否去掉了平均模（`phi` 的常数漂移会让迭代发散）、以及 Dirichlet/周期边界的组合。
+
+### 13.5 抽查：上游关键物理用例（本轮，存在且通过）
+
+| 类别 | 用例 | 构建 | 结果 |
+|---|---|---|---|
+| EB | `test_2d_embedded_boundary_cube` | build_2d_full | run/analysis/checksum 全过 |
+| EB | `test_3d_embedded_boundary_cube` | build_multi2 | run/analysis 过；checksum 失败（§10.6 已定性为噪声底） |
+| PSATD | `test_2d_langmuir_multi_psatd` 及其 7 个变体（共 8 个 psatd run） | build_2d_full | 全过 |
+| QED | `test_2d_qed_breit_wheeler_opmd` | build_2d_full | 全过 |
+| QED | `test_3d_qed_breit_wheeler` | build_multi2 | 全过 |
+| 碰撞 | `test_1d_collision_z` | build_multi2 | 全过 |
+| RZ 激光 | `test_rz_laser_acceleration` | build_multi2 | 全过 |
+| 隐式 | `test_2d_theta_implicit_jfnk_vandb` | build_2d_full | 全过 |
+| 隐式 | `test_3d_theta_implicit_jfnk_direct` | build_multi2 | 全过 |
+
+### 13.6 本轮结论
+
+1. **覆盖上游 26.10 仍然成立**：420/420 定义存在，2 个上游独有文件名可符号级对应，26 个上游选项全在。
+2. **清单的"逐字相同"要改口径**：89 个定义多了可选的 `needs_openpmd`；它只改注册条件，不改物理断言，但让无 openPMD 构建少跑 89 个用例。
+3. **2D 基线首次全绿（234/234）**，原因是跳过规则而非修复；真实缺陷面没有被掩盖 —— 需要在 openPMD 构建里跑（§10/§12 的数字仍有效）。
+4. **新的真实失败只有本地 gravity 插件 4 条**（WIP，非上游项）。
