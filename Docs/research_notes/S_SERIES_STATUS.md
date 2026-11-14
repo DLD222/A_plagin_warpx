@@ -103,10 +103,11 @@ error: invalid initialization of reference of type 'const warpx::runtime::Runtim
 残余 8 条（含各自的 run/analysis/checksum）里 compton 三条**全过**、EB cube 与 boosted 的 run/analysis
 通过、**只剩两条平台校验和失败**——失败集与 2026-11-10 的权威状态一致（`{110, 555}`，`276` 已通过）。
 
-**全量 573 条本轮仍未跑完**：并行会话在反复运行 `test_gravity_*` 可执行文件（单次占 ~21/24 核）。
-实测两次全量尝试：第一次 13 分钟推进 40/573、第二次 11 分钟推进 29/573，单个 3D 用例从 26 s 拖到 340 s 以上，
-`loadavg` 33–38；已完成的 29 条里**没有失败**。这是同一资源阻塞的第三次（11-10、11-11、11-14），
-不是代码问题；空闲窗口应补跑一次全量确认。
+**全量 573 条已在空闲窗口跑完（2026-11-14 10:07–10:32）**：`ctest -j 8`，**571/573 通过**，
+`Total Test time (real) = 1485.67 sec`（24.8 min）。失败恰好是两条平台校验和（`#110`、`#555`）；
+与 `/tmp/g113_failed.log`（`{110, 276, 555}`）逐条比对，**只少了 `#276`（compton 分析，现 0.81 s 通过），
+没有新增失败**。二进制 = HEAD（`5ee4fb9` + 那行未提交的 OPENPMD 修复，`-DWarpX_PLUGIN_NEWTONGRAVITY=OFF`），
+此后 HEAD 只多了重力插件提交（不进本构建，已用 `git diff --name-only 5ee4fb9..HEAD -- Source/` 核实）。
 
 **2026-11-11 09:00 例行检查**：`Tools/verify/check_macroscopic_vacuum_limit.sh` →
 `yee = macro = 3678360.615965`、`ratio = 1.000000`、退出码 0；四个检查器全部

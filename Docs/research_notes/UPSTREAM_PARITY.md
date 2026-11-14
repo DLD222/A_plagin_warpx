@@ -1837,3 +1837,27 @@ Source/Plugins/Diagnostics/WarpXOpenPMD.cpp:608:42: error: invalid initializatio
 **本轮的做法**：不动他人工作区（里面有 NewtonGravity 的在建代码），改在主构建
 `build_multi_hdf5_fft` 上以 `-DWarpX_PLUGIN_NEWTONGRAVITY=OFF` 重建（HEAD + 上面那一行修复），
 `cmake --build` 721 个编译单元后 **EXIT=0**，再用系统 OpenMPI 跑套件。
+
+### 13.8 2026-11-14 全量复核：571/573，与基线的唯一差异是 compton
+
+等并行会话的重力测试停下来后，用干净窗口跑了一次**完整 573 条**（无分区、无跳过）：
+
+```bash
+export LD_LIBRARY_PATH="/tmp/hdf5_mpi/lib:$HOME/third_party/fftw/lib:$HOME/third_party/fft-deps/lib"
+export OMP_NUM_THREADS=1 MPLBACKEND=Agg
+ctest --test-dir build_multi_hdf5_fft -j 8 --timeout 3600 --output-on-failure
+# 99% tests passed, 2 tests failed out of 573
+# Total Test time (real) = 1485.67 sec   (24.8 min)
+#   110 - test_3d_embedded_boundary_cube_macroscopic.checksum
+#   555 - test_rz_laser_acceleration_boosted_opmd.checksum
+```
+
+- `#276 test_3d_linear_compton_bunch_laser.analysis` **0.81 s 通过**，同用例 checksum 1.94 s 通过；
+- 与 `/tmp/g113_failed.log`（`{110, 276, 555}`）逐条比对：**只少了 276，没有新增失败**；
+- 二进制来源：HEAD `5ee4fb9` + 工作区那行未提交的 OPENPMD 修复（`-DWarpX_PLUGIN_NEWTONGRAVITY=OFF`）；
+  该构建之后 HEAD 只多了重力插件提交，已用 `git diff --name-only 5ee4fb9..HEAD -- Source/` 核实
+  其余 `Source/` 无差异；
+- 残余两条的定性见 §10.6：它们要求"噪声底分量"跨编译器一致到 1e-9 相对（`Bx` 只有主场的 8.4e-16，
+  mode-1 小分量只有主场的 4.5e-27），构造上不可能通过，且同一二进制在 OMP 1/4 线程下逐位相同。
+
+结论：四维在"完整特性 + 无头环境"下就是 **571/573**，两条残余均为平台校验和，无功能缺口。
