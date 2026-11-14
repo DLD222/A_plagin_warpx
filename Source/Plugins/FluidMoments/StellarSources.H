@@ -142,8 +142,12 @@ inline EnergyLedger applyStellarSources (amrex::MultiFab& state, amrex::MultiFab
         amrex::Real const e0 = detail::sum_energy(state, layout);
         applyOpticallyThinCooling(state, dt, opts.gamma, layout, 0);
         ledger.gas_cooling = detail::sum_energy(state, layout) - e0;
-        // a cooling term must not heat: a sign error here is invisible in a conserved total
-        AMREX_ALWAYS_ASSERT_WITH_MESSAGE(ledger.gas_cooling <= 0.0,
+        // A cooling term must not heat: a sign error here is invisible in a conserved total.  The
+        // check has to allow round-off, though - when the sink removes nearly the whole internal
+        // energy the difference of two sums of order 1e19 carries ~1e3 of noise, and a strict
+        // "<= 0" then fails on arithmetic rather than on physics (the solar column hit exactly that).
+        amrex::Real const cooling_scale = amrex::max(std::abs(e0), amrex::Real(1.0e-30));
+        AMREX_ALWAYS_ASSERT_WITH_MESSAGE(ledger.gas_cooling <= 1.0e-12 * cooling_scale,
             "applyStellarSources: optically thin cooling added energy");
     }
 
