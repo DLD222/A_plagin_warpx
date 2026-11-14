@@ -99,6 +99,58 @@ S = (反应源项, ρg, ρg·u + ε_react)                 (2.5)
 - 二阶精度：MUSCL-Hancock 预测-校正（Toro §6.4），限制器 minmod（Toro §13.3）
 - CFL：0.3（可配置）
 
+### 2.2b 离散格式（代码逐行对应这里的式子）
+
+网格单元 $i$，界面 $i\pm 1/2$，$U_i^n$ 为守恒量的单元平均，$dx$ 为格距，$dt$ 由 (2.10) 给出。
+
+**重构（minmod 限制）**
+
+$$\Delta_i = \operatorname{minmod}(U_i - U_{i-1},\; U_{i+1} - U_i),\qquad
+\operatorname{minmod}(a,b) = \tfrac12(\operatorname{sgn}a + \operatorname{sgn}b)\min(|a|,|b|) \tag{2.7a}$$
+
+$$U_i^{+} = U_i + \tfrac12\Delta_i,\qquad U_i^{-} = U_i - \tfrac12\Delta_i \tag{2.7b}$$
+
+**Hancock 半步预测**
+
+$$\tilde U_i^{\pm} = U_i^{\pm} + \frac{dt}{2\,dx}\Big(F(U_i^{-}) - F(U_i^{+})\Big) \tag{2.8}$$
+
+**界面通量（HLLC）**，左取 $L=i$ 的 $\tilde U^{+}$，右取 $R=i+1$ 的 $\tilde U^{-}$：
+
+$$S_L = \min(u_L - c_L,\; u_R - c_R),\qquad S_R = \max(u_L + c_L,\; u_R + c_R) \tag{2.9a}$$
+
+（Davis 波速估计；只用到 EOS 的声速，因此对任意 EOS 都成立。）
+
+$$S_M = \frac{p_R - p_L + \rho_L u_L(S_L - u_L) - \rho_R u_R(S_R - u_R)}
+{\rho_L(S_L - u_L) - \rho_R(S_R - u_R)} \tag{2.9b}$$
+
+星状态（$K = L$ 或 $R$，总密度 $\rho$ 用于动量与能量；每个组分乘以同一因子）：
+
+$$U^{*}_K = \rho_K\frac{S_K - u_K}{S_K - S_M}
+\begin{pmatrix} 1 \\ S_M \\ v_{t,K} \\ \dfrac{E_K}{\rho_K} + (S_M - u_K)\Big(S_M + \dfrac{p_K}{\rho_K(S_K - u_K)}\Big) \end{pmatrix},
+\qquad \rho_s^{*} = \rho_{s,K}\frac{S_K - u_K}{S_K - S_M} \tag{2.9c}$$
+
+$$F_{i+1/2} =
+\begin{cases}
+F_L, & S_L \ge 0 \\
+F_L + S_L(U^{*}_L - U_L), & S_M \ge 0 \\
+F_R + S_R(U^{*}_R - U_R), & S_R \ge 0 \\
+F_R, & \text{否则}
+\end{cases} \tag{2.9d}$$
+
+**更新与时间步**
+
+$$U_i^{n+1} = U_i^{n} - \frac{dt}{dx}\big(F_{i+1/2} - F_{i-1/2}\big) \tag{2.10a}$$
+
+$$dt = \mathrm{CFL}\cdot dx / \max_i\big(|u_i| + c_i\big),\qquad \mathrm{CFL} = 0.3 \ \text{（可配置）} \tag{2.10b}$$
+
+**出处**：Toro 3rd ed. §6.4（MUSCL-Hancock，式 6.4.8–6.4.14）、§10.4（HLLC 通量）、§10.5（波速估计，
+其中 Davis 估计见该节讨论）、§13.3（minmod 限制器）；Davis (1988) 的波速估计本身。
+
+**实现约定**（与真实代码一一对应）：
+- 状态的分量顺序是 `[rho_0 … rho_{ns-1}, mom_x, mom_y, mom_z, E]`（三维；维度由 AMREX_SPACEDIM 决定）。
+- 步子只沿一个方向做（方向扫描），多方向用 Strang 分裂组合；本轮先做单方向扫描与 1D 验收。
+- 重建在守恒量上做（Toro 的写法），压力由 EOS 从 $U$ 反解：$e = E - \tfrac12\rho|u|^2$。
+
 ### 2.3 物态方程（契约注入）
 
 p = p(ρ, e, X_i)                                   (2.6)
@@ -118,10 +170,21 @@ p = p(ρ, e, X_i)                                   (2.6)
 
 | 用例 | 判据 | 状态 |
 |---|---|---|
-| Sod 激波 | 与精确解 L1 误差随网格二阶收敛 | `[test]` |
-| Jeans 不稳定性 | 临界波长 λ_J = c_s√(π/(Gρ)) 的 ±5% | `[test]` |
-| 静水平衡（等温球） | 解析密度剖面，相对误差 < 1e-3 | `[test]` |
-| 守恒（无源） | 质量/动量/能量 1e-12 相对误差 | `[test]` |
+| Sod 激波 | 与 Toro ch.4 精确解逐格比较：全域 L1(ρ) 随网格下降（一阶，实测 0.84），L1(ρ) < 5e-3 | ✅ `fluid_sod_shock_3` |
+| 光滑密度波（二阶精度） | ρ = 1+0.2sin(2πx)、u=1、p=1 的精确行波，L1 阶 ≥ 1.8 | ✅ `fluid_smooth_wave_3`（实测 1.84 / 1.89） |
+| 守恒（无源） | 质量/动量/能量 1e-12 相对误差 | ✅ `fluid_conservation_3`（实测 ~1e-15） |
+| Jeans 不稳定性 | 临界波长 λ_J = c_s√(π/(Gρ)) 的 ±5% | ⬜ 需要与引力耦合，下一批 |
+| 静水平衡（等温球） | 解析密度剖面，相对误差 < 1e-3 | ⬜ 下一批 |
+
+**参考实现**：`Tools/star/sod_reference.py`（`--selftest` 自检通过）独立实现 Toro ch.4 的星状态求解，
+与 C++ 测试各自算出 p* = 0.30313018、u* = 0.92745262、ρ*_L = 0.426319、ρ*_R = 0.265574，逐位一致；
+自检用的是独立恒等式（压力函数在 p* 处为零、两侧给出的 u* 相同、左波是稀疏波而右波是激波、对称问题给出平凡星状态）。
+
+**关于 Sod 的"二阶收敛"**：激波与接触间断是解的 kink，任何守恒型格式都把 kink 抹在 O(dx) 个格子里、
+剖面误差 O(1)，因此全域 L1 误差只能按一阶下降（实测 ρ 0.84、p 0.98）。二阶精度必须用光滑解来证明，
+所以专门加了"光滑密度波"算例：ρ = 1+0.2 sin(2πx)、u = 1、p = 1 是 Euler 方程的**精确解**
+（压力与速度均匀 ⇒ 动量方程恒等满足，能量方程化为密度平流），实测 L1 阶 1.84 / 1.89。
+这两条一起才是完整的证据：格式二阶，且在间断上不产生振荡、不移动激波位置。
 
 式 (2.5) 的 Jeans 临界波长出处：Jeans (1902)；教科书表述见 Binney & Tremaine §5.2.1。
 
@@ -317,6 +380,12 @@ L = **3.846e33 erg/s**（表 1 的 `[L_s]` 变体采用 3.828e33 erg/s）。
 | 均匀球（内部+外部） | ✅ ctest `gravity_uniform_sphere_3`：φ 阶 4.2（内）/1.9（外），g RMS 8.5e-5（内）/3.7e-4（外） |
 | 点质量 | ✅ ctest `gravity_point_mass_3`：φ 与 g 的阶 2.00/1.96，g RMS 6.2e-4 |
 | 双同心球壳 | ✅ ctest `gravity_two_shells_3`：空腔 \|g\| 为表面场的 4.3e-4，φ 阶 1.94/2.00 |
-| FluidMoments 插件 | ⬜ 未开始（下一轮） |
+| FluidMoments 插件层 | ✅ 独立层（`warpx_fluidmoments_{1d,3d,rz}` 均编译），EOS 以模板注入 |
+| MUSCL-Hancock + HLLC（Davis 波速） | ✅ `FluidMoments.H`，公式与 §2.2b 逐条对应 |
+| Sod 激波 | ✅ ctest `fluid_sod_shock_3`：p* = 0.303130（与 Toro 表 4.1 一致），L1(ρ) 4.2e-3→2.3e-3 |
+| 光滑波二阶精度 | ✅ ctest `fluid_smooth_wave_3`：L1 阶 1.84 / 1.89 |
+| 守恒（无源） | ✅ ctest `fluid_conservation_3`：质量/动量/能量漂移 ~1e-15 |
+| Jeans / 静水平衡 / 与引力耦合 | ⬜ 下一批（需要 §2.4 的源项与双插件联调） |
+| 多组分 + 反应网络 + 太阳算例 | ⬜ 后续 |
 
 **已知未解决问题**：`128²` 网格在 MLMG 内中止，原因未查清；当前测试用 32/64 两档已足够钉住二阶收敛。

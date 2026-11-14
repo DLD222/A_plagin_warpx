@@ -71,6 +71,7 @@ option(WarpX_PLUGIN_COLLISION   "Build the collision plugin" ON)
 option(WarpX_PLUGIN_FIELDSOLVER "Build the field-solver plugin" ON)
 option(WarpX_PLUGIN_PARTICLECORE "Build the particle-core plugin (extracted particle units)" ON)
 option(WarpX_PLUGIN_NEWTONGRAVITY "Build the Newton-gravity plugin (grad^2 phi = 4 pi G rho)" ON)
+option(WarpX_PLUGIN_FLUIDMOMENTS "Build the five-moment fluid plugin (Euler + HLLC)" ON)
 option(WarpX_PLUGIN_IMPLICIT "Build the implicit solver (theta/Strang/semi-implicit/Darwin)" ON)
 
 
@@ -344,6 +345,9 @@ endif()
 list(APPEND WARPX_MODULE_LAYERS particlecore)
 if(WarpX_PLUGIN_NEWTONGRAVITY)
     list(APPEND WARPX_MODULE_LAYERS newtongravity)
+endif()
+if(WarpX_PLUGIN_FLUIDMOMENTS)
+    list(APPEND WARPX_MODULE_LAYERS fluidmoments)
 endif()
 
 foreach(D IN LISTS WarpX_DIMS)
@@ -683,6 +687,9 @@ if(WarpX_LIB)
     endif()
     if(WarpX_PLUGIN_NEWTONGRAVITY)
         add_subdirectory(Source/Plugins/NewtonGravity)
+    endif()
+    if(WarpX_PLUGIN_FLUIDMOMENTS)
+        add_subdirectory(Source/Plugins/FluidMoments)
     endif()
     # The particle sources are always compiled: the kernel, the diagnostics plugin and the fluid
     # species call into them, so removing them from the link needs those call sites split apart
