@@ -124,9 +124,9 @@
 | Source_Plugins_ParticleCore_B | F4 | major | `full_mass_matrices` 的判据从 `Szz->nComp() > 1` 换成 `implicit_options.use_mass_matrices_jacobian`，两 | todo |
 | Source_Plugins_ParticleCore_B | F5 | minor | `DepositCurrentOnLevel` 的文档仍声称"apply boundary conditions"，实现只有 guard-cell 求和 | invalid |
 | Source_Plugins_ParticleCore_B | F6 | minor | 新增的三个隐式辅助函数把层号 hard-code 为 `lev = 0`（多层的循环被注释掉） | invalid |
-| Source_Plugins_ParticleCore_B | F7 | minor | 新增契约实现里缺属性保护与"接口注释重复"等小问题 | wip:lead |
+| Source_Plugins_ParticleCore_B | F7 | minor | 新增契约实现里缺属性保护与"接口注释重复"等小问题 | fixed |
 | Source_Plugins_ParticleCore_B | F8 | minor | RSPHERE 的隐式质量矩阵角度分支是本 fork 新增（上游 RZ/RCYLINDER only），球坐标角量耦合到"平均半径/瞬时半径"混用 | invalid |
-| Source_Plugins_ParticleCore_B | F9 | minor | `villasenor_mass_matrices_max_grid_crossings` 的单一真源被复制成魔法数 `3` | wip:lead |
+| Source_Plugins_ParticleCore_B | F9 | minor | `villasenor_mass_matrices_max_grid_crossings` 的单一真源被复制成魔法数 `3` | fixed |
 | Source_Plugins_ParticleCore_B | F10 | minor | `GetChargeDensityOnLevel(local=true, finalize=true)` 现在直接 assert；Python 绑定的 `finalize` 默认 `true | invalid |
 | Source_Plugins_PicEm_A | F1 | major | AMR 时间步中的 regrid 路径是新写的，缺两步收尾 | fixed |
 | Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | invalid |
@@ -135,7 +135,7 @@
 | Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | wip:lead |
 | Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | wip:lead |
 | Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | fixed |
-| Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | wip:lead |
+| Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | fixed |
 | Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | invalid |
 | Source_Plugins_PicEm_A | F10 | minor | `WARPX_DISABLE_DIAGNOSTICS` 环境变量会静默替换已构造的诊断服务 | fixed |
 | Source_Plugins_PicEm_A | F11 | major | 流体–Maxwell 耦合源的 “内能不变” 能量更新多乘了一个 rho | fixed |

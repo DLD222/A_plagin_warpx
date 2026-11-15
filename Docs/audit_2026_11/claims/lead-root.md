@@ -116,3 +116,34 @@ F6 wip（代码在 93afb3b）：三处 `mfi.tilebox(...).grow(-bnd_shrink)` 换�
 F8 wip（代码在 93afb3b）：`deposit_conservative` 的残差不再丢弃，按
 `1e-12 * max(max|drho/dt|, 1)` 断言（与 `YeeDeposition` 的单测口径一致）。
 无 deck 覆盖；反证（把 `Jhi` 换成 `Flo` 应触发断言）下一轮补。
+
+## 第二轮：ParticleCore_B F7/F9 与 PicEm_A F8 已修并验证（提交 ee6be11）
+
+F9 (ParticleCore_B) fixed by ee6be11：`villasenor_mass_matrices_max_grid_crossings` 的**单一真源**。
+新文件 `Source/Core/Modules/Particles/MassMatricesLimits.H`（`warpx::mass_matrices::max_grid_crossings = 3`），
+`WarpX.H:385` 改为引用它，`RuntimeConfig.cpp:264` 不再硬编码 `return 3;`，
+`WarpXParticleContainer.cpp` 的 8 处模板实参 `<1..4, true/false, 3>` 与 `ImplicitPushPX.cpp` 的 4 处都改用同一常量
+（后者原来的文件级 `constexpr int ... = 3;` 已删）。改前同一数值有 4 份独立定义，运行期断言
+（`ImplicitSolver.cpp:889`）与编译期数组容量只靠"碰巧都等于 3"绑定。
+验证：`ctest -R "test_1d_theta_implicit_planar_pinch\.|test_2d_semi_implicit_pc_jacobi\.|test_2d_theta_implicit_jfnk_vandb\."`
+→ 9/9 通过（含 `test_2d_theta_implicit_jfnk_vandb.run` 64 s）。
+反证：`warpx.1d Examples/Tests/implicit/inputs_test_1d_theta_implicit_planar_pinch particles.max_grid_crossings=99`
+→ `Assertion max_grid_crossings <= config().villasenor_mass_matrices_max_grid_crossings() failed
+(ImplicitSolver.cpp:888)`，即"越界检查与核容量由同一常量绑定"这条链路是活的。
+（注：该 deck 自带 `particles.max_grid_crossings = 2`，所以"把常量改成 2"并不会触发断言——用 99 才是有效反证。）
+
+F7 (ParticleCore_B) fixed by ee6be11（cosmetic）：`MultiParticleContainer.cpp` 删掉重复的
+`#include "Runtime/LegacyServices.H"` 并让 Runtime 组按字母序；`Resampling/ResamplingTrigger.cpp` 同上
+（原来 `LegacyServices.H` 出现两次，第二次在 `Utils/Parser` 组里）；`MultiParticleContainer.H:383`
+原来把 `UpdateInjectionPositions` 的注释挂在 `countParticlesWithSuborbits` 上方，已移到正确声明上方。
+`nsuborbits` 的"缺属性保护"部分**不成立**：唯一调用链 `ImplicitSolver.cpp:31-33` 有真 `HasiAttrib` 检查，
+与 26.11 `ImplicitSolver.cpp:35` 等价，故不加冗余检查。
+验证：四个维度的 `app_*` 目标全部重编通过；`bash Tools/verify/run_gates.sh` 九门全 OK。
+
+F8 (PicEm_A) fixed by ee6be11：`MomentFluidSolver::AdvanceAndDeposit` 不再丢弃 `deposit_conservative` 的
+连续性残差，改为断言。参考量取 **max|rho|/dt** 而不是 |drho/dt|：本会话先用 |drho/dt| 实现，
+在 dt≈1e-16 的正常 deck 上 `resid=469, scale=2021`（两者都是舍入噪声/dt）→ 误杀；
+换成 max|rho|/dt 后同一 deck 残差远低于容差。
+验证：`warpx.2d audit_runs/lead-scratch/fluid_moment_2d.inp`（XZ、periodic、单 box、`fluids.moment.enabled=1`）
+→ 正常跑到 `AMReX finalized`。反证：把 `YeeDeposition.H` 的 `rho_np1` 乘 1.5 重编 → 同一 deck 触发
+`Assertion resid <= 1e-12*resid_scale failed (MomentFluidSolver.cpp:149)`；之后已 `git diff` 确认该文件干净。
