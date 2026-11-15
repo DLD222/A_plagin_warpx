@@ -119,10 +119,33 @@ void LoadBalanceCosts::ComputeDiags (int step)
 
     if (config_snapshot().load_balance_costs_update_algo == LoadBalanceCostsUpdateAlgo::Heuristic)
     {
+        // computeCostsHeuristic() accumulates *in place* into the simulation's live cost arrays,
+        // and CheckLoadBalance() calls it again before the next load balance.  Letting the
+        // diagnostic run it as-is therefore added the heuristic contribution twice to the weights
+        // the SFC/KnapSack mapping is built from -- a diagnostic with a side effect on the
+        // simulation.  Snapshot the live values, read the heuristic result into the local copies,
+        // then put the live arrays back exactly as they were.
+        amrex::Vector<amrex::LayoutData<amrex::Real>*> live(nLevels, nullptr);
+        amrex::Vector<amrex::Vector<amrex::Real>> saved(nLevels);
+        for (int lev = 0; lev < nLevels; ++lev)
+        {
+            live[lev] = data().costs(lev);
+            if (live[lev] == nullptr) { continue; }
+            saved[lev].resize(live[lev]->size());
+            for (int i = 0; i < live[lev]->size(); ++i) { saved[lev][i] = (*live[lev])[i]; }
+        }
+
         data().computeCostsHeuristic();
         for (int lev = 0; lev < nLevels; ++lev)
         {
-            costs[lev] = std::make_unique<LayoutData<Real>>(*data().costs(lev));
+            if (live[lev] == nullptr) { continue; }
+            costs[lev] = std::make_unique<LayoutData<Real>>(*live[lev]);
+        }
+
+        for (int lev = 0; lev < nLevels; ++lev)
+        {
+            if (live[lev] == nullptr) { continue; }
+            for (int i = 0; i < live[lev]->size(); ++i) { (*live[lev])[i] = saved[lev][i]; }
         }
     }
 
