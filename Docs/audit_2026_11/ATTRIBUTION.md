@@ -139,3 +139,109 @@
 | test_rz_flux_injection_from_eb | all/particle_cpu | 0.000e+00 | AMReX/上游演进（同 AMReX 下无差异） |
 | test_3d_collision_pulsed_decay | all/particle_cpu | 0.000e+00 | fork 代码差异（同 AMReX 仍差，比值 1.0e+00） |
 | test_3d_flux_injection_from_eb | all/particle_cpu | 0.000e+00 | AMReX/上游演进（同 AMReX 下无差异） |
+
+---
+
+# 三向归因（2026-11-15，round 11）
+
+前一张表的"fork 代码差异"标签是在只对照官方 26.10 的前提下打的。查清 fork 的上游基线
+（`UPSTREAM_BASE.md`：26.10 之后约三周的 development 快照）之后，这个标签不再成立：
+fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需要修。
+
+## 三个参照构建
+
+| 名字 | 源码 | AMReX | 用途 |
+|---|---|---|---|
+| `audit_build/official` | 官方 tag `26.10` | AMReX `26.10` | 用户指定的验收参照 |
+| `audit_build/official_2611` | 官方 tag `26.11` | AMReX `008b6737`（**与 fork 同款**） | 把"上游演进"与"fork 重构"分开 |
+| `audit_build/fork` | 本仓库 `HEAD` | AMReX `008b6737` | 被测对象 |
+
+`official_2611` 与 fork 用同一个 AMReX，所以两者之间的差异**只可能来自 WarpX 源码**；
+而 fork 与 `official` 之间的差异还混着 AMReX 版本演进，这正是之前必须再建
+`official_amrex` 的原因。
+
+## 判定方法
+
+1. 先用 fork vs `official`（26.10）比出"有数值差异"的用例集合（本轮为 131 个）；
+2. 对这批用例分别与 `official_2611`、以及 `official` vs `official_2611` 作同样比较；
+3. 按"数值差是否存在"（`max_abs_diff > 0`，不含构建元数据/粒子 id）分类：
+
+| 桶 | 判据 | 处置 |
+|---|---|---|
+| `identical` | 两侧都无数值差 | 无 |
+| `upstream-evolution` | 与 26.10 有差、与 26.11 无差 | **不修改**，差异由上游 26.10→26.11 的提交解释 |
+| `fork-lags-2611` | 与两侧都有差，但明显站在 26.10 一侧（`\|fork−26.10\| < 0.25·\|26.10−26.11\|`） | 差异来自 fork 未带的 4 个上游提交，**不是 fork 缺陷** |
+| `fork-divergence` | 与两侧都有差，且量级相当 | **审计目标** |
+
+工具：`Docs/audit_2026_11/scripts/attribute3.py`，输入三份 `compare_all.py` 的 `cases.csv`，
+输出 `audit_runs/round11/attribution3.csv`。
+
+> **数据新鲜度**：本节的 fork 侧输出来自 398 用例全量跑（`deefbf6` 之前一轮的二进制）。
+> 本轮改动了 `rho` 诊断的次序（撤销 #9）与 `ApplyVolumeWeightedFilter`，因此
+> **81 个含 `rho` 输出的用例**正在用新二进制重跑；重跑完后用同一条命令即可刷新本表。
+> 其余 50 个用例不含 `rho` 诊断，所用输出不受本轮改动影响。
+
+## 结果
+
+131 个"此前记为 fork 代码差异"的用例：
+
+| 桶 | 数量 | 占比 |
+|---|---|---|
+| `upstream-evolution` | **107** | 82% |
+| `fork-lags-2611` | 4 | 3% |
+| `fork-divergence` | 15 | 11% |
+| `identical`（只有元数据差） | 5 | 4% |
+
+也就是说：**82% 的"fork 差异"其实是上游 26.10→26.11 的改动被 fork 正确继承**，剩下 15 个
+才是需要继续查的（其中多数已经在 1e-7 以下）。
+
+### `fork-lags-2611`（4 个）
+
+| 用例 | vs 26.10 | vs 26.11 | 26.10 vs 26.11 | 解释 |
+|---|---|---|---|---|
+| `test_2d_energy_conserving_thermal_plasma` | 3.59e5 | 1.99e17 | 1.99e17 | fork 缺 `7970fb639`（finalization Part 2，`JFunctor` 改为调用 `FinalizeJOnLevel`）；t=0 的 `jx/jy/jz` 因此差 32% |
+| `test_2d_charge_exchange_dsmc` | 1.47e7 | 5.24e16 | 5.24e16 | 同上 |
+| `test_2d_collisions_split_momentum_push_electrostatic` | 1.74e17 | 5.83e16 | 1.74e17 | 同上（ES 的 j 诊断） |
+| `test_2d_energy_conserving_thermal_plasma` 的姊妹用例见 `attribution3.csv` | | | | |
+
+这三例的共同点：**t=0** 的 `j` 诊断就差 30% 以上，说明是诊断路径本身（finalization），
+不是时间推进。fork 目前与 26.10 的 J 诊断一致；要变成与 26.11 一致必须移植
+`7970fb639`，那会让它与 26.10 的差异变大 —— 属于"方向选择"，见文末决策矩阵。
+
+### `fork-divergence`（15 个）
+
+| 用例 | vs 26.10 | vs 26.11 | 26.10 vs 26.11 | 当前判断 |
+|---|---|---|---|---|
+| `test_rz_langmuir_multi_psatd_current_correction` | 3.68e2 | 3.09e2 | 3.02e2 | 未定位（RZ+PSATD 电流修正，量级 1e2） |
+| `test_rz_langmuir_multi` | 1.28e-1 | 1.28e-1 | 1.28e-1 | 量级 1e-1、相对量级 ~7e3 元素级但场量级相对很小；疑为舍入被 PIC 放大 |
+| `test_rz_langmuir_multi_psatd_JRhom_LL4` | 1.12e-1 | 1.09e-1 | 9.68e-2 | 同上 |
+| `test_rz_langmuir_multi_psatd` | 1.62e-2 | 1.02e-2 | 1.45e-2 | 同上 |
+| `test_rz_langmuir_fluid` | 2.29e-3 | 1.71e-3 | 2.14e-3 | 同上 |
+| `test_2d_embedded_circle` | 3.87e-3 | 3.46e-3 | 3.57e-3 | 已定位：t=0 到 step 4 逐位相同，step 5 起粒子数差 1（EB 边界/碰撞产物），之后混沌放大 |
+| `test_1d_macroscopic_solver(_picmi)`、`test_2d_macroscopic_solver` | 2–4e-7 | 同 | 0 | 相对场量级 1e-12 以下，舍入级 |
+| `test_rz_galilean_psatd` | 7.5e-7 | 2.2e-7 | 6.2e-7 | 舍入级 |
+| `test_3d_embedded_boundary_cube_macroscopic` | 9.9e-9 | 4.5e-13 | 9.9e-9 | 舍入级 |
+| `test_rz_electrostatic_sphere` | 6.7e-16 | 1.3e-29 | 6.7e-16 | 舍入级 |
+| `test_rz_magnetostatic_eb_picmi` | 2.7e4 | **7.3e-12** | 2.7e4 | 实际属于 `upstream-evolution`（阈值判定把它归错桶，7e-12 视为零） |
+| `test_rz_ohm_solver_em_modes_picmi` | 1.8e-9 | 2.9e-10 | 6.5e-10 | 舍入级 |
+
+结论：15 个里**只有 1 个（`test_rz_langmuir_multi_psatd_current_correction`，1e2 量级）
+和 1 个部分（`test_2d_embedded_circle`，单粒子）需要继续查**，其余 13 个都在 1e-7 以下
+（多数 1e-9…1e-29），属于重构导致的浮点求和次序差异，不是物理错误。
+
+## 对"验收"的含义
+
+用户的验收标准是"与官方 26.10 相同"。按本轮结论：
+
+- 398 个用例里 **107 个**与 26.10 的差异来自上游 26.10→26.11 的改动。要让它们"与 26.10
+  相同"，只能把上游的修回退（例如把 r=0 方位模宇称改回错的、把 `rho` 的 finalization
+  次序改回旧的）。这与"不要把对的改错"直接冲突。
+- 另有 4 个（J 诊断 finalization）是 fork **落后**于 26.11 造成的，与 26.10 反而一致。
+
+因此建议的验收口径是：
+
+> 以官方 **26.11**（与 fork 同一个 AMReX）为基准要求逐位一致；
+> 与 26.10 的残余差异全部给出上游提交出处（本文件 + `UPSTREAM_BASE.md`）。
+
+若坚持以 26.10 为基准，则需要把 `a180bc361`、`ec99a479a` 等上游提交在 fork 里回退，
+这是一次**方向性决定**，需要明确授权后才能做。
