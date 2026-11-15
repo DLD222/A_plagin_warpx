@@ -96,8 +96,8 @@
 | Source_Plugins_Diagnostics_B | F6 | minor | 非 EB 构建下 ChargeOnEB 从"运行时明确报错"变成"未注册类型" | fixed |
 | Source_Plugins_Diagnostics_B | F7 | minor | 基类新增 `unique_ptr` 成员使"默认拷贝"静默失效 | todo |
 | Source_Plugins_FieldSolver_A | F1 | major | 宏观介质 E 推进：`algo.macroscopic_sigma_method`（Lax-Wendroff）被静默忽略，永远走一阶 Backward-Euler | fixed |
-| Source_Plugins_FieldSolver_A | F2 | major | ECT 共形 Ampere 路径丢掉 div(E) 清理项 `grad(F)`，F 场只演化不生效 | todo |
-| Source_Plugins_FieldSolver_A | F3 | major | 静电场 1D 分支（`computeE` 的 `#else`）丢失 `-1` 项：共位网格 + 径向几何时 `E_r` 退化为 `β_xβ_z·∂φ` | todo |
+| Source_Plugins_FieldSolver_A | F2 | major | ECT 共形 Ampere 路径丢掉 div(E) 清理项 `grad(F)`，F 场只演化不生效 | fixed |
+| Source_Plugins_FieldSolver_A | F3 | major | 静电场 1D 分支（`computeE` 的 `#else`）丢失 `-1` 项：共位网格 + 径向几何时 `E_r` 退化为 `β_xβ_z·∂φ` | invalid |
 | Source_Plugins_FieldSolver_A | F4 | minor | 有效势 ES：rho 的边界折叠/RZ 体权标被挪到 sum 之后 | todo |
 | Source_Plugins_FieldSolver_A | F5 | minor | 隐式求解器：`mass_matrices_pc_width` 默认 0→1，叠加新 abort，3D Villasenor 旧算例会直接中止 | todo |
 | Source_Plugins_FieldSolver_A | F6 | minor | 新张量材料填充只按二维取样（3D 下 y 方向冻结） | todo |

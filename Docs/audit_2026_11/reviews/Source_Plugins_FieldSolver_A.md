@@ -113,6 +113,12 @@ ImplicitSolver.cpp 相关函数、AlgMGPC.H）。16 个无上游对应的新文�
   `max|div E - rho/eps0|` 是否随时间线性增长；或直接对比 Yee 路径。
 
 ### F3 静电场 1D 分支（`computeE` 的 `#else`）丢失 `-1` 项：共位网格 + 径向几何时 `E_r` 退化为 `β_xβ_z·∂φ`
+
+> **复核结论：不成立（以 26.11 为基准）**。上游自己在 26.10→26.11 之间把这个 `-1` 去掉了：
+> 26.10 的 `Source/FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.cpp:324` 是
+> `+(beta_x*beta_z-1._rt)*…`，而 26.11 同一行（`:354`）是 `+beta_x*beta_z*…`，与 fork 完全一致。
+> 也就是说这条差异是**上游演化**，fork 跟上了 26.11，不需要（也不应该）"修"。
+
 - 文件:行 `Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp:356`
 - 严重度: **major（若该分支可在径向几何下到达）/ minor（否则）**
 - 置信度: **needs-verification**（静态推导可靠，可达性取决于 grid_type；我未构建）
