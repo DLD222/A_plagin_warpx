@@ -7,6 +7,8 @@
  */
 #include "Runtime/KernelFactory.H"
 
+#include "Runtime/FactoryConflict.H"
+
 #include "Runtime/ISimulationKernel.H"
 
 #include <stdexcept>
@@ -25,10 +27,29 @@ SolverKernelPlugin& registry ()
 }
 } // namespace
 
+namespace
+{
+// Recorded when two kernels are registered; reported by create_simulation_kernel().
+std::string& conflict ()
+{
+    static std::string c;
+    return c;
+}
+} // namespace
+
 void
 register_solver_kernel_plugin (const SolverKernelPlugin& plugin)
 {
-    registry() = plugin;
+    // SolverKernelPlugin is a struct of function pointers, not a single pointer, so the shared
+    // assign_factory template does not apply; the conflict rule is the same as the other
+    // factories: record a second, *different* registration and report it from create_*().
+    auto& r = registry();
+    if (r.create != nullptr && r.create != plugin.create && conflict().empty()) {
+        conflict() = "two plugins registered a simulation-kernel factory.  The registry holds one "
+                     "slot, so which one takes effect would depend on static-initialisation and "
+                     "link order (CODE_REVIEW F-09); make the build link only one of them.";
+    }
+    r = plugin;
 }
 
 bool
@@ -40,6 +61,7 @@ has_solver_kernel_plugin ()
 std::unique_ptr<ISimulationKernel>
 create_solver_kernel (int argc, char* argv[])
 {
+    detail::require_no_conflict(conflict());
     if (registry().create == nullptr) {
         throw std::runtime_error(
             "Runtime: no PIC kernel plugin is registered. Link a kernel plugin "

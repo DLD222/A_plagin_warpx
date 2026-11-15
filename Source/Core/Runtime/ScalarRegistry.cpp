@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+#include <ablastr/warn_manager/WarnManager.H>
+
 namespace warpx::runtime
 {
 
@@ -21,11 +23,28 @@ ScalarRegistry::declare (const ScalarSpec& spec)
     const auto it = std::find_if(m_specs.begin(), m_specs.end(),
         [&spec](const ScalarSpec& existing) { return existing.name == spec.name; });
     if (it != m_specs.end()) {
-        if (it->checkpoint != spec.checkpoint || it->unit != spec.unit) {
+        // Compare *every* field, including the initial value: two plugins declaring
+        // "temperature" with 1.0 and 1e6 used to be silently resolved in favour of whichever ran
+        // first (the value half of the declaration was not compared, while MaterialRegistry and
+        // StateRegistry::request_field do compare it).
+        if (it->checkpoint != spec.checkpoint || it->unit != spec.unit
+            || it->value != spec.value) {
             throw std::runtime_error(
-                "ScalarRegistry: conflicting declaration for '" + spec.name + "'");
+                "ScalarRegistry: conflicting declaration for '" + spec.name
+                + "' (value/unit/checkpoint differ)");
         }
         return;
+    }
+    // `checkpoint = true` is accepted but nothing writes or reads scalars on checkpoint/restart
+    // (only fields go through FieldRegistry::checkpointNames()).  Saying so is better than a
+    // declaration that silently does not survive a restart.
+    if (spec.checkpoint) {
+        ablastr::warn_manager::WMRecordWarning(
+            "ScalarRegistry",
+            "scalar '" + spec.name + "' is declared with checkpoint = true, but scalars are not "
+            "written to or restored from checkpoints in this build; the value will be reset on "
+            "restart",
+            ablastr::warn_manager::WarnPriority::medium);
     }
     m_specs.push_back(spec);
     m_values.emplace(spec.name, spec.value);

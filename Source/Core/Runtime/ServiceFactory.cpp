@@ -7,6 +7,8 @@
  */
 #include "Runtime/ServiceFactory.H"
 
+#include "Runtime/FactoryConflict.H"
+
 #include "Runtime/HostServices.H"
 #include "Runtime/ICollisionHandler.H"
 #include "Runtime/IElectrostaticSolver.H"
@@ -24,6 +26,9 @@
 
 namespace warpx::runtime
 {
+using detail::assign_factory;
+using detail::require_no_conflict;
+
 namespace
 {
 struct Registry
@@ -50,24 +55,6 @@ struct Registry
  * depending on how the binary was linked.  A conflict is now recorded here and reported by the
  * create_*() entry point, which runs at a point where aborting is safe.
  */
-template <class F>
-void assign_factory (F& slot, F factory, char const* what, std::string& conflict)
-{
-    if (slot != nullptr && slot != factory && conflict.empty()) {
-        conflict = std::string("two plugins registered a ") + what
-                 + " factory. The service registry holds one slot per kind, so which one takes "
-                   "effect would depend on static-initialisation and link order (CODE_REVIEW "
-                   "F-09); make the build link only one of them, or give the second one a "
-                   "distinct service kind.";
-    }
-    slot = factory;
-}
-
-void require_no_conflict (std::string const& conflict)
-{
-    if (!conflict.empty()) { throw std::runtime_error(conflict); }
-}
-
 Registry& registry ()
 {
     static Registry r{};

@@ -7,6 +7,8 @@
  */
 #include "Runtime/SpectralSolverFactory.H"
 
+#include "Runtime/FactoryConflict.H"
+
 namespace warpx::runtime
 {
 namespace
@@ -21,10 +23,19 @@ SpectralSolverFactory& registry ()
 }
 } // namespace
 
+namespace
+{
+std::string& conflict ()
+{
+    static std::string c;
+    return c;
+}
+} // namespace
+
 void
 register_spectral_solver_factory (SpectralSolverFactory factory)
 {
-    registry() = factory;
+    detail::assign_factory(registry(), factory, "spectral-solver", conflict());
 }
 
 bool
@@ -36,6 +47,7 @@ has_spectral_solver_factory ()
 std::unique_ptr<ISpectralSolver>
 create_spectral_solver (SpectralSolverConfig const& config)
 {
+    detail::require_no_conflict(conflict());
     if (registry() == nullptr) { return nullptr; }
     return registry()(config);
 }
