@@ -186,3 +186,36 @@ invalid（10）：`ParticleCore_A F5`；`ParticleCore_B F1,F2,F5,F6,F8,F10`；`P
 建议集成者写进 REPORT 的一句话：尾部窗口的 10 条 invalid 全部是"报告当时以 26.10 为基准/或代码
 已被 deefbf6、5d71c45 覆盖"，不是回避；8 条 fixed 里 F6 与 F8 各带出一个上游/本 fork 的隐藏缺陷
 （nodal FAB 共享节点双写、dt→0 时残差参考量退化），都已在本窗口内一并修掉或记录。
+
+## 第四轮认领：Collision_A F2/F3/F4 + Collision_B F2/F3/F5/F6/F7 @lead-root 2026-11-15T19:36
+
+## 第五轮：Collision_A F2/F3/F4（fc98f8d）与 Collision_B F5（220d9a4）
+
+F2/F3/F4 fixed by fc98f8d（都是重构期残留，纯清理）：
+- F2：`DSMCFunc.H`、`SplitAndScatterFunc.H`、`BremsstrahlungFunc.H` 里三个"接受
+  `MultiParticleContainer const*`"的构造函数只有声明没有定义（`.cpp` 已改成
+  `CollisionSpeciesTable` 版本），删除并把 doxygen 参数名改对。
+  验证：`grep -rn "MultiParticleContainer const \*" Source/Plugins/Collision` 剩余两条都是
+  有定义、带 `/*mypc*/` 形参的委托构造；链接 + 77 个 collision 用例全绿。
+- F3：`SplitAndScatterFunc.H` / `PhotonCreationFunc.H` 第 1 行（版权头与 include guard 之前）的
+  `DefaultInitialization.H` 移入正常 include 块，顺带删掉重复的 `IParticleIterator.H` /
+  `Runtime/IParticleContainer.H` 和 `.cpp` 里连续空行。
+- F4：`BinaryCollisionUtils` 的两个 `IParticleContainerAccess` 转发重载（树内无调用者，每次还会
+  构造一份 `CollisionSpeciesTable` 快照再丢弃）删除。
+验证：`cmake --build --target app_{1d,2d,3d,rz}` 全通过；`ctest -R "collision|dsmc|bremsstrahlung"`
+→ **77/77 通过**（含 129 s 的 `test_3d_beam_beam_collision`）；九门 `run_gates.sh` 全 OK。
+
+F5 fixed by 220d9a4：`NuclearFusionFunc::executor()` 在 `save_particle_production` 分支解引用
+`m_data` 前加 `WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_data != nullptr, ...)`——`m_data` 只在可选钩子
+`AllocData()` 里赋值，任何没走 `CollisionHandler::AllocData` 的路径都会空指针。
+**报告里"`fields().get()` 也要判空"不成立**：`MultiFabRegister::internal_get` 在名字不存在时
+`throw std::runtime_error`（`Source/Core/ablastr/fields/MultiFabRegister.cpp:424-447`），
+指针不可能为 nullptr，加判空就是死代码。
+验证：`ctest -R "test_3d_deuterium_tritium_fusion\."`（唯一使用 `save_particle_production` 的 deck）
+→ 3/3 通过。反证：临时在 `AllocData()` 末尾把 `m_data` 置空重编 → 同一 deck 报
+`NuclearFusionFunc: save_particle_production needs AllocData() to have been called before executor()
+(no particle-production field is registered).`；之后已 `git diff` 确认该文件无残留。
+
+剩余（仍是 wip:lead-root，下一轮）：Collision_B F2（`pulsed_decay` 采样器语义）、F3（`CollisionSpeciesTable`
+的 `SpeciesHandle` 死代码 + 构造时全局归约）、F6（`save_particle_production` 两套解析机制）、
+F7（`declare_state` 只在 kernel 路径生效）。

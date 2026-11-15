@@ -26,14 +26,14 @@
 | Benchmarks | F19 | minor | `make_mie_cases.py` 的注释/文档与实际网格不符；单网格是为了绕开未定性不稳定 | todo |
 | Benchmarks | F20 | ? | `c03` 若干小问题（合并） | todo |
 | Python | F1 | critical | `pywarpx` 仍调用已改名的旧迭代器类 `WarpXParIter` → 运行时 `AttributeError` | fixed |
-| Python | F2 | major | 公开 API `ParticleContainerWrapper.deposit_charge_density` 被删（连同 C++ 绑定） | todo |
+| Python | F2 | major | 公开 API `ParticleContainerWrapper.deposit_charge_density` 被删（连同 C++ 绑定） | invalid |
 | Python | F3 | major | 测试容差被系统性放宽（6 处） | invalid |
 | Python | F4 | minor | 新增碰撞分析断言有复制粘贴错误 + 精确浮点相等 | fixed |
 | Python | F5 | minor | `read_dims_from_file` 的 `FILE` 正则仍会把 `#` 吞进路径 | fixed |
-| Python | F6 | minor | `Simulation` 的若干公开属性/扩展点被改为私有（无 property 兼容） | todo |
+| Python | F6 | minor | `Simulation` 的若干公开属性/扩展点被改为私有（无 property 兼容） | fixed |
 | Python | F7 | minor | 所有 PICMI 对象改为 pydantic 严格校验，未使用的多余关键字从"忽略"变"报错" | fixed |
 | Python | F8 | minor | `_amrex_argv`：脚本自身的 `--flag` 若出现在第一个覆盖参数之后会破坏 ParmParse | fixed |
-| Python | F9 | minor | 打包/卫生问题 | todo |
+| Python | F9 | minor | 打包/卫生问题 | fixed |
 | Source_Core_Misc | F1 | major | `doDirectGatherVectorField(order,…)` 运行时版本对非法阶数**静默不做任何 gather** | fixed |
 | Source_Core_Misc | F2 | major | split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致） | todo |
 | Source_Core_Misc | F3 | minor | `ImplicitOptions::particle_shape` 未初始化，且新增的 `ncomp_*` 块是死状态 | fixed |
@@ -70,14 +70,14 @@
 | Source_Core_Runtime_B | F14 | minor | `legacy_costs()`：注册了 provider，却没有任何调用者（死契约） | invalid |
 | Source_Core_Runtime_B | F15 | minor | `Runtime` 构造函数抛出时 AMReX 不会被 finalize（资源泄漏 + AMReX 退出断言） | fixed |
 | Source_Plugins_Collision_A | F1 | major | Bremsstrahlung 饱和分支把 `fmulti` 除以了“未夹紧的 arg”，光子权重与上游不同 | fixed |
-| Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | wip:lead-root |
-| Source_Plugins_Collision_A | F3 | minor | `#include` 被放在文件第 1 行、版权头与 include guard 之前 | wip:lead-root |
-| Source_Plugins_Collision_A | F4 | minor | `BinaryCollisionUtils` 新增的两个转发重载在树内无调用者（死代码 + 多余快照） | wip:lead-root |
+| Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | fixed |
+| Source_Plugins_Collision_A | F3 | minor | `#include` 被放在文件第 1 行、版权头与 include guard 之前 | fixed |
+| Source_Plugins_Collision_A | F4 | minor | `BinaryCollisionUtils` 新增的两个转发重载在树内无调用者（死代码 + 多余快照） | fixed |
 | Source_Plugins_Collision_B | F1 | major | `pulsed_decay` 删除了上游必填参数 `fixed_product_weight`，无 BackwardCompatibility 保护，旧输入静默改物理 | fixed |
 | Source_Plugins_Collision_B | F2 | minor | `pulsed_decay` 新采样器：整片母粒子被销毁 + 产物权重按 `weight_ratio` 逐代缩小；统计方差与文档表述都变了 | wip:lead-root |
 | Source_Plugins_Collision_B | F3 | minor | `CollisionSpeciesTable` 的 `SpeciesHandle` 全套机制是死代码，且构造时付一次"全粒子数全局归约" | wip:lead-root |
 | Source_Plugins_Collision_B | F4 | minor | `InverseBremsstrahlung`：`calculateNuei` 在缺少回调时**静默空转**，随后无检查地解引用 `nuei_*` / `N_*` 场 | fixed |
-| Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | wip:lead-root |
+| Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | fixed |
 | Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | wip:lead-root |
 | Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | wip:lead-root |
 | Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | fixed |
