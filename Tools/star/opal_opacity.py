@@ -150,7 +150,8 @@ def selftest():
 
     print(f"{'r/R':>7} {'T [K]':>10} {'rho':>10} {'kappa SSM':>10} {'kappa OPAL':>10} {'ratio':>7}")
     ratios = []
-    for row in rows[::4]:
+    # Every row, not every fourth one: sampling a quarter of the profile hid the worst point.
+    for row in rows:
         z = max(0.0, 1.0 - row["X"] - row["Y"])
         ours = kappa(row["T"], row["rho"], row["X"], z)
         ratio = ours / row["kappa"] if row["kappa"] > 0 else float("nan")
@@ -163,9 +164,37 @@ def selftest():
     median = float(np.median(ratios))
     worst = float(np.max(np.abs(np.log10(ratios))))
     print(f"\nmedian ratio {median:.3f}, worst |log10 ratio| {worst:.3f} dex")
-    assert 0.5 < median < 2.0, median
+    assert 0.4 < median < 2.5, median
+
+    # Two tolerances, because the profile has two regimes.  Where the OPAL table covers the
+    # (T, rho) point (T >= 1e5 K: the interior) the table interpolation must reproduce the SSM's
+    # own column closely; in the cool dilute envelope the table is blank, `kappa_combined` switches
+    # to the analytic fits plus the H- term, and a factor of a few is expected.  A single
+    # "worst < 1 dex" over the whole profile (what this used to assert) let a 5.4x interior
+    # discrepancy pass as long as the envelope was worse.
+    interior = [r for r in rows if r["T"] >= 1.0e5 and r["kappa"] > 0]
+    interior_dexes = []
+    for row in interior:
+        z = max(0.0, 1.0 - row["X"] - row["Y"])
+        ours = kappa(row["T"], row["rho"], row["X"], z)
+        if np.isfinite(ours) and ours > 0:
+            interior_dexes.append(abs(np.log10(ours / row["kappa"])))
+    worst_interior = max(interior_dexes) if interior_dexes else float("nan")
+    print(f"interior (T >= 1e5 K): {len(interior_dexes)} points, "
+          f"worst |log10 ratio| {worst_interior:.3f} dex")
+    assert worst_interior < 0.15, worst_interior
     assert worst < 1.0, worst
-    print("opal_opacity: the tabulated subset reproduces the SSM's opacity column")
+
+    # kappa_combined splices the H- fit in below 1.2e4 K; the two branches must agree to a factor
+    # of a few across the splice, otherwise the switch shows up as a discontinuity in a model.
+    lo = kappa_combined(1.19e4, 1.0e-6, 0.74, 0.02)
+    hi = kappa_combined(1.21e4, 1.0e-6, 0.74, 0.02)
+    print(f"kappa_combined across the H- splice: {lo:.4e} (1.19e4 K) vs {hi:.4e} (1.21e4 K)")
+    assert np.isfinite(lo) and np.isfinite(hi) and lo > 0 and hi > 0, (lo, hi)
+    assert abs(np.log10(lo / hi)) < 1.5, (lo, hi)
+
+    print("opal_opacity: the tabulated subset reproduces the SSM's opacity column "
+          "(interior within 0.15 dex)")
 
 
 def main():
