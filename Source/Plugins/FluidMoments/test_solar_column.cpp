@@ -250,19 +250,26 @@ int main (int argc, char* argv[])
         // diffusion term - and a proper interior needs the real opacity table, not kappa = 1.
         // Switching them off is a statement about where this case is valid, not a workaround: the
         // operators are exercised in their own tests and in test_stellar_model.
-        opts.nuclear = false;   // CF88 per cell is expensive; it has its own tests (network, network_coupling)
+        // The network is OFF here, and that is a statement about where this case is valid: at
+        // rho ~ 1e2 g/cm^3 with dt ~ 1 s CF88 is stiff (it books ~4e19 erg/cm^3 in one step) and
+        // the next evaluation returns NaN -- measured, see BACKLOG "star F14".  The network itself
+        // is exercised in test_network, test_network_coupling, test_stellar_model and
+        // test_energy_budget, which run it with a suitable dt.
+        opts.nuclear = false;
         opts.cooling = false;
         opts.radiation = false;
         opts.kappa = 0.0;
-        amrex::Real worst_booking = 0.0;
+        amrex::Real no_op_worst = 0.0;
         amrex::Real mach_max = 0.0;
 
         amrex::Real const cs_typical = std::sqrt(gas_gamma * 2.3e17 / 1.5e2);
         amrex::Real const dt = 0.2 * dx / cs_typical;    // CFL of the hottest sound speed here
         int const n_steps = 3;
         for (int step = 0; step < n_steps; ++step) {
+            amrex::Real const e_before_sources = state.sum(layout.energy());
             auto const ledger = warpx::plugins::fluid::applyStellarSources(
                 state, &radiation, &neutrino, dt, layout, opts);
+            amrex::Real const e_after_sources = state.sum(layout.energy());
             amrex::Real const e_before_cond = state.const_array(0)(0, 0, 0, layout.energy());
             warpx::plugins::fluid::advanceThermalConduction(state, geom, dt, gas_gamma, layout, 0,
                                                             0.0, 5.0, 20);
@@ -275,12 +282,17 @@ int main (int argc, char* argv[])
                 state.FillBoundary(geom.periodicity());
                 warpx::plugins::fluid::advanceSweep(state, geom, dir, dt, eos, layout);
             }
+            // The booking has to be checked against the *measured* change of the gas energy.
+            // This used to compare the ledger sum with itself, so the closure was identically 0
+            // and the assertion below could never fail (and with every source switched off the
+            // ledger was 0 to begin with).
             amrex::Real const booked = ledger.gas_nuclear + ledger.gas_cooling
                                      + ledger.gas_radiation;
-            amrex::Real const actual = ledger.gas_nuclear + ledger.gas_cooling
-                                     + ledger.gas_radiation;   // measured inside the ledger
-            worst_booking = amrex::max(worst_booking,
-                                       std::abs(booked - actual) / amrex::max(std::abs(booked), 1.0e-30));
+            amrex::Real const actual = e_after_sources - e_before_sources;
+            // With every source switched off the operator must be a no-op: both the booking and
+            // the *measured* energy change have to vanish.  This replaces a check that compared
+            // the ledger sum with itself (identically zero, so it could never fail).
+            no_op_worst = amrex::max(no_op_worst, amrex::max(std::abs(booked), std::abs(actual)));
             // largest Mach number in the column
             for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
                 amrex::Box const& bx = mfi.validbox();
@@ -302,11 +314,11 @@ int main (int argc, char* argv[])
                     (double)T_surface, (double)T_centre, (double)g_hi, (double)g_lo);
         std::printf("[solar] initial discrete hydrostatic residual = %.3e (relative)\n",
                     (double)balance_error);
-        std::printf("[solar] after %d steps: max Mach = %.3e, ledger closure = %.3e\n",
-                    n_steps, (double)mach_max, (double)worst_booking);
+        std::printf("[solar] after %d steps: max Mach = %.3e, sources-off residual = %.3e\n",
+                    n_steps, (double)mach_max, (double)no_op_worst);
 
         bool const ok = std::isfinite(balance_error) && (balance_error < 0.5) && (mach_max < 0.5)
-                     && (worst_booking < 1.0e-12);
+                     && (no_op_worst == 0.0);
         std::printf("[solar] %s\n", ok ? "PASSED" : "FAILED");
         if (!ok) { status = 1; }
     }
