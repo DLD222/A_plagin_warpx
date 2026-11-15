@@ -219,6 +219,45 @@ def run_checks(port: int) -> None:
     status, state = call(port, "/api/status")
     check("日志进度", state.get("step", 0) > 0,
           f"state={state['state']} step={state['step']}/{state.get('max_step')}")
+    # ---- v2: live view enhancements -------------------------------------
+    status, live_settings = call(port, "/api/live", {
+        "fields": ["rho", "E"], "component": "z", "particles": ["electrons"],
+        "follow": True})
+    check("多字段+粒子设置", status == 200 and live_settings["fields"] == ["rho", "E"],
+          str(live_settings))
+    frames = []
+    for _ in range(20):
+        time.sleep(1)
+        frames = (call(port, "/api/status")[1].get("live") or {}).get("frames", [])
+        if len(frames) >= 2 and all(f["ok"] for f in frames):
+            break
+    check("多字段并排渲染", len(frames) >= 2 and all(f["ok"] for f in frames),
+          f"{[(f['field'], f['ok']) for f in frames]}")
+    if frames:
+        body = call(port, "/api/frame?field=" + frames[1]["field"])[1]
+        check("按字段取图", isinstance(body, bytes) and body[:4] == b"\x89PNG",
+              f"{frames[1]['field']}: {len(body)} bytes")
+    status, iters = call(port, "/api/live/iterations")
+    numbers = iters.get("iterations", [])
+    check("迭代列表", len(numbers) >= 2, f"{len(numbers)} 个迭代: {numbers[:3]}…{numbers[-1:]}")
+    if len(numbers) >= 2:
+        oldest = numbers[0]
+        call(port, "/api/live", {"iteration": oldest, "follow": False, "fields": ["rho"]})
+        replayed = []
+        for _ in range(20):
+            time.sleep(1)
+            replayed = (call(port, "/api/status")[1].get("live") or {}).get("frames", [])
+            if replayed and replayed[0].get("iteration") == oldest:
+                break
+        check("历史迭代回放", bool(replayed) and replayed[0].get("iteration") == oldest,
+              f"回放到 iteration {oldest}")
+        call(port, "/api/live", {"fields": ["rho"], "follow": True})
+    status, export = call(port, "/api/export", {"fields": ["rho"], "max_frames": 3,
+                                                "make_video": True})
+    check("帧序列导出", status == 200 and export.get("count", 0) >= 2,
+          f"{export.get('count')} 帧 -> {export.get('dir')}；ffmpeg={export.get('ffmpeg')}"
+          f"，mp4={bool(export.get('mp4'))}")
+
     # ---- persistence: a restarted server can rebuild the job ----------
     from pathlib import Path as _Path
     from warpx_studio.runner.job import Job as _Job

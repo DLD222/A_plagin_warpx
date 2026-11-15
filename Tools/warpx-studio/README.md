@@ -226,3 +226,18 @@ stop  -> finished
 
 部署：`deploy/warpx-studio.service`（systemd user unit，WSL 默认没开 systemd 时用
 `~/.local/bin/warpx-studio` 启动器）+ `deploy/README.md` 三种方式说明。
+
+## v2 · 阶段 4：实时视图增强（已跑通，60/60 自测）
+
+| 能力 | 接口 | 实测 |
+|---|---|---|
+| 粒子叠加 | `POST /api/live {"particles":["electrons"]}` | 半透明场 + 点云；单帧 146 ms |
+| 多字段并排 | `POST /api/live {"fields":["rho","E","B"]}` | 一次渲染 3 张 PNG，各 ~340 KB，界面网格显示 |
+| 历史迭代回放 | `POST /api/live {"iteration":N,"follow":false}` | `/api/live/iterations` 列出 100 个迭代，回放到 iteration 0 |
+| 帧序列导出 | `POST /api/export` | 3 帧写入 `run/export/`；有 ffmpeg 时自动合成 mp4（本机无） |
+
+**踩的坑**：粒子一开始完全看不见 —— 场平面不透明且与粒子共面，深度竞争把粒子全挡了。
+修法是"有粒子时场降到 55% 不透明度 + 相机改斜视角"，不是调粒子半径。
+
+**验收时序**：设置 `POST /api/live` 后必须等**一轮渲染**再断言，否则会读到旧帧
+（我这个坑踩过一次，selftest 里用"轮询直到条件满足"处理）。
