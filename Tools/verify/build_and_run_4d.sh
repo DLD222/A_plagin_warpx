@@ -35,7 +35,7 @@ export CC=/usr/bin/gcc CXX=/usr/bin/g++
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 HDF5_ROOT="${HDF5_ROOT:-/tmp/hdf5_mpi}"
 BUILD="${BUILD:-$REPO/build_multi_hdf5}"
-CONDA="${CONDA_PREFIX_PREFIX:-$HOME/miniconda3}"
+CONDA="${CONDA_PREFIX:-$HOME/miniconda3}"
 
 # Runtime libraries: the parallel HDF5, FFTW and blaspp/lapackpp live outside
 # the default loader path.
