@@ -29,6 +29,10 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# Absolute default (see the other runners): a relative "build_2d/..." resolves against the
+# caller's cwd, which is not the repository root.
+DEFAULT_BIN = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))),
+                           "build_2d", "bin", "warpx.2d.MPI.OMP.DP.PDP.EB")
 C = 299792458.0
 LAM = 1.0
 OMEGA = 2.0 * math.pi * C / LAM
@@ -94,7 +98,7 @@ POL = {
 def main():
     do_run = "--run" in sys.argv
     bin_2d = os.environ.get(
-        "WARPX_BIN", "build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB")
+        "WARPX_BIN", DEFAULT_BIN)
 
     for pol, (pol_vec, field) in POL.items():
         for n in NCELLS:

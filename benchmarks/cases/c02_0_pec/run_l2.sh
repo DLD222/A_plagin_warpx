@@ -8,7 +8,8 @@
 # Both criteria are described in ECT_2D_TE_REPORT.md (section "L2 criteria").
 set -e
 cd "$(dirname "$0")"
-BIN=${WARPX_BIN:-build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB}
+REPO=$(cd "$(dirname "$0")/../../../.." && pwd)
+BIN=${WARPX_BIN:-$REPO/build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB}
 RUNS=${RUNS:-/tmp/l2}
 rm -rf "$RUNS"
 mkdir -p "$RUNS"

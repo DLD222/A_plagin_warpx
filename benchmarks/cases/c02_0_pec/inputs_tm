@@ -32,7 +32,10 @@ warpx.Ex_external_grid_function(x,y,z) = "E0*exp(-((z-zc)/w)^2)"
 warpx.Ey_external_grid_function(x,y,z) = "0"
 warpx.Ez_external_grid_function(x,y,z) = "0"
 warpx.Bx_external_grid_function(x,y,z) = "0"
-warpx.By_external_grid_function(x,y,z) = "-E0*exp(-((z-zc)/w)^2)/c"
+# E = Ex x, B = By y -> k = E x B = Ex*By z: the + sign is what sends the pulse toward +z
+# (the PEC plane is at z = 0 and the pulse starts at zc < 0).  This file had the minus
+# sign while every other TM deck has the plus, which split the pulse into +z and -z halves.
+warpx.By_external_grid_function(x,y,z) = "E0*exp(-((z-zc)/w)^2)/c"
 warpx.Bz_external_grid_function(x,y,z) = "0"
 
 warpx.reduced_diags_names = fp_inc

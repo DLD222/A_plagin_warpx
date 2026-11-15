@@ -10,7 +10,8 @@
 # Env:    WARPX_BIN, RUNS (default /tmp/l2scan), OMP_NUM_THREADS
 set -e
 cd "$(dirname "$0")"
-BIN=${WARPX_BIN:-build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB}
+REPO=$(cd "$(dirname "$0")/../../../.." && pwd)
+BIN=${WARPX_BIN:-$REPO/build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB}
 RUNS=${RUNS:-/tmp/l2scan}
 NS=${*:-64 128 256}
 mkdir -p "$RUNS"

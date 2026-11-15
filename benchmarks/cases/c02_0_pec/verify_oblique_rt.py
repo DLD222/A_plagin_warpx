@@ -31,7 +31,13 @@ import numpy as np
 
 C = 299792458.0
 MU0 = 1.25663706212e-6
-BIN = "build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB"
+
+# Default to the build tree of the repository this file lives in: a relative
+# "build_2d/..." resolves against the caller's cwd (the runners cd into a temporary
+# directory), so the documented reproduce commands could never work.
+DEFAULT_BIN = str(__import__("pathlib").Path(__file__).resolve().parents[4]
+                 / "build_2d/bin/warpx.2d.MPI.OMP.DP.PDP.EB")
+BIN = DEFAULT_BIN
 
 
 def make_inputs(root, args, pol, interfaced):
