@@ -889,14 +889,18 @@ web::ComputeDualGeometry (
     amrex::Real A_stab)
 {
     BL_PROFILE("ComputeDualGeometry");
-    amrex::Print() << "[DIAG] ComputeDualGeometry called, scheme=" << scheme << "\n";
+    // Verbose-gated: this ran on every call unconditionally, unlike every other diagnostic in
+    // this file (they check WarpX::verbose).
+    if (WarpX::GetInstance().Verbose() > 2) {
+        amrex::Print() << "[DIAG] ComputeDualGeometry called, scheme=" << scheme << "\n";
+    }
 
     amrex::ignore_unused(dual_A_y, dual_L_x, dual_L_z, eb_fact, cell_size, scheme, A_stab);
 
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
         scheme == 1 || scheme == 2 || scheme == 4 || scheme == 6 || scheme == 7 || scheme == 8 || scheme == 9,
-        "ComputeDualGeometry: only scheme 1 (constant), 2 (volfrac) and 4 (level set) "
-        "are implemented");
+        "ComputeDualGeometry: scheme must be one of 1 (constant), 2 (volfrac), 4 (level set), "
+        "6, 7, 8 or 9 (the accepted set above and the branches below)");
 
 #if defined(WARPX_DIM_XZ)
     amrex::Real const dx = cell_size[0];
@@ -1015,7 +1019,11 @@ web::ComputeDualGeometry (
         }
     }
 #endif
-    amrex::Print() << "[DIAG] dual geom: A_y=" << dual_A_y.min(0) << ".." << dual_A_y.max(0) << " Lx=" << dual_L_x.min(0) << ".." << dual_L_x.max(0) << " Lz=" << dual_L_z.min(0) << ".." << dual_L_z.max(0) << "\n";
+    if (WarpX::GetInstance().Verbose() > 2) {
+        amrex::Print() << "[DIAG] dual geom: A_y=" << dual_A_y.min(0) << ".." << dual_A_y.max(0)
+                       << " Lx=" << dual_L_x.min(0) << ".." << dual_L_x.max(0)
+                       << " Lz=" << dual_L_z.min(0) << ".." << dual_L_z.max(0) << "\n";
+    }
 }
 
 #endif
