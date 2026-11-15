@@ -322,3 +322,23 @@ theta-implicit pinch 用例的残余差异。
 只移一部分会得到"次序错配"的中间态（本次中途就出现过 `test_rz_laser_acceleration`
 从 2.0 掉到 2.2e5 的现象）；(2) 之前把 RZ 的差异归给"fork 特有"是错的，它们全部由
 这三个提交解释。
+
+## 26.11 前移进度（round 12）
+
+| 上游提交 | 状态 | 验证 |
+|---|---|---|
+| `7970fb639`（J 诊断 finalization） | **已前移** | 8 个用例转为 0.0；17 个静电/j 诊断用例整批核对无回归 |
+| `eb9115c3a`（finalization Part 3：J 标定移入 finalization、PEC 去掉径向 dV 权重） | **已前移** | 全部 **51** 个 RZ/RSPHERE 用例与 26.11 逐位一致（`max_abs_diff == 0`） |
+| `f2c086e33`（RZ PML 下所有场交换角点 guard cell） | **已前移** | `test_rz_pml_psatd`（最长 RZ 用例）、`test_rz_laser_acceleration`、3 个 boosted/btd 激光用例全部 0.0 |
+| `85fba0911`（1D RSPHERE 只允许静电、只有 Er/Jr） | 未前移 | 398 个自带用例里**没有** 1D RSPHERE 用例，前移与否不影响验收；且改动 628 行、属于 1D RSPHERE 的物理收敛（PR #7298 的配套）。已记录为已知 gap，需要时再移 |
+
+### 顺带收窄的插件接口
+
+移植过程中发现两个接口钩子随之失效，已删除（符合"插件接口必须简单"的要求）：
+
+- `IParticleServices::applyInverseVolumeScalingToCurrentDensity`（`Source/Core/Runtime/IParticleServices.H`）
+  及其实现 `WarpXHostServices::applyInverseVolumeScalingToCurrentDensity`；
+- `ImplicitKernelServices::apply_inverse_volume_scaling_current`（`Source/Core/Runtime/ImplicitKernelServices.H`）
+  及其在 `ImplicitKernelServicesBuilder` 里的实现。
+
+J 的径向标定现在只有一个入口：`WarpX::FinalizeJOnLevel`。
