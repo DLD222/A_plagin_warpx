@@ -90,6 +90,18 @@ void fill_langmuir (std::vector<Real>& field, std::vector<Real>& U,
 
 } // namespace
 
+namespace {
+// Every check must be able to fail the process: these tests are the geometry/conservation gate
+// of the ten-moment module, and printing "FAIL" while still returning 0 (as the earlier version
+// did) means the gate can never trip.
+int g_failures = 0;
+void report (bool ok, const char* what)
+{
+    std::printf("%s: %s\n", ok ? "PASS" : "FAIL", what);
+    if (!ok) { ++g_failures; }
+}
+} // namespace
+
 int main ()
 {
     const int nx = 64;
@@ -133,9 +145,7 @@ int main ()
         }
         std::printf("2D (uniform y) vs 1D: max|dF| = %.3e  max|dU| = %.3e\n",
                     static_cast<double>(wf), static_cast<double>(wu));
-        std::printf("%s\n", (wf == Real(0) && wu == Real(0))
-            ? "PASS: 2D coupling reduces to 1D bit-for-bit"
-            : "FAIL: 2D coupling differs from 1D");
+        report((wf == Real(0) && wu == Real(0)), "2D coupling reduces to 1D bit-for-bit");
     }
 
     // ---- 2D rotation symmetry: ripple along x vs along y ----
@@ -174,8 +184,7 @@ int main ()
         }
         std::printf("2D rotation symmetry (x-ripple vs y-ripple, transposed): %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: x<->y symmetry exact"
-                                              : "FAIL: rotation symmetry broken");
+        report((worst == Real(0)), "x<->y symmetry exact");
     }
 
     // ---- 3D, uniform along y and z (checks the DIM=3 index path) ----
@@ -207,10 +216,8 @@ int main ()
         }
         std::printf("3D (uniform y,z) vs 1D: max|dF| = %.3e  max|dU| = %.3e\n",
                     static_cast<double>(wf), static_cast<double>(wu));
-        std::printf("%s\n", (wf == Real(0) && wu == Real(0))
-            ? "PASS: 3D coupling reduces to 1D bit-for-bit"
-            : "FAIL: 3D coupling differs from 1D");
+        report((wf == Real(0) && wu == Real(0)), "3D coupling reduces to 1D bit-for-bit");
     }
 
-    return 0;
+    return g_failures == 0 ? 0 : 1;
 }

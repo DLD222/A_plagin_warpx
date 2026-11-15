@@ -55,6 +55,18 @@ void fill_state (std::vector<Real>& U, int nx, int ny, Real dx, Real dy)
 
 } // namespace
 
+namespace {
+// Every check must be able to fail the process: these tests are the geometry/conservation gate
+// of the ten-moment module, and printing "FAIL" while still returning 0 (as the earlier version
+// did) means the gate can never trip.
+int g_failures = 0;
+void report (bool ok, const char* what)
+{
+    std::printf("%s: %s\n", ok ? "PASS" : "FAIL", what);
+    if (!ok) { ++g_failures; }
+}
+} // namespace
+
 int main ()
 {
     const int nx = 48, ny = 48;
@@ -82,8 +94,7 @@ int main ()
         }
         std::printf("advance vs advance_with_mass_flux: max|dU| = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: identical state update"
-                                              : "FAIL: state differs");
+        report((worst == Real(0)), "identical state update");
     }
 
     // ---- 2. discrete continuity ----
@@ -102,9 +113,7 @@ int main ()
         std::printf("continuity: max|(rho^{n+1}-rho^n)/dt + div J| = %.3e"
                     "   (scale |drho/dt| = %.3e)\n",
                     static_cast<double>(res), static_cast<double>(ref));
-        std::printf("%s\n", (res <= Real(1e-12) * std::max(ref, Real(1)))
-            ? "PASS: charge continuity exact to roundoff"
-            : "FAIL: continuity violated");
+        report((res <= Real(1e-12) * std::max(ref, Real(1))), "charge continuity exact to roundoff");
     }
 
     // ---- 3. rotation symmetry of the deposited current ----
@@ -153,8 +162,7 @@ int main ()
         }
         std::printf("deposited current, x<->y symmetry: max|diff| = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst < Real(1e-12)) ? "PASS: deposited current symmetric"
-                                                 : "FAIL: asymmetry in deposition");
+        report((worst < Real(1e-12)), "deposited current symmetric");
     }
 
     // ---- 4. 3D continuity (checks the DIM=3 face bookkeeping) ----
@@ -195,10 +203,8 @@ int main ()
         std::printf("3D continuity: max|residual| = %.3e  (scale %.3e, relative %.2e)\n",
                     static_cast<double>(res), static_cast<double>(ref),
                     static_cast<double>(res / std::max(ref, Real(1))));
-        std::printf("%s\n", (res <= Real(1e-12) * std::max(ref, Real(1)))
-            ? "PASS: 3D charge continuity exact to roundoff"
-            : "FAIL: 3D continuity violated");
+        report((res <= Real(1e-12) * std::max(ref, Real(1))), "3D charge continuity exact to roundoff");
     }
 
-    return 0;
+    return g_failures == 0 ? 0 : 1;
 }

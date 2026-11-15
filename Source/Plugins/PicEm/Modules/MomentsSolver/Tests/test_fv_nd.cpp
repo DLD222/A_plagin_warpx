@@ -86,6 +86,18 @@ void fill_sod_z (std::vector<Real>& U, int nx, int ny, int nz)
 
 } // namespace
 
+namespace {
+// Every check must be able to fail the process: these tests are the geometry/conservation gate
+// of the ten-moment module, and printing "FAIL" while still returning 0 (as the earlier version
+// did) means the gate can never trip.
+int g_failures = 0;
+void report (bool ok, const char* what)
+{
+    std::printf("%s: %s\n", ok ? "PASS" : "FAIL", what);
+    if (!ok) { ++g_failures; }
+}
+} // namespace
+
 int main ()
 {
     const int nx = 200;
@@ -139,8 +151,7 @@ int main ()
             }
         }
         std::printf("2D vs 1D (Sod, t=0.2): max|dU| = %.3e\n", static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: 2D reduces to 1D bit-for-bit"
-                                              : "FAIL: 2D differs from 1D");
+        report((worst == Real(0)), "2D reduces to 1D bit-for-bit");
     }
 
     // ---- 3D: ny = nz = 3, uniform along y,z ----
@@ -171,8 +182,7 @@ int main ()
             }
         }
         std::printf("3D vs 1D (Sod, t=0.2): max|dU| = %.3e\n", static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: 3D reduces to 1D bit-for-bit"
-                                              : "FAIL: 3D differs from 1D");
+        report((worst == Real(0)), "3D reduces to 1D bit-for-bit");
     }
 
     // ---- uniform state must stay uniform (the y/z divergence is exactly 0) ----
@@ -195,8 +205,7 @@ int main ()
         }
         std::printf("uniform drift state (3D): max|dU| after 1 step = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst < Real(1e-12)) ? "PASS: uniform state preserved"
-                                                 : "FAIL: uniform state disturbed");
+        report((worst < Real(1e-12)), "uniform state preserved");
     }
 
     // ---- axis-1 flux: Sod along y must equal the 1D Sod along x ----
@@ -223,8 +232,7 @@ int main ()
         }
         std::printf("Sod along y (2D, dir=1) vs 1D Sod along x: max|dU| = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: dir=1 flux matches the 1D solver"
-                                              : "FAIL: dir=1 differs");
+        report((worst == Real(0)), "dir=1 flux matches the 1D solver");
     }
 
     // ---- axis-2 flux: Sod along z must equal the 1D Sod along x ----
@@ -251,8 +259,7 @@ int main ()
         }
         std::printf("Sod along z (3D, dir=2) vs 1D Sod along x: max|dU| = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst == Real(0)) ? "PASS: dir=2 flux matches the 1D solver"
-                                              : "FAIL: dir=2 differs");
+        report((worst == Real(0)), "dir=2 flux matches the 1D solver");
     }
 
     // ---- genuine 2D check: a circular blast must be transpose-symmetric ----
@@ -298,9 +305,8 @@ int main ()
         }
         std::printf("2D circular blast: max|U(i,j) - U(j,i)| = %.3e\n",
                     static_cast<double>(worst));
-        std::printf("%s\n", (worst < Real(1e-12)) ? "PASS: x<->y symmetry exact"
-                                                  : "FAIL: 2D symmetry broken");
+        report((worst < Real(1e-12)), "x<->y symmetry exact");
     }
 
-    return 0;
+    return g_failures == 0 ? 0 : 1;
 }
