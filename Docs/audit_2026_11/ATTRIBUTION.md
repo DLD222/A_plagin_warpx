@@ -239,3 +239,35 @@ fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需
 
 若坚持以 26.10 为基准，则需要把 `a180bc361`、`ec99a479a` 等上游提交在 fork 里回退，
 这是一次**方向性决定**，需要明确授权后才能做。
+
+## 向 26.11 对齐：已移植 `7970fb639`（J 诊断 finalization）
+
+用户已确认验收基准为 **26.11**，因此 fork 落后于 26.11 的 4 个上游提交要前移。本轮完成第一个：
+
+| 上游提交 | 内容 | fork 改动 |
+|---|---|---|
+| `7970fb639` | `JFunctor` 改用 `WarpXSumGuardCells` + `FinalizeJOnLevel`（26.10 只做 `FillBoundary`） | `WarpXHostServices::depositCurrent`：`FillBoundary` → `WarpXSumGuardCells(..., J.nGrowVect(), 0, J.nComp())` + `FinalizeJOnLevel(lev, Jx, Jy, Jz, PatchType::fine)` |
+
+效果（同一次 `ctest` 重跑后与两个基准对照）：
+
+| 用例 | 移植前 vs 26.11 | 移植后 vs 26.11 |
+|---|---|---|
+| `test_2d_energy_conserving_thermal_plasma` | 1.99e17 | **0.0** |
+| `test_2d_charge_exchange_dsmc` | 5.24e16 | **0.0** |
+| `test_2d_prev_positions_picmi` | 1.79e2 | **0.0** |
+| `test_3d_effective_potential_electrostatic_picmi` | 2.04e-3 | **0.0** |
+| `test_3d_hard_edged_quadrupoles_moving` | 6.42e-8 | **0.0** |
+| `test_2d_collisions_split_momentum_push_electrostatic` | 5.83e16 | **0.0** |
+| `test_1d_pierce_diode`（原 `behind-2611`） | 7.27 | **0.0** |
+| `test_3d_magnetostatic_eb(_picmi)` | 8.3e3 / 1.0e4 | **0.0** |
+
+另外把 17 个"静电/无 EM 求解器 + 带 j 诊断"的用例整批重跑，与 26.11 全部一致
+（16 个 0.0，`test_rz_magnetostatic_eb_picmi` 7.3e-12）。
+
+### 剩余 3 个待移植提交
+
+| 上游提交 | 影响 | 备注 |
+|---|---|---|
+| `eb9115c3a` | 把 J 的反体积缩放移入 `FinalizeJOnLevel`、去掉 PEC 反射边界里的径向 `rscale`；16 文件 ±265 行 | 上游 CI 因此变化的是 `test_rz/rc_theta_implicit_dynamic_pinch`（1e-6…1e-8）与 `test_rz_ohm_solver_cylinder_compression_picmi`（1e-6）。**这是当前 `test_rz_ohm_solver_cylinder_compression_picmi` 残余 2.6e4 的最可能原因** |
+| `85fba0911` | 1D RSPHERE 下禁止非物理电磁项，12 文件 | 只影响 1D RSPHERE |
+| `f2c086e33` | MoveWindow 交换 RZ PML 角点 guard cells | 影响 RZ + moving window + PML |

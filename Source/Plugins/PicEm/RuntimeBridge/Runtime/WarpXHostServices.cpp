@@ -71,14 +71,18 @@ WarpXHostServices::depositCurrent (int lev, amrex::Real dt)
     mypc.DepositCurrent(current_fp_temp, dt, 0.0);
 
     // This service is used by the J diagnostic (JFunctor) to deposit the current when no
-    // field solver, or the electrostatic one, is in use.  Upstream WarpX's JFunctor does
-    // *not* sum the guard cells into the valid cells and does *not* call FinalizeJ: it
-    // deposits, fills the periodic guard cells, and interpolates.  Doing more here changes
-    // the diagnostic (and mutates the live current used later by the solver).
+    // field solver, or the electrostatic one, is in use.  Upstream 26.11's JFunctor sums the
+    // deposited guard contributions into the valid cells and then finalizes J at this level
+    // (guard-cell sum in place of the plain FillBoundary that 26.10 used, plus the reflective
+    // boundary / radial volume scaling).  An intermediate version of this service only filled
+    // the periodic guard cells, which reproduced 26.10 but not 26.11.
     for (int idim = 0; idim < 3; ++idim) {
         auto& J = *current_fp_temp[0][idim];
-        J.FillBoundary(m_warpx.Geom(lev).periodicity());
+        WarpXSumGuardCells(J, m_warpx.Geom(lev).periodicity(), J.nGrowVect(), 0, J.nComp());
     }
+    m_warpx.FinalizeJOnLevel(lev,
+        current_fp_temp[0][0], current_fp_temp[0][1], current_fp_temp[0][2],
+        PatchType::fine);
 }
 
 void
