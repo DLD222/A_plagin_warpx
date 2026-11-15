@@ -181,3 +181,17 @@
 （或改用无激光的 RZ 静电算例，如 `test_rz_electrostatic_sphere`）来观察 rho 是否仍有
 “第 24 行 + 56–61 行”的同类残差——若消失，说明残差与激光/模式注入相关；若保留，
 说明在更基础的 RZ 电荷沉积/标定里。
+
+## 对照：无激光的 RZ 算例里 rho 逐位一致
+
+`test_rz_electrostatic_sphere`（RZ 静电球，32×64）的 t=0 `rho` 对比：
+**maxdiff = 0.0，0 个格点不同**（ref/fork 都是 2.5364e-13）。
+
+结合 1-rank 实验，可把 RZ rho 残差的范围进一步收窄：
+- 不是 MPI/guard-cell；
+- 不是基础的 RZ 电荷沉积 + 体积标定（静电球里这条路径逐位一致）；
+- 只出现在 **RZ 激光算例**（该算例强制 `n_rz_azimuthal_modes>=2`，且 `rho_1_real/imag` 也同时不同）。
+
+因此下一个待查点是 **m≥1 模式分量在 rho 诊断/输出路径上的处理**
+（mode>0 的沉积、`InterpolateMFForDiag` 的 RZ 模式重建、或模式的边界条件），
+而不是 mode0 的标定。下一轮直接对 `rho_1_real` 做逐格对照即可定位到具体行/相位。
