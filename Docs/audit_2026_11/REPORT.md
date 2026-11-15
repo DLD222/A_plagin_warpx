@@ -37,6 +37,21 @@
    是**上游 26.11 自己改的**（`Examples/Tests/projection_div_cleaner/inputs_test_3d_*_picmi.py`
    在 26.10 里是 `1e-12`，26.11 里是 `2e-12`），fork 与 26.11 逐字节一致。
 
+## 0.1 round 12 状态（2026-11-15）
+
+按"以 26.11 为基准"的新口径，fork 与 26.11 的四个差异提交已前移三个：
+
+| 提交 | 结果 |
+|---|---|
+| `7970fb639`（J 诊断 finalization） | 8 个用例转为逐位一致 |
+| `eb9115c3a`（finalization Part 3：J 标定移入 `FinalizeJOnLevel`、PEC 去径向 dV 权重） | **51/51 个 RZ/RSPHERE 用例与 26.11 逐位一致** |
+| `f2c086e33`（RZ PML 下所有场交换角点 guard cell） | `test_rz_pml_psatd` 等 5 个 moving-window 用例 0.0 |
+| `85fba0911`（1D RSPHERE 只允许静电） | 未前移：398 个自带用例里没有 1D RSPHERE 用例，已记为已知 gap |
+
+因此"79/131 个 fork-code 差异"这一议题在 26.11 口径下已经收敛为：RZ 全绿、非 RZ 的残余只剩
+舍入级与两个已证混沌的用例（见 `ATTRIBUTION.md`）。剩下的工作是代码审查清单
+（62 major / 113 minor）逐条区分"上游继承 vs fork 引入"并修复 fork 引入项。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
