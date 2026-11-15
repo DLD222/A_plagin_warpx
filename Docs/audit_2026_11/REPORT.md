@@ -229,6 +229,14 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 | `test_rz_ohm_solver_resistive_drag_species_fields_picmi` | `current_fp_ions[dir=z]`、`rho_ions` | 7.8e5 / 7.8（总量场一致） | fork 代码 | **逐格定位**：只在 `z` 上边界一排（第 15 列）以及个别角点不同，官方 `rho_ions=23.84`、fork `31.67`；总场 `rho`/`E` 一致 → 问题在**逐物种诊断量的边界处理**（`FinalizeRho`/per-species 场未做与总场一致的边界处理），不是求解器 |
 | `test_2d_darwin_solver_em_modes_es_picmi` | Ez | 2.9e4 | fork 代码 | Darwin 求解器（预条件系数改动，FieldSolver_B F2） |
 
+### 5.0 一个度量陷阱（已核实，避免误判）
+
+`first_step.py`（只看最早 diag）与 `compare_case.py`（看所有 diag 取最大值）给出的数不是同一个量。
+例如 `test_rz_magnetostatic_eb_picmi` 的 `Er`：首个 diag 上 max abs = 2.54e4，
+全部 diag 上 max abs = 2.73e4。2026-11-15 曾把后者误当作“修复 #5 引起的回退”，复核后确认
+首个 diag 的数值在修复前后**完全一致**（2.539e4），所以不是回退，只是度量不同。
+后续比较必须同口径（`first_step.csv` 对 `first_step.csv`，或全量对全量）。
+
 ### 5.1 首个输出是否已不同（决定“根因在哪一层”）
 
 对 79 个 fork 代码差异用例比较**最早 diag**（`scripts/first_step.py`，结果 `audit_runs/first_step.csv`）：
