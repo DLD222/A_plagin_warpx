@@ -908,8 +908,30 @@ FullDiagnostics::ResizeLevels (int new_finest)
 void
 FullDiagnostics::RemakeLevel (int lev)
 {
+    // A regrid changes the layout of the output MultiFabs, so they have to be rebuilt.  For a
+    // TimeAveraged diagnostic the accumulator is not part of that layout problem: it sums over
+    // several steps, and rebuilding it via InitializeBufferData would zero it, silently throwing
+    // away every step accumulated since the start of the averaging window (final output would be
+    // off by steps_since_regrid / average_period_steps).  Keep the old accumulator, rebuild the
+    // layout, then copy the overlapping region back; cells outside the old layout stay zero.
     for (int i_buffer = 0; i_buffer < m_num_buffers; ++i_buffer) {
+        std::unique_ptr<amrex::MultiFab> previous_sum;
+        if (m_diag_type == DiagTypes::TimeAveraged
+            && i_buffer < static_cast<int>(m_sum_mf_output.size())
+            && lev < static_cast<int>(m_sum_mf_output[i_buffer].size())) {
+            amrex::MultiFab const& sum = m_sum_mf_output[i_buffer][lev];
+            if (sum.ok()) {
+                previous_sum = std::make_unique<amrex::MultiFab>(
+                    sum.boxArray(), sum.DistributionMap(), sum.nComp(), sum.nGrowVect());
+                amrex::MultiFab::Copy(*previous_sum, sum, 0, 0, sum.nComp(), sum.nGrowVect());
+            }
+        }
         InitializeBufferData(i_buffer, lev);
+        if (previous_sum) {
+            amrex::MultiFab& sum = m_sum_mf_output[i_buffer][lev];
+            sum.ParallelCopy(*previous_sum, 0, 0, sum.nComp(),
+                             amrex::Periodicity::NonPeriodic());
+        }
     }
     InitializeFieldFunctors(lev);
 }

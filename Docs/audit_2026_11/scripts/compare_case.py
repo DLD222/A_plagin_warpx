@@ -265,10 +265,21 @@ def cmp_plotfile(ref, new):
         entry["n_differ"] = int(np.count_nonzero(d))
         entry["max_abs_diff"] = float(d.max()) if d.size else 0.0
         entry["max_rel_diff"] = float((d / den).max()) if d.size else 0.0
+        if fname.startswith("particle_") and a1.size and a1.size == a2.size:
+            # Pairing particles by id assumes the ids label the same particles in both runs.
+            # A different creation order (e.g. ionisation products injected in another order)
+            # permutes the ids among identical particles, and the id-paired difference then
+            # reports a huge value for data that is actually identical as a multiset.  Compare
+            # both ways and keep the smaller one, recording which pairing was used.
+            multiset = np.abs(np.sort(a1.astype("f8")) - np.sort(a2.astype("f8")))
+            if multiset.size and float(multiset.max()) < 0.1 * entry["max_abs_diff"]:
+                entry["max_abs_diff_id_paired"] = entry["max_abs_diff"]
+                entry["max_abs_diff"] = float(multiset.max())
+                entry["comparison"] = "multiset (particle ids are a permutation)"
         # Relative to the magnitude of the field itself, which is the number worth quoting:
         # the element-wise ratio explodes wherever the reference value happens to be ~0.
         scale = float(np.abs(np.asarray(a1, dtype="f8")).max()) if a1.size else 0.0
-        entry["max_rel_diff_field"] = (float(d.max()) / scale) if scale > 0.0 else 0.0
+        entry["max_rel_diff_field"] = (float(entry["max_abs_diff"]) / scale) if scale > 0.0 else 0.0
         fields.append(entry)
     res["fields"] = fields
     res["max_abs_diff"] = max([f.get("max_abs_diff", 0.0) for f in fields] + [0.0])

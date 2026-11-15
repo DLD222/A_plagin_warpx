@@ -127,10 +127,16 @@ inline amrex::Real applyElectromagneticSources (amrex::MultiFab& state,
                         rho += s(i, j, k, layout.density(a));
                     }
                     if (rho <= Real(0.0)) { continue; }
-                    amrex::Real const Ev[3] = {ea[0](i, j, k), ea[1](i, j, k), ea[2](i, j, k)};
-                    amrex::Real const Bv[3] = {ba[0](i, j, k), ba[1](i, j, k), ba[2](i, j, k)};
+                    // `ea`/`ba` hold AMREX_SPACEDIM entries: reading [1] and [2] unconditionally is
+                    // an out-of-bounds read of the Array in a 1-D or 2-D build (it returned
+                    // whichever Array4 followed in memory, so E came out as (Ex,Ex,Ex)).  The
+                    // directions this build does not have stay zero, like the momentum below.
+                    amrex::Real Ev[3] = {Real(0.0), Real(0.0), Real(0.0)};
+                    amrex::Real Bv[3] = {Real(0.0), Real(0.0), Real(0.0)};
                     amrex::Real uv[3] = {Real(0.0), Real(0.0), Real(0.0)};
                     for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+                        Ev[d] = ea[d](i, j, k);
+                        Bv[d] = ba[d](i, j, k);
                         uv[d] = s(i, j, k, layout.momentum(d)) / rho;
                     }
                     amrex::Real f[3];
