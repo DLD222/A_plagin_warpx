@@ -274,6 +274,13 @@ public:
         // in a way that is thread dependent.
         Executor exe = m_exe;
         if (m_save_particle_production) {
+            // m_data is set by AllocData(), an optional hook of CollisionFuncBase: a caller
+            // that builds the functor but never runs CollisionHandler::AllocData() would
+            // dereference a nullptr here (there is no other guard on this path).
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+                m_data != nullptr,
+                "NuclearFusionFunc: save_particle_production needs AllocData() to have been "
+                "called before executor() (no particle-production field is registered).");
             // This field is written by the fusion kernel, so a mutable view is
             // required; the const-ness above is an interface choice only.
             amrex::MultiFab * particle_production_mf =
