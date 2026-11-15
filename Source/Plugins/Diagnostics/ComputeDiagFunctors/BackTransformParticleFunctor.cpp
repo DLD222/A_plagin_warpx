@@ -39,11 +39,17 @@ LorentzTransformParticles::LorentzTransformParticles (
     amrex::Real t_boost,
     amrex::Real dt,
     amrex::Real t_lab,
+    amrex::Real gamma_boost,
+    amrex::Real beta_boost,
     int a_offset
 )
     : m_t_boost(t_boost), m_dt(dt), m_t_lab(t_lab),
-      m_gammaboost(warpx::runtime::FrameState::FromLegacy().gamma_boost),
-      m_betaboost(warpx::runtime::FrameState::FromLegacy().beta_boost),
+      // The boost parameters are handed in by the caller, which reads them from its runtime
+      // context (frame()).  They used to come from FrameState::FromLegacy(), i.e. from the
+      // process-wide WarpX singleton -- wrong for an embedded or multi-instance kernel, and a
+      // break of the "a plugin only sees the simulation through its context" contract.
+      m_gammaboost(gamma_boost),
+      m_betaboost(beta_boost),
       m_Phys_c(PhysConst::c), m_inv_c2(amrex::Real(1.0)/(m_Phys_c * m_Phys_c)),
       m_uzfrm(-m_gammaboost*m_betaboost*m_Phys_c)
 {
@@ -122,7 +128,9 @@ BackTransformParticleFunctor::operator () (warpx::runtime::IParticleContainer::B
                     pti,
                     t_boost,
                     dt,
-                    m_t_lab[i_buffer]
+                    m_t_lab[i_buffer],
+                    frame().gamma_boost,
+                    std::sqrt(amrex::Real(1.0) - amrex::Real(1.0) / (frame().gamma_boost * frame().gamma_boost))
                 );
 
                 long const np = pti.numParticles();

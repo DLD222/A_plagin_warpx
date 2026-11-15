@@ -29,3 +29,16 @@ ComputeParticleDiagFunctor::data () const
     }
     return *m_legacy_data;
 }
+
+const warpx::runtime::FrameState&
+ComputeParticleDiagFunctor::frame () const
+{
+    if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
+        return *m_runtime_context->frame;
+    }
+    if (!m_legacy_frame) {
+        m_legacy_frame = std::make_unique<warpx::runtime::FrameState>(
+            warpx::runtime::FrameState::FromLegacy());
+    }
+    return *m_legacy_frame;
+}

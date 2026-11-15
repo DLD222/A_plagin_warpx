@@ -64,9 +64,13 @@ public:
      */
 protected:
     [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
+    /** Frame state (boost parameters, moving-window direction) from the context, exactly like
+     *  data(): a functor must not read the process-wide singleton when it has a context. */
+    [[nodiscard]] const warpx::runtime::FrameState& frame () const;
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::FrameState> m_legacy_frame;
 
 public:
     virtual void PrepareFunctorData ( int i_buffer, bool ZSliceInDomain,

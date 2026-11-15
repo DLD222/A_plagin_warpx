@@ -89,7 +89,8 @@ struct LorentzTransformParticles
     LorentzTransformParticles (const warpx::runtime::IParticleContainer& pc,
                                ParticleTileIter& a_pti,
                                amrex::Real t_boost, amrex::Real dt,
-                               amrex::Real t_lab, int a_offset = 0);
+                               amrex::Real t_lab, amrex::Real gamma_boost,
+                               amrex::Real beta_boost, int a_offset = 0);
 
     /**
      * \brief Functor call. This method computes the Lorentz-transform for particle
