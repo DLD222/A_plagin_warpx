@@ -7,4 +7,6 @@ python3 Tools/automation/gates/compliance.py
 python3 Tools/automation/gates/audit_check.py
 bash Tools/automation/gates/build_2d.sh
 bash Tools/automation/gates/smoke_2d.sh
-echo "NOTE: A/B regression gate is added together with the first plugin (A5)."
+# The A/B handler gate exists since A5 and is declared in route_tasks.json's "full" set;
+# it was never wired in (Tools_Tests/F28).  build_2d.sh above produced the binary it needs.
+python3 Tools/automation/gates/a5_ab.py

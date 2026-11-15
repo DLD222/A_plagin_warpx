@@ -40,6 +40,9 @@ GATES = {
         ["bash", "Tools/automation/gates/smoke_2d.sh"],
     ],
     "full": [["bash", "Tools/automation/gates/full_gate.sh"]],
+    # Declared in route_tasks.json ("gates.full" contains "ab") but missing here, so the
+    # A/B gate could not be reached through the task runner at all (Tools_Tests/F28).
+    "ab": [["python3", "Tools/automation/gates/a5_ab.py"]],
 }
 
 
