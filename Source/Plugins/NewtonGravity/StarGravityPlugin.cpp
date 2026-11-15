@@ -329,12 +329,37 @@ static void fill_all_levels (WarpXStageContext* ctx)
     }
 }
 
+/** Reset the module state.  `g_levels_filled`, `g_loaded` and `g_rows` are file-level statics:
+ *  they were never cleared, so a second WarpX instance in the same process (or a re-initialised
+ *  kernel) either skipped the fill entirely or reused the previous run's profile. */
+void on_finalize (WarpXStageContext* /*ctx*/)
+{
+    g_levels_filled = false;
+    g_loaded = false;
+    g_rows.clear();
+    g_steps = 0.0;
+    g_phi_min = 0.0;
+    g_mass_cgs = 0.0;
+}
+
 void on_init (WarpXStageContext* ctx)
 {
     load_profile();
     // the star's radius: the centre is the origin and the surface is where the model ends
     double const r_star = g_rows.empty() ? 0.0 : g_rows.back().r;
     for (int lev = 0; lev < 8; ++lev) {
+        // Do not overwrite a density that is already there: after a checkpoint restart the core
+        // has loaded star_rho from the file, and re-applying the analytic profile would silently
+        // throw the continued state away (the model is static, so it would look plausible).
+        void* existing = nullptr;
+        if (warpx_stage_field(ctx, "star_rho", lev, &existing) == 1 && existing != nullptr) {
+            auto const& rho_now = *static_cast<amrex::MultiFab*>(existing);
+            if (rho_now.max(0) > amrex::Real(0.0)) {
+                std::printf("[gravity] level %d already holds a density (restart): keeping it\n",
+                            lev);
+                continue;
+            }
+        }
         double const mass = fill_sphere(ctx, lev, r_star);
         if (mass < 0.0) { break; }   // no such level
         void* raw = nullptr;
@@ -377,7 +402,7 @@ const WarpXPluginDesc kPlugin = {
     nullptr, 0,
     &on_schema,
     &on_init,
-    nullptr
+    &on_finalize
 };
 } // namespace
 
