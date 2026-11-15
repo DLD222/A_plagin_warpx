@@ -181,16 +181,16 @@
 | Tools_Tests | F16 | major | `check_build_boundaries.py` 的分层覆盖不完整，并留有 KeyError 地雷 | wip:lead-tools |
 | Tools_Tests | F17 | minor | 5 个 runtime "contract test" 实际是 `int main(){return 0;}` 且没有注册进 CTest | wip:lead-tools |
 | Tools_Tests | F18 | minor | `test_nonpic_kernel.cpp` 打印的断言数写死为 8（实际 7） | wip:lead-tools |
-| Tools_Tests | F19 | minor | `sod_reference.py` 稀疏波分支的解析导数写错（靠括号保护的 Newton 兜住） | wip:lead-tools |
+| Tools_Tests | F19 | minor | `sod_reference.py` 稀疏波分支的解析导数写错（靠括号保护的 Newton 兜住） | fixed |
 | Tools_Tests | F20 | minor | `ssm_compare.py` 自检里有一条恒真断言，README 的"5%"与断言的 15% 不符，打印的 eps/kappa 比值在 SSM 为 0 处失真 | wip:lead-tools |
 | Tools_Tests | F21 | minor | `solar_compare_plot.py --check` 向源码树写 PNG，且只钉住 L、R 两个数 | wip:lead-tools |
 | Tools_Tests | F22 | minor | 插件测试的构建假定 ELF/macOS 以外的编译器与 `.so` 后缀 | wip:lead-tools |
 | Tools_Tests | F23 | minor | 若干 shell 核验脚本的硬编码与静默 no-op | wip:lead-tools |
-| Tools_Tests | F24 | minor | A0 两段流水线的输入路径对不上，文档化的"重新生成"无法执行 | wip:lead-tools |
+| Tools_Tests | F24 | minor | A0 两段流水线的输入路径对不上，文档化的"重新生成"无法执行 | fixed |
 | Tools_Tests | F25 | minor | 两个"门"的退出码恒为 0 | wip:lead-tools |
 | Tools_Tests | F26 | minor | `check_field_solver_extraction.py` 永远 exit 0，且统计的是已经搬空的旧树 | wip:lead-tools |
 | Tools_Tests | F27 | minor | `route_tasks.py` 的"JSON 权威"是死代码 | wip:lead-tools |
 | Tools_Tests | F28 | minor | `a5_ab.py` 未接入任何门，且硬编码二进制与构建目录 | wip:lead-tools |
-| Tools_Tests | F29 | minor | `build_and_run_4d.sh` 的 conda 前缀变量名疑似笔误 | wip:lead-tools |
+| Tools_Tests | F29 | minor | `build_and_run_4d.sh` 的 conda 前缀变量名疑似笔误 | fixed |
 | Tools_Tests | F30 | minor | `inventory_field_solver.py` 写入源码树文档，且 `classify()` 有多余/不可达分支 | wip:lead-tools |
 | Tools_Tests | F31 | minor | 其它可靠性/自证性较弱的点（合并记录，共 9 条） | wip:lead-tools |

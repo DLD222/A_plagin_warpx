@@ -39,7 +39,8 @@ def pressure_derivative(p, gamma, rho_k, p_k, c_k):
         b = (gamma - 1.0) / (gamma + 1.0) * p_k
         return math.sqrt(a / (p + b)) * (1.0 - 0.5 * (p - p_k) / (p + b))
     expo = (gamma - 1.0) / (2.0 * gamma)
-    return (p / p_k) ** (-expo - 1.0) / (rho_k * c_k)
+    # d/dp f_K == 2 c_K/(gamma-1) * expo/p * (p/p_K)^expo == c_K/(gamma p) * (p/p_K)^expo
+    return c_k / (gamma * p) * (p / p_k) ** expo
 
 
 def star_state(gamma, rho_l, u_l, p_l, rho_r, u_r, p_r, tol=1e-15):
