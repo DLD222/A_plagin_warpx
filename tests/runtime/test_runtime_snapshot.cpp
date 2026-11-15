@@ -201,6 +201,25 @@ int main (int argc, char* argv[])
                            spec.point.stage == warpx::runtime::Stage::Collisions);
         }
         check(has_binary, "CollisionPackage declares binary collision at Collisions");
+
+        // Declaration-then-handler is the supported pattern (register_specs, then
+        // register_handlers): the declaration is a plan, so adding the handler that implements it
+        // must not be reported as "two handlers both write field ...".  This used to throw.
+        struct SpecOnly final : warpx::runtime::IHandler {
+            warpx::runtime::HandlerSpec s;
+            explicit SpecOnly (warpx::runtime::HandlerSpec spec) : s(std::move(spec)) {}
+            [[nodiscard]] warpx::runtime::HandlerSpec spec () const override { return s; }
+            void apply (warpx::runtime::StageContext&) override {}
+        };
+        bool declare_then_add_ok = true;
+        try {
+            host.add(std::make_shared<SpecOnly>(warpx::runtime::HandlerSpec{
+                "particle_push", {warpx::runtime::Stage::Push, 0}, {}, {"current_fp"},
+                {}, {}, 0}));
+        } catch (...) {
+            declare_then_add_ok = false;
+        }
+        check(declare_then_add_ok, "adding a handler that implements a declared spec is allowed");
     }
 
     {

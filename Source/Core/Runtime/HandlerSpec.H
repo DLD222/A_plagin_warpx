@@ -82,7 +82,12 @@ public:
     {
         const HandlerSpec spec = handler->spec();
         validate(spec);
-        for (const auto& existing : m_specs) {
+        // Only *real* handlers can race with this one.  Declaration-only specs (declare()) are a
+        // plan: "this stage point will write these fields", registered before the handler that
+        // does it (PicEmPackage::register_specs followed by register_handlers).  Checking them
+        // here made that supported pattern throw "handlers 'X' and 'X' both write field ...".
+        // The declarations stay in m_specs, so ordering still sees the full picture.
+        for (const auto& existing : m_handler_specs) {
             if (!(existing.point == spec.point)) { continue; }
             // Use the same key matching as the ordering edges below (KeyMatch.H): with
             // plain string equality, "Efield_fp" and "Efield_fp_x" were considered
