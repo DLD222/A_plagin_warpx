@@ -142,6 +142,23 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 > 铺满所有核，12 个用例并发时严重超订（单个用例 570 s，而 pin 到单线程后是 56 s）。已改为
 > `OMP_NUM_THREADS=1` 重跑，这也是"同二进制同分解"对比所要求的确定性前提。
 
+## 0.8 round 19 追加
+
+本轮集中清理"**看起来在验证、其实永远不会失败**"的一类问题（review 的 `Tools_Tests` 分区），
+共修 5 条 major：
+
+| 条目 | 内容 |
+|---|---|
+| F4 | `check_legacy_coverage.py` 只认三种前缀，插件化后 829 个文件里 **554 个假报"缺失"**、退出码恒为 1（门等于废弃）。改为分量对齐后缀匹配 + basename 兜底 + 3 个"合并进其它文件"的显式记录；现在 `missing: 0 (plus 109 under a different directory, 3 merged)` |
+| F6 | 六个模块化不变量检查器（plugin boundaries / core purity / kernel coupling / build boundaries / legacy coverage / field solver extraction）**没有进入任何自动门**；现在全部接进 `Tools/verify/run_gates.sh` |
+| F3 | `check_kernel_coupling.py` 静默跳过 3 个不存在的目录却报 OK；修好后**立刻抓到 2 处真实残留耦合**（`FieldSolver/FiniteDifference/{EvolveF,FiniteDifferenceSolver}.cpp` 仍 `#include "WarpX.H"`），记入 allowlist 并注明是 S6 的下一步 |
+| F9 | A/B 上游对照工具链（`run_ab.sh`/`run_all.sh`/`compare_fields.py`）**任何情况都返回 0**；现在任一侧失败、零用例、或相对差超 `1e-12` 都会失败（已用 `/bin/false` 作二进制实测 exit=1） |
+| F8 | macroscopic 物理核验脚本只打印、调用方只 `grep "amplitude ratio"`；现在两个检查器比较 `measured/expected` 并在超容差时 `exit 1`，shell 侧靠退出码判定 |
+
+`BACKLOG.md`：**fixed 54 / invalid 3 / todo 132**。
+
+全量重跑改用 `-j 12`（24 物理核，每个用例 2 个 MPI rank）以匹配机器并行度。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
