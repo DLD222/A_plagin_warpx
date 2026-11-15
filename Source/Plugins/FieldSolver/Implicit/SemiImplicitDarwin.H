@@ -156,7 +156,9 @@ private:
      *  exceed algo.particle_shape, which is used for the electrostatic part
      *  and is the default.
      */
-    int m_magnetostatic_particle_shape;
+    // Initialised: PrintParameters() and OneStep() can run before Define() set it, and a
+    // silently indeterminate particle shape is not something to leave to chance.
+    int m_magnetostatic_particle_shape = 1;
 
     /**
      * \brief Choice of linear solver
