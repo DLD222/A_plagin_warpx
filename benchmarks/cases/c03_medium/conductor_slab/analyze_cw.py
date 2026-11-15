@@ -16,6 +16,8 @@ Usage:
   python3 analyze_cw.py --selftest
 """
 import argparse
+import os
+
 import numpy as np
 
 C = 299792458.0
@@ -90,6 +92,14 @@ def main():
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--fixed-k", action="store_true",
                     help="solve A,B linearly with k = k_theory (unique, no degeneracy)")
+    # Defaults must match the probe set committed in inputs_2d (p0..p6 at
+    # z = -10 + (j0 + k*dj + 0.5)*dz, k = 0..6): without them the script asked for
+    # p0..p9 at positions the input never defines and could not be reproduced.
+    ap.add_argument("--dz", type=float, default=0.03125, help="cell size (1280^2 uses 0.015625)")
+    ap.add_argument("--j0", type=int, default=323, help="first probe cell index (as in inputs_2d)")
+    ap.add_argument("--dj", type=int, default=2, help="probe cell index step (as in inputs_2d)")
+    ap.add_argument("--n-probes", type=int, default=7,
+                    help="number of p<i>.txt probes (inputs_2d defines p0..p6)")
     a = ap.parse_args()
 
     if a.selftest:
@@ -97,11 +107,18 @@ def main():
 
     kt = theory(a.sigma, a.lam)
     w = 2.0 * np.pi * C / a.lam
-    z = np.asarray(a.z_list if a.z_list else
-                   [0.20, 0.24, 0.28, 0.32, 0.36, 0.40, 0.44, 0.48, 0.52, 0.56])
+    if a.z_list:
+        z = np.asarray(a.z_list, dtype=float)
+    else:
+        z = np.asarray([-10.0 + (a.j0 + k * a.dj + 0.5) * a.dz for k in range(a.n_probes)])
     e = []
     for i in range(len(z)):
-        d = np.loadtxt(f"{a.diags}/p{i}.txt", skiprows=1)
+        probe = f"{a.diags}/p{i}.txt"
+        if not os.path.exists(probe):
+            raise SystemExit(
+                f"{probe} not found: inputs_2d defines p0..p{len(z)-1}, so run that deck first "
+                "(or pass --z-list/--n-probes to match your own probe set)")
+        d = np.loadtxt(probe, skiprows=1)
         e.append(dft(d[:, 1], d[:, 6], w, a.t0, a.t1))
     e = np.asarray(e)
 
