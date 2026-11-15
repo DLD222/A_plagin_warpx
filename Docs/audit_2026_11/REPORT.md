@@ -95,6 +95,18 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
   `SemiImplicitDarwin::m_magnetostatic_particle_shape` 未初始化、
   pywarpx `FILE = path#comment` 把注释吞进路径（并加单测参数锁定）。
 
+## 0.5 round 16 追加
+
+再修 4 项用户/插件可见缺陷：
+
+| 条目 | 内容 |
+|---|---|
+| `Source_Core_Runtime_A` F2（major） | `declare()` 的计划规格曾参与 `add()` 的写冲突检查 ⇒ "先 `register_specs` 再 `register_handlers`"这一受支持模式会抛异常；现在冲突检查只看真实 handler（并加回归检查） |
+| `Source_Plugins_Diagnostics_B` F2（major） | `LoadBalanceCosts` 诊断调用原地累加的 `computeCostsHeuristic()` 后不回滚 ⇒ live cost 被重复累加、**诊断改变了负载分布**；现在快照/恢复 |
+| `Source_Plugins_Diagnostics_B` F1（critical） | TimeAveraged 累加和在 regrid 后被清零 —— **已在此前修好**（保留旧累加和 + `ParallelCopy` 回填），本轮复核确认 |
+| `Source_Plugins_Diagnostics_B` F3 | `GetExternalEBField` 的 parser 分支直接解引用 particle system 服务（同文件其它分支都有保护） |
+| `Source_Core_Misc` F2（major） | split-gather 的 B 分量丢掉 Galerkin 降阶 —— 记为**结构性待办**：修法要把降阶判据从"槽位"改成"该分量在该方向是否 NODE"，需重写 gather 内核并用 400 用例重验证；当前仅影响 Darwin 预测步且无测试覆盖 |
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
