@@ -1312,9 +1312,13 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                                  + en2(ii,jj,k,2)*ez(ii,jj,k);
                         };
 #if defined(WARPX_DIM_3D)
+                        // eps tensor components are (xx, yy, zz, xy, xz, yz), so
+                        // Dy = xy*Ex + yy*Ey + yz*Ez.  The middle term used component 4 (xz)
+                        // where yy (component 1) belongs, which made the rho_medium seed wrong
+                        // for any 3-D anisotropic medium with xz != 0.
                         auto Dy3 = [&](int ii, int jj) {
                             return en1(ii,jj,k,3)*ex(ii,jj,k)
-                                 + en1(ii,jj,k,4)*ey(ii,jj,k)
+                                 + en1(ii,jj,k,1)*ey(ii,jj,k)
                                  + en1(ii,jj,k,5)*ez(ii,jj,k);
                         };
                         auto Dz3 = [&](int ii, int jj, int kk) {
