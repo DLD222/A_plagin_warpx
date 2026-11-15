@@ -79,6 +79,9 @@ setup(
     description="""Wrapper of WarpX""",
     package_data=package_data,
     install_requires=["numpy", f"picmistandard=={picmi_version}", "periodictable"],
+    # >=3.11 is a real requirement, not a convenience: pywarpx/picmi.py uses typing.Self (3.11+).
+    # Raising it is a downstream-visible change (conda/spack may still ship 3.9/3.10), so it is
+    # recorded here rather than silently following a pydantic refactor.
     python_requires=">=3.11",
     zip_safe=False,
 )

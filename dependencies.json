@@ -9,5 +9,6 @@
     "commit_pyamrex": "72fe55f4259f28e9cb3b3d06bbea7da779e582ca",
     "commit_picsar": "26.10",
     "commit_pybind11": "v3.1.0",
+    "_note_picmi": "version_picmi is what Python/setup.py installs (picmistandard==<version>); commit_picmi records the commit that version was cut from and is informational only, so the two cannot disagree at install time.",
     "commit_picmi": "89b27cee07ec78f8b7c76f5be63b581a757256fa"
 }

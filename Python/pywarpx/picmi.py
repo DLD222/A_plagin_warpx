@@ -317,6 +317,24 @@ class Species(picmistandard.PICMI_Species):
         """The WarpX inputs of this species (available after the inputs are initialized)"""
         return self._species
 
+    # Read-only compatibility properties: upstream exposed these as plain attributes, and the
+    # pydantic refactor moved the state into PrivateAttr.  Without them a third-party input script
+    # that reads `species.species_type` raises AttributeError instead of getting the value.
+    @property
+    def species_type(self):
+        """Species type as resolved during initialization (e.g. "proton")."""
+        return self._species_type
+
+    @property
+    def element(self):
+        """periodictable element for an ion/atomic species (None otherwise)."""
+        return self._element
+
+    @property
+    def species_number(self):
+        """Index of this species in the simulation's species list."""
+        return self._species_number
+
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
 
@@ -2655,6 +2673,11 @@ class GaussianLaser(picmistandard.PICMI_GaussianLaser):
         """The WarpX inputs of this laser (available after the inputs are initialized)"""
         return self._laser
 
+    @property
+    def laser_number(self):
+        """Index of this laser in the simulation's laser list."""
+        return self._laser_number
+
     def laser_initialize_inputs(self):
         self._laser_number = len(pywarpx.lasers.names) + 1
         if self.name is None:
@@ -2693,6 +2716,20 @@ class AnalyticLaser(picmistandard.PICMI_AnalyticLaser):
     def laser(self):
         """The WarpX inputs of this laser (available after the inputs are initialized)"""
         return self._laser
+
+    @property
+    def laser_number(self):
+        """Index of this laser in the simulation's laser list."""
+        return self._laser_number
+
+    @property
+    def mangle_dict(self):
+        """Expression-constant renaming applied to this laser's analytic profile."""
+        return self._mangle_dict
+
+    @mangle_dict.setter
+    def mangle_dict(self, value):
+        self._mangle_dict = value
 
     def laser_initialize_inputs(self):
         self._laser_number = len(pywarpx.lasers.names) + 1
@@ -3916,6 +3953,20 @@ class Simulation(picmistandard.PICMI_Simulation):
     _inputs_initialized: bool = PrivateAttr(default=False)
     _warpx_initialized: bool = PrivateAttr(default=False)
     _finalized: bool = PrivateAttr(default=False)
+
+    # Read-only compatibility properties (upstream exposed these as plain attributes; third-party
+    # scripts poll them to know whether initialize_inputs()/initialize()/finalize() have run).
+    @property
+    def inputs_initialized(self):
+        return self._inputs_initialized
+
+    @property
+    def warpx_initialized(self):
+        return self._warpx_initialized
+
+    @property
+    def finalized(self):
+        return self._finalized
 
     def _check_not_finalized(self):
         if self._finalized:
