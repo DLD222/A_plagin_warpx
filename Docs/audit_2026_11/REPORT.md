@@ -691,3 +691,15 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 | `Docs/audit_2026_11/ATTRIBUTION.md` | 129 个数值差异用例的逐案归因（42 AMReX / 80 fork / 7 未归因） |
 | `Docs/audit_2026_11/scripts/` | 全部可复现脚本（构建环境、跑套件、对比、归因、汇总） |
 | `audit_build/`、`audit_runs/` | 三套构建树与全部运行输出（已 gitignore，不提交） |
+
+### 0.12.1 对 30 条 `invalid` 的独立抽查
+
+"复核为不成立"最容易变成新的糊弄，所以集成者（`@lead`）不看各会话的结论、直接对照 26.11 源码抽查：
+
+| 条目 | 抽查方式 | 结果 |
+|---|---|---|
+| `FieldSolver_B` F5（Darwin `chi_dd` 同下标直取） | `diff` fork 与 `26.11/Source/FieldSolver/ImplicitSolvers/SemiImplicitDarwin.cpp:640-675` | **逐字相同**（含注释）⇒ invalid 正确 |
+| `ParticleCore_B` F2（`DepositCharge` 无 RZ 缩放） | 两侧 `MultiParticleContainer::DepositCharge` 逐行对比 | 同构（仅行号差 8）⇒ invalid 正确 |
+| `FieldSolver_A` F4（`EffectivePotentialES` 的 finalize 顺序） | `26.11/.../EffectivePotentialES.cpp:164-178` 与 fork 同段 | 顺序相同（`GetChargeDensityOnLevel(finalize=false)` → `ApplyFilterandSumBoundaryRho` → `FinalizeRhoOnLevel`），仅 `warpx.` → `host().particleServices().` ⇒ invalid 正确 |
+
+三条全部成立，说明这批判定是按 26.11 基准逐行核对过的。
