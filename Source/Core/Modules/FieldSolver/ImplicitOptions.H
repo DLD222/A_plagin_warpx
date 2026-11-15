@@ -19,8 +19,11 @@ struct ImplicitOptions
     amrex::IntVect ncomp_pc_xx = amrex::IntVect{0};
     amrex::IntVect ncomp_pc_yy = amrex::IntVect{0};
     amrex::IntVect ncomp_pc_zz = amrex::IntVect{0};
-    // Only used to deposit the mass matrices and set by ImplicitSolver::InitializeMassMatrices
-    int particle_shape;
+    // Only used to deposit the mass matrices and set by ImplicitSolver::InitializeMassMatrices.
+    // Initialised: this struct is passed across the Core/plugin boundary, so a consumer that reads
+    // it before the solver filled it in would otherwise get an indeterminate shape (the
+    // ncomp_* members above are dead state -- the live ones are ImplicitSolver::m_ncomp_*).
+    int particle_shape = 0;
 };
 
 #endif
