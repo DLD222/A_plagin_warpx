@@ -444,6 +444,10 @@ def compare_solar_diagnostic():
     print("  which is where the mixing length, the surface boundary condition and the")
     print("  remaining EOS detail (partition functions, Coulomb free energy) all live.")
 
+    # The caller needs the numbers, not the text: the selftest used to assert that the *string*
+    # "R/R_sun" appeared, which a NaN radius also satisfies.
+    return last[1], last[4], samples
+
 
 SIGMA_SB = 5.670374419e-8    # W m^-2 K^-4
 
@@ -677,13 +681,17 @@ def selftest():
     import contextlib
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
-        compare_solar_diagnostic()
-    text = buffer.getvalue()
-    assert "surface:" in text, text
-    radius_text = text.split("surface:")[1]
-    assert "R/R_sun" in radius_text
-    print("stellar_structure: the four-equation integration (EOS + kappa + network) runs to a "
-          "finite surface")
+        radius, luminosity, samples = compare_solar_diagnostic()
+    # Numbers, not the printed text: "R/R_sun" appears in the output even when the value is nan.
+    assert _m.isfinite(radius) and radius > 0.0, radius
+    assert _m.isfinite(luminosity) and luminosity > 0.0, luminosity
+    assert all(_m.isfinite(x) for s in samples for x in s), "non-finite sample in the model"
+    radius_solar = radius / R_SUN
+    print(f"stellar_structure: four-equation integration R/R_sun = {radius_solar:.3f}, "
+          f"L/L_sun = {luminosity / 3.846e26:.3f}")
+    # An analytic opacity cannot reproduce the Sun exactly (PHYSICS_SPEC 4.2b), but the model has
+    # to land in the right ballpark; a factor-of-a-few error is a regression.
+    assert 0.2 < radius_solar < 5.0, radius_solar
 
 
 def main():
