@@ -396,6 +396,13 @@ void doDirectGatherVectorField (
             doDirectGatherVectorField<4,4>(xp, yp, zp, Fxp, Fyp, Fzp, Fx_arr, Fy_arr, Fz_arr,
                 Fx_type, Fy_type, Fz_type, dinv, xyzmin, lo, n_rz_azimuthal_modes);
         }
+    } else {
+        // No branch above: falling through would leave Fxp/Fyp/Fzp untouched, i.e. the particle
+        // would be pushed with whatever the caller passed instead of the field at its position --
+        // a silent wrong-physics failure, where the compile-time (templated) version aborts.  The
+        // order comes from an int a plugin can pass, so this is a contract check, not dead code.
+        amrex::Abort("doDirectGatherVectorField: unsupported particle shape order "
+                     "(only 1, 2, 3 and 4 are implemented)");
     }
 }
 
