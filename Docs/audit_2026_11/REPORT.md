@@ -183,6 +183,34 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 - 顺带删除一个**悬空符号链接**（`laser_acceleration/analysis_default_openpmd_regression.py`）；
 - 插件自有测试（`FluidMoments` 33 个）全部有失败路径，无恒真断言。
 
+## 0.11 round 28：并行会话进展的第一次归档
+
+用户开了多个并行会话（共用同一工作树），按 `WORKFLOW.md` 的认领协议推进。本节是**集成者视角
+的第一次归档**，各条目的证据在工作日志里。
+
+| 指标 | 数量 |
+|---|---|
+| review 条目总数 | 189 |
+| `fixed`（有提交号 + 验证记录） | **101** |
+| `invalid`（26.11 基准下复核不成立） | **20** |
+| `wip`（会话已认领、进行中） | 16（`lead` 11、`lead-tools` 4、`lead-mid` 1） |
+| `todo` | 52 |
+
+值得单独指出的两类结果：
+
+1. **20 条被推翻**。它们的共同原因是审查对照的是 26.10，而基准是 26.11：
+   `FieldSolver_A` F4（`EffectivePotentialES` 的 finalize 顺序）、F5（`mass_matrices_pc_width`
+   默认 1）、`FieldSolver_B` F2/F3/F5/F7/F10、`ParticleCore_A` F3/F4/F5、
+   `ParticleCore_B` F1/F2/F5/F6/F8/F10、`PicEm_B` F1/F8、`Diagnostics_A` F6、`Python` F3。
+2. **真缺陷**里有一类是"检查器/断言自己被弱化"：`Tools_Tests` F9（`compare_fields.py` 在赋值前
+   就引用 `common`，任何可比用例都会 NameError，同时还"只打印不判"）、F16（层表漏 `FluidMoments`/
+   `NewtonGravity`，且 target_sources 解析失效）、F23（宏观/星体核验脚本是静默 no-op）、
+   F20（`ssm_compare` 自检有恒真断言）。这些修完后 gate 立刻抓出真实违规：
+   `FieldSolver/PSATD` 的源文件被挂在 `warpx_picem_*` 目标上（已改到 `warpx_fieldsolver_*`）。
+
+并行会话的操作风险也已记录并写进规则：`93afb3b` 用 `git add -A` 把另一个会话未提交的改动
+一并提交（见 `WORKFLOW.md` §5.5，现在禁止 `git add -A`）。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。

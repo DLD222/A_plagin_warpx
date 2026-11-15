@@ -80,7 +80,7 @@
 | Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | todo |
 | Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | todo |
 | Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | todo |
-| Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | wip:lead-mid |
+| Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | fixed |
 | Source_Plugins_Diagnostics_A | F1 | major | 诊断 rho 的 ngrow 断言把"各向同性分配"与"逐方向需求"相比，cfl>1 时直接 abort | fixed |
 | Source_Plugins_Diagnostics_A | F2 | critical | DivE/DivB 诊断用 `config_snapshot().ncomps` 分配，legacy(PICMI) 路径上恒为 1 → RZ 多模写越界/只留 mode 0 | fixed |
 | Source_Plugins_Diagnostics_A | F3 | minor | checkpoint 新增的 `field_schema.txt` 由所有 MPI rank 同时写，无 IOProcessor 保护 | fixed |
@@ -92,31 +92,31 @@
 | Source_Plugins_Diagnostics_B | F2 | major | LoadBalanceCosts 诊断写入仿真的 live cost 数组（诊断产生副作用） | fixed |
 | Source_Plugins_Diagnostics_B | F3 | minor | `GetExternalEBField(pti, offset, myspc.runtime_context())` 的 parser 分支不判空 | fixed |
 | Source_Plugins_Diagnostics_B | F4 | minor | 头文件里把 `#include` 写进了版权注释 | fixed |
-| Source_Plugins_Diagnostics_B | F5 | minor | `WarpXOpenPMDPlot` 对 `m_runtime_context` / `config_snapshot` 直接解引用 | wip:lead-mid |
+| Source_Plugins_Diagnostics_B | F5 | minor | `WarpXOpenPMDPlot` 对 `m_runtime_context` / `config_snapshot` 直接解引用 | fixed |
 | Source_Plugins_Diagnostics_B | F6 | minor | 非 EB 构建下 ChargeOnEB 从"运行时明确报错"变成"未注册类型" | fixed |
-| Source_Plugins_Diagnostics_B | F7 | minor | 基类新增 `unique_ptr` 成员使"默认拷贝"静默失效 | wip:lead-mid |
+| Source_Plugins_Diagnostics_B | F7 | minor | 基类新增 `unique_ptr` 成员使"默认拷贝"静默失效 | fixed |
 | Source_Plugins_FieldSolver_A | F1 | major | 宏观介质 E 推进：`algo.macroscopic_sigma_method`（Lax-Wendroff）被静默忽略，永远走一阶 Backward-Euler | fixed |
 | Source_Plugins_FieldSolver_A | F2 | major | ECT 共形 Ampere 路径丢掉 div(E) 清理项 `grad(F)`，F 场只演化不生效 | fixed |
 | Source_Plugins_FieldSolver_A | F3 | major | 静电场 1D 分支（`computeE` 的 `#else`）丢失 `-1` 项：共位网格 + 径向几何时 `E_r` 退化为 `β_xβ_z·∂φ` | invalid |
-| Source_Plugins_FieldSolver_A | F4 | minor | 有效势 ES：rho 的边界折叠/RZ 体权标被挪到 sum 之后 | wip:lead-mid |
-| Source_Plugins_FieldSolver_A | F5 | minor | 隐式求解器：`mass_matrices_pc_width` 默认 0→1，叠加新 abort，3D Villasenor 旧算例会直接中止 | wip:lead-mid |
-| Source_Plugins_FieldSolver_A | F6 | minor | 新张量材料填充只按二维取样（3D 下 y 方向冻结） | wip:lead-mid |
-| Source_Plugins_FieldSolver_A | F7 | minor | 亚像素张量：正定性/退化检查用 `AMREX_ASSERT`（release 构建被编译掉） | wip:lead-mid |
+| Source_Plugins_FieldSolver_A | F4 | minor | 有效势 ES：rho 的边界折叠/RZ 体权标被挪到 sum 之后 | invalid |
+| Source_Plugins_FieldSolver_A | F5 | minor | 隐式求解器：`mass_matrices_pc_width` 默认 0→1，叠加新 abort，3D Villasenor 旧算例会直接中止 | invalid |
+| Source_Plugins_FieldSolver_A | F6 | minor | 新张量材料填充只按二维取样（3D 下 y 方向冻结） | fixed |
+| Source_Plugins_FieldSolver_A | F7 | minor | 亚像素张量：正定性/退化检查用 `AMREX_ASSERT`（release 构建被编译掉） | fixed |
 | Source_Plugins_FieldSolver_B | F1 | major | PSATD 谱求解器工厂：PML 调用点漏填 `lev` / `n_rz_azimuthal_modes`（RZ 下静默用 0 层、1 个方位模） | fixed |
-| Source_Plugins_FieldSolver_B | F2 | minor | `WeightedJacobiImpl::Update()` 每次 PC 更新都用 Gershgorin 界覆盖已自适应的 omega | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F3 | minor | Newton 发散判据从"直接 abort"改为"警告 + exit_status=-9" | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F4 | minor | `SpectralFieldData.H` 重复的前置声明 | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F5 | major | Darwin MLMG 预条件系数 `chi_dd` 去掉交错插值，改成"同下标直取"（半格偏移） | wip:lead-mid |
+| Source_Plugins_FieldSolver_B | F2 | minor | `WeightedJacobiImpl::Update()` 每次 PC 更新都用 Gershgorin 界覆盖已自适应的 omega | invalid |
+| Source_Plugins_FieldSolver_B | F3 | minor | Newton 发散判据从"直接 abort"改为"警告 + exit_status=-9" | invalid |
+| Source_Plugins_FieldSolver_B | F4 | minor | `SpectralFieldData.H` 重复的前置声明 | fixed |
+| Source_Plugins_FieldSolver_B | F5 | major | Darwin MLMG 预条件系数 `chi_dd` 去掉交错插值，改成"同下标直取"（半格偏移） | invalid |
 | Source_Plugins_FieldSolver_B | F6 | minor | `SemiImplicitDarwin::m_magnetostatic_particle_shape` 未初始化 | fixed |
-| Source_Plugins_FieldSolver_B | F7 | major | PETSc 分支（含全部新逻辑）在本审计构建中**完全没有编译** | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F8 | minor | 类型/契约不一致：`SpectralFieldData` 持 `RuntimeContext*`，`SpectralFieldDataRZ` 持 `RuntimeData*` | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F9 | minor | `precon_mat.verbose` 改名：旧输入 `pc_petsc.verbose` 直接 abort | wip:lead-mid |
+| Source_Plugins_FieldSolver_B | F7 | major | PETSc 分支（含全部新逻辑）在本审计构建中**完全没有编译** | invalid |
+| Source_Plugins_FieldSolver_B | F8 | minor | 类型/契约不一致：`SpectralFieldData` 持 `RuntimeContext*`，`SpectralFieldDataRZ` 持 `RuntimeData*` | fixed |
+| Source_Plugins_FieldSolver_B | F9 | minor | `precon_mat.verbose` 改名：旧输入 `pc_petsc.verbose` 直接 abort | fixed |
 | Source_Plugins_FieldSolver_B | F10 | ? | 备注（已核对为**良性**，但看起来像缺陷）：`ThetaImplicitEM::ResetStep()` 不恢复 `Efield_fp`/`B_old` | wip:lead-mid |
-| Source_Plugins_FieldSolver_B | F11 | minor | `MagnetostaticSolverImpl::defineVectorPotentialBCs(geom)` 公开接口会用到默认初始化的边界类型 | wip:lead-mid |
-| Source_Plugins_ParticleCore_A | F1 | critical | `GetExternalEBField` 未拿到 `RuntimeContext` 时静默丢掉加速器晶格场，并在 parser 外场下空指针解引用 | wip:lead-mid |
-| Source_Plugins_ParticleCore_A | F2 | minor | `Filter::ApplyStencil` 把 load-balance cost 恒置为 `nullptr`，负载均衡计时统计被静默删除 | wip:lead-mid |
-| Source_Plugins_ParticleCore_A | F3 | minor | `warpx.read_fields_from_path` 由可选变成必需（`query` → `get`） | wip:lead-mid |
-| Source_Plugins_ParticleCore_A | F4 | minor | eV 温度的 `mass`/`species_type` 解析绕开了 `source_name`，且与 `injection_file` 提供的质量不兼容 | wip:lead-mid |
+| Source_Plugins_FieldSolver_B | F11 | minor | `MagnetostaticSolverImpl::defineVectorPotentialBCs(geom)` 公开接口会用到默认初始化的边界类型 | fixed |
+| Source_Plugins_ParticleCore_A | F1 | critical | `GetExternalEBField` 未拿到 `RuntimeContext` 时静默丢掉加速器晶格场，并在 parser 外场下空指针解引用 | fixed |
+| Source_Plugins_ParticleCore_A | F2 | minor | `Filter::ApplyStencil` 把 load-balance cost 恒置为 `nullptr`，负载均衡计时统计被静默删除 | fixed |
+| Source_Plugins_ParticleCore_A | F3 | minor | `warpx.read_fields_from_path` 由可选变成必需（`query` → `get`） | invalid |
+| Source_Plugins_ParticleCore_A | F4 | minor | eV 温度的 `mass`/`species_type` 解析绕开了 `source_name`，且与 `injection_file` 提供的质量不兼容 | invalid |
 | Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | invalid |
 | Source_Plugins_ParticleCore_B | F1 | critical | 新抽象把 `GetExternalEBField` 的容器来源改成"只来自 ctx"，QED / 离子化三条路径不传 ctx：解析式外场下空指针崩溃，lattice/plasma-lens  | invalid |
 | Source_Plugins_ParticleCore_B | F2 | critical | `DepositCharge` 丢掉 RZ/RCYLINDER/RSPHERE 的 `1/(2πr)` 反体积缩放，唯一的替代 finalizer 不覆盖 `rho_fp_<species> | invalid |
