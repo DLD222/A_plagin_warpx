@@ -14,6 +14,7 @@ Usage:
 """
 import argparse
 import csv
+import sys
 import numpy as np
 
 np.random.seed(20261101)
@@ -96,6 +97,14 @@ def rand_rot():
     return Q
 
 
+def rot_about(n, phi):
+    """Rotation by `phi` about the unit axis `n` (Rodrigues)."""
+    n = np.asarray(n, float)
+    n = n / np.linalg.norm(n)
+    K = np.array([[0.0, -n[2], n[1]], [n[2], 0.0, -n[0]], [-n[1], n[0], 0.0]])
+    return np.eye(3) + np.sin(phi) * K + (1.0 - np.cos(phi)) * (K @ K)
+
+
 def rand_n(n2d=False):
     if n2d:
         t = np.random.rand() * 2 * np.pi
@@ -134,10 +143,29 @@ def cases():
     nn = rand_n()
     out.append(("nflip", e1, e2, 0.4, nn))
     out.append(("nflip", e1, e2, 0.4, -nn))
-    # tangent rotation pair (same n)
+    # tangent rotation pair: same n, materials rotated about it.  Both rows used to be the
+    # *same* call, so "case 36" duplicated case 35 and tested nothing.  Rotating the materials
+    # about n is the symmetry this pair is meant to exercise: the effective epsilon must rotate
+    # with them (see `selfcheck_tangent_rotation`).
+    Q = rot_about(nn, 0.9)
     out.append(("tanrot", e1, e2, 0.4, nn))
-    out.append(("tanrot", e1, e2, 0.4, nn))
+    out.append(("tanrot", Q @ e1 @ Q.T, Q @ e2 @ Q.T, 0.4, nn))
     return out
+
+
+def selfcheck_tangent_rotation():
+    """chi(e, n) must be equivariant under a rotation about n: chi(ReR^T, n) = R chi(e, n) R^T."""
+    worst = 0.0
+    for _ in range(8):
+        n = rand_n()
+        e1, e2 = rand_spd(), rand_spd()
+        f = np.random.uniform(0.0, 1.0)
+        phi = np.random.uniform(0.1, 2.0)
+        R = rot_about(n, phi)
+        a = chi_inv_anisotropic(R @ e1 @ R.T, R @ e2 @ R.T, f, n)
+        b = R @ chi_inv_anisotropic(e1, e2, f, n) @ R.T
+        worst = max(worst, np.linalg.norm(a - b) / max(np.linalg.norm(b), 1e-300))
+    return worst
 
 
 def mat_to_row(m):
@@ -181,6 +209,10 @@ def main():
         print("self-check isotropic:",
               np.max(np.abs(chi_inv_isotropic(1.0, 4.0, 0.3, np.array([0.0, 0.0, 1.0]))
                               - expected)))
+        rot_err = selfcheck_tangent_rotation()
+        print("self-check tangent rotation (equivariance about n):", rot_err)
+        if rot_err > 1e-12:
+            raise SystemExit(f"tangent-rotation equivariance failed: {rot_err:.3e}")
         return
 
     if args.compare:
@@ -210,7 +242,8 @@ def main():
         print(f"max relative error = {worst:.3e}; failures = {len(bad)}")
         for k, err in bad[:20]:
             print(f"  case {k}: {err:.3e}")
-        return
+        # This is a gate, not a report: it used to `return` (exit 0) no matter what it found.
+        sys.exit(1 if bad else 0)
 
     print("use --write or --compare")
 

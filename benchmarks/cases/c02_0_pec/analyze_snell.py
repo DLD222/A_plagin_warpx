@@ -93,8 +93,11 @@ def main():
           f"n2 sin(t2) = {args.n2*np.sin(np.radians(th2)):.5f}")
     print(f"theory   : theta2 = {th2_theory:.3f} deg")
     print(f"error    : {th2 - th2_theory:+.3f} deg   (tolerance 0.5 deg)")
-    print("RESULT:", "PASS" if abs(th2 - th2_theory) <= 0.5 else "FAIL")
+    ok = abs(th2 - th2_theory) <= 0.5
+    print("RESULT:", "PASS" if ok else "FAIL")
+    # It used to print RESULT and exit 0 either way, so it could not serve as a regression gate.
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -22,3 +22,15 @@ F9（Python 那条）与此处无关，勿混。
 附带：`dependencies.json` 的 `_note_picmi` 说明**已撤回**——仓库 `AGENTS.md` 明确规定该文件由上游自动更新、
   不得手动修改，所以把"`version_picmi` 才是 install_requires 的 pin、`commit_picmi` 只是来源提交"这一结论
   记录在这里，而不是写进文件本身。
+
+F12 fixed: `p1_tensor_reference.py` 的 "tanrot" 两行是**逐字节相同**的调用（case 36 = case 35，什么都没测），
+  而 `--compare` 在打印 `failures = N` 后 `return`（exit 0），不能当门禁。
+  现在：case 36 把材料绕 **n 旋转 0.9 rad**（新增 `rot_about()`，Rodrigues 公式），真正检验"结果只依赖
+  法向、与切向基无关"这一对称性；新增 `selfcheck_tangent_rotation()` 在 `--write` 时断言
+  `chi(ReRᵀ, n) = R chi(e, n) Rᵀ`（实测 5.3e-16，阈值 1e-12）；`--compare` 末尾 `sys.exit(1 if bad else 0)`。
+  重新生成的 `p1_cases.csv`/`p1_expected.csv` 只差 case 36 一行（`git diff --stat` = 2 files, 2 changed）。
+  反证: 把 Case 5 的期望值乘 1.001 → `--compare` 报 `failures = 1` 且 **exit code 1**。
+F17 fixed（三个脚本）: `analyze_snell.py`、`verify_oblique_rt.py`、`verify_medium_speed.py` 原本只 print、
+  恒返回 0。现在各自带判据并 `sys.exit(main())`：
+  Snell |Δθ₂| ≤ 0.5°；斜入射 R/T 相对 2%、|R+T−1| ≤ 3%；介质相速相对 2%、材料加权能量漂移 ≤ 1%。
+  （这是"verify 脚本不 verify"那一类，和你反复强调的"别让检查器自己失效"是同一个问题。）

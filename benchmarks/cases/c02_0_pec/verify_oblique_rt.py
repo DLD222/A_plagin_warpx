@@ -24,6 +24,7 @@ Usage:
 """
 import argparse
 import math
+import sys
 import os
 import subprocess
 
@@ -185,6 +186,23 @@ def main():
         tb = math.degrees(math.atan(math.sqrt(args.eps2)))
         print(f"  Brewster angle (this eps2) = {tb:.2f} deg")
 
+    # This script used to only print the deviations and always exit 0, so it could not be used as
+    # a regression gate (finding Benchmarks/F17).  The tolerances are the ones the case was
+    # designed for: 2% on R and T at the shipped resolution, 3% on energy conservation.
+    tol_rt = 0.02
+    tol_sum = 0.03
+    bad = []
+    if abs(R / Rth - 1.0) > tol_rt:
+        bad.append(f"R rel {R/Rth-1:+.2%} > {tol_rt:.0%}")
+    if abs(T / Tth - 1.0) > tol_rt:
+        bad.append(f"T rel {T/Tth-1:+.2%} > {tol_rt:.0%}")
+    if abs(R + T - 1.0) > tol_sum:
+        bad.append(f"R+T = {R+T:.4f} (|R+T-1| > {tol_sum:.0%})")
+    print("RESULT:", "PASS" if not bad else "FAIL")
+    for reason in bad:
+        print("  ", reason)
+    return 0 if not bad else 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

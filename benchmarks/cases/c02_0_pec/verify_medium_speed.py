@@ -80,6 +80,21 @@ def main():
     d=np.loadtxt(os.path.join(a.run,"diags/reducedfiles/p1.txt"),skiprows=1)
     ey=np.abs(d[:,6]); m=ey.max(); st=int(d[int(np.argmax(ey>0.05*m)),0])
     v_arr=0.5/(st*dt) if st>0 else float("nan")
-    print(f"epsr={a.epsr:5.2f}  v_theory={v/C:.4f}c  v_dft={v_num/C:.4f}c  rel={v_num/v-1:+.2%}  "
+    rel = v_num/v - 1.0
+    drift = emat[-1]/emat[0] - 1.0
+    print(f"epsr={a.epsr:5.2f}  v_theory={v/C:.4f}c  v_dft={v_num/C:.4f}c  rel={rel:+.2%}  "
           f"v_arrival={v_arr/C:.4f}c  energy(material) final/init={emat[-1]/emat[0]:.5f} max/min={emat.max()/emat.min():.4f}")
-if __name__=="__main__": main()
+    # Gate, not a report (finding Benchmarks/F17): the phase speed must match the analytic
+    # c/sqrt(epsr) to 2%, and the material-weighted energy must not drift by more than 1%.
+    bad = []
+    if abs(rel) > 0.02:
+        bad.append(f"phase speed off by {rel:+.2%} (tol 2%)")
+    if abs(drift) > 0.01:
+        bad.append(f"energy drift {drift:+.2%} (tol 1%)")
+    print("RESULT:", "PASS" if not bad else "FAIL")
+    for reason in bad:
+        print("  ", reason)
+    return 0 if not bad else 1
+
+if __name__=="__main__":
+    sys.exit(main())
