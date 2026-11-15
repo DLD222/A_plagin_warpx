@@ -2293,7 +2293,9 @@ void MultiParticleContainer::doQedBreitWheeler (int lev,
                                                          phys_pc_ptr->m_B_external_particle,
                                                          config().nox(),
                                                          config().n_rz_azimuthal_modes(),
-                                                         config().galerkin_interpolation());
+                                                         config().galerkin_interpolation(),
+                                                         /*a_offset=*/0,
+                                                         phys_pc_ptr->runtime_context());
 
             auto& src_tile = pc_source->ParticlesAt(lev, pti);
             auto& dst_ele_tile = pc_product_ele->ParticlesAt(lev, pti);
@@ -2376,7 +2378,9 @@ void MultiParticleContainer::doQedQuantumSync (int lev,
                   phys_pc_ptr->m_B_external_particle,
                   config().nox(),
                   config().n_rz_azimuthal_modes(),
-                  config().galerkin_interpolation());
+                  config().galerkin_interpolation(),
+                  /*a_offset=*/0,
+                  phys_pc_ptr->runtime_context());
 
             auto& src_tile = pc_source->ParticlesAt(lev, pti);
             auto& dst_tile = pc_product_phot->ParticlesAt(lev, pti);

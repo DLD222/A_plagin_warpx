@@ -126,7 +126,8 @@ public:
         amrex::Vector<amrex::ParticleReal>& B_external_particle,
         int a_nox, int a_n_rz_azimuthal_modes,
         bool a_galerkin_interpolation,
-        int a_offset = 0);
+        int a_offset = 0,
+        const warpx::runtime::RuntimeContext* a_ctx = nullptr);
 
     /**
     * \brief Functor call. It determines the properties of the generated photon

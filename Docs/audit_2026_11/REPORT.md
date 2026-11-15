@@ -6,6 +6,30 @@
 
 ---
 
+## 0. 2026-11-15 基线更正（先读这一节）
+
+本轮查清了一件影响**全部归因**的事：**本 fork 的上游基线不是 26.10**，而是 26.10 之后约三周的
+`development` 快照（≈2026-10-30，`dependencies.json` 与上游 `ed30ada99` 一致），并且少了
+4 个上游提交。证据、方法与逐文件结论见 `UPSTREAM_BASE.md`。
+
+由此，本文下面所有"fork 代码差异"的说法都要按新口径读：
+
+| 差异来源 | 是否 fork 缺陷 | 怎么判定 |
+|---|---|---|
+| (a) 上游演进（26.10 → 基线） | **否** | fork 与官方 26.11 一致、与 26.10 不一致 |
+| (b) fork 重构（`Source/Core` + `Source/Plugins`） | 是 | 与 26.11 **也**不一致 |
+| (c) fork 新功能（star/fluid 插件、plugin runtime） | 是 | 官方没有对应代码 |
+
+本轮已按这个口径重做了三组对照（fork vs 26.10、fork vs 26.11、26.10 vs 26.11），见
+`ATTRIBUTION.md` 的"三向归因"表；并据此**撤回两条此前的错误结论**：
+
+1. **RZ `rho` 的两个残余缺陷（D-A/D-B）不是 fork 缺陷**，是上游 `ec99a479a`(#7341) 与
+   `a180bc361`(#7331) 的改动被 fork 正确继承；其中后者是上游对"方位模在 r=0 处宇称"的
+   物理修正。详见 `RZ_RHO_ROOT_CAUSE.md`。此前的"修复 #9"因此被撤销（见 `FIXES.md`）。
+2. **"6 处测试容差被放宽"不成立**：`projection_div_cleaner` 等处的 `1e-12 → 2e-12/3e-12`
+   是**上游 26.11 自己改的**（`Examples/Tests/projection_div_cleaner/inputs_test_3d_*_picmi.py`
+   在 26.10 里是 `1e-12`，26.11 里是 `2e-12`），fork 与 26.11 逐字节一致。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。

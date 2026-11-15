@@ -116,14 +116,13 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
         rho->setVal(amrex::Real(0.0));
     }
 
-    // Upstream deposits with apply_boundary_and_scale_volume=true, i.e. the physical boundary
-    // conditions and the radial volume scaling are applied to the deposits *before* the guard
-    // cell sum / filter in ApplyFilterandSumBoundaryRho.  Keep that order here: doing it the
-    // other way round lets guard cell deposits enter the boundary row.  Measured on 2026-11-15
-    // (same-binary A/B): RZ laser rho 1.36e4 -> 1.09e4, per-species Ohm rho and magnetostatic
-    // Er unchanged.
-    m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+    // Same order as upstream WarpX 26.11's RhoFunctor: the raw deposit is filtered and its
+    // guard cells are summed first, and only then are the reflective boundary and the radial
+    // volume scaling applied (FinalizeRhoOnLevel).  The volume-weighted filter is written for
+    // the *unscaled* deposit -- it turns the filtered extensive charge back into a density
+    // itself -- so swapping these two calls is not a no-op in radial geometries.
     m_warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
+    m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 
 #if (defined WARPX_DIM_RZ) && (defined WARPX_USE_FFT)
     if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD &&

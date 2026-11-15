@@ -91,7 +91,8 @@ struct IonizationFilterFunc
                           int a_do_adk_correction,
                           int a_nox, int a_n_rz_azimuthal_modes,
                           bool a_galerkin_interpolation,
-                          int a_offset = 0) noexcept;
+                          int a_offset = 0,
+                          const warpx::runtime::RuntimeContext* a_ctx = nullptr) noexcept;
 
     template <typename PData>
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

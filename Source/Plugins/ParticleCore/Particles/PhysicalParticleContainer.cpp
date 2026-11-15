@@ -1766,7 +1766,9 @@ PhysicalParticleContainer::getIonizationFunc (const ParticleTileIter& pti,
                                 do_adk_correction,
                                 config().nox(),
                                 config().n_rz_azimuthal_modes(),
-                                config().galerkin_interpolation()};
+                                config().galerkin_interpolation(),
+                                /*a_offset=*/0,
+                                runtime_context()};
 }
 
 PlasmaInjector* PhysicalParticleContainer::GetPlasmaInjector (int i)

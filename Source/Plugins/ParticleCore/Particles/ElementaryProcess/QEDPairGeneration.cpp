@@ -31,7 +31,8 @@ PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
                              amrex::Vector<amrex::ParticleReal>& B_external_particle,
                              int a_nox, int a_n_rz_azimuthal_modes,
                              bool a_galerkin_interpolation,
-                             int a_offset):
+                             int a_offset,
+                             const warpx::runtime::RuntimeContext* a_ctx):
     m_generate_functor{generate_functor},
     m_Ex_external_particle{E_external_particle[0]},
     m_Ey_external_particle{E_external_particle[1]},
@@ -47,7 +48,7 @@ PairGenerationTransformFunc (BreitWheelerGeneratePairs const generate_functor,
     using namespace amrex::literals;
 
     m_get_position  = GetParticlePosition<PIdx>(a_pti, a_offset);
-    m_get_externalEB = GetExternalEBField(a_pti, a_offset);
+    m_get_externalEB = GetExternalEBField(a_pti, a_offset, a_ctx);
 
     m_ex_arr = exfab.array();
     m_ey_arr = eyfab.array();

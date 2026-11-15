@@ -125,6 +125,19 @@ def cmp_hdf5(a, b):
     import h5py
     import numpy as np
     res = {"kind": "hdf5_diff", "datasets": []}
+    try:
+        return _cmp_hdf5(a, b)
+    except Exception as e:  # noqa: BLE001
+        # A truncated/partially written file (the comparison can run while a case is still
+        # being written) must not abort the whole sweep: report it and let the caller decide.
+        res["h5_error"] = repr(e)
+        return res
+
+
+def _cmp_hdf5(a, b):
+    import h5py
+    import numpy as np
+    res = {"kind": "hdf5_diff", "datasets": []}
     with h5py.File(a, "r") as fa, h5py.File(b, "r") as fb:
         da, db = h5_datasets(fa), h5_datasets(fb)
         only = sorted(set(da) - set(db))
@@ -146,6 +159,15 @@ def cmp_hdf5(a, b):
             if vx.dtype.kind in "fiu" and vy.dtype.kind in "fiu":
                 vx = vx.astype("f8") if vx.dtype.kind == "f" else vx
                 vy = vy.astype("f8") if vy.dtype.kind == "f" else vy
+                # Particle bookkeeping (openPMD stores ids and the grid indices nx/ny/nz as
+                # doubles): "id 12345 vs 12346 -> 1.0" says nothing about the physics, so these
+                # are compared as sets/counts and kept out of the value maxima.
+                if k.rsplit("/", 1)[-1] in ("id", "nx", "ny", "nz"):
+                    entry["n_differ"] = int(np.count_nonzero(vx != vy))
+                    entry["equal_as_set"] = bool(np.array_equal(np.sort(vx), np.sort(vy)))
+                    if entry["n_differ"] or not entry["equal_as_set"]:
+                        res["datasets"].append(entry)
+                    continue
                 if x.dtype.kind == "f":
                     d = np.abs(vx - vy)
                     den = np.maximum(np.abs(vx), 1e-300)
@@ -223,6 +245,14 @@ def cmp_plotfile(ref, new):
             entry["ids_equal_as_set"] = bool(np.array_equal(np.sort(a1), np.sort(a2)))
             fields.append(entry)
             continue
+        if fname in ("particle_cpu",) or a1.dtype.kind in "iu":
+            # Integer bookkeeping (owning rank, id, flags): a difference is real but its
+            # magnitude is meaningless as a float, so keep it out of the value-level maxima.
+            entry["n"] = int(a1.size)
+            entry["n_differ"] = int(np.count_nonzero(
+                np.asarray(a1, dtype="f8") != np.asarray(a2, dtype="f8")))
+            fields.append(entry)
+            continue
         if fname.startswith("particle_"):
             id1 = np.asarray(ad1[ftype, "particle_id"])
             id2 = np.asarray(ad2[ftype, "particle_id"])
@@ -235,9 +265,14 @@ def cmp_plotfile(ref, new):
         entry["n_differ"] = int(np.count_nonzero(d))
         entry["max_abs_diff"] = float(d.max()) if d.size else 0.0
         entry["max_rel_diff"] = float((d / den).max()) if d.size else 0.0
+        # Relative to the magnitude of the field itself, which is the number worth quoting:
+        # the element-wise ratio explodes wherever the reference value happens to be ~0.
+        scale = float(np.abs(np.asarray(a1, dtype="f8")).max()) if a1.size else 0.0
+        entry["max_rel_diff_field"] = (float(d.max()) / scale) if scale > 0.0 else 0.0
         fields.append(entry)
     res["fields"] = fields
     res["max_abs_diff"] = max([f.get("max_abs_diff", 0.0) for f in fields] + [0.0])
+    res["max_rel_diff_field"] = max([f.get("max_rel_diff_field", 0.0) for f in fields] + [0.0])
     res["max_rel_diff"] = max([f.get("max_rel_diff", 0.0) for f in fields] + [0.0])
     return res
 

@@ -16,6 +16,35 @@
 
 | 9 | 诊断 rho 的“边界+体积标定”与 guard-cell 求和的次序与上游相反 | `Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp::computeRho` | 上游 `DepositCharge(..., apply_boundary_and_scale_volume=true)` 先做边界条件与径向体积标定，再做 `ApplyFilterandSumBoundaryRho` | 同二进制 A/B：`test_rz_laser_acceleration` 的 rho 最大差 **1.36e4 → 1.09e4（-19.5%）**；`test_rz_ohm_solver_*` 与 `test_rz_magnetostatic_eb_picmi` **不变**；`test_2d_langmuir_multi` 仍通过 | 见下一行 commit |
 
+## 回撤：修复 #9 是错的方向（2026-11-15 更正）
+
+修复 #9（提交 `ca4a7cb`）把 `computeRho` 改成"先 `FinalizeRhoOnLevel`、后
+`ApplyFilterandSumBoundaryRho`"，依据是"对齐上游 `DepositCharge(...,
+apply_boundary_and_scale_volume=true)` 的次序"。这个依据**看错了参照版本**：
+
+- 该次序是 **26.10** 的诊断路径；
+- fork 的上游基线是 26.10 之后约三周的 `development`（≈2026-10-30，见
+  `UPSTREAM_BASE.md`）；
+- 26.11 的 `RhoFunctor` 是"先 `ApplyFilterandSumBoundaryRho`、后 `FinalizeRhoOnLevel`"
+  （上游 `ec99a479a` #7341 引入），fork 原本就是对的。
+
+因此该"修复"把正确的实现改成了旧实现。本轮已撤销，恢复为：
+
+```cpp
+m_warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
+m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
+```
+
+撤销后的实测：`test_rz_laser_acceleration` t=0 的 `rho` 三个分量与**官方 26.11 逐字节相同**
+（最大差 0.0），与官方 26.10 的差异回到 1.3578e4 —— 这 1.3578e4 已由上游
+`ec99a479a` + `a180bc361` 完全解释（`RZ_RHO_ROOT_CAUSE.md`）。
+
+| # | 更正内容 | 位置 | 依据 | 验证 |
+|---|---|---|---|---|
+| 9′ | 撤销 #9，恢复 26.11 的 finalization/过滤次序 | `Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp::computeRho` | 26.11 `Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp` 的调用次序（`ec99a479a`） | fork 与官方 26.11 的 t=0 `rho` 逐字节一致 |
+| 10 | 移除 fork 独有的 `ApplyVolumeWeightedFilter(..., is_volume_scaled)` 扩展 | `Source/Plugins/PicEm/Modules/Parallelization/WarpXComm.cpp`、`Source/Plugins/PicEm/WarpX.H` | 26.10 / 26.11 / development 均无此参数，`rho` 调用点传 `false` 使 fork 偏离上游 | 与上游函数体逐行一致 |
+| 11 | `GetExternalEBField` 在电离/QED 路径上拿不到 `RuntimeContext` | `Source/Plugins/ParticleCore/Particles/ElementaryProcess/{Ionization,QEDPairGeneration,QEDPhotonEmission}.{H,cpp}`、`PhysicalParticleContainer.cpp::getIonizationFunc`、`MultiParticleContainer.cpp`（QED 循环） | 无上下文时 `ps == nullptr`，`E_ext_particle_function`/`repeated_plasma_lens` 段会解引用空指针（或静默丢外场）；其余 5 处调用点都传了 `runtime_context()` | 编译通过；QED/电离用例回归通过 |
+
 ## 回归证据摘要（修复 #5）
 
 | 用例 | 修复前 max abs (vs 官方 26.10) | 修复后 |

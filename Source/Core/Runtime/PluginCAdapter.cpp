@@ -289,7 +289,15 @@ warpx_stage_geometry (WarpXStageContext* ctx, int32_t lev, int32_t lo[3], int32_
                       double prob_lo[3], double prob_hi[3], double dx[3], int32_t periodic[3])
 {
     if (ctx == nullptr || ctx->data == nullptr || lev < 0) { return 0; }
-    amrex::Geometry const& g = ctx->data->geom(lev);
+    amrex::Geometry const* gp = nullptr;
+    try {
+        // Throws when the level is past the finest one that exists; C plugins probe the levels
+        // with this call, so report it as a plain failure rather than unwinding.
+        gp = &ctx->data->geom(lev);
+    } catch (const std::exception&) {
+        return 0;
+    }
+    amrex::Geometry const& g = *gp;
     amrex::Box const& domain = g.Domain();
     for (int d = 0; d < 3; ++d) {
         bool const used = (d < AMREX_SPACEDIM);
@@ -307,7 +315,11 @@ extern "C" int32_t
 warpx_stage_has_field (WarpXStageContext* ctx, const char* name, int32_t lev)
 {
     if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
-    return ctx->bus->has(std::string(name), lev) ? 1 : 0;
+    try {
+        return ctx->bus->has(std::string(name), lev) ? 1 : 0;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }
 
 extern "C" int32_t
@@ -338,7 +350,11 @@ warpx_stage_has_field_dir (WarpXStageContext* ctx, const char* name, int32_t dir
 {
     if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
     if (dir < 0 || dir > 2) { return 0; }
-    return ctx->bus->has(std::string(name), dir, lev) ? 1 : 0;
+    try {
+        return ctx->bus->has(std::string(name), dir, lev) ? 1 : 0;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }
 
 extern "C" int32_t
@@ -423,8 +439,15 @@ extern "C" int32_t
 warpx_stage_field (WarpXStageContext* ctx, const char* name, int32_t lev, void** multifab)
 {
     if (ctx == nullptr || ctx->bus == nullptr || name == nullptr) { return 0; }
-    amrex::MultiFab* field = ctx->bus->field(std::string(name), lev);
-    if (field == nullptr) { return 0; }
-    if (multifab != nullptr) { *multifab = static_cast<void*>(field); }
-    return 1;
+    // The write entry point is called by C plugins: like the read entry points above, it must
+    // report failure with 0 instead of letting a DataBus exception (unknown field, missing
+    // write permission, absent level) unwind through the C ABI and terminate the run.
+    try {
+        amrex::MultiFab* field = ctx->bus->field(std::string(name), lev);
+        if (field == nullptr) { return 0; }
+        if (multifab != nullptr) { *multifab = static_cast<void*>(field); }
+        return 1;
+    } catch (const std::exception&) {
+        return 0;
+    }
 }

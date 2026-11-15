@@ -37,7 +37,8 @@ IonizationFilterFunc::IonizationFilterFunc (warpx::runtime::RuntimeData const& a
                                             int a_do_adk_correction,
                                             int a_nox, int a_n_rz_azimuthal_modes,
                                             bool a_galerkin_interpolation,
-                                            int a_offset) noexcept:
+                                            int a_offset,
+                                            const warpx::runtime::RuntimeContext* a_ctx) noexcept:
     m_ionization_energies{a_ionization_energies},
     m_adk_prefactor{a_adk_prefactor},
     m_adk_exp_prefactor{a_adk_exp_prefactor},
@@ -59,7 +60,7 @@ IonizationFilterFunc::IonizationFilterFunc (warpx::runtime::RuntimeData const& a
     using namespace amrex::literals;
 
     m_get_position  = GetParticlePosition<PIdx>(a_pti, a_offset);
-    m_get_externalEB = GetExternalEBField(a_pti, a_offset);
+    m_get_externalEB = GetExternalEBField(a_pti, a_offset, a_ctx);
 
     m_ex_arr = exfab.array();
     m_ey_arr = eyfab.array();

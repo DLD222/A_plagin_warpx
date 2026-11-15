@@ -32,7 +32,8 @@ PhotonEmissionTransformFunc (QuantumSynchrotronGetOpticalDepth opt_depth_functor
                              amrex::Vector<amrex::ParticleReal>& B_external_particle,
                              int a_nox, int a_n_rz_azimuthal_modes,
                              bool a_galerkin_interpolation,
-                             int a_offset):
+                             int a_offset,
+                             const warpx::runtime::RuntimeContext* a_ctx):
     m_opt_depth_functor{opt_depth_functor},
     m_opt_depth_runtime_comp{opt_depth_runtime_comp},
     m_emission_functor{emission_functor},
@@ -50,7 +51,7 @@ PhotonEmissionTransformFunc (QuantumSynchrotronGetOpticalDepth opt_depth_functor
     using namespace amrex::literals;
 
     m_get_position  = GetParticlePosition<PIdx>(a_pti, a_offset);
-    m_get_externalEB = GetExternalEBField(a_pti, a_offset);
+    m_get_externalEB = GetExternalEBField(a_pti, a_offset, a_ctx);
 
     m_ex_arr = exfab.array();
     m_ey_arr = eyfab.array();
