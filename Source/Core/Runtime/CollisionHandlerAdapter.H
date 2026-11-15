@@ -38,10 +38,12 @@ public:
 
     void apply (StageContext& ctx) override
     {
+        // A null handler means "no collisions this run", which CollisionPackage already guarantees
+        // by not registering the adapter.  The old code returned silently for that case and then
+        // had a second, unreachable `if (m_handler == nullptr) throw ...` below it -- the error
+        // path the comment promised did not exist.  Skipping is the documented behaviour, so keep
+        // it and drop the dead branch.
         if (m_handler == nullptr) { return; }
-        if (m_handler == nullptr) {
-            throw std::runtime_error("CollisionHandlerAdapter: null handler");
-        }
         m_handler->doCollisions(ctx.step, ctx.time, ctx.dt);
     }
 
