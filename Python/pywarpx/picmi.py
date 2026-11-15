@@ -5063,6 +5063,13 @@ class ReducedDiagnostic(
 
     Which parameters are used depends on the type of the diagnostic. Parameters used in the
     expressions can be given as additional keyword arguments.
+
+    Note (changed in this fork): unknown keyword arguments are validated strictly, so a misspelt
+    parameter name raises ``ValidationError: Extra inputs are not permitted`` instead of being
+    silently ignored.  A keyword that is not a declared parameter is accepted only when it is
+    referenced by one of the diagnostic's expressions (it becomes an expression constant); the
+    parameters of the *other* reduced-diagnostic types are accepted too, so that e.g.
+    ``resolution`` can be used inside an expression of a FieldProbe-backed diagnostic.
     """
 
     _simple_reduced_diagnostics: ClassVar[tuple[str, ...]] = (
