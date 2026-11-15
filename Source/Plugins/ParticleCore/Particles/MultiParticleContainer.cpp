@@ -614,13 +614,8 @@ MultiParticleContainer::DepositCurrent (
         pc->DepositCurrent(J, dt, relative_time, push_type, particle_shape);
     }
 
-#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-    for (int lev = 0; lev < J.size(); ++lev)
-    {
-        host().particleServices().applyInverseVolumeScalingToCurrentDensity(
-            J[lev][0], J[lev][1], J[lev][2], lev);
-    }
-#endif
+    // The radial inverse-volume scaling is not applied here: it belongs to the current
+    // finalization (WarpX::FinalizeJOnLevel), after the boundaries have been folded.
 }
 
 void

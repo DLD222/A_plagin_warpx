@@ -41,14 +41,6 @@ BuildImplicitKernelServices (WarpX& warpx)
     s.eb_update_b_flag = [&warpx] () -> const auto& { return warpx.GetEBUpdateBFlag_fp(); };
     s.fdtd_solver = [&warpx] (int lev) { return warpx.get_pointer_fdtd_solver_fp(lev); };
 #if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-    s.apply_inverse_volume_scaling_current =
-        [&warpx] (ablastr::fields::MultiFabRegister& fields, int lev) {
-            warpx.ApplyInverseVolumeScalingToCurrentDensity(
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{0}, lev),
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{1}, lev),
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{2}, lev),
-                lev);
-        };
     s.apply_inverse_volume_scaling_mass_matrices_pc =
         [&warpx] (ablastr::fields::MultiFabRegister& fields, int lev) {
             warpx.ApplyInverseVolumeScalingToMassMatricesPC(

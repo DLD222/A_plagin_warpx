@@ -70,8 +70,6 @@ public:
     [[nodiscard]] const amrex::Vector<std::unique_ptr<amrex::iMultiFab>>&
     ebReduceParticleShapeFlag () const override;
     void syncCurrent (const std::string& current_fp_string) override;
-    void applyInverseVolumeScalingToCurrentDensity (
-        amrex::MultiFab* Jx, amrex::MultiFab* Jy, amrex::MultiFab* Jz, int lev) override;
     void applyFilterMF (ablastr::fields::MultiLevelVectorField const& field,
                         int lev, int idir) override;
     void syncRho (

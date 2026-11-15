@@ -1537,10 +1537,8 @@ void WarpXParticleContainer::DepositCurrentOnLevel (
 
     DepositCurrent(current, dt, relative_time);
 
-#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        host().particleServices().applyInverseVolumeScalingToCurrentDensity(
-            current[lev][0], current[lev][1], current[lev][2], lev);
-#endif
+    // The radial inverse-volume scaling is applied by the current finalization
+    // (WarpX::FinalizeJOnLevel), not at deposition time.
 
     // Sum guard cells
     host().particleServices().syncCurrent(mf_name);

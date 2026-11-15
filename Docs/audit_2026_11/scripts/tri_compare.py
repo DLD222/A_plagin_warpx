@@ -47,21 +47,24 @@ def main():
         df, d0, d1 = one(args.build_fork, n), one(args.build_2610, n), one(args.build_2611, n)
         if not (df and d0 and d1):
             missing = [nm for nm, d in (('fork', df), ('26.10', d0), ('26.11', d1)) if not d]
-            print(f'{n[:58]:58s} {"-":>12s} {"-":>12s}  missing run: {",".join(missing)}')
+            print(f'{n[:52]:52s} {"-":>11s} {"-":>11s} {"-":>11s}  missing run: {",".join(missing)}')
             continue
         r0 = cc.compare_dirs(d0, df, n)
         r1 = cc.compare_dirs(d1, df, n)
         m0 = r0.get('max_abs_diff', 0.0) or 0.0
         m1 = r1.get('max_abs_diff', 0.0) or 0.0
+        # Absolute differences are useless on their own: these runs carry fields of 1e15, where
+        # 1e5 is roundoff.  Quote the difference relative to the magnitude of the field too.
+        rel = r1.get('max_rel_diff_field', 0.0) or 0.0
         if m0 == 0.0 and m1 == 0.0:
             verdict = 'identical to both'
-        elif m0 > 0.0 and m1 == 0.0:
-            verdict = 'upstream evolution (matches 26.11)'
-        elif m0 == 0.0 and m1 > 0.0:
+        elif m1 == 0.0 or rel < 1e-12:
+            verdict = 'matches 26.11 (bit-exact or roundoff)'
+        elif m0 == 0.0:
             verdict = 'fork lags 26.11'
         else:
             verdict = 'fork-specific difference'
-        print(f'{n[:58]:58s} {m0:12.4e} {m1:12.4e}  {verdict}')
+        print(f'{n[:52]:52s} {m0:11.3e} {m1:11.3e} {rel:11.3e}  {verdict}')
 
 
 if __name__ == '__main__':

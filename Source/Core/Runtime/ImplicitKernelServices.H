@@ -58,7 +58,6 @@ struct ImplicitKernelServices
     std::function<amrex::Vector<std::array<std::unique_ptr<amrex::iMultiFab>, 3>> const& ()> eb_update_e_flag;
     std::function<amrex::Vector<std::array<std::unique_ptr<amrex::iMultiFab>, 3>> const& ()> eb_update_b_flag;
     std::function<warpx::runtime::IFiniteDifferenceSolver* (int lev)> fdtd_solver;
-    std::function<void (ablastr::fields::MultiFabRegister&, int lev)> apply_inverse_volume_scaling_current;
     std::function<void (ablastr::fields::MultiFabRegister&, int lev)> apply_inverse_volume_scaling_mass_matrices_pc;
 
     // ---- actions the solver triggers -------------------------------------

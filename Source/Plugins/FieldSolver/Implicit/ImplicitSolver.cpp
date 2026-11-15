@@ -1130,20 +1130,11 @@ void ImplicitSolver::PreRHSOp (const amrex::Real a_cur_time,
         CumulateJ();
     }
 
-#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-    // Apply the inverse volume scaling for radial geometries after the total
-    // current has been accumulated from all containers above.
-    // Rho (if used) is scaled inside WarpX::FinalizeRho().
-    for (int lev = 0; lev < m_num_amr_levels; ++lev) {
-        ablastr::fields::VectorField J = m_services.fields->get_alldirs(FieldType::current_fp, lev);
-        m_services.apply_inverse_volume_scaling_current(*m_services.fields, lev);
-    }
-#endif
-
-    // Apply BCs to J and communicate
-    m_services.sync_current_and_rho();
-    m_services.finalize_rho();
-    m_services.finalize_j();
+    // Apply BCs to J and communicate; the radial inverse-volume scaling of J is part of
+    // finalize_j() (after the boundaries), as upstream 26.11 does.
+    m_services.sync_current_and_rho(); // Sum guard cells
+    m_services.finalize_rho();         // Apply BCs to rho, then apply inverse volume scaling
+    m_services.finalize_j();           // Apply BCs to J, then apply inverse volume scaling
 
 }
 

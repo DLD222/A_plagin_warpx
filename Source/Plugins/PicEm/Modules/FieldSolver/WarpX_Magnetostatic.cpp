@@ -115,18 +115,10 @@ WarpX::ComputeMagnetostaticField()
             }
         }
     };
-    config.finalize_current = [this] (ablastr::fields::MultiFabRegister& fields, int max_lev) {
-#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
-        for (int lev = 0; lev <= max_lev; lev++) {
-            ApplyInverseVolumeScalingToCurrentDensity(
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{0}, lev),
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{1}, lev),
-                fields.get(warpx::fields::FieldType::current_fp, ablastr::fields::Direction{2}, lev),
-                lev);
-        }
-#else
-        amrex::ignore_unused(fields, max_lev);
-#endif
+    config.finalize_current = [this] (ablastr::fields::MultiFabRegister& /*fields*/,
+                                      int /*max_lev*/) {
+        // Nothing to do: the radial inverse-volume scaling is applied by FinalizeJ()
+        // (WarpX::FinalizeJOnLevel), which this routine calls after depositing.
         SyncCurrent("current_fp");
         FinalizeJ();
     };
