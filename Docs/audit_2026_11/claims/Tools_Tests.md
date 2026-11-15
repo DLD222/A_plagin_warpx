@@ -1,6 +1,25 @@
 # Tools_Tests 工作日志
 
 claim: Tools_Tests F9,F15-F31 @lead-tools 2026-11-15T18:30
+（同批还做了 Source_Plugins_Star/F11 与 Source_Plugins_PicEm_B/F4，见各自 claims 文件）
+
+## 汇总（20/20 done，全部 fixed）
+
+- gate: `bash Tools/verify/run_gates.sh` → 9/9 OK（末次 19:05）
+- 构建: 全量 `cmake --build audit_build/fork -j 10` → 成功（6m36s）
+- 测试: `ctest -R "runtime_|plugin_|nonpic|compile_only|particle_factory|stage_|bus_|scalar_|external_plugin" -j 4` → 33/33 Passed
+- 两个新发现（不是 review 原文里的）：
+  1. F16 改完检查器后立刻抓到真实违规：FieldSolver/PSATD 的 2 个 CMakeLists 仍把源文件挂到
+     `warpx_picem_*` 目标（已改为 `warpx_fieldsolver_*`）。对照见 `4d91331`。
+  2. F31 的 A0 目录**确实是过期的**：classes.csv 有 35 条在 Source 里已找不到，Source 里另有
+     103 个类没进表。没有顺手重生成（会改一大片受控文档），而是加了漂移棘轮：基线 35/103，
+     只能变小。见 `d85ab5d`。
+- 流程告警（给集成者）：并行会话共用同一个 index 时，`git commit`（不带路径）会把别人刚
+  `git add` 的文件一起提交。本批有 2 个提交被卷入：`93afb3b`（F9）带进了 6 个 claims 文件和
+  `tests/runtime/test_runtime_snapshot.cpp`，`c053e7c` 之前的若干提交也带进了 Collision/
+  Diagnostics/FieldSolver/ParticleCore 的改动（内容都是它们自己的，已随 main 推送，未丢失）。
+  建议后续会话用 `git commit -- <paths>`（路径限定）而不是先 `git add -A`。
+
 F15 fixed by c053e7c; 拆成三个独立用例: (a) ProbePlugin(要求 kernel) + KernelRolePlugin(role=Kernel) → 断言不抛（这才是'role 名算 provider'）; (b) 只有 ProbePlugin、无 provider → 断言抛（对照，保证 (a) 不是恒真）; (c) 未知名字 no_such_plugin → 断言抛。KernelRolePlugin 的 name 不等于任何 requirement，只有 role 能满足。验证: ctest -R plugin_lifecycle_2 → Passed；把 Validate 的 role 分支去掉会让 (a) 变红、(b) 仍绿（由对照用例保证区分力）
 F31 fixed by d85ab5d（9 条合并项）: (1) test_particle_factory 的'未注册工厂返回 null'改为由 CMake 定义 WARPX_NO_PARTICLE_PLUGIN 守卫，不再依赖链接器；(2) test_plugin_field 的 checkpoint 改为要求 chk000002 目录 + 非空 *_H 头文件；(3) test_service_registry 注明 has_*_factory 才是判别式，GetTotalDiags()==0 只是 smoke；(4) third_party_plugin.c 第三个 handler 改 {0} 初始化；(5) compare_particles_openpmd 的 scale 改用极差，退化时才用 max|a|；(6) cf88 的 expected_q 标明是 CF88 表转录（无法离线独立推导，未伪称已核对）；(7) parse_fgong 用记录数而非 header 计算抽样步长与行数；(8) extract_opal_subset 写文件前 mkdir；(9) audit_check 增加 classes.csv 漂移棘轮（基线 35/103）。验证: ctest -R 'particle_factory_2|plugin_field_2' → 2/2 Passed；反证: 期望步号改成 chk000009 → 两条 checkpoint 断言均 FAIL ✓；删 classes.csv 一行 → drift 104>103 FAIL ✓；cf88/sod 自检仍通过
 F28 fixed by f274d18; a5_ab.py 二进制改由 WARPX_BIN → $WARPX_BUILD_DIR/bin/warpx.2d → warpx.2d.* 依次探测，临时目录 try/finally 清理，支持按用例名过滤；route_tasks.GATES 增加 ab 映射，full_gate.sh 真正调用它（此前 JSON 声明 gates.full 含 ab 但没有入口）。验证: GATES['ab'] 存在；WARPX_BIN=/nonexistent → 明确报错；用 audit_build/fork/bin/warpx.2d 跑 langmuir/collision/eb_cube → 3/3 A/B PASS（8.3 s），跑完无残留 /tmp/ab_* ✓
