@@ -110,6 +110,13 @@ cd ../wt-star && cmake -S . -B audit_build/fork ...   # 需要各自构建一次
 
 5. 推送前 `git pull --rebase origin main`；若发现自己把别人的半成品带进了提交，先 `git reset --soft`
    再按路径重提，并在 `claims/` 里记一笔。
+6. **新增文件**必须 `git add <新文件>` 一次，`git commit -- <路径>` 只认识 tracked 路径
+   （否则报 `pathspec ... did not match`）。
+7. 并发时的两种瞬时故障（都只需要重试，不是代码问题）：
+   - `fatal: Unable to create '.git/index.lock': File exists` —— 另一个会话正在提交；等几秒重试，
+     **不要**删锁（除非确认没有 git 进程）；
+   - `No rule to make target 'lib/libwarpx.<dim>....a'` —— 两个会话同时在同一个
+     `audit_build/fork` 里跑 cmake/make；等对方结束再 `cmake --build`，或各自用独立 build 目录。
 
 ## 6. 已知的"别碰"清单
 
