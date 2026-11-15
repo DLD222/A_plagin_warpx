@@ -7,11 +7,12 @@ import time
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from warpx_studio.deck.model import Deck, minimal_2d_deck
+from warpx_studio.deck.validate import translate_error, validate
 from warpx_studio.live.service import LiveView
 from warpx_studio.runner.binaries import discover
 from warpx_studio.runner.job import Job
@@ -25,6 +26,7 @@ RUNS = REPO / "audit_runs/studio"
 app = FastAPI(title="WarpX Studio", version="0.1.0")
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
 STATE: dict = {"job": None, "live": None, "run_dir": None}
+CATALOG: dict = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
 
 
 class DeckPayload(BaseModel):
@@ -34,6 +36,7 @@ class DeckPayload(BaseModel):
 
 class RunPayload(DeckPayload):
     binary: str
+    force: bool = False
     mpi: int = 1
     omp: int = 1
     live_field: str | None = "rho"
@@ -75,6 +78,11 @@ def api_starter():
     return deck_from(minimal_2d_deck())
 
 
+@app.post("/api/validate")
+def api_validate(payload: DeckPayload):
+    return {"issues": validate(deck_from(payload), CATALOG)}
+
+
 @app.post("/api/preview")
 def api_preview(payload: DeckPayload):
     deck = deck_from(payload)
@@ -92,6 +100,11 @@ def api_run(payload: RunPayload):
         STATE["live"].stop()
 
     deck = deck_from(payload)
+    issues = validate(deck, CATALOG)
+    errors = [issue for issue in issues if issue["severity"] == "error"]
+    if errors and not payload.force:
+        return JSONResponse(status_code=400, content={
+            "detail": "参数校验未通过", "issues": issues})
     run_dir = RUNS / time.strftime("%Y%m%d-%H%M%S")
     run_dir.mkdir(parents=True, exist_ok=True)
     max_step = None
@@ -105,7 +118,7 @@ def api_run(payload: RunPayload):
     live = LiveView(run_dir, run_dir / "live.png", payload.live_field,
                     payload.live_component)
     live.start()
-    STATE.update({"job": job, "live": live, "run_dir": run_dir})
+    STATE.update({"job": job, "live": live, "run_dir": run_dir, "deck": deck})
     return {"run_dir": str(run_dir), "started": True}
 
 
@@ -117,6 +130,10 @@ def api_status():
         return {"state": "idle", "live": None}
     snapshot = job.snapshot()
     snapshot["live"] = live.snapshot() if live else None
+    deck = STATE.get("deck")
+    diagnosis = [d for d in (translate_error(line, CATALOG, deck)
+                             for line in snapshot["errors"]) if d]
+    snapshot["diagnosis"] = diagnosis
     return snapshot
 
 

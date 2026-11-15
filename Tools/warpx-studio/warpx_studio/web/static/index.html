@@ -145,10 +145,26 @@ function inputRow(name, value, onchange, instance) {
   lab.title = (zh ? zh + "\n\n" : "") + docOf(name) + (type ? `\n类型: ${type}` : "") +
     (guard.length ? `\n构建条件: ${guard.join("; ")}` : "");
   const box = document.createElement("div");
-  const inp = document.createElement("input");
-  inp.value = value || "";
-  inp.placeholder = type ? type.split(",")[0].slice(0, 28) : "";
-  inp.oninput = () => onchange(inp.value);
+  const options = (CATALOG.params.find(p => p.name === name) || {}).options || [];
+  let inp;
+  if (options.length) {
+    inp = document.createElement("select");
+    inp.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:3px 6px;width:100%";
+    const blank = document.createElement("option");
+    blank.value = ""; blank.textContent = "（未设置）";
+    inp.appendChild(blank);
+    for (const opt of [...new Set([...options, ...(value ? [value] : [])])]) {
+      const e = document.createElement("option"); e.value = opt; e.textContent = opt;
+      inp.appendChild(e);
+    }
+    inp.value = value || "";
+    inp.onchange = () => { onchange(inp.value); scheduleValidate(); };
+  } else {
+    inp = document.createElement("input");
+    inp.value = value || "";
+    inp.placeholder = type ? type.split(",")[0].slice(0, 28) : "";
+    inp.oninput = () => { onchange(inp.value); scheduleValidate(); };
+  }
   box.appendChild(inp);
   if (guard.length) { const b = document.createElement("span"); b.className = "badge";
     b.textContent = "构建条件"; b.title = guard.join("; "); lab.appendChild(b); }
@@ -226,6 +242,27 @@ function render() {
   validate();
 }
 
+let VALIDATE_TIMER = null, LAST_ISSUES = [];
+function scheduleValidate() {
+  clearTimeout(VALIDATE_TIMER);
+  VALIDATE_TIMER = setTimeout(runValidation, 350);
+}
+async function runValidation() {
+  try {
+    const r = await fetch("/api/validate", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) });
+    const data = await r.json();
+    LAST_ISSUES = data.issues || [];
+    const errors = LAST_ISSUES.filter(i => i.severity === "error");
+    const warn = document.getElementById("warn");
+    warn.innerHTML = LAST_ISSUES.filter(i => i.severity !== "info")
+      .map(i => `<div class="warn ${i.severity === "error" ? "bad" : "tip"}"><b>${i.param}</b> — ${i.message}` +
+                (i.options && i.options.length ? `（可选值: ${i.options.join(" / ")}）` : "") + `</div>`)
+      .join("");
+    document.getElementById("run").disabled = errors.length > 0;
+  } catch (e) { /* offline */ }
+}
+
 function validate() {
   const warn = document.getElementById("warn");
   const msgs = [];
@@ -239,7 +276,10 @@ function validate() {
   if (cells > 4_000_000) msgs.push({ bad: `网格 ${cells.toLocaleString()} 个点，内存可能很大（先小网格跑通）。` });
   if (!DECK.params["max_step"] && !DECK.params["stop_time"])
     msgs.push({ tip: "没有设置 max_step 或 stop_time，仿真会一直跑。" });
-  warn.innerHTML = msgs.map(m => `<div class="warn ${m.bad ? "bad" : "tip"}">${m.bad || m.tip}</div>`).join("");
+  if (msgs.length) {
+    warn.innerHTML = msgs.map(m => `<div class="warn ${m.bad ? "bad" : "tip"}">${m.bad || m.tip}</div>`).join("");
+  }
+  scheduleValidate();
 }
 
 async function loadStarter() {
@@ -268,7 +308,11 @@ async function poll() {
       running ? "var(--ok)" : paused ? "var(--warn)" : s.state === "finished" ? "var(--acc)" : "var(--err)");
     const bar = document.getElementById("pbar");
     document.getElementById("log").textContent = (s.log || []).join("\n");
-    if (s.errors && s.errors.length) setStatus(`失败: ${s.errors[0].slice(0, 90)}`, "var(--err)");
+    if (s.errors && s.errors.length) {
+      const d = (s.diagnosis && s.diagnosis[0]) || null;
+      setStatus(d && d.param ? `失败: ${d.param} — ${(d.hint || d.message).slice(0, 80)}`
+                             : `失败: ${s.errors[0].slice(0, 80)}`, "var(--err)");
+    }
     const live = s.live || {};
     document.getElementById("meta").textContent = live.meta && live.meta.summary
       ? live.meta.summary + (live.meta.ok ? "" : "（渲染失败）") : "等待第一个输出迭代…";

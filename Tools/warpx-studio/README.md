@@ -97,3 +97,24 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
 - `algo.particle_shape`、`<species>.profile`、`<species>.momentum_distribution_type` 在本 fork 里是
   **必填**（源码里是 `get` 而不是 `query`），向导起步模板已带上。
 - 中文说明目前覆盖向导与常用参数（`catalog/data/zh.json`），其余回退英文原文。
+
+## 阶段 3：常驻渲染进程 + 校验/报错翻译（已跑通）
+
+- **实时帧 70 ms**（原来每帧 2 s）：`live/render_server.py` 常驻 pvpython，
+  一次加载 ParaView，之后按 JSON 请求出图；`live/render_core.py` 复用 openPMD 读取器，
+  只在磁盘上新出现文件时才重建它（否则序列会停在启动时的那一帧）。
+  实测：首帧 1135 ms（进程启动），之后 67–75 ms。
+- **校验**（`deck/validate.py` + `POST /api/validate`）：
+  - 类型检查（`amr.n_cell = 64 abc` → 报错；`warpx.cfl = abc` → 报错）；
+  - 必填项：只对经验证会立即 abort 的 6 个键（`algo.particle_shape`、`<species>.charge/mass/profile/
+    momentum_distribution_type`、`<diag>.diag_type`）硬性拦截，其余"源码里是 get"的仅作提示——
+    因为 `get` 可能藏在某个分支里，误报会挡住本来能跑的算例；
+  - 资源预估（网格点数 → 内存量级）与 openPMD 未设 `intervals` 的警告。
+- **报错翻译**：`### ERROR : …` 与 `ParmParse::getval(): electrons..profile not found`
+  都能定位到具体字段，并按运行时的 deck 把 `electrons.profile` 归到 `<species_name>.profile`
+  （而不是激光的同名参数），附带中文/英文说明与可选值。
+- **枚举参数变下拉框**：源码里的 `var == "value"` 比较被提取成选项（如 `<collision>.type` → 
+  bremsstrahlung / dsmc / pairwisecoulomb …），27 个参数因此有了下拉。
+
+实测（2026-11-15 23:40）：`/api/validate` 对起步 deck 返回 0 条问题；删掉 `profile` 后
+`/api/run` 直接被拒（400）；强制运行后 `diagnosis = {param: "<species_name>.profile", hint: "Density profile for this species…"}`。

@@ -101,7 +101,9 @@ def main() -> int:
             }
         entry["sites"].append({"file": site["file"], "line": site["line"],
                                "variable": site["variable"],
-                               "conditions": site["conditions"]})
+                               "conditions": site["conditions"],
+                               "required": site.get("required", False),
+                               "options": site.get("options", [])})
 
 
     # variable -> parameter, globally: a value read once can gate reads in another parameter
@@ -114,6 +116,17 @@ def main() -> int:
     gating, guards, groups = {}, {}, {}
     gating_rules_out: dict[str, list[dict]] = {}
     for param in params:
+        # `get` in the source means the simulation aborts without this key; `query` means
+        # it is optional.  A parameter is required if any read of it is mandatory.
+        # Conservative: only a parameter with a single, unconditional `get` is treated as
+        # required.  Anything read inside a branch may legitimately be absent, and a false
+        # "required" would block a deck that actually runs.
+        param["required"] = (len(param["sites"]) == 1
+                             and param["sites"][0].get("required")
+                             and not param["sites"][0]["conditions"])
+        options = sorted({o for s in param["sites"] for o in s.get("options", [])})
+        # keep options only when they look like an enumeration of keywords
+        param["options"] = options if 1 < len(options) <= 25 else []
         conditions = sorted({c for s in param["sites"] for c in s["conditions"]})
         runtime = [c for c in conditions if not c.startswith("#")]
         builds = [c for c in conditions if c.startswith("#")]
@@ -138,6 +151,8 @@ def main() -> int:
             "source_only": len(source_only),
             "with_runtime_gating": len(gating),
             "with_gating_rules": len(gating_rules_out),
+            "required": sum(1 for p in params if p.get("required")),
+            "with_options": sum(1 for p in params if p.get("options")),
             "with_build_guard": len(guards),
             "templates": sum(1 for g in groups if g in TEMPLATES),
         },

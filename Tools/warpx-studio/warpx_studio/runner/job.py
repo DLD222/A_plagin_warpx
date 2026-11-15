@@ -19,6 +19,9 @@ from pathlib import Path
 STEP_START = re.compile(r"^STEP (\d+) starts")
 STEP_END = re.compile(r"^STEP (\d+) ends\.\s*TIME = (\S+)\s*DT = (\S+)")
 ERROR = re.compile(r"^### ERROR\s*:\s*(.+)$")
+# A required key that is missing is reported *before* the abort, without a "### ERROR"
+# line: `ParmParse::getval(): electrons..profile not found in database`.
+MISSING = re.compile(r"ParmParse::getval\(\):\s*(\S+)\s+not found")
 ABORT = re.compile(r"amrex::Abort|MPI_ABORT")
 
 
@@ -76,6 +79,7 @@ class Job:
                 start = STEP_START.match(line)
                 end = STEP_END.match(line)
                 error = ERROR.search(line)
+                missing = MISSING.search(line)
                 if start:
                     self.step = int(start.group(1))
                 elif end:
@@ -87,6 +91,8 @@ class Job:
                         pass
                 elif error:
                     self.errors.append(error.group(1).strip())
+                elif missing:
+                    self.errors.append(line.strip())
                 elif ABORT.search(line) and not self.errors:
                     self.errors.append(line.strip())
         self.exit_code = self.process.wait()

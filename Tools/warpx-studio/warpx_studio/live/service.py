@@ -19,6 +19,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RENDER = HERE / "render_openpmd.py"
+SERVER = HERE / "render_server.py"
 ITERATION = re.compile(r"openpmd_(\d+)\.h5$")
 
 
@@ -39,6 +40,58 @@ def newest_iteration(diag_dir: Path) -> int | None:
     return max(numbers) if numbers else None
 
 
+class RenderWorker:
+    """A resident ``pvpython`` process that answers one JSON request per line.
+
+    Starting pvpython costs ~2 s and dominated every frame; the worker pays that once
+    and then renders in a fraction of a second.  If it dies (bad frame, ParaView
+    crash) the worker is restarted on the next request and the error is reported
+    instead of taking the server down.
+    """
+
+    def __init__(self, pvpython: str, timeout: float = 120.0) -> None:
+        self.pvpython = pvpython
+        self.timeout = timeout
+        self.process: subprocess.Popen | None = None
+        self._lock = threading.Lock()
+
+    def _ensure(self) -> None:
+        if self.process is not None and self.process.poll() is None:
+            return
+        self.process = subprocess.Popen(
+            [self.pvpython, str(SERVER)], text=True, bufsize=1,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+
+    def render(self, request: dict) -> dict:
+        import json
+
+        with self._lock:
+            self._ensure()
+            assert self.process is not None
+            try:
+                self.process.stdin.write(json.dumps(request) + "\n")
+                self.process.stdin.flush()
+                line = self.process.stdout.readline()
+                if not line:
+                    raise RuntimeError("renderer closed its pipe")
+                return json.loads(line)
+            except Exception as exc:                  # restart next time
+                self.stop()
+                return {"ok": False, "error": f"renderer failed: {type(exc).__name__}: {exc}"}
+
+    def stop(self) -> None:
+        process, self.process = self.process, None
+        if process is None or process.poll() is not None:
+            return
+        try:
+            process.stdin.write('{"quit": true}\n')
+            process.stdin.flush()
+            process.wait(timeout=5)
+        except Exception:
+            process.kill()
+
+
 class LiveView:
     def __init__(self, run_dir: Path, out_png: Path, field: str | None = None,
                  component: str | None = None, pvpython: str | None = None,
@@ -53,6 +106,7 @@ class LiveView:
         self.diag_dir: Path | None = None
         self.iteration: int | None = None
         self.meta: dict = {}
+        self.worker = RenderWorker(self.pvpython)
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
 
@@ -89,19 +143,27 @@ class LiveView:
         if iteration is not None:
             command += ["--iteration", str(iteration)]
         started = time.time()
-        proc = subprocess.run(command, capture_output=True, text=True, timeout=300)
-        stdout = (proc.stdout or "") + (proc.stderr or "")
-        summary = next((line for line in stdout.splitlines() if line.startswith("rendered")), "")
+        request = {"pmd": str(pmd), "out": str(self.out_png)}
+        if self.field:
+            request["field"] = self.field
+        if self.component:
+            request["component"] = self.component
+        if iteration is not None:
+            request["iteration"] = iteration
+        reply = self.worker.render(request)
         self.meta = {
             "iteration": iteration,
             "png": str(self.out_png),
             "ms": int((time.time() - started) * 1000),
-            "ok": proc.returncode == 0,
-            "summary": summary.strip(),
-            "log": stdout.strip().splitlines()[-6:],
+            "ok": bool(reply.get("ok")),
+            "summary": (f"iteration {reply['iteration']} t={reply['time']:.4g} s "
+                        f"{reply['field']}"
+                        + (f"[{reply['component']}]" if reply.get("component") is not None else "")
+                        + f" range {reply['range'][0]:.4g}..{reply['range'][1]:.4g}"
+                        if reply.get("ok") else f"failed: {reply.get('error')}"),
         }
-        if proc.returncode == 0:
-            self.iteration = iteration
+        if reply.get("ok"):
+            self.iteration = reply["iteration"]
         return self.meta
 
     def snapshot(self) -> dict:

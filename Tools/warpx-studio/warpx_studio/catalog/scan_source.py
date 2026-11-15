@@ -43,6 +43,11 @@ STRING = re.compile(r'"([^"\\\n]{1,120})"')
 ASSERT = re.compile(
     r"(?:WARPX_ALWAYS_ASSERT_WITH_MESSAGE|abort_with_message|AMREX_ALWAYS_ASSERT_WITH_MESSAGE)"
     r"\s*\(")
+ENUM_PATTERNS = (
+    re.compile(r'(\w+)\s*==\s*"([^"]{1,40})"'),
+    re.compile(r'"([^"]{1,40})"\s*==\s*(\w+)'),
+    re.compile(r'(\w+)\s*!=\s*"([^"]{1,40})"'),
+)
 GATE = re.compile(r"^\s*(?:else\s+)?if\s*(?:constexpr\s*)?\((.*)\)\s*(?:const)?\s*$", re.S)
 PREPROC = re.compile(r"^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b(.*)$")
 
@@ -239,16 +244,34 @@ def read_site(text: str, open_paren: int) -> tuple[str | None, str | None, bool]
     return name, target, is_suffix
 
 
+def enum_options(text: str) -> dict[str, list[str]]:
+    """Collect the string values a variable is compared against in one file."""
+    options: dict[str, set[str]] = {}
+    for pattern in ENUM_PATTERNS:
+        for first, second in pattern.findall(text):
+            var, value = (first, second) if re.fullmatch(r"[A-Za-z_]\w*", first) else (second, first)
+            if not re.fullmatch(r"[A-Za-z_]\w*", var):
+                continue
+            if "/" in value or " " in value or len(value) > 30:
+                continue
+            options.setdefault(var, set()).add(value)
+    return {var: sorted(values) for var, values in options.items()}
+
+
 def scan_file(path: Path) -> list[dict]:
     raw = path.read_text(errors="ignore")
     text = strip_comments(raw)
     found = blocks(text)
     prefixes = section_prefixes(text)
+    enums = enum_options(text)
     sites = []
     for match in CALL.finditer(text):
         name, target, is_suffix = read_site(text, match.end() - 1)
         if not name:
             continue
+        called = text[match.start():match.end()].rstrip("(").strip()
+        method = re.findall(r"(\w+)$", called)[0]
+        required = method in ("get", "getWithParser")
         obj = receiver(text, match.start(), match.end() - 1)
         prefix = prefixes.get((obj or "").split(".")[0]) or None
         if is_suffix:
@@ -273,7 +296,10 @@ def scan_file(path: Path) -> list[dict]:
             "file": str(path.relative_to(REPO)),
             "line": line,
             "variable": target,
+            "method": method,
+            "required": required,
             "conditions": enclosing_conditions(found, match.start()),
+            "options": enums.get(target or "", []),
             "nearby_strings": asserts,
         })
     return sites
