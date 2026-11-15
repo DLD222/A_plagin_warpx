@@ -169,7 +169,7 @@
 | Tools_Tests | F4 | major | `check_legacy_coverage.py` 候选路径不含 `Core/Modules/` 与其它插件根，554/829 假"缺失"；且与文档"missing: 0"冲突 | fixed |
 | Tools_Tests | F5 | major | `check_core_purity.py` 的匹配规则可被命名空间别名绕过，注释判定也不可靠 | fixed |
 | Tools_Tests | F6 | major | 四个"不变量检查器"没有进入任何自动门（CI / pre-commit / run_gates 都没有） | fixed |
-| Tools_Tests | F7 | major | `route_tasks.py` 可以在"什么都没验证"的情况下把任务标成 done，且 153/153 已是 done | todo |
+| Tools_Tests | F7 | major | `route_tasks.py` 可以在"什么都没验证"的情况下把任务标成 done，且 153/153 已是 done | fixed |
 | Tools_Tests | F8 | major | macroscopic 物理核验脚本根本不做比较：只打印，调用方只 grep 关键词 | fixed |
 | Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | todo |
 | Tools_Tests | F10 | major | `check_star_runtime_plugin.sh` 明确容忍"关机时堆损坏"的非零退出 | fixed |
