@@ -98,8 +98,11 @@ class LiveView:
                  interval: float = 1.0) -> None:
         self.run_dir = run_dir
         self.out_png = out_png
-        self.field = field
+        self.fields = [field or "rho"]
         self.component = component
+        self.particles: list[str] = []
+        self.fixed_iteration: int | None = None
+        self.frames: list[dict] = []
         self.pvpython = pvpython or os.environ.get(
             "WARPS_STUDIO_PVPYTHON", os.path.expanduser("~/miniconda3/envs/paraview/bin/pvpython"))
         self.interval = interval
@@ -134,38 +137,72 @@ class LiveView:
         if not pmd.exists():
             self.meta = {"error": "no paraview.pmd yet"}
             return self.meta
-        command = [self.pvpython, str(RENDER), "--pmd", str(pmd),
-                   "--out", str(self.out_png)]
-        if self.field:
-            command += ["--field", self.field]
-        if self.component:
-            command += ["--component", self.component]
-        if iteration is not None:
-            command += ["--iteration", str(iteration)]
+        target = self.fixed_iteration if self.fixed_iteration is not None else iteration
+        frames = []
         started = time.time()
-        request = {"pmd": str(pmd), "out": str(self.out_png)}
-        if self.field:
-            request["field"] = self.field
-        if self.component:
-            request["component"] = self.component
-        if iteration is not None:
-            request["iteration"] = iteration
-        reply = self.worker.render(request)
+        for field in self.fields:
+            request = {"pmd": str(pmd), "out": str(self.png_for(field)), "field": field}
+            if self.component:
+                request["component"] = self.component
+            if self.particles:
+                request["particles"] = self.particles
+            if target is not None:
+                request["iteration"] = int(target)
+            reply = self.worker.render(request)
+            frames.append({
+                "field": field,
+                "ok": bool(reply.get("ok")),
+                "png": str(self.png_for(field)) if reply.get("ok") else None,
+                "summary": (f"{reply['field']}"
+                            + (f"[{reply['component']}]" if reply.get("component") is not None else "")
+                            + f" {reply['range'][0]:.4g}..{reply['range'][1]:.4g}"
+                            if reply.get("ok") else f"failed: {reply.get('error')}"),
+                "iteration": reply.get("iteration"),
+                "time": reply.get("time"),
+            })
+        self.frames = frames
+        first_ok = next((f for f in frames if f["ok"]), None)
         self.meta = {
-            "iteration": iteration,
-            "png": str(self.out_png),
-            "ms": int((time.time() - started) * 1000),
-            "ok": bool(reply.get("ok")),
-            "summary": (f"iteration {reply['iteration']} t={reply['time']:.4g} s "
-                        f"{reply['field']}"
-                        + (f"[{reply['component']}]" if reply.get("component") is not None else "")
-                        + f" range {reply['range'][0]:.4g}..{reply['range'][1]:.4g}"
-                        if reply.get("ok") else f"failed: {reply.get('error')}"),
+            "iteration": first_ok["iteration"] if first_ok else None,
+            "png": first_ok["png"] if first_ok else None,
+            "ms": int((time.time() - started) * 1000 / max(1, len(frames))),
+            "ok": bool(first_ok),
+            "summary": (f"iteration {first_ok['iteration']} · "
+                        + " | ".join(f"{f['field']}" for f in frames)) if first_ok
+            else (frames[0].get("summary") if frames else "no frames"),
         }
-        if reply.get("ok"):
-            self.iteration = reply["iteration"]
+        if first_ok:
+            self.iteration = first_ok["iteration"]
         return self.meta
+
+    def configure(self, fields=None, component=None, particles=None,
+                  iteration="keep", follow=True) -> dict:
+        """Change what the live view renders (fields list, particle overlay, time)."""
+        if fields:
+            self.fields = [f for f in fields if f]
+        if component is not None:
+            self.component = component or None
+        if particles is not None:
+            self.particles = list(particles)
+        if iteration == "latest":
+            self.fixed_iteration = None
+        elif isinstance(iteration, int):
+            self.fixed_iteration = iteration
+        if not follow and self.fixed_iteration is None and self.iteration is not None:
+            self.fixed_iteration = self.iteration
+        self.iteration = None          # force a re-render with the new settings
+        return self.settings()
+
+    def settings(self) -> dict:
+        return {"fields": self.fields, "component": self.component,
+                "particles": self.particles, "iteration": self.fixed_iteration,
+                "follow": self.fixed_iteration is None}
+
+    def png_for(self, field: str) -> Path:
+        return self.out_png.with_name(f"{self.out_png.stem}_{field}{self.out_png.suffix}")
 
     def snapshot(self) -> dict:
         return {"iteration": self.iteration, "meta": self.meta,
-                "png": str(self.out_png) if self.out_png.exists() else None}
+                "settings": self.settings(), "frames": self.frames,
+                "png": str(self.png_for(self.fields[0])) if self.fields
+                and self.png_for(self.fields[0]).exists() else None}

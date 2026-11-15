@@ -291,15 +291,109 @@ def api_panel(plugin_id: str):
     return studio_plugins.render(plugin_id, context)
 
 
+class LivePayload(BaseModel):
+    fields: list[str] = Field(default_factory=list)
+    component: str | None = None
+    particles: list[str] = Field(default_factory=list)
+    iteration: int | None = None
+    follow: bool = True
+
+
+@app.post("/api/live")
+def api_live(payload: LivePayload):
+    live: LiveView | None = STATE.get("live")
+    if live is None:
+        raise HTTPException(400, "no run yet")
+    return live.configure(fields=payload.fields, component=payload.component,
+                          particles=payload.particles,
+                          iteration="latest" if payload.follow and payload.iteration is None
+                          else payload.iteration,
+                          follow=payload.follow)
+
+
+@app.get("/api/live/iterations")
+def api_iterations():
+    live: LiveView | None = STATE.get("live")
+    if live is None:
+        raise HTTPException(400, "no run yet")
+    diag = live.diag_dir or (Path(STATE["run_dir"]) if STATE.get("run_dir") else None)
+    numbers = []
+    if diag and diag.is_dir():
+        import re as _re
+        for path in diag.iterdir():
+            match = _re.match(r"openpmd_(\d+)\.h5$", path.name)
+            if match:
+                numbers.append(int(match.group(1)))
+    return {"iterations": sorted(numbers), "current": live.iteration}
+
+
+class ExportPayload(BaseModel):
+    fields: list[str] = Field(default_factory=lambda: ["rho"])
+    component: str | None = None
+    particles: list[str] = Field(default_factory=list)
+    max_frames: int = 40
+    make_video: bool = True
+
+
+@app.post("/api/export")
+def api_export(payload: ExportPayload):
+    """Render a PNG sequence (and an mp4 when ffmpeg exists) for the current run."""
+    import shutil
+    import subprocess
+
+    live: LiveView | None = STATE.get("live")
+    if live is None:
+        raise HTTPException(400, "no run yet")
+    diag = live.diag_dir or live.run_dir
+    import re as _re
+    numbers = sorted(int(m.group(1)) for path in diag.iterdir()
+                     if (m := _re.match(r"openpmd_(\d+)\.h5$", path.name)))
+    if not numbers:
+        raise HTTPException(400, "this run has no openPMD output yet")
+    step = max(1, len(numbers) // max(1, payload.max_frames))
+    numbers = numbers[::step][:payload.max_frames]
+    out_dir = Path(STATE["run_dir"]) / "export"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written = []
+    for iteration in numbers:
+        for field in payload.fields or ["rho"]:
+            request = {"pmd": str(diag / "paraview.pmd"),
+                       "out": str(out_dir / f"{field}_{iteration:08d}.png"),
+                       "field": field, "iteration": iteration}
+            if payload.component:
+                request["component"] = payload.component
+            if payload.particles:
+                request["particles"] = payload.particles
+            reply = live.worker.render(request)
+            if reply.get("ok"):
+                written.append(Path(reply["png"]).name)
+    mp4 = None
+    ffmpeg = shutil.which("ffmpeg")
+    if payload.make_video and ffmpeg and written:
+        pattern = str(out_dir / f"{(payload.fields or ['rho'])[0]}_%08d.png")
+        target = out_dir / f"{(payload.fields or ['rho'])[0]}.mp4"
+        subprocess.run([ffmpeg, "-y", "-framerate", "10", "-pattern_type", "glob",
+                        "-i", pattern, "-pix_fmt", "yuv420p", str(target)],
+                       capture_output=True, timeout=600)
+        mp4 = str(target) if target.exists() else None
+    return {"frames": written, "count": len(written), "dir": str(out_dir), "mp4": mp4,
+            "ffmpeg": bool(ffmpeg)}
+
+
 @app.get("/api/frame")
-def api_frame():
+def api_frame(field: str | None = None):
     live: LiveView | None = STATE["live"]
     if live is None:
         raise HTTPException(404, "no live view")
     snapshot = live.snapshot()
-    if not snapshot["png"]:
+    target = None
+    if field:
+        match = next((f for f in snapshot["frames"] if f["field"] == field and f.get("png")), None)
+        target = match["png"] if match else None
+    target = target or snapshot["png"]
+    if not target:
         raise HTTPException(404, "no frame rendered yet")
-    return FileResponse(snapshot["png"], media_type="image/png",
+    return FileResponse(target, media_type="image/png",
                         headers={"Cache-Control": "no-store"})
 
 

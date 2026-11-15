@@ -93,7 +93,17 @@
 </main>
 
 <aside>
-  <img id="live" alt="实时画面（由 ParaView 渲染）">
+  <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">场:</span>
+    <label><input type="checkbox" class="livefield" value="rho" checked> rho</label>
+    <label><input type="checkbox" class="livefield" value="E"> E</label>
+    <label><input type="checkbox" class="livefield" value="B"> B</label>
+    <label><input type="checkbox" id="liveparticles"> 粒子</label>
+    <select id="liveiter" title="回放历史迭代"><option value="">跟随最新</option></select>
+    <button id="liveapply">应用</button>
+    <button id="export">导出帧序列</button>
+  </div>
+  <div id="livegrid" style="display:grid;grid-template-columns:1fr;gap:4px;padding:0 6px"></div>
   <div id="meta">尚未开始计算</div>
   <pre id="log"></pre>
 </aside>
@@ -464,7 +474,16 @@ async function poll() {
     const live = s.live || {};
     document.getElementById("meta").textContent = live.meta && live.meta.summary
       ? live.meta.summary + (live.meta.ok ? "" : "（渲染失败）") : "等待第一个输出迭代…";
-    if (live.png) document.getElementById("live").src = "/api/frame?t=" + Date.now();
+    if (live.frames && live.frames.length) {
+      const grid = document.getElementById("livegrid");
+      if (grid.childElementCount !== live.frames.length) {
+        grid.innerHTML = live.frames.map(f => `<img alt="${f.field}" style="width:100%;background:#000">`).join("");
+      }
+      live.frames.forEach((f, i) => {
+        const img = grid.children[i];
+        if (img && f.png) img.src = "/api/frame?field=" + encodeURIComponent(f.field) + "&t=" + Date.now();
+      });
+    }
   } catch (e) { /* keep polling */ }
   setTimeout(poll, 1200);
 }
@@ -517,6 +536,39 @@ document.getElementById("restart").onclick = () => {
   render();
   document.getElementById("run").click();
 };
+async function refreshIterations() {
+  try {
+    const data = await (await fetch("/api/live/iterations")).json();
+    const select = document.getElementById("liveiter");
+    const current = select.value;
+    select.innerHTML = '<option value="">跟随最新</option>';
+    for (const n of data.iterations.slice(-60)) {
+      const o = document.createElement("option"); o.value = n; o.textContent = "iter " + n;
+      select.appendChild(o);
+    }
+    if (current) select.value = current;
+  } catch (e) { /* no run yet */ }
+}
+document.getElementById("liveapply").onclick = async () => {
+  const fields = [...document.querySelectorAll(".livefield:checked")].map(x => x.value);
+  const particles = document.getElementById("liveparticles").checked ? ["electrons"] : [];
+  const raw = document.getElementById("liveiter").value;
+  const body = { fields, particles, follow: raw === "" };
+  if (raw !== "") body.iteration = Number(raw);
+  const r = await fetch("/api/live", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body) });
+  setStatus(r.ok ? "实时视图已更新" : "更新失败", r.ok ? "var(--ok)" : "var(--err)");
+};
+document.getElementById("export").onclick = async () => {
+  setStatus("正在导出帧序列…", "var(--warn)");
+  const fields = [...document.querySelectorAll(".livefield:checked")].map(x => x.value);
+  const r = await fetch("/api/export", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: fields.length ? fields : ["rho"], max_frames: 40,
+                           particles: document.getElementById("liveparticles").checked ? ["electrons"] : [] }) });
+  const out = await r.json();
+  setStatus(r.ok ? `导出 ${out.count} 帧 → ${out.dir}${out.mp4 ? "（含 mp4）" : "（无 ffmpeg，仅 PNG）"}`
+                 : "导出失败: " + (out.detail || ""), r.ok ? "var(--ok)" : "var(--err)");
+};
 document.getElementById("preview").onclick = async () => {
   const r = await fetch("/api/preview", { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(DECK) });
@@ -559,6 +611,8 @@ async function switchDims(dims) {
   document.getElementById("dims").onchange = (e) => switchDims(e.target.value);
   refreshCheckpoints();
   setInterval(refreshCheckpoints, 5000);
+  refreshIterations();
+  setInterval(refreshIterations, 8000);
 })();
 </script>
 </body>

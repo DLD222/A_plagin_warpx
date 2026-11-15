@@ -136,12 +136,43 @@ class Renderer:
             pvs.ColorBy(display, ("POINTS", field))
         display.SetScalarBarVisibility(view, True)
 
+        pdisp = None
+        species = request.get("particles") or []
+        if species and not request.get("volume"):
+            # the field plane is co-planar with the particles and would hide them
+            try:
+                display.Opacity = 0.55
+            except Exception:
+                pass
+        if species:
+            particles = reader.GetOutputDataObject(1)
+            if particles is not None and particles.GetNumberOfPartitionedDataSets():
+                pprod = pvs.TrivialProducer()
+                pprod.GetClientSideObject().SetOutput(particles)
+                pdisp = pvs.Show(pprod, view)
+                pdisp.Representation = "Point Gaussian"
+                diagonal = sum((block.GetBounds()[2 * i + 1] - block.GetBounds()[2 * i]) ** 2
+                               for i in range(3)) ** 0.5
+                try:
+                    pdisp.GaussianRadius = max(float(request.get("particle_radius")
+                                                     or diagonal / 400.0), 1e-30)
+                except Exception:
+                    pass
+                first = particles.GetPartitionedDataSet(0)
+                if first is not None and first.GetNumberOfPartitions():
+                    point_data = first.GetPartition(0).GetPointData()
+                    if point_data.GetNumberOfArrays():
+                        pvs.ColorBy(pdisp, ("POINTS", point_data.GetArrayName(0)))
+
         view.ResetCamera()
         camera = view.GetActiveCamera()
         focal = list(camera.GetFocalPoint())
         distance = camera.GetDistance()
         direction = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0],
                      "z": [0.0, 0.0, 1.0]}.get(view_axis, [1.0, -1.0, 1.0])
+        if species and not request.get("volume"):
+            # look slightly off-axis so the particles lift off the field plane
+            direction = [0.35, 1.0, 0.25]
         norm = sum(c * c for c in direction) ** 0.5
         camera.SetPosition(*[f + distance * c / norm for f, c in zip(focal, direction)])
         camera.SetViewUp(0.0, 0.0, 1.0) if view_axis == "y" else camera.SetViewUp(0.0, 1.0, 0.0)
@@ -152,11 +183,22 @@ class Renderer:
             else (array.GetRange() if array is not None else (0.0, 0.0))
 
         # Drop the per-frame proxies: the reader cache is what we want to keep.
+        if pdisp is not None:
+            pvs.Delete(pdisp)
+            pvs.Delete(pprod)
         pvs.Delete(display)
         if slice_filter is not None:
             pvs.Delete(slice_filter)
         pvs.Delete(producer)
 
+        species_available = []
+        particles = reader.GetOutputDataObject(1)
+        if particles is not None:
+            for index in range(particles.GetNumberOfPartitionedDataSets()):
+                block = particles.GetPartitionedDataSet(index)
+                if block is not None and block.GetNumberOfPartitions():
+                    species_available.append(block.GetPartition(0).GetClassName())
         return {"ok": True, "iteration": iteration, "time": time, "field": field,
+                "species": len(species_available),
                 "component": component, "range": list(data_range), "png": out,
                 "arrays": arrays, "view_axis": view_axis}
