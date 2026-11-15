@@ -292,4 +292,4 @@ F6 fixed by 5d7a26d（Benchmarks）：`c02_0_pec` 的 6 个 oblique inputs 已�
 验证：`--selftest` 通过；用**合成**的 p0..p6.txt（FieldProbe 列格式 step,t,x,y,z,Ex,Ey,Ez,...）
 端到端跑 `analyze_cw.py --fixed-k` → 正常拟合（rms 5e-7…5e-4），不再 FileNotFound。
 
-审计总账（189 条）：**fixed 158 / invalid 31 / todo 0 / wip 0**。
+审计总账（189 条，2026-11-15T21:00 核对）：**fixed 159 / invalid 30 / todo 0 / wip 0**。
