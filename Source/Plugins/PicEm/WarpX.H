@@ -1256,8 +1256,11 @@ protected:
     //! data.  Called by AmrCore::regrid.
     void RemakeLevel (int lev, amrex::Real time, const amrex::BoxArray& ba,
                               const amrex::DistributionMapping& dm) final;
+    //! `rebuild_pml` = the level's box array changed (regrid / new level) and the PML has to be
+    //! rebuilt; a pure load balance only remaps the distribution and must keep the PML data.
     void RecreateLevelResources (int lev, const amrex::BoxArray& ba,
-                                 const amrex::DistributionMapping& dm);
+                                 const amrex::DistributionMapping& dm,
+                                 bool rebuild_pml = true);
     void InterpolateCoarseToFine (int lev);
 
     //! Delete level data.  Called by AmrCore::regrid.

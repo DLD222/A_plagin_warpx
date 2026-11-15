@@ -193,7 +193,7 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
 
         m_fields.remake_level(lev, dm);
 
-        RecreateLevelResources(lev, ba, dm);
+        RecreateLevelResources(lev, ba, dm, /*rebuild_pml=*/false);
 
     } else
     {
@@ -234,7 +234,8 @@ WarpX::RemakeLevel (int lev, Real /*time*/, const BoxArray& ba, const Distributi
 }
 
 void
-WarpX::RecreateLevelResources (int lev, const BoxArray& ba, const DistributionMapping& dm)
+WarpX::RecreateLevelResources (int lev, const BoxArray& ba, const DistributionMapping& dm,
+                              bool rebuild_pml)
 {
     using ablastr::fields::Direction;
     using warpx::fields::FieldType;
@@ -377,7 +378,11 @@ WarpX::RecreateLevelResources (int lev, const BoxArray& ba, const DistributionMa
             }
         }
 
-        if (do_pml) {
+        // Rebuilding the PML resets its fields (CreatePMLForLevel erases and re-allocates them),
+        // which upstream never does: `MultiFabRegister::remake_level` redistributes the existing
+        // data, so a load balance must *not* go through here.  Only a new box array (regrid, new
+        // level) needs a new PML.
+        if (do_pml && rebuild_pml) {
             CreatePMLForLevel(lev, ba, dm);
         }
 
