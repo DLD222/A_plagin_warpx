@@ -128,18 +128,18 @@
 | Source_Plugins_ParticleCore_B | F8 | minor | RSPHERE 的隐式质量矩阵角度分支是本 fork 新增（上游 RZ/RCYLINDER only），球坐标角量耦合到"平均半径/瞬时半径"混用 | invalid |
 | Source_Plugins_ParticleCore_B | F9 | minor | `villasenor_mass_matrices_max_grid_crossings` 的单一真源被复制成魔法数 `3` | wip:lead |
 | Source_Plugins_ParticleCore_B | F10 | minor | `GetChargeDensityOnLevel(local=true, finalize=true)` 现在直接 assert；Python 绑定的 `finalize` 默认 `true | invalid |
-| Source_Plugins_PicEm_A | F1 | major | AMR 时间步中的 regrid 路径是新写的，缺两步收尾 | wip:lead |
-| Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | wip:lead |
+| Source_Plugins_PicEm_A | F1 | major | AMR 时间步中的 regrid 路径是新写的，缺两步收尾 | fixed |
+| Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | invalid |
 | Source_Plugins_PicEm_A | F3 | minor | `ComputeDualGeometry` 留下无条件调试打印与自相矛盾的断言文案 | fixed |
 | Source_Plugins_PicEm_A | F4 | minor | 3D 张量介质中 `rho_medium` 种子的 Dy 用了错的 eps 分量 | fixed |
 | Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | wip:lead |
 | Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | wip:lead |
-| Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | wip:lead |
+| Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | fixed |
 | Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | wip:lead |
-| Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | wip:lead |
-| Source_Plugins_PicEm_A | F10 | minor | `WARPX_DISABLE_DIAGNOSTICS` 环境变量会静默替换已构造的诊断服务 | wip:lead |
+| Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | invalid |
+| Source_Plugins_PicEm_A | F10 | minor | `WARPX_DISABLE_DIAGNOSTICS` 环境变量会静默替换已构造的诊断服务 | fixed |
 | Source_Plugins_PicEm_A | F11 | major | 流体–Maxwell 耦合源的 “内能不变” 能量更新多乘了一个 rho | fixed |
-| Source_Plugins_PicEm_A | F12 | minor | `Maxwell6` 数值通量注释声称精确 Roe/upwind，实现是分量式 Rusanov | wip:lead |
+| Source_Plugins_PicEm_A | F12 | minor | `Maxwell6` 数值通量注释声称精确 Roe/upwind，实现是分量式 Rusanov | invalid |
 | Source_Plugins_PicEm_B | F1 | major | radial 几何下 rho 的 volume-weighted filter 用了错误的标定分支 | invalid |
 | Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | fixed |
 | Source_Plugins_PicEm_B | F3 | major | Python 绑定类名 `WarpXParIter` → `ParticleTileIter`，pywarpx 调用点未同步 | fixed |

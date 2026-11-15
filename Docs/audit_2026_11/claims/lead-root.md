@@ -59,3 +59,60 @@ F9（待做，real minor）：`villasenor_mass_matrices_max_grid_crossings` 有 
 `WarpXParticleContainer.cpp` 8 处模板实参字面量），上游只有 1 处且 8 处模板实参都引它。
 反证：把新常量改成 2 后 `test_1d_theta_implicit_planar_pinch` 必须报 `ImplicitSolver.cpp:889` 的断言。
 ⚠️ 与 @lead 正在改的 `WarpXParticleContainer.cpp` 同文件 ⇒ 等其提交后再做。
+
+## PicEm_A（9 条）：3 条 invalid、3 条 fixed（已验证）、3 条 wip（代码已随 93afb3b 落地，反证待补）
+
+**事故记录**：本会话 18:3x 的未提交改动（F1/F5/F6/F7/F8/F10）被另一个会话的
+`git add -A` 卷进 `93afb3b`（提交信息是 Tools_Tests F9），随后被推送到 origin。
+代码内容正确、编译通过、`test_2d_dynamic_regrid` 12/12 全绿，但提交信息与内容不符；
+`WORKFLOW.md §5.5` 已由 @lead 补上硬规则。**之后本会话只 add 自己的具体路径。**
+
+F2 invalid：`Source/Plugins/PicEm/WarpX.cpp:773-776` 在 `ReadParameters()` 里已有
+`#if !defined(WARPX_DIM_XZ)` 的 `WARPX_ABORT_WITH_MESSAGE("algo.ect_conformal_E is only implemented
+for 2D (XZ) builds")`，早于 `InitData`；`InitializeEBGridData` 的调用点另被 `ect_conformal_E > 0` 包住。
+实测：`warpx.3d Examples/Tests/embedded_boundary_cube/inputs_base_3d algo.maxwell_solver=ect algo.ect=1
+algo.ect_conformal_E=1` → 正是该 abort。报告"入口没挡住"是误判（`ect_conformal_E` 在 26.10/26.11 都不存在）。
+
+F9 invalid：`AddExternalFields(lev)` 对**不存在的层**会抛（`MultiFabRegister` 未注册时 throw），
+而 `WarpX` 对 `amr.max_level>0` 强制要求 `warpx.fine_tag_lo/hi`，所以 `InitData` 时 `finest_level`
+已经等于 `max_level`；实测 `amr.max_level=1 + B_ext_grid_init_style=parse_B_ext_grid_function`
+正常跑到 step 1（Level 1 已建、AddExternalFields(1) 正常）。改回 `max_level` 是 no-op，且对
+`test_2d_dynamic_regrid_uniform_b`（`refine_start_time=1e-14`，初始无 Level_1）会抛异常。
+本会话已把该改动**回退**，HEAD 保持 `finestLevel()`。该用例 12/12 仍绿。
+
+F12 invalid：`MaxwellEqn.H:79-83` 对纵向分量 `speed=0`、横向 `speed=c`，逐项等于线性 Maxwell 的
+`0.5|A|(UR-UL)`：两个横向对 `(Ey,Bz)`、`(Ez,By)` 的 `|A| = c·I`，纵向特征值为 0。报告的反例把
+E/B 耗散当成分别放大，不成立。注释与实现一致。
+
+F1 fixed（93afb3b）：`Evolve()` 的 regrid 收尾删掉 `particleSystem().AllocData()`
+（`resizeData()` 会在 `Redistribute()` 之前把被删层的粒子截断销毁），补
+`m_particle_boundary_buffer->redistribute()` 与 `reduced_diags->LoadBalance()`。
+验证：`ctest -R "test_2d_dynamic_regrid"` → 12/12 通过（4 个用例的 run/analysis/checksum）。
+缺口：现有用例没有 `save_particles_at_*`（periodic 域 buffer 不采集），也没有 FieldProbe，
+所以"buffer/reduced_diags 的陈旧 tile"这一半仍无回归覆盖（反证需新 deck，下一轮补）。
+
+F7 fixed（93afb3b）：`MomentFluidSolver::InitData` 的 `AMREX_ALWAYS_ASSERT(AMREX_SPACEDIM==2)`
+（RZ 下也成立）换成 `#if !defined(WARPX_DIM_XZ)` 的 `WARPX_ABORT_WITH_MESSAGE`；`m_eps0` 默认值
+改为 `PhysConst::epsilon_0`（只用于 Gauss 残差诊断）。
+验证：`warpx.3d ... fluids.moment.enabled=1` → `### ERROR : fluids.moment: only 2D XZ is supported
+by this prototype (MomentFluidSolver.cpp:58)`。无 ctest 覆盖（`fluids.moment` 没有任何 deck）。
+
+F10 fixed（93afb3b）：`WARPX_DISABLE_DIAGNOSTICS` 的两段合并为一段，两个服务都创建完再替换，
+不再对将被丢弃的服务调 `InitData`，并加 `WMRecordWarning(..., high)`。
+验证：`WARPX_DISABLE_DIAGNOSTICS=1 warpx.3d ... diagnostics.diags_names=d1 ...` → 输出
+`WARPX_DISABLE_DIAGNOSTICS is set: every full and reduced diagnostic is disabled ...`，退出码 0。
+反证：删掉 warning 该行即消失。
+
+F5 wip（代码在 93afb3b）：`eps2` 未使用已删、`Ey2->FillBoundary` 已补；**顺带发现**同一 `[GAUSS]`
+块里 3D 仍用 2D 散度（`(Dx diff)/dx + (Dz(i,j)-Dz(i,j-1))/dz`），已补 3D 分支（`Dy3`/`dz`→k、`dy`）。
+验证（部分）：2D PEC 4-FAB 用例 `test_2d_macroscopic_solver` + `warpx.verbose=1` → 残差 1.6e-16；
+3D EB 用例跑通并打印 `[GAUSS]`。反证（把 3D 分支换回 2D 形式看残差跳变）下一轮补。
+
+F6 wip（代码在 93afb3b）：三处 `mfi.tilebox(...).grow(-bnd_shrink)` 换成 `rho_medium_valid_box()`
+（`convert(mfi.validbox(), nodal)` + 仅对域边界收缩），内部 FAB 交界不再留一层"洞"。
+验证（部分）：2D PEC 4-FAB 残差 1.6e-16（与单 FAB 同量级）；覆盖率反证（旧代码少 (nx/2-1) 个节点）
+下一轮用临时断言补。
+
+F8 wip（代码在 93afb3b）：`deposit_conservative` 的残差不再丢弃，按
+`1e-12 * max(max|drho/dt|, 1)` 断言（与 `YeeDeposition` 的单测口径一致）。
+无 deck 覆盖；反证（把 `Jhi` 换成 `Flo` 应触发断言）下一轮补。
