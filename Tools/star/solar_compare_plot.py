@@ -20,6 +20,7 @@ import argparse
 import sys
 from pathlib import Path
 
+import os
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -33,7 +34,13 @@ import stellar_structure as ss           # noqa: E402
 from ssm_compare import epsilon_pp, epsilon_cno, kappa_analytic, CNO_FRACTION_OF_Z  # noqa: E402
 from opal_opacity import kappa_combined as opal_kappa  # noqa: E402
 
-OUT = Path(__file__).resolve().parent.parent.parent / "Docs/research_notes/star_plugins"
+# Generated artefacts must not land in the source tree: ctest runs this script in a
+# read-only/parallel setting.  Default to the gitignored audit_runs/, override with
+# SOLAR_COMPARE_OUT (Tools_Tests/F21).
+OUT = Path(os.environ.get(
+    "SOLAR_COMPARE_OUT",
+    Path(__file__).resolve().parent.parent.parent / "audit_runs/star"))
+OUT.mkdir(parents=True, exist_ok=True)
 R_SUN = ss.R_SUN
 M_SUN = ss.M_SUN
 
@@ -172,9 +179,20 @@ def main():
     for target in (0.01, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9, 0.99):
         i = int(np.argmin(np.abs(m_over_M - target)))
         j = int(np.argmin(np.abs(ssm_m_over_M - target)))
+        # A ratio against a zero is not "1e7 times worse", it is undefined: print n/a instead
+        # of dividing by 1e-30 (Tools_Tests/F20).
+        def ratio(num, den, width):
+            # A ratio against an exactly-zero SSM value is undefined (n/a); a ratio that is
+            # astronomically large is real but unreadable as "10918355.575", so use %g there.
+            if den is None or den == 0:
+                return f"{'n/a':>{width}}"
+            value = num / den
+            if 1e-3 < abs(value) < 1e3:
+                return f"{value:{width}.3f}"
+            return f"{value:{width}.3g}"
         print(f"{m_over_M[i]:7.3f} {result['r'][i] / R_SUN:9.3f}"
               f" {result['T'][i] / ssm['T'][j]:8.3f} {result['rho'][i] / ssm['rho'][j]:10.3f}"
-              f" {result['eps'][i] / max(ssm['eps'][j], 1e-30):10.3f}"
+              f" {ratio(result['eps'][i], ssm['eps'][j], 10)}"
               f" {result['kappa'][i] / ssm['kappa'][j]:11.3f}")
 
     if args.check:
