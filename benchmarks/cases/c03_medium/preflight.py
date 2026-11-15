@@ -47,14 +47,24 @@ def as_float(expr, consts):
 
 
 def sigma_profile(kv, consts):
-    """Return (kind, sigma1, sigma2) where sigma2 applies to z>0 if a step is used."""
+    """Return (kind, sigma1, sigma2, zstep): sigma on z<zstep / z>zstep for a "step".
+
+    `kind` is one of "step", "global", "none" or "unsupported" (a sigma_function written in a
+    form this preflight cannot read).  It used to return "function" with both amps *None*, which
+    the callers then handed to complex_k() -- a TypeError instead of the readable FAIL this
+    script exists to produce -- and the step branch returned 0.0 for the z>0 side (the amplitude
+    was computed as `amp` and then thrown away), inverting the step.
+    """
     if "macroscopic.sigma_function(x,y,z)" in kv:
         expr = kv["macroscopic.sigma_function(x,y,z)"]
         m = re.match(r"\s*([\w.*+\-/ ]+?)\s*\*\s*\(?\s*z\s*>\s*([-\d.eE+]+)\s*\)?", expr)
         if m:
             amp = as_float(m.group(1), consts)
-            return ("step", 0.0 if amp is None else 0.0, amp, float(m.group(2)))
-        return ("function", None, None, 0.0)
+            if amp is None:
+                return ("unsupported", None, None, 0.0)
+            return ("step", 0.0, amp, float(m.group(2)))
+        # e.g. "s*(z<0)" -- legal WarpX input, just not the shape this script parses.
+        return ("unsupported", None, None, 0.0)
     if "macroscopic.sigma" in kv:
         s = as_float(kv["macroscopic.sigma"], consts)
         return ("global", s, s, 0.0)
@@ -62,7 +72,12 @@ def sigma_profile(kv, consts):
 
 
 def eps_profile(kv, consts):
-    """Return (eps1, eps2, eps_yy2) for s-polarisation."""
+    """Return (eps1, eps2): permittivity on the z<0 side and on the z>0 side (s-polarisation).
+
+    The docstring used to promise a third value (`eps_yy2`) that is never computed.  The
+    diagonal-tensor branch reads `macroscopic.epsilon2_tensor_yy` and uses it as `eps2`, so the
+    two-value contract is the real one.
+    """
     eps1 = as_float(kv.get("macroscopic.epsilon", "eps0"), consts) or EPS0
     eps2 = eps1
     if "macroscopic.epsilon2" in kv:
@@ -129,6 +144,11 @@ def main():
     print(f"            sigma: {kind}"
           + (f"  sigma1 = {s1}  sigma2 = {s2}  (step at z={zstep})" if kind == "step" else
              (f"  sigma = {s1}" if kind == "global" else "")))
+    if kind == "unsupported":
+        fails.append("macroscopic.sigma_function(x,y,z) is not in the supported form "
+                     '"s*(z>z0)"; this preflight cannot predict R/T for it '
+                     "(write the step as s*(z>z0), or check the deck by hand).")
+        s1, s2 = 0.0, 0.0
     if kind == "global" and s1 not in (None, 0.0) and has_iface:
         fails.append("sigma is a GLOBAL constant but an interface is present: the 'vacuum' "
                      "side is lossy too (see 5.0x). Use sigma_function(x,y,z) = \"s*(z>0)\".")

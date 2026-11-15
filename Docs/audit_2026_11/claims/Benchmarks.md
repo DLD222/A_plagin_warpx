@@ -34,3 +34,20 @@ F17 fixed（三个脚本）: `analyze_snell.py`、`verify_oblique_rt.py`、`veri
   恒返回 0。现在各自带判据并 `sys.exit(main())`：
   Snell |Δθ₂| ≤ 0.5°；斜入射 R/T 相对 2%、|R+T−1| ≤ 3%；介质相速相对 2%、材料加权能量漂移 ≤ 1%。
   （这是"verify 脚本不 verify"那一类，和你反复强调的"别让检查器自己失效"是同一个问题。）
+
+F11 fixed: `preflight.py` 的 `sigma_profile()` 有两个真问题：
+  (a) step 分支 `return ("step", 0.0 if amp is None else 0.0, amp, ...)` 把算出来的 `amp` 丢掉、
+      第一段恒 0——顺序反了，等于把阶跃解释成"z>0 无损耗"；
+  (b) 不匹配 `s*(z>z0)` 的形状（例如合法的 `s*(z<0)`）返回 `("function", None, None, ...)`，
+      随后 `complex_k(omega, eps1, None)` 直接 `TypeError` —— 而 preflight 的职责是"给出可读的 FAIL"。
+  现在 step 分支返回真实 `amp`；不支持的形状返回 `("unsupported", ...)`，`main` 里转成一条
+  FAIL 说明并继续（不再崩）。另外 `eps_profile` 的 docstring 承诺第三个返回值 `eps_yy2` 但从不计算，已改为
+  真实的两值契约。
+  验证: `sigma_function="s*(z<0)"` → `PRE-FLIGHT: FAIL` 且 **python exit=1**（此前是 TypeError 回溯）；
+  `"s*(z>0)"` → 打印 `sigma1 = 0.0  sigma2 = 0.05`（此前 `sigma2` 恒 0）。
+F19 fixed: `make_mie_cases.py` 的 docstring 说 "domain [-3,3]^2"、"dx = 2/10…"，与 TEMPLATE 和
+  `NCELLS=(40..640)`（域宽 8 m）都对不上，已改正；"CW 源跨网格边界不稳定"原本只写在生成模板的注释里、
+  无法复现，现在把 `amr.max_grid_size` 暴露成 `--max-grid-size N`（默认仍为单箱），并生成 decks 同步更新
+  （diff 仅注释 + 该行）。单箱同时是 `analyze_mie_convergence.read_pf` 只读单 FAB 的要求，这点也写进注释。
+  验证: `make_mie_cases.py --max-grid-size 32` → `amr.max_grid_size = 32`；默认重新生成 10 个 deck 的
+  diff 只有注释与这一行。
