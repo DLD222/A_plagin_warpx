@@ -117,29 +117,29 @@
 | Source_Plugins_ParticleCore_A | F2 | minor | `Filter::ApplyStencil` 把 load-balance cost 恒置为 `nullptr`，负载均衡计时统计被静默删除 | todo |
 | Source_Plugins_ParticleCore_A | F3 | minor | `warpx.read_fields_from_path` 由可选变成必需（`query` → `get`） | todo |
 | Source_Plugins_ParticleCore_A | F4 | minor | eV 温度的 `mass`/`species_type` 解析绕开了 `source_name`，且与 `injection_file` 提供的质量不兼容 | todo |
-| Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | todo |
-| Source_Plugins_ParticleCore_B | F1 | critical | 新抽象把 `GetExternalEBField` 的容器来源改成"只来自 ctx"，QED / 离子化三条路径不传 ctx：解析式外场下空指针崩溃，lattice/plasma-lens  | todo |
-| Source_Plugins_ParticleCore_B | F2 | critical | `DepositCharge` 丢掉 RZ/RCYLINDER/RSPHERE 的 `1/(2πr)` 反体积缩放，唯一的替代 finalizer 不覆盖 `rho_fp_<species> | todo |
+| Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | wip:lead |
+| Source_Plugins_ParticleCore_B | F1 | critical | 新抽象把 `GetExternalEBField` 的容器来源改成"只来自 ctx"，QED / 离子化三条路径不传 ctx：解析式外场下空指针崩溃，lattice/plasma-lens  | wip:lead |
+| Source_Plugins_ParticleCore_B | F2 | critical | `DepositCharge` 丢掉 RZ/RCYLINDER/RSPHERE 的 `1/(2πr)` 反体积缩放，唯一的替代 finalizer 不覆盖 `rho_fp_<species> | wip:lead |
 | Source_Plugins_ParticleCore_B | F3 | major | `WarpXParticleContainer::frame()` 用一次性 `static` 快照，与"live view"设计及可用的 `legacy_frame()` 提供者相矛盾 | todo |
 | Source_Plugins_ParticleCore_B | F4 | major | `full_mass_matrices` 的判据从 `Szz->nComp() > 1` 换成 `implicit_options.use_mass_matrices_jacobian`，两 | todo |
-| Source_Plugins_ParticleCore_B | F5 | minor | `DepositCurrentOnLevel` 的文档仍声称"apply boundary conditions"，实现只有 guard-cell 求和 | todo |
-| Source_Plugins_ParticleCore_B | F6 | minor | 新增的三个隐式辅助函数把层号 hard-code 为 `lev = 0`（多层的循环被注释掉） | todo |
-| Source_Plugins_ParticleCore_B | F7 | minor | 新增契约实现里缺属性保护与"接口注释重复"等小问题 | todo |
-| Source_Plugins_ParticleCore_B | F8 | minor | RSPHERE 的隐式质量矩阵角度分支是本 fork 新增（上游 RZ/RCYLINDER only），球坐标角量耦合到"平均半径/瞬时半径"混用 | todo |
-| Source_Plugins_ParticleCore_B | F9 | minor | `villasenor_mass_matrices_max_grid_crossings` 的单一真源被复制成魔法数 `3` | todo |
-| Source_Plugins_ParticleCore_B | F10 | minor | `GetChargeDensityOnLevel(local=true, finalize=true)` 现在直接 assert；Python 绑定的 `finalize` 默认 `true | todo |
-| Source_Plugins_PicEm_A | F1 | major | AMR 时间步中的 regrid 路径是新写的，缺两步收尾 | todo |
-| Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | todo |
+| Source_Plugins_ParticleCore_B | F5 | minor | `DepositCurrentOnLevel` 的文档仍声称"apply boundary conditions"，实现只有 guard-cell 求和 | wip:lead |
+| Source_Plugins_ParticleCore_B | F6 | minor | 新增的三个隐式辅助函数把层号 hard-code 为 `lev = 0`（多层的循环被注释掉） | wip:lead |
+| Source_Plugins_ParticleCore_B | F7 | minor | 新增契约实现里缺属性保护与"接口注释重复"等小问题 | wip:lead |
+| Source_Plugins_ParticleCore_B | F8 | minor | RSPHERE 的隐式质量矩阵角度分支是本 fork 新增（上游 RZ/RCYLINDER only），球坐标角量耦合到"平均半径/瞬时半径"混用 | wip:lead |
+| Source_Plugins_ParticleCore_B | F9 | minor | `villasenor_mass_matrices_max_grid_crossings` 的单一真源被复制成魔法数 `3` | wip:lead |
+| Source_Plugins_ParticleCore_B | F10 | minor | `GetChargeDensityOnLevel(local=true, finalize=true)` 现在直接 assert；Python 绑定的 `finalize` 默认 `true | wip:lead |
+| Source_Plugins_PicEm_A | F1 | major | AMR 时间步中的 regrid 路径是新写的，缺两步收尾 | wip:lead |
+| Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | wip:lead |
 | Source_Plugins_PicEm_A | F3 | minor | `ComputeDualGeometry` 留下无条件调试打印与自相矛盾的断言文案 | fixed |
 | Source_Plugins_PicEm_A | F4 | minor | 3D 张量介质中 `rho_medium` 种子的 Dy 用了错的 eps 分量 | fixed |
-| Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | todo |
-| Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | todo |
-| Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | todo |
-| Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | todo |
-| Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | todo |
-| Source_Plugins_PicEm_A | F10 | minor | `WARPX_DISABLE_DIAGNOSTICS` 环境变量会静默替换已构造的诊断服务 | todo |
+| Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | wip:lead |
+| Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | wip:lead |
+| Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | wip:lead |
+| Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | wip:lead |
+| Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | wip:lead |
+| Source_Plugins_PicEm_A | F10 | minor | `WARPX_DISABLE_DIAGNOSTICS` 环境变量会静默替换已构造的诊断服务 | wip:lead |
 | Source_Plugins_PicEm_A | F11 | major | 流体–Maxwell 耦合源的 “内能不变” 能量更新多乘了一个 rho | fixed |
-| Source_Plugins_PicEm_A | F12 | minor | `Maxwell6` 数值通量注释声称精确 Roe/upwind，实现是分量式 Rusanov | todo |
+| Source_Plugins_PicEm_A | F12 | minor | `Maxwell6` 数值通量注释声称精确 Roe/upwind，实现是分量式 Rusanov | wip:lead |
 | Source_Plugins_PicEm_B | F1 | major | radial 几何下 rho 的 volume-weighted filter 用了错误的标定分支 | invalid |
 | Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | fixed |
 | Source_Plugins_PicEm_B | F3 | major | Python 绑定类名 `WarpXParIter` → `ParticleTileIter`，pywarpx 调用点未同步 | fixed |

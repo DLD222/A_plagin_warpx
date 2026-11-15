@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 import os,re,json
 
+REPO=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(REPO)  # every path below is relative to the repository root
+CATALOG=os.path.join(REPO,'Tools/A0/header_catalog.json')
+
 ROOT='Source'
 def strip_comments(text):
     text=re.sub(r'/\*.*?\*/','',text,flags=re.S)
@@ -87,4 +91,4 @@ for dp,_,fs in os.walk(ROOT):
                 'is_template':bool(re.search(r'template\s*<', text[max(0,m.start()-120):m.start()])),
                 'has_virtual':('virtual' in body),'has_pure':('= 0' in body or '=0' in body)})
 print('classes/structs:',len(classes),'public methods:',sum(c['n_public_methods'] for c in classes))
-json.dump(classes,open('Tools/A0/header_catalog.json','w'),indent=1)
+json.dump(classes,open(CATALOG,'w'),indent=1)

@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Build the A0 header catalog (CSV + per-subsystem API + index + coverage).
 
-Requires Tools/A0/parse_headers.py to have produced /tmp/header_catalog.json
-(run it first). This script is intentionally simple: it is a snapshot generator,
-not a C++ parser.
+Requires Tools/A0/parse_headers.py to have produced Tools/A0/header_catalog.json
+(run it first, or pass --catalog). This script is intentionally simple: it is a
+snapshot generator, not a C++ parser.
 """
 from __future__ import annotations
 import csv
@@ -15,6 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 A0 = ROOT / "Docs/research_notes/A0"
+CATALOG = ROOT / "Tools/A0/header_catalog.json"
 API = A0 / "api"
 BAD = re.compile(r"^(return|if|for|while|switch|else|AMREX_|#|\{|\})")
 
@@ -31,7 +32,12 @@ def clean(items):
 
 
 def main() -> int:
-    data = json.loads(Path("/tmp/header_catalog.json").read_text())
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--catalog", type=Path, default=CATALOG,
+                    help="header_catalog.json produced by parse_headers.py")
+    args = ap.parse_args()
+    data = json.loads(args.catalog.read_text())
     API.mkdir(parents=True, exist_ok=True)
     for old in API.glob("*.md"):
         old.unlink()
