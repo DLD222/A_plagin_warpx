@@ -117,7 +117,7 @@
 | Source_Plugins_ParticleCore_A | F2 | minor | `Filter::ApplyStencil` 把 load-balance cost 恒置为 `nullptr`，负载均衡计时统计被静默删除 | todo |
 | Source_Plugins_ParticleCore_A | F3 | minor | `warpx.read_fields_from_path` 由可选变成必需（`query` → `get`） | todo |
 | Source_Plugins_ParticleCore_A | F4 | minor | eV 温度的 `mass`/`species_type` 解析绕开了 `source_name`，且与 `injection_file` 提供的质量不兼容 | todo |
-| Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | wip:lead |
+| Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | invalid |
 | Source_Plugins_ParticleCore_B | F1 | critical | 新抽象把 `GetExternalEBField` 的容器来源改成"只来自 ctx"，QED / 离子化三条路径不传 ctx：解析式外场下空指针崩溃，lattice/plasma-lens  | wip:lead |
 | Source_Plugins_ParticleCore_B | F2 | critical | `DepositCharge` 丢掉 RZ/RCYLINDER/RSPHERE 的 `1/(2πr)` 反体积缩放，唯一的替代 finalizer 不覆盖 `rho_fp_<species> | wip:lead |
 | Source_Plugins_ParticleCore_B | F3 | major | `WarpXParticleContainer::frame()` 用一次性 `static` 快照，与"live view"设计及可用的 `legacy_frame()` 提供者相矛盾 | todo |
