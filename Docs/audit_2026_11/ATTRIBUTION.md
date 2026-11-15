@@ -297,3 +297,28 @@ theta-implicit pinch 用例的残余差异。
 移植这一步需要逐路径确认"删掉沉积处的标定之后，该路径确实会调用 `FinalizeJ()`"，
 属于下轮工作；风险点是漏删或漏调都会让 J 少一次标定（1/(2πr) 量级错误），因此必须
 用 RZ 用例逐个对照，不能一次改完不复核。
+
+## 里程碑：全部 51 个 RZ/RCYLINDER/RSPHERE 用例与 26.11 一致
+
+移植 `eb9115c3a` 之后，把 fork 注册的全部 51 个 RZ 用例整批重跑并与 26.11 逐用例对照：
+
+| 结果 | 数量 |
+|---|---|
+| 与 26.11 **逐位一致**（`max_abs_diff == 0`） | **51 / 51** |
+
+其中 15 个连 26.10 也逐位一致，其余 36 个与 26.10 有差、与 26.11 一致 —— 即上游演进。
+代表性的收敛（vs 26.11，移植前 → 移植后）：
+
+| 用例 | 移植前 | 移植后 |
+|---|---|---|
+| `test_rz_laser_acceleration(_picmi/_opmd)` | 2.0 / 1.2e-10 / 4.0（首轮）→ 2.2e5（Part3 半途） | **0.0** |
+| `test_rz_ohm_solver_em_modes_picmi` | 1.75e2（相对 2e-2） | **0.0** |
+| `test_rz_ohm_solver_cylinder_compression_picmi` | 2.6e4 | **0.0** |
+| `test_rz_langmuir_multi` 家族（4 个） | 1e-2…3e2 | **0.0** |
+| `test_rz_psatd_JRhom_LL2` / `_LL4` | 9.1 / — | **0.0** |
+| `test_rz_magnetostatic_eb_picmi` / `test_rz_load_density` | 7.3e-12 / 1.2e5 | **0.0** |
+
+这一组的收敛说明两件事：(1) 26.11 的 finalization 统一（Part 1+2+3）必须**整套**移植，
+只移一部分会得到"次序错配"的中间态（本次中途就出现过 `test_rz_laser_acceleration`
+从 2.0 掉到 2.2e5 的现象）；(2) 之前把 RZ 的差异归给"fork 特有"是错的，它们全部由
+这三个提交解释。
