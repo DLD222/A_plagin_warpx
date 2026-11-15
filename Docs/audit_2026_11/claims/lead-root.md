@@ -219,3 +219,30 @@ F5 fixed by 220d9a4：`NuclearFusionFunc::executor()` 在 `save_particle_product
 剩余（仍是 wip:lead-root，下一轮）：Collision_B F2（`pulsed_decay` 采样器语义）、F3（`CollisionSpeciesTable`
 的 `SpeciesHandle` 死代码 + 构造时全局归约）、F6（`save_particle_production` 两套解析机制）、
 F7（`declare_state` 只在 kernel 路径生效）。
+
+## 第六轮：Collision_B F2（invalid）、F3/F6（104a379）
+
+F2 **invalid**：报告的三个"本 fork 改动"（每宏粒子 Bernoulli、整片删除母粒子、`w=w_parent/weight_ratio`）
+与 26.11 **逐字相同**——`_upstream/warpX-26.11/Source/Particles/Collision/PulsedDecay/PulsedDecay.cpp:202-288`
+就是同一段代码，`PulsedDecay.H:22-31` 的 docstring 也逐字一致（含 `1-exp(-nu*t)` 的期望式写法）。
+所以"方差结构与上游不同""注释未更新"都不是 fork 引入的；`weight_ratio` 的自减链也是上游设计。
+
+F3 fixed by 104a379：删掉 `CollisionSpeciesTable` 的 `SpeciesHandle` 机制——
+`m_handles` / `SpeciesSpec` 填充、`CollisionSpeciesView::handle()`、`names()`、
+`CollisionHandler::speciesTable()` 在全树无调用者（`grep -rn "\.handle()\|names()\|speciesTable"` 只命中定义处），
+而构造时那次 `pc.TotalNumberOfParticles(false)` 是发生在 InitData 之前、结果恒为 0 且永不被读的 MPI 归约。
+验证：四维度重编 + `ctest -R "collision|dsmc|bremsstrahlung|fusion"` → **104/104 通过**。
+
+F6 fixed by 104a379：`declare_state` 改用与 `NuclearFusionFunc` 相同的
+`utils::parser::queryWithParser(pp, "save_particle_production", bool)`，并且只对
+`collision_types[i] == "nuclearfusion"` 的条目处理该键（别的 collision 不拥有它）。
+**反证的局限（如实记录）**：`1.0` 在旧实现里被 int query 当 0 ⇒ schema 不声明该场，但
+`AllocData()` 的迟到分配把它兜住了，运行不报错；所以没有可失败的运行时断言可做，
+只能做到"两处解析一致"这一级证据。附带确认：`true` 在**两套**实现里都报
+`ParmParse: failed to parse true due to unknown symbol true`（parser 不认字面量 true），
+所以报告举的 `true` 例子不是差异来源，真正的差异是 `1.0` / 解析式写法。
+
+F7 仍 wip：legacy/Python 路径的 collision handler 是 `RunCollisionStage` 首步懒创建，schema 阶段
+不存在 ⇒ `declare_state` 在这条路径上是死代码。修复需要把 handler 的创建前移到 `InitData`
+（`AllocPluginFields` 从 `ctx->state->requested_fields()` 取声明，见 `WarpX.cpp:2770-2790`），
+属跨模块时序改动，下一轮单独做并配 legacy 路径的 deck 验证。
