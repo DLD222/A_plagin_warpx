@@ -178,8 +178,11 @@ def main():
         return np.sum(f[m] * np.exp(-1j * omega * t[m])) * (t[1] - t[0])
 
     # ---- incident side: E_r = E_tot - E_ref (both runs, same probe)
-    # q1 sees the interface reflection (9.0 ns) and the PEC bounce from z=-4 (9.3 ns)
-    # overlapping; with a ~1.7 ns pulse there is no clean window. Use q2 only.
+    # q1 sits in the incident medium; the window ends before the PEC echo comes back (the PEC is
+    # far away in this geometry), so [0, tmax_inc] holds the incident pulse and the interface
+    # reflection -- exactly what the two-run subtraction needs.  The comment here used to describe
+    # an older geometry (a PEC at z = -4 and "use q2 only"); q2 is on the transmission side and
+    # cannot measure a reflection, and the times quoted did not match this deck at all.
     ref2 = dft(a_dir, "q1", args.tmax_inc)
     tot2 = dft(b_dir, "q1", args.tmax_inc)
     r_c = (tot2 - ref2) / ref2 if ref2 != 0 else np.nan

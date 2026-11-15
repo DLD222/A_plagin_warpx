@@ -12,7 +12,7 @@ import argparse
 import os
 import numpy as np
 
-EPS0 = 8.8541878128e-12
+EPS0 = 8.8541878188e-12
 C = 299792458.0
 MU0 = 1.0 / (EPS0 * C * C)
 

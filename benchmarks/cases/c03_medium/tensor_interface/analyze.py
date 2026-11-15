@@ -29,7 +29,7 @@ import os
 import numpy as np
 
 C = 299792458.0
-EPS0 = 8.8541878128e-12
+EPS0 = 8.8541878188e-12
 
 
 def load(path):

@@ -42,7 +42,11 @@ python3 analyze.py diags/reducedfiles
 
 ## Conventions
 
-- `my_constants.eps0 = 8.8541878128e-12` (WarpX value; do not mix CODATA).
+- `my_constants.eps0 = 8.8541878188e-12` -- the value of `ablastr::constant::epsilon_0_v`
+  (`Source/Core/ablastr/constant.H`), which is what the code uses.  Every deck and analysis script
+  here uses this same number; the 2022 CODATA value `8.8541878128e-12` used to be scattered through
+  a few of them (a ~7e-10 relative difference, harmless but pointless), and this line used to
+  quote *that* number while telling the reader not to mix in CODATA.
 - All acceptance numbers assume **32 ppw in the medium** unless stated.
 - Lossy theory uses the exact complex wavenumber
   `k = omega sqrt(mu eps) sqrt(1 - i sigma/(omega eps))`; the phase convention is

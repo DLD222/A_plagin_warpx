@@ -20,7 +20,9 @@ warpx.use_filter = 0
 boundary.field_lo = pec pec
 boundary.field_hi = pec pec
 
-# PEC half-space z < 0, aligned with the mesh (no cut cells).
+# PEC half-space z > 0 (the physics area is where the implicit function is negative; the EB
+# interior is the positive side), aligned with the mesh so there are no cut cells.  The comment
+# used to say "z < 0", which put the conductor on the wrong side.
 warpx.eb_implicit_function = "z"
 
 # Field-initialized TE pulse, propagating along +z, Bx = -Ey/c.
@@ -50,6 +52,8 @@ fp2.type = FieldProbe
 fp2.intervals = 1
 fp2.probe_geometry = Point
 fp2.x_probe = 0.0
-fp2.z_probe = 1.5
+# fp2 is a second *vacuum*-side probe, close to the interface (fp1 is at z = -1.5, far
+# field): two vacuum points, not one vacuum and one inside the metal.
+fp2.z_probe = -0.5
 
 algo.maxwell_solver = yee

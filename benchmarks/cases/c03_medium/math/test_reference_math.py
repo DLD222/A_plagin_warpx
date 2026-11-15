@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]          # benchmarks/cases
 sys.path.insert(0, str(ROOT / "c02_0_pec"))
 import p1_tensor_reference as ref                   # noqa: E402
 
-EPS0 = 8.8541878128e-12
+EPS0 = 8.8541878188e-12
 
 fails = 0
 

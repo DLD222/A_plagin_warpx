@@ -1,8 +1,7 @@
 # M2a-1b stability case: 45-degree PEC plane, TM pulse (Ex + By), long run.
 #
 # A slanted plane exercises the conformal B update on real cut cells (faces of
-# many different volume fractions) and the BCK-only stabilisation used for the
-# TE components (Bx/Bz). The plane is at 45 deg so that the reflected beam runs
+# many different volume fractions). The plane is at 45 deg so that the reflected beam runs
 # parallel to the -x axis, i.e. exactly along a grid line - the most demanding
 # orientation for the staircase-vs-conformal masking.
 #
@@ -37,7 +36,9 @@ my_constants.x0 = 0.0
 my_constants.z0 = 0.0
 warpx.eb_implicit_function = "cos(alpha)*(x-x0) + sin(alpha)*(z-z0)"
 
-# TE pulse, propagating along +z, Bx = -Ey/c.
+# TM pulse (Ex + By), propagating along +z, By = +Ex/c.  The comment here used to say
+# "TE pulse ... Bx = -Ey/c", which contradicts both the file name and the block below
+# (Ey = 0, By from Ex): the case is TM (the ECT 2D conformal path is TM-only).
 my_constants.E0 = 1.0e6
 my_constants.zc = -3.0
 my_constants.w = 0.5

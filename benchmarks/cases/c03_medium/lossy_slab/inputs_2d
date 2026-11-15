@@ -24,7 +24,7 @@ algo.macroscopic_subpixel = 1
 boundary.field_lo = periodic pec
 boundary.field_hi = periodic pec
 
-my_constants.eps0 = 8.8541878128e-12
+my_constants.eps0 = 8.8541878188e-12
 my_constants.c    = 299792458.0
 my_constants.mu0  = 1.0/(eps0*c*c)
 my_constants.lam  = 1.0
