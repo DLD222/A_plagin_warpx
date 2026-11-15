@@ -81,11 +81,15 @@ inline void apply_coupling_source (Real* field, std::vector<Real*>& U,
             u[2] = uy0 + dt * (qm * rho * Ey + qm * (uz0 * Bx - ux0 * Bz));
             u[3] = uz0 + dt * (qm * rho * Ez + qm * (ux0 * By - uy0 * Bx));
 
-            // kinetic-energy change (keeps rho*eps constant):
+            // kinetic-energy change (keeps rho*eps constant).  u[1..3] are the *momentum
+            // density* rho*u, so u·E is already (momentum density)·E: the work is
+            // dt (q/m) (m_vec·E) = dt J·E, with no extra rho factor.  The earlier version
+            // multiplied by rho again, which scaled the Joule heating by the density and broke
+            // total-energy conservation (rho << 1 -> no heating, rho > 1 -> over-heating).
             const Real uxa = 0.5 * (ux0 + u[1]);
             const Real uya = 0.5 * (uy0 + u[2]);
             const Real uza = 0.5 * (uz0 + u[3]);
-            u[4] += dt * qm * rho * (uxa * Ex + uya * Ey + uza * Ez);
+            u[4] += dt * qm * (uxa * Ex + uya * Ey + uza * Ez);
         }
     }
 }
