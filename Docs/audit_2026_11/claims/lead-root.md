@@ -350,3 +350,39 @@ fork 独有  = 4（test_2d_dynamic_regrid{,_remake,_remove,_uniform_b}，官方�
   OPENPMD/PRECISION/BUILD_TYPE` 与 `-O3 -DNDEBUG` 逐项一致。
 - reduced diagnostics 是 append 模式（见上一轮），所以**正式 sweep 前必须清目录**
   （`scripts/clean_run_dirs.sh`），否则 fork/official 的文本类对比会被多轮追加污染。
+
+## 第十一轮（407 例全量对照完成）：400 例数值相同、7 例有差异（逐例归类）
+
+把两批结果合并（`audit_runs/final_incremental2` 286 例 + `final_incremental3` 121 例，去重 407）：
+
+```
+shared 407  ->  byte-identical 64
+                numerically identical (max_abs_diff == 0) 336
+                differing 7
+```
+
+7 例逐例结论（判定依据见右列）：
+
+| 用例 | max_abs | max_rel_field | 结论 |
+|---|---|---|---|
+| `test_2d_semi_implicit_pc_jacobi` | 3.56e-01 | 1.7e-10 | **舍入级**：相对场量级 1.7e-10；且同一官方二进制 np=1 vs np=2 相对差 >100%（`ATTRIBUTION.md` 已记录） |
+| `test_2d_embedded_circle` | 4.15e-03 | 1.92 | **混沌放大**：step 0–4 逐位一致，step 5 起单粒子计数差 1，之后 rho 相对差从 4.6% 长到 17%；三方对照 fork-vs-26.11=3.9e-3、fork-vs-26.10=3.7e-3、26.11-vs-26.10=3.6e-3（**两个官方版本之间也差同量级**），`ParticleScraper.H` 与 26.11 逐行相同（只有 include/迭代器改名）。relfield=1.92 是"除以一个数值零场"的假象 |
+| `test_3d_particle_scrape_picmi` | 4.77e-06 | 1.9e-15 | 舍入级 |
+| `test_1d_macroscopic_solver` | 4.38e-07 | 3.6e-15 | 舍入级 |
+| `test_1d_macroscopic_solver_picmi` | 4.38e-07 | 3.6e-15 | 舍入级 |
+| `test_2d_macroscopic_solver` | 2.16e-07 | 2.3e-15 | 舍入级 |
+| `test_3d_embedded_boundary_cube_macroscopic` | 4.55e-13 | 1.33 | **指标假象**：1.33 来自 `Bx`，而该用例中 Bx 的 |max|≈9.4e-22（对称性要求它为 0，属于数值零）；同一用例 Ex 的 relfield=1.1e-15、Ey/Ez=3.0e-05。若以"该用例场量级"（Ex≈4e2）为分母，差值是 1e-15 量级 |
+
+**由此得到一个度量缺陷**：`max_rel_diff_field` 用的是"该场自身 max"作分母，对一个本应为零的分量
+（Bx≈1e-21）会把噪声放大成 1.33 这种数字。判定"有/无差异"时应同时看 `max_abs_diff` 与
+"该用例的场量级"，不能只看这个相对值。已写进本节，供最终报告引用。
+
+**关于 37 例 stale 输出（跑在 19:32 二进制上）**：19:32→20:22 之间只有两个代码提交——
+`104a379`（只动 `Source/Plugins/Collision/` 内部）与 `d970216`（只动 legacy/Python 的
+`WarpXInitData`/`WarpXEvolve`/`WarpX.H`，kernel 路径上该分支不执行）。这 37 例里没有 collision 用例，
+也都走 kernel 路径，因此输出不受这两个提交影响；若要在最终签字时做到"每个字节都出自 HEAD 二进制"，
+用 `check_output_freshness.py --json` 的清单重跑即可（脚本已入库）。
+
+**操作注意（踩过的坑）**：`compare_all.py` 必须在 conda 解释器下跑
+（`$HOME/miniconda3/bin/python3`），系统 python3 没有 h5py/yt，
+会在第一个 `.h5` 上 `ModuleNotFoundError` 直接退出（不会写出 cases.csv，所以不会产生假结果）。
