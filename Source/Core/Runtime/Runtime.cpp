@@ -111,6 +111,10 @@ Runtime::finalize ()
         Scheduler scheduler(*m_plugin_host);
         amrex::ignore_unused(scheduler.run_stage(ctx, Stage::Finalize));
     }
+    // The kernel's own teardown (ISimulationKernel::finalize) was never called: a kernel that
+    // implements it to flush output or release external resources was silently skipped.  Call it
+    // before clear(), which is the *destruction* hook, not the "finish the run" one.
+    if (m_kernel != nullptr) { m_kernel->finalize(); }
     m_kernel->clear();
     m_bus.reset();
     m_plugin_host.reset();

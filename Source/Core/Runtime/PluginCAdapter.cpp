@@ -289,6 +289,11 @@ warpx_stage_geometry (WarpXStageContext* ctx, int32_t lev, int32_t lo[3], int32_
                       double prob_lo[3], double prob_hi[3], double dx[3], int32_t periodic[3])
 {
     if (ctx == nullptr || ctx->data == nullptr || lev < 0) { return 0; }
+    // The contract (PluginCApi.H) is "0 if the level does not exist"; indexing geometry past the
+    // finest level is an unchecked Vector::operator[] in a release build, i.e. a garbage geometry
+    // rather than a clean failure.  Plugins do probe with this call (the star gravity plugin walks
+    // levels until it fails), so the bound has to be reported, not crashed on.
+    if (lev > ctx->data->finestLevel()) { return 0; }
     amrex::Geometry const* gp = nullptr;
     try {
         // Throws when the level is past the finest one that exists; C plugins probe the levels

@@ -53,6 +53,10 @@ void
 StateRegistry::clear ()
 {
     m_fields.clear();
+    // The registry owns the scalars as well (request_scalar() lives here); clearing only the
+    // fields left declarations and values behind, so a second kernel in the same process saw the
+    // previous run's scalars.
+    m_scalars.clear();
 }
 
 } // namespace warpx::runtime
