@@ -268,10 +268,9 @@ def main() -> int:
     args = ap.parse_args()
     spec = load_spec()
     state = load_state(spec)
-    # keep JSON's "done" entries authoritative on first run
-    for t in spec["tasks"]:
-        if t["status"] == "done" and t["id"] not in state:
-            state[t["id"]] = {"status": "done"}
+    # NOTE: load_state() already seeds every task from the JSON spec (setdefault), so
+    # there is nothing to merge here.  Docs/audit_2026_11/BACKLOG.md is the audit
+    # ledger; this file is only the automation state (.route_state.json, gitignored).
     save_state(state)
     return args.func(spec, state, args)
 

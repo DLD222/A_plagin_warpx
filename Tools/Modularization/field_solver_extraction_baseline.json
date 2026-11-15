@@ -1,0 +1,14 @@
+{
+ "include_total": 1,
+ "includes": {
+  "Source/Plugins/PicEm/WarpX.cpp": 1
+ },
+ "symbols": {
+  "ElectrostaticSolver": 1,
+  "FiniteDifferenceSolver": 0,
+  "HybridPICModel": 96,
+  "ImplicitSolver": 3,
+  "MacroscopicProperties": 1,
+  "MagnetostaticSolver": 0
+ }
+}
