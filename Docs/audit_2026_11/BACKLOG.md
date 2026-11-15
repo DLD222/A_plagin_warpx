@@ -143,7 +143,7 @@
 | Source_Plugins_PicEm_B | F1 | major | radial 几何下 rho 的 volume-weighted filter 用了错误的标定分支 | invalid |
 | Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | fixed |
 | Source_Plugins_PicEm_B | F3 | major | Python 绑定类名 `WarpXParIter` → `ParticleTileIter`，pywarpx 调用点未同步 | fixed |
-| Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | todo |
+| Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | wip:lead-tools |
 | Source_Plugins_PicEm_B | F5 | minor | 三个 MomentsSolver 测试二进制永远返回 0，FAIL 只打印不生效 | fixed |
 | Source_Plugins_PicEm_B | F6 | minor | `run_tests.sh` 的路径在插件化移动后失效 | fixed |
 | Source_Plugins_PicEm_B | F7 | minor | `GetPartContainer()` 无空指针保护，与 `particleSystem()` 的设计不一致 | fixed |
@@ -160,7 +160,7 @@
 | Source_Plugins_Star | F8 | major | 【major】辐射扩散把未初始化内存 `ParallelCopy` 进辐射场 | fixed |
 | Source_Plugins_Star | F9 | major | 【major】开放边界（Dirichlet）的边界数据从未填充 → MLMG 用未初始化 ghost | fixed |
 | Source_Plugins_Star | F10 | major | 【major】"AMR 多层势"实为逐层独立求解 + 每层重新盖同一解析剖面（含 restart 语义错误） | fixed |
-| Source_Plugins_Star | F11 | major | 【major】1D 构建下 `applyCentrifugalSource` 的 assert 必崩（默认参数就是非法值） | todo |
+| Source_Plugins_Star | F11 | major | 【major】1D 构建下 `applyCentrifugalSource` 的 assert 必崩（默认参数就是非法值） | wip:lead-tools |
 | Source_Plugins_Star | F12 | major | 【major】`test_solar_column` 的能量账本断言是自我比较（恒真），且源项全部关闭 | fixed |
 | Source_Plugins_Star | F13 | major | 【major】`test_stellar_model` 栈数组越界：`w[4]` 被索引到 8 | fixed |
 | Tools_Tests | F1 | critical | `check_plugin_boundaries.py` 的两条检查被无条件丢弃（可复现反例） | fixed |
@@ -171,26 +171,26 @@
 | Tools_Tests | F6 | major | 四个"不变量检查器"没有进入任何自动门（CI / pre-commit / run_gates 都没有） | fixed |
 | Tools_Tests | F7 | major | `route_tasks.py` 可以在"什么都没验证"的情况下把任务标成 done，且 153/153 已是 done | fixed |
 | Tools_Tests | F8 | major | macroscopic 物理核验脚本根本不做比较：只打印，调用方只 grep 关键词 | fixed |
-| Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | todo |
+| Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | wip:lead-tools |
 | Tools_Tests | F10 | major | `check_star_runtime_plugin.sh` 明确容忍"关机时堆损坏"的非零退出 | fixed |
 | Tools_Tests | F11 | major | OPAL 不透明度自检的容差（1 dex / 中位数 2 倍、只抽样 1/4 层）宽到无法发现系统性错误 | fixed |
 | Tools_Tests | F12 | major | `eos.py` 的 Debye 屏蔽离子和对与自身文档不符（用 (Z+1)² 代替 Z²），HeⅡ 的连续谱降低也用错倍数 | fixed |
 | Tools_Tests | F13 | major | `stellar_structure.selftest` 的"四方程积分"只检查打印文本里出现 `R/R_sun`，NaN 也能通过（且已被注册为 ctest） | fixed |
 | Tools_Tests | F14 | major | 新增 pytest 用例在**仓库根**写文件，`mkdir()` 无 `exist_ok`，并行维度互相覆盖 | fixed |
-| Tools_Tests | F15 | major | `test_plugin_lifecycle.cpp` 的 "satisfied requirement" 用例断言的是"被拒绝"，role 名作为 provider 从未被测 | todo |
-| Tools_Tests | F16 | major | `check_build_boundaries.py` 的分层覆盖不完整，并留有 KeyError 地雷 | todo |
-| Tools_Tests | F17 | minor | 5 个 runtime "contract test" 实际是 `int main(){return 0;}` 且没有注册进 CTest | todo |
-| Tools_Tests | F18 | minor | `test_nonpic_kernel.cpp` 打印的断言数写死为 8（实际 7） | todo |
-| Tools_Tests | F19 | minor | `sod_reference.py` 稀疏波分支的解析导数写错（靠括号保护的 Newton 兜住） | todo |
-| Tools_Tests | F20 | minor | `ssm_compare.py` 自检里有一条恒真断言，README 的"5%"与断言的 15% 不符，打印的 eps/kappa 比值在 SSM 为 0 处失真 | todo |
-| Tools_Tests | F21 | minor | `solar_compare_plot.py --check` 向源码树写 PNG，且只钉住 L、R 两个数 | todo |
-| Tools_Tests | F22 | minor | 插件测试的构建假定 ELF/macOS 以外的编译器与 `.so` 后缀 | todo |
-| Tools_Tests | F23 | minor | 若干 shell 核验脚本的硬编码与静默 no-op | todo |
-| Tools_Tests | F24 | minor | A0 两段流水线的输入路径对不上，文档化的"重新生成"无法执行 | todo |
-| Tools_Tests | F25 | minor | 两个"门"的退出码恒为 0 | todo |
-| Tools_Tests | F26 | minor | `check_field_solver_extraction.py` 永远 exit 0，且统计的是已经搬空的旧树 | todo |
-| Tools_Tests | F27 | minor | `route_tasks.py` 的"JSON 权威"是死代码 | todo |
-| Tools_Tests | F28 | minor | `a5_ab.py` 未接入任何门，且硬编码二进制与构建目录 | todo |
-| Tools_Tests | F29 | minor | `build_and_run_4d.sh` 的 conda 前缀变量名疑似笔误 | todo |
-| Tools_Tests | F30 | minor | `inventory_field_solver.py` 写入源码树文档，且 `classify()` 有多余/不可达分支 | todo |
-| Tools_Tests | F31 | minor | 其它可靠性/自证性较弱的点（合并记录，共 9 条） | todo |
+| Tools_Tests | F15 | major | `test_plugin_lifecycle.cpp` 的 "satisfied requirement" 用例断言的是"被拒绝"，role 名作为 provider 从未被测 | wip:lead-tools |
+| Tools_Tests | F16 | major | `check_build_boundaries.py` 的分层覆盖不完整，并留有 KeyError 地雷 | wip:lead-tools |
+| Tools_Tests | F17 | minor | 5 个 runtime "contract test" 实际是 `int main(){return 0;}` 且没有注册进 CTest | wip:lead-tools |
+| Tools_Tests | F18 | minor | `test_nonpic_kernel.cpp` 打印的断言数写死为 8（实际 7） | wip:lead-tools |
+| Tools_Tests | F19 | minor | `sod_reference.py` 稀疏波分支的解析导数写错（靠括号保护的 Newton 兜住） | wip:lead-tools |
+| Tools_Tests | F20 | minor | `ssm_compare.py` 自检里有一条恒真断言，README 的"5%"与断言的 15% 不符，打印的 eps/kappa 比值在 SSM 为 0 处失真 | wip:lead-tools |
+| Tools_Tests | F21 | minor | `solar_compare_plot.py --check` 向源码树写 PNG，且只钉住 L、R 两个数 | wip:lead-tools |
+| Tools_Tests | F22 | minor | 插件测试的构建假定 ELF/macOS 以外的编译器与 `.so` 后缀 | wip:lead-tools |
+| Tools_Tests | F23 | minor | 若干 shell 核验脚本的硬编码与静默 no-op | wip:lead-tools |
+| Tools_Tests | F24 | minor | A0 两段流水线的输入路径对不上，文档化的"重新生成"无法执行 | wip:lead-tools |
+| Tools_Tests | F25 | minor | 两个"门"的退出码恒为 0 | wip:lead-tools |
+| Tools_Tests | F26 | minor | `check_field_solver_extraction.py` 永远 exit 0，且统计的是已经搬空的旧树 | wip:lead-tools |
+| Tools_Tests | F27 | minor | `route_tasks.py` 的"JSON 权威"是死代码 | wip:lead-tools |
+| Tools_Tests | F28 | minor | `a5_ab.py` 未接入任何门，且硬编码二进制与构建目录 | wip:lead-tools |
+| Tools_Tests | F29 | minor | `build_and_run_4d.sh` 的 conda 前缀变量名疑似笔误 | wip:lead-tools |
+| Tools_Tests | F30 | minor | `inventory_field_solver.py` 写入源码树文档，且 `classify()` 有多余/不可达分支 | wip:lead-tools |
+| Tools_Tests | F31 | minor | 其它可靠性/自证性较弱的点（合并记录，共 9 条） | wip:lead-tools |
