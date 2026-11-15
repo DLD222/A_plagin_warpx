@@ -219,6 +219,19 @@ def run_checks(port: int) -> None:
     status, state = call(port, "/api/status")
     check("日志进度", state.get("step", 0) > 0,
           f"state={state['state']} step={state['step']}/{state.get('max_step')}")
+    # ---- persistence: a restarted server can rebuild the job ----------
+    from pathlib import Path as _Path
+    from warpx_studio.runner.job import Job as _Job
+
+    run_dir = _Path(state.get("workdir", "")) if state.get("workdir") else None
+    check("运行状态落盘", bool(run_dir) and (run_dir / "studio_job.json").is_file(),
+          str(run_dir / "studio_job.json") if run_dir else "-")
+    check("运行日志落盘", bool(run_dir) and (run_dir / "run.log").is_file(),
+          f"{(run_dir / 'run.log').stat().st_size} bytes" if run_dir and (run_dir / "run.log").exists() else "-")
+    attached = _Job.attach(run_dir) if run_dir else None
+    check("重新 attach 可回放进度", attached is not None and attached.step > 0,
+          f"attach 后 step={attached.step}" if attached else "attach 失败")
+
     paused = {}
     if state["state"] == "running":
         call(port, "/api/pause", {})

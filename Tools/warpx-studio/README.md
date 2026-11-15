@@ -202,3 +202,27 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
 `my_constants.*` 常量，把它们当错误会误拒本来合法的输入（`sin(k*x)` 里的 `k` 就是这种）。
 
 自测新增 9 项，覆盖：控件清单接口、2D/3D 边界项数、边界写回、表达式三种判定、API、键识别、风格选项。
+
+## v2 · 阶段 3：运行持久化与重新 attach（已跑通，54/54 自测）
+
+**问题**：v1 的服务一重启就丢了 job 句柄；而且 WarpX 的 stdout 接的是管道，服务一死管道断裂，
+WarpX 会被 SIGPIPE 杀掉 —— 根本没机会 attach。
+
+**修法**（`runner/job.py`）：
+1. WarpX 的 stdout **直接写 `run.log` 文件**，不再走管道 → 服务死活与仿真无关；
+2. 启动时写 `studio_job.json`（pid/pgid/binary/mpi/omp/max_step/started_at），正常结束时删除；
+3. 进度由**轮询日志文件**得到（同一个 `_handle_line` 供实时与回放共用）；
+4. 服务启动时 `Job.attach(run_dir)`：读 `studio_job.json` → 检查 pid 是否存活 → 回放 `run.log`
+   恢复 step/time/dt → 继续 tail。
+
+**实测**（不是设想）：
+
+```
+before: state=running step=1237
+（kill 掉服务）→ warpx alive after server death: 1
+after : state=running step=4260   ← 回放出 4260，且继续 4260 → 5581
+stop  -> finished
+```
+
+部署：`deploy/warpx-studio.service`（systemd user unit，WSL 默认没开 systemd 时用
+`~/.local/bin/warpx-studio` 启动器）+ `deploy/README.md` 三种方式说明。

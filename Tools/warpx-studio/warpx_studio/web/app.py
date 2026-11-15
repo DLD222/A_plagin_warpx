@@ -33,6 +33,25 @@ BUILD: dict = {"job": None}
 CATALOG: dict = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
 
 
+def reattach() -> None:
+    """Pick up a simulation that kept running while this server was down."""
+    if STATE.get("job") is not None:
+        return
+    for run_dir in sorted(RUNS.glob("*"), reverse=True):
+        job = Job.attach(run_dir)
+        if job is None or job.state != "running":
+            continue
+        live = LiveView(run_dir, run_dir / "live.png")
+        live.start()
+        STATE.update({"job": job, "live": live, "run_dir": run_dir})
+        return
+
+
+@app.on_event("startup")
+def _startup() -> None:
+    reattach()
+
+
 class DeckPayload(BaseModel):
     params: dict[str, str] = Field(default_factory=dict)
     groups: dict[str, dict[str, dict[str, str]]] = Field(default_factory=dict)

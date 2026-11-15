@@ -1,0 +1,25 @@
+# systemd user unit for WarpX Studio.
+#
+#   mkdir -p ~/.config/systemd/user
+#   cp Tools/warpx-studio/deploy/warpx-studio.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now warpx-studio
+#   systemctl --user status warpx-studio
+#
+# WSL2 usually has no systemd unless /etc/wsl.conf enables it; in that case use the
+# launcher instead:  ~/.local/bin/warpx-studio
+[Unit]
+Description=WarpX Studio (graphical simulation studio for the A_plagin_warpx fork)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/WarpX_plugin/Tools/warpx-studio
+Environment=PYTHONPATH=%h/WarpX_plugin/Tools/warpx-studio
+Environment=WARPS_STUDIO_PVPYTHON=%h/miniconda3/envs/paraview/bin/pvpython
+ExecStart=%h/miniconda3/envs/warpx-studio/bin/python -m uvicorn warpx_studio.web.app:app --host 127.0.0.1 --port 8770
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
