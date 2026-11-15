@@ -31,8 +31,14 @@ public:
             .point = {Stage::Collisions, 0},
             .reads_fields = {},
             .writes_fields = {},
-            .reads_species = {"electrons", "ions", "gas", "photons"},
-            .writes_species = {"electrons", "ions", "gas", "photons"},
+            // Ask the handler: species names are user input, so the old hard-coded
+            // electrons/ions/gas/photons set was wrong for most decks (and made a real
+            // same-species conflict invisible).  A handler that reports nothing contributes no
+            // species edges.
+            .reads_species = m_handler != nullptr ? m_handler->readsSpecies()
+                                                  : std::vector<std::string>{},
+            .writes_species = m_handler != nullptr ? m_handler->writesSpecies()
+                                                   : std::vector<std::string>{},
             .priority = 0};
     }
 

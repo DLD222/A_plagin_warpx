@@ -42,3 +42,13 @@ F4 fixed（文档级）: `StageContext::config` 是**冻结快照**（`Runtime::
 验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|service_registry|stage_dispatch'`
   18/18、`ctest -R 'runtime_snapshot|plugin_|compile_only|stage_dispatch|task'` 17/17。
 反证: 回退 F6 的 throw 后，两个插件注册同名回调只会在后者的行为里体现（前者的回调消失，无任何输出）。
+
+F13 fixed: `CollisionHandlerAdapter::spec()` 的 `reads_species/writes_species` 原本是
+  `{"electrons","ions","gas","photons"}` 四个**硬编码**名字，而物种名完全由输入决定 ⇒
+  (a) 依赖边/写冲突检查对真实物种名失效；(b) 若有人恰好叫 `ions` 且同 StagePoint 上另一 handler
+  也写 `ions`，会**误报**冲突并 abort。给 `ICollisionHandler` 加
+  `virtual readsSpecies()/writesSpecies()`（默认返回空 ⇒ 不产生物种边），适配器改为向 handler 询问。
+
+验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|collision'` 69/69。
+反证: 在测试 handler 里覆写 `writesSpecies()={"electrons"}`，与另一个写 electrons 的 handler 同
+StagePoint 注册 → 现在会按真实名字报冲突（此前四个硬编码名让它通过了）。

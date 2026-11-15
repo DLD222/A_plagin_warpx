@@ -3,6 +3,8 @@
 #include <AMReX_REAL.H>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace warpx::runtime {
 
@@ -21,6 +23,15 @@ public:
     //! the levels, so diagnostics can already see the names.
     virtual void declare_state (StateRegistry& /*state*/) {}
     virtual void doCollisions (int step, amrex::Real cur_time, amrex::Real dt) = 0;
+
+    //! Species this handler reads / writes, for the stage graph's dependency and conflict edges.
+    //!
+    //! Species names come from the input file, so the adapter cannot guess them (it used to
+    //! declare the fixed set electrons/ions/gas/photons, which is wrong for almost every deck and
+    //! silently disabled the write-conflict check for the real names).  A handler that does not
+    //! override these contributes no species edges.
+    [[nodiscard]] virtual std::vector<std::string> readsSpecies () const { return {}; }
+    [[nodiscard]] virtual std::vector<std::string> writesSpecies () const { return {}; }
 };
 
 /**
