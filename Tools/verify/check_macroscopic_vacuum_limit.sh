@@ -22,7 +22,13 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD="${1:-$REPO/build_multi_hdf5_fft}"
 INPUTS="$REPO/Examples/Tests/macroscopic_solver/inputs_test_1d_macroscopic_solver"
-EXE="$BUILD/bin/warpx.1d.MPI.OMP.DP.PDP.OPMD.FFT.EB.QED"
+# Accept the plain `warpx.1d` symlink/name and the fully decorated build name.
+if [ -x "$BUILD/bin/warpx.1d" ]; then
+    EXE="$BUILD/bin/warpx.1d"
+else
+    EXE=$(ls "$BUILD"/bin/warpx.1d.* 2>/dev/null | head -1)
+fi
+[ -n "${EXE:-}" ] && [ -x "$EXE" ] || { echo "no warpx.1d binary in $BUILD/bin" >&2; exit 1; }
 WORK="${WORK:-/tmp/macro_vacuum_limit}"
 PY="${PYTHON:-$HOME/miniconda3/bin/python3}"
 
@@ -36,11 +42,12 @@ INPUTS_DIR="$(dirname "$INPUTS")"
 run yee   "algo.em_solver_medium = vacuum"
 run macro "macroscopic.epsilon = epsilon0"
 
-"$PY" - <<'PYEOF'
-import glob, numpy as np, yt
+WORK="$WORK" "$PY" - <<'PYEOF'
+import glob, os, numpy as np, yt
 yt.funcs.mylog.setLevel(0)
+root = os.environ["WORK"]
 def last_ex(tag):
-    files = sorted(glob.glob(f'/tmp/macro_vacuum_limit/{tag}/diags/diag1*'))
+    files = sorted(glob.glob(os.path.join(root, tag, 'diags', 'diag1*')))
     ds = yt.load(files[-1])
     d = ds.covering_grid(level=0, left_edge=ds.domain_left_edge, dims=ds.domain_dimensions)
     return float(np.max(np.abs(np.array(d['Ex']).squeeze())))

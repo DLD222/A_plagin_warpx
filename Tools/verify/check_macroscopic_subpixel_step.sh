@@ -14,6 +14,7 @@
 # exp(-sigma t / (2 eps)) within the same tolerance the backward-Euler path meets.
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/../.." && pwd)
+build=${BUILD:-$repo/build_multi}
 run=${1:-/tmp/mac_ver/subpixel}
 mkdir -p "$run"
 cd "$run"
@@ -21,7 +22,13 @@ sed -e 's/^macroscopic.sigma   = 0/macroscopic.sigma   = 0.001/' \
     -e 's/^warpx.abort_on_warning_threshold = medium/warpx.abort_on_warning_threshold = high/' \
     -e '/^algo.em_solver_medium/a algo.macroscopic_subpixel = 1' \
     "$repo/Examples/Tests/macroscopic_solver/inputs_test_1d_macroscopic_solver" > inputs_subpixel
-"$repo/build_multi/bin/warpx.1d" inputs_subpixel > run.log 2>&1
+# `sed` does not fail when a pattern does not match, so a renamed/realigned input line would
+# silently run the *linear* branch and still pass.  Assert that both edits landed.
+grep -q '^macroscopic.sigma   = 0.001' inputs_subpixel || {
+    echo "sed did not set macroscopic.sigma (deck changed?)" >&2; exit 1; }
+grep -q '^algo.macroscopic_subpixel = 1' inputs_subpixel || {
+    echo "sed did not add algo.macroscopic_subpixel (deck changed?)" >&2; exit 1; }
+"$build/bin/warpx.1d" inputs_subpixel > run.log 2>&1
 ! grep -qE "nan|NaN" run.log
 # The check itself now compares measured and expected (and exits non-zero on a mismatch); the
 # previous version only grepped this output for the words "amplitude ratio", so any decay at all

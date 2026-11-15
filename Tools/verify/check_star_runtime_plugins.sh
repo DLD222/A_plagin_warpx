@@ -42,7 +42,18 @@ PY
 WARPX_PLUGIN_PATH="$build/lib/star_gravity_plugin.so:$build/lib/star_fluid_plugin.so" \
   "$build/bin/warpx.3d" inputs_em > em.log 2>&1
 grep -q "max|E| = 1000" em.log
-grep -E "joule = [1-9]" em.log > /dev/null
+# `grep -E "joule = [1-9]"` missed values such as 0.5 and accepted 0.0x; parse the number.
+python3 - em.log <<'PY'
+import re
+import sys
+
+text = open(sys.argv[1]).read()
+values = [float(m) for m in re.findall(r"joule = ([0-9.eE+-]+)", text)]
+if not values:
+    sys.exit("no 'joule =' value in the log")
+print(f"joule over {len(values)} steps: max {max(values):.6g} (must be > 0)")
+sys.exit(0 if max(values) > 0.0 else 1)
+PY
 echo "electromagnetic coupling: E read from the bus, Joule heating non-zero"
 grep "\[fluid\] step 1" em.log
 grep -q "g from bus: yes" both.log
