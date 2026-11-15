@@ -229,6 +229,24 @@ WarpX 官方 CI 会把这两个独立仓库检出在 WarpX 同级目录。本审
 | `test_rz_ohm_solver_resistive_drag_species_fields_picmi` | `current_fp_ions[dir=z]`、`rho_ions` | 7.8e5 / 7.8（总量场一致） | fork 代码 | **逐格定位**：只在 `z` 上边界一排（第 15 列）以及个别角点不同，官方 `rho_ions=23.84`、fork `31.67`；总场 `rho`/`E` 一致 → 问题在**逐物种诊断量的边界处理**（`FinalizeRho`/per-species 场未做与总场一致的边界处理），不是求解器 |
 | `test_2d_darwin_solver_em_modes_es_picmi` | Ez | 2.9e4 | fork 代码 | Darwin 求解器（预条件系数改动，FieldSolver_B F2） |
 
+### 5.1 首个输出是否已不同（决定“根因在哪一层”）
+
+对 79 个 fork 代码差异用例比较**最早 diag**（`scripts/first_step.py`，结果 `audit_runs/first_step.csv`）：
+
+- **47 例首个输出完全相同** → 差异只来自后续演化（浮点求和顺序/迭代路径，在混沌的 PIC 里被放大），
+  与初始化、诊断无关；
+- 11 例首个输出只有 ≤1e-9 的差 → 舍入级；
+- 21 例首个输出就有可测差异，其中**真正结构性**的集中在：
+  RZ 的 `rho` 诊断（`test_rz_laser_acceleration*`：t=0 时粒子逐个属性完全相同、所有场为 0，
+  只有 `rho` 的 343 个格点不同，最大 2.5%；差异集中在径向第 24 行与外侧 56–61 行）、
+  `test_rz_ohm_solver_resistive_drag_species_fields_picmi` 的逐物种 `rho_ions`（z 上边界一排）、
+  `test_2d_collisions_split_momentum_push_electrostatic` 的 ES 诊断 j（需用当前二进制重跑后再判）。
+  其余（如 magnetostatic 的 `Er`、beam_beam 的 `E`）在**场量级**上只有 1e-8–1e-5，属求解器迭代差异。
+
+**因此“79 个差异”里真正属于“fork 做错了物理/参数”的是少数**；多数是重构导致的运算次序差异。
+要把后者也做到逐位一致，只能逐路径恢复与上游完全相同的运算次序（工作量大、且部分路径无法同时满足
+新架构），这需要你确认是否值得。
+
 重要结论：**没有一个是“fork 崩溃/官方正常”**；也没有发现“某类算例整体无法运行”。差异集中在
 自研/重构触及的路径（碰撞 RNG、PSATD 谱参数、隐式迭代、电离+外场、J 诊断沉积）。
 

@@ -99,3 +99,35 @@
 | test_rz_embedded_boundary_em_particle_absorption_sh_factor_3 | RZ | /data/1/fields/rho | 6.02e-36 | 待定根因（见 REPORT §5） |
 | test_rz_flux_injection | RZ | all/particle_momentum_z | 7.47e-60 | 待定根因（见 REPORT §5） |
 | test_3d_collision_pulsed_decay | 碰撞/DSMC | all/particle_cpu | 0.00e+00 | 待定根因（见 REPORT §5） |
+
+## 首个输出是否已不同（79 个 fork 代码差异用例）
+
+用 `scripts/first_step.py` 比较每个用例**最早一个 diag** 的场量：
+
+- **首个输出完全相同**：47 例 → 差异只来自后续演化（浮点求和顺序/迭代路径/混沌放大），
+  与初始化无关；
+- 首个输出只有 ≤1e-9 的差：11 例 → 舍入级；
+- 首个输出就有明显差：21 例（下表）→ 初始化或诊断本身。
+
+| 用例 | 最差字段 | max abs |
+|---|---|---|
+| test_2d_collisions_split_momentum_push_electrostatic | /data/0/fields/j/x | 4.492e+16 |
+| test_rz_magnetostatic_eb_picmi | boxlib/Er | 2.536e+04 |
+| test_rz_laser_acceleration | boxlib/rho | 1.358e+04 |
+| test_rz_laser_acceleration_opmd | /data/0/fields/rho | 1.358e+04 |
+| test_rz_laser_acceleration_picmi | /data/0/fields/rho | 1.104e+04 |
+| test_3d_magnetostatic_eb | boxlib/jz | 9.947e+03 |
+| test_3d_magnetostatic_eb_picmi | boxlib/jz | 7.958e+03 |
+| test_3d_beam_beam_collision | /data/0/fields/E/x | 2.778e+03 |
+| test_3d_nodal_electrostatic_solver | boxlib/Ey | 1.775e+02 |
+| test_rz_ohm_solver_resistive_drag_species_fields_picmi | /data/0/fields/rho_ions | 7.823e+00 |
+| test_3d_laser_acceleration_btd | boxlib/jz | 1.250e+00 |
+| test_rz_langmuir_multi_psatd_current_correction | boxlib/jr | 2.160e-01 |
+| test_rz_langmuir_multi | boxlib/jr | 1.276e-01 |
+| test_rz_langmuir_multi_psatd_JRhom_LL4 | boxlib/jr | 1.116e-01 |
+| test_rz_langmuir_multi_psatd | boxlib/jz | 1.617e-02 |
+| test_rz_pml_psatd | boxlib/rho | 1.337e-02 |
+| test_3d_effective_potential_electrostatic_picmi | /data/0/fields/j/x | 2.040e-03 |
+| test_2d_embedded_circle | boxlib/phi | 3.852e-04 |
+| test_2d_prev_positions_picmi | boxlib/Ex | 2.192e-04 |
+| test_3d_embedded_boundary_cube_macroscopic | boxlib/Ex | 9.906e-09 |
