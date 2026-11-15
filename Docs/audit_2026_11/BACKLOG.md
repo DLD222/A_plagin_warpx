@@ -69,11 +69,11 @@
 | Source_Core_Runtime_B | F13 | minor | 三处工厂仍是"最后一个赢"且缺省静默返回 nullptr（与 ServiceFactory 的 F-09 修复不一致） | todo |
 | Source_Core_Runtime_B | F14 | minor | `legacy_costs()`：注册了 provider，却没有任何调用者（死契约） | todo |
 | Source_Core_Runtime_B | F15 | minor | `Runtime` 构造函数抛出时 AMReX 不会被 finalize（资源泄漏 + AMReX 退出断言） | todo |
-| Source_Plugins_Collision_A | F1 | major | Bremsstrahlung 饱和分支把 `fmulti` 除以了“未夹紧的 arg”，光子权重与上游不同 | todo |
+| Source_Plugins_Collision_A | F1 | major | Bremsstrahlung 饱和分支把 `fmulti` 除以了“未夹紧的 arg”，光子权重与上游不同 | fixed |
 | Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | todo |
 | Source_Plugins_Collision_A | F3 | minor | `#include` 被放在文件第 1 行、版权头与 include guard 之前 | todo |
 | Source_Plugins_Collision_A | F4 | minor | `BinaryCollisionUtils` 新增的两个转发重载在树内无调用者（死代码 + 多余快照） | todo |
-| Source_Plugins_Collision_B | F1 | major | `pulsed_decay` 删除了上游必填参数 `fixed_product_weight`，无 BackwardCompatibility 保护，旧输入静默改物理 | todo |
+| Source_Plugins_Collision_B | F1 | major | `pulsed_decay` 删除了上游必填参数 `fixed_product_weight`，无 BackwardCompatibility 保护，旧输入静默改物理 | fixed |
 | Source_Plugins_Collision_B | F2 | minor | `pulsed_decay` 新采样器：整片母粒子被销毁 + 产物权重按 `weight_ratio` 逐代缩小；统计方差与文档表述都变了 | todo |
 | Source_Plugins_Collision_B | F3 | minor | `CollisionSpeciesTable` 的 `SpeciesHandle` 全套机制是死代码，且构造时付一次"全粒子数全局归约" | todo |
 | Source_Plugins_Collision_B | F4 | minor | `InverseBremsstrahlung`：`calculateNuei` 在缺少回调时**静默空转**，随后无检查地解引用 `nuei_*` / `N_*` 场 | fixed |
