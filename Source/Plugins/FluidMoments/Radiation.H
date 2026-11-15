@@ -44,6 +44,9 @@
 
 #include <cmath>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -89,8 +92,8 @@ inline void applyOpticallyThinCooling (amrex::MultiFab& state, amrex::Real dt, a
         Box const& bx = mfi.validbox();
         auto s = state.array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real rho = Real(0.0);
                     for (int a = 0; a < layout.n_species; ++a) {
                         rho += s(i, j, k, layout.density(a));
@@ -147,8 +150,8 @@ inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const
             auto const e = er.const_array(mfi);
             auto const r = rho.const_array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         amrex::Real const rr = r(i, j, k, 0);
                         if (rr <= 0.0 || kappa <= 0.0) { continue; }
                         dmax = amrex::max(dmax, radiation::c_light / (Real(3.0) * kappa * rr));
@@ -171,8 +174,8 @@ inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const
             auto const r = rho.const_array(mfi);
             auto e_new = er_new.array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         amrex::Real const rr = r(i, j, k, 0);
                         if (rr <= 0.0 || kappa <= 0.0) { continue; }
                         amrex::Real const ec = e(i, j, k);
@@ -223,8 +226,8 @@ inline void applyRadiationCoupling (amrex::MultiFab& state, amrex::MultiFab& er,
         auto const rho_a = state.const_array(mfi);
         auto e = er.array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real rho = Real(0.0);
                     for (int a = 0; a < layout.n_species; ++a) {
                         rho += rho_a(i, j, k, layout.density(a));

@@ -34,6 +34,11 @@
 #include <string>
 #include <vector>
 
+// These kernels walk a three-direction box; the helpers clamp the directions a lower-
+// dimensional build does not have (see FluidMoments.H).
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace
 {
 double g_steps = 0.0;
@@ -115,8 +120,8 @@ amrex::Real acoustic_dt (amrex::MultiFab const& state, amrex::Geometry const& ge
     for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
         amrex::Box const& bx = mfi.validbox();
         auto const& s = state.const_array(mfi);
-        for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+        for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
                 for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
                     amrex::Real const rho = s(i, j, k, g_layout.density(0))
                                           + s(i, j, k, g_layout.density(1));
@@ -165,8 +170,8 @@ void fluid_step (WarpXStageContext* ctx, void*)
         for (amrex::MFIter mfi(state); mfi.isValid(); ++mfi) {
             amrex::Box const& bx = mfi.validbox();
             auto s = state[mfi].array();
-            for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+            for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
                     for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
                         for (int c = 0; c < g_layout.n_comp(); ++c) { s(i, j, k, c) = 0.0; }
                         // spherical standard-solar-model initialisation, same table as gravity
@@ -194,8 +199,8 @@ void fluid_step (WarpXStageContext* ctx, void*)
         amrex::Box const& bx = mfi.validbox();
         auto s = state.array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real& rho = s(i, j, k, g_layout.density(0));
                     amrex::Real& ee = s(i, j, k, g_layout.energy());
                     if (rho < 1.0e-10) { rho = 1.0e-10; }
@@ -280,13 +285,13 @@ void fluid_step (WarpXStageContext* ctx, void*)
                 amrex::Box const& bx = mfi.validbox();
                 auto s = state[mfi].array();
                 amrex::Box const gb = mfi.fabbox();
-                for (int k = gb.smallEnd(2); k <= gb.bigEnd(2); ++k) {
-                    for (int j = gb.smallEnd(1); j <= gb.bigEnd(1); ++j) {
+                for (int k = star_box_lo(gb, 2); k <= star_box_hi(gb, 2); ++k) {
+                    for (int j = star_box_lo(gb, 1); j <= star_box_hi(gb, 1); ++j) {
                         for (int i = gb.smallEnd(0); i <= gb.bigEnd(0); ++i) {
                             if (bx.contains(amrex::IntVect{AMREX_D_DECL(i, j, k)})) { continue; }
                             int const ii = amrex::min(amrex::max(i, bx.smallEnd(0)), bx.bigEnd(0));
-                            int const jj = amrex::min(amrex::max(j, bx.smallEnd(1)), bx.bigEnd(1));
-                            int const kk = amrex::min(amrex::max(k, bx.smallEnd(2)), bx.bigEnd(2));
+                            int const jj = amrex::min(amrex::max(j, star_box_lo(bx, 1)), star_box_hi(bx, 1));
+                            int const kk = amrex::min(amrex::max(k, star_box_lo(bx, 2)), star_box_hi(bx, 2));
                             for (int c = 0; c < g_layout.n_comp(); ++c) {
                                 s(i, j, k, c) = s(ii, jj, kk, c);
                             }

@@ -42,6 +42,26 @@
 namespace warpx::plugins::fluid
 {
 
+/** Bounds of @p b in direction @p d, clamped to the dimensions this build has.
+ *
+ *  An AMReX `Box` has `AMREX_SPACEDIM` directions: in a 1-D build `bx.smallEnd(1)` reads past
+ *  the end of the IntVect's array, so the resulting loop upper bound is whatever memory follows
+ *  (undefined behaviour, and in practice writes outside the FAB).  The kernels below are written
+ *  for the 3-D shape with the unused directions as a single layer, so the missing directions
+ *  answer 0.
+ */
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int star_box_lo (amrex::Box const& b, int d) noexcept
+{
+    return d < AMREX_SPACEDIM ? b.smallEnd(d) : 0;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int star_box_hi (amrex::Box const& b, int d) noexcept
+{
+    return d < AMREX_SPACEDIM ? b.bigEnd(d) : 0;
+}
+
 /** Largest number of transported components the local (stack) buffers hold.  One species in
  *  three dimensions needs 5; a full solar network with a few species stays well below 16. */
 constexpr int max_components = 16;

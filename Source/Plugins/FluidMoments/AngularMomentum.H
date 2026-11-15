@@ -40,6 +40,9 @@
 
 #include <cmath>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -93,8 +96,8 @@ inline void applyCentrifugalSource (amrex::MultiFab& state, amrex::Geometry cons
         Box const& bx = mfi.validbox();
         auto s = state.array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     // cell centre in every direction, then the radius perpendicular to the axis;
                     // using a zero for a direction that is not being looped over silently added
                     // half a box to r (the z coordinate of a 3D test with one cell in z)
@@ -155,8 +158,8 @@ inline void balanced_gravity (amrex::MultiFab& state, amrex::Geometry const& geo
         auto const s = state.const_array(mfi);
         auto ga = g[axis]->array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real const coord[3] = {
                         geom.ProbLo(0) + (static_cast<amrex::Real>(i) + Real(0.5)) * geom.CellSize(0),
                         (AMREX_SPACEDIM > 1)
@@ -198,8 +201,8 @@ inline amrex::Real total_angular_momentum (amrex::MultiFab& state, amrex::Geomet
         Box const& bx = mfi.validbox();
         auto const s = state.const_array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real const coord[3] = {
                         geom.ProbLo(0) + (static_cast<amrex::Real>(i) + Real(0.5)) * geom.CellSize(0),
                         (AMREX_SPACEDIM > 1)

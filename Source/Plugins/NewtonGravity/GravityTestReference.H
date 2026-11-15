@@ -20,6 +20,10 @@
 #include <functional>
 #include <utility>
 #include <vector>
+#include "NewtonGravity.H"
+
+using warpx::plugins::gravity::star_box_hi;
+using warpx::plugins::gravity::star_box_lo;
 
 /** Analytic reference for the Newton-gravity acceptance tests.
  *
@@ -228,8 +232,8 @@ inline ErrorStats compareAcceleration (amrex::MultiFab const& gx, amrex::MultiFa
         auto const gya = gy.const_array(mfi);
         auto const gza = gz.const_array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real const x = prob_lo[0] + (amrex::Real(i) + amrex::Real(0.5)) * dx[0];
                     amrex::Real const y = prob_lo[1] + (amrex::Real(j) + amrex::Real(0.5)) * dx[1];
                     amrex::Real const z = prob_lo[2] + (amrex::Real(k) + amrex::Real(0.5)) * dx[2];
@@ -272,8 +276,8 @@ inline ErrorStats comparePotential (amrex::MultiFab const& phi, amrex::Geometry 
         amrex::Box const& bx = mfi.validbox();
         auto const pa = phi.const_array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real const x = prob_lo[0] + (amrex::Real(i) + amrex::Real(0.5)) * dx[0];
                     amrex::Real const y = prob_lo[1] + (amrex::Real(j) + amrex::Real(0.5)) * dx[1];
                     amrex::Real const z = prob_lo[2] + (amrex::Real(k) + amrex::Real(0.5)) * dx[2];
@@ -316,8 +320,8 @@ inline amrex::Real maxAccelerationMagnitude (amrex::MultiFab const& gx, amrex::M
         auto const gya = gy.const_array(mfi);
         auto const gza = gz.const_array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     amrex::Real const x = prob_lo[0] + (amrex::Real(i) + amrex::Real(0.5)) * dx[0];
                     amrex::Real const y = prob_lo[1] + (amrex::Real(j) + amrex::Real(0.5)) * dx[1];
                     amrex::Real const z = prob_lo[2] + (amrex::Real(k) + amrex::Real(0.5)) * dx[2];

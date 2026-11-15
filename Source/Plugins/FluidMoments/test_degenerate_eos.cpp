@@ -31,6 +31,9 @@
 #include <cmath>
 #include <cstdio>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -87,8 +90,8 @@ int main (int argc, char* argv[])
             amrex::Box const& bx = mfi.validbox();
             auto s = state[mfi].array();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         s(i, j, k, layout.density(0)) = rho;
                         s(i, j, k, layout.energy()) = e_int;
                     }

@@ -30,6 +30,9 @@
 #include <cmath>
 #include <cstdio>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace
 {
 constexpr int n_cell = 64;
@@ -61,8 +64,8 @@ int main (int argc, char* argv[])
                 auto a = nu[mfi].array();
                 for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
                     amrex::Real const x = (static_cast<amrex::Real>(i) + 0.5) * dx - 0.5;
-                    for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                        for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+                    for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                        for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                             a(i, j, q) = 1.0 + amp * std::cos(k * x);
                         }
                     }
@@ -87,8 +90,8 @@ int main (int argc, char* argv[])
                 auto const a = nu.const_array(mfi);
                 amrex::Box const& bx = mfi.validbox();
                 for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                    for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                        for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) { sum += a(i, j, q); }
+                    for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                        for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) { sum += a(i, j, q); }
                     }
                 }
             }

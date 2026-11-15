@@ -38,6 +38,9 @@
 #include <cstdio>
 #include <vector>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 using namespace amrex;
 using namespace warpx::plugins::fluid;
 
@@ -165,8 +168,8 @@ int main (int argc, char* argv[])
                 {
                     // Only the ghost cells: the interior is the solution we are measuring.
                     if (i >= vbx.smallEnd(0) && i <= vbx.bigEnd(0)
-                        && j >= vbx.smallEnd(1) && j <= vbx.bigEnd(1)
-                        && k >= vbx.smallEnd(2) && k <= vbx.bigEnd(2)) {
+                        && j >= star_box_lo(vbx, 1) && j <= star_box_hi(vbx, 1)
+                        && k >= star_box_lo(vbx, 2) && k <= star_box_hi(vbx, 2)) {
                         return;
                     }
                     Real const x = lo + (Real(i) + Real(0.5)) * dx;

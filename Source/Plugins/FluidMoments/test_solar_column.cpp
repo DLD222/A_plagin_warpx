@@ -162,8 +162,8 @@ int main (int argc, char* argv[])
                 amrex::Real const r = r_lo + (static_cast<amrex::Real>(i) + 0.5) * dx;
                 Row const row = interpolate(rows, r / r_sun);
                 amrex::Real const g_local = -G_newton * row.m_over_M * m_sun / (r * r);
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < n_comp; ++c) { s(i, j, k, c) = 0.0; }
                         amrex::Real const z = amrex::max(1.0 - row.X - row.Y, 1.0e-4);
                         amrex::Real const w[n_species] = {row.X, 0.0, 0.0, row.Y, 0.0,

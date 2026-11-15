@@ -58,8 +58,8 @@ amrex::Real total (amrex::MultiFab& st, StateLayout const& layout, int comp)
         auto const s = st.const_array(mfi);
         amrex::Box const& bx = mfi.validbox();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     sum += s(i, j, k, comp);
                 }
             }
@@ -121,8 +121,8 @@ int main (int argc, char* argv[])
                 // ~6e7 K at this density: hot enough for the network and the cooling to act, not so hot that
                 // the thin cooling wants to remove the whole internal energy in one step
                 amrex::Real const pressure = 1.0e11;
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < n_comp; ++c) { s(i, j, k, c) = 0.0; }
                         // solar-like composition, the network's own species
                         amrex::Real const w[4] = {0.70, 0.28, 0.02, 0.0};
@@ -194,8 +194,8 @@ int main (int argc, char* argv[])
                 auto r = density[mfi].array();
                 auto const s = state.const_array(mfi);
                 for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                    for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                        for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                    for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                        for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                             r(i, j, k) = s(i, j, k, layout.density(0));
                         }
                     }
@@ -247,8 +247,8 @@ int main (int argc, char* argv[])
             auto g = gx[mfi].array();
             amrex::Box const& bx = mfi.validbox();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) { g(i, j, k) = g0; }
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) { g(i, j, k) = g0; }
                 }
             }
         }

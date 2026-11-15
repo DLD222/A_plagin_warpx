@@ -46,6 +46,9 @@
 
 #include <AMReX_MultiFab.H>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -76,8 +79,8 @@ inline amrex::Real sum_energy (amrex::MultiFab& state, StateLayout const& layout
         auto const s = state.const_array(mfi);
         amrex::Box const& bx = mfi.validbox();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     sum += s(i, j, k, layout.energy());
                 }
             }
@@ -93,8 +96,8 @@ inline amrex::Real sum_field (amrex::MultiFab& field)
         auto const a = field.const_array(mfi);
         amrex::Box const& bx = mfi.validbox();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     sum += a(i, j, k);
                 }
             }

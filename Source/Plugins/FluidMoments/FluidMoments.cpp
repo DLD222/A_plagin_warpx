@@ -10,6 +10,9 @@
 
 #include "SolarNetwork.H"
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -38,8 +41,8 @@ void applySolarNetwork (amrex::MultiFab& state, amrex::Real dt, amrex::Real gamm
         Array4<Real> nu4;
         if (neutrino_energy != nullptr) { nu4 = neutrino_energy->array(mfi); }
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     Real rho_species[SolarNetwork::n_species];
                     Real total = Real(0.0);
                     for (int a = 0; a < ns; ++a) {

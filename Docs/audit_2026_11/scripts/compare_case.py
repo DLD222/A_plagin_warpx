@@ -360,11 +360,13 @@ def compare_dirs(ref, new, name=""):
             if os.path.isdir(os.path.join(new, rel)) and any(
                     d == rel or d.startswith(rel + "/") for d in differing):
                 pf.append(rel)
+    worst_rel_field = 0.0
     for rel in sorted(pf):
         e = cmp_plotfile(os.path.join(ref, rel), os.path.join(new, rel))
         e["path"] = rel + "/"
         worst_abs = max(worst_abs, e.get("max_abs_diff", 0.0))
         worst_rel = max(worst_rel, e.get("max_rel_diff", 0.0))
+        worst_rel_field = max(worst_rel_field, e.get("max_rel_diff_field", 0.0))
         res["plotfiles"] = res.get("plotfiles", []) + [e]
 
     res["files_identical"] = ident
@@ -373,6 +375,7 @@ def compare_dirs(ref, new, name=""):
                         and not res["files_only_new"])
     res["max_abs_diff"] = worst_abs
     res["max_rel_diff"] = worst_rel
+    res["max_rel_diff_field"] = worst_rel_field
     return res
 
 

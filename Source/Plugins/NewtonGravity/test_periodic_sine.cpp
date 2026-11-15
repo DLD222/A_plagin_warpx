@@ -28,6 +28,9 @@
 #include <cmath>
 #include <cstdio>
 
+using warpx::plugins::gravity::star_box_hi;
+using warpx::plugins::gravity::star_box_lo;
+
 using namespace amrex;
 
 int main (int argc, char* argv[])
@@ -105,7 +108,7 @@ int main (int argc, char* argv[])
                 // (i, 0, 0) there.
                 Real const err = std::abs(phi_arr(i, 0, 0) - exact);
 #else
-                Real const err = std::abs(phi_arr(i, bx.smallEnd(1), 0) - exact);
+                Real const err = std::abs(phi_arr(i, star_box_lo(bx, 1), 0) - exact);
 #endif
                 max_err = std::max(max_err, (double)err);
                 max_ref = std::max(max_ref, (double)std::abs(exact));
@@ -115,7 +118,7 @@ int main (int argc, char* argv[])
 #if AMREX_SPACEDIM == 1
                 Real const g_num = gz.const_array(mfi)(i, 0, 0);
 #else
-                Real const g_num = gx.const_array(mfi)(i, bx.smallEnd(1), 0);
+                Real const g_num = gx.const_array(mfi)(i, star_box_lo(bx, 1), 0);
 #endif
                 max_g_err = std::max(max_g_err, (double)std::abs(g_num - g_exact));
                 max_g_ref = std::max(max_g_ref, (double)std::abs(g_exact));

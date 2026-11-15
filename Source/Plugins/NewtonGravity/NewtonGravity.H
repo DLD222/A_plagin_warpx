@@ -21,6 +21,26 @@
 namespace warpx::plugins::gravity
 {
 
+/** Bounds of @p b in direction @p d, clamped to the dimensions this build has.
+ *
+ *  An AMReX `Box` has `AMREX_SPACEDIM` directions: in a 1-D build `bx.smallEnd(1)` reads past
+ *  the end of the IntVect's array, so the resulting loop upper bound is whatever memory follows
+ *  (undefined behaviour, and in practice writes outside the FAB).  The kernels below are written
+ *  for the 3-D shape with the unused directions as a single layer, so the missing directions
+ *  answer 0.
+ */
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int star_box_lo (amrex::Box const& b, int d) noexcept
+{
+    return d < AMREX_SPACEDIM ? b.smallEnd(d) : 0;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int star_box_hi (amrex::Box const& b, int d) noexcept
+{
+    return d < AMREX_SPACEDIM ? b.bigEnd(d) : 0;
+}
+
 /** How the potential is closed at the domain boundary.
  *
  * Specification: Docs/research_notes/star_plugins/PHYSICS_SPEC.md sections 1.2 and 1.3.

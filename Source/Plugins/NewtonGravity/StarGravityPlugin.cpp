@@ -34,6 +34,11 @@
 #include <string>
 #include <vector>
 
+// These kernels walk a three-direction box; the helpers clamp the directions a lower-
+// dimensional build does not have (see NewtonGravity.H).
+using warpx::plugins::gravity::star_box_hi;
+using warpx::plugins::gravity::star_box_lo;
+
 namespace
 {
 double g_steps = 0.0;
@@ -220,9 +225,9 @@ static double fill_sphere (WarpXStageContext* ctx, int lev, double r_star)
         auto a = rho.array(mfi);
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
             double const x = plo[0] + (i + 0.5) * d[0];
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
                 double const y = plo[1] + (j + 0.5) * d[1];
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     double const z = plo[2] + (k + 0.5) * d[2];
                     double const r = std::sqrt(x * x + y * y + z * z);
                     double const value = rho_at(r, r_star);

@@ -32,6 +32,9 @@
 #include <cmath>
 #include <cstdio>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace
 {
 constexpr int n_cell = 64;
@@ -68,8 +71,8 @@ int main (int argc, char* argv[])
                 amrex::Real const x = (static_cast<amrex::Real>(i) + 0.5) * dx - 0.5;
                 amrex::Real const rho0 = 1.0 + 0.3 * std::cos(k * x);
                 amrex::Real const rho1 = 0.2 + 0.05 * std::sin(k * x);
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                         s(i, j, q, layout.density(0)) = rho0;
                         s(i, j, q, layout.density(1)) = rho1;
                         amrex::Real const rho = rho0 + rho1;
@@ -94,8 +97,8 @@ int main (int argc, char* argv[])
                 auto const a = state.const_array(mfi);
                 amrex::Box const& bx = mfi.validbox();
                 for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                    for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                        for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+                    for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                        for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                             sum += a(i, j, q, comp);
                         }
                     }

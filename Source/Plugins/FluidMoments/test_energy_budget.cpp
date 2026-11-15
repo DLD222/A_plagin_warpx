@@ -62,8 +62,8 @@ void fill_solar (amrex::MultiFab& st, StateLayout const& layout, amrex::Real rho
         amrex::Box const& bx = mfi.validbox();
         auto s = st[mfi].array();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     for (int c = 0; c < n_comp; ++c) { s(i, j, k, c) = 0.0; }
                     for (int a = 0; a < n_species; ++a) {
                         s(i, j, k, layout.density(a)) = rho * (w[a] / wsum);

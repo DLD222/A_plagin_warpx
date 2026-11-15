@@ -51,8 +51,8 @@ void fill_contrast (amrex::MultiFab& st, StateLayout const& layout, amrex::Geome
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
             amrex::Real const x = (static_cast<amrex::Real>(i) + 0.5) * dx - 0.5;
             amrex::Real const c = amp * std::cos(k * x);
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                     for (int cc = 0; cc < n_comp; ++cc) { s(i, j, q, cc) = 0.0; }
                     s(i, j, q, layout.density(0)) = rho * (1.0 + c);
                     s(i, j, q, layout.density(1)) = rho * (1.0 - c);

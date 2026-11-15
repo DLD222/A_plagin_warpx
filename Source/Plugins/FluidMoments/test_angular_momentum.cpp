@@ -56,8 +56,8 @@ void fill_rotating (amrex::MultiFab& st, StateLayout const& layout, amrex::Geome
             // the radius the source uses: floored at half a cell on the axis
             amrex::Real const r = amrex::max(std::abs(xc - 0.5 * (geom.ProbLo(0) + geom.ProbHi(0))),
                                              0.5 * dx);
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     for (int c = 0; c < n_comp; ++c) { s(i, j, k, c) = 0.0; }
                     s(i, j, k, layout.density(0)) = rho;
                     s(i, j, k, layout.energy()) = p / (gas_gamma - 1.0);
@@ -75,8 +75,8 @@ amrex::Real max_abs_momentum (amrex::MultiFab& st, StateLayout const& layout, in
         auto const s = st.const_array(mfi);
         amrex::Box const& bx = mfi.validbox();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                     worst = amrex::max(worst, std::abs(s(i, j, k, comp)));
                 }
             }

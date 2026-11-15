@@ -95,7 +95,8 @@ def main():
             continue
         res = cc.compare_dirs(da, db, name)
         rec.update({k: res.get(k) for k in ("identical", "files_total", "files_differing",
-                                            "max_abs_diff", "max_rel_diff")})
+                                            "max_abs_diff", "max_rel_diff",
+                                            "max_rel_diff_field")})
         rec["note"] = ",".join((res.get("files_only_ref") or [])[:2]
                               + (res.get("files_only_new") or [])[:2])
         rec["kinds"] = sorted({e.get("kind", "?") for e in res.get("details", [])})
@@ -107,12 +108,13 @@ def main():
     with open(os.path.join(args.out, "cases.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["test", "identical", "files_total", "files_differing",
-                    "max_abs_diff", "max_rel_diff", "kinds",
+                    "max_abs_diff", "max_rel_diff", "max_rel_field", "kinds",
                     f"status_{args.label_a}", f"status_{args.label_b}", "note"])
         for rec in rows:
             w.writerow([rec["name"], rec.get("identical"), rec.get("files_total"),
                         rec.get("files_differing"), rec.get("max_abs_diff"),
-                        rec.get("max_rel_diff"), ";".join(rec.get("kinds", [])),
+                        rec.get("max_rel_diff"), rec.get("max_rel_diff_field"),
+                        ";".join(rec.get("kinds", [])),
                         (ja.get(rec["name"], {}) or {}).get("status", ""),
                         (jb.get(rec["name"], {}) or {}).get("status", ""),
                         rec.get("note", "")])

@@ -72,8 +72,8 @@ int main (int argc, char* argv[])
             amrex::Box const& bx = mfi.validbox();
             auto s = state[mfi].array();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int q = 0; q < n_comp; ++q) { s(i, j, k, q) = 0.0; }
                         s(i, j, k, layout.density(0)) = rho1;
                         s(i, j, k, layout.energy()) = p1 / (gas_gamma - 1.0);
@@ -103,8 +103,8 @@ int main (int argc, char* argv[])
             auto r = rho[mfi].array();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
                 amrex::Real const x = (static_cast<amrex::Real>(i) + 0.5) * dx - 0.5;
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                         e(i, j, q) = 1.0 + 1.0e-6 * std::cos(k * x);
                         r(i, j, q) = rho1;
                     }
@@ -148,8 +148,8 @@ int main (int argc, char* argv[])
             amrex::Box const& bx = mfi.validbox();
             auto s = state2[mfi].array();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                         for (int c = 0; c < n_comp; ++c) { s(i, j, q, c) = 0.0; }
                         s(i, j, q, layout.density(0)) = rho1;
                         s(i, j, q, layout.energy()) = p2 / (gas_gamma - 1.0);

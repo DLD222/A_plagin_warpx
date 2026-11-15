@@ -40,6 +40,9 @@
 
 #include <cmath>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -120,8 +123,8 @@ inline int advanceThermalConduction (amrex::MultiFab& state, amrex::Geometry con
             Box const& bx = mfi.validbox();
             auto const s = state.const_array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         amrex::Real e_int, T, rho;
                         internal_energy_and_T(s, i, j, k, e_int, T, rho);
                         amrex::Real const kap = (kappa_const > 0.0) ? kappa_const
@@ -150,8 +153,8 @@ inline int advanceThermalConduction (amrex::MultiFab& state, amrex::Geometry con
             auto const s = state.const_array(mfi);
             auto s_new = state_new.array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < state.nComp(); ++c) { s_new(i, j, k, c) = s(i, j, k, c); }
                         amrex::Real e_int, T, rho;
                         internal_energy_and_T(s, i, j, k, e_int, T, rho);

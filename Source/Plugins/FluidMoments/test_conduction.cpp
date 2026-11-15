@@ -63,8 +63,8 @@ void fill_wave (amrex::MultiFab& state, StateLayout const& layout, amrex::Geomet
             amrex::Real const xcoord = (static_cast<amrex::Real>(i) + 0.5) * dx - 0.5;
             amrex::Real const T = T0 + amp * std::cos(k * xcoord);
             amrex::Real const p = rho / m_proton * 2.0 * k_boltzmann * T;
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                     for (int c = 0; c < n_comp; ++c) { s(i, j, q, c) = 0.0; }
                     s(i, j, q, layout.density(0)) = rho;
                     s(i, j, q, layout.energy()) = p / (gas_gamma - 1.0);
@@ -82,8 +82,8 @@ amrex::Real total_energy (amrex::MultiFab& state, StateLayout const& layout)
         auto const s = state.const_array(mfi);
         amrex::Box const& bx = mfi.validbox();
         for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-            for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                for (int q = bx.smallEnd(2); q <= bx.bigEnd(2); ++q) {
+            for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                for (int q = star_box_lo(bx, 2); q <= star_box_hi(bx, 2); ++q) {
                     sum += s(i, j, q, layout.energy());
                 }
             }

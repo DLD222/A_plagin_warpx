@@ -106,8 +106,8 @@ int main (int argc, char* argv[])
             amrex::Box const& bx = mfi.validbox();
             auto s = state[mfi].array();
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         s(i, j, k, layout.density(0)) = rho;
                         s(i, j, k, layout.momentum(0)) = 1.0e-6 * 2.0e6;   // u_x = 2e6
                         // keep the energy small: the update is 1e-4 per cell, and at 1e6 the subtraction of two

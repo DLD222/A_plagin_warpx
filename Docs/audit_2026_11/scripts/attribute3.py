@@ -14,7 +14,10 @@ buckets:
   identical           identical to both releases
   upstream-evolution  differs from 26.10 but matches 26.11  -> inherited upstream change, not a fork defect
   behind-2611         matches 26.10 but differs from 26.11   -> one of the upstream commits the fork lacks
-  fork-divergence     differs from both                     -> fork refactor / fork-only plugins: audit target
+  fork-lags-2611      differs from both, but the fork sits on the 26.10 side of the upstream
+                      change -> one of the upstream commits the fork does not carry; not a fork bug
+  fork-divergence     differs from both by a comparable amount -> fork refactor / fork-only
+                      plugins: audit target
 
 Usage:
     attribute3.py --a cases_a.csv --b cases_b.csv --c cases_c.csv [--out DIR]
@@ -68,31 +71,42 @@ def main():
             bucket = 'behind-2611'
         else:
             bucket = 'fork-divergence'
+        def _m(row):
+            try:
+                return float((row or {}).get('max_abs_diff') or 0.0)
+            except (TypeError, ValueError):
+                return 0.0
+        m0, m1, mc = _m(A.get(n)), _m(B.get(n)), _m(C.get(n))
+        # For a case that differs from both releases, decide whether the fork sits on the
+        # 26.10 side of the upstream change (|fork-26.10| much smaller than |26.10-26.11|,
+        # i.e. the fork simply does not carry that upstream commit) or whether it differs
+        # from both by a comparable amount (a fork-specific difference).
+        if bucket == 'fork-divergence':
+            if mc > 0.0 and m0 < 0.25 * mc and m1 >= 0.25 * mc:
+                bucket = 'fork-lags-2611'
         rows.append(dict(test=n, vs_2610=da, vs_2611=db, upstream_changed=dc,
                          bucket=bucket,
-                         max_abs_2610=(A.get(n) or {}).get('max_abs_diff', ''),
-                         max_abs_2611=(B.get(n) or {}).get('max_abs_diff', '')))
+                         max_abs_2610=m0, max_abs_2611=m1, max_abs_upstream=mc))
 
     counts = {}
     for r in rows:
         counts[r['bucket']] = counts.get(r['bucket'], 0) + 1
 
     print('bucket counts')
-    for k in ('identical', 'upstream-evolution', 'behind-2611',
+    for k in ('identical', 'upstream-evolution', 'behind-2611', 'fork-lags-2611',
               'fork-divergence', 'unavailable'):
         print(f'  {k:20s} {counts.get(k, 0):4d}')
 
-    for bucket in ('fork-divergence', 'behind-2611', 'upstream-evolution'):
+    for bucket in ('fork-divergence', 'fork-lags-2611', 'behind-2611',
+                   'upstream-evolution'):
         sel = [r for r in rows if r['bucket'] == bucket]
         if not sel:
             continue
         print(f'\n## {bucket} ({len(sel)})')
-        print(f'{"test":58s} {"vs26.10":>7s} {"vs26.11":>7s} {"upstr":>6s} '
-              f'{"maxabs2610":>12s} {"maxabs2611":>12s}')
+        print(f'{"test":52s} {"vs26.10":>10s} {"vs26.11":>10s} {"2610-2611":>10s} {"upstr":>6s}')
         for r in sel:
-            print(f'{r["test"][:58]:58s} {str(r["vs_2610"]):>7s} {str(r["vs_2611"]):>7s} '
-                  f'{str(r["upstream_changed"]):>6s} '
-                  f'{str(r["max_abs_2610"])[:12]:>12s} {str(r["max_abs_2611"])[:12]:>12s}')
+            print(f'{r["test"][:52]:52s} {r["max_abs_2610"]:10.3e} {r["max_abs_2611"]:10.3e} '
+                  f'{r["max_abs_upstream"]:10.3e} {str(r["upstream_changed"]):>6s}')
 
     if args.out:
         os.makedirs(args.out, exist_ok=True)

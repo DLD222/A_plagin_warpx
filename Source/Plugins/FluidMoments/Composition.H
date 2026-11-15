@@ -45,6 +45,9 @@
 
 #include <cmath>
 
+using warpx::plugins::fluid::star_box_hi;
+using warpx::plugins::fluid::star_box_lo;
+
 namespace warpx::plugins::fluid
 {
 
@@ -72,8 +75,8 @@ inline int diffuseSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, 
             auto const s = state.const_array(mfi);
             auto s_new = state_new.array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < state.nComp(); ++c) { s_new(i, j, k, c) = s(i, j, k, c); }
                         amrex::Real rho = Real(0.0);
                         for (int a = 0; a < layout.n_species; ++a) {
@@ -139,8 +142,8 @@ inline int settleSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, a
             auto const s = state.const_array(mfi);
             auto s_new = state_new.array(mfi);
             for (int i = bx.smallEnd(0); i <= bx.bigEnd(0); ++i) {
-                for (int j = bx.smallEnd(1); j <= bx.bigEnd(1); ++j) {
-                    for (int k = bx.smallEnd(2); k <= bx.bigEnd(2); ++k) {
+                for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
+                    for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < state.nComp(); ++c) { s_new(i, j, k, c) = s(i, j, k, c); }
                         int off[3] = {0, 0, 0};
                         off[dir] = 1;
