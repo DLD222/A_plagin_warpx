@@ -91,9 +91,9 @@
 | Source_Plugins_Diagnostics_B | F1 | critical | regrid 后 TimeAveraged 诊断的累加和被清零（静默错误） | fixed |
 | Source_Plugins_Diagnostics_B | F2 | major | LoadBalanceCosts 诊断写入仿真的 live cost 数组（诊断产生副作用） | fixed |
 | Source_Plugins_Diagnostics_B | F3 | minor | `GetExternalEBField(pti, offset, myspc.runtime_context())` 的 parser 分支不判空 | fixed |
-| Source_Plugins_Diagnostics_B | F4 | minor | 头文件里把 `#include` 写进了版权注释 | todo |
+| Source_Plugins_Diagnostics_B | F4 | minor | 头文件里把 `#include` 写进了版权注释 | fixed |
 | Source_Plugins_Diagnostics_B | F5 | minor | `WarpXOpenPMDPlot` 对 `m_runtime_context` / `config_snapshot` 直接解引用 | todo |
-| Source_Plugins_Diagnostics_B | F6 | minor | 非 EB 构建下 ChargeOnEB 从"运行时明确报错"变成"未注册类型" | todo |
+| Source_Plugins_Diagnostics_B | F6 | minor | 非 EB 构建下 ChargeOnEB 从"运行时明确报错"变成"未注册类型" | fixed |
 | Source_Plugins_Diagnostics_B | F7 | minor | 基类新增 `unique_ptr` 成员使"默认拷贝"静默失效 | todo |
 | Source_Plugins_FieldSolver_A | F1 | major | 宏观介质 E 推进：`algo.macroscopic_sigma_method`（Lax-Wendroff）被静默忽略，永远走一阶 Backward-Euler | fixed |
 | Source_Plugins_FieldSolver_A | F2 | major | ECT 共形 Ampere 路径丢掉 div(E) 清理项 `grad(F)`，F 场只演化不生效 | todo |
@@ -146,10 +146,10 @@
 | Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | todo |
 | Source_Plugins_PicEm_B | F5 | minor | 三个 MomentsSolver 测试二进制永远返回 0，FAIL 只打印不生效 | fixed |
 | Source_Plugins_PicEm_B | F6 | minor | `run_tests.sh` 的路径在插件化移动后失效 | fixed |
-| Source_Plugins_PicEm_B | F7 | minor | `GetPartContainer()` 无空指针保护，与 `particleSystem()` 的设计不一致 | todo |
+| Source_Plugins_PicEm_B | F7 | minor | `GetPartContainer()` 无空指针保护，与 `particleSystem()` 的设计不一致 | fixed |
 | Source_Plugins_PicEm_B | F8 | minor | 诊断 rho 现在也走 `FinalizeRhoOnLevel`（含 PEC/反射边界清零），与上游诊断语义不同 | invalid |
-| Source_Plugins_PicEm_B | F9 | minor | `ParticlePushHandler` 的 HandlerSpec 声称不读任何场 | todo |
-| Source_Plugins_PicEm_B | F10 | minor | `WarpXRuntimeData.H` 的 include 落在版权头与 include guard 之前；`WarpXHostServices.cpp` 有两个 `namespace`  | todo |
+| Source_Plugins_PicEm_B | F9 | minor | `ParticlePushHandler` 的 HandlerSpec 声称不读任何场 | fixed |
+| Source_Plugins_PicEm_B | F10 | minor | `WarpXRuntimeData.H` 的 include 落在版权头与 include guard 之前；`WarpXHostServices.cpp` 有两个 `namespace`  | fixed |
 | Source_Plugins_Star | F1 | critical | 【critical】1D/2D 下 `bx.smallEnd(1)/(2)` 越界读 → 循环上界是垃圾，写穿 FAB | fixed |
 | Source_Plugins_Star | F2 | critical | 【critical】自引力在 runtime 中完全不存在：不算 `g`、也不用 `g` | fixed |
 | Source_Plugins_Star | F3 | critical | 【critical】单位系统三处互斥（cgs 状态 vs SI 几何 vs SI 泊松），可观测 | fixed |

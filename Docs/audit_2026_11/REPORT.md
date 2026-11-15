@@ -107,6 +107,23 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 | `Source_Plugins_Diagnostics_B` F3 | `GetExternalEBField` 的 parser 分支直接解引用 particle system 服务（同文件其它分支都有保护） |
 | `Source_Core_Misc` F2（major） | split-gather 的 B 分量丢掉 Galerkin 降阶 —— 记为**结构性待办**：修法要把降阶判据从"槽位"改成"该分量在该方向是否 NODE"，需重写 gather 内核并用 400 用例重验证；当前仅影响 Darwin 预测步且无测试覆盖 |
 
+## 0.6 round 17 追加
+
+又修 6 项（含 2 项 major）：
+
+| 条目 | 内容 |
+|---|---|
+| `Source_Plugins_PicEm_B` F7 | `WarpX::GetPartContainer()` 直接解引用可能为空的 `mypc`（field-only 构建）→ 加断言并指出何时该用 `particleSystem()` |
+| `Source_Plugins_PicEm_B` F9 | `ParticlePushHandler::spec()` 的 `reads_fields` 为空，而推进必然 gather E/B → 阶段图误以为 Push 不依赖场求解；声明 `{"Efield_fp","Bfield_fp"}` 并同步 `PicEmPackage::register_specs` |
+| `Source_Plugins_Diagnostics_B` F4 | 版权注释内部混入一行 `#include`（注释内的 include 不起作用） |
+| `Source_Plugins_Diagnostics_B` F6 | 非 EB 构建下 `ChargeOnEB` 报 "not a valid type"，补上"需要 EB 支持"的说明 |
+| `Source_Plugins_PicEm_B` F10 | `WarpXRuntimeData.H` 的 include 落在版权头之前；`WarpXHostServices.cpp` 有两个 `namespace` 块 |
+
+`BACKLOG.md` 进度：**fixed 46 / invalid 3 / todo 140**。
+
+本轮末尾**冻结代码**并启动全量 411 例重跑（`audit_runs/round17_fork_junit.xml`），下一轮用它 + 官方
+26.11 的输出生成最终的 407 例对照表。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
