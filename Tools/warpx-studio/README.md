@@ -149,3 +149,19 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
   界面上"6 插件"页会自动列出并每 3 秒刷新；插件抛异常只会在自己的面板里显示，不影响服务与其它插件。
   自带示例 `plugins/run_summary.py`（运行目录/步数/时间/dt/最近一帧/色标范围）。
   实测：`/api/plugins` → `[{"id":"run_summary","name":"运行摘要"}]`，`/api/panel/run_summary` 返回 HTML。
+
+## 阶段 6：CMake 构建按钮（已跑通）
+
+界面第 7 页"构建"：选维度 → 开始构建 → 实时日志 → 构建出的二进制自动出现在"二进制"下拉里。
+
+关键点是**不要自己编造编译选项**。开发过程中踩了三次坑，都记在这里：
+
+| 现象 | 原因 | 修法 |
+|---|---|---|
+| `WarpX_DIMS=1d is not allowed` | 界面用 `1d`，WarpX 只认 `1/2/3/RZ` | `DIMS_MAP` 映射 |
+| `invalid new-expression of abstract class type 'PhysicalParticleContainer'` | 少了 `WarpX_PLUGIN_*` 开关，粒子接口纯虚 | 用 `audit_build/fork/CMakeCache.txt` 的选项作基线 |
+| 配置阶段去 GitHub 下载 AMReX / PICSAR / nlohmann_json / toml11 | 没有指向本地依赖 | 直接 `source audit_build/configure_common.sh` 复用它的 `COMMON` 数组，再补 `-DWarpX_amrex_src=` 与 `FETCHCONTENT_SOURCE_DIR_*` |
+| `FindPkgConfig` 失败 | 清空环境时丢了 `PKG_CONFIG_PATH`（本地 FFTW 的 .pc） | `clean_env()` 里补上，与 `cleanenv.sh` 一致 |
+
+实测：`POST /api/build {"dims":"1d"}` → `finished 214.4 s`，产出
+`audit_runs/studio_builds/1d-smoke/bin/warpx.1d{,.MPI...}`；随后直接用它跑 30 步 → `finished`，无报错。

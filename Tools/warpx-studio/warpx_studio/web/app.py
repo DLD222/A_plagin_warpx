@@ -16,6 +16,7 @@ from warpx_studio.deck.validate import translate_error, validate
 from warpx_studio import plugins as studio_plugins
 from warpx_studio.live.service import LiveView
 from warpx_studio.runner.binaries import discover
+from warpx_studio.runner.build import BuildJob
 from warpx_studio.runner.job import Job
 
 HERE = Path(__file__).resolve().parent
@@ -27,6 +28,7 @@ RUNS = REPO / "audit_runs/studio"
 app = FastAPI(title="WarpX Studio", version="0.1.0")
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
 STATE: dict = {"job": None, "live": None, "run_dir": None}
+BUILD: dict = {"job": None}
 CATALOG: dict = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
 
 
@@ -197,6 +199,31 @@ def api_paraview(launch: bool = True):
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             launched = True
     return {**summary, "launched": launched}
+
+
+class BuildPayload(BaseModel):
+    dims: str = "2d"
+    name: str | None = None
+    jobs: int = 8
+    options: dict[str, str] = Field(default_factory=dict)
+
+
+@app.post("/api/build")
+def api_build(payload: BuildPayload):
+    if BUILD["job"] is not None and BUILD["job"].state in ("configure", "build"):
+        raise HTTPException(409, "a build is already running")
+    name = payload.name or f"{payload.dims}-{time.strftime('%H%M%S')}"
+    job = BuildJob(REPO, name, payload.dims, payload.options, jobs=payload.jobs)
+    job.start()
+    BUILD["job"] = job
+    return {"name": name, "dir": str(job.dir), "started": True}
+
+
+@app.get("/api/build/status")
+def api_build_status():
+    if BUILD["job"] is None:
+        return {"state": "idle"}
+    return BUILD["job"].snapshot()
 
 
 @app.get("/api/checkpoints")

@@ -84,6 +84,7 @@
   <button data-step="4">4 诊断输出</button>
   <button data-step="5">5 全部参数</button>
   <button data-step="6">6 插件</button>
+  <button data-step="7">7 构建</button>
 </nav>
 
 <main>
@@ -184,6 +185,44 @@ function inputRow(name, value, onchange, instance) {
 }
 const innerInstance = (name) => name.startsWith("<");
 
+async function renderBuild() {
+  const form = document.getElementById("form");
+  const dims = document.getElementById("dims").value;
+  form.innerHTML = `
+    <section class="group"><h3><span>从源码构建 WarpX</span><span style="color:var(--dim)">${dims.toUpperCase()}</span></h3>
+      <div class="rows">
+        <div class="row"><label><b>选项</b><br><span style="font-size:12px;color:var(--dim)">留空即用本仓库 audit_build 的已验证配置；构建目录在 audit_runs/studio_builds/</span></label>
+          <div><input id="build-name" placeholder="名称（可选）" style="width:48%"> <input id="build-jobs" type="number" value="12" min="1" style="width:22%"></div></div>
+        <div class="row"><label><b>操作</b></label><div><button id="build-start" class="primary">开始构建</button></div></div>
+      </div>
+      <div class="rows"><pre id="build-log" style="max-height:280px;overflow:auto;font-size:11.5px;background:#0d0f13;padding:8px;border-radius:6px">（未开始）</pre></div>
+    </section>`;
+  document.getElementById("build-start").onclick = async () => {
+    const body = { dims, jobs: Number(document.getElementById("build-jobs").value) || 8 };
+    const name = document.getElementById("build-name").value.trim();
+    if (name) body.name = name;
+    const r = await fetch("/api/build", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body) });
+    const out = await r.json();
+    document.getElementById("build-log").textContent = r.ok ? "已启动: " + out.dir : "启动失败: " + out.detail;
+    pollBuild();
+  };
+  pollBuild();
+}
+
+async function pollBuild() {
+  const pre = document.getElementById("build-log");
+  if (!pre) return;
+  const s = await (await fetch("/api/build/status")).json();
+  if (s.state && s.state !== "idle") {
+    pre.textContent = `[${s.state}] ${s.elapsed}s
+` + (s.log || []).join("\n");
+    pre.scrollTop = pre.scrollHeight;
+    if (s.state === "configure" || s.state === "build") setTimeout(pollBuild, 2000);
+    if (s.state === "finished") refreshCheckpoints();
+  }
+}
+
 async function renderPlugins() {
   const form = document.getElementById("form");
   form.innerHTML = "";
@@ -209,6 +248,7 @@ async function renderPlugins() {
 
 function render() {
   if (STEP === 6) { renderPlugins(); return; }
+  if (STEP === 7) { renderBuild(); return; }
   const form = document.getElementById("form");
   form.innerHTML = "";
   const wanted = STEP_GROUPS[STEP];

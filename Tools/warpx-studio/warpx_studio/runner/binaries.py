@@ -29,7 +29,8 @@ def describe(path: Path) -> dict:
 def discover(root: Path, extra_dirs: list[Path] | None = None) -> list[dict]:
     """Return every ``warpx.*`` executable under the usual build directories."""
     roots = [root / "audit_build", root / "build", root / "build_multi",
-             root / "build_star", root / "build_multi_hdf5_fft"]
+             root / "build_star", root / "build_multi_hdf5_fft",
+             root / "audit_runs/studio_builds"]
     roots.extend(extra_dirs or [])
     found: dict[str, dict] = {}
     for base in roots:
