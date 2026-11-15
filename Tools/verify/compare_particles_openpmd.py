@@ -62,8 +62,12 @@ def compare_species(name, left, right, rtol):
                 return False, [f"  {column}: {a.size} vs {b.size} entries"]
             continue
         # normalise by the spread of the values themselves, not by their magnitude:
-        # momenta around 1e-22 in SI would make a magnitude-relative test meaningless
-        scale = max(np.max(np.abs(a)) - np.min(np.abs(a)), np.max(np.abs(a)), 1e-300)
+        # momenta around 1e-22 in SI would make a magnitude-relative test meaningless.
+        # Mixing |a| and the spread (the old `max(...)`) degenerated to max|a| for a constant
+        # array and made the test loose for narrow distributions (Tools_Tests/F31).
+        span = float(np.max(a) - np.min(a))
+        scale = span if span > 0.0 else float(np.max(np.abs(a)))
+        scale = scale if scale > 0.0 else 1e-300
         diff = float(np.max(np.abs(a - b)))
         rel = diff / scale
         if rel > rtol:

@@ -197,6 +197,11 @@ def selftest():
     assert abs(delta - 0.1 * term) < 1e-12 * abs(f78(0.25)), (delta, term)
 
     # 5. The Q values are the table's column 3.
+    # Q values transcribed from CF88 Table 1 (reaction energetics), *not* derived from RATES.
+    # They must agree with the Q used in the rate expressions; this is a transcription check,
+    # not an independent derivation, and it cannot catch a common transcription error in both
+    # tables (Tools_Tests/F31 - an independent mass-excess cross-check needs the atomic mass
+    # table, which is not in the repository).
     expected_q = {"f2": 1.442, "f4": 5.494, "f18": 12.860, "f24": 1.588, "f41": 0.862,
                   "f42": 0.137, "f61": 1.944, "f64": 7.551, "f71": 7.297, "f76": 12.128,
                   "f78": 4.966}

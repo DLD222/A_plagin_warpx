@@ -76,19 +76,36 @@ int main (int argc, char* argv[])
     check(runtime.fields().has(std::string("plugin_probe_field"), 1),
           "plugin field exists on a level created by dynamic refinement");
 
-    // Checkpoint: the field was requested with checkpoint=true, so the
-    // register's schema-driven writer must have produced its file.
-    bool checkpoint_file_found = false;
+    // Checkpoint: the field was requested with checkpoint=true, so the register's
+    // schema-driven writer must have produced its file *at step 2*.  Looking for any file whose
+    // name starts with the field name (the old check) accepts a directory name, a stale file, or
+    // a file from another step; require the step-tagged checkpoint directory and a non-empty
+    // AMReX header inside it (Tools_Tests/F31).
+    std::filesystem::path checkpoint_dir;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(".")) {
-        const std::string file_name = entry.path().filename().string();
-        if (entry.is_regular_file() &&
-            file_name.rfind("plugin_probe_field", 0) == 0) {
-            checkpoint_file_found = true;
+        if (entry.is_directory() &&
+            entry.path().filename().string().rfind("chk000002", 0) == 0) {
+            checkpoint_dir = entry.path();
             break;
         }
     }
-    check(checkpoint_file_found,
-          "plugin field was written by the checkpoint writer");
+    bool checkpoint_header_found = false;
+    if (!checkpoint_dir.empty()) {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(checkpoint_dir)) {
+            if (!entry.is_regular_file()) {
+                continue;
+            }
+            const std::string name = entry.path().filename().string();
+            if (name.rfind("plugin_probe_field", 0) == 0 && name.back() == 'H' &&
+                std::filesystem::file_size(entry.path()) > 0) {
+                checkpoint_header_found = true;
+                break;
+            }
+        }
+    }
+    check(!checkpoint_dir.empty(), "checkpoint directory for step 2 exists");
+    check(checkpoint_header_found,
+          "plugin field header (step 2) was written by the checkpoint writer");
 
     runtime.finalize();
 

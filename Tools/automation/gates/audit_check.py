@@ -3,6 +3,7 @@
 """A0 audit gate: headers, class catalog, and lifecycle docs exist and are consistent."""
 from __future__ import annotations
 import csv
+import re
 import sys
 from pathlib import Path
 
@@ -12,6 +13,14 @@ EXPECTED = {
     "min_classes": 300,
     "min_methods": 2000,
 }
+# classes.csv is a snapshot of Source/.  A pure threshold check cannot tell a fresh catalog from
+# a stale one (Tools_Tests/F31), so the drift against the current tree is measured and ratcheted:
+# the counts may only go down.  Refresh the catalog (Tools/A0/parse_headers.py +
+# build_catalog.py) and lower these numbers in the same commit.
+DRIFT_BASELINE = {"csv_missing_from_source": 35, "source_missing_from_csv": 103}
+
+DECL = re.compile(r"^\s*(?:template\s*<[^>]*>\s*)?(class|struct)\s+([A-Za-z_]\w*)\s*(?::|\{|$)",
+                  re.M)
 REQUIRED_FILES = [
     "Docs/research_notes/A0/HEADER_CATALOG.md",
     "Docs/research_notes/A0/COVERAGE.md",
@@ -36,11 +45,30 @@ def main() -> int:
     if methods < EXPECTED["min_methods"]:
         errors.append(f"public methods: expected >= {EXPECTED['min_methods']}, found {methods}")
 
+    declared = set()
+    for header in headers:
+        try:
+            text = header.read_text(errors="ignore")
+        except OSError:
+            continue
+        declared.update((m.group(1), m.group(2)) for m in DECL.finditer(text))
+    catalogued = {(r["kind"], r["class"]) for r in rows}
+    drift = {"csv_missing_from_source": len(catalogued - declared),
+             "source_missing_from_csv": len(declared - catalogued)}
+    for key, value in drift.items():
+        if value > DRIFT_BASELINE[key]:
+            errors.append(f"classes.csv drift grew: {key} {DRIFT_BASELINE[key]} -> {value} "
+                          f"(regenerate the A0 catalog or justify the new baseline)")
+
     for f in REQUIRED_FILES:
         if not (ROOT / f).exists():
             errors.append(f"missing {f}")
 
     print(f"headers={len(headers)} classes={len(rows)} public_methods={methods}")
+    print(f"catalog drift: {drift['csv_missing_from_source']} catalogued entries no longer in "
+          f"Source, {drift['source_missing_from_csv']} Source classes not catalogued "
+          f"(baseline {DRIFT_BASELINE['csv_missing_from_source']}/"
+          f"{DRIFT_BASELINE['source_missing_from_csv']})")
     if errors:
         print("FAIL:")
         for e in errors:

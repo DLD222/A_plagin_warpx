@@ -46,8 +46,11 @@ int main ()
 
     auto diagnostics = create_diagnostics_service(nullptr);
     check(diagnostics != nullptr, "diagnostics service can be created");
+    // The discriminator between the plugin service and the no-op fallback is
+    // has_diagnostics_factory(), asserted above and below: with a null context both services
+    // legitimately report 0 diagnostics, so this line is only a smoke check.
     check(diagnostics && diagnostics->GetTotalDiags() == 0,
-          "service reports no diagnostics for a null context");
+          "service reports no diagnostics for a null context (smoke)");
 
     // Simulate a build without the diagnostics plugin.
     clear_service_factories();
@@ -55,7 +58,8 @@ int main ()
     check(!has_collision_handler_factory(), "collision factory can be cleared too");
     auto fallback = create_diagnostics_service(nullptr);
     check(fallback != nullptr, "missing diagnostics plugin yields a no-op service");
-    check(fallback && fallback->GetTotalDiags() == 0, "no-op service reports nothing");
+    check(fallback && fallback->GetTotalDiags() == 0,
+          "no-op service reports nothing (smoke; the factory check above is the discriminator)");
 
     bool legacy_throws = false;
     try {

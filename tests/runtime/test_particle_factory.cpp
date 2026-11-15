@@ -47,9 +47,14 @@ int main ()
     try
     {
         // Nothing has registered yet in this process, so the core must say so by returning
-        // null rather than handing out something half-built.
+        // null rather than handing out something half-built.  Whether a factory *is* registered
+        // at static-init time depends on whether the particle plugin is linked in, so this
+        // assertion is only made in builds without that plugin instead of relying on the linker
+        // not pulling it in (Tools_Tests/F31).
+#ifdef WARPX_NO_PARTICLE_PLUGIN
         check(warpx::runtime::create_particle_system(nullptr) == nullptr,
               "an unregistered factory yields null");
+#endif
 
         auto factory = [] (void*) -> std::unique_ptr<warpx::runtime::IParticleSystem> {
             ++StubSystem::built;

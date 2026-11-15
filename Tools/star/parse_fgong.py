@@ -75,7 +75,7 @@ def main():
           f"X={centre[5]:.5f} eps={centre[8]:.3e} erg/g/s kappa={centre[7]:.4e}")
 
     if args.csv:
-        step = max(1, header[0] // args.rows)
+        step = max(1, len(shells) // args.rows)
         with open(args.csv, "w") as out:
             out.write("# Records run surface -> centre, as in the GONG file.\n")
             out.write("r_over_R,m_over_M,T_K,rho_g_cm3,P_dyn_cm2,X,Y,L_erg_s,kappa,eps\n")
@@ -84,7 +84,7 @@ def main():
                 out.write(f"{r / globals_[1]:.6f},{pow(2.718281828459045, lnq):.6e},"
                           f"{T:.6e},{rho:.6e},{p:.6e},{X:.6e},{1.0 - X - sh[16]:.6e},"
                           f"{L:.6e},{sh[7]:.6e},{sh[8]:.6e}\n")
-        print(f"# wrote {len(range(0, header[0], step))} rows to {args.csv}")
+        print(f"# wrote {len(range(0, len(shells), step))} rows to {args.csv}")
 
 
 if __name__ == "__main__":

@@ -87,6 +87,7 @@ def main():
     assert abs(log_t[0] - LOG_T_MIN) < 1e-6 and abs(log_t[-1] - LOG_T_MAX) < 1e-5
     assert abs(log_r[0] - LOG_R_MIN) < 1e-6 and abs(log_r[-1] - LOG_R_MAX) < 1e-5
 
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     out = DATA_DIR / "opal_gn93_subset.npz"
     np.savez_compressed(out,
                         x=xs_out, z=zs_out, log_t=log_t, log_r=log_r, kappa=kappas)

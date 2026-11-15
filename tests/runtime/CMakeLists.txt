@@ -23,6 +23,12 @@ foreach(D IN LISTS WarpX_DIMS)
         add_executable(compile_only_collision_contracts_${SD} compile_only_collision_contracts.cpp)
         add_executable(test_particle_factory_${SD} test_particle_factory.cpp)
         target_link_libraries(test_particle_factory_${SD} PRIVATE lib_${SD})
+        if(NOT WarpX_PLUGIN_PARTICLECORE)
+            # The "unregistered factory yields null" assertion only holds when no plugin
+            # registers one at static-init time; do not depend on link order (Tools_Tests/F31).
+            target_compile_definitions(test_particle_factory_${SD} PRIVATE
+                WARPX_NO_PARTICLE_PLUGIN)
+        endif()
         add_executable(test_stage_registry_${SD} test_stage_registry.cpp)
         target_link_libraries(test_stage_registry_${SD} PRIVATE lib_${SD})
         add_executable(test_stage_dispatch_${SD} test_stage_dispatch.cpp)

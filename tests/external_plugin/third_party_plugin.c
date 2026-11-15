@@ -61,7 +61,9 @@ static void register_handlers (WarpXPluginHost* host)
     fin_desc.apply = &finalize_handler;
     (void)warpx_host_add_handler(host, &fin_desc);
 
-    WarpXHandlerDesc desc;
+    /* Zero-initialise: assigning every field by hand leaves any field added to the ABI later
+       uninitialised here, which is undefined behaviour (Tools_Tests/F31). */
+    WarpXHandlerDesc desc = {0};
     desc.struct_size = sizeof(WarpXHandlerDesc);
     desc.name = "third_party_handler";
     desc.stage = WARPX_STAGE_AFTER_FIELD_SOLVE;
