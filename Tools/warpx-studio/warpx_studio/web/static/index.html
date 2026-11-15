@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>WarpX Studio</title>
+<style>
+  :root { --bg:#14161c; --panel:#1c1f27; --line:#2c3140; --fg:#e6e8ee; --dim:#9aa3b5;
+          --acc:#4a9eff; --ok:#3fb950; --warn:#d29922; --err:#f85149; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+         background:var(--bg); color:var(--fg); height:100vh; display:grid;
+         grid-template-columns:190px 1fr 420px; grid-template-rows:auto 1fr;
+         grid-template-areas:"head head head" "nav form side"; }
+  header { grid-area:head; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+           padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header input, header select { background:#0f1116; color:var(--fg); border:1px solid var(--line);
+           border-radius:5px; padding:3px 6px; }
+  button { background:#262b36; color:var(--fg); border:1px solid var(--line);
+           border-radius:5px; padding:4px 10px; cursor:pointer; }
+  button:hover { border-color:var(--acc); }
+  button.primary { background:var(--acc); color:#06101f; border-color:var(--acc); font-weight:600; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  nav { grid-area:nav; padding:8px; border-right:1px solid var(--line); overflow:auto; }
+  nav button { display:block; width:100%; text-align:left; margin-bottom:5px; }
+  nav button.active { border-color:var(--acc); color:var(--acc); }
+  main { grid-area:form; overflow:auto; padding:10px 14px; }
+  aside { grid-area:side; border-left:1px solid var(--line); display:flex;
+          flex-direction:column; overflow:hidden; }
+  section.group { border:1px solid var(--line); border-radius:7px; margin-bottom:10px;
+          background:var(--panel); }
+  section.group > h3 { margin:0; padding:7px 10px; font-size:13px; cursor:pointer;
+          border-bottom:1px solid var(--line); display:flex; justify-content:space-between; }
+  .rows { padding:6px 10px 10px; }
+  .row { display:grid; grid-template-columns:minmax(210px,1fr) 1.1fr; gap:8px;
+         align-items:center; padding:2px 0; }
+  .row label { color:var(--dim); font-size:13px; }
+  .row label b { color:var(--fg); font-weight:500; }
+  .row input { background:#0f1116; color:var(--fg); border:1px solid var(--line);
+         border-radius:4px; padding:3px 6px; width:100%; font-family:ui-monospace,monospace; }
+  .row .hint { grid-column:1/-1; color:var(--dim); font-size:12px; margin:-2px 0 6px; }
+  .badge { font-size:11px; color:var(--warn); border:1px solid var(--warn);
+           border-radius:4px; padding:0 4px; margin-left:6px; }
+  .card { border:1px dashed var(--line); border-radius:6px; padding:8px; margin:8px 0; }
+  .card header { display:flex; gap:8px; align-items:center; padding:0 0 6px; all:unset;
+                 display:flex; gap:8px; align-items:center; margin-bottom:6px; }
+  .warn { margin:10px 0; padding:8px 10px; border-radius:6px; font-size:13px; }
+  .warn.bad { background:#3a1d1d; border:1px solid var(--err); }
+  .warn.tip { background:#2a2416; border:1px solid var(--warn); }
+  #live { width:100%; background:#000; min-height:200px; object-fit:contain; }
+  #meta { font-size:12px; color:var(--dim); padding:4px 8px; }
+  #log { flex:1; margin:0; padding:8px; overflow:auto; font-size:11.5px; color:#c9d1d9;
+         background:#0d0f13; border-top:1px solid var(--line); white-space:pre-wrap; }
+  #status { margin-left:auto; display:flex; gap:12px; align-items:center; font-size:13px; }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; }
+  progress { width:150px; height:8px; }
+</style>
+</head>
+<body>
+<header>
+  <select id="binary" title="选择可执行文件（文件名里带构建特性）"></select>
+  <label>MPI <input id="mpi" type="number" min="1" value="1" style="width:52px"></label>
+  <label>线程 <input id="omp" type="number" min="1" value="1" style="width:52px"></label>
+  <label>实时场 <select id="livefield"><option>rho</option><option>E</option><option>B</option></select></label>
+  <select id="livecomp"><option value="">-</option><option>x</option><option>y</option><option>z</option></select>
+  <button id="run" class="primary">▶ 运行</button>
+  <button id="stop" disabled>■ 停止</button>
+  <button id="pause" disabled>⏸ 暂停</button>
+  <button id="resume" disabled>▶ 继续</button>
+  <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
+  <span id="status"><span class="dot" style="background:var(--dim)"></span>空闲</span>
+</header>
+
+<nav>
+  <button data-step="1" class="active">1 几何与网格</button>
+  <button data-step="2">2 粒子组分</button>
+  <button data-step="3">3 场与算法</button>
+  <button data-step="4">4 诊断输出</button>
+  <button data-step="5">5 全部参数</button>
+</nav>
+
+<main>
+  <div id="warn"></div>
+  <div id="form"></div>
+</main>
+
+<aside>
+  <img id="live" alt="实时画面（由 ParaView 渲染）">
+  <div id="meta">尚未开始计算</div>
+  <pre id="log"></pre>
+</aside>
+
+<script>
+const STEP_GROUPS = {
+  1: ["geometry", "amr", "boundary", "(root)"],
+  2: ["particles", "<species_name>"],
+  3: ["algo", "warpx", "psatd", "hybrid_pic_model"],
+  4: ["diagnostics", "<diag_name>", "<reduced_diags_name>", "collisions", "<collision_name>"],
+  5: null,
+};
+const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collision",
+  "<diag_name>": "diag", "<reduced_diags_name>": "rdiag", "<laser_name>": "laser",
+  "<solver_name>": "solver" };
+let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
+
+const groupOf = (name) => {
+  if (name.startsWith("<")) return name.split(">")[0] + ">";
+  return name.includes(".") ? name.split(".")[0] : "(root)";
+};
+const paramsOf = (group) => CATALOG.params.filter(p => groupOf(p.name) === group);
+const label = (name) => ZH.params[name] || name.split(".").slice(-1)[0];
+const docOf = (name) => (CATALOG.params.find(p => p.name === name) || {}).doc || "";
+const typeOf = (name) => (CATALOG.params.find(p => p.name === name) || {}).type || "";
+const guardOf = (name) => (CATALOG.build_guards || {})[name] || [];
+
+function deckGet(name) {
+  if (DECK.params[name] !== undefined) return DECK.params[name];
+  const m = name.match(/^<[a-z_]+>\.(.+)$/);
+  if (m) {
+    const inst = Object.values(DECK.groups[name.split(".")[0].replace(">.", ">")] || {});
+    for (const v of inst) if (v[m[1]] !== undefined) return v[m[1]];
+  }
+  return "";
+}
+function ruleSatisfied(rule, instance) {
+  let param = rule.param;
+  if (instance && param.startsWith("<")) param = param.replace(/^<[a-z_]+>/, instance);
+  const value = String(deckGet(param)).replace(/"/g, "").trim().toLowerCase();
+  if (rule.op === "truthy") return ["1", "true", "t", "yes"].includes(value);
+  if (rule.op === "falsy") return !["1", "true", "t", "yes"].includes(value);
+  return value === String(rule.value).toLowerCase();
+}
+function visible(name, instance) {
+  const rules = (CATALOG.gating_rules || {})[name];
+  if (!rules || !rules.length) return true;
+  return rules.some(r => ruleSatisfied(r, instance));
+}
+
+function inputRow(name, value, onchange, instance) {
+  const wrap = document.createElement("div");
+  wrap.className = "row";
+  const type = typeOf(name), guard = guardOf(name), zh = ZH.params[name];
+  const lab = document.createElement("label");
+  lab.innerHTML = `<b>${name.split(".").slice(innerInstance(name) ? 1 : 0).join(".") || name}</b>` +
+    `<br><span style="font-size:12px;color:var(--dim)">${zh || type || ""}</span>`;
+  lab.title = (zh ? zh + "\n\n" : "") + docOf(name) + (type ? `\n类型: ${type}` : "") +
+    (guard.length ? `\n构建条件: ${guard.join("; ")}` : "");
+  const box = document.createElement("div");
+  const inp = document.createElement("input");
+  inp.value = value || "";
+  inp.placeholder = type ? type.split(",")[0].slice(0, 28) : "";
+  inp.oninput = () => onchange(inp.value);
+  box.appendChild(inp);
+  if (guard.length) { const b = document.createElement("span"); b.className = "badge";
+    b.textContent = "构建条件"; b.title = guard.join("; "); lab.appendChild(b); }
+  const rules = (CATALOG.gating_rules || {})[name];
+  if (rules) { const b = document.createElement("span"); b.className = "badge";
+    b.textContent = "条件"; b.title = rules.map(r => r.raw).join("\n"); lab.appendChild(b); }
+  wrap.append(lab, box);
+  return wrap;
+}
+const innerInstance = (name) => name.startsWith("<");
+
+function render() {
+  const form = document.getElementById("form");
+  form.innerHTML = "";
+  const wanted = STEP_GROUPS[STEP];
+  const groups = Object.keys(CATALOG.groups).filter(g => !wanted || wanted.includes(g));
+  for (const group of groups) {
+    const isTemplate = group.startsWith("<");
+    const params = paramsOf(group);
+    if (!params.length) continue;
+    const sec = document.createElement("section");
+    sec.className = "group";
+    const head = document.createElement("h3");
+    head.innerHTML = `<span>${ZH.sections[group] || group}</span><span style="color:var(--dim)">${params.length} 项</span>`;
+    const body = document.createElement("div");
+    body.className = "rows";
+    head.onclick = () => { body.style.display = body.style.display === "none" ? "" : "none"; };
+    sec.append(head, body);
+
+    if (isTemplate) {
+      const instances = DECK.groups[group] = DECK.groups[group] || {};
+      for (const [inst, values] of Object.entries(instances)) {
+        const card = document.createElement("div");
+        card.className = "card";
+        const bar = document.createElement("div");
+        bar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px";
+        const title = document.createElement("input");
+        title.value = inst; title.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 6px";
+        title.onchange = () => {
+          const old = inst; if (!title.value || title.value === old) return;
+          DECK.groups[group][title.value] = DECK.groups[group][old];
+          delete DECK.groups[group][old]; render();
+        };
+        const del = document.createElement("button");
+        del.textContent = "× 删除"; del.onclick = () => { delete instances[inst]; render(); };
+        bar.append(document.createTextNode(group.replace(/[<>]/g, "")), title, del);
+        card.appendChild(bar);
+        for (const p of params) {
+          const sub = p.name.slice(group.length + 1);
+          if (!visible(p.name, inst)) continue;
+          card.appendChild(inputRow(p.name, values[sub],
+            v => { DECK.groups[group][title.value] = DECK.groups[group][title.value] || {}; DECK.groups[group][title.value][sub] = v; },
+            inst));
+        }
+        body.appendChild(card);
+      }
+      const add = document.createElement("button");
+      add.textContent = `+ 新增一张 ${(ZH.sections[group] || group)}`;
+      add.onclick = () => {
+        const base = TEMPLATE_BASE[group] || "item";
+        let n = 1; while (DECK.groups[group][base + n]) n++;
+        DECK.groups[group][base + n] = {};
+        render();
+      };
+      body.appendChild(add);
+    } else {
+      for (const p of params) {
+        if (!visible(p.name)) continue;
+        body.appendChild(inputRow(p.name, DECK.params[p.name],
+          v => { DECK.params[p.name] = v; }));
+      }
+    }
+    form.appendChild(sec);
+  }
+  validate();
+}
+
+function validate() {
+  const warn = document.getElementById("warn");
+  const msgs = [];
+  const diags = DECK.groups["<diag_name>"] || {};
+  for (const [name, values] of Object.entries(diags)) {
+    if ((values.format || "").toLowerCase() === "openpmd" && !values.intervals && !values.period)
+      msgs.push({ tip: `${name}: format=openpmd 但没有设置 intervals，实时图不会随计算更新。` });
+  }
+  const ncell = (DECK.params["amr.n_cell"] || "").trim().split(/\s+/).map(Number);
+  const cells = ncell.filter(n => n > 0).reduce((a, b) => a * b, 1);
+  if (cells > 4_000_000) msgs.push({ bad: `网格 ${cells.toLocaleString()} 个点，内存可能很大（先小网格跑通）。` });
+  if (!DECK.params["max_step"] && !DECK.params["stop_time"])
+    msgs.push({ tip: "没有设置 max_step 或 stop_time，仿真会一直跑。" });
+  warn.innerHTML = msgs.map(m => `<div class="warn ${m.bad ? "bad" : "tip"}">${m.bad || m.tip}</div>`).join("");
+}
+
+async function loadStarter() {
+  const starter = await (await fetch("/api/starter")).json();
+  DECK.params = starter.params;
+  DECK.groups = starter.groups;
+}
+
+function setStatus(text, colour) {
+  document.getElementById("status").innerHTML =
+    `<span class="dot" style="background:${colour}"></span>${text}`;
+}
+
+async function poll() {
+  try {
+    const s = await (await fetch("/api/status")).json();
+    if (s.state === "idle") return;
+    const running = s.state === "running", paused = s.state === "paused";
+    document.getElementById("run").disabled = running || paused;
+    document.getElementById("stop").disabled = !(running || paused);
+    document.getElementById("pause").disabled = !running;
+    document.getElementById("resume").disabled = !paused;
+    const max = s.max_step ? `/${s.max_step}` : "";
+    const pct = s.max_step ? Math.min(100, 100 * s.step / s.max_step) : 0;
+    setStatus(`${s.state} · step ${s.step}${max} · t=${s.time.toExponential(2)} s · ${s.elapsed}s`,
+      running ? "var(--ok)" : paused ? "var(--warn)" : s.state === "finished" ? "var(--acc)" : "var(--err)");
+    const bar = document.getElementById("pbar");
+    document.getElementById("log").textContent = (s.log || []).join("\n");
+    if (s.errors && s.errors.length) setStatus(`失败: ${s.errors[0].slice(0, 90)}`, "var(--err)");
+    const live = s.live || {};
+    document.getElementById("meta").textContent = live.meta && live.meta.summary
+      ? live.meta.summary + (live.meta.ok ? "" : "（渲染失败）") : "等待第一个输出迭代…";
+    if (live.png) document.getElementById("live").src = "/api/frame?t=" + Date.now();
+  } catch (e) { /* keep polling */ }
+  setTimeout(poll, 1200);
+}
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
+  b.classList.add("active"); STEP = Number(b.dataset.step); render();
+});
+document.getElementById("run").onclick = async () => {
+  const sel = document.getElementById("binary");
+  const body = { ...DECK, binary: sel.value,
+    mpi: Number(document.getElementById("mpi").value) || 1,
+    omp: Number(document.getElementById("omp").value) || 1,
+    live_field: document.getElementById("livefield").value || null,
+    live_component: document.getElementById("livecomp").value || null };
+  const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body) });
+  const out = await r.json();
+  if (!r.ok) { setStatus(out.detail || "启动失败", "var(--err)"); return; }
+  setStatus("已启动 · " + out.run_dir, "var(--ok)"); poll();
+};
+document.getElementById("stop").onclick = () => fetch("/api/stop", { method: "POST" });
+document.getElementById("pause").onclick = () => fetch("/api/pause", { method: "POST" });
+document.getElementById("resume").onclick = () => fetch("/api/resume", { method: "POST" });
+document.getElementById("preview").onclick = async () => {
+  const r = await fetch("/api/preview", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(DECK) });
+  const out = await r.json();
+  const win = window.open("", "_blank"); win.document.write("<pre>" + out.inputs.replace(/</g, "&lt;") + "</pre>");
+};
+
+(async function init() {
+  const data = await (await fetch("/api/catalog")).json();
+  CATALOG = data.catalog; ZH = data.zh;
+  const bins = await (await fetch("/api/binaries")).json();
+  BINARIES = bins.binaries;
+  const sel = document.getElementById("binary");
+  for (const b of BINARIES) {
+    const o = document.createElement("option");
+    o.value = b.path;
+    o.textContent = `${b.build} · ${b.dims} · ${b.features.slice(0, 4).join(",")}`;
+    sel.appendChild(o);
+  }
+  const preferred = BINARIES.find(b => b.dims === "2d" && b.build.includes("fork"));
+  if (preferred) sel.value = preferred.path;
+  await loadStarter();
+  render();
+})();
+</script>
+</body>
+</html>

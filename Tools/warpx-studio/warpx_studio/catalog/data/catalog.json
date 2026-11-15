@@ -9,6 +9,7 @@
   "documented": 386,
   "source_only": 346,
   "with_runtime_gating": 136,
+  "with_gating_rules": 31,
   "with_build_guard": 70,
   "templates": 3
  },
@@ -13764,6 +13765,328 @@
   ],
   "warpx.start_moving_window_step": [
    "if (do_moving_window)"
+  ]
+ },
+ "gating_rules": {
+  "<species_name>.gaussian_beam_rotation_angle": [
+   {
+    "param": "<species_name>.do_gaussian_beam_rotation",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_rotation)"
+   }
+  ],
+  "<species_name>.qed_breit_wheeler_ele_product_species": [
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_breit_wheeler)"
+   }
+  ],
+  "<species_name>.qed_breit_wheeler_pos_product_species": [
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_breit_wheeler)"
+   }
+  ],
+  "<species_name>.qed_quantum_sync_phot_product_species": [
+   {
+    "param": "<species_name>.do_qed_quantum_sync",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_quantum_sync)"
+   }
+  ],
+  "<species_name>.qed_virtual_photon_species_name": [
+   {
+    "param": "<species_name>.do_qed_virtual_photons",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_virtual_photons)"
+   }
+  ],
+  "algo.load_balance_knapsack_factor": [
+   {
+    "param": "algo.load_balance_with_sfc",
+    "op": "falsy",
+    "value": null,
+    "raw": "if (!load_balance_with_sfc)"
+   }
+  ],
+  "mass_matrices_pc_width": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "use_mass_matrices_pc",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_use_mass_matrices_pc)"
+   }
+  ],
+  "max_particle_iterations": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "particle_suborbits": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "particle_tolerance": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "print_unconverged_particle_details": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "qed_schwinger.ele_product_species": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.pos_product_species": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.threshold_poisson_gaussian": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.xmax": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.xmin": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.ymax": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.ymin": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.zmax": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.zmin": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "skip_particle_picard_init": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "use_mass_matrices_jacobian",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_use_mass_matrices_jacobian)"
+   }
+  ],
+  "suborbit_statistics_interval": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "suborbit_warning_threshold": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "use_mass_matrices_jacobian": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "use_mass_matrices_pc": [
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "newton",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   },
+   {
+    "param": "nonlinear_solver",
+    "op": "==",
+    "value": "petsc_snes",
+    "raw": "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+   }
+  ],
+  "warpx.current_centering_nox": [
+   {
+    "param": "warpx.do_current_centering",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_current_centering)"
+   }
+  ],
+  "warpx.current_centering_noy": [
+   {
+    "param": "warpx.do_current_centering",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_current_centering)"
+   }
+  ],
+  "warpx.current_centering_noz": [
+   {
+    "param": "warpx.do_current_centering",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_current_centering)"
+   }
+  ],
+  "warpx.end_moving_window_step": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_moving_window)"
+   }
+  ],
+  "warpx.moving_window_dir": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_moving_window)"
+   }
+  ],
+  "warpx.start_moving_window_step": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_moving_window)"
+   }
   ]
  },
  "build_guards": {

@@ -18,6 +18,7 @@ build configuration.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,42 @@ OUT = HERE / "data/catalog.json"
 
 TEMPLATES = ("<species_name>", "<collision_name>", "<rd_name>", "<m_diag_name>",
              "<diag_name>", "<a_name>", "<a_prefix>", "<a_pp_prefix>")
+
+
+RULE = re.compile(r"(\w+)\s*==\s*(?:[A-Za-z_]\w*::)?([A-Za-z_]\w*)")
+BOOL = re.compile(r"^if \(\s*(!?)\s*([A-Za-z_]\w*)\s*\)$")
+
+
+def gating_rules(sites: list[dict], var_param: dict[tuple[str, str], str]) -> list[dict]:
+    """Turn "if (collision_type == CollisionType::PairwiseCoulomb)" into a form rule.
+
+    The variable -> parameter map comes from the same file: a variable that some read in
+    that file assigns to is a parameter.  Only simple comparisons are turned into rules;
+    anything else keeps the raw condition as a tooltip and the field stays visible, because
+    hiding a field on a mis-parsed condition is worse than showing it.
+    """
+    rules: list[dict] = []
+    for site in sites:
+        for condition in site.get("conditions", []):
+            for var, value in RULE.findall(condition):
+                param = var_param.get((site["file"], var))
+                if param:
+                    rules.append({"param": param, "op": "==", "value": value.lower(),
+                                  "raw": condition})
+            match = BOOL.match(condition)
+            if match:
+                negated, var = match.group(1) == "!", match.group(2)
+                param = var_param.get((site["file"], var))
+                if param:
+                    rules.append({"param": param, "op": "falsy" if negated else "truthy",
+                                  "value": None, "raw": condition})
+    unique, seen = [], set()
+    for rule in rules:
+        key = (rule["param"], rule["op"], rule["value"])
+        if key not in seen:
+            seen.add(key)
+            unique.append(rule)
+    return unique
 
 
 def group_of(name: str) -> str:
@@ -67,14 +104,24 @@ def main() -> int:
                                "conditions": site["conditions"]})
 
 
+    # variable -> parameter, globally: a value read once can gate reads in another parameter
+    var_param: dict[tuple[str, str], str] = {}
+    for site in sites:
+        if site.get("variable"):
+            var_param.setdefault((site["file"], site["variable"]), site["param"])
+
     params = sorted(by_name.values(), key=lambda p: p["name"])
     gating, guards, groups = {}, {}, {}
+    gating_rules_out: dict[str, list[dict]] = {}
     for param in params:
         conditions = sorted({c for s in param["sites"] for c in s["conditions"]})
         runtime = [c for c in conditions if not c.startswith("#")]
         builds = [c for c in conditions if c.startswith("#")]
         if runtime:
             gating[param["name"]] = runtime
+            rules = gating_rules(param["sites"], var_param)
+            if rules:
+                gating_rules_out[param["name"]] = rules
         if builds:
             guards[param["name"]] = builds
         group = group_of(param["name"])
@@ -90,12 +137,14 @@ def main() -> int:
             "documented": len(documented),
             "source_only": len(source_only),
             "with_runtime_gating": len(gating),
+            "with_gating_rules": len(gating_rules_out),
             "with_build_guard": len(guards),
             "templates": sum(1 for g in groups if g in TEMPLATES),
         },
         "groups": {g: sorted(names) for g, names in sorted(groups.items())},
         "params": params,
         "gating": gating,
+        "gating_rules": gating_rules_out,
         "build_guards": guards,
     }
     OUT.write_text(json.dumps(catalog, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -69,3 +69,31 @@ warpx_studio/
 ├── live/        # 阶段 3：pvpython 渲染 + 帧推送，一键转 ParaView 深挖
 └── web/         # 阶段 2：FastAPI + 前端（分区折叠、+号组、向导）
 ```
+
+## 阶段 2：2D 端到端闭环（已跑通）
+
+```bash
+# 启动（独立 conda 环境；渲染仍用 paraview 环境的 pvpython）
+cd ~/WarpX_plugin
+nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
+  ~/miniconda3/envs/warpx-studio/bin/python -m uvicorn warpx_studio.web.app:app \
+  --host 127.0.0.1 --port 8770 > /tmp/studio_server.log 2>&1 &
+# Windows 浏览器打开 http://127.0.0.1:8770
+```
+
+链路：表单（分区折叠 + `+` 号组）→ `deck/model.py` 生成 `.inputs` → `runner/job.py`
+用 `warpx.2d` 跑（mpirun/OMP 可调，STEP 行解析成进度，可停止/暂停/继续）→
+`live/service.py` 盯着 `diag1/openpmd_%06T.h5`，出现新迭代就调
+`live/render_openpmd.py`（pvpython + ParaView 的 openPMD 读取器）渲染一帧，
+网页轮询 `/api/frame` 显示。
+
+实测（2026-11-15）：`warpx.2d` 200 步 / 128² 网格，2 s 跑完；
+实时图按迭代刷新（每帧约 2.0 s，几乎全是 pvpython 冷启动），最后一次渲染
+`iteration=200 ... ok=True`。
+
+已知限制：
+- 每帧起一个 pvpython 进程（约 2 s）。下一步改成常驻渲染进程，把单帧压到 ~0.1 s。
+- 2D 数据是 (x, z) 平面、y 只有一层，渲染器按"退化轴"直接显示而不是 Slice（否则会切成一条线）。
+- `algo.particle_shape`、`<species>.profile`、`<species>.momentum_distribution_type` 在本 fork 里是
+  **必填**（源码里是 `get` 而不是 `query`），向导起步模板已带上。
+- 中文说明目前覆盖向导与常用参数（`catalog/data/zh.json`），其余回退英文原文。
