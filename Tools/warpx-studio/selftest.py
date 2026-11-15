@@ -1,0 +1,255 @@
+#!/usr/bin/env python3
+"""Acceptance test for WarpX Studio: starts the server, exercises every feature, reports.
+
+    ~/miniconda3/envs/warpx-studio/bin/python selftest.py [--port 8791]
+
+Each check prints PASS/FAIL with the evidence it used; the exit code is non-zero if any
+check fails.  The runs use tiny decks on purpose (a few seconds each).
+"""
+from __future__ import annotations
+
+import json
+import os
+import signal
+import socket
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+STUDIO = Path(__file__).resolve().parent
+REPO = STUDIO.parents[1]
+sys.path.insert(0, str(STUDIO))
+
+RESULTS: list[tuple[str, bool, str]] = []
+
+
+def check(name: str, ok: bool, evidence: str) -> bool:
+    RESULTS.append((name, bool(ok), evidence))
+    print(f"[{'PASS' if ok else 'FAIL'}] {name}: {evidence}")
+    return ok
+
+
+def free_port(preferred: int) -> int:
+    with socket.socket() as sock:
+        try:
+            sock.bind(("127.0.0.1", preferred))
+            return preferred
+        except OSError:
+            sock.bind(("127.0.0.1", 0))
+            return sock.getsockname()[1]
+
+
+def start_server(port: int) -> subprocess.Popen:
+    env = dict(os.environ, PYTHONPATH=str(STUDIO))
+    process = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "warpx_studio.web.app:app",
+         "--host", "127.0.0.1", "--port", str(port)],
+        cwd=str(STUDIO), env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True)
+    for _ in range(60):
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{port}/api/plugins", timeout=2)
+            return process
+        except Exception:
+            time.sleep(0.5)
+    raise SystemExit("server did not start")
+
+
+def call(port: int, path: str, payload=None, timeout=600):
+    data = json.dumps(payload).encode() if payload is not None else None
+    request = urllib.request.Request(f"http://127.0.0.1:{port}{path}", data=data,
+                                     headers={"Content-Type": "application/json"},
+                                     method="POST" if payload is not None else "GET")
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            body = response.read()
+            return response.status, (json.loads(body) if body[:1] in (b"{", b"[") else body)
+    except urllib.error.HTTPError as exc:
+        body = exc.read()
+        return exc.code, (json.loads(body) if body[:1] in (b"{", b"[") else body)
+
+
+def main() -> int:
+    port = free_port(int(os.environ.get("WARPS_STUDIO_PORT", "8791")))
+    server = start_server(port)
+    try:
+        run_checks(port)
+    finally:
+        os.killpg(os.getpgid(server.pid), signal.SIGTERM)
+    failed = [name for name, ok, _ in RESULTS if not ok]
+    print(f"\n{len(RESULTS) - len(failed)}/{len(RESULTS)} checks passed")
+    if failed:
+        print("failed:", ", ".join(failed))
+    return 1 if failed else 0
+
+
+def run_checks(port: int) -> None:
+    from warpx_studio.deck.model import Deck, minimal_deck
+    from warpx_studio.deck.validate import translate_error, validate
+
+    # ---- catalog ---------------------------------------------------------
+    _, catalog_payload = call(port, "/api/catalog")
+    catalog, zh = catalog_payload["catalog"], catalog_payload["zh"]
+    counts = catalog["counts"]
+    check("目录规模", counts["total"] >= 700,
+          f"{counts['total']} 参数 = {counts['documented']} 文档 + {counts['source_only']} 仅源码")
+    check("gating 提取", counts["with_runtime_gating"] >= 120,
+          f"{counts['with_runtime_gating']} 条带运行期条件，{counts['with_gating_rules']} 条可执行规则")
+    check("可重复组", sum(1 for g in catalog["groups"] if g.startswith("<")) >= 6,
+          str([g for g in catalog["groups"] if g.startswith("<")]))
+    check("枚举选项", counts["with_options"] >= 20, f"{counts['with_options']} 个参数有下拉选项")
+    check("中文说明", len(zh["params"]) >= 70,
+          f"{len(zh['params'])} 条参数译文 + {len(zh['sections'])} 个分区标题")
+
+    # ---- deck model ------------------------------------------------------
+    for dims in ("1d", "2d", "3d", "rz"):
+        deck = minimal_deck(dims)
+        n = len(deck.get("amr.n_cell").split())
+        check(f"起步模板 {dims}", n == len(deck.get("boundary.field_lo").split()),
+              f"n_cell={deck.get('amr.n_cell')!r} boundary 项数={n}")
+    text = minimal_deck("2d").to_inputs()
+    again = Deck.from_inputs(text).to_inputs()
+    check("deck 往返", again == text, f"{len(text.splitlines())} 行输入文件可无损往返")
+
+    # ---- validation ------------------------------------------------------
+    good = minimal_deck("2d")
+    check("校验：正确 deck 无问题", not validate(good, catalog), "0 条 issue")
+    bad = minimal_deck("2d"); bad.params["amr.n_cell"] = "64 abc"
+    errors = [i for i in validate(bad, catalog) if i["severity"] == "error"]
+    check("校验：类型错误被拦", any(i["param"] == "amr.n_cell" for i in errors),
+          errors[0]["message"] if errors else "未拦下")
+    missing = minimal_deck("2d"); missing.groups["<species_name>"]["electrons"].pop("profile")
+    errors = [i for i in validate(missing, catalog) if i["severity"] == "error"]
+    check("校验：必填项被拦", any("profile" in i["param"] for i in errors),
+          errors[0]["param"] if errors else "未拦下")
+    big = minimal_deck("2d"); big.params["amr.n_cell"] = "4096 4096"
+    warns = [i for i in validate(big, catalog) if i["severity"] == "warn"]
+    check("校验：资源预估", bool(warns), warns[0]["message"][:60] if warns else "无警告")
+
+    # ---- error translation ----------------------------------------------
+    sample = minimal_deck("2d")
+    cases = [
+        ("### ERROR : algo.particle_shape must be set in the input file", "algo.particle_shape"),
+        ("ParmParse::getval ParmParse::getval(): electrons..profile not found in database",
+         "<species_name>.profile"),
+        ("### ERROR : Injection style string 'uniform_kg' not recognized.",
+         "<species_name>.injection_style"),
+    ]
+    for line, expected in cases:
+        got = translate_error(line, catalog, sample)
+        check(f"报错翻译 → {expected}", bool(got) and got["param"] == expected,
+              (got or {}).get("param", "None") + " / " + (got or {}).get("hint", "")[:40])
+
+    # ---- binaries --------------------------------------------------------
+    _, bins = call(port, "/api/binaries")
+    binaries = bins["binaries"]
+    fork = [b for b in binaries if b["build"] == "fork"]
+    check("二进制探测", len(binaries) >= 4 and fork,
+          f"{len(binaries)} 个（fork {len(fork)} 个，维度 {sorted({b['dims'] for b in binaries})}）")
+
+    # ---- run + live view ------------------------------------------------
+    binary = next(b["path"] for b in fork if b["dims"] == "2d")
+    _, starter = call(port, "/api/starter?dims=2d")
+    # long enough that the pause/resume check has something to pause (200 steps finish in ~2 s)
+    starter["params"]["max_step"] = "2000"
+    starter["params"]["amr.n_cell"] = "128 128"
+    status, started = call(port, "/api/run", {
+        "params": starter["params"], "groups": starter["groups"], "binary": binary,
+        "mpi": 1, "omp": 1, "live_field": "rho"})
+    check("启动仿真", status == 200, started.get("run_dir", str(started)))
+    time.sleep(2)
+    status, state = call(port, "/api/status")
+    check("日志进度", state.get("step", 0) > 0,
+          f"state={state['state']} step={state['step']}/{state.get('max_step')}")
+    paused = {}
+    if state["state"] == "running":
+        call(port, "/api/pause", {})
+        _, paused = call(port, "/api/status")
+        check("暂停", paused["state"] == "paused", f"暂停时 state={paused['state']}")
+        call(port, "/api/resume", {})
+        _, resumed = call(port, "/api/status")
+        check("继续", resumed["state"] == "running", f"继续后 state={resumed['state']}")
+    else:
+        check("暂停", False, f"仿真结束太快（step={state.get('step')}），无法测试暂停")
+    for _ in range(60):
+        time.sleep(1)
+        _, state = call(port, "/api/status")
+        if state["state"] in ("finished", "failed"):
+            break
+    check("跑完", state["state"] == "finished",
+          f"state={state['state']} step={state['step']} errors={state.get('errors')}")
+    live = state.get("live") or {}
+    meta = live.get("meta") or {}
+    check("实时帧", bool(live.get("png")) and meta.get("ok"),
+          f"iteration {live.get('iteration')} · {meta.get('ms')} ms · {meta.get('summary','')[:50]}")
+    if live.get("png"):
+        body = call(port, "/api/frame")[1]
+        check("帧可下载", isinstance(body, bytes) and body[:4] == b"\x89PNG",
+              f"{len(body)} bytes, PNG 头正确")
+
+    # ---- checkpoints + restart -----------------------------------------
+    _, chks = call(port, "/api/checkpoints")
+    have = [c for c in chks["checkpoints"]]
+    check("checkpoint 列表", bool(have), ", ".join(c["name"] for c in have[:4]))
+    for _ in range(30):
+        if call(port, "/api/status")[1]["state"] != "running":
+            break
+        time.sleep(1)
+    if have:
+        target = have[0]["path"]
+        restart_deck = json.loads(json.dumps(starter))
+        restart_deck["params"]["amr.restart"] = target
+        restart_deck["params"]["max_step"] = "200"
+        status, _ = call(port, "/api/run", {
+            "params": restart_deck["params"], "groups": restart_deck["groups"],
+            "binary": binary, "mpi": 1, "omp": 1, "live_field": "rho"})
+        check("续算启动", status == 200, "amr.restart=" + Path(target).name)
+        for _ in range(60):
+            time.sleep(1)
+            _, state = call(port, "/api/status")
+            if state["state"] in ("finished", "failed"):
+                break
+        check("续算完成", state["state"] == "finished", f"state={state['state']}")
+
+    # ---- ParaView export -------------------------------------------------
+    status, export = call(port, "/api/paraview?launch=false", {})
+    pvd = Path(export.get("pvd", "")) if isinstance(export, dict) else None
+    check("导出 .pvd", status == 200 and pvd is not None and pvd.exists(),
+          f"{export.get('iterations')} 迭代 / {export.get('files')} 文件 -> {pvd.name if pvd else '-'}")
+    if pvd and pvd.exists():
+        content = pvd.read_text()
+        check("pvd 内容", content.count("<DataSet") >= 1 and "timestep" in content,
+              f"{content.count('<DataSet')} 个 <DataSet>，含 timestep 属性")
+
+    # ---- plugins ---------------------------------------------------------
+    _, plugins = call(port, "/api/plugins")
+    ids = [p["id"] for p in plugins["plugins"]]
+    check("插件发现", "run_summary" in ids, str(ids))
+    if ids:
+        _, panel = call(port, f"/api/panel/{ids[0]}")
+        check("插件渲染", "<table" in panel.get("html", ""), panel.get("name", ""))
+
+    # ---- build configuration (no real build here) ------------------------
+    from warpx_studio.runner.build import DIMS_MAP, BuildJob
+    job = BuildJob(REPO, "selftest-cfg", "2d")
+    command = " ".join(job.configure_command())
+    check("构建命令", all(token in command for token in
+                          ("configure_common.sh", "WarpX_DIMS=2", "WarpX_amrex_src")),
+          "复用 configure_common.sh + 本地 AMReX")
+    check("维度映射", DIMS_MAP == {"1d": "1", "2d": "2", "3d": "3", "rz": "RZ"}, str(DIMS_MAP))
+
+    # ---- UI --------------------------------------------------------------
+    status, page = call(port, "/")
+    if isinstance(page, bytes):
+        page = page.decode("utf-8", "replace")
+    check("界面可访问", status == 200 and "WarpX Studio" in page,
+          f"{len(page)} bytes, 含标题")
+    for marker in ("renderBuild", "renderPlugins", "switchDims", "scheduleValidate"):
+        check(f"界面功能存在: {marker}", f"function {marker}" in page or f"{marker}(" in page,
+              "在页面脚本中")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

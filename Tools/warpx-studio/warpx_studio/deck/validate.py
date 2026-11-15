@@ -127,6 +127,15 @@ def validate(deck, catalog: dict) -> list[dict]:
             check(name, name, deck.params.get(name, ""))
 
     for template, instances in deck.groups.items():
+        # a required key that is *absent* has no item to iterate, so it is checked here
+        for instance in instances:
+            for name in ALWAYS_REQUIRED:
+                if not name.startswith(template + "."):
+                    continue
+                sub = name[len(template) + 1:]
+                if sub not in instances[instance]:
+                    check(f"{instance}.{sub}", name, "")
+    for template, instances in deck.groups.items():
         for instance, values in instances.items():
             for sub, value in values.items():
                 full = f"{template}.{sub}"
