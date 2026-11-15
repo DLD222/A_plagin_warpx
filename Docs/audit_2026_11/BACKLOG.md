@@ -160,7 +160,7 @@
 | Source_Plugins_Star | F8 | major | 【major】辐射扩散把未初始化内存 `ParallelCopy` 进辐射场 | fixed |
 | Source_Plugins_Star | F9 | major | 【major】开放边界（Dirichlet）的边界数据从未填充 → MLMG 用未初始化 ghost | fixed |
 | Source_Plugins_Star | F10 | major | 【major】"AMR 多层势"实为逐层独立求解 + 每层重新盖同一解析剖面（含 restart 语义错误） | fixed |
-| Source_Plugins_Star | F11 | major | 【major】1D 构建下 `applyCentrifugalSource` 的 assert 必崩（默认参数就是非法值） | wip:lead-tools |
+| Source_Plugins_Star | F11 | major | 【major】1D 构建下 `applyCentrifugalSource` 的 assert 必崩（默认参数就是非法值） | fixed |
 | Source_Plugins_Star | F12 | major | 【major】`test_solar_column` 的能量账本断言是自我比较（恒真），且源项全部关闭 | fixed |
 | Source_Plugins_Star | F13 | major | 【major】`test_stellar_model` 栈数组越界：`w[4]` 被索引到 8 | fixed |
 | Tools_Tests | F1 | critical | `check_plugin_boundaries.py` 的两条检查被无条件丢弃（可复现反例） | fixed |

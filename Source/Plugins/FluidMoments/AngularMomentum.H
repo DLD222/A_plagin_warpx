@@ -70,6 +70,17 @@ amrex::Real centrifugal_acceleration (amrex::Real r, amrex::Real u_phi) noexcept
 }
 } // namespace angular_momentum
 
+namespace angular_momentum_defaults
+{
+/** Default direction of the rotation axis.
+ *
+ *  A polar/cylindrical setup rotates about y (index 1), which is a real direction in 2D and 3D.
+ *  A 1D grid has no direction perpendicular to an axis at all, so index 1 would be out of range
+ *  and the assert in applyCentrifugalSource would fire for the default arguments (Star/F11).
+ */
+constexpr int axis_dir = (AMREX_SPACEDIM > 1) ? 1 : 0;
+} // namespace angular_momentum_defaults
+
 /** Add the centrifugal force (and its work) for an azimuthal flow carried in an extra component.
  *
  *  \param state     conserved state; momentum(axis) and the energy are updated
@@ -78,16 +89,30 @@ amrex::Real centrifugal_acceleration (amrex::Real r, amrex::Real u_phi) noexcept
  *  \param uphi_comp index (among the extras) of the azimuthal momentum density rho u_phi
  *  \param axis      momentum direction the centrifugal force acts along (0=x, 1=y, 2=z)
  *  \param axis_dir  direction of the rotation axis (the radius is measured perpendicular to it)
+ *
+ *  \note The force is added to the single \p axis component only.  A 3D star rotating about y
+ *  whose profile is not axisymmetric in the equatorial plane would also need the second
+ *  in-plane component; that is a documented limitation (Star/F11), left unchanged because it
+ *  changes the validated integrator output and needs its own regression.
  */
 inline void applyCentrifugalSource (amrex::MultiFab& state, amrex::Geometry const& geom,
                                     amrex::Real dt, StateLayout const& layout, int uphi_comp,
-                                    int axis = 0, int axis_dir = 1)
+                                    int axis = 0,
+                                    int axis_dir = angular_momentum_defaults::axis_dir)
 {
     using namespace amrex;
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(layout.n_extra > uphi_comp,
         "applyCentrifugalSource: the state has no azimuthal momentum component");
-    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(axis < AMREX_SPACEDIM && axis_dir < AMREX_SPACEDIM,
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(axis >= 0 && axis < AMREX_SPACEDIM,
         "applyCentrifugalSource: axis out of range");
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(axis_dir >= 0 && axis_dir < AMREX_SPACEDIM,
+        "applyCentrifugalSource: axis_dir out of range");
+#if (AMREX_SPACEDIM == 1)
+    // There is no direction perpendicular to the axis on a 1D grid, so the radius is undefined
+    // and the centrifugal term is identically zero.  Returning here is the only self-consistent
+    // behaviour; falling through used to divide by the radius floor and assert on axis_dir.
+    return;
+#endif
 
     amrex::Real const dx = geom.CellSize(0);
     amrex::Real const r_floor = amrex::Real(0.5) * dx;
@@ -147,10 +172,14 @@ inline void applyCentrifugalSource (amrex::MultiFab& state, amrex::Geometry cons
 inline void balanced_gravity (amrex::MultiFab& state, amrex::Geometry const& geom,
                               StateLayout const& layout, int uphi_comp,
                               amrex::Vector<amrex::MultiFab*> const& g, int axis = 0,
-                              int axis_dir = 1)
+                              int axis_dir = angular_momentum_defaults::axis_dir)
 {
     using namespace amrex;
     for (int d = 0; d < AMREX_SPACEDIM; ++d) { g[d]->setVal(0.0); }
+#if (AMREX_SPACEDIM == 1)
+    // Matches applyCentrifugalSource: no perpendicular direction, so nothing has to balance.
+    return;
+#endif
     amrex::Real const dx = geom.CellSize(0);
     amrex::Real const r_floor = amrex::Real(0.5) * dx;
     for (MFIter mfi(state); mfi.isValid(); ++mfi) {
@@ -192,7 +221,7 @@ inline void balanced_gravity (amrex::MultiFab& state, amrex::Geometry const& geo
 /** Total angular momentum sum(rho u_phi * r) over the valid cells, for conservation checks. */
 inline amrex::Real total_angular_momentum (amrex::MultiFab& state, amrex::Geometry const& geom,
                                            StateLayout const& layout, int uphi_comp,
-                                           int axis_dir = 1)
+                                           int axis_dir = angular_momentum_defaults::axis_dir)
 {
     using namespace amrex;
     amrex::Real const dx = geom.CellSize(0);
