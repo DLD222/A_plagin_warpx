@@ -56,8 +56,15 @@ ComputeDiagFunctor::config_snapshot () const
     if (m_runtime_context != nullptr && m_runtime_context->config_snapshot != nullptr) {
         return *m_runtime_context->config_snapshot;
     }
-    static const warpx::runtime::RuntimeConfigSnapshot legacy{};
-    return legacy;
+    // A default-constructed snapshot is *not* the simulation's configuration (ncomps = 1,
+    // nox = 0, grid_type = Default, ...), so a functor that missed its context silently read
+    // zeros.  Fall back to the legacy snapshot, like data()/frame()/host() do.
+    if (!m_legacy_config_snapshot) {
+        m_legacy_config_snapshot =
+            std::make_unique<warpx::runtime::RuntimeConfigSnapshot>(
+                warpx::runtime::RuntimeConfigSnapshot::FromLegacy());
+    }
+    return *m_legacy_config_snapshot;
 }
 
 const warpx::runtime::RuntimeConfig&

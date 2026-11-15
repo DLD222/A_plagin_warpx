@@ -127,6 +127,7 @@ protected:
 
     const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
     mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
+    mutable std::unique_ptr<warpx::runtime::RuntimeConfigSnapshot> m_legacy_config_snapshot;
     mutable std::unique_ptr<warpx::runtime::HostServices> m_legacy_host;
 
     /** Coarsening ratio used to interpolate fields from simulation MultiFabs to output MultiFab. */

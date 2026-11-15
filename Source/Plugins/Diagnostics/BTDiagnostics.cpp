@@ -576,6 +576,10 @@ BTDiagnostics::InitializeFieldFunctors (int lev)
         m_all_field_functors[lev][i] = std::make_unique<BackTransformFunctor>(
                   fields.get(m_cell_centered_data_name, lev), lev,
                   nvars, m_num_buffers, m_varnames, m_varnames_fields);
+        // Propagate the context like FullDiagnostics does.  Without it the field functor falls
+        // back to a legacy snapshot instead of the live configuration, so user settings were
+        // silently ignored on the back-transformed output.
+        m_all_field_functors[lev][i]->SetRuntimeContext(m_runtime_context);
     }
 
     // Define all cell-centered functors required to compute cell-centere data
@@ -696,6 +700,7 @@ BTDiagnostics::InitializeFieldFunctorsRZopenPMD (int lev)
                                        fields.get(m_cell_centered_data_name, lev), lev,
                                        nvars, m_num_buffers, m_varnames,
                                        m_varnames_fields);
+        m_all_field_functors[lev][i]->SetRuntimeContext(m_runtime_context);
     }
 
     // Reset field functors for cell-center multifab
