@@ -159,7 +159,7 @@
 | Source_Plugins_Star | F7 | major | 【major】显式扩散子步 0.2·dx²/D 超过 3D 稳定极限 dx²/(6D)，与"绝不静默失稳"的自述相反 | fixed |
 | Source_Plugins_Star | F8 | major | 【major】辐射扩散把未初始化内存 `ParallelCopy` 进辐射场 | fixed |
 | Source_Plugins_Star | F9 | major | 【major】开放边界（Dirichlet）的边界数据从未填充 → MLMG 用未初始化 ghost | fixed |
-| Source_Plugins_Star | F10 | major | 【major】"AMR 多层势"实为逐层独立求解 + 每层重新盖同一解析剖面（含 restart 语义错误） | todo |
+| Source_Plugins_Star | F10 | major | 【major】"AMR 多层势"实为逐层独立求解 + 每层重新盖同一解析剖面（含 restart 语义错误） | fixed |
 | Source_Plugins_Star | F11 | major | 【major】1D 构建下 `applyCentrifugalSource` 的 assert 必崩（默认参数就是非法值） | todo |
 | Source_Plugins_Star | F12 | major | 【major】`test_solar_column` 的能量账本断言是自我比较（恒真），且源项全部关闭 | todo |
 | Source_Plugins_Star | F13 | major | 【major】`test_stellar_model` 栈数组越界：`w[4]` 被索引到 8 | fixed |
