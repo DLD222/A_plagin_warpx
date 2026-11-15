@@ -1,6 +1,7 @@
 # Tools_Tests 工作日志
 
 claim: Tools_Tests F9,F15-F31 @lead-tools 2026-11-15T18:30
+F16 fixed by HASH(F16); 插件层表改由 Source/Plugins/* 派生（7 个，含 FluidMoments/NewtonGravity，去掉不存在的 IO），target_sources 改为括号计数解析，Core/顶层也纳入检查。改完立刻抓到真实违规: FieldSolver/PSATD 的 2 个 CMakeLists 仍把源文件挂到 warpx_picem_*，已改为 warpx_fieldsolver_*。验证: gate 通过；反证: 新建 Source/Plugins/IO + warpx_io 目标 → 干净的违规信息（旧版 KeyError），Core 引用 Plugins 源文件 → 违规 ✓。构建验证受限: 工作树里 PicEm/Modules/Fluids/MomentFluidSolver.cpp 有其它会话未完成的改动，lib_2d 链接失败；已单独确认 warpx_fieldsolver_2d 编入 10 个 PSATD 对象、picem_2d 的 build.make 不再引用 PSATD
 F23 fixed by HASH(F23); subpixel: sed 后 grep 自检两处编辑确实落地 + BUILD 可配；periodic_interface: 接受 BUILD，并把 [GAUSS] 残差解析成数值断言（<1e-12）；vacuum_limit: WORK 传入 heredoc、二进制自动探测；star_runtime_plugins: joule 改为数值 >0。验证(无 build_multi/build_star，用 stub 二进制): 5.66e-13→exit0 / 1.70e-12→exit1 ✓；joule=0.5→exit0（旧 grep 会误判失败）/ joule=0→exit1 ✓；4 个脚本 bash -n 通过
 F30 fixed by HASH(F30); FS 根改为 Source/Plugins/FieldSolver（旧 PicEm/Modules/FieldSolver 已搬空），输出默认 audit_runs/FIELD_SOLVER_INVENTORY.md（$FIELD_SOLVER_INVENTORY 可覆盖），不再覆盖受控文档。验证: 任意 cwd 下运行 → wrote audit_runs/... (59 files)、exit 0、git status 无 Docs 改动 ✓
 F21 fixed by HASH(F21); PNG 改写到 $SOLAR_COMPARE_OUT（默认 audit_runs/star/，已 gitignore），源码树不再被写。验证: 从 /tmp 运行 solar_compare_plot.py --check → 产物落 audit_runs/star/solar_comparison.png，git status Docs/research_notes 干净；断言 L=1.125/R=0.539 仍通过 ✓
