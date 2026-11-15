@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Inventory FieldSolver implementation files and map each to a solver module."""
 from pathlib import Path
-import re, sys
+import os, re, sys
 ROOT = Path(__file__).resolve().parents[2]
-FS = ROOT / "Source/Plugins/PicEm/Modules/FieldSolver"
-OUT = ROOT / "Docs/research_notes/FIELD_SOLVER_INVENTORY.md"
+FS = ROOT / "Source/Plugins/FieldSolver"
+# Never rewrite a version-controlled document from a generator (Tools_Tests/F30).
+OUT = Path(os.environ.get("FIELD_SOLVER_INVENTORY",
+                          ROOT / "audit_runs/FIELD_SOLVER_INVENTORY.md"))
 
 def classify(rel: Path):
     p = rel.as_posix()
@@ -94,6 +96,7 @@ def main():
         lines.append(f"- {m}: {n} 个 CPP, {l} 行")
     lines += ["", "## 未分类", ""]
     lines += [f"- `{x}`" for x in unclassified] or ["- 无"]
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(lines) + "\n")
     print(f"wrote {OUT} ({len(rows)} files)")
     if unclassified:

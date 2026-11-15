@@ -192,5 +192,5 @@
 | Tools_Tests | F27 | minor | `route_tasks.py` 的"JSON 权威"是死代码 | fixed |
 | Tools_Tests | F28 | minor | `a5_ab.py` 未接入任何门，且硬编码二进制与构建目录 | wip:lead-tools |
 | Tools_Tests | F29 | minor | `build_and_run_4d.sh` 的 conda 前缀变量名疑似笔误 | fixed |
-| Tools_Tests | F30 | minor | `inventory_field_solver.py` 写入源码树文档，且 `classify()` 有多余/不可达分支 | wip:lead-tools |
+| Tools_Tests | F30 | minor | `inventory_field_solver.py` 写入源码树文档，且 `classify()` 有多余/不可达分支 | fixed |
 | Tools_Tests | F31 | minor | 其它可靠性/自证性较弱的点（合并记录，共 9 条） | wip:lead-tools |

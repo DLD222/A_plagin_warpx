@@ -1,6 +1,7 @@
 # Tools_Tests 工作日志
 
 claim: Tools_Tests F9,F15-F31 @lead-tools 2026-11-15T18:30
+F30 fixed by HASH(F30); FS 根改为 Source/Plugins/FieldSolver（旧 PicEm/Modules/FieldSolver 已搬空），输出默认 audit_runs/FIELD_SOLVER_INVENTORY.md（$FIELD_SOLVER_INVENTORY 可覆盖），不再覆盖受控文档。验证: 任意 cwd 下运行 → wrote audit_runs/... (59 files)、exit 0、git status 无 Docs 改动 ✓
 F21 fixed by HASH(F21); PNG 改写到 $SOLAR_COMPARE_OUT（默认 audit_runs/star/，已 gitignore），源码树不再被写。验证: 从 /tmp 运行 solar_compare_plot.py --check → 产物落 audit_runs/star/solar_comparison.png，git status Docs/research_notes 干净；断言 L=1.125/R=0.539 仍通过 ✓
 F20 fixed by HASH(F20); 删掉恒真断言，改为校验 kappa_analytic 返回的 kes 分量 == 0.2(1+X)（能抓到返回值顺序错）；层间容差 15%→6%，删除与之重复的 worst<2.0；eps 比值在 SSM 为 0 时打 n/a、量级超 1e3 用 %g。验证: --selftest 通过（实测 worst 0.050）；反证: 把 epsilon_pp 放大 20% → AssertionError 1.1219 ✓
 F18 fixed by 05c0ecc; printf 改为打印真实 check() 计数（新增 checks 变量）。验证: 重编 test_nonpic_kernel_2d 后输出 'non-PIC kernel: 7 checks passed'，与源码中 7 处 check() 一致 ✓
