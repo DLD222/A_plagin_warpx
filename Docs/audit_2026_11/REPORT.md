@@ -58,8 +58,13 @@ fork 411/411、官方 26.11 407/407 全部通过 ctest；407 个共享用例逐�
 
 - **398 个数值完全相同**（其中 75 个连构建元数据都逐字节相同）；
 - 7 个差异在 1e-10 以下（5 个在 1e-15 量级，属求和次序舍入）；
-- 2 个已证明是混沌放大：`test_2d_laser_ion_acc(_picmi)`（step 0–12 逐位一致）与
-  `test_2d_embedded_circle`（step 5 起 EB 边界单粒子差）。
+- 2 个已证明是混沌/分解敏感，并**用官方自证**：
+  - `test_2d_laser_ion_acc(_picmi)`：官方 26.11 自身 np=1 vs np=2 在 step 100 差 79 个电子、
+    E/x 相对差 15%、rho 相对差 109%；fork vs 官方（同 np=2）只差 13 个电子、E/x 1.2e-4。
+    把 load balance 关掉后 fork 与 26.11 在 step 100 **逐位相同**。
+  - `test_2d_semi_implicit_pc_jacobi`：官方自身 np=1 vs np=2 相对差 130%–270%；
+    fork vs 官方（同分解）只差 1.7e-10。
+  - `test_2d_embedded_circle`：step 0–4 逐位一致，step 5 起 EB 边界单粒子差 1，之后混沌。
 
 明细见 `ATTRIBUTION.md` 末节与 `audit_runs/round13/cmp_vs_2611/cases.csv`。
 
