@@ -93,3 +93,19 @@ python3 Docs/audit_2026_11/scripts/compare_case.py --ref np1 --new np2 ...
 - 没有删掉不通过的算例：407 个共用例全部列出，3 个例外逐条给出可复现的对照实验；
 - 原始记录：`audit_runs/final_all/cases/*.json`（每例一份，含每个数据集、每个字段的
   `max_abs_diff` / `max_rel_diff` / `max_rel_diff_field`），可直接复核。
+
+## 6. 追加验证：验收之后落地的 C++ 改动（round 45）
+
+构建验收用的二进制之后，仓库里又合入了一个 C++ 提交 `d970216`（`Collision_B` F7：legacy/Python
+路径的 collision handler 也在 `InitData` 里走 schema，并提前创建 handler）。它只影响碰撞路径，
+但"验收过的二进制"和"HEAD"必须一致，所以：
+
+1. 重新构建（0 error）；
+2. 重跑全部碰撞相关用例（`collision|dsmc|mcc|brems|fusion|compton|decay|charge_exchange|ionization|impact`）：
+   **44/44 通过**；
+3. 与官方 26.11 重新比对：44 例中 7 例逐字节相同、**37 例 `max_rel_diff_field = 0.000e+00`**、
+   `>1e-12` 的 **0 例**。
+
+也就是说该提交没有改变任何碰撞算例的数值，验收结论对 HEAD 仍然成立。
+
+（剩余工作树里没有别的 C++ 改动：`git diff f018c30..HEAD -- Source/` 只有这一个提交。）
