@@ -47,6 +47,10 @@ void WarpXSolverVec::Define ( warpx::runtime::SolverVectorContext const& a_conte
     else if (m_vector_type_name=="Bfield_fp") {
         m_array_type = FieldType::Bfield_fp;
     }
+    // NOTE: no caller names this vector (the magnetostatic solve keeps its own container, see
+    //       MagnetostaticSolverImpl), so this branch is currently dead.  The name is the *nodal*
+    //       one on purpose: that is the field the magnetostatic solver actually fills, whereas
+    //       upstream mapped it to the non-nodal `vector_potential_fp`, which nothing solved for.
     else if (m_vector_type_name=="vector_potential_fp_nodal") {
         m_array_type = FieldType::vector_potential_fp_nodal;
     }
