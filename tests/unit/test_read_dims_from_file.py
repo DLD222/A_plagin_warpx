@@ -10,7 +10,7 @@ import pytest
 import pywarpx
 
 
-@pytest.mark.parametrize("include", ["inputs_base", '"inputs_base"'])
+@pytest.mark.parametrize("include", ["inputs_base", '"inputs_base"', "inputs_base#attached"])
 def test_include_with_trailing_comment(include):
     """AMReX ends an unquoted value at the next blank and skips a comment
     behind it, so ``FILE = inputs_base  # shared setup`` includes
@@ -20,6 +20,8 @@ def test_include_with_trailing_comment(include):
     with open("inputs_base", "w") as f:
         f.write("geometry.dims = RZ\n")
     with open("inputs_test", "w") as f:
-        f.write(f"FILE = {include}  # shared setup\n")
+        # "inputs_base#attached" has the comment glued to the path (no blank before it): an
+        # unquoted value still ends at '#', which is what this parametrisation locks in.
+        f.write(f"FILE = {include}\n")
 
     assert pywarpx.warpx.read_dims_from_file("inputs_test") == "RZ"

@@ -109,9 +109,12 @@ class WarpX(Bucket):
             return None
         visited.add(filename)
 
-        # included files, in quotes or up to a blank: a comment can follow
+        # included files, in quotes or up to a blank: a comment can follow.
+        # The unquoted branch must stop at '#' as well as at whitespace -- `\S*` used to be able
+        # to pick the '#' back up, so `FILE = inc/base.in#comment` opened a file literally named
+        # "inc/base.in#comment" and the whole include failed.
         file_pattern = re.compile(
-            r'^\s*FILE\s*=\s*(?:"([^"\n\r]+)"|([^\s"#]\S*))', re.I
+            r'^\s*FILE\s*=\s*(?:"([^"\n\r]+)"|([^\s"#]+))', re.I
         )
         # geometry.dims can be 1/2/3/RZ/RCYLINDER/RSPHERE
         dims_pattern = re.compile(
