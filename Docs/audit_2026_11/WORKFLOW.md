@@ -70,15 +70,21 @@ bash Tools/verify/run_gates.sh
 
 ## 5. 建议的分工（互不重叠）
 
-| 会话 | 分区 | 条目数（todo） |
-|---|---|---|
-| A | `Source_Plugins_Star` + `Source_Plugins_Fluid`（星体/流体插件） | 见 BACKLOG |
-| B | `Source_Plugins_FieldSolver_A/B` | |
-| C | `Source_Plugins_PicEm_A/B` + `Source_Core_Runtime_A/B` | |
-| D | `Source_Plugins_ParticleCore_A/B` + `Collision_A/B` | |
-| E | `Diagnostics_A/B` + `Python` + `Tools_Tests` + `Benchmarks` | |
+2026-11-15 18:25 的实际待办分布（`awk -F'|' '/\| todo \|/ {gsub(/ /,"",$2); print $2}' BACKLOG.md | sort | uniq -c`）：
 
-（各分区的 todo 数用 `grep -c "| todo |"` 看 `BACKLOG.md`；条目由粗到细都可以，只要先认领。）
+| 会话 | 分区 | todo 条数 |
+|---|---|---|
+| A | `Tools_Tests` | 18 |
+| B | `Benchmarks` | 14 |
+| C | `Source_Core_Runtime_A` + `Source_Core_Runtime_B` | 10 + 10 |
+| D | `Source_Plugins_ParticleCore_A` + `_B` | 5 + 10 |
+| E | `Source_Plugins_PicEm_A` + `_B` + `Source_Core_Misc` | 9 + 1 + 5 |
+| F | `Source_Plugins_FieldSolver_A` + `_B` | 4 + 9 |
+| G | `Source_Plugins_Collision_A` + `_B` + `Source_Plugins_Diagnostics_B` | 3 + 6 + 2 |
+| H | `Source_Plugins_Star` + `Python` | 1 + 3 |
+
+（`Source_Plugins_Fluid` 没有独立 review 文件，流体/星体的条目在 `Source_Plugins_Star.md` 里。）
+条目由粗到细都可以，只要**先认领再动手**。
 
 ## 6. 已知的"别碰"清单
 
