@@ -14,6 +14,16 @@ def amplitude(path, n=128):
 t0, a0 = amplitude(sys.argv[1]); t1, a1 = amplitude(sys.argv[2])
 sigma = float(sys.argv[3]); gamma = sigma/(2*epsr*eps0)
 expected = np.abs(np.cos(omega*t1)/np.cos(omega*t0)) * np.exp(-gamma*(t1-t0))
+measured = a1/a0
 print(f"t0={t0:.4e} s a0={a0:.6f}   t1={t1:.4e} s a1={a1:.6f}")
-print(f"amplitude ratio: measured {a1/a0:.6f}   expected {expected:.6f}   "
+print(f"amplitude ratio: measured {measured:.6f}   expected {expected:.6f}   "
       f"(sigma={sigma} S/m, gamma={gamma:.3e}/s)")
+
+# The caller used to grep for the words "amplitude ratio", so a wrong decay (the exponential-step
+# sigma branch, or a half-cell shifted Ez) could never fail this check.
+RTOL = float(sys.argv[4]) if len(sys.argv) > 4 else 1.0e-2
+rel = abs(measured/expected - 1.0)
+print(f"relative deviation: {rel:.3e} (tolerance {RTOL:.1e})")
+if rel > RTOL:
+    print("FAIL: the damped cavity mode does not decay like exp(-gamma t)", file=sys.stderr)
+    sys.exit(1)

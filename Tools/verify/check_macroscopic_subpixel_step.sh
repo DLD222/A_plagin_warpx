@@ -23,6 +23,8 @@ sed -e 's/^macroscopic.sigma   = 0/macroscopic.sigma   = 0.001/' \
     "$repo/Examples/Tests/macroscopic_solver/inputs_test_1d_macroscopic_solver" > inputs_subpixel
 "$repo/build_multi/bin/warpx.1d" inputs_subpixel > run.log 2>&1
 ! grep -qE "nan|NaN" run.log
+# The check itself now compares measured and expected (and exits non-zero on a mismatch); the
+# previous version only grepped this output for the words "amplitude ratio", so any decay at all
+# counted as a pass.
 python3 "$repo/Tools/verify/check_macroscopic_cavity_mode.py" \
     diags/diag1000000 diags/diag1000200 0.001 | tee mode.txt
-grep -q "amplitude ratio" mode.txt
