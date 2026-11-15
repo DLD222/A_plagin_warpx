@@ -969,6 +969,14 @@ PML::PML (const int lev, const BoxArray& grid_ba,
         config.time_dependency_rho = time_dependency_rho;
         config.dive_cleaning = m_dive_cleaning;
         config.divb_cleaning = m_divb_cleaning;
+        // The cylindrical solver needs to know which level it belongs to and how many azimuthal
+        // modes the run has; the defaults (lev = 0, n_rz_azimuthal_modes = 1) silently produced a
+        // single-mode solver on level 0 for an RZ PML on a refined level, where the PML fields
+        // are allocated with WarpX::ncomps = 2*n_rz_azimuthal_modes - 1 components.
+        config.lev = lev;
+        config.n_rz_azimuthal_modes = (m_runtime_context != nullptr
+                                       && m_runtime_context->config != nullptr)
+            ? m_runtime_context->config->n_rz_azimuthal_modes() : 1;
         spectral_solver_fp = warpx::runtime::create_spectral_solver(config);
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(spectral_solver_fp != nullptr,
             "the field-solver plugin does not provide a spectral solver (PML)");
