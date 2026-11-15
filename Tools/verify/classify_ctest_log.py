@@ -100,6 +100,8 @@ def main():
     ap.add_argument("log")
     ap.add_argument("--failures-only", action="store_true",
                     help="only print the failing cases")
+    ap.add_argument("--fail-on", choices=["none", "candidate"], default="none",
+                    help="exit 1 when a 'candidate real defect' is seen (use it as a gate)")
     args = ap.parse_args()
 
     result, total, blocks = parse(args.log)
@@ -136,6 +138,12 @@ def main():
               "(`ctest -j1 -R <case> --timeout 2400`) before they are believed:")
         bad = [c for c, why in cases.items() if "candidate real defect" in why]
         print("  " + ("\n  ".join(bad) if bad else "(none)"))
+    if args.fail_on == "candidate":
+        bad = [c for c, why in cases.items() if "candidate real defect" in why]
+        if bad:
+            print(f"\n{len(bad)} case(s) with a candidate real defect "
+                  f"(--fail-on candidate)", file=sys.stderr)
+            return 1
     return 0
 
 
