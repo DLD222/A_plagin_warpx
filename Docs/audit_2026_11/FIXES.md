@@ -14,6 +14,8 @@
 | 7 | `check_plugin_boundaries.py` 结尾覆盖 `errors`，“重复头文件/依赖环”永不失败 | `Tools/Modularization/check_plugin_boundaries.py` | 代码路径：先 `errors.append(...)`，后被 `errors = sorted(...)` 覆盖 | 修复后仓仍 `OK (0 known)`；反例路径现在会 exit 1 | `89d248c` |
 | 8 | `parse_tests.py` 把 `_upstream/` 当本地树，上游一致性门恒过 | `Tools/verify/parse_tests.py` | `SKIP_DIRS` 缺 `_upstream/audit_*/warpx-data/...` | 现在 `local 424` vs `reference 408`（此前 832，翻倍） | `89d248c` |
 
+| 9 | 诊断 rho 的“边界+体积标定”与 guard-cell 求和的次序与上游相反 | `Source/Plugins/PicEm/RuntimeBridge/Runtime/WarpXHostServices.cpp::computeRho` | 上游 `DepositCharge(..., apply_boundary_and_scale_volume=true)` 先做边界条件与径向体积标定，再做 `ApplyFilterandSumBoundaryRho` | 同二进制 A/B：`test_rz_laser_acceleration` 的 rho 最大差 **1.36e4 → 1.09e4（-19.5%）**；`test_rz_ohm_solver_*` 与 `test_rz_magnetostatic_eb_picmi` **不变**；`test_2d_langmuir_multi` 仍通过 | 见下一行 commit |
+
 ## 回归证据摘要（修复 #5）
 
 | 用例 | 修复前 max abs (vs 官方 26.10) | 修复后 |
