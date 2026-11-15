@@ -355,3 +355,34 @@ J 的径向标定现在只有一个入口：`WarpX::FinalizeJOnLevel`。
 
 **仍然失败、且已用 stash 重建核对为"本轮之前就有"**：`runtime_snapshot_particles_2`
 （`inputs_2d_particles` 夹具缺 reduced-diag 声明）、`plugin_c_abi_header_2d`（已修，见 FIXES #20）。
+
+
+---
+
+# 最终对照（round 13）：fork vs 官方 26.11，407 个共享用例
+
+两侧都跑完整 ctest（fork 411/411 通过、官方 26.11 407/407 通过），逐用例逐数据集对比
+（`max_abs_diff` 排除构建元数据与粒子 id/网格索引；`rel_field` 是相对**场量级**的差）：
+
+| 结果 | 数量 |
+|---|---|
+| 逐字节完全相同（连 `warpx_job_info` 都相同） | **75** |
+| 数值完全相同（`max_abs_diff == 0`） | **398** |
+| 有任何数值差 | 9 |
+| 其中相对场量级 > 1e-9 | **2** |
+
+9 个有差用例的全部清单：
+
+| 用例 | max_abs | rel_field | 结论 |
+|---|---|---|---|
+| `test_2d_laser_ion_acc` | 2.99e14 | 0（历史图的参考值为 0） | **已证混沌**：两侧 step 0–12 逐位一致（`diags` 每步对比 maxdiff=0），之后电离+激光把 1 ULP 放大 |
+| `test_2d_laser_ion_acc_picmi` | 8.17e13 | 0 | 同上 |
+| `test_2d_embedded_circle` | 5.0e-3 | 2.0e-1 | **单粒子混沌**：step 0–4 逐位一致，step 5 起 EB 边界上的粒子计数差 1，之后混沌放大 |
+| `test_2d_semi_implicit_pc_jacobi` | 3.6e-1 | 1.7e-10 | 隐式迭代的求和次序，舍入级 |
+| `test_3d_embedded_boundary_cube_macroscopic` | 4.5e-13 | 1.3e0 | 场本身只有 1e-13（数值零），"相对差"没有意义 |
+| `test_3d_particle_scrape_picmi` | 4.8e-6 | 1.9e-15 | 舍入级 |
+| `test_1d_macroscopic_solver(_picmi)` | 4.4e-7 | 3.6e-15 | 舍入级 |
+| `test_2d_macroscopic_solver` | 2.2e-7 | 2.3e-15 | 舍入级 |
+
+**结论**：以 26.11 为基准，407 个自带算例里 398 个数值完全相同，另 7 个在 1e-10 以下
+（5 个在 1e-15 量级），剩 2 个已用逐 step 对照证明是混沌放大而非结构性错误。

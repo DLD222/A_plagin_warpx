@@ -52,6 +52,17 @@
 舍入级与两个已证混沌的用例（见 `ATTRIBUTION.md`）。剩下的工作是代码审查清单
 （62 major / 113 minor）逐条区分"上游继承 vs fork 引入"并修复 fork 引入项。
 
+## 0.2 round 13 最终对照（以 26.11 为基准）
+
+fork 411/411、官方 26.11 407/407 全部通过 ctest；407 个共享用例逐数据集对比：
+
+- **398 个数值完全相同**（其中 75 个连构建元数据都逐字节相同）；
+- 7 个差异在 1e-10 以下（5 个在 1e-15 量级，属求和次序舍入）；
+- 2 个已证明是混沌放大：`test_2d_laser_ion_acc(_picmi)`（step 0–12 逐位一致）与
+  `test_2d_embedded_circle`（step 5 起 EB 边界单粒子差）。
+
+明细见 `ATTRIBUTION.md` 末节与 `audit_runs/round13/cmp_vs_2611/cases.csv`。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
