@@ -85,6 +85,16 @@ fork 411/411、官方 26.11 407/407 全部通过 ctest；407 个共享用例逐�
 Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba0911`（1D RSPHERE，无算例覆盖）、
 以及 review 里其余 major/minor 的逐条区分（`CODE_AUDIT.md` 的"已修/已撤销/不成立/待办"表）。
 
+## 0.4 round 14 追加
+
+- **两个"实质差异"用例已用官方自证为分解敏感性**（详见 `ATTRIBUTION.md`）：官方 26.11 自身
+  np=1 vs np=2 在 `test_2d_laser_ion_acc` 差 79 个电子/E 场 15%、在
+  `test_2d_semi_implicit_pc_jacobi` 差 130%–270%；而 fork 与官方**同分解**分别只差
+  1.2e-4 与 1.7e-10。关掉 load balance 后前者在 step 100 **逐位相同**。
+- 又修 4 项：`MomentCoupling` 焦耳加热多乘一个 rho（total energy 不守恒）、
+  `SemiImplicitDarwin::m_magnetostatic_particle_shape` 未初始化、
+  pywarpx `FILE = path#comment` 把注释吞进路径（并加单测参数锁定）。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。

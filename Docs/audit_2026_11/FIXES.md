@@ -109,3 +109,18 @@ RZ 逐物种诊断量的边界处理（已逐格定位到 z 上边界）、star/
 | 26 | 3D 张量介质 `rho_medium` 种子的 `Dy` 用了 eps 的 xz 分量（应为 yy） | `Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsEM.cpp:1315` | eps 分量顺序 `(xx,yy,zz,xy,xz,yz)`（`MacroscopicProperties.cpp:684`），`Dy=xy*Ex+yy*Ey+yz*Ez` | 改 `en1(...,1)`；12 个 macroscopic 用例通过（其中 `test_3d_embedded_boundary_cube_macroscopic` 的 benchmark 因这次修正重设，变化只在 1e-18 的 Bx 与 Ey 的第 7 位有效数字） |
 | 27 | HLLC/MUSCL 全链路无正定性下限（rho=0 除零、负压开平方得 NaN、全局最大波速被 NaN 污染） | `FluidMoments/FluidMoments.H` | review F6；构造反例：密度比 1e4 的 Sod 型初值 | `primitive()`/`soundSpeed()` 对 rho/e_int/p 夹 `real_floor`；`fluid_*` 33/33 |
 | 28 | `test_stellar_model` 的 `w[4]` 被按 9 个物种索引（栈越界，垃圾密度喂给 CF88） | 同上 Tests | review F13 | 改 `w[n_species]`；该用例 211 s 通过 |
+
+### round 14
+
+| # | 缺陷 | 位置 | 依据 | 验证 |
+|---|---|---|---|---|
+| 29 | `MomentCoupling` 焦耳加热多乘一个 rho（动量密度再乘密度） | `Modules/MomentsSolver/Coupling/MomentCoupling.H:88` | `u[1..3]` 已是动量密度 ⇒ `u·E = J·E/qm`；再乘 rho 使 rho≪1 时不加热、rho>1 时过加热，总能量不守恒 | 去掉多余 rho；30 个 moments/ten_moment/fluid 用例通过 |
+| 30 | `SemiImplicitDarwin::m_magnetostatic_particle_shape` 未初始化 | `FieldSolver/Implicit/SemiImplicitDarwin.H:159` | 唯一赋值在 `Define()`，`PrintParameters()/OneStep` 可能先读 | 默认 1；12 个 darwin/semi_implicit 用例通过 |
+| 31 | pywarpx `FILE = inc/base.in#comment` 把 `#comment` 吞进路径 | `Python/pywarpx/WarpX.py:114` | 非引号分支 `([^\s"#]\S*)` 的 `\S*` 又把 `#` 收回来 | 改 `([^\s"#]+)`；四种写法都解析成 `inc/base.in`；单测加 `inputs_base#attached` 参数；`ctest -R '^pytest.WarpX'` 4/4 |
+
+### 两个"实质差异"用例的自证（详见 `ATTRIBUTION.md`）
+
+| 用例 | 官方 26.11 np=1 vs np=2 | fork vs 官方（同分解） |
+|---|---|---|
+| `test_2d_laser_ion_acc` | 电子数差 79、E/x 相对 1.5e-1、rho 1.1e0 | 电子数差 13、E/x 1.2e-4 |
+| `test_2d_semi_implicit_pc_jacobi` | 相对 1.3–2.7 | 1.7e-10 |
