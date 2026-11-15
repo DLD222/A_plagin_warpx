@@ -102,7 +102,7 @@
 | Source_Plugins_FieldSolver_A | F5 | minor | 隐式求解器：`mass_matrices_pc_width` 默认 0→1，叠加新 abort，3D Villasenor 旧算例会直接中止 | todo |
 | Source_Plugins_FieldSolver_A | F6 | minor | 新张量材料填充只按二维取样（3D 下 y 方向冻结） | todo |
 | Source_Plugins_FieldSolver_A | F7 | minor | 亚像素张量：正定性/退化检查用 `AMREX_ASSERT`（release 构建被编译掉） | todo |
-| Source_Plugins_FieldSolver_B | F1 | major | PSATD 谱求解器工厂：PML 调用点漏填 `lev` / `n_rz_azimuthal_modes`（RZ 下静默用 0 层、1 个方位模） | todo |
+| Source_Plugins_FieldSolver_B | F1 | major | PSATD 谱求解器工厂：PML 调用点漏填 `lev` / `n_rz_azimuthal_modes`（RZ 下静默用 0 层、1 个方位模） | fixed |
 | Source_Plugins_FieldSolver_B | F2 | minor | `WeightedJacobiImpl::Update()` 每次 PC 更新都用 Gershgorin 界覆盖已自适应的 omega | todo |
 | Source_Plugins_FieldSolver_B | F3 | minor | Newton 发散判据从"直接 abort"改为"警告 + exit_status=-9" | todo |
 | Source_Plugins_FieldSolver_B | F4 | minor | `SpectralFieldData.H` 重复的前置声明 | todo |
@@ -141,7 +141,7 @@
 | Source_Plugins_PicEm_A | F11 | major | 流体–Maxwell 耦合源的 “内能不变” 能量更新多乘了一个 rho | fixed |
 | Source_Plugins_PicEm_A | F12 | minor | `Maxwell6` 数值通量注释声称精确 Roe/upwind，实现是分量式 Rusanov | todo |
 | Source_Plugins_PicEm_B | F1 | major | radial 几何下 rho 的 volume-weighted filter 用了错误的标定分支 | invalid |
-| Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | todo |
+| Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | fixed |
 | Source_Plugins_PicEm_B | F3 | major | Python 绑定类名 `WarpXParIter` → `ParticleTileIter`，pywarpx 调用点未同步 | fixed |
 | Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | todo |
 | Source_Plugins_PicEm_B | F5 | minor | 三个 MomentsSolver 测试二进制永远返回 0，FAIL 只打印不生效 | fixed |

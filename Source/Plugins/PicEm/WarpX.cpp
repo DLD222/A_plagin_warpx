@@ -738,6 +738,22 @@ WarpX::ReadParameters ()
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             ect_conformal_E >= 0,
             "algo.ect_conformal_E must be >= 0 (0 = off)");
+        // The conformal (ECT) E update does not take the F field, so the div(E) cleaning term
+        // c^2 dt grad(F) is silently dropped: F keeps evolving and never feeds back, and the
+        // charge-conservation error it is there to correct just grows.  Refuse the combination
+        // instead of producing that silently -- implementing it means threading F through the
+        // three conformal kernels.
+        if (ect_conformal_E > 0) {
+            // Read it locally: the member is filled later in ReadParameters, and this check has to
+            // see the user's value regardless of the order.
+            int do_dive_cleaning_in = 0;
+            const ParmParse pp_warpx_local("warpx");
+            pp_warpx_local.query("do_dive_cleaning", do_dive_cleaning_in);
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+                do_dive_cleaning_in == 0,
+                "warpx.do_dive_cleaning is not implemented together with algo.ect_conformal_E: "
+                "the conformal E update would ignore the grad(F) correction");
+        }
         if (ect_conformal_E > 0) {
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 electromagnetic_solver_id == ElectromagneticSolverAlgo::ECT,
