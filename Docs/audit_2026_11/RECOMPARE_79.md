@@ -104,8 +104,11 @@
 - 再对比官方 26.10：**78 个仍有数值差异、1 个只剩元数据差异**。
   这与“79 这个列表本身就是在修复 #5/#6 之后统计出来的”一致，所以不期待该列表变小；
   真正的进展需要继续修结构性根因。
-- **可疑新线索**：差异量级里出现 `2.8e307`、`1.5e179` 这类数值，远超任何物理量，
-  只可能来自**未初始化/未填满的诊断场**（集中在隐式求解器相关用例：
-  `test_3d_theta_implicit_jfnk_direct`、`test_2d_theta_implicit_jfnk_vandb_cropping`、
-  `test_2d_embedded_circle`、`test_1d_laser_injection_implicit`）。
-  这比“重构导致舍入顺序不同”严重，下一轮优先查：这些场在 fork 里是否被部分写出。
+- **更正（同日复核）**：先前把 `2.8e307`、`1.5e179` 当成“未初始化诊断场”是**误判**。
+  这些数来自 `compare_case.py` 的 `binary_diff` 兜底分支：当两个二进制文件逐字节不同时，
+  脚本会把整份文件按 float64 重新解释来估量级；而 AMReX plotfile 的 `Cell_D_*` 里除数据外
+  还有每 FAB 的小头部/填充，按 float64 读会得到 1e179 这类垃圾值。
+  **以逐变量（yt / h5py）的结果为准**，这些用例的场量级都在正常物理范围
+  （例如 `test_2d_embedded_circle` 的 `phi` 差 3.9e-4、`rho` 差 3.3e-3）。
+  工具侧的正确口径是 `analyze_results.py`（只看 plotfile 变量与 hdf5 dataset），
+  而不是 JSON 顶层的 `max_abs_diff`（它含 binary_diff 兜底值）。
