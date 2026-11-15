@@ -18,3 +18,12 @@ F9 fixed: `IFieldSolver.H` / `IFieldSolverEngine.H` 全树零实现零使用者�
 
 验证: 增量构建通过；`ctest -R 'compile_only|runtime_snapshot|service_registry|nonpic'` 8/8。
 反证: 把上面任一改动回退，F8 的重复声明/Gates 的 catalog drift 会立刻报出（见下一轮 run_gates 输出）。
+
+F11 fixed: `DataBus::alias` 原先先 `has(dst)` 早退、之后才 `require_field_access`，于是第一个创建
+  别名的 handler 之后，所有后来的 handler 都能用同名 `dst` 绕过声明检查拿到 MultiFab*。
+  改成先检查声明再走"已存在"短路（与 `field()` 对称）。
+F12 fixed: `FieldGatherOrders` 三个成员补默认值（1 / false / 1）：该 POD 在虚函数签名里以
+  `std::optional` 传递，`FieldGatherOrders o;` 曾会把未初始化的 gather 阶数带进内核。
+
+验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|gather|particle'` 133/133。
+反证: 把 F11 的回退（先 has 再检查）恢复后，新增的"两个 handler 先后 alias 同名"用例会通过而不报错。

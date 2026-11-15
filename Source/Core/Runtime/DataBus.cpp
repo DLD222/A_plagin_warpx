@@ -136,13 +136,17 @@ DataBus::field (const std::string& name, int dir, int lev) const
 amrex::MultiFab*
 DataBus::alias (const std::string& dst, const std::string& src, int dir, int lev)
 {
+    // Check the declaration *before* the "already exists" shortcut: otherwise the first handler
+    // that creates the alias lets every later handler read it through `alias()` without having
+    // declared the key, which is exactly what the declared-access rule is there to prevent (and
+    // `field()` does check).
+    require_field_access(dst, /*write=*/true);
     if (m_fields.has(dst, ablastr::fields::Direction{dir}, lev)) {
         return m_fields.get(dst, ablastr::fields::Direction{dir}, lev);
     }
     if (!m_fields.has(src, ablastr::fields::Direction{dir}, lev)) {
         throw std::runtime_error("DataBus::alias: missing source field " + src);
     }
-    require_field_access(dst, /*write=*/true);
     require_field_access(src, /*write=*/false);
     return m_fields.alias_init(dst, src, ablastr::fields::Direction{dir}, lev);
 }

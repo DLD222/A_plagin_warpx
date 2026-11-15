@@ -20,9 +20,13 @@ namespace warpx::particles
  */
 struct FieldGatherOrders
 {
-    int e_shape;
-    bool e_galerkin;
-    int b_shape;
+    // Defaults: this struct travels as a POD inside std::optional in a virtual signature, so a
+    // `FieldGatherOrders o;` (or a deserialised aggregate) used to carry an indeterminate shape
+    // order into the gather kernel.  1/1 are the Yee defaults, i.e. what the constructor-less
+    // value means.
+    int e_shape = 1;
+    bool e_galerkin = false;
+    int b_shape = 1;
 };
 
 } // namespace warpx::particles
