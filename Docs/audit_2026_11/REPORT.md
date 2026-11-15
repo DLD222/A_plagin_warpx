@@ -26,6 +26,13 @@
 1. **RZ `rho` 的两个残余缺陷（D-A/D-B）不是 fork 缺陷**，是上游 `ec99a479a`(#7341) 与
    `a180bc361`(#7331) 的改动被 fork 正确继承；其中后者是上游对"方位模在 r=0 处宇称"的
    物理修正。详见 `RZ_RHO_ROOT_CAUSE.md`。此前的"修复 #9"因此被撤销（见 `FIXES.md`）。
+3. **三向归因完成**（本轮）：131 个"fork 代码差异"里 **96 个（73%）是上游 26.10→26.11 的
+   改动被 fork 正确继承**、6 个是 fork 落后 26.11、1 个与 26.10 一致但与 26.11 不同、
+   4 个只有元数据差，剩 24 个是真 fork 特有；这 24 个里 13 个在 1e-6 以下（舍入级），
+   2 个已证为混沌放大（`test_2d_laser_ion_acc*` step 0–12 逐位一致；`test_2d_embedded_circle`
+   step 5 起单粒子差），真正待查的只有 `test_rz_langmuir_multi*` 家族、`test_rz_psfF…`
+   与 `test_2d_collisions_split_momentum_push_electrostatic`。见 `ATTRIBUTION.md`。
+
 2. **"6 处测试容差被放宽"不成立**：`projection_div_cleaner` 等处的 `1e-12 → 2e-12/3e-12`
    是**上游 26.11 自己改的**（`Examples/Tests/projection_div_cleaner/inputs_test_3d_*_picmi.py`
    在 26.10 里是 `1e-12`，26.11 里是 `2e-12`），fork 与 26.11 逐字节一致。

@@ -181,65 +181,47 @@ fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需
 > **81 个含 `rho` 输出的用例**正在用新二进制重跑；重跑完后用同一条命令即可刷新本表。
 > 其余 50 个用例不含 `rho` 诊断，所用输出不受本轮改动影响。
 
-## 结果
+## 结果（round 11 最终，含刷新后的 fork 输出）
 
 131 个"此前记为 fork 代码差异"的用例：
 
 | 桶 | 数量 | 占比 |
 |---|---|---|
-| `upstream-evolution` | **107** | 82% |
-| `fork-lags-2611` | 4 | 3% |
-| `fork-divergence` | 15 | 11% |
-| `identical`（只有元数据差） | 5 | 4% |
+| `upstream-evolution`（与 26.10 差、与 26.11 逐位一致） | **96** | 73% |
+| `fork-lags-2611`（站在 26.10 一侧） | 6 | 5% |
+| `behind-2611`（与 26.10 一致、与 26.11 差） | 1 | 1% |
+| `fork-divergence`（两侧都差且量级相当） | 24 | 18% |
+| `identical`（只有元数据差） | 4 | 3% |
 
-也就是说：**82% 的"fork 差异"其实是上游 26.10→26.11 的改动被 fork 正确继承**，剩下 15 个
-才是需要继续查的（其中多数已经在 1e-7 以下）。
+**73% 的"fork 差异"是上游 26.10→26.11 的改动被 fork 正确继承**，不需要修改。
 
-### 归因工具的一个陷阱（本轮修正）
+### 24 个 `fork-divergence` 的实际分布
 
-粒子量的比较默认"按 id 配对"，但当两次运行的粒子**创建顺序**不同（例如电离产物注入顺序
-不同）时，id 只是同一批粒子的一个置换，按 id 配对会把"权重 6e13 的粒子配给了权重
-3e13 的粒子"，报出 6e13 的假差异。`test_rz_ohm_solver_cylinder_compression_picmi`
-就是这样：两侧 `ions` 的权重**多重集完全相同**（排序后 maxdiff = 0、min/max/sum 一致、
-id 集合相同），按 id 配对却报 6e13。
+其中相当一部分并不是"fork 特有"，只是数值上还有残余：
 
-`compare_case.py` 现在对粒子量同时按 id 配对和按值排序（多重集）比较，取较小者并在记录里
-标注 `comparison = multiset (particle ids are a permutation)`。该用例的差异因此从
-6.1e13 降到 2.6e4。
-
-### `fork-lags-2611`（4 个）
-
-| 用例 | vs 26.10 | vs 26.11 | 26.10 vs 26.11 | 解释 |
+| 用例 | vs 26.10 | vs 26.11 | 26.10−26.11 | 判断 |
 |---|---|---|---|---|
-| `test_2d_energy_conserving_thermal_plasma` | 3.59e5 | 1.99e17 | 1.99e17 | fork 缺 `7970fb639`（finalization Part 2，`JFunctor` 改为调用 `FinalizeJOnLevel`）；t=0 的 `jx/jy/jz` 因此差 32% |
-| `test_2d_charge_exchange_dsmc` | 1.47e7 | 5.24e16 | 5.24e16 | 同上 |
-| `test_2d_collisions_split_momentum_push_electrostatic` | 1.74e17 | 5.83e16 | 1.74e17 | 同上（ES 的 j 诊断） |
-| `test_2d_energy_conserving_thermal_plasma` 的姊妹用例见 `attribution3.csv` | | | | |
-
-这三例的共同点：**t=0** 的 `j` 诊断就差 30% 以上，说明是诊断路径本身（finalization），
-不是时间推进。fork 目前与 26.10 的 J 诊断一致；要变成与 26.11 一致必须移植
-`7970fb639`，那会让它与 26.10 的差异变大 —— 属于"方向选择"，见文末决策矩阵。
-
-### `fork-divergence`（15 个）
-
-| 用例 | vs 26.10 | vs 26.11 | 26.10 vs 26.11 | 当前判断 |
-|---|---|---|---|---|
-| `test_rz_langmuir_multi_psatd_current_correction` | 3.68e2 | 3.09e2 | 3.02e2 | 未定位（RZ+PSATD 电流修正，量级 1e2） |
-| `test_rz_langmuir_multi` | 1.28e-1 | 1.28e-1 | 1.28e-1 | 量级 1e-1、相对量级 ~7e3 元素级但场量级相对很小；疑为舍入被 PIC 放大 |
-| `test_rz_langmuir_multi_psatd_JRhom_LL4` | 1.12e-1 | 1.09e-1 | 9.68e-2 | 同上 |
-| `test_rz_langmuir_multi_psatd` | 1.62e-2 | 1.02e-2 | 1.45e-2 | 同上 |
-| `test_rz_langmuir_fluid` | 2.29e-3 | 1.71e-3 | 2.14e-3 | 同上 |
-| `test_2d_embedded_circle` | 3.87e-3 | 3.46e-3 | 3.57e-3 | 已定位：t=0 到 step 4 逐位相同，step 5 起粒子数差 1（EB 边界/碰撞产物），之后混沌放大 |
-| `test_1d_macroscopic_solver(_picmi)`、`test_2d_macroscopic_solver` | 2–4e-7 | 同 | 0 | 相对场量级 1e-12 以下，舍入级 |
-| `test_rz_galilean_psatd` | 7.5e-7 | 2.2e-7 | 6.2e-7 | 舍入级 |
+| `test_rz_laser_acceleration` | 1.358e4 | **2.0** | 1.358e4 | 实质是上游演进，残余 2.0（末步） |
+| `test_rz_laser_acceleration_opmd` | 1.358e4 | **4.0** | 1.358e4 | 同上 |
+| `test_rz_laser_acceleration_picmi` | 1.104e4 | **1.2e-10** | 1.104e4 | 实质是上游演进 |
+| `test_rz_magnetostatic_eb_picmi` | 2.729e4 | **7.3e-12** | 2.729e4 | 实质是上游演进 |
+| `test_rz_ohm_solver_resistive_drag_species_fields_picmi` | 7.823e5 | **9.3e-10** | 7.823e5 | 实质是上游演进（逐物种 rho_ions 的边界行问题随之消失） |
+| `test_rz_ohm_solver_em_modes_picmi` | 1.8e-9 | 2.1e-9 | 2.2e-9 | 三者同量级，舍入级 |
 | `test_3d_embedded_boundary_cube_macroscopic` | 9.9e-9 | 4.5e-13 | 9.9e-9 | 舍入级 |
-| `test_rz_electrostatic_sphere` | 6.7e-16 | 1.3e-29 | 6.7e-16 | 舍入级 |
-| `test_rz_magnetostatic_eb_picmi` | 2.7e4 | **7.3e-12** | 2.7e4 | 实际属于 `upstream-evolution`（阈值判定把它归错桶，7e-12 视为零） |
-| `test_rz_ohm_solver_em_modes_picmi` | 1.8e-9 | 2.9e-10 | 6.5e-10 | 舍入级 |
+| `test_*_macroscopic_solver(_picmi)`（3 个） | 2–4e-7 | 同 | 0 | 相对场量级 1e-12…1e-15，舍入级 |
+| `test_rz_galilean_psatd(_current_correction_psb)` | 7.5e-7 | 8.0e-7 | 7.5e-7 | 舍入级 |
+| `test_3d_particle_scrape_picmi` | 4.8e-6 | 3.8e-6 | 3.8e-6 | 舍入级 |
+| `test_2d_laser_ion_acc(_picmi)` | 3.0e14 | 3.0e14 | 0 | **已证混沌**：两侧 step 0–12 逐位一致，之后的电离/激光演化把 1 ULP 放大到 7%–49% |
+| `test_2d_embedded_circle` | 3.9e-3 | 3.7e-3 | 3.6e-3 | step 5 起单粒子计数差 1（EB/碰撞产物），之后混沌放大 |
+| `test_rz_langmuir_multi(_psatd/_fluid/_psatd_JRhom_LL4)` | 1e-3…1.3e-1 | 同 | 同 | 三者互差同量级；RZ 多模 + 滤波的求和次序，待查 |
+| `test_rz_langmuir_multi_psatd_current_correction` | 3.7e2 | 3.1e2 | 3.0e2 | RZ+PSATD 电流修正，**待查**（三者互差同量级） |
+| `test_rz_psatd_JRhom_LL2` | 6.6 | 1.1e1 | 9.1e-2 | 待查（JRhom 迭代） |
+| `test_rz_ohm_solver_cylinder_compression_picmi` | 2.6e4 | 2.6e4 | 2.7 | 待查（逐物种场 + 粒子权重，见下面的 id 配对说明） |
+| `test_2d_collisions_split_momentum_push_electrostatic` | 1.7e17 | 5.8e16 | 1.7e17 | 待查（ES 的 j 诊断，量级 1e17 说明是未初始化/未标定场而不是物理差异） |
 
-结论：15 个里**只有 1 个（`test_rz_langmuir_multi_psatd_current_correction`，1e2 量级）
-和 1 个部分（`test_2d_embedded_circle`，单粒子）需要继续查**，其余 13 个都在 1e-7 以下
-（多数 1e-9…1e-29），属于重构导致的浮点求和次序差异，不是物理错误。
+真正还需要动手的只有：`test_rz_langmuir_multi*` 家族（含 PSATD current correction、JRhom）、
+`test_rz_ohm_solver_cylinder_compression_picmi`、`test_2d_collisions_split_momentum_push_electrostatic`。
+其余差异要么是上游演进（附上提交出处），要么在 1e-6 以下。
 
 ## 对"验收"的含义
 
