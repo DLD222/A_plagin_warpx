@@ -41,6 +41,10 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     // b = -1 and beta = 1 reproduce the plain Laplacian.
 
     amrex::MultiFab rhs(rho.boxArray(), rho.DistributionMap(), 1, 1);
+    // Zero first: FillBoundary only fills the periodic directions, so on an open boundary the
+    // ghost cells would otherwise hold whatever the allocation contained and the right-hand side
+    // (and hence the potential) would depend on uninitialised memory.
+    rhs.setVal(amrex::Real(0.0));
     amrex::MultiFab::Copy(rhs, rho, 0, 0, 1, 0);
 
     if (boundary == PotentialBoundary::periodic) {

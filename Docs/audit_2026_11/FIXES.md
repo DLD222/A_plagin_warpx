@@ -49,6 +49,20 @@ m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 | 13 | 自引力解出来却从不使用：`gravity_step` 把 `star_gx/gy/gz` 写成 0 | `Source/Plugins/NewtonGravity/StarGravityPlugin.cpp` | 物理规范 §1.2 要求 g = −∇φ 并交给流体；`NewtonGravitySolver::computeAcceleration` 已实现该步，但插件从未调用 | 现按层调用 `computeAcceleration` 发布 g（`gravity_*` 6/6 通过） | 本轮 |
 | 14 | 引力常数单位混用：star 状态是 cgs（g/cm³、cm），求解器用 SI `G = 6.6743e-11` | `Source/Plugins/NewtonGravity/NewtonGravity.{H,cpp}` | 直接乘错 `G` 使 φ 与 g 相差 1e7；规范 §0 常数表给 SI 值，但调用方的状态由 profile 决定为 cgs | `solvePotential` 的 `G` 变成参数（默认 SI，保持 `gravity_*` 单测不变），star 插件显式传 `gravitational_constant_cgs = 6.67430e-8` | 本轮 |
 
+| 15 | 高斯 cgs 下洛伦兹力缺 1/c（力大 3e10 倍） | `Source/Plugins/FluidMoments/Electromagnetic.H` | cgs 里 `J=σE'` 的单位是 statA/cm²，力密度是 `J×B/c`；焦耳热 σ|E'|² 两种约定相同，所以单测（只查 f·B=0、Q≥0）抓不到 | 补 `c_light_cgs`；`fluid_*` 33/33 通过 | `75c5466` |
+| 16 | 显式扩散子步超 3D von Neumann 限（最短模增长） | `Radiation.H`、`Neutrino.H`、`Composition.H` | 放大因子 `1-4dhα/dx²`，3D 要求 `h≤dx²/(2·3·α)`，原值 0.2 超限；单测初值只沿 x 变化故未暴露 | 改为 `0.4dx²/(2·AMREX_SPACEDIM·D)` | `75c5466` |
+| 17 | 辐射扩散把未初始化内存写回辐射场 | `Radiation.H` | `er_new` 未清零 + 对 `rho<=0` 的格子 `continue` + `ParallelCopy` 整块写回 | `er_new.setVal(0)`，跳过格显式保留原值 | `75c5466` |
+| 18 | 显式算子 `max_sub` 到顶静默少走时间（minor m12） | 四个流体算子 | `break` 无提示，`remaining` 仍 >0 | 上限提到 100000，到顶打印含剩余时间的警告 | `75c5466` |
+| 19 | 引力开放边界（Dirichlet）ghost 从未填充 → 势解依赖未初始化内存 | `NewtonGravity.cpp`、`StarGravityPlugin.cpp` | `setLevelBC` 对 Dirichlet 从 `phi` 的 ghost 取值；`rhs` 也只 `Copy(...,0)` | `rhs.setVal(0)`；插件用解析 `-GM/r` 填 `phi` 的 ghost（质量取自同一剖面采样）；`fluid_*`/`gravity_*` 33/33 通过 | 本轮 |
+
+## 未修复但已定位（星体/流体插件，需要与通量形式重写一起做）
+
+- **Conduction 的 3D 稳定子步**：改成 `dx²/(2·d·α)` 后 `fluid_conduction_3` 的能量守恒断言
+  从 <1e-12 升到 1.24e-12（=1.2e-15/子步，已是舍入前沿）。该算子目前只守恒到舍入，
+  因此这一步要与"通量形式（严格守恒）重写"一起做，代码里留了 open 注记。
+- **F6 正定性保护**（HLLC/MUSCL 强膨胀产生 NaN）、**F10 多层势**（逐层独立求解、每层重盖
+  同一剖面、static 状态不随 restart 复位）、**F2 的 restart 语义**：都属于插件内部结构性改造。
+
 ## 回归证据摘要（修复 #5）
 
 | 用例 | 修复前 max abs (vs 官方 26.10) | 修复后 |

@@ -43,6 +43,8 @@ namespace
 {
 double g_steps = 0.0;
 double g_phi_min = 0.0;
+/** Mass of the star on level 0 [g], from the same profile sampling as `star_rho`. */
+static double g_mass_cgs = 0.0;
 static bool g_levels_filled = false;
 static void fill_all_levels (WarpXStageContext* ctx);
 
@@ -62,6 +64,43 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx, int lev = 0)
     amrex::Array<int, AMREX_SPACEDIM> is_periodic{};
     for (int d = 0; d < AMREX_SPACEDIM; ++d) { is_periodic[d] = periodic[d]; }
     return amrex::Geometry(domain, rb, 0 /* Cartesian */, is_periodic);
+}
+
+/** Fill the ghost cells of the potential with the analytic outer solution -G M / r.
+ *
+ *  `solvePotential` with PotentialBoundary::open reads its Dirichlet data from those ghost cells,
+ *  and nothing else fills them: leaving them alone makes the solve depend on the allocator's
+ *  contents (the same deck then gives different `star_phi_min` from run to run).  Outside the
+ *  star the potential of the enclosed mass is the point-mass form, which is exactly the boundary
+ *  condition an isolated star wants; the ghost layer sits at |x| >= R_star by construction.
+ */
+static void fill_dirichlet_ghosts (amrex::MultiFab& phi, amrex::Geometry const& geom,
+                                   double mass_cgs)
+{
+    if (mass_cgs <= 0.0) { return; }
+    auto const dx = geom.CellSizeArray();
+    auto const plo = geom.ProbLoArray();
+    double const G = warpx::plugins::gravity::NewtonGravitySolver::gravitational_constant_cgs;
+    for (amrex::MFIter mfi(phi); mfi.isValid(); ++mfi) {
+        amrex::Box const& fb = mfi.fabbox();
+        amrex::Box const& vb = mfi.validbox();
+        auto a = phi.array(mfi);
+        for (int i = fb.smallEnd(0); i <= fb.bigEnd(0); ++i) {
+            if (vb.contains(amrex::IntVect(AMREX_D_DECL(i, fb.smallEnd(1), fb.smallEnd(2))))) { continue; }
+            for (int j = star_box_lo(fb, 1); j <= star_box_hi(fb, 1); ++j) {
+                for (int k = star_box_lo(fb, 2); k <= star_box_hi(fb, 2); ++k) {
+                    amrex::IntVect const iv(AMREX_D_DECL(i, j, k));
+                    if (vb.contains(iv)) { continue; }
+                    double const x = plo[0] + (i + 0.5) * dx[0];
+                    double const y = (AMREX_SPACEDIM > 1) ? plo[1] + (j + 0.5) * dx[1] : 0.0;
+                    double const z = (AMREX_SPACEDIM > 2) ? plo[2] + (k + 0.5) * dx[2] : 0.0;
+                    double const r = std::sqrt(x * x + y * y + z * z);
+                    a(i, j, k) = (r > 0.0) ? static_cast<amrex::Real>(-G * mass_cgs / r)
+                                           : static_cast<amrex::Real>(0.0);
+                }
+            }
+        }
+    }
 }
 
 /** Publish g = -grad(phi) for one level on the bus (cgs, same units as the star state).
@@ -101,6 +140,7 @@ void gravity_step (WarpXStageContext* ctx, void*)
     auto& phi = *static_cast<amrex::MultiFab*>(raw_phi);
     amrex::Geometry geom = geometry_from_context(ctx);
     if (geom.Domain().isEmpty()) { return; }
+    fill_dirichlet_ghosts(phi, geom, g_mass_cgs);
 
     // The star state below is Gaussian cgs (the profile is read as g/cm^3 with r in cm, and the
     // fluid integrates in the same units), so the solve must use the cgs gravitational constant.
@@ -141,6 +181,7 @@ void gravity_step (WarpXStageContext* ctx, void*)
         }
         amrex::Geometry const geom_l = geometry_from_context(ctx, lev);
         if (geom_l.Domain().isEmpty()) { break; }
+        fill_dirichlet_ghosts(*static_cast<amrex::MultiFab*>(raw_phi_l), geom_l, g_mass_cgs);
         try {
             warpx::plugins::gravity::NewtonGravitySolver::solvePotential(
                 *static_cast<amrex::MultiFab*>(raw_rho_l),
@@ -260,6 +301,7 @@ static double fill_sphere (WarpXStageContext* ctx, int lev, double r_star)
             }
         }
     }
+    if (lev == 0) { g_mass_cgs = mass; }
     return mass;
 }
 
