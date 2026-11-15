@@ -148,3 +148,20 @@
 （整体比值中位数为 1.000，范围为 0.57–1.56）。
 下一步应沿这两条线分别查：① RZ 模式在输出时 mode0/mode1 的重建与插值；② 外侧径向边的
 边界条件与 guard-cell 贡献。
+
+## 1-rank 对照实验：排除 MPI/guard-cell 假设（决定性）
+
+用同一输入、`mpirun -np 1`、同一组运行时参数分别跑官方与 fork 的 `warpx.rz`，
+比较 t=0 的 `rho`：
+
+- 官方 max 5.3087e5，fork max 5.2939e5；
+- **maxdiff = 1.0929e4（与 2-rank 完全一致），182 个格点不同**。
+
+结论：差异与 MPI 分解、guard-cell 求和**无关**——单进程下 guard cell 不参与跨进程求和，
+差异依旧一模一样。因此剩余原因只可能在**局部的沉积/标定/边界零化**三选一：
+1. RZ 模式电荷沉积核本身（`DepositCharge` 的 RZ 分支）；
+2. `ApplyInverseVolumeScalingToChargeDensity` 的径向因子/节点位置；
+3. `ApplyRhofieldBoundary` 在特定径向行上的处理。
+（下一轮对这三者逐一做“只替换一处”的 A/B，即可定死。）
+
+这也说明修复 #9 的收益（-19.5%）来自“边界零化与求和的相对次序”，而剩余量来自更底层的局部计算。
