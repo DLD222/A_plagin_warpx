@@ -213,7 +213,7 @@ fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需
 | `test_3d_particle_scrape_picmi` | 4.8e-6 | 3.8e-6 | 3.8e-6 | 舍入级 |
 | `test_2d_laser_ion_acc(_picmi)` | 3.0e14 | 3.0e14 | 0 | **已证混沌**：两侧 step 0–12 逐位一致，之后的电离/激光演化把 1 ULP 放大到 7%–49% |
 | `test_2d_embedded_circle` | 3.9e-3 | 3.7e-3 | 3.6e-3 | step 5 起单粒子计数差 1（EB/碰撞产物），之后混沌放大 |
-| `test_rz_langmuir_multi(_psatd/_fluid/_psatd_JRhom_LL4)` | 1e-3…1.3e-1 | 同 | 同 | 三者互差同量级；RZ 多模 + 滤波的求和次序，待查 |
+| `test_rz_langmuir_multi(_psatd/_fluid/_psatd_JRhom_LL4)` | 1e-3…1.3e-1 | 同 | 同 | **已定位为舍入级**：t=0 五个场逐个为 0 且完全一致；step 40 相对场量级 6.8e-15…8.7e-14，step 80 为 3.5e-14…7.4e-13。绝对值 0.128 大只是因为场本身是 1e11 量级 |
 | `test_rz_langmuir_multi_psatd_current_correction` | 3.7e2 | 3.1e2 | 3.0e2 | RZ+PSATD 电流修正，**待查**（三者互差同量级） |
 | `test_rz_psatd_JRhom_LL2` | 6.6 | 1.1e1 | 9.1e-2 | 待查（JRhom 迭代） |
 | `test_rz_ohm_solver_cylinder_compression_picmi` | 2.6e4 | 2.6e4 | 2.7 | 待查（逐物种场 + 粒子权重，见下面的 id 配对说明） |
