@@ -66,7 +66,10 @@ drho_trimmed = drho[:-1, ...]
 Ng = drho_trimmed.size
 drho2_avg = (drho_trimmed**2).sum() / Ng
 drho_rms = np.sqrt(drho2_avg)
-tolerance_rel_charge = 5.0e-6
+# Measured residual on this case is ~1e-15 (the sister script, analysis_pinch.py, asserts
+# 2.2e-12 on the same quantity).  The 5.0e-6 this used to carry was ten orders of magnitude
+# looser than the value it was checking, i.e. the assertion could not fail.
+tolerance_rel_charge = 1.0e-12
 print(f"rms error in charge conservation: {drho_rms}")
 print(f"tolerance: {tolerance_rel_charge}")
 assert drho_rms < tolerance_rel_charge
