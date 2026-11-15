@@ -109,6 +109,18 @@
 - 验证方法: `python -c "from pywarpx.particle_containers import ParticleContainerWrapper as P; print(hasattr(P,'deposit_charge_density'))"`（fork=False，上游=True）。
 
 ### F3 测试容差被系统性放宽（6 处）
+
+> **复核结论（round 25）：不成立（以 26.11 为基准）**。逐个与
+> `_upstream/warpX-26.11/Examples/**/analysis*.py` 比对，列出的 6 处**全部与上游 26.11 完全一致**
+> （例如 `inputs_test_3d_projection_div_cleaner_picmi.py:133` 上游也是 `tolerance = 2e-12`，
+> `analysis_pinch.py:72/115` 上游也是 `3.0e-12 / 2.2e-12`，`field_probe/analysis.py:61` 上游也是
+> `averror < 5.0`）。这些是上游自己在 26.10→26.11 之间调整的数值。
+>
+> 系统性复查的全部结果：`Examples` 下只有 **2 个** `analysis*.py` 与上游 26.11 不同，都是本项目
+> 修改的（`analysis_collision_3d_pulsed_decay.py`、`analysis_planar_pinch_solvers.py`）。
+> 复审中真正找到的"凑出来的容差"是后者：`tolerance_rel_charge = 5.0e-6` 而实测残差 1.08e-15
+> （姊妹脚本对同一量要求 2.2e-12），已收紧到 `1.0e-12`。
+
 - 严重度: major（涉及投影散度清理器这一"机器精度"级测试，是该类物理正确性的核心门限）
 - 置信度: confirmed（数值改动本身）；对"是否掩盖了精度回归"为 likely（未跑 ctest）
 - 清单（左=上游，右=fork）:

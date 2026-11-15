@@ -27,7 +27,7 @@
 | Benchmarks | F20 | ? | `c03` 若干小问题（合并） | todo |
 | Python | F1 | critical | `pywarpx` 仍调用已改名的旧迭代器类 `WarpXParIter` → 运行时 `AttributeError` | fixed |
 | Python | F2 | major | 公开 API `ParticleContainerWrapper.deposit_charge_density` 被删（连同 C++ 绑定） | todo |
-| Python | F3 | major | 测试容差被系统性放宽（6 处） | todo |
+| Python | F3 | major | 测试容差被系统性放宽（6 处） | invalid |
 | Python | F4 | minor | 新增碰撞分析断言有复制粘贴错误 + 精确浮点相等 | fixed |
 | Python | F5 | minor | `read_dims_from_file` 的 `FILE` 正则仍会把 `#` 吞进路径 | fixed |
 | Python | F6 | minor | `Simulation` 的若干公开属性/扩展点被改为私有（无 property 兼容） | todo |
