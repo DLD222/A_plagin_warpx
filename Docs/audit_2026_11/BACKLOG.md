@@ -10,7 +10,7 @@
 | Benchmarks | F3 | major | `sigma_exponential_test.py` 用 Crank–Nicolson 冒充代码里的 backward Euler | fixed |
 | Benchmarks | F4 | major | `inputs_tm` 的初值磁场符号反了 → 波朝 −z 传播（与算例说明相反） | fixed |
 | Benchmarks | F5 | major | `verify_medium_wave.py` 的"相速度"判据有 +105% 系统偏差，正确解也会 FAIL | fixed |
-| Benchmarks | F6 | major | 多个分析脚本没有对应的输入文件，无法复现 | todo |
+| Benchmarks | F6 | major | 多个分析脚本没有对应的输入文件，无法复现 | fixed |
 | Benchmarks | F7 | major | 复现命令必然失败：所有 runner 的默认二进制路径是相对**运行目录**的 | fixed |
 | Benchmarks | F8 | minor | `inputs_ect_2d_degen` 的注释把 PEC 侧写反，且 `fp2` 落在导体内部使一半比较失效 | fixed |
 | Benchmarks | F9 | minor | `inputs_ect_2d_45deg_tm` 注释写 TE、实际是 TM | fixed |
@@ -18,7 +18,7 @@
 | Benchmarks | F11 | minor | `preflight.py` 的 σ 剖面包出死分支、非 `z>` 形式会崩、且 `eps_profile` 文档不符 | fixed |
 | Benchmarks | F12 | minor | `p1_tensor_reference.py` 的"切向旋转"用例是逐字节重复，未测任何东西；`--compare` 不返回失败 | fixed |
 | Benchmarks | F13 | minor | 关键阈值来自"观测到的散布"（事后调参），且没有预注册文件 | fixed |
-| Benchmarks | F14 | minor | 三份 md 的"代码事实"已被本 fork 自己的修改推翻，但仍以现状语气陈述 | todo |
+| Benchmarks | F14 | minor | 三份 md 的"代码事实"已被本 fork 自己的修改推翻，但仍以现状语气陈述 | fixed |
 | Benchmarks | F15 | minor | 目录卫生：`__pycache__/*.pyc` 入库 | invalid |
 | Benchmarks | F16 | minor | `conductor_slab` 的"纯前向波"说法与自身另一脚本矛盾；提交的探针恰在被排除区 | fixed |
 | Benchmarks | F17 | minor | 多处 `print` 无门禁 / 无 assert（"verify"脚本不 verify） | fixed |
