@@ -44,16 +44,16 @@
 | Source_Core_Runtime_A | F1 | major | `SpeciesHandle::numberOfParticles()` 永远返回启动时的粒子数（过期快照） | fixed |
 | Source_Core_Runtime_A | F2 | major | `declare()` 的规格会参与 `add()` 的写冲突检查 → "先声明计划、后注册执行 handler"这一受支持模式会直接抛异常 | fixed |
 | Source_Core_Runtime_A | F3 | major | 生命周期钩子 `on_level_created` / `on_checkpoint` / `on_restart` 从未被调用（死 API） | fixed |
-| Source_Core_Runtime_A | F4 | minor | `StageContext::config` 只给 `RuntimeConfigSnapshot`，且该 snapshot 在一次 run 里不会刷新 | todo |
+| Source_Core_Runtime_A | F4 | minor | `StageContext::config` 只给 `RuntimeConfigSnapshot`，且该 snapshot 在一次 run 里不会刷新 | fixed |
 | Source_Core_Runtime_A | F5 | minor | `CollisionHandlerAdapter::apply` 的 null 检查是不可达的死代码，异常分支永远进不去 | fixed |
-| Source_Core_Runtime_A | F6 | minor | 命名回调总线：重名注册静默覆盖、缺失名字静默 no-op | todo |
+| Source_Core_Runtime_A | F6 | minor | 命名回调总线：重名注册静默覆盖、缺失名字静默 no-op | fixed |
 | Source_Core_Runtime_A | F7 | minor | `IGeometryProvider.H` 的 include guard 是从 `ISimulationKernel` 抄来的 | fixed |
 | Source_Core_Runtime_A | F8 | minor | `IFiniteDifferenceSolver.H` 的工厂块写在 `#endif` 之后（不在 include guard 保护内） | fixed |
 | Source_Core_Runtime_A | F9 | minor | `IFieldSolver.H` / `IFieldSolverEngine.H` 是完全没有实现、没有使用者的死接口 | fixed |
-| Source_Core_Runtime_A | F10 | minor | `ordered_specs()` 在"只有声明没有 handler"时退化为纯 priority 排序（跳过依赖拓扑排序与环检测） | todo |
+| Source_Core_Runtime_A | F10 | minor | `ordered_specs()` 在"只有声明没有 handler"时退化为纯 priority 排序（跳过依赖拓扑排序与环检测） | fixed |
 | Source_Core_Runtime_A | F11 | minor | `DataBus::alias` 对"已存在的目标名"不做任何声明校验 | fixed |
 | Source_Core_Runtime_A | F12 | minor | `FieldGatherOrders` 的成员没有默认初始化器 | fixed |
-| Source_Core_Runtime_A | F13 | minor | 碰撞适配器把物种名硬编码成 `electrons/ions/gas/photons` | todo |
+| Source_Core_Runtime_A | F13 | minor | 碰撞适配器把物种名硬编码成 `electrons/ions/gas/photons` | fixed |
 | Source_Core_Runtime_B | F1 | critical | `warpx_stage_field()`（写入口）把访问检查异常抛过 C ABI，违反自己的「返回 0、绝不抛」契约 | fixed |
 | Source_Core_Runtime_B | F2 | major | `IPluginLifecycle` 的 7 个钩子里有 4 个从未被调用（幻觉式集成） | fixed |
 | Source_Core_Runtime_B | F3 | major | 内核契约 `ISimulationKernel::finalize()` 从未被调用 | fixed |
