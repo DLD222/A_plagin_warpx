@@ -42,3 +42,17 @@ F11 fixed: `warpx_host_add_handler` 把"重复写者/重复名字/非法 stage/n
 验证: 增量构建通过；`ctest -R 'plugin_|runtime_snapshot|service_registry'` 13/13。
 反证: 让一个测试插件注册重名 handler → loader 现在报
   "PluginLoader: '<name>' failed to register a handler: <具体原因>"（此前静默通过）。
+
+F12 fixed: `register_stage(name, "finalize", After)` 会拿到 13001..13999 的 ordinal，而引擎最后一次调度是
+  对 `Stage::Finalize` 的**精确匹配** ⇒ 该 stage 永不执行；`register_stage(name,"before_init",Before)`
+  甚至拿到负数，`CApiHandler` 的 `contains()` 还会接受它。现在这两种注册直接抛错并说明"引擎永远到不了"，
+  不再静默接受后永不运行。
+F15 fixed: `Runtime` 构造函数里 `initialize_runtime_libraries()` 之后的所有初始化都可能抛（无内核插件、
+  `WARPX_PLUGIN_PATH` 加载失败等），而**构造函数抛异常不会运行析构函数** ⇒ `finalize_runtime_libraries()`
+  永不调用，AMReX 全局状态未收尾。加 `ExternalLibrariesGuard`（RAII，析构时 finalize 并清标志），
+  构造成功时 `release()` 交给 `~Runtime`。
+
+验证: 增量构建通过；`ctest -R 'plugin_|runtime_snapshot|service_registry|stage'` 15/15。
+反证: 注册 `After(Finalize)` 的 stage → 现在抛 "would be placed after 'Finalize', which the execution
+  engine never reaches"（此前返回一个永不被调度的 ordinal）；把 guard 的 `release()` 去掉，正常运行会
+  在构造返回时 finalize 掉 AMReX（后续访问即崩），可确认守卫只在该路径生效。

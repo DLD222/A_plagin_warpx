@@ -23,10 +23,39 @@
 namespace warpx::runtime
 {
 
+namespace
+{
+/** Finalizes the external libraries if the Runtime constructor throws.
+ *
+ * A throwing constructor does not run ~Runtime(), so without this the amrex::Initialize() done by
+ * initialize_runtime_libraries() was never matched by a Finalize() when create_solver_kernel() (no
+ * kernel plugin) or PluginLoader::load() threw -- leaving AMReX's global state alive and its exit
+ * assertions unhappy.  Disarmed once the constructor has completed.
+ */
+class ExternalLibrariesGuard
+{
+public:
+    explicit ExternalLibrariesGuard (bool& initialized) : m_initialized(initialized) {}
+    ~ExternalLibrariesGuard ()
+    {
+        if (m_armed && m_initialized) {
+            finalize_runtime_libraries();
+            m_initialized = false;
+        }
+    }
+    void release () { m_armed = false; }
+private:
+    bool& m_initialized;
+    bool m_armed = true;
+};
+} // namespace
+
 Runtime::Runtime (int argc, char* argv[])
 {
     initialize_runtime_libraries(argc, argv);
     m_external_libraries_initialized = true;
+    // On any throw below (no kernel plugin, a failing plugin load, ...) finalize the libraries.
+    ExternalLibrariesGuard guard(m_external_libraries_initialized);
 
     m_kernel = create_solver_kernel(argc, argv);
     m_bus = std::make_unique<DataBus>(m_kernel->fields(), m_kernel->schema(),
@@ -47,6 +76,8 @@ Runtime::Runtime (int argc, char* argv[])
     if (const char* plugin_path = std::getenv("WARPX_PLUGIN_PATH")) {
         PluginLoader::load(plugin_path, *m_plugin_host);
     }
+
+    guard.release();   // construction succeeded: ~Runtime() owns the finalize from here
 }
 
 Runtime::~Runtime ()

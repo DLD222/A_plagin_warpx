@@ -140,6 +140,18 @@ StageRegistry::register_stage (const std::string& name,
         throw std::runtime_error("StageRegistry: unknown anchor stage '" + anchor +
                                  "' for stage '" + name + "'");
     }
+    // The engine never runs anything before BeforeInit or after Finalize (the last dispatch is an
+    // exact match on Stage::Finalize), so a stage registered there would be accepted and then
+    // silently never executed.  Refuse it instead -- the ordinals are documented as "declaring a
+    // handler at an ordinal the engine never reaches simply means it never runs", which is a trap
+    // for exactly the plugin author this API is for.
+    if ((position == StagePosition::After && anchor_ordinal >= Stage::Finalize)
+        || (position == StagePosition::Before && anchor_ordinal <= Stage::BeforeInit)) {
+        throw std::runtime_error(
+            "StageRegistry: stage '" + name + "' would be placed "
+            + (position == StagePosition::After ? "after 'Finalize'" : "before 'BeforeInit'")
+            + ", which the execution engine never reaches");
+    }
 
     // Free slot interval on the insertion side; both bounds are exclusive of
     // the registered neighbours.  The new stage goes to the middle so that
