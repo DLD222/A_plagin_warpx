@@ -173,6 +173,16 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 
 `BACKLOG.md`：**fixed 61 / invalid 3 / todo 125**。
 
+## 0.10 round 25 追加：容差专项审计
+
+新增 `TOLERANCE_AUDIT.md`，机械对照 285 个分析脚本与上游 26.11：
+
+- review `Python` F3 的"6 处系统性放宽"**全部不成立**（上游 26.11 自己就是这些数值）；
+- 真正"凑出来"的容差只有一处：`analysis_planar_pinch_solvers.py` 的
+  `tolerance_rel_charge = 5e-6`，而实测残差 **1.08e-15**（差 9 个数量级）→ 收紧到 `1e-12`；
+- 顺带删除一个**悬空符号链接**（`laser_acceleration/analysis_default_openpmd_regression.py`）；
+- 插件自有测试（`FluidMoments` 33 个）全部有失败路径，无恒真断言。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
