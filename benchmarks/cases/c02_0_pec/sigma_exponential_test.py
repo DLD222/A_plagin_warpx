@@ -72,9 +72,18 @@ def exponential_update(E, curlH, eps, sigma, dt):
 
 
 def alpha_beta(sigma, eps, dt):
-    """The scalar scheme currently in MacroscopicEvolveE (backward Euler)."""
+    """Backward Euler, as in MacroscopicProperties.H::BackwardEulerAlgo.
+
+    alpha = 1/(1+s), beta = dt/(eps (1+s)) with s = sigma dt / eps.  This used to return the
+    Crank-Nicolson coefficients (1-s/2)/(1+s/2) and dt/(eps(1+s/2)) under a "backward Euler"
+    docstring, so the "[2] converges to the production scheme" check compared against a
+    *second-order* scheme: its error fell as dt^3 per decade instead of dt^2, and the
+    conductor-slab narrative ("at sigma dt/eps = 1/3 backward Euler is visibly wrong, which is
+    what distinguishes it from the exponential step") was calibrated on the wrong coefficient
+    (CN 0.7145 vs BE 0.750 for exp(-1/3) = 0.7165).
+    """
     s = sigma * dt / eps
-    return (1.0 - 0.5 * s) / (1.0 + 0.5 * s), dt / eps / (1.0 + 0.5 * s)
+    return 1.0 / (1.0 + s), dt / eps / (1.0 + s)
 
 
 def main():

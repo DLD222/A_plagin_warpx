@@ -157,13 +157,21 @@ def main():
     v_th = C / math.sqrt(args.epsr)
 
     def arrival(path):
+        """Peak time of |Ey| and its amplitude.
+
+        The speed used to come from the first crossing of 5% of the *global* maximum.  For the
+        uncarrier Gaussian exp(-((z+1)/0.15)^2) that threshold sits w*sqrt(ln 20) = 0.26 m ahead
+        of the centre while the probe distance is 0.5 m, which biases the speed by +105% (a
+        correct solution failed the 10% tolerance); and on a run that is *supposed* to show an
+        energy instability the 5% level is set by the diverged amplitude, i.e. by nothing.
+        The peak time of the pulse is the quantity that moves with the physical speed.
+        """
         x = np.loadtxt(path, skiprows=1)
         ey = np.abs(x[:, 6])
         m = ey.max()
         if m <= 0:
             return None, 0.0, 0.0
-        idx = int(np.argmax(ey > 0.05 * m))
-        return int(x[idx, 0]), m, float(x[np.argmax(ey), 0])
+        return int(x[int(np.argmax(ey)), 0]), m, float(x[np.argmax(ey), 0])
 
     step_a, amp_a, _ = arrival(pa)
     step_b, amp_b, _ = arrival(pb)
