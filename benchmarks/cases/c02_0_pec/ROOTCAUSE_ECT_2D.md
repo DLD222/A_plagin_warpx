@@ -1,9 +1,20 @@
 # ECT 场传播根因报告（2D XZ）
 
+> **历史文档（截至 2026-10-31）。** 本文描述的是当时的代码状态，其中两条结论**已被本仓库后续
+> 的改动推翻**，读时请以下面的"现状"为准：
+>
+> | 本文结论 | 现状 |
+> |---|---|
+> | `Source/` 与上游 clone 逐字节一致，唯一差异是新增 `Source/MomentsSolver/` | 源码已重构为 `Source/Core` + `Source/Plugins/*`，**没有** `MomentsSolver` |
+> | **2D XZ ECT 不支持 TE**（`EvolveRhoCartesianECT` 只算 `Rhoy`） | 2D TE 已实现：`EvolveECTRho.cpp` 在 XZ 下计算 `Rhox`（`Ey*ly` 差分，`:121/:124`），内核侧有 `algo.ect_te_borrowing`（`PicEm/WarpX.cpp:737`）；本目录的 12 个 TE 算例（`inputs_2d_l3*`、`inputs_2d_oblique_te_*`、`inputs_2d_cyl_te`、`inputs_mie_ey_*`）**现在是有效的** |
+>
+> 也就是说：本文的**根因分析**（当时问题不在 fork、而在上游 2D ECT 的 TM-only 限制）仍然成立且
+> 值得保留，但"TE 不可用"与"源码未改动"这两句已经不是现状，不能作为今天验证的依据。
+
 > 算例：`benchmarks/cases/c02_0_pec/`
-> 代码：`<repo>`（WarpX 26.10 分支 + `Source/MomentsSolver`）
+> 代码：`<repo>`（写作时为 WarpX 26.10 分支 + `Source/MomentsSolver`）
 > 对照基线：`~/WarpX_changed`（2026-10-31 全新 clone）
-> 日期：2026-10-31
+> 日期：2026-10-31（2026-11-15 加"历史文档"抬头）
 
 ---
 

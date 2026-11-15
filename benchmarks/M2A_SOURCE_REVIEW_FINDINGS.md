@@ -22,7 +22,12 @@
 
 ## 0. 摘要（12 条事实）
 
-1. **ECT 的 2D 实现是 TM-only**：`Rhox/Rhoz` 在 XZ 下不编译；`face_areas[0]/[2]` 与
+> **历史文档（截至 2026-10-31）。** 下面第 1、2 条描述的是当时的 2D ECT 实现；**现在 2D TE 已实现**
+> （`EvolveECTRho.cpp` 在 XZ 下计算 `Rhox`、`algo.ect_te_borrowing`），因此"TM-only""TE 失败链"
+> 只作历史记录，`c02_0_pec` 的 12 个 TE 算例是有效的。其余各条（交错约定、需要触碰的 10 处位置）
+> 是该次调研的推导，仍然有用。
+
+1. **ECT 的 2D 实现是 TM-only**（*历史*）：`Rhox/Rhoz` 在 XZ 下不编译；`face_areas[0]/[2]` 与
    `edge_lengths[1]` 被硬置零；B 更新循环只到 `AMREX_SPACEDIM`；扩展/借用/BCK 只对 `idim=1`。
 2. **2D TE 的失败链**：Bx 冻结（Rho=0 且 S=0）、Bz 从不更新 → Ey 只对冻结的 ∂zBx 做时间积分
    → 线性增长、不传播；激光 TE 偏振因此"零场"。

@@ -360,7 +360,7 @@
 | 小胞元问题可用 SRD/通量重分配/h-box 解决 | ✅ | Berger–Giuliani 2021；Colella 2006；Helzel 2005 |
 | 介质：subpixel / 共形介质 / 体积分数+Riemann | ✅（三路线都存在） | Farjadpour 2006；Wang 2009；Colella 2006 |
 | "与 B 场对称"即可复用 ECT | ⚠️ 需对偶几何 | Xiao–Liu 2008 的 dual 构造；本项目 ROOTCAUSE 报告 |
-| 2D 也能做 s 偏振 | ❌ 当前实现不支持 | 内部证据（2D XZ ECT 仅 TM） |
+| 2D 也能做 s 偏振 | ✅ 现已支持（写作时 ❌） | 内部证据：`EvolveECTRho.cpp` 在 XZ 下算 `Rhox`，`algo.ect_te_borrowing`（见 ROOTCAUSE 报告的现状表） |
 
 ## 附录 B　检索记录（可复现）
 

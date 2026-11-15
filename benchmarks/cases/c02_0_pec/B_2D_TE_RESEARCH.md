@@ -1,8 +1,14 @@
 # B 调研报告：2D XZ 支持 TE 模（Bx/Bz）的共形 cut-cell 更新
 
-> 范围：只做**源码阅读 + 文献/开源调研 + 设计问题**，**不实现**。
-> 代码：`~/WarpX_fluid`（WarpX 26.10 分支）；参照 `~/WarpX_changed`（只读，逐字节一致）。
-> 日期：2026-10-31
+> **历史文档（截至 2026-10-31）。** 写它时 2D TE 尚未实现；**现在已实现**：
+> `Source/Plugins/FieldSolver/FiniteDifference/EvolveECTRho.cpp` 在 `WARPX_DIM_XZ` 下计算
+> `Rhox`（`Ey*ly` 的差分，`:121/:124`），内核有 `algo.ect_te_borrowing`（`PicEm/WarpX.cpp:737`），
+> 本目录的 12 个 TE 算例因此是**有效的**。本文的价值在于它记录的设计推导与交错约定（§0 第 2 条
+> 那些仍然成立），而不是"TE 不可用"这一当时的结论。
+>
+> 范围：只做**源码阅读 + 文献/开源调研 + 设计问题**，**不实现**（当时）。
+> 代码：`~/WarpX_fluid`（WarpX 26.10 分支）；参照 `~/WarpX_changed`（只读，当时逐字节一致）。
+> 日期：2026-10-31（2026-11-15 加"历史文档"抬头）
 
 ---
 
