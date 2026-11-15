@@ -143,7 +143,7 @@
 | Source_Plugins_PicEm_B | F1 | major | radial 几何下 rho 的 volume-weighted filter 用了错误的标定分支 | invalid |
 | Source_Plugins_PicEm_B | F2 | major | 每次 load-balance/regrid 都重建 PML，PML 内的场被清零 | fixed |
 | Source_Plugins_PicEm_B | F3 | major | Python 绑定类名 `WarpXParIter` → `ParticleTileIter`，pywarpx 调用点未同步 | fixed |
-| Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | wip:lead-tools |
+| Source_Plugins_PicEm_B | F4 | major | legacy 宿主/数据适配器用函数局部 `static` 冻结了第一个 WarpX 实例 | fixed |
 | Source_Plugins_PicEm_B | F5 | minor | 三个 MomentsSolver 测试二进制永远返回 0，FAIL 只打印不生效 | fixed |
 | Source_Plugins_PicEm_B | F6 | minor | `run_tests.sh` 的路径在插件化移动后失效 | fixed |
 | Source_Plugins_PicEm_B | F7 | minor | `GetPartContainer()` 无空指针保护，与 `particleSystem()` 的设计不一致 | fixed |

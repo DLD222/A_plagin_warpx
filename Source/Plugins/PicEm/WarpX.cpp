@@ -400,17 +400,24 @@ WarpX::WarpX ()
 {
     // The particle containers are built below, before any runtime context exists, and
     // they ask these providers for their services instead of naming WarpX.
+    // These providers must follow the *current* WarpX instance: WarpX::ResetInstance() followed
+    // by a second WarpX in the same process (pywarpx finalize/init, unit tests) would otherwise
+    // hand out adapters bound to a destroyed object (PicEm_B/F4).  WarpXRuntimeData::Legacy()
+    // and the frame provider below already refresh on every call.
     warpx::runtime::set_legacy_data([]() -> warpx::runtime::RuntimeData& {
-        static warpx::runtime::WarpXRuntimeData legacy(WarpX::GetInstance());
-        return legacy;
+        return warpx::runtime::WarpXRuntimeData::Legacy();
     });
     warpx::runtime::set_legacy_config([]() -> warpx::runtime::RuntimeConfig& {
         static warpx::runtime::RuntimeConfig legacy;
         return legacy;
     });
     warpx::runtime::set_legacy_host([]() -> warpx::runtime::HostServices& {
-        static warpx::runtime::WarpXHostServices legacy(WarpX::GetInstance());
-        return legacy;
+        // Rebuilt in place on every call so the adapter always refers to the live instance; the
+        // storage address stays stable, so a reference obtained earlier stays valid.  thread_local
+        // (not a function-local static) keeps the adapter from outliving WarpX's teardown.
+        thread_local std::optional<warpx::runtime::WarpXHostServices> legacy;
+        legacy.emplace(WarpX::GetInstance());
+        return *legacy;
     });
     m_instance = this; // This guarantees that GetInstance() can be
                        // indirectly used in WarpX constructor.
