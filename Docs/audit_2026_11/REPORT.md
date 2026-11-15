@@ -211,6 +211,18 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 并行会话的操作风险也已记录并写进规则：`93afb3b` 用 `git add -A` 把另一个会话未提交的改动
 一并提交（见 `WORKFLOW.md` §5.5，现在禁止 `git add -A`）。
 
+## 0.12 round 41：review 账本清零
+
+`BACKLOG.md` 现在 **158 fixed / 30 invalid / 0 todo / 1 wip**（189 条全部有了结论）。
+
+- **30 条 `invalid`** 的主要成因是审查对照的是 26.10、而基准是 26.11（上游自己在 26.10→26.11 之间
+  改掉的语义），另外少数是"审查写完之后已被别的修复消化"（如 `Runtime_B` F14 的 `legacy_costs`
+  在 ParticleCore_A F2 修好后有了真实调用者）。最后一条 `Core_Misc` F2（split-gather 丢 B 的
+  Galerkin 降阶）也复核为 invalid：26.11 的 `PhysicalParticleContainer.cpp:1356-1364` 同样是
+  `doDirectGatherVectorField(orders.b_shape, false, ...)`，而且 26.11 的 `FieldGatherOrders`
+  本来就没有 `b_galerkin` 字段。
+- 剩下的工作只有**最终验证**：全量 `.run` 套件 + 407 例与 `official_2611` 的逐数据集对比。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
