@@ -118,3 +118,15 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
 
 实测（2026-11-15 23:40）：`/api/validate` 对起步 deck 返回 0 条问题；删掉 `profile` 后
 `/api/run` 直接被拒（400）；强制运行后 `diagnosis = {param: "<species_name>.profile", hint: "Density profile for this species…"}`。
+
+## 阶段 4：ParaView 深挖 + 续算（已跑通）
+
+- **一键 ParaView 深挖**：`POST /api/paraview` 把当前 run 的 openPMD 导成
+  `.vti` + `.pvd`（`live/export_vtk.py`），再拉起 ParaView 打开 `.pvd`。
+  实测：`iterations: 4, files: 4`；用 `PVDReader` 复核 `TimestepValues` 有 4 个时间步、
+  数组 `rho/B/E` 齐全（时间滑条可用）。
+- **续算**：`GET /api/checkpoints` 列出历次 run 的 `chk*` 目录；界面上选一个 →
+  写入 `amr.restart`（源码里是 `pp_amr.query("restart", ...)`）→ 运行。
+  实测：第一段跑 40 步生成 `chk000000/020/040`；从 `chk000020` 续算后，
+  新 run 的 openPMD 迭代从 **000030** 开始（不是 000000），checkpoint 继续写 040/060 —— 确实接上了。
+- 起步模板自带一个 `format=checkpoint` 的诊断（`chk`, intervals=20），所以续算是开箱可用的。

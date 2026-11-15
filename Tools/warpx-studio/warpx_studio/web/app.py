@@ -162,6 +162,51 @@ def api_resume():
     return {"state": "running"}
 
 
+@app.post("/api/paraview")
+def api_paraview(launch: bool = True):
+    """Export the current run to VTK and hand it to the ParaView GUI."""
+    import shutil
+    import subprocess
+
+    run_dir = STATE.get("run_dir")
+    if not run_dir:
+        raise HTTPException(400, "no run yet")
+    pmd = next(iter(sorted(Path(run_dir).rglob("paraview.pmd"))), None)
+    if pmd is None:
+        raise HTTPException(400, "this run has no openPMD diagnostics")
+    pvpython = os.environ.get(
+        "WARPS_STUDIO_PVPYTHON",
+        os.path.expanduser("~/miniconda3/envs/paraview/bin/pvpython"))
+    export = STUDIO / "warpx_studio/live/export_vtk.py"
+    out_dir = Path(run_dir) / "paraview_vtk"
+    result = subprocess.run([pvpython, str(export), "--pmd", str(pmd),
+                             "--out", str(out_dir), "--json"],
+                            capture_output=True, text=True, timeout=900)
+    if result.returncode != 0:
+        raise HTTPException(500, (result.stderr or result.stdout)[-500:])
+    summary = json.loads(result.stdout.strip().splitlines()[-1])
+    launched = False
+    if launch:
+        gui = shutil.which("paraview") or os.path.expanduser("~/.local/bin/paraview")
+        if Path(gui).exists():
+            subprocess.Popen([gui, summary["pvd"]], start_new_session=True,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            launched = True
+    return {**summary, "launched": launched}
+
+
+@app.get("/api/checkpoints")
+def api_checkpoints():
+    """Checkpoint directories produced by earlier runs of this studio."""
+    found = []
+    for run_dir in sorted(RUNS.glob("*"), reverse=True)[:40]:
+        for chk in sorted(run_dir.rglob("chk[0-9]*")):
+            if chk.is_dir():
+                found.append({"path": str(chk), "run": run_dir.name,
+                              "name": chk.name})
+    return {"checkpoints": found[:40]}
+
+
 @app.get("/api/frame")
 def api_frame():
     live: LiveView | None = STATE["live"]

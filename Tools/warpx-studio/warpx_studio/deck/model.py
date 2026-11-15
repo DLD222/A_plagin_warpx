@@ -165,6 +165,16 @@ def minimal_2d_deck() -> Deck:
     ):
         deck.set_group_value("<species_name>", "electrons", key, value)
 
+    deck.add_instance("<diag_name>", "chk")
+    for key, value in (
+        ("diag_type", "Full"),
+        ("format", "checkpoint"),
+        ("intervals", "20"),
+        ("write_species", "1"),
+        ("file_prefix", "chk"),
+    ):
+        deck.set_group_value("<diag_name>", "chk", key, value)
+
     deck.add_instance("<diag_name>", "diag1")
     for key, value in (
         ("diag_type", "Full"),

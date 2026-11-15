@@ -67,6 +67,9 @@
   <button id="pause" disabled>⏸ 暂停</button>
   <button id="resume" disabled>▶ 继续</button>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
+  <button id="paraview" title="把当前结果导成 .vti/.pvd 并打开 ParaView">🔍 ParaView 深挖</button>
+  <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
+  <button id="restart" title="把选中 checkpoint 设为 amr.restart 并运行">⏩ 续算</button>
   <span id="status"><span class="dot" style="background:var(--dim)"></span>空闲</span>
 </header>
 
@@ -341,6 +344,33 @@ document.getElementById("run").onclick = async () => {
 document.getElementById("stop").onclick = () => fetch("/api/stop", { method: "POST" });
 document.getElementById("pause").onclick = () => fetch("/api/pause", { method: "POST" });
 document.getElementById("resume").onclick = () => fetch("/api/resume", { method: "POST" });
+document.getElementById("paraview").onclick = async () => {
+  setStatus("正在导出 VTK …", "var(--warn)");
+  const r = await fetch("/api/paraview", { method: "POST" });
+  const out = await r.json();
+  if (!r.ok) { setStatus("导出失败: " + (out.detail || "").slice(0, 80), "var(--err)"); return; }
+  setStatus(`已导出 ${out.iterations} 个迭代 → ${out.pvd}` +
+            (out.launched ? "（已在 ParaView 中打开）" : "（未检测到 ParaView 可执行文件）"), "var(--ok)");
+};
+async function refreshCheckpoints() {
+  const data = await (await fetch("/api/checkpoints")).json();
+  const sel = document.getElementById("checkpoint");
+  const current = sel.value;
+  sel.innerHTML = '<option value="">（无 checkpoint）</option>';
+  for (const c of data.checkpoints || []) {
+    const o = document.createElement("option");
+    o.value = c.path; o.textContent = `${c.run}/${c.name}`;
+    sel.appendChild(o);
+  }
+  if (current) sel.value = current;
+}
+document.getElementById("restart").onclick = () => {
+  const value = document.getElementById("checkpoint").value;
+  if (!value) { setStatus("先选一个 checkpoint", "var(--warn)"); return; }
+  DECK.params["amr.restart"] = value;
+  render();
+  document.getElementById("run").click();
+};
 document.getElementById("preview").onclick = async () => {
   const r = await fetch("/api/preview", { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(DECK) });
@@ -364,6 +394,8 @@ document.getElementById("preview").onclick = async () => {
   if (preferred) sel.value = preferred.path;
   await loadStarter();
   render();
+  refreshCheckpoints();
+  setInterval(refreshCheckpoints, 5000);
 })();
 </script>
 </body>
