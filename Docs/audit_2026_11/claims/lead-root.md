@@ -147,3 +147,42 @@ F8 (PicEm_A) fixed by ee6be11：`MomentFluidSolver::AdvanceAndDeposit` 不再丢
 验证：`warpx.2d audit_runs/lead-scratch/fluid_moment_2d.inp`（XZ、periodic、单 box、`fluids.moment.enabled=1`）
 → 正常跑到 `AMReX finalized`。反证：把 `YeeDeposition.H` 的 `rho_np1` 乘 1.5 重编 → 同一 deck 触发
 `Assertion resid <= 1e-12*resid_scale failed (MomentFluidSolver.cpp:149)`；之后已 `git diff` 确认该文件干净。
+
+## 第三轮：PicEm_A F5/F6 收尾（提交 aa92167），窗口 18 条全部结案
+
+F6 (PicEm_A) fixed by aa92167：`rho_medium` 的更新盒不再对每个 FAB 两端各缩 1（那样在每条内部
+FAB 交界上留一行既不被 seed 也不被更新的"洞"）。新规则 `rho_medium_shrink_box()`：
+内部 FAB 的低端节点交给前一个 FAB（前者的高端保留），只在非周期域的端点收缩——每条 nodal 线
+恰好被一个 FAB 写。seed 时加了一次**并集覆盖自检**（BoxArray + 1 分量 mask，`covered.min(0)==1`），
+它在该规则被改坏时确实会失败。
+过程中发现并一起修掉的两个真实问题（都只有在新规则下才暴露）：
+  1. 相邻 nodal FAB 共享节点被两个 FAB 各写一次，后写者读到未填的 ghost → 实测 `rho_medium`
+     一步后变成 `1e193`（旧写法因为"洞"而不写该节点，反而看不出来）；
+  2. `Jcond`（`MacroscopicProperties::m_jcond`）只有 0 层 ghost，周期端点 `jx(i-1,j)` 越界 →
+     现在分配 1 层 ghost，`FillBoundary(periodicity)` 才有实际作用。
+验证：`warpx.2d Examples/Tests/macroscopic_solver/inputs_test_2d_macroscopic_solver warpx.verbose=1`
+（PEC、2×2=4 个 FAB）→ `[GAUSS] step 100 max|divD-(rho_p+rho_m)| = 2.0e-16`，`max|rho_m| = 0`。
+反证：把规则换回 `bx.grow(-1)` 重编 → 同一 deck 报
+`Assertion covered.min(0) == amrex::Real(1.0) failed ... (a one-node hole is left at an internal FAB boundary)`。
+回归：`ctest -R "macroscopic"` → 12/12 通过（含 1D/2D/3D EB 的 checksum），说明 ghost 层与盒规则
+不影响任何被检查的输出。
+
+F5 (PicEm_A) fixed by 93afb3b + aa92167：`eps2` 未使用已删、`Ey2->FillBoundary` 已补（93afb3b）；
+同一 `[GAUSS]` 块里 **3D 分支此前仍用 2D 散度**（`(Dx_i-Dx_{i-1})/dx + (Dz_j-Dz_{j-1})/dz`，与已修好的
+3D seed 不一致），aa92167 补上 `Dy3` 与 k 方向的 z 差分。
+验证：`warpx.3d .../inputs_test_3d_embedded_boundary_cube_macroscopic warpx.verbose=1` 跑通并打印
+`[GAUSS]`；`ctest -R "macroscopic"` 12/12。
+**反证未完成（如实记录）**：现有 3D 宏观 deck 在最坏节点的 y 项贡献为 0（把残差换回 2D 形式，
+打印数值逐位相同），所以"运行时用残差区分 2D/3D 形式"这条路走不通；这次改动目前只有
+"与 seed 同构 + 编译/回归通过"这一级证据。若后续要补，需要一个 D 沿 y 变化的 3D deck
+（注意默认的 div-B/projection cleaner 会把外部 E 清掉，需要关掉或另设初值）。
+
+## 给集成者的汇总（窗口 18 条）
+
+fixed（8）：`PicEm_A F1`(93afb3b)、`PicEm_A F5`(93afb3b+aa92167)、`PicEm_A F6`(aa92167)、
+`PicEm_A F7`(93afb3b)、`PicEm_A F8`(ee6be11)、`PicEm_A F10`(93afb3b)、
+`ParticleCore_B F7`(ee6be11)、`ParticleCore_B F9`(ee6be11)。
+invalid（10）：`ParticleCore_A F5`；`ParticleCore_B F1,F2,F5,F6,F8,F10`；`PicEm_A F2,F9,F12`。
+建议集成者写进 REPORT 的一句话：尾部窗口的 10 条 invalid 全部是"报告当时以 26.10 为基准/或代码
+已被 deefbf6、5d71c45 覆盖"，不是回避；8 条 fixed 里 F6 与 F8 各带出一个上游/本 fork 的隐藏缺陷
+（nodal FAB 共享节点双写、dt→0 时残差参考量退化），都已在本窗口内一并修掉或记录。

@@ -132,8 +132,8 @@
 | Source_Plugins_PicEm_A | F2 | major | `ComputeDualGeometry` 只在 XZ 下真正实现，却在所有维度被调用/断言 | invalid |
 | Source_Plugins_PicEm_A | F3 | minor | `ComputeDualGeometry` 留下无条件调试打印与自相矛盾的断言文案 | fixed |
 | Source_Plugins_PicEm_A | F4 | minor | 3D 张量介质中 `rho_medium` 种子的 Dy 用了错的 eps 分量 | fixed |
-| Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | wip:lead |
-| Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | wip:lead |
+| Source_Plugins_PicEm_A | F5 | minor | 3D 各向异性下另一处同类风险（`eps2` 变量未使用，`Ex2/Ez2` 的 FillBoundary 缺 `Ey2`） | fixed |
+| Source_Plugins_PicEm_A | F6 | minor | `bnd_shrink` 用域周期判断却作用于每块 tilebox ⇒ CPU 分块时 rho_medium 少更新一层 | fixed |
 | Source_Plugins_PicEm_A | F7 | minor | `fluids.moment` 原型只断言 `AMREX_SPACEDIM==2`，RZ 构建同样满足 ⇒ 静默按直角算 | fixed |
 | Source_Plugins_PicEm_A | F8 | minor | 电荷守恒残差返回值被丢弃 | fixed |
 | Source_Plugins_PicEm_A | F9 | minor | `AddExternalFields` 的层循环由 `max_level` 改为 `finestLevel()` | invalid |
