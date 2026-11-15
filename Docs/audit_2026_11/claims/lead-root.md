@@ -265,3 +265,31 @@ F2 说"split-gather 路径把 B 的 Galerkin 降阶丢了、与 fused 路径语�
 并不存在报告担心的"槽位错配"——真正的问题只是调用点传 false，而那正是上游的行为。
 若要"比上游更好"，需要两边一起改（否则 400 例更不可能一致），故本条按基线判 invalid，
 并把"B-only split gather 未降阶"作为上游已知限制记在此处，不改代码。
+
+## 第八轮：Collision_B F7（d970216）与 Benchmarks F6（5d7a26d）—— 审计 189 条全部结案
+
+F7 fixed by d970216：legacy/Python 路径现在也在 `InitData` 走 schema。
+- `InitData_BeforeInit` 里 legacy 分支建 `StateRegistry` 并挂到 `RuntimeContext`（此前 `ctx->state`
+  恒为 nullptr，`AllocPluginFields` 直接 return），然后用同一套 `create_collision_handler` **提前创建**
+  handler 并调 `declare_state()`；
+- `AllocData()` 仍推迟到第一次碰撞步（那时层与场才存在），用新成员 `m_collision_handler_allocated`
+  保证只调一次；kernel 路径（`m_runtime_context != nullptr`）完全不受影响。
+验证（legacy 路径，pywarpx）：
+`audit_build/fork/bin/test_2d_collision_xz_picmi` 下用 pybind 模块跑
+`Examples/Tests/collision/inputs_test_2d_collision_xz_picmi.py`，临时插桩打印确认
+`InitData_BeforeInit → legacy context → declare_state called for 3 collision(s)`。
+反证：把 `declare_state(*m_legacy_state)` 这一行去掉重编 → 同一 deck 只剩前两行、**没有**
+`declare_state called`（即报告描述的"legacy 路径 schema 为空"），恢复后重新出现。
+回归：`ctest -R "test_2d_collision_xz_picmi|test_3d_deuterium_tritium_fusion\.|test_1d_collision_z\.|test_2d_collision_xz\."`
+→ **12/12 通过**（含 checksum）；四个维度 `app_*` 与 `pyWarpX_*` 全部重编通过。
+
+F6 fixed by 5d7a26d（Benchmarks）：`c02_0_pec` 的 6 个 oblique inputs 已经都带
+`diagnostics.diags_names = d1`（fields_to_plot = Ex Ey Ez Bx By Bz），`analyze_snell.py`/`compare_t9.py`
+可直接跑；剩下 `c03_medium/conductor_slab/analyze_cw.py` 的默认探针与 `inputs_2d` 不符——
+它默认要 z=0.20..0.56 的 p0..p9，而 inputs_2d 定义的是 p0..p6（z=0.109..0.484）。
+现在默认按同一套探针网格（dz=0.03125 / j0=323 / dj=2，与 analyze_v2.py 一致）生成 7 个 z，
+缺文件时明确提示"先跑 inputs_2d"，`--z-list/--n-probes` 仍可覆盖。
+验证：`--selftest` 通过；用**合成**的 p0..p6.txt（FieldProbe 列格式 step,t,x,y,z,Ex,Ey,Ez,...）
+端到端跑 `analyze_cw.py --fixed-k` → 正常拟合（rms 5e-7…5e-4），不再 FileNotFound。
+
+审计总账（189 条）：**fixed 158 / invalid 31 / todo 0 / wip 0**。

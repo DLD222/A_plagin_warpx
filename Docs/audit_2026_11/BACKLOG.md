@@ -79,7 +79,7 @@
 | Source_Plugins_Collision_B | F4 | minor | `InverseBremsstrahlung`：`calculateNuei` 在缺少回调时**静默空转**，随后无检查地解引用 `nuei_*` / `N_*` 场 | fixed |
 | Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | fixed |
 | Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | fixed |
-| Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | wip:lead-root |
+| Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | fixed |
 | Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | fixed |
 | Source_Plugins_Diagnostics_A | F1 | major | 诊断 rho 的 ngrow 断言把"各向同性分配"与"逐方向需求"相比，cfl>1 时直接 abort | fixed |
 | Source_Plugins_Diagnostics_A | F2 | critical | DivE/DivB 诊断用 `config_snapshot().ncomps` 分配，legacy(PICMI) 路径上恒为 1 → RZ 多模写越界/只留 mode 0 | fixed |
