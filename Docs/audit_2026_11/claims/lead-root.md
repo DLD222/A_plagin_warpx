@@ -329,3 +329,24 @@ step 序号为 `0,80,17,90`（三次运行混在一起）。后果：
 另：`ctest --show-only` 显示 fork 411 个 `.run`、官方 26.11 407 个；多出的 4 个是
 `test_2d_dynamic_regrid{,_remake,_remove,_uniform_b}`（fork 新功能，官方无对应物），
 官方侧没有 fork 缺的用例。这 4 例只能内部回归，不能计入"与官方逐例一致"。
+
+## 第十轮（验收就绪度）：407 例的分类与进度
+
+新增 `scripts/acceptance_matrix.py`（提交见 git log），把"约 400 例"的验收集合显式分类，
+避免把"没有输出的用例"混进"输出相同"的百分比：
+
+```
+fork .run = 411，official 26.11 .run = 407，shared = 407，official-only = 0
+comparable = 406，exit-only = 1（test_2d_pass_mpi_comm_picmi：不写任何输出，
+                                 只验证 PICMI 能把 MPI communicator 传下去）
+one-sided  = 0（不存在"只有一侧有输出"的用例）
+已比较     = 77，剩余 330
+fork 独有  = 4（test_2d_dynamic_regrid{,_remake,_remove,_uniform_b}，官方无对应功能）
+```
+
+另外记录两个支撑"基准可信"的事实：
+- `audit_build/official_2611` 的 `CMAKE_HOME_DIRECTORY` 就是 `_upstream/warpX-26.11`
+  （`git describe` = 26.11，commit 93aa1ad4e）；两个构建的 `WarpX_DIMS/COMPUTE/EB/QED/FFT/
+  OPENPMD/PRECISION/BUILD_TYPE` 与 `-O3 -DNDEBUG` 逐项一致。
+- reduced diagnostics 是 append 模式（见上一轮），所以**正式 sweep 前必须清目录**
+  （`scripts/clean_run_dirs.sh`），否则 fork/official 的文本类对比会被多轮追加污染。
