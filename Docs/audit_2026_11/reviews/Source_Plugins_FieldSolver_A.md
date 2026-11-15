@@ -72,7 +72,10 @@ ImplicitSolver.cpp 相关函数、AlgMGPC.H）。16 个无上游对应的新文�
 
 ## 缺陷清单
 
-### F1 宏观介质 E 推进：`macroscopic_solver`（Lax-Wendroff）被静默忽略，永远走一阶 Backward-Euler
+### F1 宏观介质 E 推进：`algo.macroscopic_sigma_method`（Lax-Wendroff）被静默忽略，永远走一阶 Backward-Euler
+
+> **已修复**（commit `ddfddf4`）：参数名是 `algo.macroscopic_sigma_method`（不是 `warpx.macroscopic_solver`）；
+> 现在两种格式各自通过 `coefficients_from_inv_eps` 生效，`Ex` 在损耗算例上相对差 44%。
 - 文件:行 `Source/Plugins/FieldSolver/FiniteDifference/MacroscopicEvolveE.cpp:267-268`、`:314-315`、`:356-357`（计算）与 `:285-286`、`:326-328`、`:368-370`（实际使用处）
 - 严重度: **major**
 - 置信度: **confirmed**
