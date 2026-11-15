@@ -306,8 +306,12 @@ def compare_dirs(ref, new, name=""):
                 and not entry.get("datasets_only_ref") and not entry.get("datasets_only_new"):
             ident += 1
             continue
-        worst_abs = max(worst_abs, entry.get("max_abs_diff", 0.0))
-        worst_rel = max(worst_rel, entry.get("max_rel_diff", 0.0))
+        # Only value-level comparisons contribute to the case-level max: a raw-byte
+        # difference (binary_diff) re-reads the whole file as float64, which turns
+        # plotfile padding/FAB headers into meaningless 1e179-style numbers.
+        if entry.get("kind") != "binary_diff":
+            worst_abs = max(worst_abs, entry.get("max_abs_diff", 0.0))
+            worst_rel = max(worst_rel, entry.get("max_rel_diff", 0.0))
         res["details"].append(entry)
 
     # plotfile directories present in both, but only those with differing bytes are
