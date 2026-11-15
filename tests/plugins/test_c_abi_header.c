@@ -51,8 +51,12 @@ main (void)
         printf("FAIL: handler struct_size\n");
         return 1;
     }
-    if (WARPX_PLUGIN_ABI_VERSION != 6u) {
-        printf("FAIL: unexpected ABI version\n");
+    /* Pin the ABI the structs below are known to match.  Bump this literal together with
+     * WARPX_PLUGIN_ABI_VERSION (PluginCApi.H) whenever the layout changes: the point of the
+     * check is that a plugin compiled against one version cannot silently link against another.
+     * v7 added the level geometry accessors (commit a158cd1). */
+    if (WARPX_PLUGIN_ABI_VERSION != 7u) {
+        printf("FAIL: unexpected ABI version %u (test expects 7)\n", WARPX_PLUGIN_ABI_VERSION);
         return 2;
     }
     if (handler.stage != WARPX_STAGE_PUSH) {

@@ -81,3 +81,19 @@ m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 见 `REPORT.md` §8：`GetExternalEBField` 缺 `RuntimeContext`（QED/电离 + 外场时崩溃或零场）、
 RZ 逐物种诊断量的边界处理（已逐格定位到 z 上边界）、star/fluid 插件（自引力未接线/1D-2D
 越界/cgs-SI 混用）、6 处被放宽的测试容差、Bremsstrahlung 与官方相反但物理更自洽的顺序。
+
+## 本轮新增（round 12 后半）
+
+| # | 缺陷 | 位置 | 依据 | 验证 |
+|---|---|---|---|---|
+| 20 | `plugin_c_abi_header_*` 测试硬编码 ABI v6，而头文件已是 v7（`a158cd1` 引入 level geometry 访问器） | `tests/plugins/test_c_abi_header.c` | 头文件 `WARPX_PLUGIN_ABI_VERSION 7u`；测试里 `!= 6u` 直接失败 | 改为 7 并在注释里写明"改 ABI 时两处一起改"；测试输出 `plugin ABI v7 C header OK` |
+| 21 | 内核 `finalize()` 从不被调用 / `StateRegistry::clear()` 不清 scalar / `warpx_stage_geometry()` 对不存在的层不返回 0 | `Source/Core/Runtime/{Runtime.cpp,StateRegistry.cpp,PluginCAdapter.cpp}` | review `Source_Core_Runtime_B` 的 F3/F5/F4（契约与实现不符） | `ctest -R 'plugin_|runtime_'` 除下列 1 个**既有**失败外全通过 |
+
+## 仍然失败、但**不是本轮引入**的单测（已用 stash 重建核对）
+
+- `runtime_snapshot_particles_2`：`tests/runtime/inputs_2d_particles` 里**没有**
+  `warpx.reduced_diags_names`，而测试要读 `diags/reducedfiles/{step_info,lb_eff,part_num,
+  part_energy,part_mom,rho_max,extrema}.txt` 共 15 条断言。属于测试夹具缺失
+  （照 `inputs_2d` 的写法补上对应的 reduced-diag 声明即可），不是运行时缺陷。
+- 该用例的期望值（256 个宏粒子、权重 4e18、`rho_max = -q_e*1e18`、extrema ±0.9375）
+  已经写在测试里，补夹具时按它对齐即可。
