@@ -7,6 +7,7 @@
 #include "CollisionHandler.H"
 
 #include "Runtime/HostServices.H"
+#include "Utils/Parser/ParserUtils.H"
 
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
@@ -127,13 +128,18 @@ CollisionHandler::declare_state (warpx::runtime::StateRegistry& state)
 {
     // Production fields must exist before diagnostics resolve field names, so
     // they are declared here and allocated by the core with the levels (S4).
-    for (const auto& collision_name : collision_names) {
-        const amrex::ParmParse pp(collision_name);
-        int save_production = 0;
-        pp.query("save_particle_production", save_production);
-        if (save_production == 0) { continue; }
+    //
+    // The flag is parsed exactly like NuclearFusionFunc parses it (queryWithParser on a
+    // bool), otherwise a value such as `true` or `1.0` would declare the field in one
+    // place and not the other. Only nuclearfusion collisions own this key.
+    for (int i = 0; i < static_cast<int>(collision_names.size()); ++i) {
+        if (collision_types[i] != "nuclearfusion") { continue; }
+        const amrex::ParmParse pp(collision_names[i]);
+        bool save_production = false;
+        utils::parser::queryWithParser(pp, "save_particle_production", save_production);
+        if (!save_production) { continue; }
 
-        const std::string field_name = collision_name + "_particle_production";
+        const std::string field_name = collision_names[i] + "_particle_production";
         warpx::runtime::FieldSpec spec;
         spec.name = field_name;
         spec.ncomp = 1;

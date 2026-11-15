@@ -18,14 +18,7 @@ CollisionSpeciesTable::CollisionSpeciesTable (const warpx::runtime::IParticleCon
     : m_calculate_nuei(std::move(calculate_nuei))
 {
     for (const auto& name : mypc.GetSpeciesNames()) {
-        auto& pc = mypc.GetParticleContainerFromName(name);
-        m_species.emplace(name, &pc);
-        warpx::runtime::SpeciesSpec spec;
-        spec.species_name = name;
-        spec.species_charge = pc.getCharge();
-        spec.species_mass = pc.getMass();
-        spec.count = static_cast<std::int64_t>(pc.TotalNumberOfParticles(false));
-        m_handles.emplace(name, warpx::runtime::SpeciesHandle(spec));
+        m_species.emplace(name, &mypc.GetParticleContainerFromName(name));
     }
 }
 
@@ -42,18 +35,5 @@ CollisionSpeciesTable::view (const std::string& name) const
     if (it == m_species.end()) {
         throw std::runtime_error("CollisionSpeciesTable: unknown species " + name);
     }
-    const auto hit = m_handles.find(name);
-    return CollisionSpeciesView(hit->second, *it->second);
-}
-
-std::vector<std::string>
-CollisionSpeciesTable::names () const
-{
-    std::vector<std::string> out;
-    out.reserve(m_species.size());
-    for (const auto& [name, pc] : m_species) {
-        amrex::ignore_unused(pc);
-        out.push_back(name);
-    }
-    return out;
+    return CollisionSpeciesView(*it->second);
 }

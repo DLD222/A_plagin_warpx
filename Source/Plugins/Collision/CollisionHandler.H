@@ -36,10 +36,6 @@ public:
     void AllocData () override;
     void declare_state (warpx::runtime::StateRegistry& state) override;
 
-    [[nodiscard]] const CollisionSpeciesTable& speciesTable () const { return m_species; }
-
-
-
     /* Perform all of the collisions */
     void doCollisions (int step, amrex::Real cur_time, amrex::Real dt) override;
 
