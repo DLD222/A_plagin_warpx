@@ -85,11 +85,18 @@ public:
      * @param[in]  relative_tolerance  MLMG relative tolerance
      * @param[in]  boundary  periodic (Jeans swindle) or open (Dirichlet from phi's ghost cells)
      */
+    /** Gravitational constant, CODATA 2018.  The constants table in the specification quotes the
+     *  SI value; a caller whose density, lengths and accelerations are Gaussian cgs passes
+     *  `gravitational_constant_cgs` instead, so that the solve stays in the caller's units. */
+    static constexpr amrex::Real gravitational_constant_SI = 6.67430e-11;  // m^3 kg^-1 s^-2
+    static constexpr amrex::Real gravitational_constant_cgs = 6.67430e-8;  // cm^3 g^-1 s^-2
+
     static void solvePotential (amrex::MultiFab const& rho,
                                 amrex::MultiFab& phi,
                                 amrex::Geometry const& geom,
                                 amrex::Real relative_tolerance = 1.e-11,
-                                PotentialBoundary boundary = PotentialBoundary::periodic);
+                                PotentialBoundary boundary = PotentialBoundary::periodic,
+                                amrex::Real gravitational_constant = gravitational_constant_SI);
 
     /** g = -grad phi on one level, cell-centred, stored in the same layout as phi.
      *

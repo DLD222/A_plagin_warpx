@@ -64,6 +64,26 @@ amrex::Geometry geometry_from_context (WarpXStageContext* ctx, int lev = 0)
     return amrex::Geometry(domain, rb, 0 /* Cartesian */, is_periodic);
 }
 
+/** Publish g = -grad(phi) for one level on the bus (cgs, same units as the star state).
+ *
+ *  Does nothing when the level has no star_g* field: the bus exposes the fields the schema asked
+ *  for, and the number of levels differs between runs.
+ */
+static void publish_acceleration (WarpXStageContext* ctx, int lev,
+                                  amrex::MultiFab& phi, amrex::Geometry const& geom)
+{
+    amrex::MultiFab* g[3] = {nullptr, nullptr, nullptr};
+    for (int d = 0; d < 3; ++d) {
+        char name[16] = {'s', 't', 'a', 'r', '_', 'g', static_cast<char>('x' + d), '\0'};
+        void* raw = nullptr;
+        if (warpx_stage_field(ctx, name, lev, &raw) == 1 && raw != nullptr) {
+            g[d] = static_cast<amrex::MultiFab*>(raw);
+        }
+    }
+    if (g[0] == nullptr || g[1] == nullptr || g[2] == nullptr) { return; }
+    warpx::plugins::gravity::NewtonGravitySolver::computeAcceleration(phi, *g[0], *g[1], *g[2], geom);
+}
+
 void gravity_step (WarpXStageContext* ctx, void*)
 {
     g_steps += 1.0;
@@ -82,19 +102,20 @@ void gravity_step (WarpXStageContext* ctx, void*)
     amrex::Geometry geom = geometry_from_context(ctx);
     if (geom.Domain().isEmpty()) { return; }
 
+    // The star state below is Gaussian cgs (the profile is read as g/cm^3 with r in cm, and the
+    // fluid integrates in the same units), so the solve must use the cgs gravitational constant.
+    // Passing the SI default here multiplies a cgs density by an SI G, which is 1e7 off and is
+    // how the earlier version ended up with a potential that no acceleration could be derived
+    // from consistently.
     warpx::plugins::gravity::NewtonGravitySolver::solvePotential(
-        rho, phi, geom, 1.0e-13, warpx::plugins::gravity::PotentialBoundary::open);
+        rho, phi, geom, 1.0e-13, warpx::plugins::gravity::PotentialBoundary::open,
+        warpx::plugins::gravity::NewtonGravitySolver::gravitational_constant_cgs);
     g_phi_min = phi.min(0);
 
     // Hand the acceleration to the bus: the fluid layer reads these, never calls into this one.
-    for (int d = 0; d < 3; ++d) {
-        char name[16] = {'s', 't', 'a', 'r', '_', 'g', static_cast<char>('x' + d), '\0'};
-        void* raw_g = nullptr;
-        if (warpx_stage_field(ctx, name, 0, &raw_g) == 1 && raw_g != nullptr) {
-            auto& g = *static_cast<amrex::MultiFab*>(raw_g);
-            g.setVal(0.0);
-        }
-    }
+    // g = -grad(phi) is what the fluid actually needs; the earlier version published zeros here,
+    // so the self-gravity was solved every step and then silently dropped.
+    publish_acceleration(ctx, 0, phi, geom);
 
     // Solve on every level.  This is a per-level solve, not a composite MLMG one: each level sees
     // its own density with its own geometry, so the coarse-fine correction of a true multilevel
@@ -124,7 +145,9 @@ void gravity_step (WarpXStageContext* ctx, void*)
             warpx::plugins::gravity::NewtonGravitySolver::solvePotential(
                 *static_cast<amrex::MultiFab*>(raw_rho_l),
                 *static_cast<amrex::MultiFab*>(raw_phi_l), geom_l, 1.0e-13,
-                warpx::plugins::gravity::PotentialBoundary::open);
+                warpx::plugins::gravity::PotentialBoundary::open,
+                warpx::plugins::gravity::NewtonGravitySolver::gravitational_constant_cgs);
+            publish_acceleration(ctx, lev, *static_cast<amrex::MultiFab*>(raw_phi_l), geom_l);
             double const phi_l = static_cast<amrex::MultiFab*>(raw_phi_l)->min(0);
             std::printf("[gravity] step %.0f level %d: phi_min = %g on %d cells\n",
                         g_steps, lev, phi_l, (int)geom_l.Domain().numPts());

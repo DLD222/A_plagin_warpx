@@ -35,6 +35,23 @@
 | `reviews/Source_Plugins_ParticleCore_A.md` | 1 | 0 | 4 | 5 |
 | `reviews/Source_Plugins_Collision_A.md` | 0 | 1 | 3 | 4 |
 
+## critical 条目的当前状态（2026-11-15）
+
+| # | 条目 | 状态 |
+|---|---|---|
+| 1 | pywarpx 仍调用已改名的 `WarpXParIter` | **已修**（`2829581`，两个名字并存） |
+| 2 | `warpx_stage_field()` 把异常抛过 C ABI | **已修**（`deefbf6`：写入口 + `warpx_stage_geometry`/`has_field*` 全部 try/catch） |
+| 3 | DivE/DivB 用 `config_snapshot().ncomps` | **已修**（`edd72c4`） |
+| 4 | regrid 后 TimeAveraged 诊断累加和被清零 | 待修（`Source_Plugins_Diagnostics_B` 有复现步骤） |
+| 5 | `GetExternalEBField` 拿不到 `RuntimeContext` → 空指针 | **已修**（`deefbf6`）；另见条目 6 |
+| 6 | QED/电离三条路径不传 ctx | **已修**（`deefbf6`：三个 functor 显式接收并转发 context） |
+| 7 | `DepositCharge` 丢掉 RZ 反体积缩放，finalizer 不覆盖 `rho_fp_<species>` | **不成立**：`HybridPICDepositRhoAndJ` 里 fork 已经调用 `FinalizeRhoOnLevel(rho_spec)` + `FinalizeJOnLevel`（26.10 是在沉积后直接 `ApplyInverseVolumeScalingToChargeDensity`），两者等价；且 26.11 也把 finalization 统一到这一层 |
+| 8 | 1D/2D 下 `bx.smallEnd(1)/(2)` 越界 | **已修**（`6312f53`：196 处改为 `star_box_lo/hi`，四维编译 + 33 个插件单测通过） |
+| 9 | 自引力在 runtime 中完全不存在（不算 g、也不用 g） | **已修**（本轮：`gravity_step` 用 `computeAcceleration` 发布 `star_g*`，此前是 `setVal(0.0)`） |
+| 10 | 单位系统三处互斥（cgs 状态 vs SI 几何 vs SI 泊松） | **已修**（本轮：`solvePotential` 的 `G` 变成参数，star 插件按 cgs 状态传 `6.67430e-8 cm³ g⁻¹ s⁻²`） |
+| 11 | `applyElectromagneticSources` 取错场分量 E=(Ex,Ex,Ex) | 待修 |
+| 12 | `check_plugin_boundaries.py` 两条检查被丢弃 | **已修**（`89d248c`） |
+
 ## 全部条目
 
 | # | 严重度 | 分区 | 标题 | 位置 |

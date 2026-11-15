@@ -20,17 +20,12 @@
 namespace warpx::plugins::gravity
 {
 
-namespace
-{
-    // CODATA 2018; the specification's constants table quotes the same value.
-    constexpr amrex::Real G_newton = 6.67430e-11;
-}
-
 void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
                                           amrex::MultiFab& phi,
                                           amrex::Geometry const& geom,
                                           amrex::Real relative_tolerance,
-                                          PotentialBoundary boundary)
+                                          PotentialBoundary boundary,
+                                          amrex::Real gravitational_constant)
 {
     BL_PROFILE("NewtonGravitySolver::solvePotential");
 
@@ -52,7 +47,10 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
         amrex::Real const mean = rho.sum(0) / geom.ProbSize();
         rhs.plus(-mean, 0, 1);
     }
-    rhs.mult(4.0 * M_PI * G_newton, 0);
+    // 4 pi G in whatever unit system the caller's rho, phi and geometry are expressed in: the
+    // default is SI (m^3 kg^-1 s^-2), and a cgs caller passes gravitational_constant_cgs so that
+    // a cgs density does not get multiplied by an SI G (a factor 1000 x 100 x 100 off).
+    rhs.mult(4.0 * M_PI * gravitational_constant, 0);
     rhs.FillBoundary(geom.periodicity());
 
     // The interior is the initial guess: the open case must keep the caller's ghost cells,

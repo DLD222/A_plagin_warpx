@@ -45,6 +45,10 @@ m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 | 10 | 移除 fork 独有的 `ApplyVolumeWeightedFilter(..., is_volume_scaled)` 扩展 | `Source/Plugins/PicEm/Modules/Parallelization/WarpXComm.cpp`、`Source/Plugins/PicEm/WarpX.H` | 26.10 / 26.11 / development 均无此参数，`rho` 调用点传 `false` 使 fork 偏离上游 | 与上游函数体逐行一致 |
 | 11 | `GetExternalEBField` 在电离/QED 路径上拿不到 `RuntimeContext` | `Source/Plugins/ParticleCore/Particles/ElementaryProcess/{Ionization,QEDPairGeneration,QEDPhotonEmission}.{H,cpp}`、`PhysicalParticleContainer.cpp::getIonizationFunc`、`MultiParticleContainer.cpp`（QED 循环） | 无上下文时 `ps == nullptr`，`E_ext_particle_function`/`repeated_plasma_lens` 段会解引用空指针（或静默丢外场）；其余 5 处调用点都传了 `runtime_context()` | 编译通过；QED/电离用例回归通过 |
 
+| 12 | star/fluid 插件 1D/2D 下 `bx.smallEnd(1)/(2)`、`bx.bigEnd(1)/(2)` 越界（196 处）：循环上界读到 IntVect 数组外，实际写穿 FAB | `Source/Plugins/NewtonGravity/*`、`Source/Plugins/FluidMoments/*` | AMReX `Box` 只有 `AMREX_SPACEDIM` 个方向；两个插件在 `1;2;3;RZ` 四维都参与构建。新增插件内 `star_box_lo/hi`（`d < AMREX_SPACEDIM ? b.smallEnd(d) : 0`），低维的缺失方向取 0，与 3D 形状核函数在低维退化成单层的语义一致 | 四维编译通过；`ctest -R '^(gravity_|fluid_)'` **33/33 通过** | `6312f53` |
+| 13 | 自引力解出来却从不使用：`gravity_step` 把 `star_gx/gy/gz` 写成 0 | `Source/Plugins/NewtonGravity/StarGravityPlugin.cpp` | 物理规范 §1.2 要求 g = −∇φ 并交给流体；`NewtonGravitySolver::computeAcceleration` 已实现该步，但插件从未调用 | 现按层调用 `computeAcceleration` 发布 g（`gravity_*` 6/6 通过） | 本轮 |
+| 14 | 引力常数单位混用：star 状态是 cgs（g/cm³、cm），求解器用 SI `G = 6.6743e-11` | `Source/Plugins/NewtonGravity/NewtonGravity.{H,cpp}` | 直接乘错 `G` 使 φ 与 g 相差 1e7；规范 §0 常数表给 SI 值，但调用方的状态由 profile 决定为 cgs | `solvePotential` 的 `G` 变成参数（默认 SI，保持 `gravity_*` 单测不变），star 插件显式传 `gravitational_constant_cgs = 6.67430e-8` | 本轮 |
+
 ## 回归证据摘要（修复 #5）
 
 | 用例 | 修复前 max abs (vs 官方 26.10) | 修复后 |
