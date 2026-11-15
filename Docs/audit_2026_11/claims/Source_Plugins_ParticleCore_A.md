@@ -24,3 +24,17 @@ claim: Source_Plugins_ParticleCore_A F1,F2,F3,F4,F5 @lead-mid 2026-11-15T18:30
   ⇒ 上游演化。
 
 验证：见"验证记录"。
+
+## 验证记录（2026-11-15T18:41）
+
+- F1（已闭合）：`grep -rn "GetExternalEBField(" Source/` 显示 `Ionization/QEDPairGeneration/
+  QEDPhotonEmission` 三个调用点都传了 ctx，parser 分支也有
+  `WARPX_ALWAYS_ASSERT_WITH_MESSAGE(ps != nullptr)`；提交 `5d71c45`。
+- F2：构建 100%；`ctest -R "load_balance"` → 12/12 通过
+  （含 `test_3d_reduced_diags_load_balance_costs_timers*`，成本数组仍可用）。
+- F3/F4/F5（invalid）：证据见上方各条（26.11 同名函数逐行对照）。
+- `bash Tools/verify/run_gates.sh` → 九门全 OK。
+
+注：`ParticleCore_A F5` 已由 `@lead-root` 认领（其窗口与本会话在倒数第 40 位重叠一条），
+本会话不再动该行；两边结论一致（invalid：26.11 已无 theta，且有
+`PhysicalParticleContainer::BackwardCompatibility()` 守卫）。

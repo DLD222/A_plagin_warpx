@@ -34,3 +34,19 @@ F8 改动：`SpectralFieldDataRZ` / `SpectralSolverRZ` 的构造参数与成员�
 `data()` 里回退到 `legacy_runtime_data()`；注册点改传 `config.context`。
 
 验证：见"验证记录"。
+
+## 验证记录（2026-11-15T18:40）
+
+- 构建 100%（四维）。
+- `ctest -R "rz.*psatd|magnetostatic|reduced_diag"` → **44/44 通过**（覆盖 F8 的 RZ 谱求解器改动
+  与 F11 的磁静力学路径）。
+- `bash Tools/verify/run_gates.sh` → 九门全 OK。
+- F9 的可运行反证需要 PETSc（`SparseJacobianMatrix::readParameters` 在 `#ifdef AMREX_USE_PETSC` 内），
+  本机没有 PETSc（`pkg-config --exists PETSc` 失败）；旧代码对 `pc_petsc.verbose` 走
+  `WARPX_ALWAYS_ASSERT_WITH_MESSAGE(!query(...))`（输入里出现该键必 abort），
+  新代码 `WMRecordWarning` + 采用旧值。
+- F11 的反证需要"未先调用 computeField 就调用 defineVectorPotentialBCs"的调用者，树内目前没有，
+  属防御性检查（旧行为：用 `FieldBoundaryType{}` 首值静默设错边界）。
+- F8 等价性：`SpectralFieldDataRZ::data()` 回退改为 `m_runtime_context->data` 或
+  `legacy_runtime_data()`，与笛卡尔 `SpectralFieldData::data()` 同构；RZ PSATD 23 个用例全过。
+- 说明：源码改动被 `93afb3b` 的 `git add -A` 连带提交。

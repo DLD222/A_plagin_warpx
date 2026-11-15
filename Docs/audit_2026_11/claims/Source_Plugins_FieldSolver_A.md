@@ -24,3 +24,17 @@ F7（亚像素张量正定性检查用 `AMREX_ASSERT`，release 构建被编译�
 `AMREX_ALWAYS_ASSERT_WITH_MESSAGE` 展开到 `amrex::Assert(const char*...)`，是 device 安全的）。
 
 验证：见"验证记录"。
+
+## 验证记录（2026-11-15T18:39）
+
+- 构建 100%。
+- `ctest -R "macroscopic"` → **12/12 通过**（1D/2D macroscopic、3D EB macroscopic、PICMI）。
+- `bash Tools/verify/run_gates.sh` → 九门全 OK。
+- 反证（F7）：本构建 `CMAKE_BUILD_TYPE=Release`，`flags.make` 的 `CXX_DEFINES` 无
+  `AMREX_DEBUG`/`AMREX_USE_ASSERTION` ⇒ 旧宏按
+  `audit_build/deps/amrex-26.10/Src/Base/AMReX_BLassert.H:37` 展开为 `((void)0)`（检查根本不存在）；
+  新宏 `AMREX_ALWAYS_ASSERT_WITH_MESSAGE`（同文件 `:49`）无条件展开到 `amrex::Assert`。
+- F6：取样改动只能由 `macroscopic.*_tensor_*` 输入触发，而仓库里目前**没有任何**使用张量材料的
+  deck（`grep -rl epsilon_tensor Examples/ Regression/` 为空），所以现有回归覆盖不到它；
+  建议后续补一个 3D `epsilon_tensor_xx = 1+y` 的 deck（本次未新增测试，记录在此）。
+- 说明：源码改动被 `93afb3b` 的 `git add -A` 连带提交。

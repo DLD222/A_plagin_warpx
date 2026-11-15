@@ -111,7 +111,7 @@
 | Source_Plugins_FieldSolver_B | F7 | major | PETSc 分支（含全部新逻辑）在本审计构建中**完全没有编译** | invalid |
 | Source_Plugins_FieldSolver_B | F8 | minor | 类型/契约不一致：`SpectralFieldData` 持 `RuntimeContext*`，`SpectralFieldDataRZ` 持 `RuntimeData*` | fixed |
 | Source_Plugins_FieldSolver_B | F9 | minor | `precon_mat.verbose` 改名：旧输入 `pc_petsc.verbose` 直接 abort | fixed |
-| Source_Plugins_FieldSolver_B | F10 | ? | 备注（已核对为**良性**，但看起来像缺陷）：`ThetaImplicitEM::ResetStep()` 不恢复 `Efield_fp`/`B_old` | wip:lead-mid |
+| Source_Plugins_FieldSolver_B | F10 | ? | 备注（已核对为**良性**，但看起来像缺陷）：`ThetaImplicitEM::ResetStep()` 不恢复 `Efield_fp`/`B_old` | invalid |
 | Source_Plugins_FieldSolver_B | F11 | minor | `MagnetostaticSolverImpl::defineVectorPotentialBCs(geom)` 公开接口会用到默认初始化的边界类型 | fixed |
 | Source_Plugins_ParticleCore_A | F1 | critical | `GetExternalEBField` 未拿到 `RuntimeContext` 时静默丢掉加速器晶格场，并在 parser 外场下空指针解引用 | fixed |
 | Source_Plugins_ParticleCore_A | F2 | minor | `Filter::ApplyStencil` 把 load-balance cost 恒置为 `nullptr`，负载均衡计时统计被静默删除 | fixed |
