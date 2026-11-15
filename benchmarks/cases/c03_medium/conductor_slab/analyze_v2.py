@@ -75,7 +75,8 @@ def selftest():
 def main():
     global ARGS
     ap = argparse.ArgumentParser()
-    ap.add_argument("diags", nargs="?", help="directory with q0.txt..q6.txt")
+    ap.add_argument("diags", nargs="?",
+                    help="directory with p0.txt..p6.txt (the 7 slope probes in inputs_2d)")
     ap.add_argument("--sigma", type=float, default=0.1)
     ap.add_argument("--lam", type=float, default=1.0)
     ap.add_argument("--t0", type=float, default=24e-9)

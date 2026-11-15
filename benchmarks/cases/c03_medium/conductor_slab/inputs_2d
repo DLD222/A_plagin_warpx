@@ -66,8 +66,10 @@ laser1.wavelength = 1.0
 laser1.profile = parse_field_function
 laser1.field_function(X,Y,t) = "E0*exp(-((t-3.0*tau)/tau)^2)*cos(omega*t)"
 
-# probes inside the slab
-warpx.reduced_diags_names = q1 q2
+# probes inside the slab (q1/q2: the two-probe quick check; p0..p6: the 7-probe slope fit that
+# analyze_v2.py expects, at z = 0.109..0.484 = 1.09..4.84 delta -- all beyond the 1.5-delta
+# exclusion, see the note at the top of this file)
+warpx.reduced_diags_names = q1 q2 p0 p1 p2 p3 p4 p5 p6
 q1.type = FieldProbe
 q1.intervals = 1
 q1.probe_geometry = Point
@@ -78,3 +80,38 @@ q2.intervals = 1
 q2.probe_geometry = Point
 q2.x_probe = 0.015625
 q2.z_probe = 0.234375
+p0.type = FieldProbe
+p0.intervals = 1
+p0.probe_geometry = Point
+p0.x_probe = 0.015625
+p0.z_probe = 0.109375
+p1.type = FieldProbe
+p1.intervals = 1
+p1.probe_geometry = Point
+p1.x_probe = 0.015625
+p1.z_probe = 0.171875
+p2.type = FieldProbe
+p2.intervals = 1
+p2.probe_geometry = Point
+p2.x_probe = 0.015625
+p2.z_probe = 0.234375
+p3.type = FieldProbe
+p3.intervals = 1
+p3.probe_geometry = Point
+p3.x_probe = 0.015625
+p3.z_probe = 0.296875
+p4.type = FieldProbe
+p4.intervals = 1
+p4.probe_geometry = Point
+p4.x_probe = 0.015625
+p4.z_probe = 0.359375
+p5.type = FieldProbe
+p5.intervals = 1
+p5.probe_geometry = Point
+p5.x_probe = 0.015625
+p5.z_probe = 0.421875
+p6.type = FieldProbe
+p6.intervals = 1
+p6.probe_geometry = Point
+p6.x_probe = 0.015625
+p6.z_probe = 0.484375

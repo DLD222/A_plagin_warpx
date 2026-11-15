@@ -66,3 +66,14 @@ F20 fixed（c03/c02 若干小问题，逐项）:
   - `lossy_slab/inputs_2d` 的 `max_step=5000`：**复核为不成立**。2D Yee 的
     `dt = cfl / (c*sqrt(2/dx²)) = 0.4*0.03125/(c*sqrt2) = 2.95e-11 s`（`CartesianYeeAlgorithm::ComputeMaxDt`），
     5000 步 = **147 ns > stop_time 95 ns**，时间窗取得到；review 里 dt=1.47e-11 的算式不对。
+
+F6 fixed（补上缺失的输入，使三个分析脚本可复现）:
+  - `inputs_2d_oblique_{te,tm}_{30,45,60}deg`（6 个）原本**没有** `diagnostics.diags_names = d1`，
+    而 `analyze_snell.py` / `compare_t9.py` 读 `diags/d1<step>` ⇒ 只能手改输入才能跑。现在 6 个 deck
+    都加了 `d1`（`diags_names = d1`、`intervals = 10`、`diag_type = Full`、`fields_to_plot = Ex Ey Ez Bx By Bz`）。
+  - `conductor_slab/inputs_2d` 只定义 `q1 q2` 两个探针，而 `analyze_v2.py` 读 `p0..p6.txt`、
+    `analyze_cw.py` 读 `p0..p9.txt` ⇒ 补了 7 个 `p` 探针，z 取 `analyze_v2.Z_PROBES` 的
+    `j = 323,325,...,335`（z = 0.109375 … 0.484375 = 1.09δ…4.84δ，全部在 1.5δ 排除区之外）；
+    并把 `analyze_v2.py --help` 里写错的 "q0.txt..q6.txt" 改成 "p0.txt..p6.txt"。
+  （`analyze_cw.py` 需要 10 个探针的那套是 CW 源的独立用例，当前 deck 是脉冲源；已在 claims 记录，
+   未强行塞进同一个 deck，因为两套时间窗不同。）

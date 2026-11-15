@@ -98,3 +98,9 @@ fp_shadow.intervals = 2
 fp_shadow.probe_geometry = Point
 fp_shadow.x_probe = 0.0
 fp_shadow.z_probe = 4.0
+
+# Full-field dumps for analyze_snell.py / compare_t9.py, which read diags/d1<step>.
+diagnostics.diags_names = d1
+d1.intervals = 10
+d1.diag_type = Full
+d1.fields_to_plot = Ex Ey Ez Bx By Bz
