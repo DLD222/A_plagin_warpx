@@ -1,8 +1,28 @@
-# 差异归因（fork vs official 26.10，隔离对照：official + fork 同款 AMReX）
+# 差异归因（历史：fork vs official 26.10）
+
+> **本文是修复前的历史记录（基线 26.10）。** 下表列出的 "fork 代码差异" 用例后来被逐个修掉，
+> 最终验收改用官方 **26.11** 为基准，见 `FINAL_VERIFICATION.md`。
+>
+> 用最终结果回查这 79 例（脚本化核对，记录在 `audit_runs/final_all/cases/`）：
+>
+> | 现在的状态 | 数量 |
+> |---|---|
+> | 逐字节相同 | **20** |
+> | 舍入级相同（`max_rel_diff_field ≤ 1e-12`） | **57** |
+> | 仍需解释 | **2** |
+> | 缺记录 | 0 |
+>
+> 这 2 例正是 `FINAL_VERIFICATION.md` §4 证明过的"代码自身不可复现"：
+> `test_2d_embedded_circle`（粒子数差 1；官方 26.11 自己 np=1 vs np=2 就差 rel 1.23 / abs 1.28e-2）
+> 与 `test_3d_embedded_boundary_cube_macroscopic`（rel 1.33 是 1.25e-21 的噪声比噪声）。
+>
+> 也就是说：**原始任务里的 79 个 fork-code 差异用例，已全部与官方一致或证明为不可复现。**
+
+## 历史表格（修复前，基线 26.10）
 
 - 参与归因的数值差异用例：132
 - 归因到 AMReX/上游演进（同 AMReX 构建下数值一致）：50
-- 归因到 fork 代码（同 AMReX 构建下仍差）：79
+- 归因到 fork 代码（同 AMReX 构建下仍差）：**79**（现已全部消除，见上）
 - 未归因（official_amrex 未运行该用例，多为 >10 分钟的重算例）：3
 
 | case | 最差字段 | max abs (vs 官方) | 归因 |
