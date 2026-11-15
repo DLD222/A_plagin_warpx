@@ -177,9 +177,14 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
     // legitimate, so the layout is not validated here on RZ.
     amrex::ignore_unused(nodal);
 #endif
+    // The deposited rho is allocated with the *largest* per-direction requirement in every
+    // direction (WarpXParticleContainer::GetChargeDensity uses ngDeposRho().max()), so on an
+    // anisotropic grid -- cfl > 1, const_dt above the CFL, JRhom time averaging -- the caller's
+    // per-direction requirement is smaller than the allocation in some directions.  Requiring
+    // equality aborted those valid runs; what matters is that the allocation covers the request.
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        rho->nGrowVect() == ngrow,
-        "computeRho: requested ngrow does not match the deposited rho");
+        amrex::IntVect::TheZeroVector() <= ngrow && ngrow <= rho->nGrowVect(),
+        "computeRho: the deposited rho does not have enough guard cells for the request");
     return rho;
 }
 
