@@ -31,7 +31,6 @@
 #include "Runtime/HostServices.H"
 #include "Runtime/RuntimeData.H"
 #include "Runtime/LegacyServices.H"
-#include "Runtime/LegacyServices.H"
 
 #include <ablastr/coarsen/average.H>
 #include <ablastr/profiler/ProfilerWrapper.H>
@@ -1213,8 +1212,11 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
     auto& uzp_n = pti.GetAttribs("uz_n");
 
     // This flag controls whether the full set of mass matrices with the full stencil width
-    // are deposited, or a reduce subset that is only used for the PC.
-    const bool full_mass_matrices = implicit_options.use_mass_matrices_jacobian;
+    // are deposited, or a reduce subset that is only used for the PC.  The criterion is the
+    // width of the allocated mass-matrix MultiFab (upstream's rule), not "the Jacobian asked for
+    // them": with only the PC matrices enabled the allocation still has more than one component,
+    // so the narrow stencil left the PC consumer reading components that were never deposited.
+    const bool full_mass_matrices = (Szz->nComp() > 1);
 
     const int* nsuborbits = (HasiAttrib("nsuborbits") ? pti.GetiAttribs("nsuborbits").dataPtr() + offset : nullptr);
 
@@ -3216,9 +3218,12 @@ WarpXParticleContainer::frame () const
     if (m_runtime_context != nullptr && m_runtime_context->frame != nullptr) {
         return *m_runtime_context->frame;
     }
-    static const warpx::runtime::FrameState legacy =
-        warpx::runtime::FrameState::FromLegacy();
-    return legacy;
+    // A function-local `static` here froze the first snapshot forever: every call made before
+    // SetRuntimeContext() pinned moving_window_v / moving_window_dir / beta_boost at their values
+    // at that moment, while every other particle file uses the live provider
+    // warpx::runtime::legacy_frame() (LegacyServices.H registers a FrameState& provider for
+    // exactly that reason).
+    return warpx::runtime::legacy_frame();
 }
 
 warpx::runtime::HostServices&

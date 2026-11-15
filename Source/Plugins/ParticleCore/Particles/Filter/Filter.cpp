@@ -41,9 +41,10 @@ Filter::ApplyStencil (MultiFab& dstmf, const MultiFab& srcmf, const int lev, int
     ABLASTR_PROFILE("Filter::ApplyStencil(MultiFab)");
     ncomp = std::min(ncomp, srcmf.nComp());
 
-        // The load-balancing cost array belongs to the kernel's level resources; when the filter runs
-    // without one (a unit test, say) there is simply nothing to charge.
-    amrex::LayoutData<amrex::Real>* cost = nullptr;
+        // The load-balancing cost array belongs to the kernel's level resources. The provider
+    // returns null when no kernel is linked (a unit test, say); otherwise the filter time must
+    // be charged to the block, exactly like the other field/particle kernels do.
+    amrex::LayoutData<amrex::Real>* cost = warpx::runtime::legacy_costs(lev);
 
     for (MFIter mfi(dstmf); mfi.isValid(); ++mfi)
     {
@@ -203,9 +204,10 @@ Filter::ApplyStencil (amrex::MultiFab& dstmf, const amrex::MultiFab& srcmf, cons
     ABLASTR_PROFILE("Filter::ApplyStencil(MultiFab)");
     ncomp = std::min(ncomp, srcmf.nComp());
 
-        // The load-balancing cost array belongs to the kernel's level resources; when the filter runs
-    // without one (a unit test, say) there is simply nothing to charge.
-    amrex::LayoutData<amrex::Real>* cost = nullptr;
+        // The load-balancing cost array belongs to the kernel's level resources. The provider
+    // returns null when no kernel is linked (a unit test, say); otherwise the filter time must
+    // be charged to the block, exactly like the other field/particle kernels do.
+    amrex::LayoutData<amrex::Real>* cost = warpx::runtime::legacy_costs(lev);
 
 #ifdef AMREX_USE_OMP
 // never runs on GPU since in the else branch of AMREX_USE_GPU

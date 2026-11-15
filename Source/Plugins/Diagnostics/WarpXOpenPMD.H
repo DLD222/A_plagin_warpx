@@ -13,7 +13,7 @@
 
 #include "Diagnostics/ParticleDiag/ParticleDiag_fwd.H"
 
-namespace warpx::runtime { class RuntimeData; }
+namespace warpx::runtime { class RuntimeData; class RuntimeConfigSnapshot; }
 
 #include <AMReX_AmrParticles.H>
 #include <AMReX_Geometry.H>
@@ -353,6 +353,14 @@ private:
    * @return pure filename w/o path
    */
   std::string GetFileName (std::string& filepath);
+
+  /** Config snapshot of the runtime context.
+   *
+   * FlushFormat/diagnostics can be constructed without a runtime context on the
+   * legacy/Python path; this accessor aborts with an actionable message instead of
+   * dereferencing a null pointer deep inside the openPMD writer.
+   */
+  [[nodiscard]] const warpx::runtime::RuntimeConfigSnapshot& config_snapshot () const;
 
   std::unique_ptr<openPMD::Series> m_Series;
 

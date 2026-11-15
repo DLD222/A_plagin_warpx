@@ -1,4 +1,3 @@
-#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 /* Copyright 2021 Neil Zaim
  *
  * This file is part of WarpX.
@@ -290,9 +289,6 @@ public:
 private:
     const warpx::runtime::RuntimeData* m_data = nullptr;
 
-public:
-
-private:
     // Factor used to increase the number of fusion reaction by decreasing the weight of the
     // produced particles
     amrex::ParticleReal m_fusion_multiplier;

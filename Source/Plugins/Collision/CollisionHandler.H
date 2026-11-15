@@ -13,10 +13,6 @@
 #include "CollisionBase.H"
 #include "CollisionSpeciesTable.H"
 
-namespace warpx::runtime { class HostServices; }
-
-#include "Collision/CollisionSpeciesTable.H"
-
 namespace warpx::runtime { class HostServices; class RuntimeData; class RuntimeConfig; }
 
 #include <AMReX_REAL.H>

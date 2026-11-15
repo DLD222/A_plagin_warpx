@@ -7,6 +7,9 @@
  */
 #include "Fluids/MomentFluidSolver.H"
 
+#include "Utils/TextMsg.H"
+#include "Utils/WarpXUtil.H"
+
 #include "MomentsSolver/FV/MomentFVNDDriver.H"
 #include "MomentsSolver/Coupling/YeeDeposition.H"
 #include "MomentsSolver/Equations/Euler5Eqn.H"
@@ -49,8 +52,12 @@ bool MomentFluidSolver::IsEnabled ()
 
 void MomentFluidSolver::InitData (Geometry const & geom)
 {
-    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(AMREX_SPACEDIM == 2,
+#if !defined(WARPX_DIM_XZ)
+    // AMREX_SPACEDIM == 2 is also true in RZ, where this Cartesian prototype would
+    // silently treat r as a Cartesian coordinate and deposit an unscaled current.
+    WARPX_ABORT_WITH_MESSAGE(
         "fluids.moment: only 2D XZ is supported by this prototype");
+#endif
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(geom.isPeriodic(0) && geom.isPeriodic(1),
         "fluids.moment: both directions must be periodic in this prototype");
 
@@ -124,8 +131,19 @@ void MomentFluidSolver::AdvanceAndDeposit (Real dt, MultiFab* J[3],
     moments::BC mbc[3] = {moments::BC::Periodic, moments::BC::Periodic,
                           moments::BC::Periodic};
     moments::YeeDeposit<2> dep;
-    moments::deposit_conservative<MEq, 2>(fv, U.data(), dt, ctx, mbc,
-                                          m_q, m_m, dep);
+    // The continuity identity of YeeDeposition.H is algebraic: a residual above
+    // roundoff means rho and J no longer come from the same mass flux. The header
+    // documents it as a contract, so check it instead of discarding the value.
+    moments::Real const resid =
+        moments::deposit_conservative<MEq, 2>(fv, U.data(), dt, ctx, mbc, m_q, m_m, dep);
+    moments::Real scale = moments::Real(0);
+    for (std::size_t c = 0; c < dep.rho_n.size(); ++c) {
+        scale = std::max(scale, std::abs((dep.rho_np1[c] - dep.rho_n[c]) / dt));
+    }
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        resid <= moments::Real(1e-12) * std::max(scale, moments::Real(1.0)),
+        "fluids.moment: the charge-conserving deposition broke the algebraic continuity "
+        "identity (rho and J no longer come from the same mass flux)");
 
     // ---- scatter back ----
     {

@@ -93,9 +93,11 @@ public:
      */
     virtual ~ReducedDiags ();
 
-    // Default move and copy operations
-    ReducedDiags(const ReducedDiags&) = default;
-    ReducedDiags& operator=(const ReducedDiags&) = default;
+    // The base class owns a std::unique_ptr (legacy data adapter), so copying is
+    // impossible; say so explicitly instead of declaring a defaulted copy operation
+    // that the compiler silently deletes.
+    ReducedDiags(const ReducedDiags&) = delete;
+    ReducedDiags& operator=(const ReducedDiags&) = delete;
     ReducedDiags(ReducedDiags&&) = default;
     ReducedDiags& operator=(ReducedDiags&&) = default;
 

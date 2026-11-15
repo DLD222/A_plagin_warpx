@@ -880,14 +880,20 @@ WarpX::InitData_BeforeInit ()
         }
     }
     multi_diags = warpx::runtime::create_diagnostics_service(m_runtime_context);
-    if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
-        multi_diags->InitData(particleSystem());
-        multi_diags = std::make_unique<warpx::runtime::NullDiagnosticsService>();
-    }
 
     /** create object for reduced diagnostics */
     reduced_diags = warpx::runtime::create_reduced_diags_service(m_runtime_context);
+
     if (std::getenv("WARPX_DISABLE_DIAGNOSTICS") != nullptr) {
+        // Both services are replaced in one place and the ones that are thrown away are
+        // never initialised (the two branches used to be asymmetric). An input that asks
+        // for output and silently gets none is the worst failure mode, so say it loudly.
+        ablastr::warn_manager::WMRecordWarning(
+            "WarpX",
+            "WARPX_DISABLE_DIAGNOSTICS is set: every full and reduced diagnostic is "
+            "disabled for this run and no diagnostic output will be written.",
+            ablastr::warn_manager::WarnPriority::high);
+        multi_diags = std::make_unique<warpx::runtime::NullDiagnosticsService>();
         reduced_diags = std::make_unique<warpx::runtime::NullReducedDiagsService>();
     }
 

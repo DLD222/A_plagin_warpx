@@ -25,6 +25,8 @@
 #ifndef WARPX_MOMENTFLUIDSOLVER_H_
 #define WARPX_MOMENTFLUIDSOLVER_H_
 
+#include "Utils/WarpXConst.H"
+
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 
@@ -69,7 +71,7 @@ private:
     amrex::Real m_q     = -1.0;
     amrex::Real m_m     =  1.0;
     amrex::Real m_gamma = 5.0 / 3.0;
-    amrex::Real m_eps0  = 1.0;
+    amrex::Real m_eps0  = PhysConst::epsilon_0; // SI, used by the Gauss-residual diagnostic
     amrex::Real m_amp   = 0.01;    //!< density perturbation amplitude
     amrex::Real m_p0    = 1.0e-4;  //!< background pressure
 

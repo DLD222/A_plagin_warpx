@@ -1,4 +1,3 @@
-#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 /* Copyright 2021 Neil Zaim
  *
  * This file is part of WarpX.
@@ -15,9 +14,8 @@
 #include "Collision/BinaryCollision/NuclearFusion/ProtonBoronFusionInitializeMomentum.H"
 #include "Collision/BinaryCollision/LinearBreitWheeler/LinearBreitWheelerInitializeMomentum.H"
 #include "Collision/BinaryCollision/LinearCompton/LinearComptonInitializeMomentum.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
 #include "Utils/ScatteringUtils.H"

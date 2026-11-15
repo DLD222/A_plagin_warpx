@@ -29,8 +29,7 @@
 #include "Utils/TextMsg.H"
 
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#ifdef WARPX_QED
-#endif
+
 #include <AMReX_ParmParse.H>
 
 #include <vector>

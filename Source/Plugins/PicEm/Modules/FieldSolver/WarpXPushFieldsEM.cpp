@@ -1210,6 +1210,26 @@ WarpX::MacroscopicEvolveE (int lev, amrex::Real a_dt, amrex::Real start_time) {
     MacroscopicEvolveE(lev, PatchType::fine, a_dt, start_time);
 }
 
+namespace {
+// rho_medium is stored on a nodal box. Only the nodes on a non-periodic *domain*
+// boundary must be skipped (they carry a surface charge); shrinking every FAB, as
+// tilebox(...).grow(-1) did, also left a one-node hole at every internal FAB boundary,
+// where rho_medium was then neither seeded nor advanced.
+amrex::Box
+rho_medium_valid_box (amrex::MFIter const& mfi, amrex::Geometry const& geom,
+                      amrex::IntVect const& nodal)
+{
+    amrex::Box bx = amrex::convert(mfi.validbox(), nodal);
+    amrex::Box const& dom = geom.Domain();
+    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+        if (geom.periodicity().isPeriodic(d)) { continue; }
+        if (bx.smallEnd(d) <= dom.smallEnd(d)) { bx.growLo(d, -1); }
+        if (bx.bigEnd(d) >= dom.bigEnd(d)) { bx.growHi(d, -1); }
+    }
+    return bx;
+}
+} // namespace
+
 void
 WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amrex::Real start_time) {
 
@@ -1268,10 +1288,6 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             // Boundary nodes in non-periodic directions carry a surface charge (a
             // physical discontinuity), not the conduction charge this update governs,
             // so they are excluded from the seed/update and from the residual check.
-            amrex::IntVect bnd_shrink = amrex::IntVect::TheZeroVector();
-            for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-                if (!Geom(lev).periodicity().isPeriodic(d)) { bnd_shrink[d] = 1; }
-            }
             // Seed rho_medium(0) = div_h(D(0)) on the very first call, so the test
             // measures drift, not the initial-condition error. Per-instance flag (a
             // process running two problems must re-seed). Ghost fill is done once here
@@ -1286,7 +1302,7 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                 Ey->FillBoundary(Geom(lev).periodicity());
                 Ez->FillBoundary(Geom(lev).periodicity());
                 for (amrex::MFIter mfi(*rho, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-                    amrex::Box const bx = mfi.tilebox(rho->ixType().toIntVect()).grow(-bnd_shrink);
+                    amrex::Box const bx = rho_medium_valid_box(mfi, Geom(lev), rho->ixType().toIntVect());
                     auto const& rh = rho->array(mfi);
                     auto const& ex = Ex->const_array(mfi);
                     auto const& ez = Ez->const_array(mfi);
@@ -1384,17 +1400,13 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             amrex::Real const dy = Geom(lev).CellSize(1);
 #endif
             amrex::Real const dtl = a_dt;
-            amrex::IntVect bnd_shrink = amrex::IntVect::TheZeroVector();
-            for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-                if (!Geom(lev).periodicity().isPeriodic(d)) { bnd_shrink[d] = 1; }
-            }
             Jcx.FillBoundary(Geom(lev).periodicity());
             Jcz.FillBoundary(Geom(lev).periodicity());
 #if defined(WARPX_DIM_3D)
             Jcy.FillBoundary(Geom(lev).periodicity());
 #endif
             for (amrex::MFIter mfi(*rho, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-                amrex::Box const bx = mfi.tilebox(rho->ixType().toIntVect()).grow(-bnd_shrink);
+                amrex::Box const bx = rho_medium_valid_box(mfi, Geom(lev), rho->ixType().toIntVect());
                 auto const& rh = rho->array(mfi);
                 auto const& jx = Jcx.const_array(mfi);
                 auto const& jz = Jcz.const_array(mfi);
@@ -1433,20 +1445,19 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                 auto const& Ex2 = m_fields.get(FieldType::Efield_fp, ablastr::fields::Direction{0}, lev);
                 auto const& Ey2 = m_fields.get(FieldType::Efield_fp, ablastr::fields::Direction{1}, lev);
                 auto const& Ez2 = m_fields.get(FieldType::Efield_fp, ablastr::fields::Direction{2}, lev);
-                auto& eps2 = m_macroscopic_properties->getepsilon_mf();
             // Total free charge is rho_particle + rho_medium. rho_fp is overwritten by
             // particle deposition every step, so it is the current particle charge.
             auto* rho_p = m_fields.has(FieldType::rho_fp, lev)
                         ? m_fields.get(FieldType::rho_fp, lev) : nullptr;
                 amrex::Real const dx = Geom(lev).CellSize(0);
                 amrex::Real const dz = Geom(lev).CellSize(AMREX_SPACEDIM-1);
-                amrex::IntVect bnd_shrink = amrex::IntVect::TheZeroVector();
-                for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-                    if (!Geom(lev).periodicity().isPeriodic(d)) { bnd_shrink[d] = 1; }
-                }
+#if defined(WARPX_DIM_3D)
+                amrex::Real const dy = Geom(lev).CellSize(1);
+#endif
                 // E ghost after the push: the residual reads ex(i-1)/ez(j-1) at the edge,
                 // which must be E^{n+1} ghosts, not the stale E^n ones left by the push.
                 Ex2->FillBoundary(Geom(lev).periodicity());
+                Ey2->FillBoundary(Geom(lev).periodicity());
                 Ez2->FillBoundary(Geom(lev).periodicity());
                 amrex::Gpu::DeviceScalar<amrex::Real> dmax(amrex::Real(0.0));
                 amrex::Gpu::DeviceScalar<amrex::Real> ddiv(amrex::Real(0.0)), drho(amrex::Real(0.0));
@@ -1454,7 +1465,7 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                 amrex::Real* const pdiv = ddiv.dataPtr();
                 amrex::Real* const prho = drho.dataPtr();
                 for (amrex::MFIter mfi(*rho, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-                    amrex::Box const bx = mfi.tilebox(rho->ixType().toIntVect()).grow(-bnd_shrink);
+                    amrex::Box const bx = rho_medium_valid_box(mfi, Geom(lev), rho->ixType().toIntVect());
                     auto const& rh = rho->const_array(mfi);
                     auto const& ex = Ex2->const_array(mfi);
                     auto const& ez = Ez2->const_array(mfi);
@@ -1462,6 +1473,9 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                     // same effective eps as the E update (node-centred) -- see 5.0ad
                     auto const& en0 = m_macroscopic_properties->get_eps_node_mf(0).const_array(mfi);
                     auto const& en2 = m_macroscopic_properties->get_eps_node_mf(2).const_array(mfi);
+#if defined(WARPX_DIM_3D)
+                    auto const& en1 = m_macroscopic_properties->get_eps_node_mf(1).const_array(mfi);
+#endif
                     auto const& rp_arr = (rho_p != nullptr)
                         ? rho_p->const_array(mfi) : amrex::Array4<amrex::Real const>{};
                     amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
@@ -1475,7 +1489,25 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
                                  + en2(ii,jj,k,5)*ey(ii,jj,k)
                                  + en2(ii,jj,k,2)*ez(ii,jj,k);
                         };
-#if defined(WARPX_DIM_1D_Z)
+#if defined(WARPX_DIM_3D)
+                        // eps tensor components are (xx, yy, zz, xy, xz, yz), so the y and
+                        // z rows of D are: Dy = xy Ex + yy Ey + yz Ez, Dz = xz Ex + yz Ey + zz Ez.
+                        // Using the 2-D two-term form here made the residual O(1) in 3D after
+                        // the seed/update were fixed to the true 3-D divergence (eabf70b).
+                        auto Dy3 = [&](int ii, int jj) {
+                            return en1(ii,jj,k,3)*ex(ii,jj,k)
+                                 + en1(ii,jj,k,1)*ey(ii,jj,k)
+                                 + en1(ii,jj,k,5)*ez(ii,jj,k);
+                        };
+                        auto Dz3 = [&](int ii, int jj, int kk) {
+                            return en2(ii,jj,kk,4)*ex(ii,jj,kk)
+                                 + en2(ii,jj,kk,5)*ey(ii,jj,kk)
+                                 + en2(ii,jj,kk,2)*ez(ii,jj,kk);
+                        };
+                        amrex::Real const divD = (Dx(i,j) - Dx(i-1,j)) / dx
+                                               + (Dy3(i,j) - Dy3(i,j-1)) / dy
+                                               + (Dz3(i,j,k) - Dz3(i,j,k-1)) / dz;
+#elif defined(WARPX_DIM_1D_Z)
                         // 1D: one axis.  The two-term form read j-1 (index -1 in the collapsed
                         // dimension) and produced a deterministic garbage divD of order 1e267.
                         amrex::ignore_unused(Dx);

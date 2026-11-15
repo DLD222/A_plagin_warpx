@@ -37,7 +37,9 @@ class SpectralFieldDataRZ
                              const amrex::DistributionMapping& dm,
                              int n_field_required,
                              int n_modes,
-                             const warpx::runtime::RuntimeData* data = nullptr);
+                             // Same injection point as the Cartesian SpectralFieldData:
+                             // a context (null on the legacy path), not a bare data view.
+                             const warpx::runtime::RuntimeContext* ctx = nullptr);
         SpectralFieldDataRZ () = default; // Default constructor
         ~SpectralFieldDataRZ ();
 
@@ -117,7 +119,7 @@ class SpectralFieldDataRZ
         //! Kernel-provided state (geometry, costs); falls back to the core's
         //! legacy provider when null.
         [[nodiscard]] const warpx::runtime::RuntimeData& data () const;
-        const warpx::runtime::RuntimeData* m_data = nullptr;
+        const warpx::runtime::RuntimeContext* m_runtime_context = nullptr;
 
         SpectralFieldIndex m_spectral_index;
         int m_n_fields;

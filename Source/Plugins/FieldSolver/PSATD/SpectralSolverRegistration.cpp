@@ -34,8 +34,7 @@ make_spectral_solver (SpectralSolverConfig const& config)
                                                   config.time_dependency_rho,
                                                   config.dive_cleaning,
                                                   config.divb_cleaning,
-                                                  config.context != nullptr ? config.context->data
-                                                                            : nullptr);
+                                                  config.context);
     if (config.use_kspace_filter) {
         pss->InitFilter(config.filter_npass_each_dir, config.use_filter_compensation);
     }

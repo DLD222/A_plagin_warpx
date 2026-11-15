@@ -35,10 +35,15 @@ struct SpeciesSpec : public IParticleSpecies
 };
 
 /**
- * \brief Opaque species view for handlers (A3.3b2).
+ * \brief Opaque species description for handlers (A3.3b2).
  *
- * The underlying WarpXParticleContainer is hidden in the .cpp; handlers only
- * see name/count and, later, views.
+ * The underlying WarpXParticleContainer is hidden; a handler sees the species' name, charge and
+ * mass, which are static for the run.
+ *
+ * `numberOfParticles()` is the count at the moment the kernel registered the species (before the
+ * first step) -- a snapshot, not a live view.  A handler that needs the current count has to ask
+ * the data service (the particle container); this accessor is named `registeredNumberOfParticles`
+ * to stop it from being mistaken for a live count.
  */
 class SpeciesHandle
 {
@@ -47,7 +52,10 @@ public:
     explicit SpeciesHandle (SpeciesSpec spec) : m_spec(std::move(spec)) {}
 
     [[nodiscard]] const std::string& name () const { return m_spec.name(); }
-    [[nodiscard]] std::int64_t numberOfParticles () const { return m_spec.numberOfParticles(); }
+    //! Particle count captured at registration time -- NOT the current one.
+    [[nodiscard]] std::int64_t registeredNumberOfParticles () const {
+        return m_spec.numberOfParticles();
+    }
     [[nodiscard]] amrex::Real charge () const { return m_spec.charge(); }
     [[nodiscard]] amrex::Real mass () const { return m_spec.mass(); }
 

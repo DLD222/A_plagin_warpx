@@ -416,9 +416,15 @@ WarpX::Evolve (int numsteps)
                 particleSystem().SetParticleBoxArray(lev, pba);
                 particleSystem().SetParticleDistributionMap(lev, pdm);
             }
-            particleSystem().AllocData();
             particleSystem().Redistribute();
             particleSystem().defineAllParticleTiles();
+            // Same bookkeeping upstream WarpX::LoadBalance() does after a regrid: the
+            // particle boundary buffer and the reduced diagnostics own LayoutData keyed
+            // by the old box array. Do NOT call particleSystem().AllocData() here:
+            // resizeData() truncates to finestLevel()+1 *before* Redistribute() can move
+            // the particles of a removed level down to the coarse level, destroying them.
+            m_particle_boundary_buffer->redistribute();
+            reduced_diags->LoadBalance();
         }
 
         if (checkStopSimulation(cur_time)) {

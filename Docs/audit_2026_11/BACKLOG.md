@@ -171,7 +171,7 @@
 | Tools_Tests | F6 | major | 四个"不变量检查器"没有进入任何自动门（CI / pre-commit / run_gates 都没有） | fixed |
 | Tools_Tests | F7 | major | `route_tasks.py` 可以在"什么都没验证"的情况下把任务标成 done，且 153/153 已是 done | fixed |
 | Tools_Tests | F8 | major | macroscopic 物理核验脚本根本不做比较：只打印，调用方只 grep 关键词 | fixed |
-| Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | wip:lead-tools |
+| Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | fixed |
 | Tools_Tests | F10 | major | `check_star_runtime_plugin.sh` 明确容忍"关机时堆损坏"的非零退出 | fixed |
 | Tools_Tests | F11 | major | OPAL 不透明度自检的容差（1 dex / 中位数 2 倍、只抽样 1/4 层）宽到无法发现系统性错误 | fixed |
 | Tools_Tests | F12 | major | `eos.py` 的 Debye 屏蔽离子和对与自身文档不符（用 (Z+1)² 代替 Z²），HeⅡ 的连续谱降低也用错倍数 | fixed |

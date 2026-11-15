@@ -17,6 +17,7 @@
 #define WARPX_SUBPIXEL_TENSOR_H_
 
 #include <AMReX_Array.H>
+#include <AMReX_BLassert.H>
 #include <AMReX_GpuQualifiers.H>
 #include <AMReX_REAL.H>
 #include <cmath>
@@ -186,7 +187,7 @@ Mat3 inv3_sym (const Mat3& A)
     amrex::Real const d = A(1,1), e = A(1,2), g = A(2,2);
     amrex::Real const det = a*(d*g - e*e) - b*(b*g - e*c) + c*(b*e - d*c);
     // Sylvester criterion for a symmetric 3x3: a>0, a*d-b*b>0, det>0
-    AMREX_ASSERT_WITH_MESSAGE(a > amrex::Real(0.0) && (a*d - b*b) > amrex::Real(0.0)
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(a > amrex::Real(0.0) && (a*d - b*b) > amrex::Real(0.0)
                               && det > amrex::Real(0.0),
         "subpixel bulk: epsilon/mu tensor is not positive definite (Sylvester)");
     amrex::Real const inv = amrex::Real(1.0) / det;
@@ -342,7 +343,7 @@ void sigma_exponential_matrices (const Mat3& eps, const Mat3& sigma, amrex::Real
 {
     amrex::Real lam[3], V[9];
     jacobi_eigh(eps, lam, V);
-    AMREX_ASSERT_WITH_MESSAGE(lam[0] > amrex::Real(0.0) && lam[1] > amrex::Real(0.0)
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(lam[0] > amrex::Real(0.0) && lam[1] > amrex::Real(0.0)
                               && lam[2] > amrex::Real(0.0),
         "sigma exponential: epsilon is not positive definite");
     Mat3 const eps_h  = mat3_fun(lam, V, 0, dt);   // eps^{1/2}
@@ -399,7 +400,7 @@ void chi_inv_anisotropic (const Mat3& e1, const Mat3& e2, amrex::Real f,
     // saves two rotations and keeps the normal/tangential structure explicit.
     // eps11 = n^T eps n is required by tau; SPD guarantees a positive lower bound but
     // extreme contrasts can make it tiny, so check it explicitly.
-    AMREX_ASSERT_WITH_MESSAGE(
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
         ebar_p(0,0) > amrex::Real(1e-30),
         "subpixel: eps_bar_11 is not positive (the interface-frame normal component "
         "must be positive definite)");
@@ -407,7 +408,7 @@ void chi_inv_anisotropic (const Mat3& e1, const Mat3& e2, amrex::Real f,
     amrex::Real const a = ebar_p(0,0), b = ebar_p(0,1), c = ebar_p(0,2);
     amrex::Real const d = ebar_p(1,1), e = ebar_p(1,2), g = ebar_p(2,2);
     amrex::Real const det = a*(d*g - e*e) - b*(b*g - e*c) + c*(b*e - d*c);
-    AMREX_ASSERT_WITH_MESSAGE(det > amrex::Real(0.0),
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(det > amrex::Real(0.0),
         "subpixel: eps_bar is not positive definite in the interface frame");
     amrex::Real const invdet = amrex::Real(1.0) / det;
     Mat3 chi_p{};

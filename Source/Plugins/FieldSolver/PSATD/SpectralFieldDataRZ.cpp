@@ -7,6 +7,7 @@
 #include "SpectralFieldDataRZ.H"
 
 #include "Runtime/ILegacyRuntime.H"
+#include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
 #include "Utils/TextMsg.H"
 #include "Utils/WarpXUtil.H"
@@ -30,7 +31,9 @@ using namespace amrex::literals;
 const warpx::runtime::RuntimeData&
 SpectralFieldDataRZ::data () const
 {
-    if (m_data != nullptr) { return *m_data; }
+    if (m_runtime_context != nullptr && m_runtime_context->data != nullptr) {
+        return *m_runtime_context->data;
+    }
     return warpx::runtime::legacy_runtime_data();
 }
 
@@ -40,10 +43,10 @@ SpectralFieldDataRZ::SpectralFieldDataRZ (const int lev,
                                           amrex::DistributionMapping const & dm,
                                           int const n_field_required,
                                           int const n_modes,
-                                          const warpx::runtime::RuntimeData* runtime_data)
+                                          const warpx::runtime::RuntimeContext* ctx)
     : n_rz_azimuthal_modes(n_modes),
       m_ncomps(2 * n_modes - 1),
-      m_data(runtime_data),
+      m_runtime_context(ctx),
       m_n_fields(n_field_required)
 {
     amrex::BoxArray const & spectralspace_ba = k_space.spectralspace_ba;

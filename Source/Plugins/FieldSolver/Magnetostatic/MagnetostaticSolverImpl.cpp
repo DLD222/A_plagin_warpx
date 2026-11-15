@@ -57,6 +57,7 @@ MagnetostaticSolverImpl::computeField (warpx::runtime::MagnetostaticConfig const
     if (!m_bc.bcs_set) {
         m_boundary_lo = config.field_boundary_lo;
         m_boundary_hi = config.field_boundary_hi;
+        m_boundary_types_set = true;
         m_bc.defineVectorPotentialBCs(*config.geom, m_boundary_lo, m_boundary_hi);
     }
 
@@ -221,7 +222,12 @@ void
 MagnetostaticSolverImpl::defineVectorPotentialBCs (const amrex::Geometry& geom)
 {
     // The boundary types come from the last configuration the kernel handed in;
-    // asking for the boundary conditions again re-runs the same setup.
+    // asking for the boundary conditions again re-runs the same setup. Without a
+    // configuration the two arrays are default-initialised (first enum value), which
+    // would silently impose the wrong boundary conditions.
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(m_boundary_types_set,
+        "MagnetostaticSolverImpl::defineVectorPotentialBCs(geom) needs the boundary types: "
+        "run computeField(config) first (they come from the kernel's MagnetostaticConfig)");
     m_bc.defineVectorPotentialBCs(geom, m_boundary_lo, m_boundary_hi);
 }
 

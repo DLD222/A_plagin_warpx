@@ -36,6 +36,8 @@ private:
     //! Field-boundary types the boundary conditions were built from.
     amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> m_boundary_lo{};
     amrex::Array<FieldBoundaryType, AMREX_SPACEDIM> m_boundary_hi{};
+    //! True once computeField() has stored the boundary types from the kernel config.
+    bool m_boundary_types_set = false;
 };
 
 #endif // WARPX_MAGNETOSTATIC_SOLVERIMPL_H_

@@ -25,16 +25,19 @@
 void SparseJacobianMatrix::readParameters ()
 {
     const amrex::ParmParse pp("precon_mat");
-    pp.query("verbose", m_verbose);
+    const bool has_new_verbose = pp.query("verbose", m_verbose);
 
-    // Backward compatibility: pc_petsc.verbose was read by the old MatrixPC
-    // class (renamed to ExternLibPC).
+    // Backward compatibility: pc_petsc.verbose was read by the old MatrixPC class
+    // (now ExternLibPC). Aborting on the old key would break existing decks for a
+    // purely cosmetic rename, so adopt its value and warn instead.
     const amrex::ParmParse pp_old("pc_petsc");
-    bool backward_bool;
-    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        !pp_old.query("verbose", backward_bool),
-        "pc_petsc.verbose is no longer supported. "
-        "Use precon_mat.verbose instead.");
+    bool backward_verbose = false;
+    if (pp_old.query("verbose", backward_verbose)) {
+        if (!has_new_verbose) { m_verbose = backward_verbose; }
+        ablastr::warn_manager::WMRecordWarning("SparseJacobianMatrix",
+            "pc_petsc.verbose was replaced by precon_mat.verbose; the old key is still "
+            "accepted but deprecated.");
+    }
 }
 
 void SparseJacobianMatrix::printParameters () const

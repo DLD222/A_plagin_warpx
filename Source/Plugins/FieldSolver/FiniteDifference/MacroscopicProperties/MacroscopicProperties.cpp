@@ -431,7 +431,16 @@ MacroscopicProperties::InitData (
     if (m_has_eps_tensor || m_has_eps2_tensor || m_has_sig_tensor) {
         auto const dxa = geom.CellSizeArray();
         amrex::Real const lox = geom.ProbDomain().lo(0);
-        amrex::Real const loz = geom.ProbDomain().lo(AMREX_SPACEDIM-1);
+#if defined(WARPX_DIM_3D)
+        // F6: in 3D the second index is y and the third one is z. The builder used to
+        // sample (x, 0, j*dz), so a y-varying tensor was invisible and z was never sampled.
+        amrex::Real const loy = geom.ProbDomain().lo(1);
+        amrex::Real const loz = geom.ProbDomain().lo(2);
+#elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
+        amrex::Real const loz = geom.ProbDomain().lo(1);
+#else
+        amrex::Real const loz = geom.ProbDomain().lo(0);
+#endif
         auto fill_one = [&](amrex::MultiFab& mf, int c, amrex::Parser const* p) {
             if (p == nullptr) { return; }
             amrex::ParserExecutor<3> const pex = p->compile<3>();
@@ -439,9 +448,22 @@ MacroscopicProperties::InitData (
                 amrex::Box const& tb = mfi.tilebox(mf.ixType().toIntVect(), mf.nGrowVect());
                 auto const& fab = mf.array(mfi);
                 amrex::ParallelFor(tb, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+#if defined(WARPX_DIM_3D)
                     amrex::Real const x = (amrex::Real(i) + amrex::Real(0.5)) * dxa[0] + lox;
+                    amrex::Real const y = (amrex::Real(j) + amrex::Real(0.5)) * dxa[1] + loy;
+                    amrex::Real const z = (amrex::Real(k) + amrex::Real(0.5)) * dxa[2] + loz;
+#elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
+                    amrex::Real const x = (amrex::Real(i) + amrex::Real(0.5)) * dxa[0] + lox;
+                    amrex::Real const y = amrex::Real(0.0);
                     amrex::Real const z = (amrex::Real(j) + amrex::Real(0.5)) * dxa[1] + loz;
-                    fab(i,j,k,c) = pex(x, amrex::Real(0.0), z);
+#else
+                    // One-dimensional build: the only coordinate is the first index
+                    // (same convention as DownwardDz), the transverse ones are unused.
+                    amrex::Real const x = amrex::Real(0.0);
+                    amrex::Real const y = amrex::Real(0.0);
+                    amrex::Real const z = (amrex::Real(i) + amrex::Real(0.5)) * dxa[0] + loz;
+#endif
+                    fab(i,j,k,c) = pex(x, y, z);
                 });
             }
         };

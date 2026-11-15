@@ -61,11 +61,13 @@ public:
             const std::string& collision_name,
             const CollisionSpeciesTable& /*table*/,
             const bool isSameSpecies) :
-        LinearComptonCollisionFunc(collision_name, nullptr, isSameSpecies) {}
+        LinearComptonCollisionFunc(collision_name, isSameSpecies) {}
 
+private:
+    // Implementation detail: shared by the CollisionSpeciesTable constructor above.
+    // (There is intentionally no public overload taking a MultiParticleContainer.)
     LinearComptonCollisionFunc (
             const std::string& collision_name,
-            MultiParticleContainer const * const /*mypc*/,
             const bool isSameSpecies) :
         m_isSameSpecies(isSameSpecies)
     {
@@ -99,6 +101,7 @@ public:
         m_exe.m_isSameSpecies = m_isSameSpecies;
     }
 
+public:
     struct Executor {
         /**
          * \brief Executor of the LinearComptonCollisionFunc class.

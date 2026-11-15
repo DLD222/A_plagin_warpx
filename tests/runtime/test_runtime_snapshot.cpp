@@ -353,7 +353,8 @@ int main (int argc, char* argv[])
         check(runtime.bus().has_species("electrons"), "DataBus registers electrons");
         const auto e = runtime.bus().species("electrons");
         check_eq(e.name(), std::string("electrons"), "SpeciesHandle keeps name");
-        check(e.numberOfParticles() > 0, "SpeciesHandle reports particles");
+        check(e.registeredNumberOfParticles() > 0,
+              "SpeciesHandle reports the particle count captured at registration");
         check_real(e.charge(), -PhysConst::q_e, "SpeciesHandle charge");
         check_real(e.mass(), PhysConst::m_e, "SpeciesHandle mass");
         check(runtime.bus().speciesRegistry().contains("electrons"),

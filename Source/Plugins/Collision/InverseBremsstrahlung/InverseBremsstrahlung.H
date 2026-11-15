@@ -10,8 +10,6 @@
 #include "Collision/CollisionSpeciesTable.H"
 #include "Modules/Particles/IParticleIterator.H"
 #include "Runtime/IParticleContainer.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
 
 namespace warpx::runtime { class RuntimeData; class RuntimeConfig; }
 #include "Collision/CollisionBase.H"

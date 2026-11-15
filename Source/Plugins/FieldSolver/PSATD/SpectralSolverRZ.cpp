@@ -39,7 +39,7 @@ SpectralSolverRZ::SpectralSolverRZ (const int lev,
                                     const TimeDependencyRho time_dependency_rho,
                                     const bool dive_cleaning,
                                     const bool divb_cleaning,
-                                    const warpx::runtime::RuntimeData* data)
+                                    const warpx::runtime::RuntimeContext* ctx)
     : m_dt(dt), k_space(realspace_ba, dm, dx)
 {
     // Initialize all structures using the same distribution mapping dm
@@ -74,7 +74,7 @@ SpectralSolverRZ::SpectralSolverRZ (const int lev,
     field_data = SpectralFieldDataRZ(lev, realspace_ba, k_space, dm,
                                      m_spectral_index.n_fields,
                                      n_rz_azimuthal_modes,
-                                     data);
+                                     ctx);
 }
 
 /* \brief Transform the component `i_comp` of MultiFab `field_mf`

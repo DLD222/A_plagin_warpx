@@ -67,11 +67,11 @@ def main():
             print(f"{name}: missing plotfile on one side, skipped")
             skipped_names.append(name)
             continue
+        common = sorted(set(up) & set(mine))
         if not common:
             print(f"{name}: no common field to compare - skipped")
             skipped_names.append(name)
             continue
-        common = sorted(common)
         scale = max(np.max(np.abs(v)) for v in up.values())
         dmax = max(np.max(np.abs(up[f] - mine[f])) for f in common)
         # scale == 0 means every reference field is identically zero: a relative error then says
