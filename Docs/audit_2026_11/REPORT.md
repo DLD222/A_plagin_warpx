@@ -159,6 +159,20 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 
 全量重跑改用 `-j 12`（24 物理核，每个用例 2 个 MPI rank）以匹配机器并行度。
 
+## 0.9 round 21 追加
+
+继续清理 `Tools_Tests` 与星体插件验证工具里的"形同虚设/写错物理"问题，修 5 条：
+
+| 条目 | 内容 |
+|---|---|
+| F11 | OPAL 不透明度自检只抽样 1/4 层、判据 1 dex（10 倍），实测最坏点 0.733 dex（5.4 倍）仍通过；现在覆盖每一行，**内部（T≥1e5 K）要求 0.15 dex**（实测 0.041），并新增 `kappa_combined` 在 H⁻ 拼接温度两侧的连续性断言 |
+| F12 | `eos.py` 的 Debye 离子和用了 `(Z+1)²`（H⁺/He⁺ 算成 4、He²⁺ 算成 9），HeⅡ 连续谱降低也用错倍数（2 而非 3）→ 改变 Debye 半径 → 连续谱降低 → Saha 平衡。改为 `Z²` 与 `3*lowering`，并补一条**解析 Debye 长度**对照（相对差 0.00e+00） |
+| F13 | `stellar_structure` 的自检只检查打印文本里出现 `R/R_sun`，NaN 也能通过（且已注册为 ctest）。现在 `compare_solar_diagnostic()` 返回数值，自检断言 R/L 有限为正、所有采样点有限、`0.2 < R/R_sun < 5.0`（实测 0.539 / L 1.125） |
+| F14 | pytest 在**仓库根**跑，四个维度并行写同一批文件名，`mkdir()` 无 `exist_ok` ⇒ 第二次运行即失败。改为在 CMake 给的工作目录里跑、node id 转绝对路径、`mkdir(exist_ok=True)`；`ctest -R '^pytest.WarpX'` 4/4 |
+| F8 补正 | 上轮 F8 的修复把 `geometry.prob_lo= -2.e-3` 的负数取值误判成脚本选项；现在只有"`-` 开头、不含 `=`、且不是数字"才算脚本选项（含单测） |
+
+`BACKLOG.md`：**fixed 61 / invalid 3 / todo 125**。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
