@@ -9,6 +9,20 @@ if(NOT CMAKE_C_COMPILER)
     return()
 endif()
 
+# The plugin is loaded with dlopen() (WARPX_PLUGIN_PATH + RTLD_NOW), so this test
+# is POSIX-only.  Building the shared object itself is done with the plain C
+# compiler, hence the platform-specific shared-library name and flags below
+# instead of a hard-coded ".so" / "-shared -fPIC" (Tools_Tests/F22).
+if(NOT UNIX)
+    message(STATUS "external_plugin: skipped, dlopen() based plugin loading is POSIX-only")
+    return()
+endif()
+if(APPLE)
+    set(ep_shared_flags -dynamiclib -fPIC)
+else()
+    set(ep_shared_flags -shared -fPIC)
+endif()
+
 foreach(D IN LISTS WarpX_DIMS)
     # The input file is Cartesian 2D, like the runtime contract tests.
     if(NOT D STREQUAL 2)
@@ -20,13 +34,13 @@ foreach(D IN LISTS WarpX_DIMS)
     endif()
 
     set(ep_dir ${CMAKE_CURRENT_BINARY_DIR})
-    set(ep_lib ${ep_dir}/libthird_party_plugin.so)
+    set(ep_lib ${ep_dir}/${CMAKE_SHARED_LIBRARY_PREFIX}third_party_plugin${CMAKE_SHARED_LIBRARY_SUFFIX})
 
     # Deliberately a bare compiler invocation: no CMake target, no include path
     # into the build tree, no link line against the project libraries.
     add_custom_command(
         OUTPUT ${ep_lib}
-        COMMAND ${CMAKE_C_COMPILER} -shared -fPIC -std=c11
+        COMMAND ${CMAKE_C_COMPILER} ${ep_shared_flags} -std=c11
                 -I${WarpX_SOURCE_DIR}/Source/Core
                 ${CMAKE_CURRENT_SOURCE_DIR}/third_party_plugin.c
                 -o ${ep_lib}

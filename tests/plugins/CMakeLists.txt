@@ -14,7 +14,11 @@ foreach(D IN LISTS WarpX_DIMS)
     endif()
 endforeach()
 
-if(TARGET lib_2d)
+# The plugin ABI tests below load shared objects with dlopen(); POSIX only.
+# The compile-only C ABI check stays available everywhere.
+if(NOT UNIX AND NOT APPLE)
+    message(STATUS "tests/plugins: dlopen() based plugin ABI tests are POSIX-only, skipping")
+elseif(TARGET lib_2d)
     # ---------------------------------------------------------------- C ABI --
     # Pure-C compile/link/run check of the ABI header and its accessors.
     add_executable(test_c_abi_header_2d test_c_abi_header.c)

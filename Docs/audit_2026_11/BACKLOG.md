@@ -184,7 +184,7 @@
 | Tools_Tests | F19 | minor | `sod_reference.py` 稀疏波分支的解析导数写错（靠括号保护的 Newton 兜住） | fixed |
 | Tools_Tests | F20 | minor | `ssm_compare.py` 自检里有一条恒真断言，README 的"5%"与断言的 15% 不符，打印的 eps/kappa 比值在 SSM 为 0 处失真 | wip:lead-tools |
 | Tools_Tests | F21 | minor | `solar_compare_plot.py --check` 向源码树写 PNG，且只钉住 L、R 两个数 | wip:lead-tools |
-| Tools_Tests | F22 | minor | 插件测试的构建假定 ELF/macOS 以外的编译器与 `.so` 后缀 | wip:lead-tools |
+| Tools_Tests | F22 | minor | 插件测试的构建假定 ELF/macOS 以外的编译器与 `.so` 后缀 | fixed |
 | Tools_Tests | F23 | minor | 若干 shell 核验脚本的硬编码与静默 no-op | wip:lead-tools |
 | Tools_Tests | F24 | minor | A0 两段流水线的输入路径对不上，文档化的"重新生成"无法执行 | fixed |
 | Tools_Tests | F25 | minor | 两个"门"的退出码恒为 0 | fixed |
