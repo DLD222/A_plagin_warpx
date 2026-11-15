@@ -120,8 +120,8 @@
 | Source_Plugins_ParticleCore_A | F5 | minor | `maxwell_juttner` 的 `theta` 输入被删除，没有 BackwardCompatibility guard | invalid |
 | Source_Plugins_ParticleCore_B | F1 | critical | 新抽象把 `GetExternalEBField` 的容器来源改成"只来自 ctx"，QED / 离子化三条路径不传 ctx：解析式外场下空指针崩溃，lattice/plasma-lens  | invalid |
 | Source_Plugins_ParticleCore_B | F2 | critical | `DepositCharge` 丢掉 RZ/RCYLINDER/RSPHERE 的 `1/(2πr)` 反体积缩放，唯一的替代 finalizer 不覆盖 `rho_fp_<species> | invalid |
-| Source_Plugins_ParticleCore_B | F3 | major | `WarpXParticleContainer::frame()` 用一次性 `static` 快照，与"live view"设计及可用的 `legacy_frame()` 提供者相矛盾 | todo |
-| Source_Plugins_ParticleCore_B | F4 | major | `full_mass_matrices` 的判据从 `Szz->nComp() > 1` 换成 `implicit_options.use_mass_matrices_jacobian`，两 | todo |
+| Source_Plugins_ParticleCore_B | F3 | major | `WarpXParticleContainer::frame()` 用一次性 `static` 快照，与"live view"设计及可用的 `legacy_frame()` 提供者相矛盾 | fixed |
+| Source_Plugins_ParticleCore_B | F4 | major | `full_mass_matrices` 的判据从 `Szz->nComp() > 1` 换成 `implicit_options.use_mass_matrices_jacobian`，两 | fixed |
 | Source_Plugins_ParticleCore_B | F5 | minor | `DepositCurrentOnLevel` 的文档仍声称"apply boundary conditions"，实现只有 guard-cell 求和 | invalid |
 | Source_Plugins_ParticleCore_B | F6 | minor | 新增的三个隐式辅助函数把层号 hard-code 为 `lev = 0`（多层的循环被注释掉） | invalid |
 | Source_Plugins_ParticleCore_B | F7 | minor | 新增契约实现里缺属性保护与"接口注释重复"等小问题 | fixed |
