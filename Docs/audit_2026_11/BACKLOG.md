@@ -43,7 +43,7 @@
 | Source_Core_Misc | F7 | minor | main.cpp：`Runtime` 构造期抛异常时 AMReX/MPI/PETSc 永不收尾（无 try/catch） | todo |
 | Source_Core_Runtime_A | F1 | major | `SpeciesHandle::numberOfParticles()` 永远返回启动时的粒子数（过期快照） | fixed |
 | Source_Core_Runtime_A | F2 | major | `declare()` 的规格会参与 `add()` 的写冲突检查 → "先声明计划、后注册执行 handler"这一受支持模式会直接抛异常 | todo |
-| Source_Core_Runtime_A | F3 | major | 生命周期钩子 `on_level_created` / `on_checkpoint` / `on_restart` 从未被调用（死 API） | todo |
+| Source_Core_Runtime_A | F3 | major | 生命周期钩子 `on_level_created` / `on_checkpoint` / `on_restart` 从未被调用（死 API） | fixed |
 | Source_Core_Runtime_A | F4 | minor | `StageContext::config` 只给 `RuntimeConfigSnapshot`，且该 snapshot 在一次 run 里不会刷新 | todo |
 | Source_Core_Runtime_A | F5 | minor | `CollisionHandlerAdapter::apply` 的 null 检查是不可达的死代码，异常分支永远进不去 | todo |
 | Source_Core_Runtime_A | F6 | minor | 命名回调总线：重名注册静默覆盖、缺失名字静默 no-op | todo |
@@ -55,7 +55,7 @@
 | Source_Core_Runtime_A | F12 | minor | `FieldGatherOrders` 的成员没有默认初始化器 | todo |
 | Source_Core_Runtime_A | F13 | minor | 碰撞适配器把物种名硬编码成 `electrons/ions/gas/photons` | todo |
 | Source_Core_Runtime_B | F1 | critical | `warpx_stage_field()`（写入口）把访问检查异常抛过 C ABI，违反自己的「返回 0、绝不抛」契约 | fixed |
-| Source_Core_Runtime_B | F2 | major | `IPluginLifecycle` 的 7 个钩子里有 4 个从未被调用（幻觉式集成） | todo |
+| Source_Core_Runtime_B | F2 | major | `IPluginLifecycle` 的 7 个钩子里有 4 个从未被调用（幻觉式集成） | fixed |
 | Source_Core_Runtime_B | F3 | major | 内核契约 `ISimulationKernel::finalize()` 从未被调用 | fixed |
 | Source_Core_Runtime_B | F4 | major | `warpx_stage_geometry()` 无法对"不存在的层"返回 0，且没有上界检查 | fixed |
 | Source_Core_Runtime_B | F5 | major | `StateRegistry::clear()` 不清理 scalar（契约与实现不符） | fixed |
