@@ -113,7 +113,9 @@ def main():
         raise SystemExit(0 if selftest() else 1)
     ok_a, ok_p = analyse(a.diags, a.sigma, a.lam, a.t_emission, a.tau,
                          a.z_src, a.z1, a.z2, a.tol)
-    print("PASS" if (ok_a and ok_p) else "FAIL"
+    # Operator precedence: `"PASS" if ... else "FAIL" + suffix` bound the suffix to the "FAIL"
+    # branch only, so the tolerances were printed exactly when they were not needed.
+    print(("PASS" if (ok_a and ok_p) else "FAIL")
           + f"  (amp tol {a.tol:.0%}, phase tol 3 deg)")
     raise SystemExit(0 if (ok_a and ok_p) else 1)
 

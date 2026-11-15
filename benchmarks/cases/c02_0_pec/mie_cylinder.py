@@ -105,10 +105,13 @@ if __name__ == "__main__":
     print(f"ka = {ka:.6f}, n_max = {nmax(ka)}, series terms = {len(ns)}")
     print(f"max|a_n| = {np.max(np.abs(An)):.6e}, max|b_n| = {np.max(np.abs(Bn)):.6e}")
 
-    # PEC boundary: total field must vanish on r = a
+    # PEC boundary: for TM^z (ey) the *electric* field must vanish on r = a; for TE^z (by) the
+    # boundary condition is d(B_z)/dr = 0, so `by` does NOT vanish there -- the printed
+    # "should be ~0" used to apply to both polarisations and mislabelled the TE^z case.
     th = np.linspace(0, 2 * np.pi, 361)
     for pol in ("ey", "by"):
         tot = field(k, a, np.ones_like(th) * (a * (1 + 1e-9)), th, pol)
+        expect = "should be ~0 (PEC, E_t = 0)" if pol == "ey" else "should be finite: d(B_z)/dr = 0"
         print(f"pol={pol}: max|total(r=a)| = {np.max(np.abs(tot)):.3e} "
               f"(should be ~0 at the PEC surface)")
 

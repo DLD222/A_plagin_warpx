@@ -36,6 +36,8 @@ lasers.names = laser1
 laser1.position = 0.0 0.0 -3.0
 laser1.direction = 0.0 0.0 1.0
 laser1.polarization = 1.0 0.0 0.0
+# e_max is ignored by profile = parse_field_function (the amplitude comes from E0 below);
+# it is kept only because the laser Bucket requires the key.
 laser1.e_max = 1.0
 laser1.wavelength = 1.0
 laser1.profile = parse_field_function

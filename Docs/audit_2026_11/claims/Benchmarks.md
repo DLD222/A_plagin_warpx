@@ -51,3 +51,18 @@ F19 fixed: `make_mie_cases.py` 的 docstring 说 "domain [-3,3]^2"、"dx = 2/10�
   （diff 仅注释 + 该行）。单箱同时是 `analyze_mie_convergence.read_pf` 只读单 FAB 的要求，这点也写进注释。
   验证: `make_mie_cases.py --max-grid-size 32` → `amr.max_grid_size = 32`；默认重新生成 10 个 deck 的
   diff 只有注释与这一行。
+
+F20 fixed（c03/c02 若干小问题，逐项）:
+  - `conductor_slab/analyze.py`: `print("PASS" if ok else "FAIL" + f"…")` 的优先级错（容差只在 FAIL 时打印）
+    ——加括号，PASS 时也打印。
+  - `lossy_slab/analyze.py` docstring 的用法写 `--t0 20e-9`，实际默认 `0.0`/自动；改为真实默认。
+  - `tensor_interface/analyze.py`: `--eps2-yy` 被接受但从未使用 ⇒ 用 `help=argparse.SUPPRESS` 隐藏
+    （保留兼容，不再假装是个可调参数）。
+  - `anisotropic_slab/inputs_2d_p`: `laser1.e_max = 1.0` 与 `E0=1e6` 不一致；`parse_field_function` 不读
+    e_max（幅度来自 E0），加注释说明它只是为了满足 laser Bucket 的必填键。
+  - `mie_cylinder.py`: 对 `by` 打印 "should be ~0"，但 TE^z 的边界条件是 d(B_z)/dr = 0（打印里
+    `max|dH/dr|` 已是 7.6e-10），标签错 ⇒ 按极化分开说明。
+  - `sigma_exponential_test.py`: `Edec @ (eps_h @ E) * 0 + …` 的无效项删掉。
+  - `lossy_slab/inputs_2d` 的 `max_step=5000`：**复核为不成立**。2D Yee 的
+    `dt = cfl / (c*sqrt(2/dx²)) = 0.4*0.03125/(c*sqrt2) = 2.95e-11 s`（`CartesianYeeAlgorithm::ComputeMaxDt`），
+    5000 步 = **147 ns > stop_time 95 ns**，时间窗取得到；review 里 dt=1.47e-11 的算式不对。

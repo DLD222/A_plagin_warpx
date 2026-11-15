@@ -68,7 +68,7 @@ def exponential_update(E, curlH, eps, sigma, dt):
     Edec = f_of_sym(B, "exp", dt)
     Eint = f_of_sym(B, "int", dt)
     S = eps_ih @ Eint @ eps_ih                      # multiplies curlH directly
-    return Edec @ (eps_h @ E) * 0 + (eps_ih @ Edec @ eps_h) @ E + S @ curlH
+    return (eps_ih @ Edec @ eps_h) @ E + S @ curlH
 
 
 def alpha_beta(sigma, eps, dt):

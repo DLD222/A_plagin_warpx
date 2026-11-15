@@ -62,7 +62,9 @@ def main():
     ap.add_argument("--z-refl", type=float, default=-2.0)
     ap.add_argument("--z-trans", type=float, default=1.0)
     ap.add_argument("--n2", type=float, default=np.sqrt(5.0))
-    ap.add_argument("--eps2-yy", type=float, default=5.0)
+    # --eps2-yy was accepted here and never read (the reference takes the tensor from the deck);
+    # hidden so that existing command lines keep working, but it no longer advertises a knob.
+    ap.add_argument("--eps2-yy", type=float, default=5.0, help=argparse.SUPPRESS)
     ap.add_argument("--nw", type=float, default=5.0, help="window half width in tau")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()

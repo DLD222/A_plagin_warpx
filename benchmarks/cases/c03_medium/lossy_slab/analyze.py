@@ -6,7 +6,8 @@ Theory (exact complex wavenumber, WarpX eps0):
     k = omega sqrt(mu eps) sqrt(1 - i sigma/(omega eps))
     |E(z2)/E(z1)| = exp(-|Im k| dz),   arg = -Re(k) dz  (mod 2 pi)
 
-Usage:  python3 analyze.py diags/reducedfiles [--t0 20e-9] [--t1 95e-9]
+Usage:  python3 analyze.py diags/reducedfiles [--t0 0.0] [--t1 <end>]
+        (the defaults are --t0 0.0 and --t1 = the last sample; the deck runs to 95 ns)
 """
 import argparse
 import os
