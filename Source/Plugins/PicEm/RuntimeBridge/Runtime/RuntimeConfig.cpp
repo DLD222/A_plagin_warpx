@@ -261,7 +261,7 @@ RuntimeConfig::particle_max_grid_crossings () const
 int
 RuntimeConfig::villasenor_mass_matrices_max_grid_crossings () const
 {
-    return 3; // WarpX::villasenor_mass_matrices_max_grid_crossings is constexpr
+    return WarpX::villasenor_mass_matrices_max_grid_crossings;
 }
 
 int

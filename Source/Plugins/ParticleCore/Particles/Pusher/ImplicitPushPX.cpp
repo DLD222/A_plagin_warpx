@@ -19,13 +19,13 @@
 #include "Particles/Deposition/MassMatricesDeposition.H"
 #include "Modules/Particles/Gather/FieldGather.H"
 #include "Modules/Particles/Gather/GetExternalFields.H"
+#include "Modules/Particles/MassMatricesLimits.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 #include "Modules/Particles/ParticleUtils.H"
 #include "Utils/WarpXConst.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeData.H"
 
-constexpr int villasenor_mass_matrices_max_grid_crossings = 3;
 
 #include <ablastr/warn_manager/WarnManager.H>
 
@@ -1171,7 +1171,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     if constexpr (depos_order_control == order_one) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<1,false,/*deposit_J=*/true,
-                                                              villasenor_mass_matrices_max_grid_crossings>(
+                                                              warpx::mass_matrices::max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1188,7 +1188,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_two) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<2,false,/*deposit_J=*/true,
-                                                              villasenor_mass_matrices_max_grid_crossings>(
+                                                              warpx::mass_matrices::max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1205,7 +1205,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_three) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<3,false,/*deposit_J=*/true,
-                                                              villasenor_mass_matrices_max_grid_crossings>(
+                                                              warpx::mass_matrices::max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,
@@ -1222,7 +1222,7 @@ PhysicalParticleContainer::ImplicitPushXPSubOrbits (ParticleTileIter& pti,
                     } else if constexpr (depos_order_control == order_four) {
                         //NOLINTNEXTLINE(readability-suspicious-call-argument)
                         doVillasenorJandSigmaDepositionKernel<4,false,/*deposit_J=*/true,
-                                                              villasenor_mass_matrices_max_grid_crossings>(
+                                                              warpx::mass_matrices::max_grid_crossings>(
                                                               xp_n, yp_n, zp_n, xp_np1, yp_np1, zp_np1,
                                                               wqx, wqy, wqz,
                                                               fpxx, fpxy, fpxz,

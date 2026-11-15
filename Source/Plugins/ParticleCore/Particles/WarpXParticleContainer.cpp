@@ -19,6 +19,7 @@
 #include "EmbeddedBoundary/Enabled.H"
 #include "Fields.H"
 #include "Modules/Particles/Pusher/GetAndSetPosition.H"
+#include "Modules/Particles/MassMatricesLimits.H"
 #include "Modules/Particles/Pusher/UpdatePosition.H"
 #include "ParticleBoundaries_K.H"
 #include "Utils/TextMsg.H"
@@ -1243,7 +1244,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
 #endif
 
         if (particle_shape == 1 && full_mass_matrices) {
-            doVillasenorSigmaDeposition<1,true,3>(
+            doVillasenorSigmaDeposition<1,true,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1257,7 +1258,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 1 && !full_mass_matrices) {
-            doVillasenorSigmaDeposition<1,false,3>(
+            doVillasenorSigmaDeposition<1,false,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1271,7 +1272,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 2 && full_mass_matrices) {
-            doVillasenorSigmaDeposition<2,true,3>(
+            doVillasenorSigmaDeposition<2,true,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1285,7 +1286,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 2 && !full_mass_matrices) {
-            doVillasenorSigmaDeposition<2,false,3>(
+            doVillasenorSigmaDeposition<2,false,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1299,7 +1300,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 3 && full_mass_matrices) {
-            doVillasenorSigmaDeposition<3,true,3>(
+            doVillasenorSigmaDeposition<3,true,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1313,7 +1314,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 3 && !full_mass_matrices) {
-            doVillasenorSigmaDeposition<3,false,3>(
+            doVillasenorSigmaDeposition<3,false,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1327,7 +1328,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 4 && full_mass_matrices) {
-            doVillasenorSigmaDeposition<4,true,3>(
+            doVillasenorSigmaDeposition<4,true,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,
@@ -1341,7 +1342,7 @@ WarpXParticleContainer::DepositMassMatrices (ParticleTileIter& pti, const RealVe
                     Bx_arr, By_arr, Bz_arr, Bx_type, By_type, Bz_type,
                     np_to_deposit, dt, dinv, xyzmin, domain_double, do_cropping, lo, qs, mass);
         } else if (particle_shape == 4 && !full_mass_matrices) {
-            doVillasenorSigmaDeposition<4,false,3>(
+            doVillasenorSigmaDeposition<4,false,warpx::mass_matrices::max_grid_crossings>(
                     xp_n_data, yp_n_data, zp_n_data,
                     GetPosition, nsuborbits, wp.dataPtr() + offset,
                     uxp_n.dataPtr() + offset, uyp_n.dataPtr() + offset, uzp_n.dataPtr() + offset,

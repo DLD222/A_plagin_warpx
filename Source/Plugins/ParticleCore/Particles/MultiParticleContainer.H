@@ -380,7 +380,7 @@ public:
      *         in a boosted frame. Empty function for containers other than lasers.
      */
     void UpdateAntennaPosition(amrex::Real dt) const;
-    //! IParticleSystem: advance the injection plane of continuously-injected species.
+
     //! IParticleSystem: sub-orbit counting for the implicit solver.
     void countParticlesWithSuborbits (int ispecies, int threshold,
                                       amrex::Long* counter) const override;
@@ -408,6 +408,7 @@ public:
     void AddParticleCosts (int lev, amrex::LayoutData<amrex::Real>& costs,
                            amrex::Real weight) const override;
 
+    //! IParticleSystem: advance the injection plane of continuously-injected species.
     void UpdateInjectionPositions (amrex::Real gamma_boost, amrex::Real beta_boost,
                                    const amrex::Vector<int>& boost_direction,
                                    int moving_window_dir, amrex::Real dt) override;

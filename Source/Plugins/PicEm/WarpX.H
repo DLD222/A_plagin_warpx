@@ -16,6 +16,7 @@
 #include "Fluids/MomentFluidSolver.H"
 #include "BoundaryConditions/PML_fwd.H"
 #include "Modules/FieldSolver/ImplicitOptions.H"
+#include "Modules/Particles/MassMatricesLimits.H"
 #include "Runtime/IParticleBoundaryBuffer.H"
 #include "Runtime/IParticleSystem.H"
 #include "Runtime/NullParticleSystem.H"
@@ -381,7 +382,8 @@ public:
 
     //! Maximum number of allowed grid crossings for Villasenor mass-matrix deposition
     //! The Villasenor deposition requires this value at compile time for arrays used in the routine
-    static constexpr int villasenor_mass_matrices_max_grid_crossings = 3;
+    static constexpr int villasenor_mass_matrices_max_grid_crossings =
+        warpx::mass_matrices::max_grid_crossings;
 
     //! Order of finite centering of fields (from staggered grid to nodal grid), along x
     static int field_centering_nox;

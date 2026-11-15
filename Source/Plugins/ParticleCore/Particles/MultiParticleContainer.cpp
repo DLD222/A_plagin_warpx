@@ -41,12 +41,11 @@
 #include "Particles/EmbeddedBoundary/ParticleScraper.H"
 #include "Particles/EmbeddedBoundary/ParticleBoundaryProcess.H"
 
+#include "Runtime/HostServices.H"
+#include "Runtime/LegacyServices.H"
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/HostServices.H"
-#include "Runtime/LegacyServices.H"
-#include "Runtime/LegacyServices.H"
 
 #include <ablastr/fields/MultiFabRegister.H>
 #include <ablastr/profiler/ProfilerWrapper.H>

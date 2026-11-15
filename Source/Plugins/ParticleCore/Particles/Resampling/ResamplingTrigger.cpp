@@ -6,12 +6,11 @@
  */
 #include "ResamplingTrigger.H"
 
+#include "Runtime/LegacyServices.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/RuntimeData.H"
-#include "Runtime/LegacyServices.H"
 
 #include "Utils/Parser/ParserUtils.H"
-#include "Runtime/LegacyServices.H"
 
 #include <AMReX_BoxArray.H>
 #include <AMReX_ParmParse.H>
