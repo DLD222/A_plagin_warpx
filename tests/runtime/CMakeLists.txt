@@ -16,11 +16,11 @@ foreach(D IN LISTS WarpX_DIMS)
     warpx_set_suffix_dims(SD ${D})
     if(TARGET lib_${SD})
         add_executable(test_runtime_snapshot_${SD} test_runtime_snapshot.cpp)
-        add_executable(test_field_solver_interface_${SD} test_field_solver_interface.cpp)
-        add_executable(test_field_solver_engine_interface_${SD} test_field_solver_engine_interface.cpp)
-        add_executable(test_particle_contracts_${SD} test_particle_contracts.cpp)
-        add_executable(test_particle_access_contracts_${SD} test_particle_access_contracts.cpp)
-        add_executable(test_collision_contracts_${SD} test_collision_contracts.cpp)
+        add_executable(compile_only_field_solver_interface_${SD} compile_only_field_solver_interface.cpp)
+        add_executable(compile_only_field_solver_engine_interface_${SD} compile_only_field_solver_engine_interface.cpp)
+        add_executable(compile_only_particle_contracts_${SD} compile_only_particle_contracts.cpp)
+        add_executable(compile_only_particle_access_contracts_${SD} compile_only_particle_access_contracts.cpp)
+        add_executable(compile_only_collision_contracts_${SD} compile_only_collision_contracts.cpp)
         add_executable(test_particle_factory_${SD} test_particle_factory.cpp)
         target_link_libraries(test_particle_factory_${SD} PRIVATE lib_${SD})
         add_executable(test_stage_registry_${SD} test_stage_registry.cpp)
@@ -39,11 +39,11 @@ foreach(D IN LISTS WarpX_DIMS)
         add_executable(test_nonpic_kernel_${SD} test_nonpic_kernel.cpp)
         target_link_libraries(test_nonpic_kernel_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_service_registry_${SD} PRIVATE lib_${SD})
-        target_link_libraries(test_collision_contracts_${SD} PRIVATE lib_${SD})
-        target_link_libraries(test_particle_access_contracts_${SD} PRIVATE lib_${SD})
-        target_link_libraries(test_particle_contracts_${SD} PRIVATE lib_${SD})
-        target_link_libraries(test_field_solver_engine_interface_${SD} PRIVATE lib_${SD})
-        target_link_libraries(test_field_solver_interface_${SD} PRIVATE lib_${SD})
+        target_link_libraries(compile_only_collision_contracts_${SD} PRIVATE lib_${SD})
+        target_link_libraries(compile_only_particle_access_contracts_${SD} PRIVATE lib_${SD})
+        target_link_libraries(compile_only_particle_contracts_${SD} PRIVATE lib_${SD})
+        target_link_libraries(compile_only_field_solver_engine_interface_${SD} PRIVATE lib_${SD})
+        target_link_libraries(compile_only_field_solver_interface_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_runtime_snapshot_${SD} PRIVATE lib_${SD}
             $<TARGET_OBJECTS:warpx_picem_${SD}>
             $<TARGET_OBJECTS:warpx_diagnostics_${SD}>)
@@ -54,6 +54,18 @@ foreach(D IN LISTS WarpX_DIMS)
         add_test(NAME service_registry_${D} COMMAND test_service_registry_${SD})
 
         add_test(NAME nonpic_kernel_${D} COMMAND test_nonpic_kernel_${SD})
+
+        # Compile-only contract checks (Tools_Tests/F17): they only prove that the
+        # generic headers compile and that the interfaces stay abstract, so they are
+        # named compile_only_* and registered here explicitly -- an executable that is
+        # never run is not a test.
+        foreach(contract IN ITEMS compile_only_field_solver_interface
+                                    compile_only_field_solver_engine_interface
+                                    compile_only_particle_contracts
+                                    compile_only_particle_access_contracts
+                                    compile_only_collision_contracts)
+            add_test(NAME ${contract}_${D} COMMAND ${contract}_${SD})
+        endforeach()
 
         warpx_runtime_test_workdir(plugin_lifecycle_${D} plugin_lifecycle_${D}_dir)
         add_test(NAME plugin_lifecycle_${D}
