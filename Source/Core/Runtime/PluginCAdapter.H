@@ -11,9 +11,20 @@
 #include "Runtime/PluginCApi.H"
 
 #include <memory>
+#include <string>
 
 namespace warpx::runtime
 {
+
+namespace detail
+{
+/** Reason the last warpx_host_add_handler() call returned non-zero (empty when it succeeded).
+ *
+ * The C ABI can only answer with a code; the loader quotes this string so a plugin author sees
+ * "duplicate writer", "invalid stage", ... instead of a bare 4.
+ */
+std::string& last_registration_error ();
+} // namespace detail
 
 class IPluginLifecycle;
 class PluginHost;

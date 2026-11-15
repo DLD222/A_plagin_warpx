@@ -32,3 +32,13 @@ F10 fixed: `legacy_runtime_data()` / `legacy_host_services()` 用函数级 `stat
 验证: 增量构建通过；`ctest -R 'service_registry|runtime_snapshot|plugin_|compile_only'` 17/17。
 注: 中间出现一次 `No rule to make target 'lib/libwarpx.2d....a'` 的构建失败——是另一个会话同时在同一个
   `audit_build/fork` 里跑 cmake/make 造成的（并行构建冲突），单独重试即通过。这条也要写进 WORKFLOW。
+
+F11 fixed: `warpx_host_add_handler` 把"重复写者/重复名字/非法 stage/null apply"全部压成返回码 4，
+  而 `PluginLoader::load` **完全不看** `register_handlers` 的结果 ⇒ 一个插件所有 handler 都被拒绝也
+  算"加载成功"，随后正常运行、只是它的物理从未生效（最坏一类静默降级）。
+  现在：C 适配层把 `e.what()` 记进 `detail::last_registration_error()`（thread_local）；
+  loader 在注册前后比较 `host.size()`，若有失败原因就抛出带插件名与原因的错误、注册数为 0 也抛。
+
+验证: 增量构建通过；`ctest -R 'plugin_|runtime_snapshot|service_registry'` 13/13。
+反证: 让一个测试插件注册重名 handler → loader 现在报
+  "PluginLoader: '<name>' failed to register a handler: <具体原因>"（此前静默通过）。

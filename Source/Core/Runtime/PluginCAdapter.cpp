@@ -259,12 +259,23 @@ warpx_host_add_handler (WarpXPluginHost* host, const WarpXHandlerDesc* desc)
     auto* plugin_host = reinterpret_cast<warpx::runtime::PluginHost*>(host);
     try {
         plugin_host->add(std::make_shared<warpx::runtime::CApiHandler>(*desc));
-    } catch (const std::exception&) {
-        // Duplicate writer, duplicate name, invalid stage, ...
+    } catch (const std::exception& e) {
+        // The C ABI can only return a code, so keep the reason where the loader can quote it:
+        // otherwise "duplicate writer", "duplicate name", "invalid stage" and "null apply" all
+        // look like the bare 4 and the plugin author gets no diagnostic.
+        warpx::runtime::detail::last_registration_error() = e.what();
         return 4;
     }
     return 0;
 }
+
+namespace warpx::runtime::detail {
+std::string& last_registration_error ()
+{
+    static thread_local std::string message;
+    return message;
+}
+} // namespace warpx::runtime::detail
 
 extern "C" int32_t
 warpx_stage_step (const WarpXStageContext* ctx)

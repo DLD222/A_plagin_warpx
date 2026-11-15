@@ -74,7 +74,22 @@ PluginLoader::load (const std::string& paths, PluginHost& host)
     }
 
     // C ABI: the plugin only ever sees opaque handles, never host classes.
+    // Watch what it actually registered: `register_handlers` returns void, so a plugin whose
+    // every handler was rejected (duplicate writer, invalid stage, ...) used to be loaded as if
+    // it had succeeded, and the run continued with that plugin's physics silently absent.
+    detail::last_registration_error().clear();
+    std::size_t const before = host.size();
     desc->register_handlers(plugin_host_c_handle(host));
+    std::size_t const registered = host.size() - before;
+    std::string const& failure = detail::last_registration_error();
+    if (!failure.empty()) {
+        throw std::runtime_error("PluginLoader: '" + std::string(desc->name != nullptr ? desc->name : path)
+                                 + "' failed to register a handler: " + failure);
+    }
+    if (registered == 0 && desc->name != nullptr) {
+        throw std::runtime_error("PluginLoader: '" + std::string(desc->name)
+                                 + "' registered no handler; the plugin would have no effect");
+    }
     if (desc->name != nullptr) {
         host.add_plugin(make_c_api_plugin(*desc));
     }
