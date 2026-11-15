@@ -160,7 +160,15 @@ def cmd_run(spec, state, args):
 
     LOGS.mkdir(exist_ok=True)
     log_path = LOGS / f"{t['id']}.log"
-    ok = True
+    # A task is only done when something was actually verified.  `ok` used to start out True, so
+    # `route_tasks.py run <id>` with no automation_command, no --gate and no verify_command
+    # printed "marked done" after running nothing at all (that is how all 153 tasks ended up done
+    # while check_legacy_coverage.py was failing).
+    ran_something = bool(t.get("automation_command")) or bool(args.gate) or bool(t.get("verify_command"))
+    ok = ran_something
+    if not ran_something:
+        print(f"{t['id']}: nothing to verify (no automation_command, no --gate, no verify_command)"
+              f" -- refusing to mark it done")
     with log_path.open("w") as log:
         if t.get("automation_command"):
             ok = run_step(["bash", "-lc", t["automation_command"]], log) and ok
@@ -181,8 +189,11 @@ def cmd_run(spec, state, args):
         state[t["id"]] = {"status": "done", "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "log": str(log_path)}
         save_state(state)
         # Keep the human-readable task spec in sync with the state file so
-        # ROUTE_STATUS/route_tasks.json cannot disagree about done-ness.
+        # ROUTE_STATUS/route_tasks.json cannot disagree about done-ness.  Record *what* was run,
+        # so "done" carries evidence instead of being a bare assertion.
         t["status"] = "done"
+        t["evidence"] = ("gate=" + str(args.gate)) if args.gate else (
+            "automation_command" if t.get("automation_command") else "verify_command")
         SPEC.write_text(json.dumps(spec, indent=1, ensure_ascii=False) + "\n")
         print(f"{t['id']}: marked done")
     elif ok and t["kind"] == "refactor":
