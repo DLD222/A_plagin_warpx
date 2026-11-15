@@ -165,3 +165,19 @@
 （下一轮对这三者逐一做“只替换一处”的 A/B，即可定死。）
 
 这也说明修复 #9 的收益（-19.5%）来自“边界零化与求和的相对次序”，而剩余量来自更底层的局部计算。
+
+## 尝试：用 `n_rz_azimuthal_modes=1` 隔离 mode>0 的贡献（该实验不可行）
+
+想通过把 RZ 模式数降到 1 来区分“mode0 基础沉积/标定”与“mode>0 重建”这两条路径，
+但官方与 fork 都直接拒绝该配置：
+
+```
+### ERROR : A warning with priority 'high' has been raised:
+[Laser] Laser pulse representation in RZ requires at least 2 azimuthal modes
+```
+
+这是 WarpX 有意加的约束（RZ 激光需要 ≥2 个方位模），不是可绕过的开关。
+因此“降模式数”这条隔离路径作废；下一轮改用**同一算例但关闭激光**的变体
+（或改用无激光的 RZ 静电算例，如 `test_rz_electrostatic_sphere`）来观察 rho 是否仍有
+“第 24 行 + 56–61 行”的同类残差——若消失，说明残差与激光/模式注入相关；若保留，
+说明在更基础的 RZ 电荷沉积/标定里。
