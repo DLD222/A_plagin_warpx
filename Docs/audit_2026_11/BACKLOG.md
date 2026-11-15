@@ -90,7 +90,7 @@
 | Source_Plugins_Diagnostics_A | F7 | minor | 用户可见报错消息被替换成 C++ 语法；注释与代码不一致 | fixed |
 | Source_Plugins_Diagnostics_B | F1 | critical | regrid 后 TimeAveraged 诊断的累加和被清零（静默错误） | fixed |
 | Source_Plugins_Diagnostics_B | F2 | major | LoadBalanceCosts 诊断写入仿真的 live cost 数组（诊断产生副作用） | fixed |
-| Source_Plugins_Diagnostics_B | F3 | minor | `GetExternalEBField(pti, offset, myspc.runtime_context())` 的 parser 分支不判空 | todo |
+| Source_Plugins_Diagnostics_B | F3 | minor | `GetExternalEBField(pti, offset, myspc.runtime_context())` 的 parser 分支不判空 | fixed |
 | Source_Plugins_Diagnostics_B | F4 | minor | 头文件里把 `#include` 写进了版权注释 | todo |
 | Source_Plugins_Diagnostics_B | F5 | minor | `WarpXOpenPMDPlot` 对 `m_runtime_context` / `config_snapshot` 直接解引用 | todo |
 | Source_Plugins_Diagnostics_B | F6 | minor | 非 EB 构建下 ChargeOnEB 从"运行时明确报错"变成"未注册类型" | todo |
