@@ -11,8 +11,9 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from warpx_studio.deck.model import Deck, minimal_2d_deck
+from warpx_studio.deck.model import Deck, minimal_deck
 from warpx_studio.deck.validate import translate_error, validate
+from warpx_studio import plugins as studio_plugins
 from warpx_studio.live.service import LiveView
 from warpx_studio.runner.binaries import discover
 from warpx_studio.runner.job import Job
@@ -74,8 +75,11 @@ def api_binaries():
 
 
 @app.get("/api/starter")
-def api_starter():
-    return deck_from(minimal_2d_deck())
+def api_starter(dims: str = "2d"):
+    try:
+        return deck_from(minimal_deck(dims))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
 
 @app.post("/api/validate")
@@ -205,6 +209,24 @@ def api_checkpoints():
                 found.append({"path": str(chk), "run": run_dir.name,
                               "name": chk.name})
     return {"checkpoints": found[:40]}
+
+
+@app.get("/api/plugins")
+def api_plugins():
+    return {"plugins": studio_plugins.discover()}
+
+
+@app.get("/api/panel/{plugin_id}")
+def api_panel(plugin_id: str):
+    job = STATE.get("job")
+    live = STATE.get("live")
+    context = {
+        "run_dir": str(STATE["run_dir"]) if STATE.get("run_dir") else None,
+        "job": job.snapshot() if job else None,
+        "live": live.snapshot() if live else None,
+        "params": STATE["deck"].params if STATE.get("deck") else {},
+    }
+    return studio_plugins.render(plugin_id, context)
 
 
 @app.get("/api/frame")

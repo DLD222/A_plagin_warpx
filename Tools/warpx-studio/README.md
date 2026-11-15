@@ -130,3 +130,22 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
   实测：第一段跑 40 步生成 `chk000000/020/040`；从 `chk000020` 续算后，
   新 run 的 openPMD 迭代从 **000030** 开始（不是 000000），checkpoint 继续写 040/060 —— 确实接上了。
 - 起步模板自带一个 `format=checkpoint` 的诊断（`chk`, intervals=20），所以续算是开箱可用的。
+
+## 阶段 5：维度切换 + 可插拔面板（已跑通）
+
+- **维度选择**：界面左上角 1D/2D/3D/RZ。切换后按维度重建起步模板并只列出该维度的二进制：
+  `amr.n_cell` 项数、`boundary.*` 项数、每方向宏粒子数、粒子注入区键名（1D 用 `zmin/zmax`，
+  2D 用 `x..z`，3D 全用，RZ 用 `x..z` 作 r/z）全部随维度变化，避免"给 1D 二进制生成 2D 输入"。
+  实测：`/api/starter?dims=1d` → `geometry.dims=1, n_cell='64'`；1D 端到端跑 60 步，
+  实时帧 `iteration 60` 正常渲染。
+- **可插拔面板**：`warpx_studio/plugins/*.py`（或 `~/.config/warpx-studio/plugins/`）里放一个模块即可：
+
+  ```python
+  NAME = "运行摘要"
+  def panel(context):        # context: run_dir / job / live / params
+      return "<table>…</table>"   # 任意 HTML 片段
+  ```
+
+  界面上"6 插件"页会自动列出并每 3 秒刷新；插件抛异常只会在自己的面板里显示，不影响服务与其它插件。
+  自带示例 `plugins/run_summary.py`（运行目录/步数/时间/dt/最近一帧/色标范围）。
+  实测：`/api/plugins` → `[{"id":"run_summary","name":"运行摘要"}]`，`/api/panel/run_summary` 返回 HTML。

@@ -57,6 +57,10 @@
 </head>
 <body>
 <header>
+  <select id="dims" title="维度：切换后按该维度重建起步模板并过滤二进制">
+    <option value="1d">1D</option><option value="2d" selected>2D</option>
+    <option value="3d">3D</option><option value="rz">RZ</option>
+  </select>
   <select id="binary" title="选择可执行文件（文件名里带构建特性）"></select>
   <label>MPI <input id="mpi" type="number" min="1" value="1" style="width:52px"></label>
   <label>线程 <input id="omp" type="number" min="1" value="1" style="width:52px"></label>
@@ -79,6 +83,7 @@
   <button data-step="3">3 场与算法</button>
   <button data-step="4">4 诊断输出</button>
   <button data-step="5">5 全部参数</button>
+  <button data-step="6">6 插件</button>
 </nav>
 
 <main>
@@ -179,7 +184,31 @@ function inputRow(name, value, onchange, instance) {
 }
 const innerInstance = (name) => name.startsWith("<");
 
+async function renderPlugins() {
+  const form = document.getElementById("form");
+  form.innerHTML = "";
+  const data = await (await fetch("/api/plugins")).json();
+  if (!data.plugins.length) {
+    form.innerHTML = '<div class="warn tip">把 .py 文件放进 warpx_studio/plugins/ ' +
+      '（或 ~/.config/warpx-studio/plugins/），暴露 NAME 与 panel(context) 即可出现在这里。</div>';
+    return;
+  }
+  for (const plugin of data.plugins) {
+    const sec = document.createElement("section");
+    sec.className = "group";
+    const head = document.createElement("h3");
+    head.innerHTML = `<span>${plugin.name}</span><span style="color:var(--dim)">${plugin.source}</span>`;
+    const body = document.createElement("div");
+    body.className = "rows";
+    body.textContent = "加载中…";
+    sec.append(head, body);
+    form.appendChild(sec);
+    fetch("/api/panel/" + plugin.id).then(r => r.json()).then(d => { body.innerHTML = d.html; });
+  }
+}
+
 function render() {
+  if (STEP === 6) { renderPlugins(); return; }
   const form = document.getElementById("form");
   form.innerHTML = "";
   const wanted = STEP_GROUPS[STEP];
@@ -327,6 +356,7 @@ async function poll() {
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
   b.classList.add("active"); STEP = Number(b.dataset.step); render();
+  if (STEP === 6) setInterval(() => { if (STEP === 6) renderPlugins(); }, 3000);
 });
 document.getElementById("run").onclick = async () => {
   const sel = document.getElementById("binary");
@@ -378,22 +408,38 @@ document.getElementById("preview").onclick = async () => {
   const win = window.open("", "_blank"); win.document.write("<pre>" + out.inputs.replace(/</g, "&lt;") + "</pre>");
 };
 
-(async function init() {
-  const data = await (await fetch("/api/catalog")).json();
-  CATALOG = data.catalog; ZH = data.zh;
-  const bins = await (await fetch("/api/binaries")).json();
-  BINARIES = bins.binaries;
+function fillBinaries(dims) {
   const sel = document.getElementById("binary");
-  for (const b of BINARIES) {
+  sel.innerHTML = "";
+  for (const b of BINARIES.filter(x => x.dims === dims)) {
     const o = document.createElement("option");
     o.value = b.path;
     o.textContent = `${b.build} · ${b.dims} · ${b.features.slice(0, 4).join(",")}`;
     sel.appendChild(o);
   }
-  const preferred = BINARIES.find(b => b.dims === "2d" && b.build.includes("fork"));
+  const preferred = BINARIES.find(b => b.dims === dims && b.build === "fork");
   if (preferred) sel.value = preferred.path;
+  else if (sel.options.length) sel.selectedIndex = 0;
+}
+
+async function switchDims(dims) {
+  fillBinaries(dims);
+  const starter = await (await fetch("/api/starter?dims=" + dims)).json();
+  DECK.params = starter.params;
+  DECK.groups = starter.groups;
+  render();
+  setStatus(`已切到 ${dims.toUpperCase()}：模板与可用二进制已更新`, "var(--acc)");
+}
+
+(async function init() {
+  const data = await (await fetch("/api/catalog")).json();
+  CATALOG = data.catalog; ZH = data.zh;
+  const bins = await (await fetch("/api/binaries")).json();
+  BINARIES = bins.binaries;
+  fillBinaries(document.getElementById("dims").value);
   await loadStarter();
   render();
+  document.getElementById("dims").onchange = (e) => switchDims(e.target.value);
   refreshCheckpoints();
   setInterval(refreshCheckpoints, 5000);
 })();

@@ -126,43 +126,66 @@ def _template_of(head: str, instances: dict[str, set[str]]) -> str:
     return "<dynamic>"
 
 
-def minimal_2d_deck() -> Deck:
-    """The smallest 2D plasma deck that runs: two counter-streaming beams, one openPMD diag.
+DIM_DEFAULTS = {
+    # dims: (geometry.dims, n_cell, prob_lo, prob_hi, ppc, species ranges)
+    "1d": ("1", "64", "0.0", "40.e-6", "1", {"zmin": "0.0", "zmax": "40.e-6"}),
+    "2d": ("2", "64 64", "-20.e-6 -20.e-6", "20.e-6 20.e-6", "1 1",
+           {"xmin": "-20.e-6", "xmax": "20.e-6", "zmin": "-20.e-6", "zmax": "20.e-6"}),
+    "3d": ("3", "32 32 32", "-10.e-6 -10.e-6 -10.e-6", "10.e-6 10.e-6 10.e-6",
+           "1 1 1", {"xmin": "-10.e-6", "xmax": "10.e-6", "ymin": "-10.e-6",
+                     "ymax": "10.e-6", "zmin": "-10.e-6", "zmax": "10.e-6"}),
+    "rz": ("RZ", "64 64", "0.0 -20.e-6", "20.e-6 20.e-6", "1 1",
+           {"xmin": "0.0", "xmax": "20.e-6", "zmin": "-20.e-6", "zmax": "20.e-6"}),
+}
+
+
+def minimal_deck(dims: str = "2d") -> Deck:
+    """The smallest deck for one dimensionality that actually runs.
 
     Derived from ``Examples/Tests/langmuir/inputs_base_2d`` (a deck this fork's own test
-    suite runs) with a coarser grid; ``momentum_distribution_type`` and ``profile`` are
-    mandatory reads in ``SpeciesUtils``/``PlasmaInjector``, which is why they are here
-    even though the plasma is cold.
+    suite runs) with a coarse grid.  ``algo.particle_shape``, ``<species>.profile`` and
+    ``<species>.momentum_distribution_type`` are mandatory reads in this fork (``get``
+    rather than ``query``), which is why they are present even for a cold plasma.
+
+    Everything dimensionality dependent - the number of ``amr.n_cell`` entries, the
+    range keys of a species, the per-direction particle count - comes from
+    ``DIM_DEFAULTS`` so the wizard cannot produce a 2D deck for a 1D binary.
     """
+    if dims not in DIM_DEFAULTS:
+        raise ValueError(f"unknown dims {dims!r}; expected one of {sorted(DIM_DEFAULTS)}")
+    geom_dims, n_cell, lo, hi, ppc, ranges = DIM_DEFAULTS[dims]
+
     deck = Deck()
     deck.set("max_step", "40")
-    deck.set("amr.n_cell", "64 64")
+    deck.set("amr.n_cell", n_cell)
     deck.set("amr.max_grid_size", "32")
     deck.set("amr.max_level", "0")
-    deck.set("geometry.dims", "2")
-    deck.set("geometry.prob_lo", "-20.e-6 -20.e-6")
-    deck.set("geometry.prob_hi", "20.e-6 20.e-6")
-    deck.set("boundary.field_lo", "periodic periodic")
-    deck.set("boundary.field_hi", "periodic periodic")
-    deck.set("boundary.particle_lo", "periodic periodic")
-    deck.set("boundary.particle_hi", "periodic periodic")
+    deck.set("geometry.dims", geom_dims)
+    deck.set("geometry.prob_lo", lo)
+    deck.set("geometry.prob_hi", hi)
+    deck.set("boundary.field_lo", " ".join(["periodic"] * len(n_cell.split())))
+    deck.set("boundary.field_hi", " ".join(["periodic"] * len(n_cell.split())))
+    deck.set("boundary.particle_lo", " ".join(["periodic"] * len(n_cell.split())))
+    deck.set("boundary.particle_hi", " ".join(["periodic"] * len(n_cell.split())))
     deck.set("warpx.cfl", "0.99")
     deck.set("warpx.verbose", "1")
     deck.set("algo.maxwell_solver", "yee")
     deck.set("algo.particle_shape", "1")
+    if geom_dims == "RZ":
+        deck.set("warpx.n_rz_azimuthal_modes", "2")
 
     deck.add_instance("<species_name>", "electrons")
     for key, value in (
         ("charge", "-q_e"),
         ("mass", "m_e"),
         ("injection_style", "NUniformPerCell"),
-        ("num_particles_per_cell_each_dim", "1 1"),
+        ("num_particles_per_cell_each_dim", ppc),
         ("profile", "constant"),
         ("density", "1.e24"),
         ("momentum_distribution_type", "constant"),
-        ("xmin", "-20.e-6"), ("xmax", "20.e-6"),
-        ("ymin", "-20.e-6"), ("ymax", "20.e-6"),
     ):
+        deck.set_group_value("<species_name>", "electrons", key, value)
+    for key, value in ranges.items():
         deck.set_group_value("<species_name>", "electrons", key, value)
 
     deck.add_instance("<diag_name>", "chk")
@@ -186,3 +209,8 @@ def minimal_2d_deck() -> Deck:
     ):
         deck.set_group_value("<diag_name>", "diag1", key, value)
     return deck
+
+
+def minimal_2d_deck() -> Deck:
+    """Backwards compatible helper used by older callers."""
+    return minimal_deck("2d")
