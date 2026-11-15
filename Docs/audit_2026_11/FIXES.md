@@ -97,3 +97,15 @@ RZ 逐物种诊断量的边界处理（已逐格定位到 z 上边界）、star/
   （照 `inputs_2d` 的写法补上对应的 reduced-diag 声明即可），不是运行时缺陷。
 - 该用例的期望值（256 个宏粒子、权重 4e18、`rho_max = -q_e*1e18`、extrema ±0.9375）
   已经写在测试里，补夹具时按它对齐即可。
+
+## round 13
+
+| # | 缺陷 | 位置 | 依据 | 验证 |
+|---|---|---|---|---|
+| 22 | `test_runtime_snapshot_particles_2` 的夹具退化：`inputs_2d_particles` 被改成 32x32/1e-4/1e20 且**没有** `reduced_diags_names`，而测试要读 7 个 reduced diag、期望值是按 16x16/±1/1e18/外场 E=(1,0,0) 算的 | `tests/runtime/inputs_2d_particles` | 15 条断言全失败；期望值（256 粒子、权重 1.5625e16、rho=-0.16、格心 ±0.9375）与 deck 参数一一对应 | deck 改回与 `inputs_2d` 一致的几何/网格/外场 + 粒子 + 7 个 reduced diag；`plugin_|runtime_|particle_free|stage_dispatch|snapshot` **23/23** |
+| 23 | `test_{yee_deposition,coupling_nd,fv_nd}` 的 13 条检查只打印 FAIL、始终 `return 0`（几何/守恒门禁永不生效） | `Source/Plugins/PicEm/Modules/MomentsSolver/Tests/` | `run_tests.sh` 用 `set -e` 判退出码，对比同目录 10 个测试都 `return ok ? 0 : 1` | 统一 `report(cond,msg)` 累积失败，末尾返回失败数；13/13 编译运行、23 PASS 0 FAIL |
+| 24 | `run_tests.sh` 路径在插件化重构后失效（`cd ../../..` 落到 `Source/Plugins`、`Source/MomentsSolver` 已不存在） | 同上 | `ls Source/MomentsSolver` 不存在 ⇒ `set -e` 下第一条 g++ 就失败 | 从脚本自身位置推导仓库根，`AMREX_INC` 可指定（否则自动找 deps），失败时 `exit 1` |
+| 25 | `ComputeDualGeometry` 的 `[DIAG]` 打印无条件执行（每次调用都灌 stdout），断言文案与实现不符 | `EmbeddedBoundaryInit.cpp:892,896,1018` | 同文件其它诊断都按 verbose 门控；条件接受 1/2/4/6/7/8/9 而文案只说 1/2/4 | 改 `WarpX::GetInstance().Verbose() > 2` 门控，文案对齐；5 个 EB 用例通过 |
+| 26 | 3D 张量介质 `rho_medium` 种子的 `Dy` 用了 eps 的 xz 分量（应为 yy） | `Source/Plugins/PicEm/Modules/FieldSolver/WarpXPushFieldsEM.cpp:1315` | eps 分量顺序 `(xx,yy,zz,xy,xz,yz)`（`MacroscopicProperties.cpp:684`），`Dy=xy*Ex+yy*Ey+yz*Ez` | 改 `en1(...,1)`；12 个 macroscopic 用例通过（其中 `test_3d_embedded_boundary_cube_macroscopic` 的 benchmark 因这次修正重设，变化只在 1e-18 的 Bx 与 Ey 的第 7 位有效数字） |
+| 27 | HLLC/MUSCL 全链路无正定性下限（rho=0 除零、负压开平方得 NaN、全局最大波速被 NaN 污染） | `FluidMoments/FluidMoments.H` | review F6；构造反例：密度比 1e4 的 Sod 型初值 | `primitive()`/`soundSpeed()` 对 rho/e_int/p 夹 `real_floor`；`fluid_*` 33/33 |
+| 28 | `test_stellar_model` 的 `w[4]` 被按 9 个物种索引（栈越界，垃圾密度喂给 CF88） | 同上 Tests | review F13 | 改 `w[n_species]`；该用例 211 s 通过 |
