@@ -97,8 +97,11 @@ def main():
         rec.update({k: res.get(k) for k in ("identical", "files_total", "files_differing",
                                             "max_abs_diff", "max_rel_diff",
                                             "max_rel_diff_field")})
-        rec["note"] = ",".join((res.get("files_only_ref") or [])[:2]
-                              + (res.get("files_only_new") or [])[:2])
+        notes = list((res.get("files_only_ref") or [])[:2]
+                     + (res.get("files_only_new") or [])[:2])
+        if res.get("empty_run_dir"):
+            notes.append("empty run dir")
+        rec["note"] = ",".join(notes)
         rec["kinds"] = sorted({e.get("kind", "?") for e in res.get("details", [])})
         if not res.get("identical"):
             with open(os.path.join(args.out, "cases", name + ".json"), "w") as fh:
@@ -125,6 +128,13 @@ def main():
         "identical": sum(1 for r in rows if r.get("identical") is True),
         "differing": sum(1 for r in rows if r.get("identical") is False),
         "missing": sum(1 for r in rows if r.get("identical") is None),
+        # A case whose executable failed on either side cannot support a "the outputs match"
+        # claim, even if the partial outputs happen to compare clean: report it separately.
+        "failed_on_either_side": [
+            r["name"] for r in rows
+            if (ja.get(r["name"], {}) or {}).get("status") == "failed"
+            or (jb.get(r["name"], {}) or {}).get("status") == "failed"
+        ],
     }
     with open(os.path.join(args.out, "summary.json"), "w") as fh:
         json.dump(stats, fh, indent=1)

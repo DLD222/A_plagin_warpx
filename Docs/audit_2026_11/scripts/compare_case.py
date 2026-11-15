@@ -146,7 +146,7 @@ def _cmp_hdf5(a, b):
             res["datasets_only_ref"] = only
         if only_b:
             res["datasets_only_new"] = only_b
-        worst_abs = worst_rel = 0.0
+        worst_abs = worst_rel = worst_rel_field = 0.0
         for k in sorted(set(da) & set(db)):
             x, y = da[k], db[k]
             entry = {"dataset": k}
@@ -174,14 +174,20 @@ def _cmp_hdf5(a, b):
                     entry["n_differ"] = int(np.count_nonzero(d))
                     entry["max_abs_diff"] = float(d.max()) if d.size else 0.0
                     entry["max_rel_diff"] = float((d / den).max()) if d.size else 0.0
+                    # Same field-scale metric the plotfile comparison reports, so the
+                    # case-level number means the same thing for openPMD-only outputs.
+                    scale = float(np.abs(vx).max()) if vx.size else 0.0
+                    entry["max_rel_diff_field"] = (entry["max_abs_diff"] / scale) if scale > 0.0 else 0.0
                     worst_abs = max(worst_abs, entry["max_abs_diff"])
                     worst_rel = max(worst_rel, entry["max_rel_diff"])
+                    worst_rel_field = max(worst_rel_field, entry["max_rel_diff_field"])
                 else:
                     entry["n_differ"] = int(np.count_nonzero(vx != vy))
             if entry.get("n_differ", 0) or "shape_mismatch" in entry:
                 res["datasets"].append(entry)
         res["max_abs_diff"] = worst_abs
         res["max_rel_diff"] = worst_rel
+        res["max_rel_diff_field"] = worst_rel_field
     return res
 
 
@@ -312,8 +318,19 @@ def compare_dirs(ref, new, name=""):
     res["files_only_new"] = sorted(fb - fa)
     common = sorted(fa & fb)
     res["files_total"] = len(common) + len(fa - fb) + len(fb - fa)
+    if not fa or not fb:
+        # A run that wrote nothing (crashed before the first output) has no evidence to
+        # compare; calling that "identical" would silently accept a case that never ran.
+        res["empty_run_dir"] = [not fa, not fb]
+        res["identical"] = False
+        res["files_identical"] = 0
+        res["files_differing"] = 0
+        res["max_abs_diff"] = 0.0
+        res["max_rel_diff"] = 0.0
+        res["max_rel_diff_field"] = 0.0
+        return res
     ident = 0
-    worst_abs = worst_rel = 0.0
+    worst_abs = worst_rel = worst_rel_field = 0.0
     for rel in common:
         a, b = os.path.join(ref, rel), os.path.join(new, rel)
         # plotfile directories: handled per-header below (their data files are compared raw)
@@ -358,6 +375,7 @@ def compare_dirs(ref, new, name=""):
         if entry.get("kind") != "binary_diff":
             worst_abs = max(worst_abs, entry.get("max_abs_diff", 0.0))
             worst_rel = max(worst_rel, entry.get("max_rel_diff", 0.0))
+            worst_rel_field = max(worst_rel_field, entry.get("max_rel_diff_field", 0.0))
         res["details"].append(entry)
 
     # plotfile directories present in both, but only those with differing bytes are
@@ -371,7 +389,6 @@ def compare_dirs(ref, new, name=""):
             if os.path.isdir(os.path.join(new, rel)) and any(
                     d == rel or d.startswith(rel + "/") for d in differing):
                 pf.append(rel)
-    worst_rel_field = 0.0
     for rel in sorted(pf):
         e = cmp_plotfile(os.path.join(ref, rel), os.path.join(new, rel))
         e["path"] = rel + "/"
