@@ -100,6 +100,20 @@ public:
     }
 };
 
+/* Registers no name that any requirement mentions: it exists only to prove that a manifest
+ * role ("kernel") satisfies a requirement of the same name. */
+class KernelRolePlugin final : public warpx::runtime::IPluginLifecycle
+{
+public:
+    [[nodiscard]] warpx::runtime::PluginManifest manifest () const override
+    {
+        warpx::runtime::PluginManifest m;
+        m.name = "kernel_role_provider";
+        m.role = warpx::runtime::PluginRole::Kernel;
+        return m;
+    }
+};
+
 } // namespace
 
 int main (int argc, char* argv[])
@@ -174,13 +188,42 @@ int main (int argc, char* argv[])
     }
     check(unmet_rejected, "unmet manifest requirement is rejected");
 
-    // Satisfied requirement: role name counts as a provider.
+    // Satisfied requirement: the role name "kernel" counts as a provider.  Only these two
+    // plugins are registered, and "kernel" is nobody's name, so this passes exactly when the
+    // role of kernel_role_provider is accepted as the provider.  Mixing in a plugin with an
+    // unsatisfiable requirement (the old test) asserted a throw and therefore passed whether or
+    // not role names worked at all (Tools_Tests/F15).
     PluginHost satisfied;
     satisfied.add_plugin(std::make_shared<ProbePlugin>());
-    satisfied.add_plugin(std::make_shared<UnmetRequirementPlugin>());
-    bool thrown = false;
+    satisfied.add_plugin(std::make_shared<KernelRolePlugin>());
+    bool satisfied_ok = true;
     try {
         satisfied.validate_plugins();
+    } catch (const std::runtime_error&) {
+        satisfied_ok = false;
+    }
+    check(satisfied_ok, "a requirement satisfied by a role name is accepted");
+
+    // Contrast case: the same requirement with no provider at all must be rejected.  Together
+    // with the case above this makes the pair self-verifying: removing the role-name matching
+    // turns the first check red and leaves this one green.
+    PluginHost no_provider;
+    no_provider.add_plugin(std::make_shared<ProbePlugin>());
+    bool rejected_without_provider = false;
+    try {
+        no_provider.validate_plugins();
+    } catch (const std::runtime_error&) {
+        rejected_without_provider = true;
+    }
+    check(rejected_without_provider,
+          "the same requirement is rejected when nothing provides it");
+
+    // Unknown requirement name: still rejected, in its own host.
+    PluginHost unknown;
+    unknown.add_plugin(std::make_shared<UnmetRequirementPlugin>());
+    bool thrown = false;
+    try {
+        unknown.validate_plugins();
     } catch (const std::runtime_error&) {
         thrown = true;
     }

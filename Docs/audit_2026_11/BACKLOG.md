@@ -177,7 +177,7 @@
 | Tools_Tests | F12 | major | `eos.py` 的 Debye 屏蔽离子和对与自身文档不符（用 (Z+1)² 代替 Z²），HeⅡ 的连续谱降低也用错倍数 | fixed |
 | Tools_Tests | F13 | major | `stellar_structure.selftest` 的"四方程积分"只检查打印文本里出现 `R/R_sun`，NaN 也能通过（且已被注册为 ctest） | fixed |
 | Tools_Tests | F14 | major | 新增 pytest 用例在**仓库根**写文件，`mkdir()` 无 `exist_ok`，并行维度互相覆盖 | fixed |
-| Tools_Tests | F15 | major | `test_plugin_lifecycle.cpp` 的 "satisfied requirement" 用例断言的是"被拒绝"，role 名作为 provider 从未被测 | wip:lead-tools |
+| Tools_Tests | F15 | major | `test_plugin_lifecycle.cpp` 的 "satisfied requirement" 用例断言的是"被拒绝"，role 名作为 provider 从未被测 | fixed |
 | Tools_Tests | F16 | major | `check_build_boundaries.py` 的分层覆盖不完整，并留有 KeyError 地雷 | fixed |
 | Tools_Tests | F17 | minor | 5 个 runtime "contract test" 实际是 `int main(){return 0;}` 且没有注册进 CTest | fixed |
 | Tools_Tests | F18 | minor | `test_nonpic_kernel.cpp` 打印的断言数写死为 8（实际 7） | fixed |
