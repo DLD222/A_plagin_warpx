@@ -24,7 +24,7 @@
 | Benchmarks | F17 | minor | 多处 `print` 无门禁 / 无 assert（"verify"脚本不 verify） | fixed |
 | Benchmarks | F18 | minor | `verify_fresnel_rt.py` 的 q1/q2 注释与代码相反（代码是对的，注释会误导） | fixed |
 | Benchmarks | F19 | minor | `make_mie_cases.py` 的注释/文档与实际网格不符；单网格是为了绕开未定性不稳定 | fixed |
-| Benchmarks | F20 | ? | `c03` 若干小问题（合并） | todo |
+| Benchmarks | F20 | ? | `c03` 若干小问题（合并） | fixed |
 | Python | F1 | critical | `pywarpx` 仍调用已改名的旧迭代器类 `WarpXParIter` → 运行时 `AttributeError` | fixed |
 | Python | F2 | major | 公开 API `ParticleContainerWrapper.deposit_charge_density` 被删（连同 C++ 绑定） | invalid |
 | Python | F3 | major | 测试容差被系统性放宽（6 处） | invalid |
