@@ -56,12 +56,14 @@ namespace warpx::plugins::fluid
  *  \return the number of sub-steps taken
  */
 inline int diffuseSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, amrex::Real D,
-                           amrex::Real dt, StateLayout const& layout, int max_sub = 1000)
+                           amrex::Real dt, StateLayout const& layout, int max_sub = 100000)
 {
     using namespace amrex;
     if (D <= 0.0) { return 0; }
     amrex::Real const dx = geom.CellSize(0);
-    amrex::Real const dt_stable = Real(0.4) * dx * dx / (Real(2.0) * D);
+    // Multi-dimensional von Neumann limit: h <= dx^2 / (2 d D).
+    amrex::Real const dt_stable =
+        Real(0.4) * dx * dx / (Real(2.0) * Real(AMREX_SPACEDIM) * D);
 
     int taken = 0;
     amrex::Real remaining = dt;
@@ -114,7 +116,15 @@ inline int diffuseSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, 
         state.ParallelCopy(state_new);
         remaining -= h;
         ++taken;
-        if (max_sub > 0 && taken >= max_sub) { break; }
+        if (max_sub > 0 && taken >= max_sub) {
+            // Do not fall silent: stopping here means the operator advanced less than the
+            // requested interval, and a caller that does not look at the return value would
+            // integrate the wrong time.
+            amrex::Print() << "[fluid] explicit diffusion reached max_sub = " << max_sub
+                           << " with " << remaining << " of " << dt
+                           << " still to integrate (narrow the step or raise max_sub)\n";
+            break;
+        }
     }
     return taken;
 }
@@ -125,7 +135,7 @@ inline int diffuseSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, 
  */
 inline int settleSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, amrex::Real v,
                           int dir, amrex::Real dt, StateLayout const& layout, int species,
-                          int max_sub = 1000)
+                          int max_sub = 100000)
 {
     using namespace amrex;
     amrex::Real const dx = geom.CellSize(dir);
@@ -162,7 +172,15 @@ inline int settleSpecies (amrex::MultiFab& state, amrex::Geometry const& geom, a
         state.ParallelCopy(state_new);
         remaining -= h;
         ++taken;
-        if (max_sub > 0 && taken >= max_sub) { break; }
+        if (max_sub > 0 && taken >= max_sub) {
+            // Do not fall silent: stopping here means the operator advanced less than the
+            // requested interval, and a caller that does not look at the return value would
+            // integrate the wrong time.
+            amrex::Print() << "[fluid] explicit diffusion reached max_sub = " << max_sub
+                           << " with " << remaining << " of " << dt
+                           << " still to integrate (narrow the step or raise max_sub)\n";
+            break;
+        }
     }
     return taken;
 }

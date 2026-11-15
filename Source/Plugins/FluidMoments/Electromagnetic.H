@@ -76,7 +76,16 @@ amrex::Real joule_heating (amrex::Real const E[3], amrex::Real const B[3],
     return amrex::max(sigma, amrex::Real(0.0)) * (e0 * e0 + e1 * e1 + e2 * e2);
 }
 
-/** Lorentz force density J x B with J = sigma (E + u x B) [dyn cm^-3]. */
+/** Lorentz force density J x B / c with J = sigma (E + u x B) [dyn cm^-3].
+ *
+ *  Gaussian cgs: J = sigma E' is in statA/cm^2 and the force density is J x B / c, not J x B
+ *  (the 1/c = 3.34e-11 s/cm is what turns statA G/cm^2 into dyn/cm^3).  Omitting it made the
+ *  force 3e10 times too large, while the Joule heating sigma |E'|^2 is the same in both
+ *  conventions, which is why the unit tests (they only check f.B = 0 and Q >= 0) did not see it.
+ *  The state itself is cgs (erg/cm^3, g cm^-2 s^-1), so cgs is the convention to use here.
+ */
+constexpr amrex::Real c_light_cgs = 2.99792458e10;  // cm/s
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void lorentz_force (amrex::Real const E[3], amrex::Real const B[3], amrex::Real const u[3],
                     amrex::Real sigma, amrex::Real f[3]) noexcept
@@ -85,7 +94,9 @@ void lorentz_force (amrex::Real const E[3], amrex::Real const B[3], amrex::Real 
     cross(u, B, uxb);
     amrex::Real const J[3] = {sigma * (E[0] + uxb[0]), sigma * (E[1] + uxb[1]),
                               sigma * (E[2] + uxb[2])};
-    cross(J, B, f);
+    amrex::Real jxb[3];
+    cross(J, B, jxb);
+    for (int d = 0; d < 3; ++d) { f[d] = jxb[d] / c_light_cgs; }
 }
 } // namespace electromagnetic
 

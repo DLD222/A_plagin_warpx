@@ -76,7 +76,7 @@ amrex::Real escape_factor (amrex::Real kappa, amrex::Real rho, amrex::Real dt) n
  */
 inline int advanceNeutrinoDiffusion (amrex::MultiFab& nu, amrex::MultiFab const& rho,
                                      amrex::Real kappa, amrex::Geometry const& geom,
-                                     amrex::Real dt, int max_sub = 1000)
+                                     amrex::Real dt, int max_sub = 100000)
 {
     return advanceRadiationDiffusion(nu, rho, kappa, geom, dt, max_sub);
 }

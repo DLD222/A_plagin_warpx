@@ -134,7 +134,7 @@ inline void applyOpticallyThinCooling (amrex::MultiFab& state, amrex::Real dt, a
  */
 inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const& rho,
                                       amrex::Real kappa, amrex::Geometry const& geom,
-                                      amrex::Real dt, int max_sub = 1000)
+                                      amrex::Real dt, int max_sub = 100000)
 {
     using namespace amrex;
     amrex::Real const dx = geom.CellSize(0);
@@ -161,13 +161,19 @@ inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const
             }
         }
         if (dmax <= 0.0) { return taken; }
-        amrex::Real const dt_stable = cfl * dx * dx / (Real(2.0) * dmax);
+        // Multi-dimensional von Neumann limit: h <= dx^2 / (2 d D).
+        amrex::Real const dt_stable =
+            cfl * dx * dx / (Real(2.0) * Real(AMREX_SPACEDIM) * dmax);
         amrex::Real const h = amrex::min(remaining, dt_stable);
         er.FillBoundary(geom.periodicity());
         // Out of place: updating `er` in place makes each cell read neighbours that have already
         // been advanced (Gauss-Seidel instead of Jacobi), which is a different operator and decayed
         // a test mode 2.3x too fast.
+        // Zero it: the update loop `continue`s for cells with rho <= 0 or kappa <= 0, and AMReX
+        // does not zero fresh memory -- those cells would otherwise go back into `er` with
+        // whatever the allocation happened to contain.
         amrex::MultiFab er_new(er.boxArray(), er.DistributionMap(), 1, 0);
+        er_new.setVal(0.0);
         for (MFIter mfi(er); mfi.isValid(); ++mfi) {
             Box const& bx = mfi.validbox();
             auto const e = er.const_array(mfi);
@@ -177,7 +183,10 @@ inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const
                 for (int j = star_box_lo(bx, 1); j <= star_box_hi(bx, 1); ++j) {
                     for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         amrex::Real const rr = r(i, j, k, 0);
-                        if (rr <= 0.0 || kappa <= 0.0) { continue; }
+                        if (rr <= 0.0 || kappa <= 0.0) {
+                            e_new(i, j, k) = e(i, j, k);  // no diffusion here: keep the value
+                            continue;
+                        }
                         amrex::Real const ec = e(i, j, k);
                         amrex::Real flux_sum = 0.0;
                         for (int d = 0; d < AMREX_SPACEDIM; ++d) {
@@ -201,7 +210,15 @@ inline int advanceRadiationDiffusion (amrex::MultiFab& er, amrex::MultiFab const
         er.ParallelCopy(er_new);
         remaining -= h;
         ++taken;
-        if (max_sub > 0 && taken >= max_sub) { break; }
+        if (max_sub > 0 && taken >= max_sub) {
+            // Do not fall silent: stopping here means the operator advanced less than the
+            // requested interval, and a caller that does not look at the return value would
+            // integrate the wrong time.
+            amrex::Print() << "[fluid] explicit diffusion reached max_sub = " << max_sub
+                           << " with " << remaining << " of " << dt
+                           << " still to integrate (narrow the step or raise max_sub)\n";
+            break;
+        }
     }
     return taken;
 }

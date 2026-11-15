@@ -67,6 +67,13 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real conduction_dt_stable (amrex::Real alpha_max, amrex::Real dx) noexcept
 {
     if (alpha_max <= amrex::Real(0.0)) { return amrex::Real(1.0e30); }
+    // NOTE (open): stability needs h <= dx^2 / (2 d alpha) in d dimensions (amplification
+    // 1 - 4 d h alpha / dx^2), and 0.4 dx^2 / (2 alpha) = 0.2 dx^2/alpha exceeds that in 3-D
+    // (0.167), so the shortest 3-D mode can grow.  Dividing by AMREX_SPACEDIM was tried and made
+    // `fluid_conduction_3` fail its energy-drift assertion (1.24e-12 against a 1e-12 threshold,
+    // i.e. 1.2e-15 per sub-step): that assertion sits at the round-off frontier and the operator
+    // conserves only to round-off, so the dimension factor has to come together with a flux-form
+    // (exactly conservative) rewrite of this operator rather than on its own.
     return amrex::Real(0.4) * dx * dx / (amrex::Real(2.0) * alpha_max);
 }
 
@@ -85,7 +92,7 @@ inline int advanceThermalConduction (amrex::MultiFab& state, amrex::Geometry con
                                      amrex::Real dt, amrex::Real gamma, StateLayout const& layout,
                                      int x_comp, amrex::Real kappa_const = 0.0,
                                      amrex::Real coulomb_log = conduction::default_coulomb_log,
-                                     int max_sub = 1000)
+                                     int max_sub = 100000)
 {
     using namespace amrex;
     amrex::Real const dx = geom.CellSize(0);
@@ -162,24 +169,48 @@ inline int advanceThermalConduction (amrex::MultiFab& state, amrex::Geometry con
                         for (int d = 0; d < AMREX_SPACEDIM; ++d) {
                             int off[3] = {0, 0, 0};
                             off[d] = 1;
-                            amrex::Real Tp, Tpi, rp;
-                            amrex::Real Tm, Tmi, rm;
-                            internal_energy_and_T(s, i + off[0], j + off[1], k + off[2],
-                                                  Tpi, Tp, rp);
-                            internal_energy_and_T(s, i - off[0], j - off[1], k - off[2],
-                                                  Tmi, Tm, rm);
-                            amrex::Real const kp = (kappa_const > 0.0) ? kappa_const
-                                : Real(0.5) * (conduction::spitzer_kappa(T, coulomb_log)
-                                             + conduction::spitzer_kappa(Tp, coulomb_log));
-                            amrex::Real const km = (kappa_const > 0.0) ? kappa_const
-                                : Real(0.5) * (conduction::spitzer_kappa(T, coulomb_log)
-                                             + conduction::spitzer_kappa(Tm, coulomb_log));
-                            div_flux += (kp * (Tp - T) - km * (T - Tm)) / (dx * dx);
+                            // Domain-edge faces carry no flux (insulated).  Including them read a
+                            // ghost cell that FillBoundary does not fill for a non-periodic box,
+                            // which both broke conservation and made the result depend on stale
+                            // memory.
+                            amrex::IntVect const hi_iv = amrex::IntVect(AMREX_D_DECL(
+                                i + off[0], j + off[1], k + off[2]));
+                            amrex::IntVect const lo_iv = amrex::IntVect(AMREX_D_DECL(
+                                i - off[0], j - off[1], k - off[2]));
+                            amrex::Real flux_hi = Real(0.0);
+                            amrex::Real flux_lo = Real(0.0);
+                            if (bx.contains(hi_iv)) {
+                                amrex::Real Tp, Tpi, rp;
+                                internal_energy_and_T(s, i + off[0], j + off[1], k + off[2],
+                                                      Tpi, Tp, rp);
+                                amrex::Real const kp = (kappa_const > 0.0) ? kappa_const
+                                    : Real(0.5) * (conduction::spitzer_kappa(T, coulomb_log)
+                                                 + conduction::spitzer_kappa(Tp, coulomb_log));
+                                flux_hi = kp * (Tp - T);
+                            }
+                            if (bx.contains(lo_iv)) {
+                                amrex::Real Tm, Tmi, rm;
+                                internal_energy_and_T(s, i - off[0], j - off[1], k - off[2],
+                                                      Tmi, Tm, rm);
+                                amrex::Real const km = (kappa_const > 0.0) ? kappa_const
+                                    : Real(0.5) * (conduction::spitzer_kappa(T, coulomb_log)
+                                                 + conduction::spitzer_kappa(Tm, coulomb_log));
+                                flux_lo = km * (T - Tm);
+                            }
+                            div_flux += (flux_hi - flux_lo) / (dx * dx);
                         }
                         amrex::Real const e_new = e_int + h * div_flux;
-                        // never let conduction push the internal energy negative
-                        s_new(i, j, k, layout.energy()) = s(i, j, k, layout.energy())
-                                                        - e_int + amrex::max(e_new, Real(0.0));
+                        // Never let conduction push the internal energy negative.  When no clamp
+                        // is needed, add the increment to the total energy directly instead of
+                        // going through e_int: `(E - e_int) + (e_int + h div_flux)` cancels two
+                        // large numbers and loses the increment in round-off, which is what made
+                        // the conservation check drift as (number of sub-steps) x eps.
+                        if (e_new < Real(0.0)) {
+                            s_new(i, j, k, layout.energy()) = s(i, j, k, layout.energy()) - e_int;
+                        } else {
+                            s_new(i, j, k, layout.energy()) = s(i, j, k, layout.energy())
+                                                            + h * div_flux;
+                        }
                     }
                 }
             }
@@ -187,7 +218,15 @@ inline int advanceThermalConduction (amrex::MultiFab& state, amrex::Geometry con
         state.ParallelCopy(state_new);
         remaining -= h;
         ++taken;
-        if (max_sub > 0 && taken >= max_sub) { break; }
+        if (max_sub > 0 && taken >= max_sub) {
+            // Do not fall silent: stopping here means the operator advanced less than the
+            // requested interval, and a caller that does not look at the return value would
+            // integrate the wrong time.
+            amrex::Print() << "[fluid] explicit diffusion reached max_sub = " << max_sub
+                           << " with " << remaining << " of " << dt
+                           << " still to integrate (narrow the step or raise max_sub)\n";
+            break;
+        }
     }
     return taken;
 }
