@@ -85,9 +85,13 @@ def rcs(k, a, phi, pol, n_max=None):
     phi = np.asarray(phi, dtype=float)
     s = np.zeros(phi.shape, dtype=complex)
     for i, n in enumerate(ns):
-        s += (1j ** n) * c[i] * np.exp(1j * n * phi)
+        # No (1j)**n here.  H_n(kr) carries e^{-jn(pi/2)} in the far field, so the (1j)**n in
+        # `scattered()` cancels it and E_sc -> sqrt(2/(pi k r)) e^{jkr} sum c_n e^{jn phi}.
+        # Keeping the factor (as this used to) rotates the pattern by pi/2: the self-check in
+        # __main__ showed a 0.93 relative difference against the exact far field.
+        s += c[i] * np.exp(1j * n * phi)
     # sigma = lim 2*pi*r*|E_sc|^2 with |E_i| = 1; the far-field form is
-    # (4/k)|sum c_n e^{jn phi}|^2 (verified numerically in __main__)
+    # (4/k)|sum c_n e^{jn phi}|^2
     return (4.0 / k) * np.abs(s) ** 2
 
 
@@ -116,14 +120,18 @@ if __name__ == "__main__":
     print(f"<sigma> over phi = {integ:.6e} m, (4/k) sum|a_n|^2 = {total:.6e} m, "
           f"rel.diff = {abs(integ - total) / total:.3e}")
 
-    # far-field consistency: 2 pi r |E_sc|^2 must approach sigma(phi)
-    r_far = 1.0e3
+    # far-field consistency: 2 pi r |E_sc|^2 must approach sigma(phi).  This used to only print,
+    # and the printed number (0.93) was the visible symptom of the rotated pattern above.
+    # 1e6 wavelengths away: the O(1/(kr)) asymptotic error is then ~1e-6, so a 1e-4 tolerance
+    # tests the pattern rather than the asymptotic expansion.
+    r_far = 1.0e6
     for pol, c in (("ey", An), ("by", Bn)):
         sc = scattered(k, a, np.full_like(phi, r_far), phi, pol)
         lhs = 2 * np.pi * r_far * np.abs(sc) ** 2
         rhs = rcs(k, a, phi, pol)
-        print(f"pol={pol}: max relative difference far field vs sigma = "
-              f"{np.max(np.abs(lhs - rhs)) / np.max(rhs):.3e}")
+        rel = np.max(np.abs(lhs - rhs)) / np.max(rhs)
+        print(f"pol={pol}: max relative difference far field vs sigma = {rel:.3e}")
+        assert rel < 1.0e-4, (pol, rel)
 
     # TE^z boundary condition is dH_z/dr = 0 on the PEC surface (not H_z = 0)
     dr = 1e-6 * a

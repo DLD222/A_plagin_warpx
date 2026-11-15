@@ -126,13 +126,22 @@ def main():
             x, z = grid_from_inputs(run)
             dx = x[1] - x[0]
             A = harmonic_amplitude(frames, x, z)
-            # normalize by the incident amplitude, otherwise the L2 error is
-            # dominated by E0 (=1e6 V/m) instead of the discretization error
+            # Normalize by the incident amplitude, otherwise the L2 error is dominated by
+            # E0 (=1e6 V/m) instead of the discretization error.  For the `by` input the plotted
+            # field is B, whose incident amplitude is E0/c (the laser has e_max = E0), so dividing
+            # by E0 alone left the near-field error at ~100% for every resolution -- the observed
+            # convergence order was 0 because of this, not because of the solver.
             _txt = open(os.path.join(run, 'inputs')).read()
+            e0 = None
             for _line in _txt.splitlines():
                 if _line.strip().startswith('my_constants.E0'):
-                    A = A / float(_line.split('=')[1].strip())
+                    e0 = float(_line.split('=')[1].strip())
                     break
+            if e0 is not None:
+                if pol == "by":
+                    A = A / (e0 / 2.99792458e8)
+                else:
+                    A = A / e0
             X, Z = np.meshgrid(x, z, indexing="xy")
             r = np.hypot(X, Z)
             th = np.arctan2(X, Z)
@@ -182,9 +191,13 @@ def main():
             ns = np.arange(-n_max, n_max + 1)
             F = np.array([np.mean(fsc * np.exp(-1j * n_ * th_c)) for n_ in ns])
             cn = -F / ((1j ** ns) * hankel1(ns, K * R_RCS))
+            # No (1j)**n here: the factor cancels the e^{-jn(pi/2)} of H_n's far-field form, so
+            # the scattering width is (4/K)|sum c_n e^{jn theta}|^2.  It used to be applied on
+            # both sides (here and in mie.rcs), which rotated the pattern by pi/2 in the plots
+            # while leaving the L2 error -- and therefore the published convergence order --
+            # unchanged.
             sig_sim = (4.0 / K) * np.abs(
-                np.sum((1j ** ns)[:, None] * cn[:, None]
-                       * np.exp(1j * ns[:, None] * th_c[None, :]), axis=0)) ** 2
+                np.sum(cn[:, None] * np.exp(1j * ns[:, None] * th_c[None, :]), axis=0)) ** 2
             sig_mie = mie.rcs(K, R, th_c, pol)
             err_rcs = math.sqrt(np.sum((sig_sim - sig_mie) ** 2) / np.sum(sig_mie ** 2))
 
