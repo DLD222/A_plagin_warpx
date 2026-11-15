@@ -20,6 +20,7 @@ n10 = 2.2e17
 tau = 20.0e-9
 shift = 150.0e-9
 dt = 0.001e-9
+# Must match laser_ionization.weight_ratio in inputs_test_3d_collision_pulsed_decay.
 weight_ratio = 2
 
 time_arr = np.arange(0, 250e-9 + dt, dt)
@@ -63,7 +64,9 @@ assert ele_weight_error < ele_weight_rtol
 
 neu_weight_end = neu_weight[-1]
 neu_weight_rtol = 0.5  # half a percent
-neu_weight_error = 100 * np.abs(n1_arr[-1] - neu_weight_end) / nI_arr[-1]
+# The neutral weight is compared against the neutral density, so that is the reference too.
+# Dividing by the ionisation fraction (nI_arr) made the reported error 1/0.78 too small.
+neu_weight_error = 100 * np.abs(n1_arr[-1] - neu_weight_end) / n1_arr[-1]
 print(f"neu weight (WarpX) = {neu_weight_end}")
 print(f"neu weight (0D)    = {n1_arr[-1]}")
 print(f"neu weight error       = {neu_weight_error}")
@@ -73,11 +76,13 @@ neu_number_change = neu_number[0] - neu_number[-1]
 ion_number_end = ion_number[-1]
 print(f"neu number change = {neu_number_change}")
 print(f"ion number = {ion_number_end}")
-assert ion_number_end == weight_ratio * neu_number_change
+# These counts come from a text file and a hand-written weight ratio: compare them as floating
+# point numbers instead of requiring bit equality.
+assert np.isclose(ion_number_end, weight_ratio * neu_number_change, rtol=1e-12)
 
 ele_number_end = ele_number[-1]
 print(f"ele number = {ele_number_end}")
-assert ele_number_end == weight_ratio * neu_number_change
+assert np.isclose(ele_number_end, weight_ratio * neu_number_change, rtol=1e-12)
 
 print(f"initial neu weight change = {neu_weight[0] - neu_weight[-1]:.16e}")
 print(f"final ion weight          = {ion_weight[-1]:.16e}")

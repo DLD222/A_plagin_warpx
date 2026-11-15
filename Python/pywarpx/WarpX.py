@@ -183,6 +183,17 @@ class WarpX(Bucket):
             return len(words) == 1 and not words[0].startswith("-")
 
         first = next((i for i in range(end) if starts_override(i)), end)
+        # Everything from the first override on is handed to AMReX, which treats a leading "-"
+        # as a definition of its own: `my.in max_step=10 --verbose` glues "--verbose" onto the
+        # previous value ("has multiple values"), with the error surfacing from C++ where the
+        # Python argument that caused it is hard to spot.  Say so here instead.
+        for arg in args[first:end]:
+            if arg.startswith("-") and "=" not in arg:
+                raise SystemExit(
+                    f"pywarpx: '{arg}' looks like an option of this script, but it comes after "
+                    "an AMReX override; AMReX would take it as a parameter name. Put script "
+                    "options before the first 'name=value' override or after '--'."
+                )
         filename = os.fsdecode(filename)
         if '"' in filename:
             raise ValueError(
