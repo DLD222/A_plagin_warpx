@@ -264,8 +264,6 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // Interpolated permittivity, epsilon, to Ex position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ex_stag, macro_cr, i, j, k, scomp);
-            const amrex::Real alpha = T_MacroAlgo::alpha( sigma_interp, epsilon_interp, dt);
-            const amrex::Real beta = T_MacroAlgo::beta( sigma_interp, epsilon_interp, dt);
             // P1: full matrix-vector product E_c = alpha E_c + beta0 sum_d (eps^-1)_{c,d} D_d,
             // beta0 = dt/(1+s) = beta*eps. The three curl components are evaluated at the
             // same index (Meep collocated approximation, O(h) at an interface); J stays on
@@ -279,11 +277,18 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const ix0 = use_node_eps || !has_sub ? ein0(i,j,k,0) : eix(i,j,k,0);
             amrex::Real const ix1 = use_node_eps || !has_sub ? ein0(i,j,k,1) : eix(i,j,k,1);
             amrex::Real const ix2 = use_node_eps || !has_sub ? ein0(i,j,k,2) : eix(i,j,k,2);
-            // Backward Euler on dE/dt = (curl H - J - sigma E)/eps:
-            //   E^{n+1} = (E^n + dt eps^-1 (curl H - J)) / (1 + dt sigma/eps).
-            // sigma = 0 reduces this to the lossless Yee update exactly.
-            Ex(i, j, k) = (Ex(i, j, k) + dt * ( ix0*Dx + ix1*Dy + ix2*Dz ) - dt * ix0 * jx(i, j, k))
-                        / (amrex::Real(1.0) + dt * sigma_interp * ix0);
+            // dE/dt = (curl H - J - sigma E)/eps, integrated with the scheme the user chose
+            // (T_MacroAlgo): E^{n+1} = alpha E^n + beta_eps * (eps^-1 (curl H) - eps^-1 J).
+            // The Backward-Euler quotient used to be written inline, which silently turned
+            // `warpx.macroscopic_solver = laxpw` into Euler (alpha/beta were computed and never
+            // read).  The coefficients come from the inverse permittivity the update already uses
+            // (the interpolated scalar epsilon is zero where no material was given, and alpha()
+            // then divides by zero).
+            amrex::Real alpha = amrex::Real(0.0);
+            amrex::Real beta_eps = amrex::Real(0.0);
+            T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, ix0, dt, alpha, beta_eps);
+            Ex(i, j, k) = alpha * Ex(i, j, k)
+                        + beta_eps * ( ix0*Dx + ix1*Dy + ix2*Dz - ix0 * jx(i, j, k));
         });
 
         // Ey update
@@ -311,8 +316,6 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // Interpolated permittivity, epsilon, to Ey position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ey_stag, macro_cr, i, j, k, scomp);
-            const amrex::Real alpha = T_MacroAlgo::alpha( sigma_interp, epsilon_interp, dt);
-            const amrex::Real beta = T_MacroAlgo::beta( sigma_interp, epsilon_interp, dt);
 
             amrex::Real const Dy0 =   T_Algo::DownwardDz(Hx, coefs_z, n_coefs_z, i, j, k,0)
                                     - T_Algo::DownwardDx(Hz, coefs_x, n_coefs_x, i, j, k,0);
@@ -323,9 +326,11 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const iy0 = use_node_eps || !has_sub ? ein1(i,j,k,0) : eiy(i,j,k,0);
             amrex::Real const iy1 = use_node_eps || !has_sub ? ein1(i,j,k,1) : eiy(i,j,k,1);
             amrex::Real const iy2 = use_node_eps || !has_sub ? ein1(i,j,k,2) : eiy(i,j,k,2);
-            Ey(i, j, k) = (Ey(i, j, k) + dt * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0 )
-                        - dt * iy1 * jy(i, j, k))
-                        / (amrex::Real(1.0) + dt * sigma_interp * iy1);
+            amrex::Real alpha = amrex::Real(0.0);
+            amrex::Real beta_eps = amrex::Real(0.0);
+            T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, iy1, dt, alpha, beta_eps);
+            Ey(i, j, k) = alpha * Ey(i, j, k)
+                        + beta_eps * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0 - iy1 * jy(i, j, k));
         });
 
         // Ez update
@@ -353,8 +358,6 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // Interpolated permittivity, epsilon, to Ez position on the grid
             amrex::Real const epsilon_interp = ablastr::coarsen::sample::Interp(eps_arr, epsilon_stag,
                                                                                 Ez_stag, macro_cr, i, j, k, scomp);
-            const amrex::Real alpha = T_MacroAlgo::alpha( sigma_interp, epsilon_interp, dt);
-            const amrex::Real beta = T_MacroAlgo::beta( sigma_interp, epsilon_interp, dt);
 
             amrex::Real const Dz0 =   T_Algo::DownwardDx(Hy, coefs_x, n_coefs_x, i, j, k,0)
                                     - T_Algo::DownwardDy(Hx, coefs_y, n_coefs_y, i, j, k,0);
@@ -365,9 +368,11 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real const iz0 = use_node_eps || !has_sub ? ein2(i,j,k,0) : eiz(i,j,k,0);
             amrex::Real const iz1 = use_node_eps || !has_sub ? ein2(i,j,k,1) : eiz(i,j,k,1);
             amrex::Real const iz2 = use_node_eps || !has_sub ? ein2(i,j,k,2) : eiz(i,j,k,2);
-            Ez(i, j, k) = (Ez(i, j, k) + dt * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0 )
-                        - dt * iz2 * jz(i, j, k))
-                        / (amrex::Real(1.0) + dt * sigma_interp * iz2);
+            amrex::Real alpha = amrex::Real(0.0);
+            amrex::Real beta_eps = amrex::Real(0.0);
+            T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, iz2, dt, alpha, beta_eps);
+            Ez(i, j, k) = alpha * Ez(i, j, k)
+                        + beta_eps * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0 - iz2 * jz(i, j, k));
         });
         // P2: exact exponential step for the conductive cells:
         //     E^{n+1} = M1 E^n + M2 (curlH - J)

@@ -305,6 +305,23 @@ struct LaxWendroffAlgo {
         return beta;
     }
 
+    /** Coefficients parameterised by the *inverse* permittivity.
+     *
+     *  The anisotropic update has 1/eps_ii at hand (the tensor inverse it multiplies the flux
+     *  with), while the interpolated scalar epsilon can legitimately be zero where the material
+     *  was not specified -- and then alpha()/beta() divide by zero and poison E with NaN.
+     *  `beta_eps` is the coefficient of eps^-1 (curl H - J), i.e. beta() * epsilon.
+     */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static void coefficients_from_inv_eps (amrex::Real const sigma, amrex::Real const inv_eps,
+                                          amrex::Real dt, amrex::Real& alpha,
+                                          amrex::Real& beta_eps) {
+        using namespace amrex;
+        const amrex::Real fac1 = 0.5_rt * sigma * dt * inv_eps;
+        alpha = (1._rt - fac1)/(1._rt + fac1);
+        beta_eps = dt/(1._rt + fac1);
+    }
+
 };
 
 /**
@@ -335,6 +352,23 @@ struct BackwardEulerAlgo {
         const amrex::Real fac1 = sigma * dt / epsilon;
         const amrex::Real beta = dt / ( epsilon * (1._rt + fac1) );
         return beta;
+    }
+
+    /** Coefficients parameterised by the *inverse* permittivity.
+     *
+     *  The anisotropic update has 1/eps_ii at hand (the tensor inverse it multiplies the flux
+     *  with), while the interpolated scalar epsilon can legitimately be zero where the material
+     *  was not specified -- and then alpha()/beta() divide by zero and poison E with NaN.
+     *  `beta_eps` is the coefficient of eps^-1 (curl H - J), i.e. beta() * epsilon.
+     */
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static void coefficients_from_inv_eps (amrex::Real const sigma, amrex::Real const inv_eps,
+                                          amrex::Real dt, amrex::Real& alpha,
+                                          amrex::Real& beta_eps) {
+        using namespace amrex;
+        const amrex::Real fac1 = sigma * dt * inv_eps;
+        alpha = (1._rt)/(1._rt + fac1);
+        beta_eps = dt/(1._rt + fac1);
     }
 
 };
