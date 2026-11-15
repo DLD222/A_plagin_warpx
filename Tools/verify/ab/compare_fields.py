@@ -16,11 +16,17 @@ Usage:
 import argparse
 import glob
 import os
+import sys
 
 import numpy as np
 import yt
 
 yt.funcs.mylog.setLevel(0)
+
+# Relative tolerance for "the two builds agree".  Anything above this is a real difference;
+# printing it and returning 0 (as this script used to) let a table of differences look like a
+# successful comparison.
+RTOL = 1e-12
 
 
 def load(name, side):
@@ -49,24 +55,42 @@ def main():
     )
 
     rows = []
+    skipped_names = []
     for name in names:
         up, plotfile = load(name, "up")
         mine, _ = load(name, "mine")
         if plotfile == "openpmd" or mine == "openpmd":
             print(f"{name}: openPMD output, not comparable with yt - skipped")
+            skipped_names.append(name)
             continue
         if not up or not mine:
             print(f"{name}: missing plotfile on one side, skipped")
+            skipped_names.append(name)
             continue
-        common = set(up) & set(mine)
+        if not common:
+            print(f"{name}: no common field to compare - skipped")
+            skipped_names.append(name)
+            continue
+        common = sorted(common)
         scale = max(np.max(np.abs(v)) for v in up.values())
         dmax = max(np.max(np.abs(up[f] - mine[f])) for f in common)
-        rows.append((name, plotfile, len(common), scale, dmax, dmax / scale))
+        # scale == 0 means every reference field is identically zero: a relative error then says
+        # nothing (and divided by zero), so fall back to an absolute tolerance.
+        rel = dmax / scale if scale > 0 else dmax
+        rows.append((name, plotfile, len(common), scale, dmax, rel))
 
     print(f"{'case':14} {'plotfile':14} {'fields':>6} {'scale':>10} {'max|diff|':>10} {'rel':>10}")
+    failed = 0
     for name, plotfile, nfields, scale, dmax, rel in rows:
-        print(f"{name:14} {plotfile:14} {nfields:6d} {scale:10.3e} {dmax:10.3e} {rel:10.2e}")
-    return 0
+        verdict = "" if rel <= RTOL else "  FAIL"
+        if rel > RTOL:
+            failed += 1
+        print(f"{name:14} {plotfile:14} {nfields:6d} {scale:10.3e} {dmax:10.3e} {rel:10.2e}{verdict}")
+    print(f"compared {len(rows)} case(s), {len(skipped_names)} skipped, {failed} above rtol={RTOL:g}")
+    if not rows:
+        print("compare_fields.py: nothing was compared", file=sys.stderr)
+        return 1
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

@@ -54,6 +54,7 @@ short_dim() {
 
 ran=0
 skipped=0
+failed=0
 for entry in "${CASES[@]}"; do
     IFS='|' read -r name dim input <<<"$entry"
     if [ ${#FILTER[@]} -gt 0 ]; then
@@ -80,11 +81,18 @@ for entry in "${CASES[@]}"; do
     fi
 
     echo "== $name ($dim)"
-    UP_BIN="$up" MINE_BIN="$mine" bash "$HERE/run_ab.sh" "$name" "warp:$input"
-    ran=$((ran + 1))
+    if UP_BIN="$up" MINE_BIN="$mine" bash "$HERE/run_ab.sh" "$name" "warp:$input"; then
+        ran=$((ran + 1))
+    else
+        echo "FAILED: $name" >&2
+        failed=$((failed + 1))
+    fi
 done
 
 echo
-echo "ran $ran case(s), skipped $skipped"
-[ $ran -gt 0 ] && python3 "$HERE/compare_fields.py"
-exit 0
+echo "ran $ran case(s), skipped $skipped, failed $failed"
+if [ "$failed" -ne 0 ] || [ "$ran" -eq 0 ]; then
+    echo "run_all.sh: nothing was compared successfully" >&2
+    exit 1
+fi
+python3 "$HERE/compare_fields.py" || exit 1

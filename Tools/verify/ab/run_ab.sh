@@ -20,6 +20,10 @@
 #   what matters.  Everything after it is passed to both runs.
 set -uo pipefail
 
+# A run that never started (missing binary, wrong path) must fail this script: it used to print
+# "up exit=127" and continue, so an A/B table could be built out of two failed runs.
+status=0
+
 REPO=$(cd "$(dirname "$0")/../../.." && pwd)
 NAME=$1
 INP=$2
@@ -36,6 +40,12 @@ for side in up mine; do
         if [ "$side" = up ]; then EXE=$UP; else EXE=$MINE; fi
         AMREX_INPUTS_FILE_PREFIX="$REPO/$(dirname "$INP")" OMP_NUM_THREADS=1 \
             timeout 900 "${MPIEXEC:-mpiexec}" -n 1 "$EXE" "$(basename "$INP")" "$@" > run.log 2>&1
-        echo "$side exit=$?"
-    )
+        rc=$?
+        echo "$side exit=$rc"
+        exit "$rc"
+    ) || status=1
 done
+if [ "$status" -ne 0 ]; then
+    echo "run_ab.sh: at least one side failed; the comparison would be meaningless" >&2
+    exit 1
+fi
