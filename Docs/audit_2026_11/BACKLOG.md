@@ -65,21 +65,21 @@
 | Source_Core_Runtime_B | F9 | minor | 服务注册表的"冲突"是**全局单串**：任一服务种类冲突会让所有无关服务创建失败 | fixed |
 | Source_Core_Runtime_B | F10 | minor | `legacy_runtime_data()` / `legacy_host_services()` 的函数级静态持有者不随 `clear_service_factories()` 重置 | fixed |
 | Source_Core_Runtime_B | F11 | minor | C ABI 把 handler 注册失败全部折叠成返回码 4，loader 又完全忽略它 | fixed |
-| Source_Core_Runtime_B | F12 | minor | `register_stage()` 可以注册执行引擎永远到不了的 ordinal，且没有任何提示 | todo |
+| Source_Core_Runtime_B | F12 | minor | `register_stage()` 可以注册执行引擎永远到不了的 ordinal，且没有任何提示 | fixed |
 | Source_Core_Runtime_B | F13 | minor | 三处工厂仍是"最后一个赢"且缺省静默返回 nullptr（与 ServiceFactory 的 F-09 修复不一致） | fixed |
 | Source_Core_Runtime_B | F14 | minor | `legacy_costs()`：注册了 provider，却没有任何调用者（死契约） | invalid |
-| Source_Core_Runtime_B | F15 | minor | `Runtime` 构造函数抛出时 AMReX 不会被 finalize（资源泄漏 + AMReX 退出断言） | todo |
+| Source_Core_Runtime_B | F15 | minor | `Runtime` 构造函数抛出时 AMReX 不会被 finalize（资源泄漏 + AMReX 退出断言） | fixed |
 | Source_Plugins_Collision_A | F1 | major | Bremsstrahlung 饱和分支把 `fmulti` 除以了“未夹紧的 arg”，光子权重与上游不同 | fixed |
-| Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | todo |
-| Source_Plugins_Collision_A | F3 | minor | `#include` 被放在文件第 1 行、版权头与 include guard 之前 | todo |
-| Source_Plugins_Collision_A | F4 | minor | `BinaryCollisionUtils` 新增的两个转发重载在树内无调用者（死代码 + 多余快照） | todo |
+| Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | wip:lead-root |
+| Source_Plugins_Collision_A | F3 | minor | `#include` 被放在文件第 1 行、版权头与 include guard 之前 | wip:lead-root |
+| Source_Plugins_Collision_A | F4 | minor | `BinaryCollisionUtils` 新增的两个转发重载在树内无调用者（死代码 + 多余快照） | wip:lead-root |
 | Source_Plugins_Collision_B | F1 | major | `pulsed_decay` 删除了上游必填参数 `fixed_product_weight`，无 BackwardCompatibility 保护，旧输入静默改物理 | fixed |
-| Source_Plugins_Collision_B | F2 | minor | `pulsed_decay` 新采样器：整片母粒子被销毁 + 产物权重按 `weight_ratio` 逐代缩小；统计方差与文档表述都变了 | todo |
-| Source_Plugins_Collision_B | F3 | minor | `CollisionSpeciesTable` 的 `SpeciesHandle` 全套机制是死代码，且构造时付一次"全粒子数全局归约" | todo |
+| Source_Plugins_Collision_B | F2 | minor | `pulsed_decay` 新采样器：整片母粒子被销毁 + 产物权重按 `weight_ratio` 逐代缩小；统计方差与文档表述都变了 | wip:lead-root |
+| Source_Plugins_Collision_B | F3 | minor | `CollisionSpeciesTable` 的 `SpeciesHandle` 全套机制是死代码，且构造时付一次"全粒子数全局归约" | wip:lead-root |
 | Source_Plugins_Collision_B | F4 | minor | `InverseBremsstrahlung`：`calculateNuei` 在缺少回调时**静默空转**，随后无检查地解引用 `nuei_*` / `N_*` 场 | fixed |
-| Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | todo |
-| Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | todo |
-| Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | todo |
+| Source_Plugins_Collision_B | F5 | minor | `NuclearFusionFunc::executor()` 无检查解引用只在 `AllocData` 里赋值的 `m_data`（以及 `fields().get()` 的返回值） | wip:lead-root |
+| Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | wip:lead-root |
+| Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | wip:lead-root |
 | Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | fixed |
 | Source_Plugins_Diagnostics_A | F1 | major | 诊断 rho 的 ngrow 断言把"各向同性分配"与"逐方向需求"相比，cfl>1 时直接 abort | fixed |
 | Source_Plugins_Diagnostics_A | F2 | critical | DivE/DivB 诊断用 `config_snapshot().ncomps` 分配，legacy(PICMI) 路径上恒为 1 → RZ 多模写越界/只留 mode 0 | fixed |
