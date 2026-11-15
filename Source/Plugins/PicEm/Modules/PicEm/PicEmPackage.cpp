@@ -43,7 +43,7 @@ PicEmPackage::register_specs (PluginHost& host, const std::string& field_solver_
     host.declare(HandlerSpec{
         .name = "particle_push",
         .point = {Stage::Push, 0},
-        .reads_fields = {},
+        .reads_fields = {"Efield_fp", "Bfield_fp"},
         .writes_fields = {"current_fp", "rho_fp"},
         .reads_species = {},
         .writes_species = {},

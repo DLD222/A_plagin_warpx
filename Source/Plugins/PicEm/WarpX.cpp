@@ -365,16 +365,26 @@ WarpX::particleSystem ()
 }
 
 // Only the structural users (tile iteration) and the Python bindings call this; everything
-// else goes through particleSystem().
+// else goes through particleSystem(), which returns an empty system when the particle plugin is
+// not linked.  This one cannot: it hands out the concrete MultiParticleContainer, so it has to
+// say so instead of dereferencing a null pointer (undefined behaviour, silent crash).
 MultiParticleContainer&
 WarpX::GetPartContainer ()
 {
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
+        mypc != nullptr,
+        "WarpX::GetPartContainer: this build has no particle plugin; use particleSystem() when "
+        "the caller can work with an empty system");
     return static_cast<MultiParticleContainer&>(*mypc);
 }
 
 const MultiParticleContainer&
 WarpX::GetPartContainer () const
 {
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
+        mypc != nullptr,
+        "WarpX::GetPartContainer: this build has no particle plugin; use particleSystem() when "
+        "the caller can work with an empty system");
     return static_cast<const MultiParticleContainer&>(*mypc);
 }
 

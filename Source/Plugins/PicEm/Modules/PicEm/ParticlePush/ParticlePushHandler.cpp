@@ -21,7 +21,9 @@ ParticlePushHandler::spec () const
     return HandlerSpec{
         .name = "particle_push",
         .point = {Stage::Push, 0},
-        .reads_fields = {},
+        // The push gathers E and B (plus aux fields) before moving the particles; declaring
+        // nothing made the stage graph believe Push does not depend on the field solve.
+        .reads_fields = {"Efield_fp", "Bfield_fp"},
         .writes_fields = {"current_fp", "rho_fp"},
         .reads_species = {},
         .writes_species = {},
