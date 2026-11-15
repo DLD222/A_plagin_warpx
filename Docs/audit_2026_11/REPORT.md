@@ -63,6 +63,23 @@ fork 411/411、官方 26.11 407/407 全部通过 ctest；407 个共享用例逐�
 
 明细见 `ATTRIBUTION.md` 末节与 `audit_runs/round13/cmp_vs_2611/cases.csv`。
 
+## 0.3 round 13 修掉的 review 条目
+
+本轮除"最终对照"外，又修了 12 个条目（每条都附验证）：
+
+| 类别 | 条目 |
+|---|---|
+| 测试门禁 | `runtime_snapshot_particles_2` 夹具退化（deck 缺 7 个 reduced diag、几何/密度/外场与期望不符）→ 15 条断言恢复；三个 MomentsSolver 测试"永远返回 0"→ 改成真的会失败；`run_tests.sh` 路径跟随插件化重构 |
+| 内存/UB | `test_stellar_model` 的 `w[4]` 按 9 个物种索引（栈越界）；`ImplicitOptions::particle_shape` 未初始化（结构体跨 Core/插件边界） |
+| 静默错误 | 运行时版 `doDirectGatherVectorField` 对非法阶数不 gather（改为 Abort）；HLLC `primitive/soundSpeed` 无正定性下限（NaN 会污染全局 dt）；`ComputeDiagFunctor::config_snapshot()` 兜底是"全默认结构体"（改 `FromLegacy()`）；`BTDiagnostics` 的场 functor 从未拿到 ctx |
+| 物理 | 3D 张量介质 `rho_medium` 种子的 `Dy` 用错 eps 分量（xz 当成 yy）；洛伦兹力缺 `1/c` |
+| IO/UX | checkpoint 的 `field_schema.txt` 所有 rank 同时 O_TRUNC 同一路径；4 处用户报错里泄漏 `config().X()` 内部语法 |
+| 其他 | `ComputeDualGeometry` 无条件调试打印；BTD 的 boost 参数改从 `frame()` 取 |
+
+剩余待办（下一轮起）：`Source_Plugins_Star` 的 F2/F10（restart 语义、多层势实为逐层独立求解）、
+Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba0911`（1D RSPHERE，无算例覆盖）、
+以及 review 里其余 major/minor 的逐条区分（`CODE_AUDIT.md` 的"已修/已撤销/不成立/待办"表）。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
