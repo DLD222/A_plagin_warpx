@@ -81,7 +81,7 @@
 | Source_Plugins_Collision_B | F6 | minor | `declare_state` 与 `NuclearFusionFunc` 用**不同机制**解析同一个 `save_particle_production`，schema 路径可能被静默跳 | todo |
 | Source_Plugins_Collision_B | F7 | minor | `declare_state` 只在 kernel 路径生效；legacy/Python 路径的 handler 是"首步懒创建"，永不走 schema | todo |
 | Source_Plugins_Collision_B | F8 | minor | 头文件/包含卫生类残留（guard 外的 include、重复 include、空 `#ifdef`、被遗留的重载） | todo |
-| Source_Plugins_Diagnostics_A | F1 | major | 诊断 rho 的 ngrow 断言把"各向同性分配"与"逐方向需求"相比，cfl>1 时直接 abort | todo |
+| Source_Plugins_Diagnostics_A | F1 | major | 诊断 rho 的 ngrow 断言把"各向同性分配"与"逐方向需求"相比，cfl>1 时直接 abort | fixed |
 | Source_Plugins_Diagnostics_A | F2 | critical | DivE/DivB 诊断用 `config_snapshot().ncomps` 分配，legacy(PICMI) 路径上恒为 1 → RZ 多模写越界/只留 mode 0 | fixed |
 | Source_Plugins_Diagnostics_A | F3 | minor | checkpoint 新增的 `field_schema.txt` 由所有 MPI rank 同时写，无 IOProcessor 保护 | fixed |
 | Source_Plugins_Diagnostics_A | F4 | minor | BTD 的场 functor 从未拿到 RuntimeContext，`config_snapshot()` 静默返回全默认值 | fixed |
@@ -165,7 +165,7 @@
 | Source_Plugins_Star | F13 | major | 【major】`test_stellar_model` 栈数组越界：`w[4]` 被索引到 8 | fixed |
 | Tools_Tests | F1 | critical | `check_plugin_boundaries.py` 的两条检查被无条件丢弃（可复现反例） | fixed |
 | Tools_Tests | F2 | major | `parse_tests.py` 把仓库内的上游副本 `_upstream/` 当成"本地树"，使上游一致性门恒过 | fixed |
-| Tools_Tests | F3 | major | `check_kernel_coupling.py` 的 5 个监控目录有 3 个不存在，静默跳过仍报 OK | todo |
+| Tools_Tests | F3 | major | `check_kernel_coupling.py` 的 5 个监控目录有 3 个不存在，静默跳过仍报 OK | fixed |
 | Tools_Tests | F4 | major | `check_legacy_coverage.py` 候选路径不含 `Core/Modules/` 与其它插件根，554/829 假"缺失"；且与文档"missing: 0"冲突 | todo |
 | Tools_Tests | F5 | major | `check_core_purity.py` 的匹配规则可被命名空间别名绕过，注释判定也不可靠 | todo |
 | Tools_Tests | F6 | major | 四个"不变量检查器"没有进入任何自动门（CI / pre-commit / run_gates 都没有） | todo |
