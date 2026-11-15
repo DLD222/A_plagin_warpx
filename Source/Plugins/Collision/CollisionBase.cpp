@@ -72,6 +72,18 @@ CollisionBase::BackwardCompatibility ()
         "Please use <collision_name>.ndt_supercycle (run collision every N PIC steps) "
     );
 
+    // pulsed_decay: `fixed_product_weight` (required by upstream, a real) was replaced by the
+    // integer `weight_ratio`.  A deck that still carries the old key would otherwise run silently
+    // with weight_ratio = 1, i.e. a different product weight, macro-particle count and random
+    // number stream -- so refuse it and say what to write instead.
+    amrex::Real backward_weight = 0.0;
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        !pp_collision_name.query("fixed_product_weight", backward_weight),
+        "<collision_name>.fixed_product_weight is no longer a valid option. "
+        "Please use <collision_name>.weight_ratio (integer: how many parent macro-particles "
+        "one decay event is split into; the product weight is the parent weight / weight_ratio)."
+    );
+
     // The 'back' and 'forward' scattering process names are no longer supported: the
     // scattering angle is now an attribute of the process (see <process>_scattering_angle_model).
     amrex::Vector<std::string> scattering_process_names;
