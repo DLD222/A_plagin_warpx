@@ -96,6 +96,9 @@ MultiReducedDiags::MultiReducedDiags (const warpx::runtime::RuntimeContext* ctx)
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 reduced_diags_dictionary.contains(rd_type),
                 rd_type + " is not a valid type for reduced diagnostic " + rd_name
+#if !defined(AMREX_USE_EB)
+                    + " (ChargeOnEB is only available in a build with EB support)"
+#endif
             );
 
             return reduced_diags_dictionary.at(rd_type)(rd_name);
