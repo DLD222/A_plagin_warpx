@@ -5,8 +5,8 @@
 
 | 报告 | 条目 | 严重度 | 标题 | 状态 |
 |---|---|---|---|---|
-| Benchmarks | F1 | major | `mie_cylinder.rcs()` 多乘了 `j^n`，RCS 角分布整体旋转 90°（自检打印 0.93 却无断言） | todo |
-| Benchmarks | F2 | major | Mie `by` 偏振的数值归一化少一个 `1/c`，近场 L2 误差恒为 ~100% | todo |
+| Benchmarks | F1 | major | `mie_cylinder.rcs()` 多乘了 `j^n`，RCS 角分布整体旋转 90°（自检打印 0.93 却无断言） | fixed |
+| Benchmarks | F2 | major | Mie `by` 偏振的数值归一化少一个 `1/c`，近场 L2 误差恒为 ~100% | fixed |
 | Benchmarks | F3 | major | `sigma_exponential_test.py` 用 Crank–Nicolson 冒充代码里的 backward Euler | todo |
 | Benchmarks | F4 | major | `inputs_tm` 的初值磁场符号反了 → 波朝 −z 传播（与算例说明相反） | todo |
 | Benchmarks | F5 | major | `verify_medium_wave.py` 的"相速度"判据有 +105% 系统偏差，正确解也会 FAIL | todo |
