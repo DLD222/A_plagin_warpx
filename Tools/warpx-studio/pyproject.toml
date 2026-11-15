@@ -1,0 +1,19 @@
+[project]
+name = "warpx-studio"
+version = "0.1.0"
+description = "Graphical simulation studio for this WarpX fork (form -> validate -> run -> live view)"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["warpx_studio*"]
+
+[tool.setuptools.package-data]
+"warpx_studio.catalog" = ["data/*.json"]
