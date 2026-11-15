@@ -1,7 +1,3 @@
-#include "Runtime/IFilterBank.H"
-#include "Runtime/IGeometryProvider.H"
-#include "Runtime/IParticleContainerAccess.H"
-#include "Runtime/ISpeciesMetadata.H"
 /* Copyright 2026 DLD222
  *
  * This file is part of WarpX.

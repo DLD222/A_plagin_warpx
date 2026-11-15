@@ -377,10 +377,7 @@ int WarpXHostServices::hybridPicSubsteps () const
     return hybrid ? hybrid->m_substeps : -1;
 }
 
-} // namespace warpx::runtime
 
-namespace warpx::runtime
-{
 int WarpXHostServices::getNumParticlesInContainer (const std::string& species, int boundary, bool local)
 {
     return m_warpx.GetParticleBoundaryBuffer().getNumParticlesInContainer(species, boundary, local);
