@@ -94,7 +94,10 @@ bash Tools/verify/run_gates.sh
 
 因此共用工作树时：
 
-1. **禁止 `git add -A` / `git add .` / `git commit -a`**。只 `git add <你改的那些具体路径>`。
+1. **禁止 `git add -A` / `git add .` / `git commit -a`**。用
+   `git commit -F <msg> -- <你的路径...>`：`--` 后面的路径让 git 只提交这些路径的**工作树状态**、
+   完全绕开 index，所以别人已 staged 的改动不会被你带走（`git add` + `git commit` 仍会带走
+   整个 index —— 2026-11-15 已经这样发生过两次：`93afb3b` 与 `b1a9a58`）。
 2. 提交前跑 `git status --porcelain`，逐个确认待提交路径都是你改的；不是你的，**不要提交**。
 3. 构建/测试会互相干扰（同一个 `audit_build/fork`）：改代码前先看一眼 `ps -eo args | grep -E "ctest|warpx\."`，
    别人在跑全量时不要重建二进制（会让你自己的对比结果失真，也会让对方的运行中途换二进制）。
