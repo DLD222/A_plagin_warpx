@@ -37,10 +37,10 @@
 | Source_Core_Misc | F1 | major | `doDirectGatherVectorField(order,…)` 运行时版本对非法阶数**静默不做任何 gather** | fixed |
 | Source_Core_Misc | F2 | major | split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致） | todo |
 | Source_Core_Misc | F3 | minor | `ImplicitOptions::particle_shape` 未初始化，且新增的 `ncomp_*` 块是死状态 | fixed |
-| Source_Core_Misc | F4 | minor | `FilterFunctors.H` 存在两份同 include-guard 的副本 | todo |
-| Source_Core_Misc | F5 | minor | `Fields.H`：FieldType 枚举中段插入新值（数值全平移）——已核查无消费者，仅记录风险 | todo |
-| Source_Core_Misc | F6 | minor | `WarpXSolver{DOF,Vec}` 把 `"vector_potential_fp_nodal"` 映射到 `FieldType::vector_potential_fp_noda | todo |
-| Source_Core_Misc | F7 | minor | main.cpp：`Runtime` 构造期抛异常时 AMReX/MPI/PETSc 永不收尾（无 try/catch） | todo |
+| Source_Core_Misc | F4 | minor | `FilterFunctors.H` 存在两份同 include-guard 的副本 | fixed |
+| Source_Core_Misc | F5 | minor | `Fields.H`：FieldType 枚举中段插入新值（数值全平移）——已核查无消费者，仅记录风险 | invalid |
+| Source_Core_Misc | F6 | minor | `WarpXSolver{DOF,Vec}` 把 `"vector_potential_fp_nodal"` 映射到 `FieldType::vector_potential_fp_noda | fixed |
+| Source_Core_Misc | F7 | minor | main.cpp：`Runtime` 构造期抛异常时 AMReX/MPI/PETSc 永不收尾（无 try/catch） | fixed |
 | Source_Core_Runtime_A | F1 | major | `SpeciesHandle::numberOfParticles()` 永远返回启动时的粒子数（过期快照） | fixed |
 | Source_Core_Runtime_A | F2 | major | `declare()` 的规格会参与 `add()` 的写冲突检查 → "先声明计划、后注册执行 handler"这一受支持模式会直接抛异常 | fixed |
 | Source_Core_Runtime_A | F3 | major | 生命周期钩子 `on_level_created` / `on_checkpoint` / `on_restart` 从未被调用（死 API） | fixed |
