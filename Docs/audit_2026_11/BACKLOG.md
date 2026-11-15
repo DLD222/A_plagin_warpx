@@ -7,9 +7,9 @@
 |---|---|---|---|---|
 | Benchmarks | F1 | major | `mie_cylinder.rcs()` 多乘了 `j^n`，RCS 角分布整体旋转 90°（自检打印 0.93 却无断言） | fixed |
 | Benchmarks | F2 | major | Mie `by` 偏振的数值归一化少一个 `1/c`，近场 L2 误差恒为 ~100% | fixed |
-| Benchmarks | F3 | major | `sigma_exponential_test.py` 用 Crank–Nicolson 冒充代码里的 backward Euler | todo |
+| Benchmarks | F3 | major | `sigma_exponential_test.py` 用 Crank–Nicolson 冒充代码里的 backward Euler | fixed |
 | Benchmarks | F4 | major | `inputs_tm` 的初值磁场符号反了 → 波朝 −z 传播（与算例说明相反） | todo |
-| Benchmarks | F5 | major | `verify_medium_wave.py` 的"相速度"判据有 +105% 系统偏差，正确解也会 FAIL | todo |
+| Benchmarks | F5 | major | `verify_medium_wave.py` 的"相速度"判据有 +105% 系统偏差，正确解也会 FAIL | fixed |
 | Benchmarks | F6 | major | 多个分析脚本没有对应的输入文件，无法复现 | todo |
 | Benchmarks | F7 | major | 复现命令必然失败：所有 runner 的默认二进制路径是相对**运行目录**的 | todo |
 | Benchmarks | F8 | minor | `inputs_ect_2d_degen` 的注释把 PEC 侧写反，且 `fp2` 落在导体内部使一半比较失效 | todo |
