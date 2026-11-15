@@ -100,6 +100,27 @@ def run_checks(port: int) -> None:
     check("可重复组", sum(1 for g in catalog["groups"] if g.startswith("<")) >= 6,
           str([g for g in catalog["groups"] if g.startswith("<")]))
     check("枚举选项", counts["with_options"] >= 20, f"{counts['with_options']} 个参数有下拉选项")
+
+    # ---- v2: AST 扫描与 v1 正则的覆盖对比（目标要求给出升级前后的数字） ----
+    data = STUDIO / "warpx_studio/catalog/data"
+    import json as _json
+    regex_sites = _json.loads((data / "param_sites.json").read_text())["sites"]
+    ast_path = data / "param_sites_ast.json"
+    ast_sites = _json.loads(ast_path.read_text())["sites"] if ast_path.exists() else []
+    ast_keys = {s["param"] for s in ast_sites}
+    regex_keys = {s["param"] for s in regex_sites}
+    switch_sites = sum(1 for s in ast_sites if s.get("switch_cases"))
+    ast_required = sum(1 for s in ast_sites if s.get("required"))
+    check("AST 扫描可用", bool(ast_sites),
+          f"clang {len(ast_sites)} 站点 / {len(ast_keys)} 键，其中 switch-case {switch_sites} 条、"
+          f"无条件 get {ast_required} 条")
+    check("两路合并", counts["sites_by_scanner"]["clang"] > 0
+          and counts["sites_by_scanner"]["regex"] > 0,
+          f"clang {counts['sites_by_scanner']['clang']} + regex {counts['sites_by_scanner']['regex']}"
+          f" = {counts['sites']} 站点；键 {len(regex_keys | ast_keys)} 个"
+          f"（仅 clang 新增 {len(ast_keys - regex_keys)}）")
+    check("switch/case gating", counts.get("switch_gated", 0) >= 1,
+          f"{counts.get('switch_gated', 0)} 条读取点位于 switch/case 内")
     check("中文说明", len(zh["params"]) >= 70,
           f"{len(zh['params'])} 条参数译文 + {len(zh['sections'])} 个分区标题")
 

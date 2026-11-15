@@ -165,3 +165,25 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
 
 实测：`POST /api/build {"dims":"1d"}` → `finished 214.4 s`，产出
 `audit_runs/studio_builds/1d-smoke/bin/warpx.1d{,.MPI...}`；随后直接用它跑 30 步 → `finished`，无报错。
+
+## v2 · 阶段 1：libclang AST 扫描（已跑通，42/42 自测）
+
+`catalog/scan_ast.py` 用 libclang 解析 `Source/**` 里含 ParmParse 读取的 112 个 TU（不需要
+`compile_commands.json`：参数取自 `audit_build/fork/.../flags.make` + GCC 系统头 + `-fopenmp`）。
+
+| 指标 | v1 正则 | v2 AST | 合并后目录 |
+|---|---|---|---|
+| 读取点 | 687 | 314 | **780** |
+| 键 | 567 | 276（仅 clang 新增 77） | **644** |
+| 带运行期条件 | 199 | 128 | **194 参数** |
+| 来自 switch/case | 0 | **4** | 4 |
+| 无条件 `get`（真必填） | 0 | **45** | 47 |
+
+两路是互补的：clang 给结构化条件（真实条件表达式、switch/case、"这个 get 是否无条件"），
+正则补齐 clang 只解析了一部分的 TU（碰撞插件那批文件）。合并后参数 732 → **802**。
+
+踩坑记录（都在 `scan_ast.py` 注释里）：
+1. 少了 `-fopenmp` → AMReX 的 `#error` 让整个 TU 解析失败；
+2. 少了 GCC `-isystem` → `stddef.h` 找不到；
+3. `string_literals` 只看直接子节点 → 实参被 `UNEXPOSED_EXPR` 包装，**一个字面量都抓不到**；
+4. helper 形式 `query(pp, section, "key", var)` 的 receiver 是第一个实参（`children[0]` 是 callee 包装）。

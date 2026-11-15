@@ -5,14 +5,20 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 732,
+  "total": 802,
   "documented": 386,
-  "source_only": 346,
-  "with_runtime_gating": 136,
-  "with_gating_rules": 31,
-  "required": 17,
+  "source_only": 416,
+  "with_runtime_gating": 194,
+  "with_gating_rules": 36,
+  "sites": 780,
+  "sites_by_scanner": {
+   "clang": 314,
+   "regex": 466
+  },
+  "switch_gated": 4,
+  "required": 47,
   "with_options": 27,
-  "with_build_guard": 70,
+  "with_build_guard": 60,
   "templates": 3
  },
  "groups": {
@@ -29,6 +35,18 @@
    "asm_overlap",
    "authors",
    "beta",
+   "bin_max_1",
+   "bin_max_2",
+   "bin_max_abs",
+   "bin_max_ord",
+   "bin_min_1",
+   "bin_min_2",
+   "bin_min_abs",
+   "bin_min_ord",
+   "bin_number_1",
+   "bin_number_2",
+   "bin_number_abs",
+   "bin_number_ord",
    "binary_file_name",
    "bottom_verbose",
    "charge",
@@ -36,6 +54,7 @@
    "dBdx",
    "dEdx",
    "delay",
+   "density_min",
    "diag_type",
    "do_device_synchronize",
    "do_similar_dm_pml",
@@ -61,8 +80,10 @@
    "max_step",
    "maxwellian_temperature_in_eV_distribution_type",
    "maxwellian_u_std_distribution_type",
+   "momentum_distribution_type",
    "nonlinear_solver",
    "normal",
+   "num_particles_per_cell",
    "numprocs",
    "particle_hi",
    "particle_lo",
@@ -75,8 +96,15 @@
    "phi2",
    "phi_fp",
    "print_unconverged_particle_details",
+   "profile_duration",
+   "profile_focal_distance",
+   "profile_t_peak",
+   "profile_waist",
    "random_fraction",
    "read_fields_from_path",
+   "read_temperature_in_eV_from_path",
+   "read_u_mean_from_path",
+   "read_u_std_from_path",
    "relative_tolerance",
    "restart_length",
    "rho_fp_",
@@ -112,8 +140,10 @@
    "suborbit_warning_threshold",
    "t",
    "temperature_in_eV",
+   "temperature_in_eV_mesh_name",
    "time_chunk_size",
    "type",
+   "u_th",
    "uniform_stride",
    "use_2d_slices_fft_solver",
    "use_mass_matrices_jacobian",
@@ -233,6 +263,9 @@
   ],
   "<dynamic>": [
    "<dynamic>.all_involved",
+   "<dynamic>.bin_max",
+   "<dynamic>.bin_min",
+   "<dynamic>.bin_number",
    "<dynamic>.do_average",
    "<dynamic>.extension",
    "<dynamic>.file_min_digits",
@@ -275,6 +308,9 @@
    "<laser_name>.zeta"
   ],
   "<reduced_diags_name>": [
+   "<reduced_diags_name>.bin_max",
+   "<reduced_diags_name>.bin_min",
+   "<reduced_diags_name>.bin_number",
    "<reduced_diags_name>.detector_radius",
    "<reduced_diags_name>.do_moving_window_FP",
    "<reduced_diags_name>.file_min_digits",
@@ -284,6 +320,7 @@
    "<reduced_diags_name>.openpmd_backend",
    "<reduced_diags_name>.probe_geometry",
    "<reduced_diags_name>.raw_fields",
+   "<reduced_diags_name>.resolution",
    "<reduced_diags_name>.species",
    "<reduced_diags_name>.target_normal_x",
    "<reduced_diags_name>.target_normal_y",
@@ -295,7 +332,9 @@
    "<reduced_diags_name>.x1_probe",
    "<reduced_diags_name>.x_probe",
    "<reduced_diags_name>.y1_probe",
-   "<reduced_diags_name>.y_probe"
+   "<reduced_diags_name>.y_probe",
+   "<reduced_diags_name>.z1_probe",
+   "<reduced_diags_name>.z_probe"
   ],
   "<solver_name>": [
    "<solver_name>.absolute_tolerance",
@@ -331,7 +370,9 @@
    "<species_name>.addRealAttributes",
    "<species_name>.boost_adjust_transverse_positions",
    "<species_name>.charge",
+   "<species_name>.density",
    "<species_name>.density_max",
+   "<species_name>.density_mesh_name",
    "<species_name>.density_min",
    "<species_name>.do_adk_correction",
    "<species_name>.do_backward_propagation",
@@ -350,6 +391,9 @@
    "<species_name>.do_splitting",
    "<species_name>.do_symmetrize",
    "<species_name>.do_temperature_deposition",
+   "<species_name>.flux",
+   "<species_name>.flux_direction",
+   "<species_name>.flux_normal_axis",
    "<species_name>.flux_profile",
    "<species_name>.flux_tmax",
    "<species_name>.flux_tmin",
@@ -358,13 +402,16 @@
    "<species_name>.impose_t_lab_from_file",
    "<species_name>.initialize_self_fields",
    "<species_name>.inject_from_embedded_boundary",
+   "<species_name>.injection_file",
    "<species_name>.injection_sources",
    "<species_name>.injection_style",
    "<species_name>.ionization_initial_level",
    "<species_name>.ionization_product_species",
    "<species_name>.mass",
    "<species_name>.momentum_distribution_type",
+   "<species_name>.npart",
    "<species_name>.npart_real",
+   "<species_name>.num_particles_per_cell",
    "<species_name>.num_particles_per_cell_each_dim",
    "<species_name>.physical_element",
    "<species_name>.plot_species",
@@ -378,8 +425,12 @@
    "<species_name>.radial_numpercell_power",
    "<species_name>.random_theta",
    "<species_name>.read_density_distributed",
+   "<species_name>.read_density_from_path",
    "<species_name>.resampling_algorithm",
+   "<species_name>.resampling_algorithm_delta_ur",
    "<species_name>.resampling_algorithm_min_ppc",
+   "<species_name>.resampling_algorithm_n_phi",
+   "<species_name>.resampling_algorithm_n_theta",
    "<species_name>.resampling_algorithm_target_ratio",
    "<species_name>.resampling_algorithm_target_weight",
    "<species_name>.resampling_algorithm_velocity_grid_type",
@@ -393,8 +444,10 @@
    "<species_name>.self_fields_max_iters",
    "<species_name>.self_fields_required_precision",
    "<species_name>.self_fields_verbosity",
+   "<species_name>.single_particle_weight",
    "<species_name>.species_type",
    "<species_name>.split_type",
+   "<species_name>.surface_flux_pos",
    "<species_name>.symmetrization_order",
    "<species_name>.ux",
    "<species_name>.ux_m",
@@ -412,13 +465,19 @@
    "<species_name>.uz_min",
    "<species_name>.uz_th",
    "<species_name>.x_cut",
+   "<species_name>.x_m",
+   "<species_name>.x_rms",
    "<species_name>.xmax",
    "<species_name>.xmin",
    "<species_name>.xmin/ymin/zmin/xmax/ymax/zmax",
    "<species_name>.y_cut",
+   "<species_name>.y_m",
+   "<species_name>.y_rms",
    "<species_name>.ymax",
    "<species_name>.ymin",
    "<species_name>.z_cut",
+   "<species_name>.z_m",
+   "<species_name>.z_rms",
    "<species_name>.z_shift",
    "<species_name>.zinject_plane",
    "<species_name>.zmax",
@@ -612,7 +671,9 @@
    "particles.nspecies",
    "particles.photon_species",
    "particles.read_fields_from_path",
+   "particles.repeated_plasma_lens_period",
    "particles.rigid_injected_species",
+   "particles.save_particle_production",
    "particles.species_names",
    "particles.use_fdtd_nci_corr"
   ],
@@ -647,14 +708,29 @@
    "qed_bw.chi_min",
    "qed_bw.load_table_from",
    "qed_bw.lookup_table_mode",
-   "qed_bw.save_table_in"
+   "qed_bw.save_table_in",
+   "qed_bw.tab_dndt_chi_max",
+   "qed_bw.tab_dndt_chi_min",
+   "qed_bw.tab_dndt_how_many",
+   "qed_bw.tab_pair_chi_how_many",
+   "qed_bw.tab_pair_chi_max",
+   "qed_bw.tab_pair_chi_min",
+   "qed_bw.tab_pair_frac_how_many"
   ],
   "qed_qs": [
    "qed_qs.chi_min",
    "qed_qs.load_table_from",
    "qed_qs.lookup_table_mode",
    "qed_qs.photon_creation_energy_threshold",
-   "qed_qs.save_table_in"
+   "qed_qs.save_table_in",
+   "qed_qs.tab_dndt_chi_max",
+   "qed_qs.tab_dndt_chi_min",
+   "qed_qs.tab_dndt_how_many",
+   "qed_qs.tab_em_chi_how_many",
+   "qed_qs.tab_em_chi_max",
+   "qed_qs.tab_em_chi_min",
+   "qed_qs.tab_em_frac_how_many",
+   "qed_qs.tab_em_frac_min"
   ],
   "qed_schwinger": [
    "qed_schwinger.ele_product_species",
@@ -921,7 +997,19 @@
    "optional": false,
    "doc": "Only for background_stopping, where it is required when background_type is set to ions. This specifies the charge state of the background ions.",
    "doc_section": "Collision models",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/Collision/BackgroundStopping/BackgroundStopping.cpp",
+     "line": 89,
+     "variable": "m_background_charge_state",
+     "conditions": [
+      "if (m_background_type == BackgroundStoppingType::ELECTRONS)",
+      "if (m_background_type == BackgroundStoppingType::IONS)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
    "source_only": false,
    "required": false,
    "options": []
@@ -938,7 +1026,9 @@
      "file": "Source/Plugins/Collision/BackgroundMCC/BackgroundMCCCollision.cpp",
      "line": 45,
      "variable": "background_density",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_collision_name, \"background_density\", background_density))"
+     ],
      "required": false,
      "options": []
     },
@@ -946,7 +1036,9 @@
      "file": "Source/Plugins/Collision/BackgroundStopping/BackgroundStopping.cpp",
      "line": 50,
      "variable": "background_density",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_collision_name, \"background_density\", background_density))"
+     ],
      "required": false,
      "options": []
     }
@@ -980,6 +1072,17 @@
      ],
      "required": false,
      "options": []
+    },
+    {
+     "file": "Source/Plugins/Collision/BackgroundStopping/BackgroundStopping.cpp",
+     "line": 87,
+     "variable": "m_background_mass",
+     "conditions": [
+      "if (m_background_type == BackgroundStoppingType::ELECTRONS)",
+      "if (m_background_type == BackgroundStoppingType::IONS)"
+     ],
+     "required": false,
+     "options": []
     }
    ],
    "source_only": false,
@@ -998,7 +1101,9 @@
      "file": "Source/Plugins/Collision/BackgroundMCC/BackgroundMCCCollision.cpp",
      "line": 61,
      "variable": "background_temperature",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_collision_name, \"background_temperature\", background_temperature))"
+     ],
      "required": false,
      "options": []
     },
@@ -1006,7 +1111,9 @@
      "file": "Source/Plugins/Collision/BackgroundStopping/BackgroundStopping.cpp",
      "line": 65,
      "variable": "background_temperature",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_collision_name, \"background_temperature\", background_temperature))"
+     ],
      "required": false,
      "options": []
     }
@@ -2331,7 +2438,9 @@
      "file": "Source/Plugins/Diagnostics/BTDiagnostics.cpp",
      "line": 268,
      "variable": "m_dz_snapshots_lab",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_diag_name, \"dz_snapshots_lab\", m_dz_snapshots_lab))"
+     ],
      "required": false,
      "options": []
     }
@@ -2829,6 +2938,69 @@
    ],
    "source_only": true,
    "required": false,
+   "options": []
+  },
+  {
+   "name": "<dynamic>.bin_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity.cpp",
+     "line": 84,
+     "variable": "bin_max",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<dynamic>.bin_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity.cpp",
+     "line": 85,
+     "variable": "bin_min",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<dynamic>.bin_number",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity.cpp",
+     "line": 83,
+     "variable": "bin_num",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
    "options": []
   },
   {
@@ -3434,9 +3606,18 @@
    "optional": false,
    "doc": "The wavelength of the laser in vacuum. When running a **boosted-frame simulation**, provide the value of <laser_name>.wavelength in the laboratory frame, and use warpx.gamma_boost to automatically perform the conversion to the boosted frame.",
    "doc_section": "Laser initialization",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/LaserParticleContainer.cpp",
+     "line": 110,
+     "variable": "m_wavelength",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
    "source_only": false,
-   "required": false,
+   "required": true,
    "options": []
   },
   {
@@ -3452,6 +3633,69 @@
    "options": []
   },
   {
+   "name": "<reduced_diags_name>.bin_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram.cpp",
+     "line": 68,
+     "variable": "bin_max",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram.cpp",
+     "line": 69,
+     "variable": "bin_min",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram.cpp",
+     "line": 67,
+     "variable": "bin_num",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
    "name": "<reduced_diags_name>.detector_radius",
    "type": null,
    "default": null,
@@ -3464,6 +3708,8 @@
      "line": 142,
      "variable": "detector_radius",
      "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
       "if (m_probe_geometry_str == \"Plane\")"
      ],
      "required": false,
@@ -3663,6 +3909,42 @@
    "options": []
   },
   {
+   "name": "<reduced_diags_name>.resolution",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 143,
+     "variable": "m_resolution",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
+      "if (m_probe_geometry_str == \"Plane\")"
+     ],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 122,
+     "variable": "m_resolution",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<reduced_diags_name>.species",
    "type": null,
    "default": null,
@@ -3792,6 +4074,8 @@
      "line": 140,
      "variable": "target_up_x",
      "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
       "if (m_probe_geometry_str == \"Plane\")"
      ],
      "required": false,
@@ -3839,6 +4123,8 @@
      "line": 141,
      "variable": "target_up_z",
      "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
       "if (m_probe_geometry_str == \"Plane\")"
      ],
      "required": false,
@@ -3883,8 +4169,8 @@
      "line": 112,
      "variable": "x1_probe",
      "conditions": [
-      "if (m_probe_geometry_str == \"Line\")",
-      "#if !defined(WARPX_DIM_1D_Z)"
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")"
      ],
      "required": false,
      "options": []
@@ -3907,8 +4193,8 @@
      "line": 111,
      "variable": "x_probe",
      "conditions": [
-      "if (m_probe_geometry_str == \"Line\")",
-      "#if !defined(WARPX_DIM_1D_Z)"
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")"
      ],
      "required": false,
      "options": []
@@ -3918,7 +4204,19 @@
      "line": 138,
      "variable": "x_probe",
      "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
       "if (m_probe_geometry_str == \"Plane\")"
+     ],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 95,
+     "variable": "x_probe",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")"
      ],
      "required": false,
      "options": []
@@ -3978,6 +4276,76 @@
      "conditions": [
       "if (m_probe_geometry_str == \"Plane\")",
       "#if defined(WARPX_DIM_3D)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<reduced_diags_name>.z1_probe",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 120,
+     "variable": "z1_probe",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<reduced_diags_name>.z_probe",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 139,
+     "variable": "z_probe",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")",
+      "if (m_probe_geometry_str == \"Plane\")"
+     ],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 119,
+     "variable": "z_probe",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")",
+      "if (m_probe_geometry_str == \"Line\")"
+     ],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 103,
+     "variable": "z_probe",
+     "conditions": [
+      "if (m_probe_geometry_str == \"Point\")"
      ],
      "required": false,
      "options": []
@@ -4625,6 +4993,29 @@
    "options": []
   },
   {
+   "name": "<species_name>.density",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/SpeciesUtils.cpp",
+     "line": 94,
+     "variable": "density",
+     "conditions": [
+      "if (rho_prof_s == \"constant\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<species_name>.density_max",
    "type": "float",
    "default": "infinity",
@@ -4642,6 +5033,31 @@
     }
    ],
    "source_only": false,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.density_mesh_name",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/SpeciesUtils.cpp",
+     "line": 110,
+     "variable": "field_name",
+     "conditions": [
+      "if (rho_prof_s == \"constant\")",
+      "if (rho_prof_s == \"parse_density_function\")",
+      "if (rho_prof_s == \"read_from_file\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
    "required": false,
    "options": []
   },
@@ -5085,15 +5501,93 @@
    "options": []
   },
   {
+   "name": "<species_name>.flux",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 594,
+     "variable": "flux",
+     "conditions": [
+      "if (flux_prof_s == \"constant\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.flux_direction",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 399,
+     "variable": "flux_direction",
+     "conditions": [
+      "if (m_inject_from_eb)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.flux_normal_axis",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 360,
+     "variable": "flux_normal_axis_string",
+     "conditions": [
+      "if (m_inject_from_eb)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<species_name>.flux_profile",
    "type": "string",
    "default": null,
    "optional": false,
    "doc": "Defines the expression of the flux, when using <species_name>.injection_style = NFluxPerCell * constant: Constant flux. This requires the additional parameter <species_name>.flux. i.e., the injection flux in m^{-2}.s^{-1}. * parse_flux_function: the flux is given by a function in the input file. It requires the additional argument <species_name>.flux_function(x,y,z,t), which is a mathematical expression for the flux of the species.",
    "doc_section": "Particle initialization",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 590,
+     "variable": "flux_prof_s",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
    "source_only": false,
-   "required": false,
+   "required": true,
    "options": []
   },
   {
@@ -5248,6 +5742,27 @@
    "options": []
   },
   {
+   "name": "<species_name>.injection_file",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 489,
+     "variable": "str_injection_file",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
    "name": "<species_name>.injection_sources",
    "type": "list of strings",
    "default": null,
@@ -5293,6 +5808,14 @@
       "nuniformpercell",
       "singleparticle"
      ]
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 128,
+     "variable": "injection_style",
+     "conditions": [],
+     "required": false,
+     "options": []
     }
    ],
    "source_only": false,
@@ -5426,6 +5949,14 @@
      "options": [
       "maxwell_boltzmann"
      ]
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/SpeciesUtils.cpp",
+     "line": 135,
+     "variable": "mom_dist_s",
+     "conditions": [],
+     "required": true,
+     "options": []
     }
    ],
    "source_only": false,
@@ -5435,6 +5966,27 @@
     "maxwell_juttner",
     "radial_expansion"
    ]
+  },
+  {
+   "name": "<species_name>.npart",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 250,
+     "variable": "npart",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
   },
   {
    "name": "<species_name>.npart_real",
@@ -5450,6 +6002,35 @@
      "variable": "N_tot",
      "conditions": [],
      "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.num_particles_per_cell",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 330,
+     "variable": "num_particles_per_cell_real",
+     "conditions": [],
+     "required": true,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 299,
+     "variable": "num_particles_per_cell",
+     "conditions": [],
+     "required": true,
      "options": []
     }
    ],
@@ -5542,6 +6123,14 @@
      "options": [
       "parse_density_function"
      ]
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/SpeciesUtils.cpp",
+     "line": 89,
+     "variable": "rho_prof_s",
+     "conditions": [],
+     "required": true,
+     "options": []
     }
    ],
    "source_only": false,
@@ -5769,6 +6358,31 @@
    "options": []
   },
   {
+   "name": "<species_name>.read_density_from_path",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/SpeciesUtils.cpp",
+     "line": 109,
+     "variable": "density_file",
+     "conditions": [
+      "if (rho_prof_s == \"constant\")",
+      "if (rho_prof_s == \"parse_density_function\")",
+      "if (rho_prof_s == \"read_from_file\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<species_name>.resampling_algorithm",
    "type": "string",
    "default": "leveling_thinning",
@@ -5796,6 +6410,29 @@
    ]
   },
   {
+   "name": "<species_name>.resampling_algorithm_delta_ur",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Resampling/VelocityCoincidenceThinning.cpp",
+     "line": 42,
+     "variable": "m_delta_ur",
+     "conditions": [
+      "if (velocity_grid_type_str == \"spherical\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<species_name>.resampling_algorithm_min_ppc",
    "type": null,
    "default": null,
@@ -5808,6 +6445,52 @@
      "line": 61,
      "variable": "backward_min_ppc",
      "conditions": [],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_n_phi",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Resampling/VelocityCoincidenceThinning.cpp",
+     "line": 48,
+     "variable": "m_nphi",
+     "conditions": [
+      "if (velocity_grid_type_str == \"spherical\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_n_theta",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Resampling/VelocityCoincidenceThinning.cpp",
+     "line": 45,
+     "variable": "m_ntheta",
+     "conditions": [
+      "if (velocity_grid_type_str == \"spherical\")"
+     ],
      "required": false,
      "options": []
     }
@@ -5849,7 +6532,9 @@
      "file": "Source/Plugins/ParticleCore/Particles/Resampling/VelocityCoincidenceThinning.cpp",
      "line": 29,
      "variable": "target_weight",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser( pp_species_name, \"resampling_algorithm_target_weight\", target_weight ))"
+     ],
      "required": false,
      "options": []
     }
@@ -6096,6 +6781,27 @@
    "options": []
   },
   {
+   "name": "<species_name>.single_particle_weight",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 203,
+     "variable": "single_particle_weight",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
    "name": "<species_name>.species_type",
    "type": "string",
    "default": "unspecified",
@@ -6156,6 +6862,29 @@
    "options": []
   },
   {
+   "name": "<species_name>.surface_flux_pos",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 358,
+     "variable": "surface_flux_pos",
+     "conditions": [
+      "if (m_inject_from_eb)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "<species_name>.symmetrization_order",
    "type": null,
    "default": null,
@@ -6189,6 +6918,7 @@
      "line": 150,
      "variable": "ux",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
       "if (mom_dist_s == \"constant\")"
      ],
      "required": false,
@@ -6212,6 +6942,8 @@
      "line": 162,
      "variable": "ux_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6222,6 +6954,9 @@
      "line": 180,
      "variable": "ux_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6245,6 +6980,10 @@
      "line": 200,
      "variable": "ux_max",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6268,6 +7007,10 @@
      "line": 197,
      "variable": "ux_min",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6291,6 +7034,8 @@
      "line": 165,
      "variable": "ux_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6301,6 +7046,9 @@
      "line": 183,
      "variable": "ux_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6324,6 +7072,7 @@
      "line": 151,
      "variable": "uy",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
       "if (mom_dist_s == \"constant\")"
      ],
      "required": false,
@@ -6347,6 +7096,8 @@
      "line": 163,
      "variable": "uy_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6357,6 +7108,9 @@
      "line": 181,
      "variable": "uy_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6380,6 +7134,10 @@
      "line": 201,
      "variable": "uy_max",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6403,6 +7161,10 @@
      "line": 198,
      "variable": "uy_min",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6426,6 +7188,8 @@
      "line": 166,
      "variable": "uy_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6436,6 +7200,9 @@
      "line": 184,
      "variable": "uy_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6459,6 +7226,7 @@
      "line": 152,
      "variable": "uz",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
       "if (mom_dist_s == \"constant\")"
      ],
      "required": false,
@@ -6482,6 +7250,8 @@
      "line": 164,
      "variable": "uz_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6492,6 +7262,9 @@
      "line": 182,
      "variable": "uz_m",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6515,6 +7288,10 @@
      "line": 202,
      "variable": "uz_max",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6538,6 +7315,10 @@
      "line": 199,
      "variable": "uz_min",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
+      "if (mom_dist_s == \"gaussianflux\")",
       "if (mom_dist_s == \"uniform\")"
      ],
      "required": false,
@@ -6561,6 +7342,8 @@
      "line": 167,
      "variable": "uz_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
       "if (mom_dist_s == \"gaussian\")"
      ],
      "required": false,
@@ -6571,6 +7354,9 @@
      "line": 185,
      "variable": "uz_th",
      "conditions": [
+      "if (mom_dist_s == \"at_rest\")",
+      "if (mom_dist_s == \"constant\")",
+      "if (mom_dist_s == \"gaussian\")",
       "if (mom_dist_s == \"gaussianflux\")"
      ],
      "required": false,
@@ -6600,6 +7386,48 @@
    ],
    "source_only": true,
    "required": false,
+   "options": []
+  },
+  {
+   "name": "<species_name>.x_m",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 232,
+     "variable": "x_m",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<species_name>.x_rms",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 235,
+     "variable": "x_rms",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
    "options": []
   },
   {
@@ -6678,6 +7506,48 @@
    "options": []
   },
   {
+   "name": "<species_name>.y_m",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 233,
+     "variable": "y_m",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<species_name>.y_rms",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 236,
+     "variable": "y_rms",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
    "name": "<species_name>.ymax",
    "type": null,
    "default": null,
@@ -6741,6 +7611,48 @@
    "options": []
   },
   {
+   "name": "<species_name>.z_m",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 234,
+     "variable": "z_m",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "<species_name>.z_rms",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/PlasmaInjector.cpp",
+     "line": 237,
+     "variable": "z_rms",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
    "name": "<species_name>.z_shift",
    "type": null,
    "default": null,
@@ -6768,9 +7680,18 @@
    "optional": false,
    "doc": "Only read if <species_name> is in particles.rigid_injected_species. Injection plane when using the rigid injection method. See particles.rigid_injected_species above.",
    "doc_section": "Particle initialization",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/RigidInjectedParticleContainer.cpp",
+     "line": 72,
+     "variable": "zinject_plane",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
    "source_only": false,
-   "required": false,
+   "required": true,
    "options": []
   },
   {
@@ -6872,10 +7793,10 @@
      "line": 459,
      "variable": null,
      "conditions": [
-      "if ((WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::Yee || WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC || ( (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame || WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic) && WarpX::poisson_solver_id == PoissonSolverAlgo::Multigrid)) #if defined(WARPX_DIM_RZ) && WarpX::grid_type == GridType::Staggered #endif)",
+      "if ((WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::Yee || WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC || ( (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame || WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic) && WarpX::poisson_solver_id == PoissonSolverAlgo::Multigrid)))",
       "if (m_fields.has_vector(\"B_external_particle_field\", 0))"
      ],
-     "required": true,
+     "required": false,
      "options": []
     }
    ],
@@ -6894,14 +7815,16 @@
     {
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 4087,
-     "variable": "dir",
-     "conditions": [],
-     "required": true,
+     "variable": "lev",
+     "conditions": [
+      "switch (field_type)"
+     ],
+     "required": false,
      "options": []
     }
    ],
    "source_only": true,
-   "required": true,
+   "required": false,
    "options": []
   },
   {
@@ -6959,14 +7882,16 @@
     {
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 4084,
-     "variable": "dir",
-     "conditions": [],
-     "required": true,
+     "variable": "lev",
+     "conditions": [
+      "switch (field_type)"
+     ],
+     "required": false,
      "options": []
     }
    ],
    "source_only": true,
-   "required": true,
+   "required": false,
    "options": []
   },
   {
@@ -7430,9 +8355,18 @@
      "line": 1716,
      "variable": "particle_shape",
      "conditions": [
-      "if (!species_names.empty() || !lasers_names.empty())"
+      "if (!species_names.empty() || !lasers_names.empty())",
+      "if (utils::parser::queryWithParser(pp_algo, \"particle_shape\", particle_shape))"
      ],
      "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldProbe.cpp",
+     "line": 174,
+     "variable": "particle_shape",
+     "conditions": [],
+     "required": true,
      "options": []
     }
    ],
@@ -7780,7 +8714,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
      "line": 46,
-     "variable": "m_params.beta",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -7788,6 +8722,258 @@
    ],
    "source_only": true,
    "required": false,
+   "options": []
+  },
+  {
+   "name": "bin_max_1",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 101,
+     "variable": "bin_max_1",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_max_2",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 112,
+     "variable": "bin_max_2",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_max_abs",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 78,
+     "variable": "m_bin_max_abs",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_max_ord",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 82,
+     "variable": "m_bin_max_ord",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_min_1",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 102,
+     "variable": "bin_min_1",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_min_2",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 113,
+     "variable": "bin_min_2",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_min_abs",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 79,
+     "variable": "m_bin_min_abs",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_min_ord",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 83,
+     "variable": "m_bin_min_ord",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_number_1",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 100,
+     "variable": "bin_num_1",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_number_2",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/DifferentialLuminosity2D.cpp",
+     "line": 111,
+     "variable": "bin_num_2",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_number_abs",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 77,
+     "variable": "m_bin_num_abs",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "bin_number_ord",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Diagnostics/ReducedDiags/ParticleHistogram2D.cpp",
+     "line": 81,
+     "variable": "m_bin_num_ord",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
    "options": []
   },
   {
@@ -8428,8 +9614,32 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileFromFile.cpp",
      "line": 101,
-     "variable": "m_params.t_delay",
+     "variable": null,
      "conditions": [],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "density_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/PicEm/Modules/Initialization/WarpXInitData.cpp",
+     "line": 408,
+     "variable": "density_min",
+     "conditions": [
+      "if (split_high_density_boxes)",
+      "if (profile == \"parse_density_function\" && pp_spec.queryline(\"density_function(x,y,z)\", density_function))"
+     ],
      "required": false,
      "options": []
     }
@@ -9036,7 +10246,9 @@
      "file": "Source/Plugins/PicEm/Modules/HybridPIC/HybridPICModel/HybridPICModel.cpp",
      "line": 86,
      "variable": "m_elec_temp",
-     "conditions": [],
+     "conditions": [
+      "if (!utils::parser::queryWithParser(pp_hybrid, \"elec_temp\", m_elec_temp))"
+     ],
      "required": false,
      "options": []
     }
@@ -9877,7 +11089,9 @@
      "file": "Source/Plugins/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp",
      "line": 74,
      "variable": "m_epsilon",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_macroscopic, \"epsilon\", m_epsilon))"
+     ],
      "required": false,
      "options": []
     }
@@ -9919,7 +11133,9 @@
      "file": "Source/Plugins/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp",
      "line": 226,
      "variable": "m_mu",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_macroscopic, \"mu\", m_mu))"
+     ],
      "required": false,
      "options": []
     }
@@ -9940,7 +11156,9 @@
      "file": "Source/Plugins/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp",
      "line": 49,
      "variable": "m_sigma",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(pp_macroscopic, \"sigma\", m_sigma))"
+     ],
      "required": false,
      "options": []
     }
@@ -10212,6 +11430,47 @@
      ],
      "required": false,
      "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 163,
+     "variable": "u_std_dist_s",
+     "conditions": [
+      "if (mom_dist_s == \"maxwell_juttner\")",
+      "if (mom_dist_s == \"maxwellian\")",
+      "if (use_temperature_in_eV)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "momentum_distribution_type",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 129,
+     "variable": "mom_dist_s",
+     "conditions": [],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/VelocityProperties.cpp",
+     "line": 114,
+     "variable": "mom_dist_s",
+     "conditions": [],
+     "required": false,
+     "options": []
     }
    ],
    "source_only": true,
@@ -10349,6 +11608,46 @@
      "variable": "thermalizer_normal",
      "conditions": [
       "if (!m_particle_thermalizer)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "num_particles_per_cell",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/PicEm/Modules/Initialization/WarpXInitData.cpp",
+     "line": 138,
+     "variable": "num_particles_per_cell",
+     "conditions": [
+      "if (injection_style == \"singleparticle\")",
+      "if (injection_style == \"multipleparticles\")",
+      "if (injection_style == \"gaussian_beam\")",
+      "if (injection_style == \"nrandompercell\")",
+      "if (injection_style == \"nfluxpercell\")"
+     ],
+     "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/PicEm/Modules/Initialization/WarpXInitData.cpp",
+     "line": 134,
+     "variable": "num_particles_per_cell",
+     "conditions": [
+      "if (injection_style == \"singleparticle\")",
+      "if (injection_style == \"multipleparticles\")",
+      "if (injection_style == \"gaussian_beam\")",
+      "if (injection_style == \"nrandompercell\")"
      ],
      "required": false,
      "options": []
@@ -10892,6 +12191,30 @@
    "options": []
   },
   {
+   "name": "particles.repeated_plasma_lens_period",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 220,
+     "variable": "m_repeated_plasma_lens_period",
+     "conditions": [
+      "if (!m_params_initialized)",
+      "if (m_E_ext_particle_s == \"repeated_plasma_lens\" || m_B_ext_particle_s == \"repeated_plasma_lens\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "particles.rigid_injected_species",
    "type": "strings, separated by spaces",
    "default": null,
@@ -10900,6 +12223,27 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "particles.save_particle_production",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/Collision/CollisionHandler.cpp",
+     "line": 139,
+     "variable": "save_production",
+     "conditions": [],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
    "required": false,
    "options": []
   },
@@ -11010,7 +12354,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
      "line": 48,
-     "variable": "m_params.phi0",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -11031,7 +12375,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
      "line": 47,
-     "variable": "m_params.phi2",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -11053,13 +12397,15 @@
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 4093,
      "variable": "lev",
-     "conditions": [],
-     "required": true,
+     "conditions": [
+      "switch (field_type)"
+     ],
+     "required": false,
      "options": []
     }
    ],
    "source_only": true,
-   "required": true,
+   "required": false,
    "options": []
   },
   {
@@ -11112,6 +12458,90 @@
    ],
    "source_only": true,
    "required": false,
+   "options": []
+  },
+  {
+   "name": "profile_duration",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
+     "line": 42,
+     "variable": null,
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "profile_focal_distance",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
+     "line": 44,
+     "variable": null,
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "profile_t_peak",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
+     "line": 43,
+     "variable": null,
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
+   "options": []
+  },
+  {
+   "name": "profile_waist",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
+     "line": 41,
+     "variable": null,
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": true,
    "options": []
   },
   {
@@ -11228,7 +12658,10 @@
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 1843,
      "variable": "nox_fft",
-     "conditions": [],
+     "conditions": [
+      "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+      "if (nox_str == \"inf\")"
+     ],
      "required": false,
      "options": []
     }
@@ -11271,7 +12704,10 @@
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 1848,
      "variable": "noy_fft",
-     "conditions": [],
+     "conditions": [
+      "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+      "if (noy_str == \"inf\")"
+     ],
      "required": false,
      "options": []
     }
@@ -11302,7 +12738,10 @@
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 1853,
      "variable": "noz_fft",
-     "conditions": [],
+     "conditions": [
+      "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+      "if (noz_str == \"inf\")"
+     ],
      "required": false,
      "options": []
     }
@@ -11564,9 +13003,17 @@
      "line": 1824,
      "variable": "bw_minimum_chi_part",
      "conditions": [
-      "#ifdef WARPX_QED"
+      "if (!utils::parser::queryWithParser(pp_qed_bw, \"chi_min\", bw_minimum_chi_part))"
      ],
      "required": false,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1977,
+     "variable": "bw_minimum_chi_part",
+     "conditions": [],
+     "required": true,
      "options": []
     }
    ],
@@ -11653,13 +13100,191 @@
    "options": []
   },
   {
+   "name": "qed_bw.tab_dndt_chi_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1995,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_dndt_chi_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1990,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_dndt_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1999,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_pair_chi_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 2019,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_pair_chi_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 2015,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_pair_chi_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 2010,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_bw.tab_pair_frac_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 2025,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
    "name": "qed_qs.chi_min",
    "type": "float",
    "default": null,
    "optional": false,
    "doc": "(suggested value : 0.001)",
    "doc_section": "QED",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1888,
+     "variable": "qs_minimum_chi_part",
+     "conditions": [],
+     "required": true,
+     "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1766,
+     "variable": "qs_minimum_chi_part",
+     "conditions": [],
+     "required": true,
+     "options": []
+    }
+   ],
    "source_only": false,
    "required": false,
    "options": []
@@ -11732,7 +13357,7 @@
      "line": 1751,
      "variable": "temp",
      "conditions": [
-      "#ifdef WARPX_QED"
+      "if (utils::parser::queryWithParser( pp_qed_qs, \"photon_creation_energy_threshold\", temp))"
      ],
      "required": false,
      "options": []
@@ -11756,6 +13381,190 @@
      "variable": "table_name",
      "conditions": [
       "#ifdef WARPX_QED"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_dndt_chi_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1906,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_dndt_chi_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1901,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_dndt_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1910,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_em_chi_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1930,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_em_chi_max",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1926,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_em_chi_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1921,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_em_frac_how_many",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1941,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "qed_qs.tab_em_frac_min",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 1936,
+     "variable": null,
+     "conditions": [
+      "if (ParallelDescriptor::IOProcessor())"
      ],
      "required": false,
      "options": []
@@ -11829,7 +13638,6 @@
      "variable": "m_qed_schwinger_threshold_poisson_gaussian",
      "conditions": [
       "if (!m_params_initialized)",
-      "#ifdef WARPX_QED",
       "if (m_do_qed_schwinger)"
      ],
      "required": false,
@@ -11854,7 +13662,6 @@
      "variable": "m_qed_schwinger_xmax",
      "conditions": [
       "if (!m_params_initialized)",
-      "#ifdef WARPX_QED",
       "if (m_do_qed_schwinger)"
      ],
      "required": false,
@@ -11879,7 +13686,6 @@
      "variable": "m_qed_schwinger_xmin",
      "conditions": [
       "if (!m_params_initialized)",
-      "#ifdef WARPX_QED",
       "if (m_do_qed_schwinger)"
      ],
      "required": false,
@@ -11909,7 +13715,19 @@
    "optional": false,
    "doc": "If Schwinger process is activated with DIM=2D, a transverse size must be specified. It is used to convert the pair production rate per unit volume into an actual number of created particles. This value should correspond to the typical transverse extent for which the EM field has a very high value (e.g. the beam waist for a focused laser beam).",
    "doc_section": "QED",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.cpp",
+     "line": 384,
+     "variable": "m_qed_schwinger_y_size",
+     "conditions": [
+      "if (!m_params_initialized)",
+      "if (m_do_qed_schwinger)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
    "source_only": false,
    "required": false,
    "options": []
@@ -11980,7 +13798,6 @@
      "variable": "m_qed_schwinger_zmax",
      "conditions": [
       "if (!m_params_initialized)",
-      "#ifdef WARPX_QED",
       "if (m_do_qed_schwinger)"
      ],
      "required": false,
@@ -12005,7 +13822,6 @@
      "variable": "m_qed_schwinger_zmin",
      "conditions": [
       "if (!m_params_initialized)",
-      "#ifdef WARPX_QED",
       "if (m_do_qed_schwinger)"
      ],
      "required": false,
@@ -12053,6 +13869,84 @@
       "if (E_ext_grid_type == ExternalFieldType::read_from_file || B_ext_grid_type == ExternalFieldType::read_from_file)"
      ],
      "required": true,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "read_temperature_in_eV_from_path",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 88,
+     "variable": null,
+     "conditions": [
+      "if (temperature_in_eV_dist_s == \"constant\")",
+      "if (temperature_in_eV_dist_s == \"parser\")",
+      "if (temperature_in_eV_dist_s == \"read_from_file\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "read_u_mean_from_path",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/VelocityProperties.cpp",
+     "line": 69,
+     "variable": null,
+     "conditions": [
+      "if (u_mean_dist_s == \"constant\")",
+      "if (u_mean_dist_s == \"parser\")",
+      "if (u_mean_dist_s == \"read_from_file\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "read_u_std_from_path",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 192,
+     "variable": "m_read_u_std_path",
+     "conditions": [
+      "if (mom_dist_s == \"maxwell_juttner\")",
+      "if (mom_dist_s == \"maxwellian\")",
+      "if (use_temperature_in_eV)",
+      "if (u_std_dist_s == \"constant\")",
+      "if (u_std_dist_s == \"parser\")",
+      "if (u_std_dist_s == \"read_from_file\")"
+     ],
+     "required": false,
      "options": []
     }
    ],
@@ -12567,7 +14461,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 45,
-     "variable": "m_mlmg_options.absolute_tolerance",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12609,7 +14503,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 85,
-     "variable": "m_mlmg_options.agglomeration_grid_size",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12630,7 +14524,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 69,
-     "variable": "m_mlmg_options.bottom_absolute_tolerance",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12651,7 +14545,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 64,
-     "variable": "m_mlmg_options.bottom_max_iters",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12672,7 +14566,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 66,
-     "variable": "m_mlmg_options.bottom_relative_tolerance",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12714,7 +14608,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 62,
-     "variable": "m_mlmg_options.bottom_verbosity",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12756,7 +14650,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 88,
-     "variable": "m_mlmg_options.consolidation_grid_size",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12777,7 +14671,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 72,
-     "variable": "m_mlmg_options.max_coarsening_level",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12798,7 +14692,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 47,
-     "variable": "m_mlmg_options.max_iters",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12819,7 +14713,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 52,
-     "variable": "m_mlmg_options.num_final_sweeps",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12840,7 +14734,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 43,
-     "variable": "m_mlmg_options.relative_tolerance",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -12861,7 +14755,7 @@
     {
      "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
      "line": 49,
-     "variable": "m_mlmg_options.verbosity",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -13121,6 +15015,41 @@
      ],
      "required": false,
      "options": []
+    },
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 61,
+     "variable": null,
+     "conditions": [
+      "if (temperature_in_eV_dist_s == \"constant\")"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
+  },
+  {
+   "name": "temperature_in_eV_mesh_name",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/Initialization/TemperatureProperties.cpp",
+     "line": 91,
+     "variable": "field_name",
+     "conditions": [
+      "if (temperature_in_eV_dist_s == \"constant\")",
+      "if (temperature_in_eV_dist_s == \"parser\")",
+      "if (temperature_in_eV_dist_s == \"read_from_file\")"
+     ],
+     "required": false,
+     "options": []
     }
    ],
    "source_only": true,
@@ -13139,7 +15068,9 @@
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileFromFile.cpp",
      "line": 92,
      "variable": "temp",
-     "conditions": [],
+     "conditions": [
+      "if (utils::parser::queryWithParser(ppl ,\"time_chunk_size\", temp))"
+     ],
      "required": false,
      "options": []
     }
@@ -13203,6 +15134,29 @@
     "pairwisecoulomb",
     "pulsed_decay"
    ]
+  },
+  {
+   "name": "u_th",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "doc_section": null,
+   "sites": [
+    {
+     "file": "Source/Plugins/ParticleCore/Particles/PhysicalParticleContainer.cpp",
+     "line": 377,
+     "variable": "boundary_uth",
+     "conditions": [
+      "if (config().particle_boundary_is_thermal())"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
+   "source_only": true,
+   "required": false,
+   "options": []
   },
   {
    "name": "uniform_stride",
@@ -13303,7 +15257,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Initialization/VelocityProperties.cpp",
      "line": 42,
-     "variable": "vel.m_ux_mean",
+     "variable": null,
      "conditions": [
       "if (u_mean_dist_s == \"constant\")"
      ],
@@ -13328,7 +15282,9 @@
      "line": 166,
      "variable": "m_ux_std",
      "conditions": [
+      "if (mom_dist_s == \"maxwell_juttner\")",
       "if (mom_dist_s == \"maxwellian\")",
+      "if (use_temperature_in_eV)",
       "if (u_std_dist_s == \"constant\")"
      ],
      "required": false,
@@ -13350,7 +15306,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Initialization/VelocityProperties.cpp",
      "line": 43,
-     "variable": "vel.m_uy_mean",
+     "variable": null,
      "conditions": [
       "if (u_mean_dist_s == \"constant\")"
      ],
@@ -13375,7 +15331,9 @@
      "line": 167,
      "variable": "m_uy_std",
      "conditions": [
+      "if (mom_dist_s == \"maxwell_juttner\")",
       "if (mom_dist_s == \"maxwellian\")",
+      "if (use_temperature_in_eV)",
       "if (u_std_dist_s == \"constant\")"
      ],
      "required": false,
@@ -13397,7 +15355,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Initialization/VelocityProperties.cpp",
      "line": 44,
-     "variable": "vel.m_uz_mean",
+     "variable": null,
      "conditions": [
       "if (u_mean_dist_s == \"constant\")"
      ],
@@ -13422,7 +15380,9 @@
      "line": 168,
      "variable": "m_uz_std",
      "conditions": [
+      "if (mom_dist_s == \"maxwell_juttner\")",
       "if (mom_dist_s == \"maxwellian\")",
+      "if (use_temperature_in_eV)",
       "if (u_std_dist_s == \"constant\")"
      ],
      "required": false,
@@ -13444,14 +15404,16 @@
     {
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 4090,
-     "variable": "dir",
-     "conditions": [],
-     "required": true,
+     "variable": "lev",
+     "conditions": [
+      "switch (field_type)"
+     ],
+     "required": false,
      "options": []
     }
    ],
    "source_only": true,
-   "required": true,
+   "required": false,
    "options": []
   },
   {
@@ -14728,9 +16690,7 @@
      "file": "Source/Plugins/PicEm/RuntimeBridge/Utils/WarpXUtil.cpp",
      "line": 51,
      "variable": "gamma_boost",
-     "conditions": [
-      "#if !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)"
-     ],
+     "conditions": [],
      "required": false,
      "options": []
     },
@@ -15154,7 +17114,18 @@
    "optional": false,
    "doc": "The speed of moving window, in units of the speed of light (i.e. use 1.0 for a moving window that moves exactly at the speed of light)",
    "doc_section": "Setting up the field mesh",
-   "sites": [],
+   "sites": [
+    {
+     "file": "Source/Plugins/PicEm/Modules/Initialization/WarpXInit.cpp",
+     "line": 221,
+     "variable": "moving_window_v",
+     "conditions": [
+      "if (do_moving_window)"
+     ],
+     "required": false,
+     "options": []
+    }
+   ],
    "source_only": false,
    "required": false,
    "options": []
@@ -16366,7 +18337,9 @@
      "file": "Source/Plugins/PicEm/WarpX.cpp",
      "line": 916,
      "variable": "temp",
-     "conditions": [],
+     "conditions": [
+      "if (auto temp = 0.0_rt;)"
+     ],
      "required": false,
      "options": []
     }
@@ -16449,7 +18422,7 @@
     {
      "file": "Source/Plugins/ParticleCore/Particles/Laser/LaserProfilesImpl/LaserProfileGaussian.cpp",
      "line": 45,
-     "variable": "m_params.zeta",
+     "variable": null,
      "conditions": [],
      "required": false,
      "options": []
@@ -16461,8 +18434,19 @@
   }
  ],
  "gating": {
+  "<collision_name>.background_charge_state": [
+   "if (m_background_type == BackgroundStoppingType::ELECTRONS)",
+   "if (m_background_type == BackgroundStoppingType::IONS)"
+  ],
+  "<collision_name>.background_density": [
+   "if (utils::parser::queryWithParser(pp_collision_name, \"background_density\", background_density))"
+  ],
   "<collision_name>.background_mass": [
-   "if (m_background_type == BackgroundStoppingType::ELECTRONS)"
+   "if (m_background_type == BackgroundStoppingType::ELECTRONS)",
+   "if (m_background_type == BackgroundStoppingType::IONS)"
+  ],
+  "<collision_name>.background_temperature": [
+   "if (utils::parser::queryWithParser(pp_collision_name, \"background_temperature\", background_temperature))"
   ],
   "<collision_name>.beta_weight_exponent": [
    "if (collision_type == CollisionType::PairwiseCoulomb)"
@@ -16502,6 +18486,9 @@
   "<diag_name>.buffer_flush_limit_btd": [
    "if (diag_type_str == \"BackTransformed\")"
   ],
+  "<diag_name>.dz_snapshots_lab": [
+   "if (utils::parser::queryWithParser(pp_diag_name, \"dz_snapshots_lab\", m_dz_snapshots_lab))"
+  ],
   "<diag_name>.openpmd_tspf": [
    "if (!encodingDefined)"
   ],
@@ -16522,7 +18509,14 @@
    "if (backward_profile == \"from_txye_file\")"
   ],
   "<reduced_diags_name>.detector_radius": [
-   "if (m_probe_geometry_str == \"Plane\")"
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
+  ],
+  "<reduced_diags_name>.resolution": [
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
   ],
   "<reduced_diags_name>.target_normal_x": [
    "if (m_probe_geometry_str == \"Plane\")"
@@ -16534,20 +18528,26 @@
    "if (m_probe_geometry_str == \"Plane\")"
   ],
   "<reduced_diags_name>.target_up_x": [
-   "if (m_probe_geometry_str == \"Plane\")"
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
   ],
   "<reduced_diags_name>.target_up_y": [
    "if (m_probe_geometry_str == \"Plane\")"
   ],
   "<reduced_diags_name>.target_up_z": [
-   "if (m_probe_geometry_str == \"Plane\")"
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
   ],
   "<reduced_diags_name>.x1_probe": [
-   "if (m_probe_geometry_str == \"Line\")"
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Point\")"
   ],
   "<reduced_diags_name>.x_probe": [
    "if (m_probe_geometry_str == \"Line\")",
-   "if (m_probe_geometry_str == \"Plane\")"
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
   ],
   "<reduced_diags_name>.y1_probe": [
    "if (m_probe_geometry_str == \"Line\")"
@@ -16556,12 +18556,38 @@
    "if (m_probe_geometry_str == \"Line\")",
    "if (m_probe_geometry_str == \"Plane\")"
   ],
+  "<reduced_diags_name>.z1_probe": [
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Point\")"
+  ],
+  "<reduced_diags_name>.z_probe": [
+   "if (m_probe_geometry_str == \"Line\")",
+   "if (m_probe_geometry_str == \"Plane\")",
+   "if (m_probe_geometry_str == \"Point\")"
+  ],
   "<species_name>.E_ext_particle_init_style": [
    "if (!mypc)"
+  ],
+  "<species_name>.density": [
+   "if (rho_prof_s == \"constant\")"
+  ],
+  "<species_name>.density_mesh_name": [
+   "if (rho_prof_s == \"constant\")",
+   "if (rho_prof_s == \"parse_density_function\")",
+   "if (rho_prof_s == \"read_from_file\")"
   ],
   "<species_name>.density_min": [
    "if (profile == \"parse_density_function\" && pp_spec.queryline(\"density_function(x,y,z)\", density_function))",
    "if (split_high_density_boxes)"
+  ],
+  "<species_name>.flux": [
+   "if (flux_prof_s == \"constant\")"
+  ],
+  "<species_name>.flux_direction": [
+   "if (m_inject_from_eb)"
+  ],
+  "<species_name>.flux_normal_axis": [
+   "if (m_inject_from_eb)"
   ],
   "<species_name>.gaussian_beam_rotation_angle": [
    "if (do_rotation)"
@@ -16584,54 +18610,113 @@
   "<species_name>.read_density_distributed": [
    "if (rho_prof_s == \"read_from_file\")"
   ],
+  "<species_name>.read_density_from_path": [
+   "if (rho_prof_s == \"constant\")",
+   "if (rho_prof_s == \"parse_density_function\")",
+   "if (rho_prof_s == \"read_from_file\")"
+  ],
+  "<species_name>.resampling_algorithm_delta_ur": [
+   "if (velocity_grid_type_str == \"spherical\")"
+  ],
+  "<species_name>.resampling_algorithm_n_phi": [
+   "if (velocity_grid_type_str == \"spherical\")"
+  ],
+  "<species_name>.resampling_algorithm_n_theta": [
+   "if (velocity_grid_type_str == \"spherical\")"
+  ],
+  "<species_name>.resampling_algorithm_target_weight": [
+   "if (utils::parser::queryWithParser( pp_species_name, \"resampling_algorithm_target_weight\", target_weight ))"
+  ],
+  "<species_name>.surface_flux_pos": [
+   "if (m_inject_from_eb)"
+  ],
   "<species_name>.ux": [
+   "if (mom_dist_s == \"at_rest\")",
    "if (mom_dist_s == \"constant\")"
   ],
   "<species_name>.ux_m": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
   "<species_name>.ux_max": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.ux_min": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.ux_th": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
   "<species_name>.uy": [
+   "if (mom_dist_s == \"at_rest\")",
    "if (mom_dist_s == \"constant\")"
   ],
   "<species_name>.uy_m": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
   "<species_name>.uy_max": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.uy_min": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.uy_th": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
   "<species_name>.uz": [
+   "if (mom_dist_s == \"at_rest\")",
    "if (mom_dist_s == \"constant\")"
   ],
   "<species_name>.uz_m": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
   "<species_name>.uz_max": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.uz_min": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
+   "if (mom_dist_s == \"gaussian\")",
+   "if (mom_dist_s == \"gaussianflux\")",
    "if (mom_dist_s == \"uniform\")"
   ],
   "<species_name>.uz_th": [
+   "if (mom_dist_s == \"at_rest\")",
+   "if (mom_dist_s == \"constant\")",
    "if (mom_dist_s == \"gaussian\")",
    "if (mom_dist_s == \"gaussianflux\")"
   ],
@@ -16639,11 +18724,17 @@
    "if (m_B_ext_particle_s.empty())"
   ],
   "B_external_particle_field": [
-   "if ((WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::Yee || WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC || ( (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame || WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic) && WarpX::poisson_solver_id == PoissonSolverAlgo::Multigrid)) #if defined(WARPX_DIM_RZ) && WarpX::grid_type == GridType::Staggered #endif)",
+   "if ((WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::Yee || WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::HybridPIC || ( (WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrame || WarpX::electrostatic_solver_id == ElectrostaticSolverAlgo::LabFrameElectroMagnetostatic) && WarpX::poisson_solver_id == PoissonSolverAlgo::Multigrid)))",
    "if (m_fields.has_vector(\"B_external_particle_field\", 0))"
+  ],
+  "Bfield_fp": [
+   "switch (field_type)"
   ],
   "E_ext_particle_init_style": [
    "if (m_E_ext_particle_s.empty())"
+  ],
+  "Efield_fp": [
+   "switch (field_type)"
   ],
   "algo.costs_heuristic_cells_wt": [
    "if (WarpX::load_balance_costs_update_algo==LoadBalanceCostsUpdateAlgo::Heuristic)"
@@ -16655,7 +18746,8 @@
    "if (!load_balance_with_sfc)"
   ],
   "algo.particle_shape": [
-   "if (!species_names.empty() || !lasers_names.empty())"
+   "if (!species_names.empty() || !lasers_names.empty())",
+   "if (utils::parser::queryWithParser(pp_algo, \"particle_shape\", particle_shape))"
   ],
   "amr.restart": [
    "if (amrex::ParallelDescriptor::IOProcessor() && !m_dt_update_diagnostic_file.empty())"
@@ -16691,6 +18783,10 @@
   "collisions.split_momentum_push": [
    "if (!collision_names.empty())"
   ],
+  "density_min": [
+   "if (profile == \"parse_density_function\" && pp_spec.queryline(\"density_function(x,y,z)\", density_function))",
+   "if (split_high_density_boxes)"
+  ],
   "euclid_factor_levels": [
    "if ((!pc_specified) && (m_pc_type == PreconditionerType::pc_petsc))",
    "if (hyprepctype == \"euclid\")",
@@ -16701,6 +18797,9 @@
   ],
   "geometry.dims": [
    "if (pp_geometry.contains(\"dims\"))"
+  ],
+  "hybrid_pic_model.elec_temp": [
+   "if (!utils::parser::queryWithParser(pp_hybrid, \"elec_temp\", m_elec_temp))"
   ],
   "hybrid_pic_model.plasma_resistivity_": [
    "if (amrex::ParallelDescriptor::IOProcessor())",
@@ -16719,6 +18818,15 @@
    "if (pctype == \"asm\")",
    "if (subpctype == \"ilu\")"
   ],
+  "macroscopic.epsilon": [
+   "if (utils::parser::queryWithParser(pp_macroscopic, \"epsilon\", m_epsilon))"
+  ],
+  "macroscopic.mu": [
+   "if (utils::parser::queryWithParser(pp_macroscopic, \"mu\", m_mu))"
+  ],
+  "macroscopic.sigma": [
+   "if (utils::parser::queryWithParser(pp_macroscopic, \"sigma\", m_sigma))"
+  ],
   "mass": [
    "if (amrex::ParallelDescriptor::IOProcessor())"
   ],
@@ -16733,13 +18841,22 @@
    "if (mom_dist_s == \"maxwellian\")"
   ],
   "maxwellian_u_std_distribution_type": [
-   "if (mom_dist_s == \"maxwellian\")"
+   "if (mom_dist_s == \"maxwell_juttner\")",
+   "if (mom_dist_s == \"maxwellian\")",
+   "if (use_temperature_in_eV)"
   ],
   "newton.linear_solver": [
    "if (a_query_linear_solver)"
   ],
   "normal": [
    "if (!m_particle_thermalizer)"
+  ],
+  "num_particles_per_cell": [
+   "if (injection_style == \"gaussian_beam\")",
+   "if (injection_style == \"multipleparticles\")",
+   "if (injection_style == \"nfluxpercell\")",
+   "if (injection_style == \"nrandompercell\")",
+   "if (injection_style == \"singleparticle\")"
   ],
   "particle_suborbits": [
    "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
@@ -16763,8 +18880,27 @@
    "if (m_B_field_metadata.empty())",
    "if (m_E_field_metadata.empty())"
   ],
+  "particles.repeated_plasma_lens_period": [
+   "if (!m_params_initialized)",
+   "if (m_E_ext_particle_s == \"repeated_plasma_lens\" || m_B_ext_particle_s == \"repeated_plasma_lens\")"
+  ],
+  "phi_fp": [
+   "switch (field_type)"
+  ],
   "print_unconverged_particle_details": [
    "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
+  ],
+  "psatd.nox": [
+   "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+   "if (nox_str == \"inf\")"
+  ],
+  "psatd.noy": [
+   "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+   "if (noy_str == \"inf\")"
+  ],
+  "psatd.noz": [
+   "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
+   "if (noz_str == \"inf\")"
   ],
   "psatd.nx_guard": [
    "if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
@@ -16778,11 +18914,62 @@
    "if (WarpX::electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)",
    "if (electromagnetic_solver_id == ElectromagneticSolverAlgo::PSATD)"
   ],
+  "qed_bw.chi_min": [
+   "if (!utils::parser::queryWithParser(pp_qed_bw, \"chi_min\", bw_minimum_chi_part))"
+  ],
   "qed_bw.load_table_from": [
    "if (lookup_table_mode == \"load\")"
   ],
+  "qed_bw.tab_dndt_chi_max": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_dndt_chi_min": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_dndt_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_pair_chi_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_pair_chi_max": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_pair_chi_min": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_bw.tab_pair_frac_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
   "qed_qs.load_table_from": [
    "if (lookup_table_mode == \"load\")"
+  ],
+  "qed_qs.photon_creation_energy_threshold": [
+   "if (utils::parser::queryWithParser( pp_qed_qs, \"photon_creation_energy_threshold\", temp))"
+  ],
+  "qed_qs.tab_dndt_chi_max": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_dndt_chi_min": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_dndt_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_em_chi_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_em_chi_max": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_em_chi_min": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_em_frac_how_many": [
+   "if (ParallelDescriptor::IOProcessor())"
+  ],
+  "qed_qs.tab_em_frac_min": [
+   "if (ParallelDescriptor::IOProcessor())"
   ],
   "qed_schwinger.ele_product_species": [
    "if (!m_params_initialized)",
@@ -16801,6 +18988,10 @@
    "if (m_do_qed_schwinger)"
   ],
   "qed_schwinger.xmin": [
+   "if (!m_params_initialized)",
+   "if (m_do_qed_schwinger)"
+  ],
+  "qed_schwinger.y_size": [
    "if (!m_params_initialized)",
    "if (m_do_qed_schwinger)"
   ],
@@ -16823,6 +19014,24 @@
   "read_fields_from_path": [
    "if (E_ext_grid_type == ExternalFieldType::read_from_file || B_ext_grid_type == ExternalFieldType::read_from_file)"
   ],
+  "read_temperature_in_eV_from_path": [
+   "if (temperature_in_eV_dist_s == \"constant\")",
+   "if (temperature_in_eV_dist_s == \"parser\")",
+   "if (temperature_in_eV_dist_s == \"read_from_file\")"
+  ],
+  "read_u_mean_from_path": [
+   "if (u_mean_dist_s == \"constant\")",
+   "if (u_mean_dist_s == \"parser\")",
+   "if (u_mean_dist_s == \"read_from_file\")"
+  ],
+  "read_u_std_from_path": [
+   "if (mom_dist_s == \"maxwell_juttner\")",
+   "if (mom_dist_s == \"maxwellian\")",
+   "if (u_std_dist_s == \"constant\")",
+   "if (u_std_dist_s == \"parser\")",
+   "if (u_std_dist_s == \"read_from_file\")",
+   "if (use_temperature_in_eV)"
+  ],
   "skip_particle_picard_init": [
    "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))",
    "if (m_use_mass_matrices_jacobian)"
@@ -16840,8 +19049,19 @@
   "temperature_in_eV": [
    "if (temperature_in_eV_dist_s == \"constant\")"
   ],
+  "temperature_in_eV_mesh_name": [
+   "if (temperature_in_eV_dist_s == \"constant\")",
+   "if (temperature_in_eV_dist_s == \"parser\")",
+   "if (temperature_in_eV_dist_s == \"read_from_file\")"
+  ],
+  "time_chunk_size": [
+   "if (utils::parser::queryWithParser(ppl ,\"time_chunk_size\", temp))"
+  ],
   "type": [
    "if ((!pc_specified) && (m_pc_type == PreconditionerType::pc_petsc))"
+  ],
+  "u_th": [
+   "if (config().particle_boundary_is_thermal())"
   ],
   "use_mass_matrices_jacobian": [
    "if ((m_nlsolver_type == NonlinearSolverType::newton) || (m_nlsolver_type == NonlinearSolverType::petsc_snes))"
@@ -16853,22 +19073,31 @@
    "if (u_mean_dist_s == \"constant\")"
   ],
   "ux_std": [
+   "if (mom_dist_s == \"maxwell_juttner\")",
    "if (mom_dist_s == \"maxwellian\")",
-   "if (u_std_dist_s == \"constant\")"
+   "if (u_std_dist_s == \"constant\")",
+   "if (use_temperature_in_eV)"
   ],
   "uy_mean": [
    "if (u_mean_dist_s == \"constant\")"
   ],
   "uy_std": [
+   "if (mom_dist_s == \"maxwell_juttner\")",
    "if (mom_dist_s == \"maxwellian\")",
-   "if (u_std_dist_s == \"constant\")"
+   "if (u_std_dist_s == \"constant\")",
+   "if (use_temperature_in_eV)"
   ],
   "uz_mean": [
    "if (u_mean_dist_s == \"constant\")"
   ],
   "uz_std": [
+   "if (mom_dist_s == \"maxwell_juttner\")",
    "if (mom_dist_s == \"maxwellian\")",
-   "if (u_std_dist_s == \"constant\")"
+   "if (u_std_dist_s == \"constant\")",
+   "if (use_temperature_in_eV)"
+  ],
+  "vector_potential_fp_nodal": [
+   "switch (field_type)"
   ],
   "warpx.boost_direction": [
    "if (gamma_boost > 1.)"
@@ -16906,6 +19135,9 @@
   "warpx.moving_window_dir": [
    "if (do_moving_window)"
   ],
+  "warpx.moving_window_v": [
+   "if (do_moving_window)"
+  ],
   "warpx.refine_region_change_time": [
    "if (fine_tag_lo_specified && fine_tag_hi_specified)",
    "if (maxLevel() > 0)",
@@ -16913,9 +19145,28 @@
   ],
   "warpx.start_moving_window_step": [
    "if (do_moving_window)"
+  ],
+  "warpx.zmax_plasma_to_compute_max_step": [
+   "if (auto temp = 0.0_rt;)"
   ]
  },
  "gating_rules": {
+  "<species_name>.flux_direction": [
+   {
+    "param": "<species_name>.inject_from_embedded_boundary",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_inject_from_eb)"
+   }
+  ],
+  "<species_name>.flux_normal_axis": [
+   {
+    "param": "<species_name>.inject_from_embedded_boundary",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_inject_from_eb)"
+   }
+  ],
   "<species_name>.gaussian_beam_rotation_angle": [
    {
     "param": "<species_name>.do_gaussian_beam_rotation",
@@ -16954,6 +19205,14 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_virtual_photons)"
+   }
+  ],
+  "<species_name>.surface_flux_pos": [
+   {
+    "param": "<species_name>.inject_from_embedded_boundary",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_inject_from_eb)"
    }
   ],
   "algo.load_balance_knapsack_factor": [
@@ -17073,6 +19332,14 @@
    }
   ],
   "qed_schwinger.xmin": [
+   {
+    "param": "warpx.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (m_do_qed_schwinger)"
+   }
+  ],
+  "qed_schwinger.y_size": [
    {
     "param": "warpx.do_qed_schwinger",
     "op": "truthy",
@@ -17228,6 +19495,14 @@
     "raw": "if (do_moving_window)"
    }
   ],
+  "warpx.moving_window_v": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "if (do_moving_window)"
+   }
+  ],
   "warpx.start_moving_window_step": [
    {
     "param": "warpx.do_moving_window",
@@ -17258,12 +19533,6 @@
   ],
   "<reduced_diags_name>.target_up_y": [
    "#if defined(WARPX_DIM_3D)"
-  ],
-  "<reduced_diags_name>.x1_probe": [
-   "#if !defined(WARPX_DIM_1D_Z)"
-  ],
-  "<reduced_diags_name>.x_probe": [
-   "#if !defined(WARPX_DIM_1D_Z)"
   ],
   "<reduced_diags_name>.y1_probe": [
    "#if defined(WARPX_DIM_3D)"
@@ -17355,9 +19624,6 @@
   "newton.linear_solver": [
    "#ifdef AMREX_USE_PETSC"
   ],
-  "qed_bw.chi_min": [
-   "#ifdef WARPX_QED"
-  ],
   "qed_bw.load_table_from": [
    "#ifdef WARPX_QED"
   ],
@@ -17373,9 +19639,6 @@
   "qed_qs.lookup_table_mode": [
    "#ifdef WARPX_QED"
   ],
-  "qed_qs.photon_creation_energy_threshold": [
-   "#ifdef WARPX_QED"
-  ],
   "qed_qs.save_table_in": [
    "#ifdef WARPX_QED"
   ],
@@ -17385,27 +19648,12 @@
   "qed_schwinger.pos_product_species": [
    "#ifdef WARPX_QED"
   ],
-  "qed_schwinger.threshold_poisson_gaussian": [
-   "#ifdef WARPX_QED"
-  ],
-  "qed_schwinger.xmax": [
-   "#ifdef WARPX_QED"
-  ],
-  "qed_schwinger.xmin": [
-   "#ifdef WARPX_QED"
-  ],
   "qed_schwinger.ymax": [
    "#if defined(WARPX_DIM_3D)",
    "#ifdef WARPX_QED"
   ],
   "qed_schwinger.ymin": [
    "#if defined(WARPX_DIM_3D)",
-   "#ifdef WARPX_QED"
-  ],
-  "qed_schwinger.zmax": [
-   "#ifdef WARPX_QED"
-  ],
-  "qed_schwinger.zmin": [
    "#ifdef WARPX_QED"
   ],
   "save_particles_at_xhi": [
@@ -17443,9 +19691,6 @@
   ],
   "warpx.eb_implicit_function": [
    "#ifdef AMREX_USE_EB"
-  ],
-  "warpx.gamma_boost": [
-   "#if !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)"
   ],
   "warpx.n_rz_azimuthal_modes": [
    "#ifdef WARPX_DIM_RZ"

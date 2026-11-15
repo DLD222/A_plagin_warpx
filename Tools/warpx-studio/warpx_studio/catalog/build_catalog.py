@@ -25,6 +25,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DOCS = HERE / "data/params_docs.json"
 SITES = HERE / "data/param_sites.json"
+SITES_AST = HERE / "data/param_sites_ast.json"
 OUT = HERE / "data/catalog.json"
 
 TEMPLATES = ("<species_name>", "<collision_name>", "<rd_name>", "<m_diag_name>",
@@ -77,7 +78,26 @@ def group_of(name: str) -> str:
 
 def main() -> int:
     docs = json.loads(DOCS.read_text())["params"]
-    sites = json.loads(SITES.read_text())["sites"]
+    regex_sites = json.loads(SITES.read_text())["sites"]
+    ast_sites = []
+    if SITES_AST.exists():
+        ast_sites = json.loads(SITES_AST.read_text())["sites"]
+
+    # Merge the two scanners.  Clang contributes what text cannot express (switch/case,
+    # "is this read unconditional", the real condition expression) and the regex scan
+    # contributes the reads whose translation unit clang only parsed partially.
+    merged: dict[tuple[str, str, int], dict] = {}
+    for site in regex_sites:
+        merged[(site["param"], site["file"], site["line"])] = {**site, "scanner": "regex"}
+    for site in ast_sites:
+        key = (site["param"], site["file"], site["line"])
+        previous = merged.get(key)
+        record = {**site}
+        if previous is not None:
+            # keep the regex-derived switch keys while taking clang's conditions
+            record["switch_cases"] = site.get("switch_cases") or previous.get("switch_cases", [])
+        merged[key] = record
+    sites = list(merged.values())
 
     by_name: dict[str, dict] = {}
     for entry in docs:
@@ -151,6 +171,12 @@ def main() -> int:
             "source_only": len(source_only),
             "with_runtime_gating": len(gating),
             "with_gating_rules": len(gating_rules_out),
+            "sites": len(sites),
+            "sites_by_scanner": {
+                "clang": sum(1 for s in sites if s.get("scanner") == "clang"),
+                "regex": sum(1 for s in sites if s.get("scanner") == "regex"),
+            },
+            "switch_gated": sum(1 for s in sites if s.get("switch_cases")),
             "required": sum(1 for p in params if p.get("required")),
             "with_options": sum(1 for p in params if p.get("options")),
             "with_build_guard": len(guards),
