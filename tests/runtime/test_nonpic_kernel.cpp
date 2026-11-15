@@ -47,9 +47,11 @@ namespace
 {
 
 int failures = 0;
+int checks = 0;
 
 void check (bool ok, const char* what)
 {
+    ++checks;
     if (!ok) {
         std::fprintf(stderr, "FAIL: %s\n", what);
         ++failures;
@@ -234,6 +236,6 @@ int main (int argc, char* argv[])
         std::fprintf(stderr, "%d check(s) failed\n", failures);
         return 1;
     }
-    std::printf("non-PIC kernel: %d checks passed\n", 8);
+    std::printf("non-PIC kernel: %d checks passed\n", checks);
     return 0;
 }
