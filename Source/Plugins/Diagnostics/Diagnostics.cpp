@@ -166,15 +166,15 @@ Diagnostics::BaseReadParameters ()
     if (utils::algorithms::is_in(m_varnames_fields, "F")){
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             config().do_dive_cleaning(),
-            "plot F only works if config().do_dive_cleaning() = 1");
+            "plot F only works if warpx.do_dive_cleaning = 1");
     }
 
-    // G can be written to file only if config_snapshot().do_divb_cleaning = 1
+    // G can be written to file only if warpx.do_divb_cleaning = 1
     if (utils::algorithms::is_in(m_varnames_fields, "G"))
     {
         WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
             config().do_divb_cleaning(),
-            "G can be written to file only if config().do_divb_cleaning() = 1");
+            "G can be written to file only if warpx.do_divb_cleaning = 1");
     }
 
     // If user requests to plot proc_number for a serial run,

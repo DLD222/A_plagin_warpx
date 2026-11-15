@@ -888,7 +888,7 @@ void ImplicitSolver::InitializeMassMatrices (int particle_shape)
             WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
                 max_grid_crossings <= config().villasenor_mass_matrices_max_grid_crossings(),
                 "Mass matrices with Villasenor deposition require "
-                "particles.max_grid_crossings <= config().villasenor_mass_matrices_max_grid_crossings() "
+                "particles.max_grid_crossings <= WarpX::villasenor_mass_matrices_max_grid_crossings "
                 "for both Jacobian and preconditioner use.");
             for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
                 WARPX_ALWAYS_ASSERT_WITH_MESSAGE(ngJ[dir] >= shape / 2 + max_grid_crossings,
