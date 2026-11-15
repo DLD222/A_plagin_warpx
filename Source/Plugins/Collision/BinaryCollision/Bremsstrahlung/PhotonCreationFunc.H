@@ -1,4 +1,3 @@
-#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 /* Copyright 2024 David Grote
  *
  * This file is part of WarpX.
@@ -11,13 +10,11 @@
 
 #include "Collision/BinaryCollision/BinaryCollisionUtils.H"
 #include "Collision/CollisionSpeciesTable.H"
-
+#include "Modules/Particles/IParticleIterator.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
+#include "Runtime/IParticleContainer.H"
 
 #include <AMReX_DenseBins.H>
 #include <AMReX_GpuAtomic.H>

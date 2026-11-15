@@ -317,18 +317,3 @@ namespace BinaryCollisionUtils{
 
     }
 }
-namespace BinaryCollisionUtils {
-    CollisionType get_collision_type (const std::string& collision_name,
-                                      warpx::runtime::IParticleContainerAccess const * const mypc)
-    {
-        const CollisionSpeciesTable table(*mypc);
-        return get_collision_type(collision_name, table);
-    }
-
-    NuclearFusionType get_nuclear_fusion_type (const std::string& collision_name,
-                                               warpx::runtime::IParticleContainerAccess const * const mypc)
-    {
-        const CollisionSpeciesTable table(*mypc);
-        return get_nuclear_fusion_type(collision_name, table);
-    }
-}

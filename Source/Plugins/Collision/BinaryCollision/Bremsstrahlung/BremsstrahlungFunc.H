@@ -53,12 +53,9 @@ public:
      * \brief Constructor of the BremsstrahlungFunc class
      *
      * @param[in] collision_name the name of the collision
-     * @param[in] mypc pointer to the MultiParticleContainer
+     * @param[in] table the charge/mass/total-number snapshot of the collisions' species
      * @param[in] isSameSpecies whether the two colliding species are the same (should always be false)
      */
-    BremsstrahlungFunc (std::string const& collision_name, MultiParticleContainer const * mypc,
-                        bool /*isSameSpecies*/);
-
     BremsstrahlungFunc (std::string const& collision_name, const CollisionSpeciesTable& table,
                         bool /*isSameSpecies*/);
 

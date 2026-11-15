@@ -1,4 +1,3 @@
-#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 /* Copyright 2023-2024 The WarpX Community
  *
  * This file is part of WarpX.
@@ -10,16 +9,15 @@
 #ifndef WARPX_SPLIT_AND_SCATTER_FUNC_H_
 #define WARPX_SPLIT_AND_SCATTER_FUNC_H_
 
-#include "Collision/BinaryCollision/TwoProductUtil.H"
 #include "Collision/BinaryCollision/BinaryCollisionUtils.H"
+#include "Collision/BinaryCollision/TwoProductUtil.H"
 #include "Collision/CollisionSpeciesTable.H"
 #include "Collision/ScatteringProcess.H"
+#include "Modules/Particles/IParticleIterator.H"
+#include "Modules/Particles/ParticleCreation/DefaultInitialization.H"
 #include "Modules/Particles/ParticleCreation/SmartCopy.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
-#include "Modules/Particles/IParticleIterator.H"
-#include "Runtime/IParticleContainer.H"
 #include "Modules/Particles/ParticleUtils.H"
+#include "Runtime/IParticleContainer.H"
 #include "Utils/ScatteringUtils.H"
 #include "Utils/WarpXAlgorithmSelection.H"
 
@@ -49,10 +47,8 @@ public:
      * \brief Constructor of the SplitAndScatterFunc class
      *
      * @param[in] collision_name the name of the collision
-     * @param[in] mypc pointer to the MultiParticleContainer
+     * @param[in] table the charge/mass/total-number snapshot of the collisions' species
      */
-    SplitAndScatterFunc (const std::string& collision_name, MultiParticleContainer const * mypc);
-
     SplitAndScatterFunc (const std::string& collision_name, const CollisionSpeciesTable& table);
 
     /**

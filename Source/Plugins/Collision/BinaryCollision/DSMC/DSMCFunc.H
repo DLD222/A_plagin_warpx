@@ -59,13 +59,9 @@ public:
      * \brief Constructor of the DSMCFunc class
      *
      * @param[in] collision_name the name of the collision
-     * @param[in] mypc pointer to the MultiParticleContainer
+     * @param[in] table the charge/mass/total-number snapshot of the collisions' species
      * @param[in] isSameSpecies whether the two colliding species are the same
      */
-    DSMCFunc ( const std::string& collision_name,
-               [[maybe_unused]] MultiParticleContainer const * mypc,
-               bool isSameSpecies );
-
     DSMCFunc ( const std::string& collision_name,
                const CollisionSpeciesTable& /*table*/,
                bool isSameSpecies );

@@ -9,7 +9,6 @@
 
 #include "SplitAndScatterFunc.H"
 
-
 SplitAndScatterFunc::SplitAndScatterFunc (const std::string& collision_name,
                                           const CollisionSpeciesTable& table):
     m_collision_type{BinaryCollisionUtils::get_collision_type(collision_name, table)}
