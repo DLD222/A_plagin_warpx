@@ -11,6 +11,14 @@
 # reaching the wall is attenuated by e^{-97} and the probes see a pure forward wave.
 #
 # Probes at CELL CENTRES z = 0.046875 and z = 0.234375 (dz = 0.1875 m).
+#
+# NOTE (Benchmarks/F16): with delta = 0.1 m these sit at 0.47 delta and 2.34 delta, i.e. the
+# *first* probe is inside the interface-transient region that analyze_v2.py deliberately excludes
+# (it fits only z >= 1.5 delta from its own j = 323..335 probe set).  The two-probe ratio below is
+# therefore a single-pair estimate dominated by the transient, not a slope fit; analyze_v2.py is
+# the reference analysis for this case, and `analyze.py`/`analyze_cw.py` are kept for history.
+# The "pure forward wave" statement above is fine (the slab reaches the PEC and e^-97 is nothing),
+# but it does not make the first probe usable.
 # x is also a cell centre (0.015625): on a cell boundary FieldProbe interpolation
 # picks the zero neighbour and reads 0 -- this bit the first version of this case.
 #   |E(z2)/E(z1)| = exp(-alpha dz) = exp(-1.877) = 0.1530   (power: exp(-2 alpha d) = 0.0234)

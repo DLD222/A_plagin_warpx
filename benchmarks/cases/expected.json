@@ -1,0 +1,74 @@
+{
+  "_about": [
+    "Acceptance thresholds used by the analysis scripts under benchmarks/cases/.",
+    "The project's own validation protocol (EM_EB_MHD_VALIDATION_10CASES_v2.md:196) asks for these",
+    "to be committed BEFORE the first run. They were not: they were written after the first runs,",
+    "from the observed scatter (finding Benchmarks/F13). This file records that honestly instead of",
+    "pretending the numbers are a-priori. A threshold marked provenance='post-hoc' cannot by itself",
+    "exclude a result that was tuned until it passed; 'replacement' says what would remove the doubt."
+  ],
+  "cases": {
+    "c02_0_pec/analyze_oblique.py": {
+      "gates": [
+        {
+          "name": "tol_single (per-probe |r| band)",
+          "value": 0.2,
+          "provenance": "post-hoc",
+          "measured": "per-probe ratio modulated by +/-10-17% (diffraction off the PML-truncated plane)",
+          "replacement": "report the beam-mean only, and require the per-probe spread to shrink with plane width; the 0.20 band would no longer be needed"
+        },
+        {
+          "name": "tol_mean (beam mean)",
+          "value": 0.06,
+          "provenance": "post-hoc",
+          "measured": "mean deviation across the probe set",
+          "replacement": "convergence in n_cell: error must fall monotonically over two refinements"
+        }
+      ]
+    },
+    "c02_0_pec/analyze_l3.py": {
+      "gates": [
+        {
+          "name": "|r+1|",
+          "value": 0.2,
+          "provenance": "post-hoc",
+          "measured": "r = -0.92 .. -1.11 over the runs",
+          "replacement": "fit r(n_cell) and require the fit's slope to be negative (converging to -1)"
+        }
+      ]
+    },
+    "c02_0_pec/check_stability.py": {
+      "gates": [
+        {
+          "name": "energy growth",
+          "value": 0.5,
+          "provenance": "post-hoc",
+          "measured": "no run showed growth; the bound only has to exclude blow-up",
+          "replacement": "none needed: this is an explicit blow-up detector, not a physics accuracy gate"
+        }
+      ]
+    },
+    "c02_0_pec/analyze_cylinder.py": {
+      "gates": [
+        {
+          "name": "amplitude ratio",
+          "value": 1.2,
+          "provenance": "post-hoc",
+          "measured": "measured ratio well inside the band",
+          "replacement": "compare against the analytic Mie series (analyze_mie_convergence.py does this and is the reference analysis)"
+        }
+      ]
+    },
+    "c03_medium/conductor_slab/analyze_v2.py": {
+      "gates": [
+        {
+          "name": "slope error",
+          "value": 0.03,
+          "provenance": "post-hoc",
+          "measured": "delta relative error at the shipped resolution",
+          "replacement": "delta(n_cell) convergence study"
+        }
+      ]
+    }
+  }
+}
