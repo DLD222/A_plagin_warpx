@@ -28,11 +28,11 @@
 | Python | F1 | critical | `pywarpx` 仍调用已改名的旧迭代器类 `WarpXParIter` → 运行时 `AttributeError` | fixed |
 | Python | F2 | major | 公开 API `ParticleContainerWrapper.deposit_charge_density` 被删（连同 C++ 绑定） | todo |
 | Python | F3 | major | 测试容差被系统性放宽（6 处） | todo |
-| Python | F4 | minor | 新增碰撞分析断言有复制粘贴错误 + 精确浮点相等 | todo |
+| Python | F4 | minor | 新增碰撞分析断言有复制粘贴错误 + 精确浮点相等 | fixed |
 | Python | F5 | minor | `read_dims_from_file` 的 `FILE` 正则仍会把 `#` 吞进路径 | fixed |
 | Python | F6 | minor | `Simulation` 的若干公开属性/扩展点被改为私有（无 property 兼容） | todo |
-| Python | F7 | minor | 所有 PICMI 对象改为 pydantic 严格校验，未使用的多余关键字从"忽略"变"报错" | todo |
-| Python | F8 | minor | `_amrex_argv`：脚本自身的 `--flag` 若出现在第一个覆盖参数之后会破坏 ParmParse | todo |
+| Python | F7 | minor | 所有 PICMI 对象改为 pydantic 严格校验，未使用的多余关键字从"忽略"变"报错" | fixed |
+| Python | F8 | minor | `_amrex_argv`：脚本自身的 `--flag` 若出现在第一个覆盖参数之后会破坏 ParmParse | fixed |
 | Python | F9 | minor | 打包/卫生问题 | todo |
 | Source_Core_Misc | F1 | major | `doDirectGatherVectorField(order,…)` 运行时版本对非法阶数**静默不做任何 gather** | fixed |
 | Source_Core_Misc | F2 | major | split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致） | todo |

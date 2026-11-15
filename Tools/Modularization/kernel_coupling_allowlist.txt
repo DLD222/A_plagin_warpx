@@ -1,2 +1,9 @@
 # Kernel coupling inside the trees scheduled for extraction (S6).
 # Empty means the extractable field-solver code no longer touches the kernel.
+# Two remaining kernel-header couplings in the extracted finite-difference solver.  They were
+# invisible until 2026-11-15: this check used to skip three non-existent directories (the solver
+# was still expected under PicEm/Modules/FieldSolver) and only matched the quoted #include form.
+# Removing them needs the solver to take its configuration through the runtime context instead of
+# including WarpX.H, which is the next step of the S6 extraction (see BACKLOG.md).
+Source/Plugins/FieldSolver/FiniteDifference/EvolveF.cpp|include-or-alias
+Source/Plugins/FieldSolver/FiniteDifference/FiniteDifferenceSolver.cpp|include-or-alias
