@@ -174,7 +174,7 @@
 | Tools_Tests | F9 | major | A/B 上游对照工具链永远不会失败（run_ab 忽略退出码、run_all 恒 exit 0、compare_fields 只打印） | todo |
 | Tools_Tests | F10 | major | `check_star_runtime_plugin.sh` 明确容忍"关机时堆损坏"的非零退出 | fixed |
 | Tools_Tests | F11 | major | OPAL 不透明度自检的容差（1 dex / 中位数 2 倍、只抽样 1/4 层）宽到无法发现系统性错误 | fixed |
-| Tools_Tests | F12 | major | `eos.py` 的 Debye 屏蔽离子和对与自身文档不符（用 (Z+1)² 代替 Z²），HeⅡ 的连续谱降低也用错倍数 | todo |
+| Tools_Tests | F12 | major | `eos.py` 的 Debye 屏蔽离子和对与自身文档不符（用 (Z+1)² 代替 Z²），HeⅡ 的连续谱降低也用错倍数 | fixed |
 | Tools_Tests | F13 | major | `stellar_structure.selftest` 的"四方程积分"只检查打印文本里出现 `R/R_sun`，NaN 也能通过（且已被注册为 ctest） | todo |
 | Tools_Tests | F14 | major | 新增 pytest 用例在**仓库根**写文件，`mkdir()` 无 `exist_ok`，并行维度互相覆盖 | todo |
 | Tools_Tests | F15 | major | `test_plugin_lifecycle.cpp` 的 "satisfied requirement" 用例断言的是"被拒绝"，role 名作为 provider 从未被测 | todo |
