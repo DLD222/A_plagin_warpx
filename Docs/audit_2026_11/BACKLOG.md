@@ -59,15 +59,15 @@
 | Source_Core_Runtime_B | F3 | major | 内核契约 `ISimulationKernel::finalize()` 从未被调用 | fixed |
 | Source_Core_Runtime_B | F4 | major | `warpx_stage_geometry()` 无法对"不存在的层"返回 0，且没有上界检查 | fixed |
 | Source_Core_Runtime_B | F5 | major | `StateRegistry::clear()` 不清理 scalar（契约与实现不符） | fixed |
-| Source_Core_Runtime_B | F6 | major | `SpeciesHandle::numberOfParticles()` 是注册时刻的冻结快照，且全树无人调用 | todo |
-| Source_Core_Runtime_B | F7 | minor | `ScalarRegistry::declare()` 不比较初值：同名 scalar 冲突被静默吞掉 | todo |
-| Source_Core_Runtime_B | F8 | minor | `ScalarSpec::checkpoint` 被接受但从未实现（声明成功 = 静默失效） | todo |
+| Source_Core_Runtime_B | F6 | major | `SpeciesHandle::numberOfParticles()` 是注册时刻的冻结快照，且全树无人调用 | fixed |
+| Source_Core_Runtime_B | F7 | minor | `ScalarRegistry::declare()` 不比较初值：同名 scalar 冲突被静默吞掉 | fixed |
+| Source_Core_Runtime_B | F8 | minor | `ScalarSpec::checkpoint` 被接受但从未实现（声明成功 = 静默失效） | fixed |
 | Source_Core_Runtime_B | F9 | minor | 服务注册表的"冲突"是**全局单串**：任一服务种类冲突会让所有无关服务创建失败 | todo |
 | Source_Core_Runtime_B | F10 | minor | `legacy_runtime_data()` / `legacy_host_services()` 的函数级静态持有者不随 `clear_service_factories()` 重置 | todo |
 | Source_Core_Runtime_B | F11 | minor | C ABI 把 handler 注册失败全部折叠成返回码 4，loader 又完全忽略它 | todo |
 | Source_Core_Runtime_B | F12 | minor | `register_stage()` 可以注册执行引擎永远到不了的 ordinal，且没有任何提示 | todo |
-| Source_Core_Runtime_B | F13 | minor | 三处工厂仍是"最后一个赢"且缺省静默返回 nullptr（与 ServiceFactory 的 F-09 修复不一致） | todo |
-| Source_Core_Runtime_B | F14 | minor | `legacy_costs()`：注册了 provider，却没有任何调用者（死契约） | todo |
+| Source_Core_Runtime_B | F13 | minor | 三处工厂仍是"最后一个赢"且缺省静默返回 nullptr（与 ServiceFactory 的 F-09 修复不一致） | fixed |
+| Source_Core_Runtime_B | F14 | minor | `legacy_costs()`：注册了 provider，却没有任何调用者（死契约） | invalid |
 | Source_Core_Runtime_B | F15 | minor | `Runtime` 构造函数抛出时 AMReX 不会被 finalize（资源泄漏 + AMReX 退出断言） | todo |
 | Source_Plugins_Collision_A | F1 | major | Bremsstrahlung 饱和分支把 `fmulti` 除以了“未夹紧的 arg”，光子权重与上游不同 | fixed |
 | Source_Plugins_Collision_A | F2 | minor | 三个“接受 `MultiParticleContainer const*`”的构造函数只声明、无定义（悬空声明） | todo |
