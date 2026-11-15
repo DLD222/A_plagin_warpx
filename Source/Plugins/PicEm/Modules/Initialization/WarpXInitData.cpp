@@ -16,6 +16,7 @@
 
 #include "Runtime/NullDiagnosticsService.H"
 #include "Runtime/RuntimeConfig.H"
+#include "Runtime/StateRegistry.H"
 #include "Runtime/RuntimeContext.H"
 #include "Runtime/TimeState.H"
 #include "Runtime/WarpXHostServices.H"
@@ -861,6 +862,28 @@ WarpX::InitData_BeforeInit ()
             },
             m_legacy_snapshot.get());
         SetRuntimeContext(m_legacy_context.get());
+
+        // Give the legacy path the same schema step the kernel path has: a StateRegistry
+        // plus the collision handler created *before* the levels are allocated, so the
+        // fields a collision declares (e.g. <collision>_particle_production) exist when
+        // diagnostics resolve field names instead of appearing at the first collision
+        // step. AllocData() stays deferred to that step, when the fields really exist.
+        amrex::ParmParse pp_collisions("collisions");
+        amrex::Vector<std::string> collision_names;
+        const bool has_collisions = pp_collisions.queryarr("collision_names", collision_names)
+                                 && !collision_names.empty();
+        if (m_legacy_context != nullptr && m_legacy_context->state == nullptr) {
+            m_legacy_state = std::make_unique<warpx::runtime::StateRegistry>();
+            m_legacy_context->state = m_legacy_state.get();
+            if (has_collisions && m_collision_handler == nullptr) {
+                m_legacy_collision_handler = warpx::runtime::create_collision_handler(
+                    particleSystem(), *m_legacy_data, *m_legacy_config, m_legacy_host.get());
+                m_collision_handler = m_legacy_collision_handler.get();
+                if (m_collision_handler != nullptr) {
+                    m_collision_handler->declare_state(*m_legacy_state);
+                }
+            }
+        }
     }
 
     // Diagnostics

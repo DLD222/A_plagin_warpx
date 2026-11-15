@@ -762,9 +762,7 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
             particleSystem(), *m_legacy_data, *m_legacy_config, host);
         m_legacy_collision_handler = std::move(handler);
         m_collision_handler = m_legacy_collision_handler.get();
-        if (m_collision_handler != nullptr) {
-            m_collision_handler->AllocData();
-        } else {
+        if (m_collision_handler == nullptr) {
             // The input asked for collisions but no collision plugin is linked.  Silently
             // running without them would change the physics without telling anyone, so say
             // it loudly: the run continues (collisions are an optional capability) but the
@@ -780,6 +778,13 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
                     ablastr::warn_manager::WarnPriority::high);
             }
         }
+    }
+    // AllocData() must run once, when the levels (and therefore the plugin-declared
+    // fields) exist. On the legacy path the handler itself is created in InitData, where
+    // only declare_state() can run.
+    if (m_collision_handler != nullptr && !m_collision_handler_allocated) {
+        m_collision_handler->AllocData();
+        m_collision_handler_allocated = true;
     }
     if (m_collision_handler != nullptr) {
         m_collision_handler->doCollisions(step, cur_time, dt);

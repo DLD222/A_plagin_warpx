@@ -102,7 +102,7 @@ class ElectrostaticSolver;
 
 class ICollisionHandler;
 
-namespace warpx::runtime { class PluginHost; class WarpXRuntimeData; class WarpXHostServices; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
+namespace warpx::runtime { class PluginHost; class WarpXRuntimeData; class WarpXHostServices; class StateRegistry; struct StageContext; struct RuntimeContext; class RuntimeConfig; class Runtime; }
 
 class WARPX_EXPORT WarpX
     : public amrex::AmrCore
@@ -1299,6 +1299,10 @@ private:
     std::unique_ptr<warpx::runtime::FrameState> m_legacy_frame;
     std::unique_ptr<warpx::runtime::RuntimeConfigSnapshot> m_legacy_snapshot;
     std::unique_ptr<warpx::runtime::RuntimeContext> m_legacy_context;
+    //! Plugin state registry of the legacy path, so its declare_state() runs at schema time too.
+    std::unique_ptr<warpx::runtime::StateRegistry> m_legacy_state;
+    //! AllocData() must run exactly once, at the first collision stage (fields exist by then).
+    bool m_collision_handler_allocated = false;
 
     //! Complete the asynchronous broadcast of signal flags, and initiate a checkpoint if requested
     void HandleSignals ();
