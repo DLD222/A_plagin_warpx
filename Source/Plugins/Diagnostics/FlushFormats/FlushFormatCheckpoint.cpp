@@ -136,9 +136,11 @@ FlushFormatCheckpoint::WriteToFile (
 
     WriteJobInfo(checkpointname);
 
-    // Additive schema manifest: old readers ignore it, new readers can
-    // validate the checkpoint field list against the live FieldRegistry.
-    {
+    // Additive schema manifest: old readers ignore it, new readers can validate the checkpoint
+    // field list against the live FieldRegistry.  Written on the I/O rank only -- every other
+    // write in this function is already gated the same way, and N ranks doing O_TRUNC on the same
+    // path is a truncation/metadata storm on a parallel filesystem for no benefit.
+    if (amrex::ParallelDescriptor::IOProcessor()) {
         std::ofstream schema_file(checkpointname + "/field_schema.txt");
         for (const auto& name : data().fieldRegistry().checkpointNames()) {
             schema_file << name << "\n";
