@@ -136,12 +136,12 @@ void MomentFluidSolver::AdvanceAndDeposit (Real dt, MultiFab* J[3],
     // documents it as a contract, so check it instead of discarding the value.
     moments::Real const resid =
         moments::deposit_conservative<MEq, 2>(fv, U.data(), dt, ctx, mbc, m_q, m_m, dep);
-    moments::Real scale = moments::Real(0);
+    moments::Real resid_scale = moments::Real(0);
     for (std::size_t c = 0; c < dep.rho_n.size(); ++c) {
-        scale = std::max(scale, std::abs((dep.rho_np1[c] - dep.rho_n[c]) / dt));
+        resid_scale = std::max(resid_scale, std::abs((dep.rho_np1[c] - dep.rho_n[c]) / dt));
     }
     WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
-        resid <= moments::Real(1e-12) * std::max(scale, moments::Real(1.0)),
+        resid <= moments::Real(1e-12) * std::max(resid_scale, moments::Real(1.0)),
         "fluids.moment: the charge-conserving deposition broke the algebraic continuity "
         "identity (rho and J no longer come from the same mass flux)");
 

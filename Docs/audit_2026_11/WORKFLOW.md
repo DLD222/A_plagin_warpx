@@ -86,6 +86,28 @@ bash Tools/verify/run_gates.sh
 （`Source_Plugins_Fluid` 没有独立 review 文件，流体/星体的条目在 `Source_Plugins_Star.md` 里。）
 条目由粗到细都可以，只要**先认领再动手**。
 
+## 5.5 多个会话共用**同一个工作树**时的硬规则（2026-11-15 事故）
+
+已经发生过一次：`93afb3b`（一个 `Tools_Tests` 会话的提交）把我未提交的 ParticleCore 改动
+一并 `git add` 进了它自己的提交里，提交信息与我做的事完全无关。代码状态没错，但历史被污染，
+而且有把别人**半成品**提交上去的风险。
+
+因此共用工作树时：
+
+1. **禁止 `git add -A` / `git add .` / `git commit -a`**。只 `git add <你改的那些具体路径>`。
+2. 提交前跑 `git status --porcelain`，逐个确认待提交路径都是你改的；不是你的，**不要提交**。
+3. 构建/测试会互相干扰（同一个 `audit_build/fork`）：改代码前先看一眼 `ps -eo args | grep -E "ctest|warpx\."`，
+   别人在跑全量时不要重建二进制（会让你自己的对比结果失真，也会让对方的运行中途换二进制）。
+4. 更好的做法：每个会话用自己的 worktree 或 clone：
+
+```bash
+git worktree add ../wt-star -b star-work     # 各写各的树，共用 .git
+cd ../wt-star && cmake -S . -B audit_build/fork ...   # 需要各自构建一次
+```
+
+5. 推送前 `git pull --rebase origin main`；若发现自己把别人的半成品带进了提交，先 `git reset --soft`
+   再按路径重提，并在 `claims/` 里记一笔。
+
 ## 6. 已知的"别碰"清单
 
 - `Docs/audit_2026_11/{REPORT,FIXES,CODE_AUDIT,ATTRIBUTION}.md`：集成者维护，会话不要改。
