@@ -35,7 +35,7 @@
 | Python | F8 | minor | `_amrex_argv`：脚本自身的 `--flag` 若出现在第一个覆盖参数之后会破坏 ParmParse | fixed |
 | Python | F9 | minor | 打包/卫生问题 | fixed |
 | Source_Core_Misc | F1 | major | `doDirectGatherVectorField(order,…)` 运行时版本对非法阶数**静默不做任何 gather** | fixed |
-| Source_Core_Misc | F2 | major | split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致） | todo |
+| Source_Core_Misc | F2 | major | split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致） | invalid |
 | Source_Core_Misc | F3 | minor | `ImplicitOptions::particle_shape` 未初始化，且新增的 `ncomp_*` 块是死状态 | fixed |
 | Source_Core_Misc | F4 | minor | `FilterFunctors.H` 存在两份同 include-guard 的副本 | fixed |
 | Source_Core_Misc | F5 | minor | `Fields.H`：FieldType 枚举中段插入新值（数值全平移）——已核查无消费者，仅记录风险 | invalid |

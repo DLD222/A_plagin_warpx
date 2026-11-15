@@ -246,3 +246,22 @@ F7 仍 wip：legacy/Python 路径的 collision handler 是 `RunCollisionStage` �
 不存在 ⇒ `declare_state` 在这条路径上是死代码。修复需要把 handler 的创建前移到 `InitData`
 （`AllocPluginFields` 从 `ctx->state->requested_fields()` 取声明，见 `WarpX.cpp:2770-2790`），
 属跨模块时序改动，下一轮单独做并配 legacy 路径的 deck 验证。
+
+## 第七轮：Core_Misc F2 复核为 **invalid**（与 26.11 逐字相同）
+
+F2 说"split-gather 路径把 B 的 Galerkin 降阶丢了、与 fused 路径语义不一致"。按 26.11 基准核对：
+
+- 26.11 的 `_upstream/warpX-26.11/Source/Particles/PhysicalParticleContainer.cpp:1356-1364` 就是
+  `doDirectGatherVectorField(orders.e_shape, orders.e_galerkin, ...)` + 
+  `doDirectGatherVectorField(orders.b_shape, false, ...)`——**B 传 false 与 fork 逐字相同**；
+- 26.11 的 `FieldGatherOrders`（`26.11/Source/Particles/WarpXParticleContainer.H:180-185`）同样只有
+  `e_shape / e_galerkin / b_shape`，也**没有** `b_galerkin` 字段；
+- 26.11 的 `SemiImplicitDarwin.cpp:193` 构造参数也与 fork 的 `SemiImplicitDarwin.cpp:191` 逐字相同
+  （`e_galerkin = m_predictor_use_galerkin`，`b_shape = m_magnetostatic_particle_shape`）。
+
+所以"fork 自己的回归"不成立：这是 26.10→26.11 上游自己引入的 split-gather API 的语义。
+另外复核了内核本身：`FieldGather.H:500-560` 的 `sx_by/sx_bz/sz_bx/sz_by` 是按
+"该分量在该方向是否 NODE"选 galerkin 数组的（`galerkin_interpolation=1` 时正确），
+并不存在报告担心的"槽位错配"——真正的问题只是调用点传 false，而那正是上游的行为。
+若要"比上游更好"，需要两边一起改（否则 400 例更不可能一致），故本条按基线判 invalid，
+并把"B-only split gather 未降阶"作为上游已知限制记在此处，不改代码。
