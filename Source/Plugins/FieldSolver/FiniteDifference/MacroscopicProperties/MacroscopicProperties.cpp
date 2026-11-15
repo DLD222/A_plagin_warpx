@@ -343,7 +343,11 @@ MacroscopicProperties::AllocateLevelMFs (
         m_eps_node[c]->setVal(amrex::Real(0.0));
         m_sigma_node[c]->setVal(amrex::Real(0.0));
         m_eps_inv_node[c]->setVal(amrex::Real(0.0));
-        m_jcond[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 1, 0);
+        // One ghost layer: the nodal rho_medium update reads J at the low node of a FAB,
+        // which is the neighbouring face; at a periodic domain edge that face is the
+        // wrapped ghost. Without the ghost the read is out of bounds (measured: rho_medium
+        // became 1e193 after one step in the periodic 2-D macroscopic deck).
+        m_jcond[c] = std::make_unique<amrex::MultiFab>(amrex::convert(ba, en[c]), dmap, 1, 1);
         m_jcond[c]->setVal(amrex::Real(0.0));
         m_j0_node[c]->setVal(amrex::Real(0.0));
         m_j1_node[c]->setVal(amrex::Real(0.0));

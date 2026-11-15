@@ -1215,18 +1215,33 @@ namespace {
 // boundary must be skipped (they carry a surface charge); shrinking every FAB, as
 // tilebox(...).grow(-1) did, also left a one-node hole at every internal FAB boundary,
 // where rho_medium was then neither seeded nor advanced.
+/** Ownership rule for the nodal rho_medium boxes: every nodal line is written by
+ *  exactly one FAB. The -1 stencil read at the low edge of a FAB lands in that FAB's
+ *  ghost (J now has one, filled for periodic directions), so an internal low line is
+ *  dropped and left to the previous FAB, whose high edge is kept. Shrinking both edges
+ *  -- the previous implementation -- leaves one unseeded/unupdated line per internal
+ *  FAB boundary; keeping both edges double-writes the line through an unfilled ghost.
+ */
+amrex::Box
+rho_medium_shrink_box (amrex::Box bx, amrex::Geometry const& geom)
+{
+    amrex::Box const& dom = geom.Domain();
+    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+        if (bx.smallEnd(d) > dom.smallEnd(d) || !geom.periodicity().isPeriodic(d)) {
+            bx.growLo(d, -1);
+        }
+        if (!geom.periodicity().isPeriodic(d) && bx.bigEnd(d) >= dom.bigEnd(d)) {
+            bx.growHi(d, -1);
+        }
+    }
+    return bx;
+}
+
 amrex::Box
 rho_medium_valid_box (amrex::MFIter const& mfi, amrex::Geometry const& geom,
                       amrex::IntVect const& nodal)
 {
-    amrex::Box bx = amrex::convert(mfi.validbox(), nodal);
-    amrex::Box const& dom = geom.Domain();
-    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-        if (geom.periodicity().isPeriodic(d)) { continue; }
-        if (bx.smallEnd(d) <= dom.smallEnd(d)) { bx.growLo(d, -1); }
-        if (bx.bigEnd(d) >= dom.bigEnd(d)) { bx.growHi(d, -1); }
-    }
-    return bx;
+    return rho_medium_shrink_box(amrex::convert(mfi.validbox(), nodal), geom);
 }
 } // namespace
 
@@ -1293,6 +1308,37 @@ WarpX::MacroscopicEvolveE (int lev, PatchType patch_type, amrex::Real a_dt, amre
             // process running two problems must re-seed). Ghost fill is done once here
             // (eps/sigma are static), not every step.
             if (!m_macroscopic_properties->rho_medium_seeded()) {
+                // Coverage self-check (runs once per seed): the per-FAB boxes must add up
+                // to exactly the interior nodal box of the domain. A per-FAB grow(-1) --
+                // the previous implementation -- left a one-node hole at every internal
+                // FAB boundary, where rho_medium was then neither seeded nor updated.
+                {
+                    amrex::Box const& dom = Geom(lev).Domain();
+                    amrex::Box expected = amrex::convert(dom, rho->ixType().toIntVect());
+                    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+                        if (Geom(lev).periodicity().isPeriodic(d)) { continue; }
+                        if (expected.smallEnd(d) <= dom.smallEnd(d)) { expected.growLo(d, -1); }
+                        if (expected.bigEnd(d) >= dom.bigEnd(d)) { expected.growHi(d, -1); }
+                    }
+                    // Nodal FABs share one node line with their neighbours, so the boxes
+                    // must be checked by union, not by counting nodes.
+                    amrex::BoxArray const cba(expected);
+                    amrex::DistributionMapping const cdm(cba);
+                    amrex::MultiFab covered(cba, cdm, 1, 0);
+                    covered.setVal(amrex::Real(0.0));
+                    // Iterate the BoxArray rather than MFIter: the update loops visit
+                    // exactly one (possibly tiled) FAB at a time, so the union of their
+                    // valid boxes is the union of the FAB boxes below.
+                    auto const& pba = rho->boxArray();
+                    for (int ib = 0; ib < pba.size(); ++ib) {
+                        amrex::Box const bx = rho_medium_shrink_box(pba[ib], Geom(lev));
+                        if (bx.ok()) { covered.setVal(amrex::Real(1.0), bx, 0, 1); }
+                    }
+                    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
+                        covered.min(0) == amrex::Real(1.0),
+                        "rho_medium: the per-FAB update boxes do not cover the domain interior "
+                        "exactly (a one-node hole is left at an internal FAB boundary)");
+                }
                 eps.FillBoundary(Geom(lev).periodicity());
                 sig.FillBoundary(Geom(lev).periodicity());
                 // E ghost too: the seed reads ex(i-1)/ez(j-1) at the domain edge, and the
