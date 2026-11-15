@@ -124,6 +124,24 @@ Conduction 的 3D 稳定子步（要与通量形式重写一起做）、`85fba09
 本轮末尾**冻结代码**并启动全量 411 例重跑（`audit_runs/round17_fork_junit.xml`），下一轮用它 + 官方
 26.11 的输出生成最终的 407 例对照表。
 
+## 0.7 round 18 追加
+
+又修 5 项（4 项 Python/Tools 真缺陷 + 1 项文档），并把两个检查脚本变成真的会失败：
+
+| 条目 | 内容 |
+|---|---|
+| `Python` F8 | `_amrex_argv` 把第一个覆盖参数之后的 `--flag` 原样交给 AMReX（会被当成参数名粘到上一个值上）；现在在 Python 层提前 `SystemExit` 并说明写法。新增 `tests/unit/test_amrex_argv.py`（6 passed） |
+| `Python` F4 | `analysis_collision_3d_pulsed_decay.py` 里中性权重误差的分母用了电离份额（报出的误差比真实值小 22%，等于放宽判据）→ 改用中性密度；两处 `==` 精确比较浮点改 `np.isclose(rtol=1e-12)` |
+| `Python` F7 | `ReducedDiagnostic` 的严格校验（拼错参数会 `ValidationError`）写进 docstring，说明表达式常量仍可用其它诊断类型的参数名 |
+| `Tools_Tests` F3（major） | `check_kernel_coupling.py` 的 5 个监控目录有 3 个在插件化后已不存在，脚本静默跳过却报 OK；修好后**立刻抓到 2 处真实残留耦合**（`FieldSolver/FiniteDifference/{EvolveF,FiniteDifferenceSolver}.cpp` 仍 `#include "WarpX.H"`），按脚本既有机制记入 allowlist 并注明是 S6 的下一步 |
+| `Source_Plugins_Diagnostics_A` F1（major） | 诊断 rho 的 ngrow 检查要求"逐方向需求 == 各向同性分配"，cfl>1 时必 abort —— **此前已修**，本轮复核确认 |
+
+`BACKLOG.md`：**fixed 51 / invalid 3 / todo 135**。
+
+> 注：全量重跑到 36/411 时发现一个**流程问题**——不设 `OMP_NUM_THREADS` 时每个 MPI rank 会
+> 铺满所有核，12 个用例并发时严重超订（单个用例 570 s，而 pin 到单线程后是 56 s）。已改为
+> `OMP_NUM_THREADS=1` 重跑，这也是"同二进制同分解"对比所要求的确定性前提。
+
 ## 1. 结论摘要
 
 1. **官方 26.10 已就位**：`_upstream/warpX-26.10/`（shallow clone，tag `26.10`）。
