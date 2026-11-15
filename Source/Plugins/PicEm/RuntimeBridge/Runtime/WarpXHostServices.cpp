@@ -116,6 +116,10 @@ WarpXHostServices::computeRho (int lev, int species_index, bool apply_rz_psatd_f
         rho->setVal(amrex::Real(0.0));
     }
 
+    // Trial (reverted): swapping FinalizeRhoOnLevel and ApplyFilterandSumBoundaryRho was
+    // measured on 2026-11-15 and did not reproduce upstream: it left the RZ laser rho and the
+    // per-species Ohm rho unchanged and made the magnetostatic Er worse (2.54e4 -> 2.73e4),
+    // so the original order below is kept.
     m_warpx.ApplyFilterandSumBoundaryRho(lev, lev, *rho, 0, rho->nComp());
     m_warpx.FinalizeRhoOnLevel(lev, rho.get(), PatchType::fine);
 
