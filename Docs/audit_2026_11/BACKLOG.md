@@ -17,10 +17,10 @@
 | Benchmarks | F10 | minor | 五个脚本周转着用了三个不同的 ε₀，而 README 的"约定"本身写错 | fixed |
 | Benchmarks | F11 | minor | `preflight.py` 的 σ 剖面包出死分支、非 `z>` 形式会崩、且 `eps_profile` 文档不符 | fixed |
 | Benchmarks | F12 | minor | `p1_tensor_reference.py` 的"切向旋转"用例是逐字节重复，未测任何东西；`--compare` 不返回失败 | fixed |
-| Benchmarks | F13 | minor | 关键阈值来自"观测到的散布"（事后调参），且没有预注册文件 | todo |
+| Benchmarks | F13 | minor | 关键阈值来自"观测到的散布"（事后调参），且没有预注册文件 | fixed |
 | Benchmarks | F14 | minor | 三份 md 的"代码事实"已被本 fork 自己的修改推翻，但仍以现状语气陈述 | todo |
 | Benchmarks | F15 | minor | 目录卫生：`__pycache__/*.pyc` 入库 | invalid |
-| Benchmarks | F16 | minor | `conductor_slab` 的"纯前向波"说法与自身另一脚本矛盾；提交的探针恰在被排除区 | todo |
+| Benchmarks | F16 | minor | `conductor_slab` 的"纯前向波"说法与自身另一脚本矛盾；提交的探针恰在被排除区 | fixed |
 | Benchmarks | F17 | minor | 多处 `print` 无门禁 / 无 assert（"verify"脚本不 verify） | fixed |
 | Benchmarks | F18 | minor | `verify_fresnel_rt.py` 的 q1/q2 注释与代码相反（代码是对的，注释会误导） | fixed |
 | Benchmarks | F19 | minor | `make_mie_cases.py` 的注释/文档与实际网格不符；单网格是为了绕开未定性不稳定 | fixed |
