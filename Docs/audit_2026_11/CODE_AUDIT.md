@@ -52,6 +52,41 @@
 | 11 | `applyElectromagneticSources` 取错场分量 E=(Ex,Ex,Ex) | 待修 |
 | 12 | `check_plugin_boundaries.py` 两条检查被丢弃 | **已修**（`89d248c`） |
 
+## 已修 / 已撤销 / 不成立的条目（round 13 汇总）
+
+| 报告 | 条目 | 状态 |
+|---|---|---|
+| `Diagnostics_A` | F1 rho 的 ngrow 断言各向同性比较 | 待定（cfl>1 的用例未覆盖） |
+| `Diagnostics_A` | F2 DivE/DivB 用 snapshot ncomps | **已修**（`edd72c4`） |
+| `Diagnostics_A` | F3 checkpoint `field_schema.txt` 多 rank 同写 | **已修**（只在 I/O rank 写） |
+| `Diagnostics_A` | F4 BTD 场 functor 没拿 ctx + `config_snapshot()` 兜底是全默认结构体 | **已修**（传播 ctx；兜底改 `FromLegacy()`） |
+| `Diagnostics_A` | F5 `LorentzTransformParticles` 用 `FromLegacy()` 取 boost | **已修**（新增 `frame()`，参数由调用点传入） |
+| `Diagnostics_A` | F6 JFunctor 诊断路径与上游不同 | **已撤销**：前移 `7970fb639` 后与 26.11 完全一致 |
+| `Diagnostics_A` | F7 用户报错里泄漏 `config().X()` | **已修**（4 处） |
+| `PicEm_A` | F3 `ComputeDualGeometry` 无条件调试打印 + 断言文案 | **已修**（verbose>2 门控） |
+| `PicEm_A` | F4 3D 张量介质 `rho_medium` 的 Dy 用错 eps 分量 | **已修**（benchmark 已重设） |
+| `PicEm_B` | F1 径向几何 rho filter 的标定分支 | **已撤销**：26.11 正是把那一支做成唯一实现 |
+| `PicEm_B` | F3 `WarpXParIter` 断链 | **已修**（`2829581`） |
+| `PicEm_B` | F5 三个 MomentsSolver 测试永远返回 0 | **已修**（`report()` 累积失败） |
+| `PicEm_B` | F6 `run_tests.sh` 路径失效 | **已修**（自定位 + `AMREX_INC`） |
+| `PicEm_B` | F8 诊断 rho 走 `FinalizeRhoOnLevel` | **已撤销**：26.11 的 `RhoFunctor` 就是这么做的 |
+| `Source_Core_Runtime_B` | F1 `warpx_stage_field` 抛异常过 C ABI | **已修** |
+| `Source_Core_Runtime_B` | F3 内核 `finalize()` 从不被调用 | **已修** |
+| `Source_Core_Runtime_B` | F4 `warpx_stage_geometry` 越界 | **已修** |
+| `Source_Core_Runtime_B` | F5 `StateRegistry::clear()` 不清 scalar | **已修** |
+| `Source_Plugins_Star` | F1 1D/2D Box 越界 | **已修**（196 处） |
+| `Source_Plugins_Star` | F2 自引力不算/不用 g | **已修**（发布 `g=-∇φ`） |
+| `Source_Plugins_Star` | F3 单位系统互斥 | **已修**（G 变参数，star 用 cgs） |
+| `Source_Plugins_Star` | F4 `applyElectromagneticSources` 越界取分量 | **已修** |
+| `Source_Plugins_Star` | F5 洛伦兹力缺 1/c | **已修** |
+| `Source_Plugins_Star` | F7 扩散子步超 3D 稳定限 | **辐射/中子/组分已修**；Conduction 留 open（与通量形式重写一起做） |
+| `Source_Plugins_Star` | F8 辐射扩散写回未初始化内存 | **已修** |
+| `Source_Plugins_Star` | F9 Dirichlet ghost 未填 | **已修**（解析 `-GM/r`） |
+| `Source_Plugins_Star` | F6 正定性下限 / F13 栈越界 / m12 子步静默截断 | **已修** |
+| `Python` | 6 处"被放宽的容差" | **不成立**：那是上游 26.11 自己改的值 |
+| `Tools_Tests` | `check_plugin_boundaries.py` 丢检查 | **已修**（`89d248c`） |
+| `Tools_Tests` | `parse_tests.py` 把 `_upstream/` 当本地树 | **已修**（`89d248c`） |
+
 ## 全部条目
 
 | # | 严重度 | 分区 | 标题 | 位置 |
