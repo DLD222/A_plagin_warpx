@@ -187,8 +187,13 @@ class WarpX(Bucket):
         # as a definition of its own: `my.in max_step=10 --verbose` glues "--verbose" onto the
         # previous value ("has multiple values"), with the error surfacing from C++ where the
         # Python argument that caused it is hard to spot.  Say so here instead.
+        def is_number(token):
+            # Values such as "-2.e-3" arrive as their own argument ("geometry.prob_lo= -2.e-3")
+            # and must not be mistaken for a script option.
+            return re.fullmatch(r"[+-]?(\d+\.?\d*|\.\d+)([eEdD][+-]?\d+)?", token) is not None
+
         for arg in args[first:end]:
-            if arg.startswith("-") and "=" not in arg:
+            if arg.startswith("-") and "=" not in arg and not is_number(arg):
                 raise SystemExit(
                     f"pywarpx: '{arg}' looks like an option of this script, but it comes after "
                     "an AMReX override; AMReX would take it as a parameter name. Put script "

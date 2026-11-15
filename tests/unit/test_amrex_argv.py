@@ -19,6 +19,10 @@ from pywarpx.WarpX import WarpX
         (["run.py", "max_step=10"], ["max_step=10"]),
         (["run.py", "max_step", "= 10"], ["max_step", "= 10"]),
         (["run.py", "--", "my.in", "max_step=5"], ["--", "my.in", "max_step=5"]),
+        # a value that spans arguments can be a negative number, which must not be read as an
+        # option of the script (this used to raise SystemExit)
+        (["run.py", "geometry.prob_lo=", "-2.e-3", "-2.e-3"],
+         ["geometry.prob_lo=", "-2.e-3", "-2.e-3"]),
     ],
 )
 def test_argv_is_split_into_script_options_and_overrides(

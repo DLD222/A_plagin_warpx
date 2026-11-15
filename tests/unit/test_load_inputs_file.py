@@ -72,7 +72,9 @@ def test_inputs_file_path_with_equals_sign(monkeypatch):
     an inputs file, which a parameter scan with directories like ``a0=2/`` hits.
     """
     scan_dir = pathlib.Path("a0=2")
-    scan_dir.mkdir()
+    # exist_ok: the four dimension tests share one working directory per build, and re-running
+    # the test (or a second ctest invocation) used to fail with FileExistsError here.
+    scan_dir.mkdir(exist_ok=True)
     geom = load_inputs_file(monkeypatch, ["run.py"], scan_dir / "inputs_test")
 
     assert list(geom.domain.size) == [16] * N_AXES[pywarpx.libwarpx.geometry_dim]

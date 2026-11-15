@@ -58,11 +58,25 @@ def main(argv):
     if not nodes:
         raise SystemExit(f"no tests collected from {directory}")
 
+    # Run pytest in the *working directory CMake gave us* (bin/pytest.WarpX.<SD>), not in the
+    # repository root: the tests create files (inputs_test, inputs_base, "a0=2/..."), and with the
+    # root as cwd every run polluted the source tree, the four dimension tests raced on the same
+    # file names, and a second run of the same test failed on mkdir() without exist_ok.
+    workdir = os.getcwd()
+
+    def absolute(node):
+        """pytest collected the ids relative to the repository root; we run elsewhere."""
+        path, sep, rest = node.partition("::")
+        return os.path.join(root, path) + (sep + rest if sep else "")
+
     failed = []
     for node in nodes:
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *extra, node],
-            cwd=root,
+            [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *extra,
+             absolute(node)],
+            cwd=workdir,
+            env={**os.environ, "PYTHONPATH": os.pathsep.join(
+                [p for p in (os.environ.get("PYTHONPATH"), root) if p])},
         )
         if result.returncode != 0:
             failed.append(node)
