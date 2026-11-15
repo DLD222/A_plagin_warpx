@@ -293,3 +293,39 @@ F6 fixed by 5d7a26d（Benchmarks）：`c02_0_pec` 的 6 个 oblique inputs 已�
 端到端跑 `analyze_cw.py --fixed-k` → 正常拟合（rms 5e-7…5e-4），不再 FileNotFound。
 
 审计总账（189 条，2026-11-15T21:00 核对）：**fixed 159 / invalid 30 / todo 0 / wip 0**。
+
+## 第九轮（验收主线）：比较器加固 + 发现"append 模式污染对比"的真实风险
+
+审计已 189/189 结案，本轮起转入 400 例验收。检查了验收工具链本身（`scripts/compare_case.py`、
+`compare_all.py`、`run_suite.sh`）并补了两个"诚实性缺口"（提交 2c6edeb）：
+
+1. **空运行目录不再算 identical**：原来任一侧没有文件时 `files_total=0` ⇒ `identical=True`，
+   等于把"崩溃在第一次输出之前"当成"与官方一致"。现在显式 `empty_run_dir` 且 `identical=False`。
+2. **openPMD 也报 field-scale 相对差**：原来 `max_rel_diff_field` 只由 plotfile 路径提供，
+   HDF5-only 的差异在 case 级这个指标上不可见（只能靠 abs 兜）。现在 `cmp_hdf5` 同样按
+   `max|field|` 归一化并计入 case 级最大值。
+3. `compare_all.py` 的 `summary.json` 新增 `failed_on_either_side`：任一侧 junit=failed 的用例单列，
+   不允许用"部分输出恰好一致"支撑结论。
+自测：真实用例对输出不变；空目录/单侧目录 → identical=False；合成 HDF5 1e-12 差异 →
+`max_rel_diff_field=1e-12`；`compare_all --only test_1d_collision_z` 正常。
+
+**独立抽查**：从已完成的 77 例里随机抽 5 例重跑比较器（不信任汇总表）——
+`test_2d_theta_implicit_symmetry`、`test_2d_langmuir_multi_mr_maxlevel2`、
+`test_3d_diff_lumi_diag_leptons_mr`、`test_1d_laser_injection_from_lasy_file_prepare`、
+`test_1d_ohm_solver_em_modes_rkf45_picmi` —— 全部 `max_abs_diff=0`、`max_rel_diff=0`，与汇总一致。
+
+**本轮发现的真问题（验收流程，不是代码）**：WarpX 的 reduced diagnostics 是 **append 模式**
+（`std::ofstream::app`）。在同一个运行目录里重跑用例会把多轮的行走拼进同一个文件：
+实测 `test_3d_beam_beam_collision` 官方侧是干净的 92 行（step 0..90），fork 侧重跑目录只有 30 行且
+step 序号为 `0,80,17,90`（三次运行混在一起）。后果：
+- 文本类 reduced diag 的 fork/official 对比会永远"有差异"，掩盖真正的数值差异；
+- 反过来说，用"部分输出一致"支撑结论也不可靠。
+因此新增 `scripts/clean_run_dirs.sh`（只删生成物，保留输入），供每轮 sweep 前使用；
+已完成的 77 例里有 5 例带这种 text_diff（`theta_implicit_planar_pinch_algmg`、
+`ohm_solver_em_modes_picmi`、`beam_beam_collision`、`theta_implicit_symmetry` 等），
+它们 case 级 `max_abs_diff=0`，但**不能算"逐字节/完全一致"**，只能算"已比较的数值一致、
+文本文件因追加污染不可比"，重跑前应清理目录。
+
+另：`ctest --show-only` 显示 fork 411 个 `.run`、官方 26.11 407 个；多出的 4 个是
+`test_2d_dynamic_regrid{,_remake,_remove,_uniform_b}`（fork 新功能，官方无对应物），
+官方侧没有 fork 缺的用例。这 4 例只能内部回归，不能计入"与官方逐例一致"。
