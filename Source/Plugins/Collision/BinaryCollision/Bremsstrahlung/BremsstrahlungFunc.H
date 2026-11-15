@@ -358,8 +358,15 @@ public:
                 amrex::Print() << "        n2 = " << n2 << "\n";
                 amrex::Print() << "        sigma_total = " << sigma_total << "\n";
 #endif
-                fmulti = std::max(fmulti/arg, 1.0_prt);
+                // Same order as upstream 26.11: `arg` is reset first, so the division is by 1 and
+                // `fmulti` keeps its value.  The fork had the two statements swapped, which
+                // reduced fmulti by the old (oversized) arg and therefore changed the photon
+                // weight by up to a factor `multiplier`.  No bundled case sets multiplier > 1, so
+                // the two forms agree everywhere it is tested -- but the produced photon weights
+                // differ for a user who does, and keeping upstream's form is what makes the
+                // outputs comparable.
                 arg = 1.0_prt;
+                fmulti = std::max(fmulti/arg, 1.0_prt);
             }
             //q12 = 1.0 - exp(-arg)
             amrex::ParticleReal const q12 = arg;
