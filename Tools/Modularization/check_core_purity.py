@@ -25,6 +25,65 @@ TOKENS = [
     "WarpX::",
 ]
 
+def strip_comments_and_strings(text):
+    """Blank out // and /* */ comments and string/char literals, keeping line structure.
+
+    The previous version only skipped lines whose *first* non-blank character was a comment
+    marker: a trailing ``// see WarpX::Evolve`` was reported as a violation, and a block-comment
+    continuation line that did not start with ``*`` was not skipped at all.
+    """
+    out = []
+    in_block = False
+    i = 0
+    n = len(text)
+    while i < n:
+        two = text[i:i + 2]
+        if in_block:
+            if two == "*/":
+                in_block = False
+                out.append("  ")
+                i += 2
+            else:
+                out.append("\n" if text[i] == "\n" else " ")
+                i += 1
+            continue
+        if two == "/*":
+            in_block = True
+            out.append("  ")
+            i += 2
+            continue
+        if two == "//":
+            while i < n and text[i] != "\n":
+                out.append(" ")
+                i += 1
+            continue
+        if text[i] in "\"'":
+            quote = text[i]
+            out.append(" ")
+            i += 1
+            while i < n and text[i] != quote:
+                out.append("\n" if text[i] == "\n" else " ")
+                if text[i] == "\\":
+                    i += 1
+                    if i < n:
+                        out.append(" ")
+                i += 1
+            if i < n:
+                out.append(" ")
+                i += 1
+            continue
+        out.append(text[i])
+        i += 1
+    return "".join(out)
+
+
+ALIAS_PATTERNS = [
+    # namespace W = WarpX;  -> every later W:: is a WarpX:: reference
+    re.compile(r"\bnamespace\s+(\w+)\s*=\s*WarpX\s*;"),
+    # using PC = PhysicalParticleContainer; -> later PC is a concrete type
+    re.compile(r"\busing\s+(\w+)\s*=\s*(\w+)\s*;"),
+]
+
 allowed = set()
 if ALLOWLIST.exists():
     for line in ALLOWLIST.read_text().splitlines():
@@ -40,11 +99,18 @@ for path in sorted(CORE.rglob("*")):
     if path.suffix not in (".H", ".h", ".cpp", ".cxx"):
         continue
     rel = str(path.relative_to(ROOT))
-    for lineno, line in enumerate(path.read_text(errors="ignore").splitlines(), 1):
-        stripped = line.lstrip()
-        if stripped.startswith(("//", "*", "/*")):
-            continue
-        for token in TOKENS:
+    text = strip_comments_and_strings(path.read_text(errors="ignore"))
+    for lineno, line in enumerate(text.splitlines(), 1):
+        tokens = list(TOKENS)
+        # A namespace alias of the singleton is the same reference as the literal token, and a
+        # `using X = <concrete type>` makes every later X a concrete-type reference; neither
+        # contained the literal token, so both used to pass silently.
+        for m in ALIAS_PATTERNS[0].finditer(text):
+            tokens.append(m.group(1) + "::")
+        for m in ALIAS_PATTERNS[1].finditer(text):
+            if m.group(2) in TOKENS:
+                tokens.append(m.group(1))
+        for token in tokens:
             pattern = (re.escape(token) if token.endswith("::")
                        else r"\b" + re.escape(token) + r"\b")
             if re.search(pattern, line):
@@ -66,5 +132,9 @@ if errors:
     for err in errors:
         print("  " + err)
     sys.exit(1)
+
+if not CORE.is_dir():
+    print(f"core purity: {CORE} does not exist - the check would pass vacuously", file=sys.stderr)
+    sys.exit(2)
 
 print(f"core purity OK ({len(found)} known references, {len(errors)} new)")
