@@ -271,3 +271,29 @@ fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需
 | `eb9115c3a` | 把 J 的反体积缩放移入 `FinalizeJOnLevel`、去掉 PEC 反射边界里的径向 `rscale`；16 文件 ±265 行 | 上游 CI 因此变化的是 `test_rz/rc_theta_implicit_dynamic_pinch`（1e-6…1e-8）与 `test_rz_ohm_solver_cylinder_compression_picmi`（1e-6）。**这是当前 `test_rz_ohm_solver_cylinder_compression_picmi` 残余 2.6e4 的最可能原因** |
 | `85fba0911` | 1D RSPHERE 下禁止非物理电磁项，12 文件 | 只影响 1D RSPHERE |
 | `f2c086e33` | MoveWindow 交换 RZ PML 角点 guard cells | 影响 RZ + moving window + PML |
+
+### `eb9115c3a` 在 fork 里的具体落点（已定位，未实施）
+
+26.11 里 `ApplyInverseVolumeScalingToCurrentDensity` **只有一个调用点** —— 在
+`WarpX::FinalizeJOnLevel` 内（`Evolve/WarpXEvolve.cpp:938`），也就是"先按边界折叠、
+再做反体积标定"。fork 有 **7 个**调用点，且都已经有 26.11 的 finalization：
+
+| # | 位置 | 26.11 的处理 |
+|---|---|---|
+| 1 | `WarpXEvolve.cpp:1866`（`PushParticlesandDeposit`，经典路径） | 删除；改由 `FinalizeJ()` 统一做 |
+| 2 | `WarpXPushFieldsHybridPIC.cpp:333`（逐物种 J_spec） | 删除；逐物种的 `FinalizeJOnLevel` 已存在（fork 自己加的） |
+| 3 | `WarpXPushFieldsHybridPIC.cpp:381`（总 J） | 删除；`FinalizeJ()` 已覆盖 |
+| 4 | `WarpX_Magnetostatic.cpp:121`（`finalize_current` 回调） | 删除 |
+| 5 | `ImplicitKernelServicesBuilder.cpp:46`（service 提供者） | 删除调用（质量矩阵的标定改为放到 `ApplyJfieldBoundary` 之后） |
+| 6 | `WarpXHostServices.cpp:268`（service 包装） | 保留但不要再被调用 |
+
+为什么现在还没出现大错：fork 在经典 RZ 路径上**没有**在 `FinalizeJ()` 里再标定一次
+（`FinalizeJ` 只被部分路径调用），所以没有双重标定；真正的差异是**次序** ——
+fork 在边界折叠之前标定，26.11 在之后。只有在反射边界（PEC/PMC/insulator）处两者才不同，
+量级正是上游 CI 记录的 1e-6…1e-8，也正是
+`test_rz_ohm_solver_cylinder_compression_picmi`（2.6e4，相对 1e-6）与两个
+theta-implicit pinch 用例的残余差异。
+
+移植这一步需要逐路径确认"删掉沉积处的标定之后，该路径确实会调用 `FinalizeJ()`"，
+属于下轮工作；风险点是漏删或漏调都会让 J 少一次标定（1/(2πr) 量级错误），因此必须
+用 RZ 用例逐个对照，不能一次改完不复核。
