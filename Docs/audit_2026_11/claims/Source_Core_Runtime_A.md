@@ -27,3 +27,18 @@ F12 fixed: `FieldGatherOrders` 三个成员补默认值（1 / false / 1）：该
 
 验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|gather|particle'` 133/133。
 反证: 把 F11 的回退（先 has 再检查）恢复后，新增的"两个 handler 先后 alias 同名"用例会通过而不报错。
+
+F6 fixed: 命名回调总线 `register_callback` 用 `registry()[name] = ...` **静默覆盖**先注册者
+  （`has_callback` 仍为 true），现在重名直接 throw 并提示给事件名加命名空间前缀；
+  `execute_callback` 对未注册名字原本静默 no-op（打错名字的插件永远不执行），现在按名字
+  只警告一次（保持"可选事件可以不注册"的语义）。
+F10 fixed: `ordered_specs()` 在"只有 declare() 没有 handler"时退化成 (point, priority) 排序、
+  跳过 read/write 依赖拓扑排序与环检测 —— 与有 handler 时的语义不一致，且"计划"与"实现"的顺序
+  可能不同而无人报警。现在两支都走 `order_indices()`。
+F4 fixed（文档级）: `StageContext::config` 是**冻结快照**（`Runtime::evolve()` 只在整段 evolve 前后
+  `sync_config()`，无法逐 step 刷新，因为 step 循环在内核里）。在字段上写明"这是快照；
+  需要实时值请走 `context->config`（转发到内核）"，把 F4 点名的坑族从"隐含"变成"写在类型上"。
+
+验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|service_registry|stage_dispatch'`
+  18/18、`ctest -R 'runtime_snapshot|plugin_|compile_only|stage_dispatch|task'` 17/17。
+反证: 回退 F6 的 throw 后，两个插件注册同名回调只会在后者的行为里体现（前者的回调消失，无任何输出）。

@@ -52,6 +52,13 @@ struct StageContext
     DataBus* bus = nullptr;
     HostServices* host = nullptr;
     const RuntimeData* data = nullptr;
+    //! Frozen view of the configuration, captured once per run (Runtime::sync_config()).
+    //!
+    //! It is a *snapshot*: `ncomps` and the other per-level sizes are those the run was
+    //! initialised with and are not refreshed between steps.  A handler that needs the live value
+    //! must read it through `context->config` (RuntimeConfig), which forwards to the kernel; use
+    //! this pointer only for values that cannot change during a run (e.g. algorithm choices in
+    //! `Runtime::initialize`).
     const RuntimeConfigSnapshot* config = nullptr;
     int step = 0;
     amrex::Real time = 0.0;
@@ -317,11 +324,14 @@ public:
             }
             return out;
         }
-        out = m_specs;
-        std::stable_sort(out.begin(), out.end(), [](const HandlerSpec& a, const HandlerSpec& b) {
-            if (!(a.point == b.point)) { return a.point < b.point; }
-            return a.priority < b.priority;
-        });
+        // Declaration-only view: order it with the same read/write dependency graph (and the same
+        // cycle detection) as the handler view above.  It used to fall back to a plain
+        // (point, priority) sort, so the "plan" and the "implementation" could disagree about the
+        // order and nothing complained.
+        out.reserve(m_specs.size());
+        for (const auto idx : order_indices(m_specs)) {
+            out.push_back(m_specs[idx]);
+        }
         return out;
     }
 
