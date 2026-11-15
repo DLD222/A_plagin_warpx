@@ -42,7 +42,7 @@
 | Source_Core_Misc | F6 | minor | `WarpXSolver{DOF,Vec}` 把 `"vector_potential_fp_nodal"` 映射到 `FieldType::vector_potential_fp_noda | todo |
 | Source_Core_Misc | F7 | minor | main.cpp：`Runtime` 构造期抛异常时 AMReX/MPI/PETSc 永不收尾（无 try/catch） | todo |
 | Source_Core_Runtime_A | F1 | major | `SpeciesHandle::numberOfParticles()` 永远返回启动时的粒子数（过期快照） | fixed |
-| Source_Core_Runtime_A | F2 | major | `declare()` 的规格会参与 `add()` 的写冲突检查 → "先声明计划、后注册执行 handler"这一受支持模式会直接抛异常 | todo |
+| Source_Core_Runtime_A | F2 | major | `declare()` 的规格会参与 `add()` 的写冲突检查 → "先声明计划、后注册执行 handler"这一受支持模式会直接抛异常 | fixed |
 | Source_Core_Runtime_A | F3 | major | 生命周期钩子 `on_level_created` / `on_checkpoint` / `on_restart` 从未被调用（死 API） | fixed |
 | Source_Core_Runtime_A | F4 | minor | `StageContext::config` 只给 `RuntimeConfigSnapshot`，且该 snapshot 在一次 run 里不会刷新 | todo |
 | Source_Core_Runtime_A | F5 | minor | `CollisionHandlerAdapter::apply` 的 null 检查是不可达的死代码，异常分支永远进不去 | todo |
@@ -88,8 +88,8 @@
 | Source_Plugins_Diagnostics_A | F5 | minor | `LorentzTransformParticles` 绕过传入的 context，直接用 `FrameState::FromLegacy()` | fixed |
 | Source_Plugins_Diagnostics_A | F6 | minor | 诊断 J 的按需沉积新增 `ApplyJfieldBoundary`，边界处与上游不同 | invalid |
 | Source_Plugins_Diagnostics_A | F7 | minor | 用户可见报错消息被替换成 C++ 语法；注释与代码不一致 | fixed |
-| Source_Plugins_Diagnostics_B | F1 | critical | regrid 后 TimeAveraged 诊断的累加和被清零（静默错误） | todo |
-| Source_Plugins_Diagnostics_B | F2 | major | LoadBalanceCosts 诊断写入仿真的 live cost 数组（诊断产生副作用） | todo |
+| Source_Plugins_Diagnostics_B | F1 | critical | regrid 后 TimeAveraged 诊断的累加和被清零（静默错误） | fixed |
+| Source_Plugins_Diagnostics_B | F2 | major | LoadBalanceCosts 诊断写入仿真的 live cost 数组（诊断产生副作用） | fixed |
 | Source_Plugins_Diagnostics_B | F3 | minor | `GetExternalEBField(pti, offset, myspc.runtime_context())` 的 parser 分支不判空 | todo |
 | Source_Plugins_Diagnostics_B | F4 | minor | 头文件里把 `#include` 写进了版权注释 | todo |
 | Source_Plugins_Diagnostics_B | F5 | minor | `WarpXOpenPMDPlot` 对 `m_runtime_context` / `config_snapshot` 直接解引用 | todo |

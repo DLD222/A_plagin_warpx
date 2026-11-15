@@ -73,6 +73,16 @@
   `grep -n "order == " Source/Core/Modules/Particles/Gather/FieldGather.H` 可见无兜底分支。
 
 ### F2 split-gather 路径把 B 的 Galerkin 降阶丢了（与 fused 路径语义不一致）
+
+> **已知限制（未修）**：拆分调用的模板函数把"降阶哪些分量"编码在**槽位**上
+> （x 方向降阶槽 {ex,by,bz}，y 方向 {ey,bx,bz}，z 方向 {ez,bx,by}），这是 Yee 布局下
+> "分量在其法向方向上降阶"的硬编码；B-only 调用把 Bx/By/Bz 放进槽 0/1/2 时，
+> 槽位模式就不再对应 B 的节点方向（By 需要在 x 和 z 两个方向都降阶，而槽位只能给一个方向），
+> 因此传 `true` 也并不正确。要真正修好需要把降阶判据从"槽位"改成"该分量在该方向是否 NODE"，
+> 这要重写 gather 热点内核（reduced shape 数组长度是模板参数），并用 400 个算例重验证逐位一致。
+> 影响面：仅 `implicit_evolve.predictor_use_galerkin=1`（默认）下的 semi-implicit Darwin 预条件，
+> 没有回归测试覆盖；本轮不动，已在本文件与 `BACKLOG.md` 标记为结构性待办。
+
 - 文件:行：`Source/Core/Modules/Particles/Gather/FieldGather.H:500-511`（fused 语义）与
   `Source/Plugins/ParticleCore/Particles/PhysicalParticleContainer.cpp:1357-1361`（split 调用，
   写死 `false`）；API 定义在 `FieldGather.H:346-349`
