@@ -141,14 +141,20 @@ def state(rho, t_k, x_h, y_he, z_metal):
     # untouched.
     for _ in range(3):
         n_h, n_hp, n_he, n_hep, n_hepp = solve(ne)
-        ions = n_hp + n_hep * 4.0 + n_hepp * 9.0 + n_z * Z_HEAVY ** 2
+        # sum_i n_i Z_i^2 for the Debye length: H+ (1), He+ (1), He2+ (4), heavy (Z^2).  The
+        # coefficients used to be 4 and 9, i.e. (Z+1)^2, which makes the Debye radius too short,
+        # the continuum lowering too small and the Saha balance wrong (this is the state the
+        # fluid_* regression tests are built on).
+        ions = n_hp + n_hep + 4.0 * n_hepp + n_z * Z_HEAVY ** 2
         rd = _debye_radius(t_k, ne, ions)
         if not math.isfinite(rd):
             break
         lowering = E_ESU * E_ESU / rd
         phi_h = _saha_constant(t_k, CHI_H - lowering)
         phi_he1 = _saha_constant(t_k, CHI_HE1 - 2.0 * lowering)
-        phi_he2 = _saha_constant(t_k, CHI_HE2 - 2.0 * lowering)
+        # He2+ has Z = 2, so the continuum is lowered by (Z+1) e^2 / R_D = 3 e^2 / R_D
+        # (see the comment at the top of this function); this line still used 2.
+        phi_he2 = _saha_constant(t_k, CHI_HE2 - 3.0 * lowering)
         lo = math.log10(max(1.0e-30, 1.0e-10 * n_h_tot))
         hi = math.log10(max(1.0, 10.0 * (n_h_tot + n_he_tot + Z_HEAVY * n_z)))
         flo = charge_residual(10.0 ** lo)
@@ -290,6 +296,15 @@ def nabla_ad(rho, t_k, x_h, y_he, z_metal, relative_step=1.0e-4):
 
 
 def selftest():
+    # 0. The Debye radius: the self-test used to be insensitive to the ion-sum coefficients, so a
+    #    (Z+1)^2 instead of Z^2 went unnoticed.  For a pure, fully ionised hydrogen plasma
+    #    sum_i n_i Z_i^2 == n_e, and 1/R_D^2 = 8 pi e^2 n_e / (k T).
+    ne_test, t_test = 1.0e20, 1.0e6
+    rd = _debye_radius(t_test, ne_test, ne_test)
+    rd_analytic = math.sqrt(K_B * t_test / (4.0 * math.pi * E_ESU ** 2 * 2.0 * ne_test))
+    print(f"debye radius: {rd:.6e} cm (analytic {rd_analytic:.6e} cm)")
+    assert abs(rd / rd_analytic - 1.0) < 1.0e-12, (rd, rd_analytic)
+
     # 1. The solar centre: fully ionised, so the mean molecular weight must be the ideal-gas one.
     centre = state(152.0, 1.558e7, 0.34, 0.64, 0.02)
     print(f"solar centre: n_e = {centre['n_e']:.4e} cm^-3, mu = {centre['mu']:.4f},"
