@@ -197,21 +197,24 @@ def main():
         # Opacity: the electron-scattering floor must be exact, and the analytic total must at
         # least be in the right decade at the centre.  Everything beyond that is what OPAL is
         # for, and the tool prints the failure so that it cannot be mistaken for agreement.
-        kes_centre = 0.2 * (1.0 + centre["X"])
-        assert abs(kes_centre - 0.2 * (1.0 + centre["X"])) < 1e-14
-        k_tot_centre = kappa_analytic(centre["T"], centre["rho"], centre["X"], centre["z"])[0]
+        # kappa_analytic returns (total, kes, kbf, kff): checking the *returned* scattering
+        # component against the documented 0.2(1+X) catches a wrong component order, which a
+        # locally recomputed value cannot (Tools_Tests/F20).
+        k_tot_centre, kes_centre, _kbf, _kff = kappa_analytic(
+            centre["T"], centre["rho"], centre["X"], centre["z"])
+        assert abs(kes_centre - 0.2 * (1.0 + centre["X"])) < 1e-12, kes_centre
         assert 0.2 <= k_tot_centre / centre["kappa"] <= 2.0, k_tot_centre / centre["kappa"]
         # Somewhere in the core the agreement has to be close, otherwise the rates themselves
         # would be suspect rather than the missing screening.
         assert min(abs(r["ratio"] - 1.0) for r in core) < 0.10, [
             r["ratio"] for r in core]
-        # And no layer may be off by more than a factor of three once it is actually burning.
-        assert worst < 2.0, worst
-        # No layer in the burning core may be off by more than 15%: before screening was added
+        # No layer in the burning core may be off by more than 6%: before screening was added
         # the centre sat at 0.864 and the deficit grew inwards with density, which is what
-        # identified the missing physics.  With Salpeter screening that trend disappears.
+        # identified the missing physics.  With Salpeter screening that trend disappears and the
+        # measured worst layer is 5.0%, so 6% is a regression bound, not a loose "factor".
+        assert worst < 0.06, worst
         for r in core:
-            assert abs(r["ratio"] - 1.0) < 0.15, (r["r"], r["ratio"])
+            assert abs(r["ratio"] - 1.0) < 0.06, (r["r"], r["ratio"])
         print("ssm_compare: all self-checks passed")
     return 0
 

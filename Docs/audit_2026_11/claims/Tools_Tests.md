@@ -1,6 +1,8 @@
 # Tools_Tests 工作日志
 
 claim: Tools_Tests F9,F15-F31 @lead-tools 2026-11-15T18:30
+F20 fixed by HASH(F20); 删掉恒真断言，改为校验 kappa_analytic 返回的 kes 分量 == 0.2(1+X)（能抓到返回值顺序错）；层间容差 15%→6%，删除与之重复的 worst<2.0；eps 比值在 SSM 为 0 时打 n/a、量级超 1e3 用 %g。验证: --selftest 通过（实测 worst 0.050）；反证: 把 epsilon_pp 放大 20% → AssertionError 1.1219 ✓
+F18 fixed by 05c0ecc; printf 改为打印真实 check() 计数（新增 checks 变量）。验证: 重编 test_nonpic_kernel_2d 后输出 'non-PIC kernel: 7 checks passed'，与源码中 7 处 check() 一致 ✓
 F22 fixed by HASH(F22); external_plugin 用 CMAKE_SHARED_LIBRARY_{PREFIX,SUFFIX} 与平台共享库标志（APPLE: -dynamiclib），非 UNIX 直接 return；tests/plugins 的 dlopen 测试加 POSIX 守卫。验证: ctest -R "plugin_|external_plugin" -j4 → 10/10 Passed ✓
 F17 fixed by HASH(F17); 5 个 stub 改名为 compile_only_*（含 <type_traits>），并在 tests/runtime/CMakeLists.txt 里显式 add_test。验证: ctest -R '^compile_only' -j4 → 5/5 Passed（此前这 5 个可执行文件从不出现在 ctest 里）✓
 F27 fixed by HASH(F27); load_state 已 setdefault 全部任务，原先 271-275 的合并循环是死代码，删掉并注释说明 JSON/state 的分工。验证: route_tasks.py next / report 均 exit 0、输出不变 ✓
