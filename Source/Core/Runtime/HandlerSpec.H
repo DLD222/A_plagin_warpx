@@ -231,14 +231,6 @@ public:
     {
         for (const auto& entry : m_plugins) { entry.plugin->on_level_created(ctx, lev); }
     }
-    void run_checkpoint (StageContext& ctx) const
-    {
-        for (const auto& entry : m_plugins) { entry.plugin->on_checkpoint(ctx); }
-    }
-    void run_restart (StageContext& ctx) const
-    {
-        for (const auto& entry : m_plugins) { entry.plugin->on_restart(ctx); }
-    }
     void run_finalize (StageContext& ctx) const
     {
         for (const auto& entry : m_plugins) { entry.plugin->on_finalize(ctx); }
@@ -331,6 +323,9 @@ public:
     void notify_regrid (StageContext& ctx) const
     {
         for (auto* handler : ordered()) { handler->on_regrid(ctx); }
+        // The plugin-level hook had no dispatcher at all (only the IHandler one above), so a
+        // plugin implementing IPluginLifecycle::on_regrid was never called.
+        for (const auto& entry : m_plugins) { entry.plugin->on_regrid(ctx); }
     }
 
     [[nodiscard]] std::vector<IHandler*> ordered () const

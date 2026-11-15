@@ -1325,6 +1325,8 @@ private:
     void RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt);
     void RunDiagnosticsStage (int step);
     void RunRegridStage (int step);
+    //! Dispatch IPluginLifecycle::on_level_created for a freshly built level.
+    void NotifyLevelCreated (int lev);
     void FlushDiagnostics (int step);
     void RunFieldSolveStage (amrex::Real a_cur_time);
     //! Dispatch the intervals that start at a stage boundary, so a plugin

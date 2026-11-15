@@ -12,6 +12,7 @@
 #include "Runtime/RuntimeConfig.H"
 #include "Runtime/SpectralSolverFactory.H"
 #include "Runtime/RuntimeContext.H"
+#include "Runtime/HandlerSpec.H"
 #include "Runtime/StateRegistry.H"
 #include "Runtime/LegacyServices.H"
 #include "RuntimeBridge/Runtime/WarpXRuntimeData.H"
@@ -2498,6 +2499,22 @@ WarpX::MakeNewLevelFromScratch (int lev, Real time, const BoxArray& new_grids,
 {
     AllocLevelData(lev, new_grids, new_dmap);
     InitLevelData(lev, time);
+    NotifyLevelCreated(lev);
+}
+
+void
+WarpX::NotifyLevelCreated (int lev)
+{
+    // Plugin lifecycle hook.  `IPluginLifecycle::on_level_created` used to have no caller at all,
+    // so a plugin that allocated per-level buffers there silently never saw a level; this is the
+    // one place every level goes through (initial hierarchy and dynamic refinement both funnel
+    // into MakeNewLevelFromScratch).
+    if (m_plugin_host == nullptr || m_runtime_context == nullptr ||
+        m_runtime_context->host == nullptr) { return; }
+    warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
+                                     m_runtime_context->host, m_runtime_context->data,
+                                     m_runtime_context->config_snapshot};
+    m_plugin_host->run_level_created(ctx, lev);
 }
 
 // This is a virtual function.

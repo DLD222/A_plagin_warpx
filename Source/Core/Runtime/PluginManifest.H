@@ -98,8 +98,11 @@ public:
     virtual void on_level_created (StageContext& /*ctx*/, int /*lev*/) {}
     //! An existing level was remade (regrid / load balance).
     virtual void on_regrid (StageContext& /*ctx*/) {}
-    virtual void on_checkpoint (StageContext& /*ctx*/) {}
-    virtual void on_restart (StageContext& /*ctx*/) {}
+    // NOTE: there is deliberately no on_checkpoint / on_restart here.  Both existed but nothing
+    // ever dispatched them (a plugin implementing them would silently never be called), and
+    // wiring them needs a notification from the checkpoint writer, which does not have the plugin
+    // host.  Plugin state that must survive a restart is declared through on_schema() and is
+    // written by the core; if a plugin needs its own file, do it in on_finalize()/on_init().
     //! Release resources; called once, after the last step.
     virtual void on_finalize (StageContext& /*ctx*/) {}
 };
