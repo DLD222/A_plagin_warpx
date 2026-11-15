@@ -342,3 +342,16 @@ theta-implicit pinch 用例的残余差异。
   及其在 `ImplicitKernelServicesBuilder` 里的实现。
 
 J 的径向标定现在只有一个入口：`WarpX::FinalizeJOnLevel`。
+
+## round 12 收尾：又修掉的 review 条目
+
+| 条目 | 内容 | 位置 | 验证 |
+|---|---|---|---|
+| F3 | 内核 `ISimulationKernel::finalize()` 从不被调用（第三方内核的收尾逻辑被静默跳过） | `Source/Core/Runtime/Runtime.cpp` | `finalize()` 里在 handler 之后调用 `m_kernel->finalize()`，再 `clear()` |
+| F5 | `StateRegistry::clear()` 不清 scalar（同进程第二次运行看到上次的 scalar） | `Source/Core/Runtime/StateRegistry.cpp` | 连 `m_scalars.clear()` 一起清 |
+| F4 | `warpx_stage_geometry()` 对 `lev > finestLevel` 是 `Vector::operator[]` 越界，不是返回 0 | `Source/Core/Runtime/PluginCAdapter.cpp` | 加上界判断（+ 上轮的 try/catch）；插件按"返回 0 = 没有这一层"探测才可靠 |
+| F5/F7/F8/m12（star 插件） | 洛伦兹力缺 1/c、显式扩散子步超 3D 稳定限、辐射扩散把未初始化内存写回、`max_sub` 到顶静默少走时间 | `FluidMoments/{Electromagnetic,Radiation,Neutrino,Composition,Conduction}.H` | `ctest -R '^(gravity_\|fluid_)'` 33/33 |
+| F9（star 插件） | 引力开放边界的 Dirichlet ghost 从未填充（势解依赖未初始化内存） | `NewtonGravity.cpp`、`StarGravityPlugin.cpp` | `rhs.setVal(0)`；插件用解析 `-GM/r` 填 ghost |
+
+**仍然失败、且已用 stash 重建核对为"本轮之前就有"**：`runtime_snapshot_particles_2`
+（`inputs_2d_particles` 夹具缺 reduced-diag 声明）、`plugin_c_abi_header_2d`（已修，见 FIXES #20）。
