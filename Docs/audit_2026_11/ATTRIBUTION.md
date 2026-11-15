@@ -217,7 +217,7 @@ fork 与 26.10 的差异至少有三种来源，其中"上游演进"根本不需
 | `test_rz_langmuir_multi_psatd_current_correction` | 3.7e2 | 3.1e2 | 3.0e2 | RZ+PSATD 电流修正，**待查**（三者互差同量级） |
 | `test_rz_psatd_JRhom_LL2` | 6.6 | 1.1e1 | 9.1e-2 | 待查（JRhom 迭代） |
 | `test_rz_ohm_solver_cylinder_compression_picmi` | 2.6e4 | 2.6e4 | 2.7 | 待查（逐物种场 + 粒子权重，见下面的 id 配对说明） |
-| `test_2d_collisions_split_momentum_push_electrostatic` | 1.7e17 | 5.8e16 | 1.7e17 | 待查（ES 的 j 诊断，量级 1e17 说明是未初始化/未标定场而不是物理差异） |
+| `test_2d_collisions_split_momentum_push_electrostatic` | 1.7e17 | 5.8e16 | 1.7e17 | **已定位**：t=0 的 `j` 在 fork 与 26.10 之间**逐位相同**（0.0），而 26.11 的 `j` 与两者差 4.5e16；同一时刻 `E/B/rho` 则是 fork == 26.11。即该用例的场是上游演进、只有 `j` 诊断停在 26.10 一侧 —— 正是 fork 未带 `7970fb639`（J 诊断 finalization） |
 
 真正还需要动手的只有：`test_rz_langmuir_multi*` 家族（含 PSATD current correction、JRhom）、
 `test_rz_ohm_solver_cylinder_compression_picmi`、`test_2d_collisions_split_momentum_push_electrostatic`。
