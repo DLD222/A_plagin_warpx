@@ -125,7 +125,11 @@ int main (int argc, char* argv[])
                     for (int k = star_box_lo(bx, 2); k <= star_box_hi(bx, 2); ++k) {
                         for (int c = 0; c < n_comp; ++c) { s(i, j, k, c) = 0.0; }
                         // solar-like composition, the network's own species
-                        amrex::Real const w[4] = {0.70, 0.28, 0.02, 0.0};
+                        // Sized by the network's species count: it used to be a w[4] that the
+                        // loop then indexed up to n_species (9), i.e. five reads of stack memory
+                        // past the array, which fed garbage (possibly negative) densities to the
+                        // CF88 network.  The remaining species start at zero.
+                        amrex::Real const w[n_species] = {0.70, 0.28, 0.02};
                         amrex::Real wsum = 0.0;
                         for (int a = 0; a < n_species; ++a) { wsum += w[a]; }
                         for (int a = 0; a < n_species; ++a) {

@@ -66,6 +66,13 @@ int star_box_hi (amrex::Box const& b, int d) noexcept
  *  three dimensions needs 5; a full solar network with a few species stays well below 16. */
 constexpr int max_components = 16;
 
+/** Smallest density / pressure / internal energy the primitives will return.
+ *
+ *  Not a physical floor: it exists so that a non-positive reconstructed state cannot turn into a
+ *  division by zero, a negative pressure or a NaN sound speed.  Callers that care about accuracy
+ *  next to a vacuum treat "floored" as "fall back to first order". */
+constexpr amrex::Real real_floor = 1.0e-300;
+
 /** Component layout of the state:
  *  [rho_0 .. rho_{ns-1}, mom_x, mom_y, mom_z, E, extra_0 .. extra_{ne-1}].
  *
@@ -111,7 +118,12 @@ struct IdealGasEOS
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     amrex::Real soundSpeed (amrex::Real rho, amrex::Real p) const noexcept
     {
-        return std::sqrt(gamma * p / rho);
+        // Guarded so that a state which slipped through the reconstruction with p <= 0 or
+        // rho <= 0 gives a finite (small) speed instead of NaN, which would make the global
+        // maximum wave speed -- and hence dt -- NaN for the whole step.
+        amrex::Real const r = amrex::max(rho, real_floor);
+        amrex::Real const pr = amrex::max(p, real_floor);
+        return std::sqrt(gamma * pr / r);
     }
 };
 
@@ -136,14 +148,22 @@ void primitive (amrex::Real const* U, StateLayout const& layout, EOS const& eos,
     int const ns = layout.n_species;
     rho = amrex::Real(0.0);
     for (int s = 0; s < ns; ++s) { rho += U[layout.density(s)]; }
+    // Positivity floors.  A strong rarefaction (or a MUSCL-reconstructed state next to a vacuum
+    // cell) can make the density or the internal energy non-positive; without the floors the
+    // velocity is a division by zero, `eos.pressure` goes negative and `soundSpeed` takes the
+    // square root of a negative number, i.e. one bad cell poisons the whole step through the
+    // global maximum wave speed.  Clamping here keeps every consumer finite; the caller is
+    // responsible for falling back to first order where that happens (see the sweep in
+    // StarFluidPlugin), because a floor is not a fix for a bad reconstruction.
+    rho = amrex::max(rho, real_floor);
     amrex::Real mom2 = amrex::Real(0.0);
     for (int d = 0; d < AMREX_SPACEDIM; ++d) {
         vel[d] = U[layout.momentum(d)] / rho;
         mom2 += U[layout.momentum(d)] * U[layout.momentum(d)];
     }
     E = U[layout.energy()];
-    amrex::Real const e_int = E - amrex::Real(0.5) * mom2 / rho;
-    p = eos.pressure(rho, e_int);
+    amrex::Real const e_int = amrex::max(E - amrex::Real(0.5) * mom2 / rho, real_floor);
+    p = amrex::max(eos.pressure(rho, e_int), real_floor);
 }
 
 /** Physical flux F(U) in the normal direction `dir` (equation 2.3). */
