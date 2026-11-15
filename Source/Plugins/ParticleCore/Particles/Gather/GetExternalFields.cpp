@@ -67,6 +67,13 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
 
     if (cfg.E_ext_particle_s() == "parse_e_ext_particle_function")
     {
+        // Every other service lookup in this constructor is guarded (repeatedPlasmaLens,
+        // acceleratorLattice above); this branch dereferenced `ps` unconditionally, so a context
+        // without the particle system crashed here instead of saying what is missing.
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            ps != nullptr,
+            "E_ext_particle_init_style = parse_e_ext_particle_function needs the particle system "
+            "service in the runtime context");
         m_Etype = ExternalFieldInitType::Parser;
         m_Exfield_partparser = ps->externalFieldParser("Ex")->compile<4>();
         m_Eyfield_partparser = ps->externalFieldParser("Ey")->compile<4>();
@@ -75,6 +82,10 @@ GetExternalEBField::GetExternalEBField (const ParIterType& a_pti, long a_offset,
 
     if (cfg.B_ext_particle_s() == "parse_b_ext_particle_function")
     {
+        WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+            ps != nullptr,
+            "B_ext_particle_init_style = parse_b_ext_particle_function needs the particle system "
+            "service in the runtime context");
         m_Btype = ExternalFieldInitType::Parser;
         m_Bxfield_partparser = ps->externalFieldParser("Bx")->compile<4>();
         m_Byfield_partparser = ps->externalFieldParser("By")->compile<4>();
