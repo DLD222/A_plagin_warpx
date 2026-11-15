@@ -21,6 +21,7 @@
 #include "Runtime/NullDiagnosticsService.H"
 #include "Runtime/RuntimeData.H"
 
+#include <map>
 #include <stdexcept>
 #include <string>
 
@@ -44,7 +45,14 @@ struct Registry
     ParticleThermalizerFactory particle_thermalizer = nullptr;
     ParticleSystemFactory particle_system = nullptr;
     //! Set when two plugins register the same kind of service (finding F-09).
-    std::string conflict;
+    //!
+    //! One string *per kind*: a single shared string made every create_*() throw for whichever
+    //! kind happened to conflict first, so "two collision handlers" broke
+    //! create_diagnostics_service() with a message about collision handlers (finding Runtime_B/F9).
+    std::map<std::string, std::string> conflicts;
+    std::string& conflict_of (char const* kind) { return conflicts[kind]; }
+    //! Bumped by clear_service_factories(); the legacy_* holders compare it so they rebuild.
+    unsigned generation = 0;
 };
 
 /** Assign one factory slot, recording (not silently accepting) a second, different registration.
@@ -65,27 +73,27 @@ Registry& registry ()
 void
 register_diagnostics_factory (DiagnosticsServiceFactory factory)
 {
-    assign_factory(registry().diagnostics, factory, "diagnostics", registry().conflict);
+    assign_factory(registry().diagnostics, factory, "diagnostics", registry().conflict_of("diagnostics"));
 }
 
 void
 register_reduced_diags_factory (ReducedDiagsServiceFactory factory)
 {
-    assign_factory(registry().reduced_diags, factory, "reduced-diagnostics", registry().conflict);
+    assign_factory(registry().reduced_diags, factory, "reduced-diagnostics", registry().conflict_of("reduced-diagnostics"));
 }
 
 void
 register_legacy_runtime_factories (LegacyRuntimeDataFactory data_factory,
                                   LegacyHostServicesFactory host_factory)
 {
-    assign_factory(registry().legacy_data, data_factory, "legacy-runtime-data", registry().conflict);
-    assign_factory(registry().legacy_host, host_factory, "legacy-host-services", registry().conflict);
+    assign_factory(registry().legacy_data, data_factory, "legacy-runtime-data", registry().conflict_of("legacy-runtime-data"));
+    assign_factory(registry().legacy_host, host_factory, "legacy-host-services", registry().conflict_of("legacy-host-services"));
 }
 
 void
 register_collision_handler_factory (CollisionHandlerFactory factory)
 {
-    assign_factory(registry().collision, factory, "collision-handler", registry().conflict);
+    assign_factory(registry().collision, factory, "collision-handler", registry().conflict_of("collision-handler"));
 }
 
 bool
@@ -99,7 +107,7 @@ create_collision_handler (const IParticleContainerAccess& particles,
                           const RuntimeData& data, const RuntimeConfig& config,
                           HostServices* host)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("collision-handler"));
     if (registry().collision == nullptr) { return nullptr; }
     return registry().collision(particles, data, config, host);
 }
@@ -107,7 +115,7 @@ create_collision_handler (const IParticleContainerAccess& particles,
 void
 register_electrostatic_solver_factory (ElectrostaticSolverFactory factory)
 {
-    assign_factory(registry().electrostatic, factory, "electrostatic-solver", registry().conflict);
+    assign_factory(registry().electrostatic, factory, "electrostatic-solver", registry().conflict_of("electrostatic-solver"));
 }
 
 bool
@@ -119,7 +127,7 @@ has_electrostatic_solver_factory ()
 std::unique_ptr<IElectrostaticSolver>
 create_electrostatic_solver (int algorithm, int max_level, const RuntimeContext* context)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("electrostatic-solver"));
     if (registry().electrostatic == nullptr) { return nullptr; }
     return registry().electrostatic(algorithm, max_level, context);
 }
@@ -127,7 +135,7 @@ create_electrostatic_solver (int algorithm, int max_level, const RuntimeContext*
 void
 register_particle_thermalizer_factory (ParticleThermalizerFactory factory)
 {
-    assign_factory(registry().particle_thermalizer, factory, "particle-thermalizer", registry().conflict);
+    assign_factory(registry().particle_thermalizer, factory, "particle-thermalizer", registry().conflict_of("particle-thermalizer"));
 }
 
 bool
@@ -139,13 +147,13 @@ has_particle_thermalizer_factory ()
 void
 register_particle_system_factory (ParticleSystemFactory factory)
 {
-    assign_factory(registry().particle_system, factory, "particle-system", registry().conflict);
+    assign_factory(registry().particle_system, factory, "particle-system", registry().conflict_of("particle-system"));
 }
 
 std::unique_ptr<IParticleSystem>
 create_particle_system (void* owner)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("particle-system"));
     if (registry().particle_system == nullptr) { return nullptr; }
     return registry().particle_system(owner);
 }
@@ -153,7 +161,7 @@ create_particle_system (void* owner)
 std::unique_ptr<IParticleThermalizer>
 create_particle_thermalizer ()
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("particle-thermalizer"));
     if (registry().particle_thermalizer == nullptr) { return nullptr; }
     return registry().particle_thermalizer();
 }
@@ -161,7 +169,7 @@ create_particle_thermalizer ()
 void
 register_finite_difference_solver_factory (FiniteDifferenceSolverFactory factory)
 {
-    assign_factory(registry().finite_difference, factory, "finite-difference-solver", registry().conflict);
+    assign_factory(registry().finite_difference, factory, "finite-difference-solver", registry().conflict_of("finite-difference-solver"));
 }
 
 bool
@@ -176,7 +184,7 @@ create_finite_difference_solver (ElectromagneticSolverAlgo algo,
                                  ablastr::utils::enums::GridType grid_type,
                                  const RuntimeContext* context)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("finite-difference-solver"));
     if (registry().finite_difference == nullptr) { return nullptr; }
     return registry().finite_difference(algo, cell_size, grid_type, context);
 }
@@ -184,7 +192,7 @@ create_finite_difference_solver (ElectromagneticSolverAlgo algo,
 void
 register_macroscopic_properties_factory (MacroscopicPropertiesFactory factory)
 {
-    assign_factory(registry().macroscopic, factory, "macroscopic-properties", registry().conflict);
+    assign_factory(registry().macroscopic, factory, "macroscopic-properties", registry().conflict_of("macroscopic-properties"));
 }
 
 bool
@@ -196,7 +204,7 @@ has_macroscopic_properties_factory ()
 std::unique_ptr<IMacroscopicProperties>
 create_macroscopic_properties ()
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("macroscopic-properties"));
     if (registry().macroscopic == nullptr) { return nullptr; }
     return registry().macroscopic();
 }
@@ -204,7 +212,9 @@ create_macroscopic_properties ()
 void
 clear_service_factories ()
 {
+    unsigned const generation = registry().generation + 1;
     registry() = Registry{};
+    registry().generation = generation;
 }
 
 bool
@@ -223,7 +233,7 @@ has_legacy_runtime_factories ()
 std::unique_ptr<IDiagnosticsService>
 create_diagnostics_service (const RuntimeContext* ctx)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("diagnostics"));
     if (registry().diagnostics == nullptr) {
         return std::make_unique<NullDiagnosticsService>();
     }
@@ -233,7 +243,7 @@ create_diagnostics_service (const RuntimeContext* ctx)
 std::unique_ptr<IReducedDiagsService>
 create_reduced_diags_service (const RuntimeContext* ctx)
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("reduced-diagnostics"));
     if (registry().reduced_diags == nullptr) {
         return std::make_unique<NullReducedDiagsService>();
     }
@@ -244,7 +254,7 @@ create_reduced_diags_service (const RuntimeContext* ctx)
 std::unique_ptr<RuntimeData>
 create_legacy_runtime_data ()
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("legacy-runtime-data"));
     if (registry().legacy_data == nullptr) {
         throw std::runtime_error(
             "Runtime: no legacy runtime provider is registered. Link the PicEm "
@@ -256,21 +266,35 @@ create_legacy_runtime_data ()
 const RuntimeData&
 legacy_runtime_data ()
 {
-    static const std::unique_ptr<RuntimeData> holder = create_legacy_runtime_data();
+    // Cached per "generation" instead of forever: a function-level static kept the first
+    // provider's object alive across clear_service_factories(), so a later registration never
+    // took effect (the same trap RuntimeConfig.H documents and avoids).  The generation is bumped
+    // by clear_service_factories().
+    static unsigned cached_generation = ~0U;
+    static std::unique_ptr<RuntimeData> holder;
+    if (cached_generation != registry().generation || !holder) {
+        holder = create_legacy_runtime_data();
+        cached_generation = registry().generation;
+    }
     return *holder;
 }
 
 HostServices&
 legacy_host_services ()
 {
-    static const std::unique_ptr<HostServices> holder = create_legacy_host_services();
+    static unsigned cached_generation = ~0U;
+    static std::unique_ptr<HostServices> holder;
+    if (cached_generation != registry().generation || !holder) {
+        holder = create_legacy_host_services();
+        cached_generation = registry().generation;
+    }
     return *holder;
 }
 
 std::unique_ptr<HostServices>
 create_legacy_host_services ()
 {
-    require_no_conflict(registry().conflict);
+    require_no_conflict(registry().conflict_of("legacy-host-services"));
     if (registry().legacy_host == nullptr) {
         throw std::runtime_error(
             "Runtime: no legacy host-services provider is registered. Link the "

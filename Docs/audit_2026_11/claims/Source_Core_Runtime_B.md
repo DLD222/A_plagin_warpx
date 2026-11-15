@@ -19,3 +19,16 @@ F14 invalid（已过时）: `legacy_costs()` 现在有真实调用者 —— `Pa
 验证: 增量构建通过；`ctest -R 'runtime_snapshot|plugin_|compile_only|service_registry|stage_dispatch|spectral|magnetostatic'` 24/24。
 反证: two-plugin 冲突用例在 `test_service_registry` 里对 ServiceFactory 已覆盖；新增的三个工厂走同一模板，
   行为一致（把 `require_no_conflict` 注掉后，两次注册会静默采用后者）。
+
+F9 fixed: `Registry::conflict` 只有**一个字符串**，而每个 `create_*()` 都无条件 `require_no_conflict()` ⇒
+  "两个插件注册了 collision-handler" 会让 `create_diagnostics_service()` 抛出关于 collision 的异常。
+  改成 `std::map<std::string,std::string> conflicts` + `conflict_of(kind)`，10 个 register/create 配对
+  各查自己那一类。
+F10 fixed: `legacy_runtime_data()` / `legacy_host_services()` 用函数级 `static const unique_ptr` 永久缓存
+  第一次 `create_legacy_*()` 的结果，`clear_service_factories()` 无法让它失效（测试里表现为"第二次注册
+  不生效/顺序相关"，正是 `RuntimeConfig.H` 自己写明要避免的坑）。现在按 `Registry::generation`
+  缓存，`clear_service_factories()` 递增它 ⇒ 下次调用会重建。
+
+验证: 增量构建通过；`ctest -R 'service_registry|runtime_snapshot|plugin_|compile_only'` 17/17。
+注: 中间出现一次 `No rule to make target 'lib/libwarpx.2d....a'` 的构建失败——是另一个会话同时在同一个
+  `audit_build/fork` 里跑 cmake/make 造成的（并行构建冲突），单独重试即通过。这条也要写进 WORKFLOW。
