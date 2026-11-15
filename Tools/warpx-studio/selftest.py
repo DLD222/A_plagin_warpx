@@ -163,6 +163,41 @@ def run_checks(port: int) -> None:
         check(f"报错翻译 → {expected}", bool(got) and got["param"] == expected,
               (got or {}).get("param", "None") + " / " + (got or {}).get("hint", "")[:40])
 
+    # ---- structured controls (v2) ---------------------------------------
+    from warpx_studio.deck import controls as ctl
+
+    status, cat = call(port, "/api/controls")
+    check("结构化控件清单", status == 200 and len(cat["field_bc"]) >= 8
+          and len(cat["particle_bc"]) >= 4 and len(cat["templates"]) >= 3,
+          f"{len(cat['field_bc'])} 种场边界 / {len(cat['particle_bc'])} 种粒子边界 / "
+          f"{len(cat['templates'])} 个表达式模板")
+
+    deck2d = minimal_deck("2d"); deck3d = minimal_deck("3d")
+    check("边界按维度拆分", ctl.boundary_values(deck2d, "boundary.field_lo") == ["periodic"] * 2
+          and ctl.boundary_values(deck3d, "boundary.field_lo") == ["periodic"] * 3,
+          "2D → 2 项，3D → 3 项")
+    ctl.set_boundary(deck2d, "boundary.field_hi", ["pml", "pec"])
+    check("边界写回", deck2d.get("boundary.field_hi") == "pml pec",
+          f"boundary.field_hi = {deck2d.get('boundary.field_hi')!r}")
+
+    good = ctl.check_expression("exp(-(x/w)**2)*cos(k*z)", known=("w", "k"))
+    bad = ctl.check_expression("sin(k*x")
+    unknown = ctl.check_expression("foo(x)")
+    check("表达式校验：合法", good["ok"] and not good["problems"], str(good["symbols"]))
+    check("表达式校验：括号", (not bad["ok"]) and "右括号" in bad["problems"][0], bad["problems"][0])
+    check("表达式校验：未知名字只警告", unknown["ok"] and unknown["warnings"],
+          unknown["warnings"][0][:40])
+    status, api_check = call(port, "/api/expression/check",
+                             {"text": "sin(k*x", "constants": []})
+    check("表达式校验 API", status == 200 and not api_check["ok"],
+          str(api_check["problems"]))
+    check("表达式键识别", ctl.is_expression_key("warpx.Ex_external_grid_function(x,y,z)")
+          and not ctl.is_expression_key("warpx.cfl"), "含 (x,y,z) 的 key 走表达式控件")
+    check("外场初始化风格", len(ctl.style_options("warpx.E_ext_grid_init_style")) >= 5
+          and "read_from_file" in ctl.style_options("<s>.B_ext_particle_init_style"),
+          f"{len(ctl.style_options('warpx.E_ext_grid_init_style'))} 种 grid / "
+          f"{len(ctl.style_options('x.E_ext_particle_init_style'))} 种 particle")
+
     # ---- binaries --------------------------------------------------------
     _, bins = call(port, "/api/binaries")
     binaries = bins["binaries"]

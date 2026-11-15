@@ -187,3 +187,18 @@ nohup env PYTHONPATH=$PWD/Tools/warpx-studio \
 2. 少了 GCC `-isystem` → `stddef.h` 找不到；
 3. `string_literals` 只看直接子节点 → 实参被 `UNEXPOSED_EXPR` 包装，**一个字面量都抓不到**；
 4. helper 形式 `query(pp, section, "key", var)` 的 receiver 是第一个实参（`children[0]` 是 callee 包装）。
+
+## v2 · 阶段 2：结构化控件（已跑通，51/51 自测）
+
+三类"其实是小语言"的参数不再要求手写裸字符串：
+
+| 参数族 | v1 | v2 |
+|---|---|---|
+| `boundary.field_lo/hi`、`boundary.particle_lo/hi` | `"periodic periodic"` 手写 | 按方向的下拉框（2D 给 2 个、3D 给 3 个，RZ 给 2 个），自动拼回字符串 |
+| `*_function`、`*(x,y,z)` 表达式 | 自由文本 | 多行编辑框 + 5 个模板 + "检查表达式"（括号平衡、非法字符、未知符号） |
+| `*_init_style` 外场/粒子初始化 | 自由文本 | 下拉框（grid 5 种 / particle 5 种，取自源码里的字符串比较） |
+
+表达式校验的原则：**括号不平衡/非法字符 = 错误，未知名字 = 警告**。因为 WarpX 接受任意
+`my_constants.*` 常量，把它们当错误会误拒本来合法的输入（`sin(k*x)` 里的 `k` 就是这种）。
+
+自测新增 9 项，覆盖：控件清单接口、2D/3D 边界项数、边界写回、表达式三种判定、API、键识别、风格选项。

@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from warpx_studio.deck import controls
 from warpx_studio.deck.model import Deck, minimal_deck
 from warpx_studio.deck.validate import translate_error, validate
 from warpx_studio import plugins as studio_plugins
@@ -82,6 +83,21 @@ def api_starter(dims: str = "2d"):
         return deck_from(minimal_deck(dims))
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
+
+
+@app.get("/api/controls")
+def api_controls():
+    return controls.catalogue()
+
+
+class ExpressionPayload(BaseModel):
+    text: str = ""
+    constants: list[str] = Field(default_factory=list)
+
+
+@app.post("/api/expression/check")
+def api_expression_check(payload: ExpressionPayload):
+    return controls.check_expression(payload.text, known=tuple(payload.constants))
 
 
 @app.post("/api/validate")

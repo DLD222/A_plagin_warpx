@@ -110,6 +110,14 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
   "<diag_name>": "diag", "<reduced_diags_name>": "rdiag", "<laser_name>": "laser",
   "<solver_name>": "solver" };
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
+let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
+const NDIMS = () => {
+  const raw = String(DECK.params["geometry.dims"] || "2").trim();
+  if (raw === "1" || raw === "RCYLINDER" || raw === "RSPHERE") return 1;
+  if (raw === "3") return 3;
+  return 2;
+};
+const isExpressionKey = (name) => /\(x\s*,\s*y\s*,\s*z\)$/.test(name) || name.endsWith("_function");
 
 const groupOf = (name) => {
   if (name.startsWith("<")) return name.split(">")[0] + ">";
@@ -154,7 +162,75 @@ function inputRow(name, value, onchange, instance) {
   lab.title = (zh ? zh + "\n\n" : "") + docOf(name) + (type ? `\n类型: ${type}` : "") +
     (guard.length ? `\n构建条件: ${guard.join("; ")}` : "");
   const box = document.createElement("div");
-  const options = (CATALOG.params.find(p => p.name === name) || {}).options || [];
+  if (CONTROLS.boundary_keys && CONTROLS.boundary_keys[name]) {
+    const kind = CONTROLS.boundary_keys[name];
+    const choices = kind === "field" ? CONTROLS.field_bc : CONTROLS.particle_bc;
+    const current = String(value || "").trim().split(/\s+/);
+    const parts = [];
+    const labels = ["x", "y", "z"];
+    for (let i = 0; i < NDIMS(); i++) {
+      const select = document.createElement("select");
+      select.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 4px;margin-right:4px";
+      for (const option of choices) {
+        const e = document.createElement("option");
+        e.value = option; e.textContent = `${labels[i]}: ${option}`;
+        select.appendChild(e);
+      }
+      const initial = current[i] || "periodic";
+      if (!choices.includes(initial)) {
+        const e = document.createElement("option"); e.value = initial; e.textContent = `${labels[i]}: ${initial}`;
+        select.appendChild(e);
+      }
+      select.value = initial;
+      parts.push(select);
+    }
+    const commit = () => onchange(parts.map(x => x.value).join(" "));
+    parts.forEach(x => { x.onchange = commit; box.appendChild(x); });
+    wrap.append(lab, box);
+    return wrap;
+  }
+  if (isExpressionKey(name)) {
+    const area = document.createElement("textarea");
+    area.value = value || "";
+    area.rows = 2;
+    area.style.cssText = "width:100%;background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px;font-family:ui-monospace,monospace";
+    area.oninput = () => { onchange(area.value); scheduleValidate(); };
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;gap:6px;margin-top:4px;align-items:center";
+    const tpl = document.createElement("select");
+    tpl.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 4px";
+    tpl.innerHTML = '<option value="">插入模板…</option>' +
+      Object.keys(CONTROLS.templates || {}).map(k => `<option value="${k}">${k}</option>`).join("");
+    tpl.onchange = () => {
+      if (!tpl.value) return;
+      area.value = CONTROLS.templates[tpl.value];
+      onchange(area.value); scheduleValidate();
+    };
+    const check = document.createElement("button");
+    check.textContent = "检查表达式";
+    const verdict = document.createElement("span");
+    verdict.style.cssText = "font-size:12px";
+    check.onclick = async () => {
+      const constants = Object.keys(DECK.params)
+        .filter(k => k.startsWith("my_constants.")).map(k => k.slice("my_constants.".length));
+      const r = await fetch("/api/expression/check", { method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: area.value, constants }) });
+      const out = await r.json();
+      if (out.problems.length) { verdict.style.color = "var(--err)"; verdict.textContent = out.problems.join("；"); }
+      else if (out.warnings.length) { verdict.style.color = "var(--warn)"; verdict.textContent = out.warnings[0]; }
+      else { verdict.style.color = "var(--ok)"; verdict.textContent = "语法 OK"; }
+    };
+    bar.append(tpl, check, verdict);
+    box.append(area, bar);
+    wrap.append(lab, box);
+    return wrap;
+  }
+  let options = (CATALOG.params.find(p => p.name === name) || {}).options || [];
+  if (!options.length && name.endsWith("_init_style")) {
+    options = (name.includes("particle") ? (CONTROLS.style_options || {}).particle
+                                         : (CONTROLS.style_options || {}).grid) || [];
+  }
   let inp;
   if (options.length) {
     inp = document.createElement("select");
@@ -474,6 +550,7 @@ async function switchDims(dims) {
 (async function init() {
   const data = await (await fetch("/api/catalog")).json();
   CATALOG = data.catalog; ZH = data.zh;
+  CONTROLS = await (await fetch("/api/controls")).json();
   const bins = await (await fetch("/api/binaries")).json();
   BINARIES = bins.binaries;
   fillBinaries(document.getElementById("dims").value);
