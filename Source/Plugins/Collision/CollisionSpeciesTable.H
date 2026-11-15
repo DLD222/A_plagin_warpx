@@ -68,7 +68,14 @@ public:
 
     void calculateNuei (const std::string& name) const
     {
-        if (m_calculate_nuei) { m_calculate_nuei(name); }
+        // Not a no-op when the callback is missing: the callers dereference the nuei_<species>
+        // and N_<species> fields this is supposed to fill, so skipping it would crash later in
+        // InverseBremsstrahlung::doCollisions instead of failing where the dependency is missing.
+        AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
+            m_calculate_nuei,
+            "CollisionSpeciesTable::calculateNuei: no calculate_nuei callback was installed "
+            "(the collision factory needs a host to compute nuei_<species> / N_<species>)");
+        m_calculate_nuei(name);
     }
 
 private:

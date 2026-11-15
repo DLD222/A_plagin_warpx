@@ -133,13 +133,23 @@ void InverseBremsstrahlung::doInverseBremsstrahlungWithinTile (
 
     const amrex::ParticleReal m_electrons = electrons.getMass();
 
-    amrex::MultiFab const & nuei =
-        *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields())
-             .get("nuei_" + electrons.getName(), lev);
+    auto* const nuei_mf = const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields())
+                              .get("nuei_" + electrons.getName(), lev);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        nuei_mf != nullptr,
+        "InverseBremsstrahlung: the field 'nuei_" + electrons.getName()
+            + "' is missing (was calculateNuei called for this species?)");
+    amrex::MultiFab const & nuei = *nuei_mf;
     amrex::FArrayBox const & nuei_fab = nuei[mfi];
     amrex::Real const * nuei_data = nuei_fab.dataPtr();
 
-    amrex::MultiFab const & N_e = *const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields()).get("N_" + electrons.getName(), lev);
+    auto* const N_e_mf = const_cast<ablastr::fields::MultiFabRegister&>(m_data->fields())
+                             .get("N_" + electrons.getName(), lev);
+    WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+        N_e_mf != nullptr,
+        "InverseBremsstrahlung: the field 'N_" + electrons.getName()
+            + "' is missing (was calculateNuei called for this species?)");
+    amrex::MultiFab const & N_e = *N_e_mf;
     amrex::FArrayBox const & N_e_fab = N_e[mfi];
     amrex::Real const * N_e_data = N_e_fab.dataPtr();
 
