@@ -76,6 +76,8 @@
   <button id="project-saveas" title="另存为新任务">另存为</button>
   <button id="project-delete" title="删除当前任务">🗑</button>
   <span id="project-state" style="font-size:12px;color:var(--dim)">未保存</span>
+  <label style="font-size:12px;color:var(--dim)" title="派生/别名的参数默认折叠，勾选后显示">
+    <input type="checkbox" id="show-derived"> 显示派生参数</label>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
   <button id="paraview" title="把当前结果导成 .vti/.pvd 并打开 ParaView">🔍 ParaView 深挖</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
@@ -205,12 +207,15 @@ async function saveProject(name) {
   setStatus("已保存：" + name, "var(--ok)");
   return true;
 }
-const NDIMS = () => {
-  const raw = String(DECK.params["geometry.dims"] || "2").trim();
-  if (raw === "1" || raw === "RCYLINDER" || raw === "RSPHERE") return 1;
-  if (raw === "3") return 3;
-  return 2;
-};
+function axisLabels() {
+  const raw = String(DECK.params["geometry.dims"] || "2").trim().toUpperCase();
+  const axes = (CONTROLS.axes || {})[raw];
+  if (axes) return axes;                    // 后端给定的唯一标准：1D=z，2D=x-z，3D=x-y-z，RZ=r-z
+  if (raw === "1") return ["z"];
+  if (raw === "3") return ["x", "y", "z"];
+  return ["x", "z"];
+}
+const NDIMS = () => axisLabels().length;
 const isExpressionKey = (name) => /\(x\s*,\s*y\s*,\s*z\)$/.test(name) || name.endsWith("_function");
 
 const groupOf = (name) => {
@@ -240,7 +245,12 @@ function ruleSatisfied(rule, instance) {
   if (rule.op === "falsy") return !["1", "true", "t", "yes"].includes(value);
   return value === String(rule.value).toLowerCase();
 }
+function hiddenAsDerived(name) {
+  return !SHOW_DERIVED && Object.prototype.hasOwnProperty.call(DERIVED, name);
+}
+
 function visible(name, instance) {
+  if (hiddenAsDerived(name)) return false;
   const rules = (CATALOG.gating_rules || {})[name];
   if (!rules || !rules.length) return true;
   return rules.some(r => ruleSatisfied(r, instance));
@@ -261,7 +271,7 @@ function inputRow(name, value, onchange, instance) {
     const choices = kind === "field" ? CONTROLS.field_bc : CONTROLS.particle_bc;
     const current = String(value || "").trim().split(/\s+/);
     const parts = [];
-    const labels = ["x", "y", "z"];
+    const labels = axisLabels();
     for (let i = 0; i < NDIMS(); i++) {
       const select = document.createElement("select");
       select.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 4px;margin-right:4px";
@@ -333,12 +343,18 @@ function inputRow(name, value, onchange, instance) {
     const blank = document.createElement("option");
     blank.value = ""; blank.textContent = "（未设置）";
     inp.appendChild(blank);
+    const gloss = GLOSSARY[name] || {};
     for (const opt of [...new Set([...options, ...(value ? [value] : [])])]) {
       const e = document.createElement("option"); e.value = opt; e.textContent = opt;
+      if (gloss[opt]) e.title = gloss[opt];
       inp.appendChild(e);
     }
     inp.value = value || "";
-    inp.onchange = () => { onchange(inp.value); markDirty(); scheduleValidate(); };
+    const hint = document.createElement("div");
+    hint.style.cssText = "font-size:11.5px;color:var(--dim);margin-top:2px;min-height:14px";
+    const showHint = () => { hint.textContent = gloss[inp.value] ? "· " + gloss[inp.value] : ""; };
+    showHint();
+    inp.onchange = () => { onchange(inp.value); showHint(); markDirty(); scheduleValidate(); };
   } else {
     inp = document.createElement("input");
     inp.value = value || "";
@@ -360,6 +376,13 @@ const innerInstance = (name) => name.startsWith("<");
 // grey example inside the box: the documented default when there is one, else a
 // type-appropriate sample so an empty field still says what to type
 function exampleFor(param, type) {
+  const axes = axisLabels();
+  if (param.name === "amr.n_cell") return "例如 " + axes.map(() => 64).join(" ") + "（" + axes.join(" ") + "）";
+  if (param.name === "geometry.prob_lo" || param.name === "geometry.prob_hi")
+    return "例如 " + axes.map(() => "0.0").join(" ") + "（" + axes.join(" ") + "）";
+  if (param.name && param.name.startsWith("boundary.") && param.name.includes("_lo") === false
+      && param.name.endsWith("_hi") === false && !param.name.includes("particle"))
+    return "例如 " + axes.map(() => "periodic").join(" ");
   const t = String(type || "").toLowerCase();
   const fallback = t.includes("int") && t.includes("list") ? "例如 64 64"
     : t.includes("int") ? "例如 10"
@@ -662,6 +685,10 @@ async function refreshIterations() {
     if (current) select.value = current;
   } catch (e) { /* no run yet */ }
 }
+document.getElementById("show-derived").onchange = (e) => {
+  SHOW_DERIVED = e.target.checked;
+  render();
+};
 document.getElementById("project").onchange = async (e) => {
   const name = e.target.value;
   if (!name) { PROJECT_NAME = ""; markDirty(); return; }
@@ -751,6 +778,8 @@ async function switchDims(dims) {
   CATALOG = data.catalog; ZH = data.zh;
   CATALOG_CATEGORIES = data.categories || [];
   ENUMS = data.enums || {};
+  GLOSSARY = data.glossary || {};
+  DERIVED = data.derived || {};
   PARAM_BY_NAME = Object.fromEntries(CATALOG.params.map(p => [p.name, p]));
   CONTROLS = await (await fetch("/api/controls")).json();
   const bins = await (await fetch("/api/binaries")).json();

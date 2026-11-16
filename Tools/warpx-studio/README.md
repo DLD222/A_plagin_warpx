@@ -296,3 +296,35 @@ periodic`；下拉框显示 `选择其一，例如 <首选项>`。
 
 自测新增 5 项（下拉总数、求解器、诊断类型、布尔量、界面确实查表），共 **76/76**。
 期间出现过 5 项"假失败"，原因是机器忙时子进程 2 秒内还没写出状态文件 —— 已改成轮询等待。
+
+## v3.3：维度坐标、重复参数、取值含义、分类修正
+
+**① 边界条件的坐标名以前是硬编码 x/y/z（真 bug）。** 现在按维度给：
+
+| `geometry.dims` | 坐标 | 依据 |
+|---|---|---|
+| 1 | `z` | 文档：1D 只有 z，x、y 平移对称 |
+| 2 | `x` `z` | 文档：2D 是 x-z 平面，y 平移对称 |
+| 3 | `x` `y` `z` | |
+| RZ | `r` `z` | 径向 + 轴向 |
+
+唯一标准放在后端 `deck/controls.py: AXES`，界面通过 `/api/controls` 读，避免前后端各写一份走样。
+
+**② 语义重复的参数折叠**（`warpx_studio/catalog/enums.py: DERIVED`，7 条，判据都来自代码）：
+
+| 参数 | 为什么折叠 |
+|---|---|
+| `warpx.do_pml` | 本 fork 直接 abort："do_pml is not supported anymore. Please use boundary.field_lo/hi" |
+| `boundary.field_lo/hi`、`boundary.particle_lo/hi` | 文档把 lo/hi 合成一行的写法，真实键是 lo 与 hi 两行 |
+| `particles.species_names`、`diagnostics.diags_names`、`diagnostics.reduced_diags_names`、`collisions.collision_names`、`lasers.names` | 都由"卡片"自动生成，手填会与卡片冲突 |
+
+界面加"显示派生参数"开关，默认折叠，勾选后可见（并带说明）。
+
+**③ 取值含义**（`GLOSSARY`，14 组）：下拉框每个选项带悬浮说明，选中后下方再显示一行。例如
+`algo.maxwell_solver`：yee=标准 FDTD（支持 PML/EB）、ckc=低色散、psatd=伪谱、ect=共形；
+`<diag_name>.format`：plotfile=AMReX 原生、checkpoint=可续算、openpmd=ParaView 可读（实时图用这个）。
+
+**④ 分类修正**：拆出"QED 与强场过程"（48 项：qed/breit_wheeler/compton/schwinger/trident/spin）
+和"混合 PIC 模型（本 fork）"（26 项），分类总数 12 → 14。
+
+自测 **79/79**（新增：各维度坐标名、取值含义、重复参数折叠）。

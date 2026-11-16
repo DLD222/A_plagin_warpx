@@ -96,8 +96,10 @@ def api_catalog():
         payload["categories"] = []
     try:
         payload["enums"] = load_json("enums.json")["enums"]
+        payload["glossary"] = load_json("enums.json").get("glossary", {})
+        payload["derived"] = load_json("enums.json").get("derived", {})
     except FileNotFoundError:
-        payload["enums"] = {}
+        payload["enums"], payload["glossary"], payload["derived"] = {}, {}, {}
     return payload
 
 

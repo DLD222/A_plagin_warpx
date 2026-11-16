@@ -45,6 +45,16 @@ IDENT = re.compile(r"[A-Za-z_][A-Za-z_0-9]*")
 ALLOWED_CHARS = re.compile(r"^[A-Za-z_0-9\s+\-*/(),.**<>=!&|?:.]+$")
 
 
+# WarpX 的坐标约定（见 Docs/source/usage/parameters.rst 的 geometry.dims）：
+#   1D → 只有 z（x、y 平移对称）；2D → x-z 平面（y 平移对称）；3D → x、y、z；RZ → r、z
+AXES = {"1": ["z"], "2": ["x", "z"], "3": ["x", "y", "z"], "RZ": ["r", "z"],
+        "RCYLINDER": ["r", "z"], "RSPHERE": ["r"]}
+
+
+def axis_labels(dims: str) -> list[str]:
+    return AXES.get(str(dims).strip().upper(), ["x", "z"])
+
+
 def dims_of(deck) -> int:
     """Number of directions ``boundary.*`` must have entries for."""
     raw = str(deck.params.get("geometry.dims", "2")).strip()
@@ -140,4 +150,5 @@ def catalogue() -> dict:
     return {"field_bc": FIELD_BC, "particle_bc": PARTICLE_BC,
             "boundary_keys": BOUNDARY_KEYS, "templates": TEMPLATES,
             "functions": list(FUNCTIONS), "constants": list(CONSTANTS),
-            "variables": list(VARIABLES), "style_options": STYLE_OPTIONS}
+            "variables": list(VARIABLES), "style_options": STYLE_OPTIONS,
+            "axes": AXES}

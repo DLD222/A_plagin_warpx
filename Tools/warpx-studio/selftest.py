@@ -154,6 +154,14 @@ def run_checks(port: int) -> None:
           str(enums.get("<diag_name>.diag_type")))
     check("布尔量下拉", enums.get("warpx.do_pml_divb_cleaning") == ["0", "1"],
           "bool 类型自动变成 0/1")
+    glossary = catalog_payload.get("glossary") or {}
+    check("取值含义说明", len(glossary) >= 10 and
+          "标准 FDTD" in glossary.get("algo.maxwell_solver", {}).get("yee", ""),
+          f"{len(glossary)} 组取值带中文含义")
+    derived = catalog_payload.get("derived") or {}
+    check("重复参数已折叠", "particles.species_names" in derived
+          and "warpx.do_pml" in derived,
+          f"{len(derived)} 条：{', '.join(list(derived)[:3])} …")
     check("界面使用下拉表", "ENUMS[name]" in page_html, "inputRow 会查 ENUMS")
 
     # ---- deck model ------------------------------------------------------
@@ -199,6 +207,10 @@ def run_checks(port: int) -> None:
     from warpx_studio.deck import controls as ctl
 
     status, cat = call(port, "/api/controls")
+    check("各维度的坐标名", cat["axes"] == {"1": ["z"], "2": ["x", "z"], "3": ["x", "y", "z"],
+                                            "RZ": ["r", "z"], "RCYLINDER": ["r", "z"],
+                                            "RSPHERE": ["r"]},
+          "1D=z / 2D=x,z / 3D=x,y,z / RZ=r,z（与文档一致）")
     check("结构化控件清单", status == 200 and len(cat["field_bc"]) >= 8
           and len(cat["particle_bc"]) >= 4 and len(cat["templates"]) >= 3,
           f"{len(cat['field_bc'])} 种场边界 / {len(cat['particle_bc'])} 种粒子边界 / "

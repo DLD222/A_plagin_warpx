@@ -28,13 +28,18 @@ CATEGORIES = DATA / "categories.json"
 
 # ordered: the UI shows them in this order, which is the order a deck is written in
 CATEGORY_RULES = [
-    # order matters: specific rules first, the broad `warpx.*` catch-all last
+    # 顺序 = 具体优先：一条参数只落进第一个匹配的分类
     ("control", "运行控制与时间步进", [
         r"^max_step$", r"^stop_time$",
         r"^warpx\.(cfl|verbose|serialize|synchronize|do_dynamic|load_balance|n_rz|restart)",
         r"^warpx\.(tiny_profiler|compute_dt|max_grid|regrid|checkpoint|write_diagnostics)",
         r"^amrex\.(abort|fpe|verbose|async|handle|omp)", r"^vismf\.",
     ]),
+    ("qed", "QED 与强场过程", [
+        r"qed", r"breit_wheeler", r"compton", r"schwinger", r"trident", r"photon",
+        r"pair_production", r"spin",
+    ]),
+    ("hybrid", "混合 PIC 模型（本 fork）", [r"^hybrid_pic_model\.", r"hybrid_"]),
     ("boundary", "边界条件（含 PML/吸收层）", [
         r"^boundary\.", r"pml", r"absorber", r"silver_mueller", r"particle_boundary",
         r"perfect_conductor", r"^boundary",
@@ -61,12 +66,12 @@ CATEGORY_RULES = [
     ]),
     ("solver", "场求解器与算法", [
         r"^algo\.", r"^psatd\.", r"^<solver_name>\.", r"^<a_name>\.", r"^<a_prefix>\.",
-        r"implicit", r"^hybrid_pic_model\.", r"deposition", r"gathering",
+        r"implicit", r"deposition", r"gathering",
         r"^newton", r"^gmres", r"^macroscopic", r"^interpolation", r"^ablastr",
     ]),
     ("mesh", "网格与几何", [r"^amr\.", r"^geometry\.", r"^amrex\.", r"^\(root\)"]),
     ("plugin", "插件与扩展（本 fork）", [
-        r"^qed", r"^warpx\.qed", r"^<element_name>\.", r"^star_", r"^<fluid_species_name>",
+        r"^<element_name>\.", r"^star_", r"^<fluid_species_name>",
     ]),
     ("control", "运行控制与时间步进", [r"^warpx\."]),
 ]
