@@ -138,7 +138,7 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
-let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false;
+let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false, HINTS = {};
 let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
 
 function markDirty() {
@@ -365,6 +365,12 @@ function inputRow(name, value, onchange, instance) {
     inp.oninput = () => { onchange(inp.value); markDirty(); scheduleValidate(); };
   }
   box.appendChild(inp);
+  if (HINTS[name]) {
+    const valueHint = document.createElement("div");
+    valueHint.className = "hint";
+    valueHint.textContent = HINTS[name];
+    box.appendChild(valueHint);
+  }
   if (guard.length) { const b = document.createElement("span"); b.className = "badge";
     b.textContent = "构建条件"; b.title = guard.join("; "); lab.appendChild(b); }
   const rules = (CATALOG.gating_rules || {})[name];
@@ -789,6 +795,7 @@ async function switchDims(dims) {
   ENUMS = data.enums || {};
   GLOSSARY = data.glossary || {};
   DERIVED = data.derived || {};
+  HINTS = data.hints || {};
   PARAM_BY_NAME = Object.fromEntries(CATALOG.params.map(p => [p.name, p]));
   CONTROLS = await (await fetch("/api/controls")).json();
   const bins = await (await fetch("/api/binaries")).json();

@@ -72,52 +72,61 @@ CATEGORY_ORDER = ["control", "mesh", "boundary", "eb", "species", "laser", "coll
                   "extern", "diag", "solver", "qed", "hybrid", "parallel", "plugin", "misc"]
 
 CATEGORY_RULES = [
-    # 顺序 = 具体优先：一条参数只落进第一个匹配的分类
-    ("control", "运行控制与时间步进", [
-        r"^max_step$", r"^stop_time$",
-        r"^warpx\.(cfl|verbose|serialize|synchronize|do_dynamic|load_balance|n_rz|restart)",
-        r"^warpx\.(tiny_profiler|compute_dt|max_grid|regrid|checkpoint|write_diagnostics)",
-        r"^amrex\.(abort|fpe|verbose|async|handle|omp)", r"^vismf\.",
-    ]),
-    ("qed", "QED 与强场过程", [
-        r"qed", r"breit_wheeler", r"compton", r"schwinger", r"trident", r"photon",
-        r"pair_production", r"spin",
-    ]),
-    ("hybrid", "混合 PIC 模型（本 fork）", [r"^hybrid_pic_model\.", r"hybrid_"]),
-    ("boundary", "边界条件（含 PML/吸收层）", [
-        r"^boundary\.", r"pml", r"absorber", r"silver_mueller", r"particle_boundary",
-        r"perfect_conductor", r"^boundary",
-    ]),
-    ("eb", "嵌入边界（EB）", [r"^eb\.", r"^warpx\.eb", r"embedded_boundary", r"_eb_"]),
-    ("extern", "外场与解析剖面", [
-        r"ext_grid", r"ext_particle", r"external", r"_init_style$", r"_function\(",
-        r"init_style", r"grid_init", r"particle_init",
+    # 只对"文档里没有、只存在于源码"的参数生效；文档里有的按章节走（见 SECTION_TO_CATEGORY）。
+    # 每条规则后面注明依据，便于复核。
+    ("parallel", "并行与负载均衡", [
+        r"load_balance", r"numprocs", r"buffer_size", r"sort_", r"use_sfc", r"costs_",
+        r"nfiles", r"async_out",
     ]),
     ("diag", "诊断与输出", [
-        r"^diagnostics\.", r"^<diag_name>\.", r"^<reduced_diags_name>\.", r"reduced_diags",
-        r"^<rd_name>\.", r"openpmd", r"^<m_diag_name>\.", r"^<dynamic>\.", r"^<diag>\.",
-        r"^slice", r"^<m_rd_name>\.",
+        r"back_transformed", r"snapshots_lab", r"lab_data_directory", r"plot_crsepatch",
+        r"plot_finepatch", r"plot_file", r"plot_int", r"plot_", r"reduced_diags",
+        r"openpmd", r"diag", r"field_io", r"particle_io", r"slice\.", r"lab_data",
     ]),
-    ("collision", "碰撞与散射", [
-        r"^collisions\.", r"^<collision_name>\.", r"collision", r"^<coll_name>\.",
-        r"^<collision>", r"scattering", r"ionization",
+    ("eb", "嵌入边界（EB）", [
+        r"^eb2\.", r"^eb\.", r"geom_type", r"embedded_boundary", r"implicit_function",
+    ]),
+    ("qed", "QED 与强场过程", [
+        r"qed", r"breit_wheeler", r"compton", r"schwinger", r"trident", r"quantum_sync",
+        r"radiation_reaction", r"photon", r"spin",
+    ]),
+    ("boundary", "边界条件（含 PML）", [
+        r"^boundary\.", r"pml", r"absorber", r"silver_mueller", r"particle_boundary",
+        r"perfect_conductor", r"potential_(lo|hi)", r"^boundary",
+    ]),
+    ("extern", "外场", [
+        r"ext_grid", r"ext_particle", r"external", r"_init_style$", r"init_style",
+        r"grid_init", r"particle_init", r"_function\(", r"external_field",
+    ]),
+    ("solver", "算法与求解器", [
+        r"centering", r"do_nodal", r"do_multi_j", r"divb_cleaning", r"dive_cleaning",
+        r"effective_potential", r"^pc_", r"pc_petsc", r"precon_mat", r"mass_matrices",
+        r"pc_type", r"jacobian", r"hypre", r"petsc", r"^gmres", r"^newton", r"implicit",
+        r"^algo\.", r"^psatd\.", r"^<solver_name>\.", r"^<a_name>\.", r"^<a_prefix>\.",
+        r"deposition", r"gathering", r"interpolation", r"verbose_int", r"bottom_verbose",
+        r"^macroscopic",
+    ]),
+    ("mesh", "网格与几何", [
+        r"refine_", r"regrid", r"is_periodic", r"^amr\.", r"^geometry\.", r"^amrex\.",
+        r"blocking", r"max_grid", r"grid_eff",
+    ]),
+    ("species", "粒子注入与物种", [
+        r"^particles\.", r"^<species_name>\.", r"^<species>\.", r"^<species>",
+        r"^particle_thermalizer", r"^<fluid_species_name>\.", r"thermaliz", r"momentum_distribution",
+        r"maxwellian", r"quasineutral", r"density", r"temperature",
     ]),
     ("laser", "激光", [r"^lasers\.", r"laser_name>", r"^<m_laser_name>", r"^lasersiter",
                         r"laser"]),
-    ("species", "粒子与物种", [
-        r"^particles\.", r"^<species_name>\.", r"^<species>\.", r"^<species>",
-        r"^particle_thermalizer", r"^particles", r"^<fluid_species_name>\.",
+    ("collision", "碰撞与散射", [
+        r"^collisions\.", r"^<collision_name>\.", r"collision", r"^<coll_name>\.",
+        r"scattering", r"ionization",
     ]),
-    ("solver", "场求解器与算法", [
-        r"^algo\.", r"^psatd\.", r"^<solver_name>\.", r"^<a_name>\.", r"^<a_prefix>\.",
-        r"implicit", r"deposition", r"gathering",
-        r"^newton", r"^gmres", r"^macroscopic", r"^interpolation", r"^ablastr",
+    ("hybrid", "混合 PIC 模型（本 fork）", [r"^hybrid_pic_model\.", r"^hybrid_"]),
+    ("control", "运行控制与仿真时间", [
+        r"^max_step$", r"^stop_time$", r"^warpx\.(cfl|verbose|serialize|synchronize)",
+        r"^warpx\.(restart|authors|time_chunk|tiny_profiler|compute_dt|checkpoint)",
+        r"^amrex\.(abort|fpe|verbose|async|handle|omp)", r"^vismf\.", r"^warpx\.",
     ]),
-    ("mesh", "网格与几何", [r"^amr\.", r"^geometry\.", r"^amrex\.", r"^\(root\)"]),
-    ("plugin", "插件与扩展（本 fork）", [
-        r"^<element_name>\.", r"^star_", r"^<fluid_species_name>",
-    ]),
-    ("control", "运行控制与时间步进", [r"^warpx\."]),
 ]
 
 COMPILED = [(cid, title, [re.compile(rule) for rule in rules])

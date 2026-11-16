@@ -164,6 +164,12 @@ def run_checks(port: int) -> None:
           f"{len(derived)} 条：{', '.join(list(derived)[:3])} …")
     check("扫描碎片已折叠", "Bfield_fp" in derived and "dEdx" in derived,
           "拼接键片段不再出现在表单里")
+    hints = catalog_payload.get("hints") or {}
+    check("每个参数有取值说明", len(hints) >= len(all_names),
+          f"{len(hints)}/{len(all_names)} 条中文取值提示（如 maxwell_solver 列出各解法含义）")
+    check("取值说明含含义", "标准 FDTD" in hints.get("algo.maxwell_solver", "")
+          and "关闭" in hints.get("warpx.do_pml_divb_cleaning", ""),
+          "枚举值解释到含义，布尔量写清 0/1")
     check("分类依据文档章节", any("粒子注入与物种" == c["name"] for c in categories)
           and any("QED 与强场过程" == c["name"] for c in categories),
           "、".join(c["name"] for c in categories[:6]) + " …")

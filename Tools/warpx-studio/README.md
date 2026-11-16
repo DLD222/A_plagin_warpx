@@ -371,3 +371,32 @@ v3.3 引入了 `GLOSSARY` / `DERIVED` / `SHOW_DERIVED` 三个全局，但只用�
 修法：补上声明，并且**新增页面脚本冒烟测试** `tests/ui_smoke.js`：用最小 DOM 桩真的执行
 `index.html` 里的 `<script>`，跑一遍 `init + render()`，任何运行时异常都会 FAIL。
 已并入 selftest（需要 node；没有则报"未验证"而不是假装通过）。
+
+## v3.5：分类按参数族修正 + 每个参数都注明"填什么值代表什么"
+
+**分类**：文档里有的按章节（v3.4 已改）；文档里没有的 416 条源码独有参数，这次按**参数族**逐条
+重写规则，并给每条规则注明依据。修掉的典型错误：
+
+| 之前 | 现在 | 判据 |
+|---|---|---|
+| `warpx.load_balance_*` → 运行控制 | 并行与负载均衡 | 名字族 + 文档 "Distribution across MPI ranks" 的同类参数 |
+| `warpx.do_back_transformed_*`、`*_snapshots_lab`、`plot_crsepatch` → 运行控制 | 诊断与输出 | 它们控制的是输出内容 |
+| `warpx.do_divb_cleaning`、`do_nodal`、`*_centering_*`、`effective_potential_*` → 运行控制 | 算法与求解器 | 影响场求解本身 |
+| `pc_type`/`hypre_type`/`jacobian.pc_type`/`petsc_reinit_interval` → 其它 | 算法与求解器（隐式） | PETSc/预条件属于隐式求解配置 |
+| `eb2.geom_type`、`geom_type` → 其它 | 嵌入边界（EB） | 只用于 EB |
+| `warpx.refine_*`、`regrid_int` → 运行控制 | 网格与几何 | AMR 加密 |
+
+分布随之变化：运行控制 92→59、算法 156→175、并行 14→22、诊断 131、粒子 153。
+
+**取值含义**：新增 `hints`（enums.json），**802/802 个参数都有中文提示**，显示在每个输入框下面：
+
+| 参数 | 提示 |
+|---|---|
+| `algo.maxwell_solver` | 可选：yee=标准 FDTD（支持 PML/EB），ckc=低色散，psatd=伪谱（需 FFT），ect=共形 |
+| `algo.particle_shape` | 可选：1=线性样条（最快，噪声最大），2=二次样条，3=三次样条（常用折中），4=四次样条 |
+| `warpx.do_pml_divb_cleaning` | 0 = 关闭，1 = 开启 |
+| `amr.n_cell` | 每个方向一个整数，个数 = 维度（2D 是 x z，如 64 64） |
+| `boundary.field_lo` | 每维一个：periodic / pml / pec / absorbing_silver_mueller / damped / neumann / open / none |
+| `<species_name>.density` | 数密度，单位 m^-3（如 1.e24） |
+
+自测 **84/84**（新增：每参数取值说明、取值说明含含义）。

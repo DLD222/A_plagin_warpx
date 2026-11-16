@@ -196,6 +196,89 @@ FRAGMENTS = [
 ]
 
 
+# 这些键的"取值含义"是结构性的（每维一个数/时间/步数），文档里也只是一句话
+STRUCT_HINT = {
+    "amr.n_cell": "每个方向一个整数，个数 = 维度（2D 是 x z，如 64 64）",
+    "geometry.prob_lo": "每个方向一个实数，个数 = 维度",
+    "geometry.prob_hi": "每个方向一个实数，个数 = 维度",
+    "amr.max_grid_size": "一个整数（每块最大点数，越大越省并行开销）",
+    "amr.blocking_factor": "一个整数，块大小必须是它的倍数",
+    "amr.max_level": "整数：0 = 不加密",
+    "max_step": "整数：跑到第几步停",
+    "stop_time": "实数（秒）：跑到这个物理时间停",
+    "warpx.cfl": "0–1 之间的实数；越小越稳越慢（常用 0.9–0.99）",
+    "warpx.verbose": "整数：0 安静 / 1 每步一行 / 2 更详细",
+    "boundary.field_lo/hi": "文档把 lo/hi 合成一行；实际要给 boundary.field_lo 和 "
+                            "boundary.field_hi 各一行，每维一个：periodic / pml / pec / "
+                            "absorbing_silver_mueller / damped / neumann / open / none",
+    "boundary.particle_lo/hi": "每维一个：periodic / absorbing / reflecting / thermal / none",
+    "boundary.field_lo": "每维一个：periodic / pml / pec / absorbing_silver_mueller / "
+                         "damped / neumann / open / none",
+    "boundary.field_hi": "每维一个（与 field_lo 对应；pml 需两端都是 pml）",
+    "boundary.particle_lo": "每维一个：periodic / absorbing / reflecting / thermal / none",
+    "boundary.particle_hi": "每维一个：periodic / absorbing / reflecting / thermal / none",
+}
+
+# 模板类参数的取值含义（按子键名匹配，对所有实例生效）
+TEMPLATE_HINT = {
+    "charge": "电荷：-q_e（电子）/ q_e（质子）或数值，单位 C",
+    "mass": "质量：m_e / m_p 或数值，单位 kg",
+    "density": "数密度，单位 m^-3（如 1.e24）",
+    "density_max": "密度峰值，单位 m^-3",
+    "num_particles_per_cell_each_dim": "每方向每格宏粒子数，个数 = 维度（2D 写 1 1）",
+    "intervals": "整数：每多少步输出/执行一次（0 表示关闭）",
+    "period": "整数：BackTransformed 诊断的变换周期（步）",
+    "file_prefix": "输出文件名/目录前缀（不含扩展名）",
+    "fields_to_plot": "要输出的场分量，空格分隔：Ex Ey Ez Bx By Bz rho jx jy jz",
+    "write_species": "1 = 同时写粒子数据，0 = 只写场",
+    "xmin": "注入区下界（米）",
+    "xmax": "注入区上界（米）",
+    "ymin": "注入区下界（米）",
+    "ymax": "注入区上界（米）",
+    "zmin": "注入区下界（米）",
+    "zmax": "注入区上界（米）",
+}
+
+
+def value_hint(param: dict, values: list[str] | None = None,
+               glossary: dict[str, str] | None = None) -> str:
+    """一个参数"填什么值代表什么"——每个参数都要有，不只是枚举。
+
+    * 有取值列表：列出值 + 含义（有词典就用词典）；
+    * 布尔量：0 关闭 / 1 开启；
+    * 列表型（每维一个）：说明要按维度给几个数；
+    * 数值/字符串：说明类型与默认值。
+    """
+    name = param["name"]
+    if name in STRUCT_HINT:
+        return STRUCT_HINT[name]
+    if name.startswith("<"):
+        sub = name.split(".", 1)[1] if "." in name else ""
+        if sub in TEMPLATE_HINT:
+            return TEMPLATE_HINT[sub]
+    typ = str(param.get("type") or "").lower()
+    default = param.get("default")
+    suffix = f"；默认 {default}" if default not in (None, "") else ""
+    options = values if values else (param.get("options") or [])
+    if options == ["0", "1"] or BOOL_LIKE.search(typ):
+        return "0 = 关闭，1 = 开启" + suffix
+    if options:
+        gloss = glossary or {}
+        shown = [f"{value}={gloss[value]}" if gloss.get(value) else value
+                 for value in options[:5]]
+        more = " 等" if len(options) > 5 else ""
+        return "可选：" + "，".join(shown) + more
+    if "strings" in typ or "list" in typ or " per " in typ:
+        return "多个值用空格分隔，个数按维度给" + suffix
+    if "int" in typ:
+        return "整数" + suffix
+    if "float" in typ or "real" in typ:
+        return "数值（可写表达式，如 1.0e-6 或 0.1+2.3）" + suffix
+    if "string" in typ:
+        return "文本" + suffix
+    return ("见说明" if param.get("doc") else "文本或数值，按参数说明填写") + suffix
+
+
 def main() -> int:
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     enums: dict[str, list[str]] = {}
@@ -229,7 +312,10 @@ def main() -> int:
         if frag in known0:
             derived[frag] = ("扫描时从 \"前缀 + 字面量\" 拼接键里截到的片段，"
                              "不是独立输入项（真正的键请用完整名）")
-    OUT.write_text(json.dumps({"_origin": origin, "enums": enums,
+    hints = {p["name"]: value_hint(p, enums.get(p["name"]), GLOSSARY.get(p["name"]))
+             for p in catalog["params"]}
+    hints = {k: v for k, v in hints.items() if v}
+    OUT.write_text(json.dumps({"_origin": origin, "enums": enums, "hints": hints,
                                "glossary": {k: v for k, v in GLOSSARY.items() if k in enums},
                                "derived": derived},
                               ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
@@ -244,6 +330,7 @@ def main() -> int:
     for name in dropped:
         enums.pop(name, None)
         origin.pop(name, None)
+    print(f"取值说明: {len(hints)}/{len(catalog['params'])} 个参数有中文取值提示")
     print(f"enums: {len(enums)} 个参数有下拉（{len([n for n in enums if n not in CURATED])} 个来自源码扫描），"
           f"{len(GLOSSARY)} 组取值带含义说明，{len(DERIVED)} 条衍生/重复参数")
     for name in list(enums)[:6]:
