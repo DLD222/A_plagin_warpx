@@ -195,3 +195,33 @@ if (has_x) ex_a(i,j,k) = En * n0;                          // 只保留法向分
 | (3) IEBGeometry + B_n 测量 | **100%** | — |
 | (4) 边界条件 | 55% | PEC 切向投影已落地（非二阶验证）；电介质算法已验证、未接线；未插件化 |
 | (5) 恒星/多阶矩并列 | 0% | `MomentsSolver` 需抽成独立 CMake 目标并注册到统一选择 |
+
+## 第 33 轮：重要更正——电介质 subpixel **本仓库已实现**，无需新写
+
+核实结果（非推测）：
+
+| 位置 | 内容 |
+|---|---|
+| `MacroscopicProperties.cpp:41` | `pp_algo.query("macroscopic_subpixel", m_macroscopic_subpixel);` |
+| `MacroscopicProperties.H:133` | 注释明确："algo.macroscopic_subpixel: the module owns the parameter it consumes" |
+| `MacroscopicEvolveE.cpp:173` | `bool const has_sub = macroscopic_properties.has_subpixel_rows();` |
+| `MacroscopicEvolveE.cpp:171` | "P0: per-component eps^-1 rows (3 comps each). When the subpixel path is off ..." |
+| `WarpX.cpp:724` | 同一参数的独立读取（用于一致性检查） |
+
+**实测**（2D、3 步、`algo.em_solver_medium = macroscopic` + `algo.macroscopic_subpixel = 1`
++ 圆柱区域 `epsilon_function = 1 + 3*((x²+z²) < r²)`）：
+
+```
+exit = 0，无错误
+```
+
+### 结论与更正
+
+1. 第 31 轮我写的 `verify/subpixel.py`（法向调和平均 / 切向算术平均）**是重复劳动**——
+   仓库已有该能力。保留它的唯一价值是作为一条独立的解析值校验（1.6 / 2.5 / Fresnel 1/3），
+   可以拿来对数：若 C++ 侧结果与它不一致，说明 C++ 的 subpixel 有 bug。
+2. 所以 (4) 的电介质部分**不需要实现**，需要的是：
+   - 用 `algo.macroscopic_subpixel = 1` 跑一个"平面介质界面 + 正入射波"的算例，
+     把反射系数与解析 Fresnel 解对比，与 `verify/subpixel.py` 给的 1/3 对上；
+   - 记录 `algo.macroscopic_subpixel` 在文档里**缺失说明**（目录里该参数的 doc 为空）。
+3. 剩下真正需要写的只有：PEC 的二阶化（cut-cell 面积加权），以及把边界条件搬进独立插件。
