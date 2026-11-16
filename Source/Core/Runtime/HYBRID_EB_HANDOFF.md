@@ -74,3 +74,44 @@ python -m warpx_studio.verify.bn <diag1/openpmd_*.h5> --radius 0.25e-3 \
 **结论**：用 hybrid 做可出图的物理结果时，`hybrid_pic_model.use_rkf45 = 0`（配合足够的
 `hybrid_pic_model.substeps`）是必需的；否则结果不可信。这条不影响 EB 问题，但会污染所有
 hybrid 出图。
+
+## 第 22–24 轮追加：可跑的上限与失败点
+
+### 能跑的组合（实测）
+
+```
+hybrid + EB + hybrid_pic_model.use_rkf45 = 0 + dt = 2e-12   →  STEP 200 OK (exit 0)
+```
+
+这是 22 轮里第一次让 hybrid 带导体跑起来。此前"第 1 步就报 exceeded max substep attempts"
+**只发生在 RKF45 自适应路径**。
+
+### 失败的边界（同一物理时刻，与参数无关）
+
+| 手段 | 失败步 |
+|---|---|
+| `use_rkf45 = 0`, dt=2e-12 | 785 |
+| `n_floor` 1e18 → 4e18 | 833 |
+| `substep_rtol=0.3 / atol=1e-2 / safety=0.5` | 742 |
+| dt = 2e-11（大 10 倍） | 82–122 |
+
+→ 都在 t ≈ 0.8 ns，也就是等离子体在导体前形成堆积/电流层的时刻。
+**说明不是容差/时间步问题，而是某个格点上的右端项本身就发散。**
+
+### 已排除的代码级怀疑（逐条核实过）
+
+| 怀疑 | 核实结果 |
+|---|---|
+| E 更新不看 EB 掩码 | ❌ 不对：`FieldSolver/FiniteDifference/HybridPICSolveE.cpp:190-192` **用 `eb_update_E` 门控等离子体电流** |
+| PEC 没作用到 hybrid | ❌ 不对：`HybridPICSolveE` 末尾调用 `warpx.ApplyEfieldBoundary(...)`，第 19 轮加的 cut-cell E 置零在那里生效 |
+| 电流沉积 kernel 崩溃 | 只是**症状**：场爆炸后粒子坐标非法才触发 |
+
+### 剩余的最可能原因（下一步方向）
+
+1. `cut cell` 里电子压力/密度趋零，`CalculateElectronPressure` 的 `floor_density` 分支产生
+   巨大压力梯度 → Ohm 律右端发散；
+2. RK4 阶段在 cut cell 上读到了尚未更新（或已被 PEC 置零）的 E，造成右端项不连续；
+3. 停滞点密度骤增，使局部 `ω_pe·dt_sub > 1`（`substeps=20` 时 `dt_sub = dt/20 = 1e-13`，
+   需要 n_e > 2.5e22 才会发生——可能真的达到了，因为 2D 笛卡尔堆积会把密度抬 2–3 个量级）。
+
+建议先量一下失败前一刻的密度最大值：若 >1e22，则第 3 条成立，解法是让 `substeps` 随局部密度自适应。
