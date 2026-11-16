@@ -138,6 +138,7 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
+let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false;
 let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
 
 function markDirty() {

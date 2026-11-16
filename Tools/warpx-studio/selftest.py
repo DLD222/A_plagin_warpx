@@ -430,6 +430,21 @@ def run_checks(port: int) -> None:
     status, page = call(port, "/")
     if isinstance(page, bytes):
         page = page.decode("utf-8", "replace")
+    # 页面脚本冒烟：真的执行一遍 init+render，抓"未声明变量"这类运行时错误
+    import shutil as _shutil
+    import subprocess as _subprocess
+    node = _shutil.which("node")
+    if node:
+        smoke = _subprocess.run(
+            [node, str(STUDIO / "tests/ui_smoke.js"),
+             str(STUDIO / "warpx_studio/web/static/index.html"),
+             str(STUDIO / "warpx_studio/catalog/data")],
+            capture_output=True, text=True, timeout=120)
+        check("页面脚本能跑通", "PASS" in smoke.stdout,
+              (smoke.stdout or smoke.stderr).strip().splitlines()[-1][:120])
+    else:
+        check("页面脚本能跑通", False, "没有 node，跳过（未验证）")
+
     check("界面可访问", status == 200 and "WarpX Studio" in page,
           f"{len(page)} bytes, 含标题")
     for marker in ("renderBuild", "renderPlugins", "switchDims", "scheduleValidate"):

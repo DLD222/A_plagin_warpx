@@ -361,3 +361,13 @@ v3.3 我之前是拿**参数名正则**猜分类，这是错的方法——它�
    现在标为衍生并默认折叠（共 18 条）。
 
 自测 **81/81**。
+
+## 修复：页面空白（未声明变量导致的 ReferenceError）
+
+v3.3 引入了 `GLOSSARY` / `DERIVED` / `SHOW_DERIVED` 三个全局，但只用了没有声明。
+浏览器里**读**未声明变量会抛 `ReferenceError`（写才隐式建全局），于是 `render()` 在第一个参数
+处就中断，整张表单空白 —— 而 `node --check` 只查语法，完全查不出来。
+
+修法：补上声明，并且**新增页面脚本冒烟测试** `tests/ui_smoke.js`：用最小 DOM 桩真的执行
+`index.html` 里的 `<script>`，跑一遍 `init + render()`，任何运行时异常都会 FAIL。
+已并入 selftest（需要 node；没有则报"未验证"而不是假装通过）。
