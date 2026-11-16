@@ -144,3 +144,14 @@ cut cell 上发散**：电子压力项 `∇P_e / (e n)` 在 `n → 0` 的切割�
 
 `hybrid_pic_model.n_floor` 是全局下限，抬到 4e18 仍然失败，说明问题出在**个别格子远低于
 该下限**（EB 缩减粒子形状后的空 cell），全局下限换不动它们。
+
+## 第 28 轮：PEC-on-EB 的回归验证（不破坏仓库自带算例）
+
+```
+Examples/Tests/embedded_boundary_cube/inputs_test_2d_embedded_boundary_cube
+  （stop_time 改成 max_step = 40，其余不变）
+→ exit 0, STEP 40 ends, TIME = 4.7173
+```
+
+这条证明第 19 轮加进 `WarpX::ApplyEfieldBoundary` 的"cut cell 置零 E"**没有破坏既有的 EB 算例**。
+（该算例同时用了 `boundary.field_*=pec` 与 `warpx.eb_potential`，是覆盖最广的一个 EB 测试。）
