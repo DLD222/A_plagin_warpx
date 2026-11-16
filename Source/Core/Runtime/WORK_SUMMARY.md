@@ -108,3 +108,40 @@ if (has_x) ex_a(i,j,k) = En * n0;                         // 只留法向分量 
 这意味着要新增求解器选择键 + 驱动逻辑，属于功能开发而非结构搬移。
 
 所以 (5) 的正确描述是：「恒星/五阶矩已并列（可验收）；十阶矩需先有输入入口才能谈并列」。
+
+## 九、产物索引（每一行都可独立核查）
+
+### 代码（已编译验证）
+
+| 产物 | 路径 | 状态 |
+|---|---|---|
+| 只读 EB 几何接口 | `Source/Core/Runtime/IEBGeometry.H`、`EBGeometry.H` | 编译通过；`core purity` 检查 0 新增引用 |
+| 边界条件接口（7 类操作 + 注册表） | `Source/Core/Runtime/IBoundaryConditions.H` | 编译通过 |
+| 核心接入点 | `RuntimeData::boundaryConditions()`（`RuntimeData.H:86`） | 编译通过 |
+| **PEC on EB（切向投影）** | `Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXFieldBoundaries.cpp` | **已构建、已运行、已回归** |
+| 插件原型（停放） | `Source/ParkedPlugins/BoundaryConditions/` | 编译通过、自注册实测 `REGISTERED`；未接入主构建 |
+
+### 工具与测试（已运行验证）
+
+| 产物 | 用途 | 证据 |
+|---|---|---|
+| `Tools/warpx-studio/warpx_studio/verify/bn.py` | 跨 EB 面 `B_n/B0`、`E_t/E` | 实测输出 `max_bn_over_b0 = 1.0`、`max_et = 0` |
+| `Tools/warpx-studio/warpx_studio/verify/subpixel.py` | 面等效 ε 的解析校验 | 1.6 / 2.5 / Fresnel 1/3 全部对上 |
+| `Tools/warpx-studio/selftest.py` | 全量验收 | 82/82 通过（含 B_n 判据、subpixel、UI 冒烟） |
+| `Tools/warpx-studio/tests/ui_smoke.js` | 页面脚本运行时冒烟 | `PASS: init + render()` |
+
+### 算例（可重跑）
+
+| 文件 | 说明 |
+|---|---|
+| `audit_runs/simulations/bow_shock/yee_case1.inputs` / `case2` | 论文参数反演的全 PIC 版（M_A≈1.9, M_S≈4.1）；EB 符号已修正 |
+| `audit_runs/studio_projects/弓形激波 · B∥障碍物轴` / `B⊥` | 网页端已存的两个项目（可在 GUI 里直接改/跑） |
+| `audit_runs/simulations/bow_shock/hyb_eb/inputs*` | hybrid + 导体，`use_rkf45=0` 可跑到 t≈0.8 ns |
+
+### 实测数据（用于回归对照）
+
+| 场景 | 数字 |
+|---|---|
+| 首步 `max|E|`：无 PEC / 整格置零 / 切向投影 | 5.85e5 / 5.36e4 / **4.93e4** V/m |
+| hybrid+EB 可跑上限 | `use_rkf45=0, dt=2e-12` → 785 步（t≈0.8 ns） |
+| 失败前 `rho`/`j`/`E` | 3.57 C/m³（不变）/ 2.52e5（不变）/ 9.34e7（涨 14×） |
