@@ -38,6 +38,8 @@ class MultiFluidContainer;
 
 namespace warpx::runtime
 {
+
+class IBoundaryConditions;
 class ISpeciesContainer;
 class IFilterBank;
 class IGeometryProvider;
@@ -77,6 +79,11 @@ public:
     //! Fluid model, when the run has one (generic interface: the kernel may
     //! be a fluid solver instead of PIC).
     [[nodiscard]] virtual IFluidModel* fluids () { return nullptr; }
+
+    //! Boundary-condition plugin (PEC / dielectric on embedded surfaces), when the
+    //! run has one.  Field solvers call it through this interface after each field
+    //! update; they never include the plugin's headers.  Default: no plugin, no-op.
+    [[nodiscard]] virtual IBoundaryConditions* boundaryConditions () { return nullptr; }
 
     [[nodiscard]] virtual int finestLevel () const = 0;
     [[nodiscard]] virtual int maxLevel () const = 0;
