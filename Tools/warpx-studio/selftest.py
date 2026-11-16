@@ -144,6 +144,25 @@ def run_checks(port: int) -> None:
     check("输入框灰色示例", "exampleFor" in page_html and "默认 " in page_html,
           "placeholder 取文档默认值，无默认值按类型给示例")
 
+    # ---- 跨 EB 面法向 B 的测量工具（用合成数据验证判据本身）----
+    import tempfile as _tempfile
+    import h5py as _h5py
+    import numpy as _np
+    from warpx_studio.verify.bn import measure as _measure_bn
+
+    _nx, _nz, _b0 = 120, 80, 0.166
+    with _tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as _fh:
+        _synthetic = _fh.name
+    with _h5py.File(_synthetic, "w") as _h:
+        _g = _h.create_group("data/0/fields")
+        for _name, _value in (("B/x", 0.0), ("B/z", _b0), ("E/x", 0.0), ("E/z", 0.0)):
+            _g.create_dataset(_name, data=_np.full((_nz, _nx), _value))
+    _bn = _measure_bn(_synthetic, 0.25e-3, [-1e-3, -2e-3], [5e-3, 2e-3],
+                      [_nx, _nz], b0=_b0)
+    check("B_n 测量判据（合成数据）",
+          abs(_bn["max_bn_over_b0"] - 1.0) < 1e-9 and _bn["max_et"] == 0.0,
+          f"均匀 B_z 时 max|B_n|/B0 = {_bn['max_bn_over_b0']:.3f}（法向平行处应为 1），E_t = {_bn['max_et']}")
+
     # ---- 固定取值用下拉，而不是手打 ----
     enums = catalog_payload.get("enums") or {}
     check("固定取值改下拉", len(enums) >= 100,
