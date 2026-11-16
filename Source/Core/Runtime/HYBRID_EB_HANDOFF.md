@@ -58,3 +58,19 @@ python -m warpx_studio.verify.bn <diag1/openpmd_*.h5> --radius 0.25e-3 \
     --prob-lo -1e-3 -2e-3 --prob-hi 5e-3 2e-3 --n-cell 120 80 --b0 0.166
 ```
 输出跨 EB 面 `B_n/B0`、`E_t/E`，用于判定 PEC 是否真正生效（**不要用 ∇·B**）。
+
+## 追加发现：RKF45 自适应子步会在网格块边界产生台阶（实测）
+
+两个算例（hybrid、600 步、其余参数相同）只改 `hybrid_pic_model.use_rkf45`：
+
+| 设置 | 渲染结果 |
+|---|---|
+| `use_rkf45 = 1`（自适应子步） | `B_y` 呈 **2×3 方块状**，边界正好与 `amr.max_grid_size` 划分对齐（截图 /tmp/hybrid_By.png） |
+| `use_rkf45 = 0`（固定子步） | `B_y` 连续、无块边界（截图 /tmp/hybrid_fixed_By.png） |
+
+原因：RKF45 的自适应步长是**逐块**决定的，相邻块取到不同 `dt_sub` 后，B 场在同一时刻来自不同的积分
+路径，块边界上就出现跳变。数值上它看起来像物理结构，实际上是求解器伪迹。
+
+**结论**：用 hybrid 做可出图的物理结果时，`hybrid_pic_model.use_rkf45 = 0`（配合足够的
+`hybrid_pic_model.substeps`）是必需的；否则结果不可信。这条不影响 EB 问题，但会污染所有
+hybrid 出图。
