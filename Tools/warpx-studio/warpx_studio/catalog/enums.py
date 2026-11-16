@@ -184,6 +184,17 @@ DERIVED: dict[str, str] = {
     "lasers.names": "由「激光」卡片自动生成",
 }
 
+# 扫描时把 "前缀 + 字面量" 的拼接键当成参数收进来了，这些片段不是真正的输入项：
+# 它们是某个运行期字符串的后半截（例如 Bfield_fp、dBdx），去掉。
+FRAGMENTS = [
+    "Bfield_fp", "Efield_fp", "phi_fp", "beta", "consolidation", "dBdx", "dEdx", "delay",
+    "density_min", "density_max", "direction", "electron", "element", "energy", "eta",
+    "extension", "field", "file", "format", "index", "ion", "iter", "length", "level",
+    "mass", "name", "number", "order", "particle", "path", "photon", "position", "prefix",
+    "rho", "scale", "species", "spin", "step", "temperature", "time", "type", "value",
+    "velocity", "weight", "width",
+]
+
 
 def main() -> int:
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -214,6 +225,10 @@ def main() -> int:
 
     known0 = {p["name"] for p in catalog["params"]}
     derived = {name: why for name, why in DERIVED.items() if name in known0}
+    for frag in FRAGMENTS:
+        if frag in known0:
+            derived[frag] = ("扫描时从 \"前缀 + 字面量\" 拼接键里截到的片段，"
+                             "不是独立输入项（真正的键请用完整名）")
     OUT.write_text(json.dumps({"_origin": origin, "enums": enums,
                                "glossary": {k: v for k, v in GLOSSARY.items() if k in enums},
                                "derived": derived},

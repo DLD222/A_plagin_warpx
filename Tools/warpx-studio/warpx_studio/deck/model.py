@@ -16,6 +16,13 @@ import re
 from collections import OrderedDict
 
 TEMPLATE = re.compile(r"^(<[a-z_]+>)\.(.+)$")
+# `<species>` 与 `<species_name>` 在输入文件里是同一个命名空间（都是"物种名.键"），
+# 源码里两种写法混用，目录因此出现两套模板；这里统一成文档用的 `<species_name>`。
+TEMPLATE_ALIASES = {"<species>": "<species_name>"}
+
+
+def canonical_template(template: str) -> str:
+    return TEMPLATE_ALIASES.get(template, template)
 
 # group placeholder -> the list key WarpX expects for that family
 LIST_KEYS = {
@@ -46,12 +53,14 @@ class Deck:
         return self.params.get(name, default)
 
     def add_instance(self, template: str, instance: str) -> None:
+        template = canonical_template(template)
         self.groups.setdefault(template, OrderedDict()).setdefault(instance, OrderedDict())
 
     def remove_instance(self, template: str, instance: str) -> None:
-        self.groups.get(template, {}).pop(instance, None)
+        self.groups.get(canonical_template(template), {}).pop(instance, None)
 
     def set_group_value(self, template: str, instance: str, key: str, value) -> None:
+        template = canonical_template(template)
         bucket = self.groups.setdefault(template, OrderedDict()).setdefault(instance, OrderedDict())
         if value is None or str(value).strip() == "":
             bucket.pop(key, None)
@@ -59,7 +68,7 @@ class Deck:
             bucket[key] = str(value).strip()
 
     def instances(self, template: str) -> list[str]:
-        return list(self.groups.get(template, {}))
+        return list(self.groups.get(canonical_template(template), {}))
 
     # -- serialisation -----------------------------------------------------
     def sync_lists(self) -> None:

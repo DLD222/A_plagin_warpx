@@ -328,3 +328,36 @@ periodic`；下拉框显示 `选择其一，例如 <首选项>`。
 和"混合 PIC 模型（本 fork）"（26 项），分类总数 12 → 14。
 
 自测 **79/79**（新增：各维度坐标名、取值含义、重复参数折叠）。
+
+## v3.4：分类改成"以文档章节为准"（修正 v3.3 的方法错误）
+
+v3.3 我之前是拿**参数名正则**猜分类，这是错的方法——它把 `warpx.do_pml_*` 猜进"运行控制"、
+把 `warpx.E_external_grid_function` 猜进"外场"这类"看起来对但会系统性出错"的结果。
+
+正确依据是 **WarpX 文档自己的章节**：`parameters.rst` 的 18 个 section 就是官方按物理功能划分的。
+现在 `catalog/classify.py: SECTION_TO_CATEGORY` 直接把章节映射成分类，参数名规则只用于
+"只存在于源码、没进文档"的 415 条参数。
+
+| 文档章节 | 归入分类 |
+|---|---|
+| Overall simulation parameters / Simulation Time / Checkpoints and restart | 运行控制与仿真时间 |
+| Setting up the field mesh | 网格与几何 |
+| Domain Boundary Conditions + Additional PML parameters | 边界条件（含 PML） |
+| Embedded Boundary Conditions | 嵌入边界（EB） |
+| Particle initialization + Particle thermalizer + Cold Relativistic Fluid | 粒子注入与物种 |
+| Laser initialization | 激光 |
+| Collision models | 碰撞与散射 |
+| External fields | 外场 |
+| Diagnostics and output | 诊断与输出 |
+| Numerics and algorithms | 算法与求解器 |
+| QED | QED 与强场过程 |
+| Distribution across MPI ranks and parallelization | 并行与负载均衡 |
+
+顺带修掉的三个具体错误：
+1. `amr.plot_file` / `amr.plot_int` 是 AMReX 的写盘诊断，从"网格"移到"诊断与输出"；
+2. `<species>` 与 `<species_name>` 在输入文件里是同一个命名空间，目录里却成了两套模板 →
+   `deck/model.py: TEMPLATE_ALIASES` 合并，界面也只显示一套卡片；
+3. 扫描器把"前缀 + 字面量"的拼接键切断后留下的碎片（`Bfield_fp`、`dEdx`、`beta`…）当成参数收录了，
+   现在标为衍生并默认折叠（共 18 条）。
+
+自测 **81/81**。

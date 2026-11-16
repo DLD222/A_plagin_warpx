@@ -131,6 +131,7 @@ const STEP_GROUPS = {
   4: ["diagnostics", "<diag_name>", "<reduced_diags_name>", "collisions", "<collision_name>"],
   5: null,
 };
+const TEMPLATE_ALIAS = { "<species>": "<species_name>" };
 const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collision",
   "<diag_name>": "diag", "<reduced_diags_name>": "rdiag", "<laser_name>": "laser",
   "<solver_name>": "solver" };
@@ -460,7 +461,9 @@ async function renderPlugins() {
 }
 
 function renderTemplateCards(template, params, body) {
-  const instances = DECK.groups[template] = DECK.groups[template] || {};
+  // 源码里 <species> 与 <species_name> 是同一个命名空间，统一成后者
+  const key = TEMPLATE_ALIAS[template] || template;
+  const instances = DECK.groups[key] = DECK.groups[key] || {};
   for (const [inst, values] of Object.entries(instances)) {
     const card = document.createElement("div");
     card.className = "card";
@@ -471,8 +474,8 @@ function renderTemplateCards(template, params, body) {
     title.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 6px";
     title.onchange = () => {
       if (!title.value || title.value === inst) return;
-      DECK.groups[template][title.value] = DECK.groups[template][inst];
-      delete DECK.groups[template][inst];
+      DECK.groups[key][title.value] = DECK.groups[key][inst];
+      delete DECK.groups[key][inst];
       render();
     };
     const del = document.createElement("button");
@@ -484,17 +487,17 @@ function renderTemplateCards(template, params, body) {
       const sub = full.slice(template.length + 1);
       if (!visible(full, inst)) continue;
       card.appendChild(inputRow(full, values[sub],
-        v => { DECK.groups[template][inst] = DECK.groups[template][inst] || {};
-               DECK.groups[template][inst][sub] = v; }, inst));
+        v => { DECK.groups[key][inst] = DECK.groups[key][inst] || {};
+               DECK.groups[key][inst][sub] = v; }, inst));
     }
     body.appendChild(card);
   }
   const add = document.createElement("button");
-  add.textContent = `+ 新增一张 ${(ZH.sections[template] || template)}`;
+  add.textContent = `+ 新增一张 ${(ZH.sections[key] || key)}`;
   add.onclick = () => {
-    const base = TEMPLATE_BASE[template] || "item";
-    let n = 1; while (DECK.groups[template][base + n]) n++;
-    DECK.groups[template][base + n] = {};
+    const base = TEMPLATE_BASE[key] || "item";
+    let n = 1; while (DECK.groups[key][base + n]) n++;
+    DECK.groups[key][base + n] = {};
     render();
   };
   body.appendChild(add);
@@ -522,10 +525,15 @@ function render() {
     head.onclick = () => { body.style.display = body.style.display === "none" ? "" : "none"; };
     sec.append(head, body);
 
-    const templates = [...new Set(names.filter(n => n.startsWith("<"))
-      .map(n => n.split(">")[0] + ">"))];
-    for (const template of templates) {
-      renderTemplateCards(template, names.filter(n => n.startsWith(template)), body);
+    const byTemplate = new Map();
+    for (const name of names.filter(n => n.startsWith("<"))) {
+      const raw = name.split(">")[0] + ">";
+      const key = TEMPLATE_ALIAS[raw] || raw;
+      if (!byTemplate.has(key)) byTemplate.set(key, { prefix: raw, params: [] });
+      byTemplate.get(key).params.push(name);
+    }
+    for (const [key, entry] of byTemplate) {
+      renderTemplateCards(entry.prefix, entry.params, body);
     }
     for (const name of names.filter(n => !n.startsWith("<"))) {
       if (!visible(name)) continue;

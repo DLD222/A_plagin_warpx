@@ -162,6 +162,11 @@ def run_checks(port: int) -> None:
     check("重复参数已折叠", "particles.species_names" in derived
           and "warpx.do_pml" in derived,
           f"{len(derived)} 条：{', '.join(list(derived)[:3])} …")
+    check("扫描碎片已折叠", "Bfield_fp" in derived and "dEdx" in derived,
+          "拼接键片段不再出现在表单里")
+    check("分类依据文档章节", any("粒子注入与物种" == c["name"] for c in categories)
+          and any("QED 与强场过程" == c["name"] for c in categories),
+          "、".join(c["name"] for c in categories[:6]) + " …")
     check("界面使用下拉表", "ENUMS[name]" in page_html, "inputRow 会查 ENUMS")
 
     # ---- deck model ------------------------------------------------------

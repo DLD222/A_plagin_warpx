@@ -27,6 +27,50 @@ ZH = DATA / "zh.json"
 CATEGORIES = DATA / "categories.json"
 
 # ordered: the UI shows them in this order, which is the order a deck is written in
+# WarpX 文档的章节本身就是按物理功能划分的（parameters.rst 的 section 标题），
+# 所以文档里有的参数一律按章节归类，参数名正则只用于"只存在于源码、没进文档"的参数。
+SECTION_TO_CATEGORY: dict[str, str] = {
+    "Overall simulation parameters": "control",
+    "Simulation Time": "control",
+    "Checkpoints and restart": "control",
+    "Testing and Debugging": "control",
+    "Setting up the field mesh": "mesh",
+    "Domain Boundary Conditions": "boundary",
+    "Additional PML parameters": "boundary",
+    "Embedded Boundary Conditions": "eb",
+    "Particle initialization": "species",
+    "Particle thermalizer": "species",
+    "Cold Relativistic Fluid initialization": "species",
+    "Laser initialization": "laser",
+    "Collision models": "collision",
+    "External fields": "extern",
+    "Diagnostics and output": "diag",
+    "Numerics and algorithms": "solver",
+    "QED": "qed",
+    "Distribution across MPI ranks and parallelization": "parallel",
+}
+
+CATEGORY_TITLES = {
+    "control": "运行控制与仿真时间",
+    "mesh": "网格与几何",
+    "boundary": "边界条件（含 PML）",
+    "eb": "嵌入边界（EB）",
+    "species": "粒子注入与物种",
+    "laser": "激光",
+    "collision": "碰撞与散射",
+    "extern": "外场",
+    "diag": "诊断与输出",
+    "solver": "算法与求解器",
+    "qed": "QED 与强场过程",
+    "hybrid": "混合 PIC 模型（本 fork）",
+    "parallel": "并行与负载均衡",
+    "plugin": "插件与扩展（本 fork）",
+    "misc": "其它参数",
+}
+
+CATEGORY_ORDER = ["control", "mesh", "boundary", "eb", "species", "laser", "collision",
+                  "extern", "diag", "solver", "qed", "hybrid", "parallel", "plugin", "misc"]
+
 CATEGORY_RULES = [
     # 顺序 = 具体优先：一条参数只落进第一个匹配的分类
     ("control", "运行控制与时间步进", [
@@ -183,16 +227,22 @@ KEYWORD_FALLBACK = [
 ]
 
 
-def category_of(name: str) -> tuple[str, str]:
+def category_of(param: dict) -> tuple[str, str]:
+    name = param["name"]
+    # `amr.plot_*` 是 AMReX 自带的写盘诊断，不是网格设置
+    if name.startswith("amr.plot_") or name.startswith("amr.check_"):
+        return "diag", CATEGORY_TITLES["diag"]
+    section = param.get("doc_section")
+    if section and section in SECTION_TO_CATEGORY:
+        cid = SECTION_TO_CATEGORY[section]
+        return cid, CATEGORY_TITLES[cid]
     for cid, title, patterns in COMPILED:
         for pattern in patterns:
             if pattern.search(name):
                 return cid, title
     for cid, pattern in KEYWORD_FALLBACK:
         if pattern.search(name):
-            for candidate, candidate_title, _ in COMPILED:
-                if candidate == cid:
-                    return cid, candidate_title
+            return cid, CATEGORY_TITLES.get(cid, cid)
     return FALLBACK
 
 
@@ -238,9 +288,10 @@ def main() -> int:
     categories: dict[str, dict] = {}
     composed = 0
     for param in params:
-        cid, title = category_of(param["name"])
+        cid, title = category_of(param)
+        order = CATEGORY_ORDER.index(cid) if cid in CATEGORY_ORDER else 999
         bucket = categories.setdefault(cid, {"id": cid, "name": title,
-                                             "order": ORDER.get(cid, 999), "params": []})
+                                             "order": order, "params": []})
         bucket["params"].append(param["name"])
         # regenerate every composed line (hand-written ones are returned verbatim by
         # zh_for), so improving the lexicon actually reaches the UI
