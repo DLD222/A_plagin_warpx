@@ -1,0 +1,734 @@
+{
+ "_origin": {
+  "algo.maxwell_solver": "Source: ElectromagneticSolverAlgo",
+  "algo.particle_pusher": "docs: Numerics and algorithms",
+  "algo.current_deposition": "docs: current deposition",
+  "algo.field_gathering": "docs: field gathering",
+  "algo.em_solver_medium": "docs: EM solver medium",
+  "algo.particle_shape": "docs: 1 linear … 4 quartic",
+  "<diag_name>.diag_type": "Source: Diagnostics (string compare)",
+  "<diag_name>.format": "Source: Diagnostics/FlushFormats",
+  "<diag_name>.openpmd_backend": "docs: openPMD backend",
+  "<species_name>.injection_style": "Source: PlasmaInjector.cpp string compares",
+  "<species_name>.profile": "Source: SpeciesUtils.cpp parseDensity",
+  "<species_name>.momentum_distribution_type": "Source: SpeciesUtils.cpp",
+  "<species_name>.position_initialization": "docs: particle initialization",
+  "boundary.field_lo": "docs: boundary.field_lo/hi bullets",
+  "boundary.field_hi": "docs: boundary.field_lo/hi bullets",
+  "boundary.particle_lo": "docs: boundary.particle_lo/hi bullets",
+  "boundary.particle_hi": "docs: boundary.particle_lo/hi bullets",
+  "geometry.dims": "docs: dimensionality",
+  "warpx.E_ext_grid_init_style": "Source: Initialization",
+  "warpx.B_ext_grid_init_style": "Source: Initialization",
+  "<collision_name>.background_type": "source scan (string compares)",
+  "<collision_name>.create_products": "type bool",
+  "<collision_name>.cumulative_scattering_angle_model": "source scan (string compares)",
+  "<collision_name>.save_particle_production": "type bool",
+  "<collision_name>.type": "source scan (string compares)",
+  "<collision_name>.use_global_debye_length": "type bool",
+  "<diag_name>.do_back_transformed_fields": "type bool",
+  "<diag_name>.do_back_transformed_particles": "type bool",
+  "<diag_name>.dump_last_timestep": "type bool",
+  "<diag_name>.dump_rz_modes": "type bool",
+  "<diag_name>.openpmd_encoding": "source scan (string compares)",
+  "<diag_name>.particle_fields.<field_name>.do_average": "type bool",
+  "<diag_name>.plot_raw_fields": "type bool",
+  "<diag_name>.plot_raw_fields_guards": "type bool",
+  "<diag_name>.time_average_mode": "source scan (string compares)",
+  "<diag_name>.write_species": "type bool",
+  "<dynamic>.type": "source scan (string compares)",
+  "<laser_name>.do_continuous_injection": "type bool",
+  "<reduced_diags_name>.normalization": "source scan (string compares)",
+  "<reduced_diags_name>.probe_geometry": "source scan (string compares)",
+  "<species>.do_qed_virtual_photons": "type bool",
+  "<species>.qed_virtual_photons_do_beam_size_effect": "type bool",
+  "<species_name>.do_adk_correction": "type bool",
+  "<species_name>.do_backward_propagation": "type bool",
+  "<species_name>.do_continuous_injection": "type bool",
+  "<species_name>.do_field_ionization": "type bool",
+  "<species_name>.do_not_deposit": "type bool",
+  "<species_name>.do_not_gather": "type bool",
+  "<species_name>.do_not_push": "type bool",
+  "<species_name>.do_resampling": "type bool",
+  "<species_name>.do_splitting": "type bool",
+  "<species_name>.do_temperature_deposition": "type bool",
+  "<species_name>.initialize_self_fields": "type bool",
+  "<species_name>.random_theta": "type bool",
+  "<species_name>.resampling_algorithm": "source scan (string compares)",
+  "<species_name>.resampling_algorithm_velocity_grid_type": "source scan (string compares)",
+  "<species_name>.rigid_advance": "source scan (string compares)",
+  "ablastr.fillboundary_always_sync": "type bool",
+  "algo.load_balance_with_sfc": "type bool",
+  "amrex.abort_on_out_of_gpu_memory": "type bool",
+  "amrex.abort_on_unused_inputs": "type bool",
+  "amrex.async_out": "type bool",
+  "amrex.the_arena_is_managed": "type bool",
+  "amrex.use_profiler_syncs": "type bool",
+  "boundary.reflect_all_velocities": "type bool",
+  "boundary.verboncoeur_axis_correction": "type bool",
+  "collisions.correct_energy_momentum": "type bool",
+  "collisions.energy_correction_sort_by_weight": "type bool",
+  "collisions.shuffling_method": "type bool",
+  "collisions.split_momentum_push": "type bool",
+  "diag_type": "source scan (string compares)",
+  "diagnostics.enable": "type bool",
+  "external_vector_potential.<field_name>.read_from_file": "type bool",
+  "external_vector_potential.do_diva_cleaning": "type bool",
+  "hybrid_pic_model.add_external_fields": "type bool",
+  "hybrid_pic_model.holmstrom_vacuum_region": "type bool",
+  "hybrid_pic_model.include_joule_heating": "type bool",
+  "hybrid_pic_model.solve_electron_energy_equation": "type bool",
+  "hybrid_pic_model.use_rkf45": "type bool",
+  "interpolation.galerkin_scheme": "type bool",
+  "lattice.reverse": "type bool",
+  "particle_thermalizer.normal": "source scan (string compares)",
+  "particles.B_ext_particle_init_style": "source scan (string compares)",
+  "particles.E_ext_particle_init_style": "source scan (string compares)",
+  "particles.do_tiling": "type bool",
+  "particles.use_fdtd_nci_corr": "type bool",
+  "psatd.current_correction": "type bool",
+  "psatd.do_time_averaging": "type bool",
+  "psatd.periodic_single_box_fft": "type bool",
+  "psatd.update_with_rho": "type bool",
+  "psatd.use_default_v_galilean": "type bool",
+  "qed_bw.lookup_table_mode": "source scan (string compares)",
+  "qed_qs.lookup_table_mode": "source scan (string compares)",
+  "type": "source scan (string compares)",
+  "warpx.abort_on_warning_threshold": "source scan (string compares)",
+  "warpx.always_warn_immediately": "type bool",
+  "warpx.boost_direction": "source scan (string compares)",
+  "warpx.do_current_centering": "type bool",
+  "warpx.do_device_synchronize": "type bool",
+  "warpx.do_dive_cleaning": "type bool",
+  "warpx.do_dynamic_scheduling": "type bool",
+  "warpx.do_initial_div_cleaning": "type bool",
+  "warpx.do_pml_divb_cleaning": "type bool",
+  "warpx.do_pml_dive_cleaning": "type bool",
+  "warpx.do_qed_schwinger": "type bool",
+  "warpx.do_shared_mem_charge_deposition": "type bool",
+  "warpx.do_shared_mem_current_deposition": "type bool",
+  "warpx.do_subcycling": "type bool",
+  "warpx.limit_verbose_step": "type bool",
+  "warpx.moving_window_dir": "source scan (string compares)",
+  "warpx.roundrobin_sfc": "type bool",
+  "warpx.safe_guard_cells": "type bool",
+  "warpx.self_fields_agglomeration": "type bool",
+  "warpx.self_fields_consolidation": "type bool",
+  "warpx.serialize_initial_conditions": "type bool",
+  "warpx.sort_particles_for_deposition": "type bool",
+  "warpx.split_high_density_boxes": "type bool",
+  "warpx.synchronize_velocity_for_diagnostics": "type bool",
+  "warpx.use_filter": "type bool",
+  "warpx.use_filter_compensation": "type bool",
+  "warpx.use_hybrid_QED": "type bool",
+  "warpx.verbose": "type bool",
+  "warpx.write_diagnostics_on_restart": "type bool",
+  "<species_name>.E_ext_particle_init_style": "Source: Initialization",
+  "<species_name>.E_ext_init_style": "Source: Initialization",
+  "<species_name>.B_ext_init_style": "Source: Initialization"
+ },
+ "enums": {
+  "algo.maxwell_solver": [
+   "yee",
+   "ckc",
+   "psatd",
+   "ect"
+  ],
+  "algo.particle_pusher": [
+   "boris",
+   "vay",
+   "hybrid",
+   "kinetic_energy",
+   "adaptive_boris"
+  ],
+  "algo.current_deposition": [
+   "esirkepov",
+   "direct",
+   "vay"
+  ],
+  "algo.field_gathering": [
+   "energy-conserving",
+   "momentum-conserving",
+   "direct"
+  ],
+  "algo.em_solver_medium": [
+   "vacuum",
+   "macroscopic"
+  ],
+  "algo.particle_shape": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "<diag_name>.diag_type": [
+   "Full",
+   "TimeAveraged",
+   "BackTransformed"
+  ],
+  "<diag_name>.format": [
+   "plotfile",
+   "checkpoint",
+   "openpmd",
+   "ascent",
+   "sensei"
+  ],
+  "<diag_name>.openpmd_backend": [
+   "h5",
+   "bp",
+   "json"
+  ],
+  "<species_name>.injection_style": [
+   "NUniformPerCell",
+   "NRandomPerCell",
+   "NFluxPerCell",
+   "gaussian_beam",
+   "external_file",
+   "singleparticle",
+   "multipleparticles",
+   "none"
+  ],
+  "<species_name>.profile": [
+   "constant",
+   "parse_density_function",
+   "read_from_file"
+  ],
+  "<species_name>.momentum_distribution_type": [
+   "constant",
+   "maxwellian",
+   "maxwell_juttner",
+   "parse_momentum_function",
+   "read_from_file"
+  ],
+  "<species_name>.position_initialization": [
+   "standard",
+   "random",
+   "parse_position_function"
+  ],
+  "boundary.field_lo": [
+   "periodic",
+   "pml",
+   "absorbing_silver_mueller",
+   "damped",
+   "pec",
+   "pmc",
+   "pec_insulator",
+   "neumann",
+   "open",
+   "none"
+  ],
+  "boundary.field_hi": [
+   "periodic",
+   "pml",
+   "absorbing_silver_mueller",
+   "damped",
+   "pec",
+   "pmc",
+   "pec_insulator",
+   "neumann",
+   "open",
+   "none"
+  ],
+  "boundary.particle_lo": [
+   "periodic",
+   "absorbing",
+   "reflecting",
+   "thermal",
+   "none"
+  ],
+  "boundary.particle_hi": [
+   "periodic",
+   "absorbing",
+   "reflecting",
+   "thermal",
+   "none"
+  ],
+  "geometry.dims": [
+   "1",
+   "2",
+   "3",
+   "RZ"
+  ],
+  "warpx.E_ext_grid_init_style": [
+   "none",
+   "constant",
+   "parse_e_ext_grid_function",
+   "read_from_file"
+  ],
+  "warpx.B_ext_grid_init_style": [
+   "none",
+   "constant",
+   "parse_b_ext_grid_function",
+   "read_from_file"
+  ],
+  "<collision_name>.background_type": [
+   "electrons",
+   "ions"
+  ],
+  "<collision_name>.create_products": [
+   "0",
+   "1"
+  ],
+  "<collision_name>.cumulative_scattering_angle_model": [
+   "BOBYLEV",
+   "NANBU"
+  ],
+  "<collision_name>.save_particle_production": [
+   "0",
+   "1"
+  ],
+  "<collision_name>.type": [
+   "bremsstrahlung",
+   "dsmc",
+   "hybrid_resistive_drag",
+   "linear_breit_wheeler",
+   "linear_compton",
+   "nuclearfusion",
+   "pairwisecoulomb"
+  ],
+  "<collision_name>.use_global_debye_length": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.do_back_transformed_fields": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.do_back_transformed_particles": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.dump_last_timestep": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.dump_rz_modes": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.openpmd_encoding": [
+   "f",
+   "g",
+   "v"
+  ],
+  "<diag_name>.particle_fields.<field_name>.do_average": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.plot_raw_fields": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.plot_raw_fields_guards": [
+   "0",
+   "1"
+  ],
+  "<diag_name>.time_average_mode": [
+   "dynamic_start",
+   "fixed_start",
+   "none"
+  ],
+  "<diag_name>.write_species": [
+   "0",
+   "1"
+  ],
+  "<dynamic>.type": [
+   "drift",
+   "line",
+   "plasmalens",
+   "quad"
+  ],
+  "<laser_name>.do_continuous_injection": [
+   "0",
+   "1"
+  ],
+  "<reduced_diags_name>.normalization": [
+   "area_to_unity",
+   "default",
+   "max_to_unity",
+   "unity_particle_weight"
+  ],
+  "<reduced_diags_name>.probe_geometry": [
+   "Line",
+   "Plane",
+   "Point"
+  ],
+  "<species>.do_qed_virtual_photons": [
+   "0",
+   "1"
+  ],
+  "<species>.qed_virtual_photons_do_beam_size_effect": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_adk_correction": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_backward_propagation": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_continuous_injection": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_field_ionization": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_not_deposit": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_not_gather": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_not_push": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_resampling": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_splitting": [
+   "0",
+   "1"
+  ],
+  "<species_name>.do_temperature_deposition": [
+   "0",
+   "1"
+  ],
+  "<species_name>.initialize_self_fields": [
+   "0",
+   "1"
+  ],
+  "<species_name>.random_theta": [
+   "0",
+   "1"
+  ],
+  "<species_name>.resampling_algorithm": [
+   "leveling_thinning",
+   "velocity_coincidence_thinning"
+  ],
+  "<species_name>.resampling_algorithm_velocity_grid_type": [
+   "cartesian",
+   "spherical"
+  ],
+  "<species_name>.rigid_advance": [
+   "0",
+   "1",
+   "false",
+   "true"
+  ],
+  "ablastr.fillboundary_always_sync": [
+   "0",
+   "1"
+  ],
+  "algo.load_balance_with_sfc": [
+   "0",
+   "1"
+  ],
+  "amrex.abort_on_out_of_gpu_memory": [
+   "0",
+   "1"
+  ],
+  "amrex.abort_on_unused_inputs": [
+   "0",
+   "1"
+  ],
+  "amrex.async_out": [
+   "0",
+   "1"
+  ],
+  "amrex.the_arena_is_managed": [
+   "0",
+   "1"
+  ],
+  "amrex.use_profiler_syncs": [
+   "0",
+   "1"
+  ],
+  "boundary.reflect_all_velocities": [
+   "0",
+   "1"
+  ],
+  "boundary.verboncoeur_axis_correction": [
+   "0",
+   "1"
+  ],
+  "collisions.correct_energy_momentum": [
+   "0",
+   "1"
+  ],
+  "collisions.energy_correction_sort_by_weight": [
+   "0",
+   "1"
+  ],
+  "collisions.shuffling_method": [
+   "0",
+   "1"
+  ],
+  "collisions.split_momentum_push": [
+   "0",
+   "1"
+  ],
+  "diag_type": [
+   "BackTransformed",
+   "BoundaryScraping",
+   "Full",
+   "TimeAveraged"
+  ],
+  "diagnostics.enable": [
+   "0",
+   "1"
+  ],
+  "external_vector_potential.<field_name>.read_from_file": [
+   "0",
+   "1"
+  ],
+  "external_vector_potential.do_diva_cleaning": [
+   "0",
+   "1"
+  ],
+  "hybrid_pic_model.add_external_fields": [
+   "0",
+   "1"
+  ],
+  "hybrid_pic_model.holmstrom_vacuum_region": [
+   "0",
+   "1"
+  ],
+  "hybrid_pic_model.include_joule_heating": [
+   "0",
+   "1"
+  ],
+  "hybrid_pic_model.solve_electron_energy_equation": [
+   "0",
+   "1"
+  ],
+  "hybrid_pic_model.use_rkf45": [
+   "0",
+   "1"
+  ],
+  "interpolation.galerkin_scheme": [
+   "0",
+   "1"
+  ],
+  "lattice.reverse": [
+   "0",
+   "1"
+  ],
+  "particle_thermalizer.normal": [
+   "x",
+   "y",
+   "z"
+  ],
+  "particles.B_ext_particle_init_style": [
+   "parse_b_ext_particle_function",
+   "read_from_file",
+   "repeated_plasma_lens"
+  ],
+  "particles.E_ext_particle_init_style": [
+   "parse_e_ext_particle_function",
+   "read_from_file",
+   "repeated_plasma_lens"
+  ],
+  "particles.do_tiling": [
+   "0",
+   "1"
+  ],
+  "particles.use_fdtd_nci_corr": [
+   "0",
+   "1"
+  ],
+  "psatd.current_correction": [
+   "0",
+   "1"
+  ],
+  "psatd.do_time_averaging": [
+   "0",
+   "1"
+  ],
+  "psatd.periodic_single_box_fft": [
+   "0",
+   "1"
+  ],
+  "psatd.update_with_rho": [
+   "0",
+   "1"
+  ],
+  "psatd.use_default_v_galilean": [
+   "0",
+   "1"
+  ],
+  "qed_bw.lookup_table_mode": [
+   "builtin",
+   "generate",
+   "load"
+  ],
+  "qed_qs.lookup_table_mode": [
+   "builtin",
+   "generate",
+   "load"
+  ],
+  "type": [
+   "background_mcc",
+   "background_stopping",
+   "bremsstrahlung",
+   "dsmc",
+   "hybrid_resistive_drag",
+   "inverse_bremsstrahlung",
+   "linear_breit_wheeler",
+   "linear_compton",
+   "nuclearfusion",
+   "pairwisecoulomb",
+   "pulsed_decay"
+  ],
+  "warpx.abort_on_warning_threshold": [
+   "high",
+   "low",
+   "medium"
+  ],
+  "warpx.always_warn_immediately": [
+   "0",
+   "1"
+  ],
+  "warpx.boost_direction": [
+   "X",
+   "Y",
+   "Z",
+   "x",
+   "y",
+   "z"
+  ],
+  "warpx.do_current_centering": [
+   "0",
+   "1"
+  ],
+  "warpx.do_device_synchronize": [
+   "0",
+   "1"
+  ],
+  "warpx.do_dive_cleaning": [
+   "0",
+   "1"
+  ],
+  "warpx.do_dynamic_scheduling": [
+   "0",
+   "1"
+  ],
+  "warpx.do_initial_div_cleaning": [
+   "0",
+   "1"
+  ],
+  "warpx.do_pml_divb_cleaning": [
+   "0",
+   "1"
+  ],
+  "warpx.do_pml_dive_cleaning": [
+   "0",
+   "1"
+  ],
+  "warpx.do_qed_schwinger": [
+   "0",
+   "1"
+  ],
+  "warpx.do_shared_mem_charge_deposition": [
+   "0",
+   "1"
+  ],
+  "warpx.do_shared_mem_current_deposition": [
+   "0",
+   "1"
+  ],
+  "warpx.do_subcycling": [
+   "0",
+   "1"
+  ],
+  "warpx.limit_verbose_step": [
+   "0",
+   "1"
+  ],
+  "warpx.moving_window_dir": [
+   "X",
+   "Y",
+   "Z",
+   "x",
+   "y",
+   "z"
+  ],
+  "warpx.roundrobin_sfc": [
+   "0",
+   "1"
+  ],
+  "warpx.safe_guard_cells": [
+   "0",
+   "1"
+  ],
+  "warpx.self_fields_agglomeration": [
+   "0",
+   "1"
+  ],
+  "warpx.self_fields_consolidation": [
+   "0",
+   "1"
+  ],
+  "warpx.serialize_initial_conditions": [
+   "0",
+   "1"
+  ],
+  "warpx.sort_particles_for_deposition": [
+   "0",
+   "1"
+  ],
+  "warpx.split_high_density_boxes": [
+   "0",
+   "1"
+  ],
+  "warpx.synchronize_velocity_for_diagnostics": [
+   "0",
+   "1"
+  ],
+  "warpx.use_filter": [
+   "0",
+   "1"
+  ],
+  "warpx.use_filter_compensation": [
+   "0",
+   "1"
+  ],
+  "warpx.use_hybrid_QED": [
+   "0",
+   "1"
+  ],
+  "warpx.verbose": [
+   "0",
+   "1"
+  ],
+  "warpx.write_diagnostics_on_restart": [
+   "0",
+   "1"
+  ],
+  "<species_name>.E_ext_particle_init_style": [
+   "none",
+   "constant",
+   "parse_e_ext_particle_function",
+   "read_from_file"
+  ],
+  "<species_name>.E_ext_init_style": [
+   "none",
+   "constant",
+   "parse_e_ext_particle_function",
+   "read_from_file"
+  ],
+  "<species_name>.B_ext_init_style": [
+   "none",
+   "constant",
+   "parse_b_ext_particle_function",
+   "read_from_file"
+  ]
+ }
+}

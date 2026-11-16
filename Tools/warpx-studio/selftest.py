@@ -144,6 +144,18 @@ def run_checks(port: int) -> None:
     check("输入框灰色示例", "exampleFor" in page_html and "默认 " in page_html,
           "placeholder 取文档默认值，无默认值按类型给示例")
 
+    # ---- 固定取值用下拉，而不是手打 ----
+    enums = catalog_payload.get("enums") or {}
+    check("固定取值改下拉", len(enums) >= 100,
+          f"{len(enums)} 个参数有取值列表")
+    check("求解器下拉", enums.get("algo.maxwell_solver") == ["yee", "ckc", "psatd", "ect"],
+          str(enums.get("algo.maxwell_solver")))
+    check("诊断类型下拉", "TimeAveraged" in (enums.get("<diag_name>.diag_type") or []),
+          str(enums.get("<diag_name>.diag_type")))
+    check("布尔量下拉", enums.get("warpx.do_pml_divb_cleaning") == ["0", "1"],
+          "bool 类型自动变成 0/1")
+    check("界面使用下拉表", "ENUMS[name]" in page_html, "inputRow 会查 ENUMS")
+
     # ---- deck model ------------------------------------------------------
     for dims in ("1d", "2d", "3d", "rz"):
         deck = minimal_deck(dims)
@@ -283,6 +295,11 @@ def run_checks(port: int) -> None:
     from warpx_studio.runner.job import Job as _Job
 
     run_dir = _Path(state.get("workdir", "")) if state.get("workdir") else None
+    # 机器忙时子进程可能过一会儿才写出状态文件，轮询而不是立即断言
+    for _ in range(20):
+        if run_dir and (run_dir / "studio_job.json").is_file():
+            break
+        time.sleep(0.5)
     check("运行状态落盘", bool(run_dir) and (run_dir / "studio_job.json").is_file(),
           str(run_dir / "studio_job.json") if run_dir else "-")
     check("运行日志落盘", bool(run_dir) and (run_dir / "run.log").is_file(),

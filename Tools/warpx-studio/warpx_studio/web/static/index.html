@@ -134,7 +134,7 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
   "<solver_name>": "solver" };
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
-let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {};
+let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
 let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
 
 function markDirty() {
@@ -321,6 +321,7 @@ function inputRow(name, value, onchange, instance) {
     return wrap;
   }
   let options = (CATALOG.params.find(p => p.name === name) || {}).options || [];
+  if (!options.length) options = ENUMS[name] || [];
   if (!options.length && name.endsWith("_init_style")) {
     options = (name.includes("particle") ? (CONTROLS.style_options || {}).particle
                                          : (CONTROLS.style_options || {}).grid) || [];
@@ -749,6 +750,7 @@ async function switchDims(dims) {
   const data = await (await fetch("/api/catalog")).json();
   CATALOG = data.catalog; ZH = data.zh;
   CATALOG_CATEGORIES = data.categories || [];
+  ENUMS = data.enums || {};
   PARAM_BY_NAME = Object.fromEntries(CATALOG.params.map(p => [p.name, p]));
   CONTROLS = await (await fetch("/api/controls")).json();
   const bins = await (await fetch("/api/binaries")).json();

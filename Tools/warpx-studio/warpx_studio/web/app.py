@@ -94,6 +94,10 @@ def api_catalog():
         payload["categories"] = load_json("categories.json")["categories"]
     except FileNotFoundError:
         payload["categories"] = []
+    try:
+        payload["enums"] = load_json("enums.json")["enums"]
+    except FileNotFoundError:
+        payload["enums"] = {}
     return payload
 
 

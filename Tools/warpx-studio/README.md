@@ -280,3 +280,19 @@ periodic`；下拉框显示 `选择其一，例如 <首选项>`。
 
 一个测试期的坑：中文任务名在 URL 里必须 `encodeURIComponent`（界面里已经这么做），
 手写 `curl` 时要用 `--data-urlencode` 或 `%E6...`，否则客户端自己会报 ASCII 编码错误。
+
+## v3.2：固定取值一律下拉
+
+`catalog/enums.py` 生成 `data/enums.json`（**126 个参数**有取值列表），界面里这些参数不再需要手打：
+
+| 来源 | 数量 | 例子 |
+|---|---|---|
+| 源码字符串比较（AST 扫描） | 108 | `<collision_name>.type` → pairwisecoulomb / dsmc / … |
+| 手工整理（注释里写明出处） | 18 | `algo.maxwell_solver` → yee / ckc / psatd / ect；`<diag_name>.diag_type` → Full / TimeAveraged / BackTransformed |
+| 类型推断 | 自动 | `bool` / "0 or 1" → `0` / `1`（如 `warpx.do_pml_divb_cleaning`） |
+
+另外 `algo.particle_shape` → 1/2/3/4，`<species_name>.injection_style` → 8 种注入方式，
+`<species_name>.profile` → constant / parse_density_function / read_from_file。
+
+自测新增 5 项（下拉总数、求解器、诊断类型、布尔量、界面确实查表），共 **76/76**。
+期间出现过 5 项"假失败"，原因是机器忙时子进程 2 秒内还没写出状态文件 —— 已改成轮询等待。
