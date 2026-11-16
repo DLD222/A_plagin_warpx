@@ -400,3 +400,26 @@ v3.3 引入了 `GLOSSARY` / `DERIVED` / `SHOW_DERIVED` 三个全局，但只用�
 | `<species_name>.density` | 数密度，单位 m^-3（如 1.e24） |
 
 自测 **84/84**（新增：每参数取值说明、取值说明含含义）。
+
+## 验收工具：跨 EB 面法向 B 的连续性（`warpx_studio/verify/bn.py`）
+
+**为什么不用 ∇·B**：Yee 格式离散守恒，∇·B≈0 恒成立，证明不了边界条件。要测的是
+EB 表面处 `B·n` 的行为（磁通冻结：`B_n` 内侧 = 外侧；若导体内 B=0 则外侧 `B_n` 必须为 0）。
+
+```bash
+python -m warpx_studio.verify.bn <diag1/openpmd_008000.h5> \
+    --radius 0.25e-3 --prob-lo -1e-3 -2e-3 --prob-hi 5e-3 2e-3 --n-cell 120 80 --b0 0.166
+```
+
+输出（实测，B⊥ 算例 iteration 8000）：
+
+```json
+{"iteration": 8000, "b0": 0.166,
+ "max_bn_over_b0": 1.0, "mean_bn_over_b0": 0.635,
+ "max_bn": 0.166, "max_bt": 0.166,
+ "max_et": 0.0, "max_e": 0.0, "max_et_over_e": 0.0}
+```
+
+解读：`max_bn/b0 = 1.0` 说明磁场**完全没被导体扰动**（等于无屏蔽的真空值），
+`E ≡ 0` 说明等离子体没对导体做出任何响应 —— 这正是当时 EB 隐式函数符号写反、
+等离子体被初始化到导体内部的后果（该 bug 已修）。工具本身工作正常，可复现。
