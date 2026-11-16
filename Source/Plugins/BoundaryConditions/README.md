@@ -8,7 +8,7 @@
 | 接口 | 状态 |
 |---|---|
 | `hasEB` / `factory(lev)` 几何通路 | ✅ 通过核心的 `IEBGeometry`，已编译验证 |
-| `ApplyPecToEfield` | 🟡 已算出去重后的 cut-cell 数量（几何通路验证）；**E 置零的 kernel 待接** |
+| `ApplyPecToEfield` | ✅ **已实现**：遍历 cut cell，把该格三个 E 分量置零（阶梯型 `E_t=0`），并统计 cut-cell 数 |
 | `ApplyPecToBfield` | ⬜ 待实现（B_n 连续投影） |
 | `FillFacePermittivity` / `ApplyDielectricJump` | ⬜ 待实现（subpixel 平滑：面心 ε 按体积分数方向性平均） |
 | 流体壁面条件（法向速度/热流/应力张量） | ⬜ 待实现（供五阶矩/十阶矩/恒星求解器用） |
@@ -27,6 +27,11 @@ g++ -std=c++20 -fopenmp -fsyntax-only \
     -I Source/Core -I Source/Plugins/BoundaryConditions \
     Source/Plugins/BoundaryConditions/PlasmaBoundary.cpp
 ```
+
+## 编译依赖说明
+
+`PlasmaBoundary.cpp` 只 include 核心头文件：`Runtime/IBoundaryConditions.H`、
+`Runtime/IEBGeometry.H`、`Core/Fields.H`、`AMReX_EBFabFactory.H`。不引用 FieldSolver / PicEm 的 EB 模块。
 
 ## 待接入主构建
 
