@@ -144,6 +144,16 @@ def run_checks(port: int) -> None:
     check("输入框灰色示例", "exampleFor" in page_html and "默认 " in page_html,
           "placeholder 取文档默认值，无默认值按类型给示例")
 
+    # ---- 电介质 subpixel 面等效 ε（解析值验证）----
+    from warpx_studio.verify.subpixel import face_epsilon, reflection_coefficient
+    _en = face_epsilon(0.5, 1.0, 4.0, normal=True)
+    _et = face_epsilon(0.5, 1.0, 4.0, normal=False)
+    check("subpixel 面等效 ε",
+          abs(_en - 1.6) < 1e-12 and abs(_et - 2.5) < 1e-12,
+          f"法向调和平均={_en:.3f}(应 1.6)，切向算术平均={_et:.3f}(应 2.5)")
+    check("Fresnel 反射系数", abs(reflection_coefficient(1.0, 4.0, True) - 1.0/3.0) < 1e-9,
+          f"eps 1→4 正入射反射 = 1/3")
+
     # ---- 跨 EB 面法向 B 的测量工具（用合成数据验证判据本身）----
     import tempfile as _tempfile
     import h5py as _h5py
