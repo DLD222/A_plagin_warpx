@@ -145,3 +145,31 @@ if (has_x) ex_a(i,j,k) = En * n0;                         // 只留法向分量 
 | 首步 `max|E|`：无 PEC / 整格置零 / 切向投影 | 5.85e5 / 5.36e4 / **4.93e4** V/m |
 | hybrid+EB 可跑上限 | `use_rkf45=0, dt=2e-12` → 785 步（t≈0.8 ns） |
 | 失败前 `rho`/`j`/`E` | 3.57 C/m³（不变）/ 2.52e5（不变）/ 9.34e7（涨 14×） |
+
+## 十、必须更正的验证结论（第 40 轮发现）
+
+**`bin/warpx.2d` 从未重新链接**：
+
+```
+audit_build/fork/bin/warpx.2d                                  Nov 15 22:38   ← 没更新
+.../BoundaryConditions/WarpXFieldBoundaries.cpp.o              Nov 17 00:36   ← 更新了
+Source/.../WarpXFieldBoundaries.cpp                            Nov 17 00:35
+```
+
+我这些轮次只构建了 `warpx_picem_2d` 这个 **object library**，没有构建/链接可执行文件
+`warpx.2d`。所以：
+
+- ✅ **编译层级**的结论仍然成立（`-fsyntax-only` 与 object 编译都通过）；
+- ❌ **运行层级**的结论**不成立**：§四里"首步 max|E| 5.85e5 → 5.36e4 → 4.93e4"这组数字
+  **不是我的 PEC 代码产生的**（那几次运行用的都是 Nov 15 的旧二进制）；
+- ❌ 同样，"回归通过（自带 EB 算例 40 步）"也只证明了**旧二进制**能跑，与我的改动无关。
+
+正确做法（下一步）：
+
+```bash
+cmake --build audit_build/fork --target warpx.2d -j 8     # 注意是 warpx.2d，不是 warpx_picem_2d
+```
+
+然后重跑 §四 的三组对照，才能确认 PEC-on-EB 是否真正生效。
+
+这是本阶段最严重的方法论错误：我把"object library 构建成功"当成了"程序已更新"。
