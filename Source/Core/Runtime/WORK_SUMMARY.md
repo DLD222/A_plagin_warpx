@@ -11,7 +11,7 @@
 | (2) 网页端运行 + 可视化 | **70%** | Studio `/api/run` 多次启动成功；`B∥/B⊥` 出图；`verify/bn.py` 定量测量 | 完整 20 ns 图未产出（依赖 (1)） |
 | (3) IEBGeometry + 跨边界 B_n | **100%** | `IEBGeometry.H`/`EBGeometry.H` 编译通过 + core purity 检查；`verify/bn.py` + selftest 判据 | — |
 | (4) 边界条件（PEC cut-cell / 电介质 subpixel） | **75%** | PEC 切向投影已落地并回归通过（§四）；subpixel 仓库已有且已文档化（§五） | PEC 二阶未验证；未插件化；未逐求解器推进 |
-| (5) 恒星/多阶矩与 Yee 并列 | **0%** | — | `MomentsSolver` 抽独立 CMake 目标 + 统一注册 |
+| (5) 恒星/多阶矩与 Yee 并列 | **35%**（基线已核实，见 §八） | 恒星与五阶矩**已经是独立 CMake 目标** | 十阶矩无输入入口 + 无统一选择键 |
 
 ## 二、已修的真实 bug（每个都有前后对比）
 
@@ -92,3 +92,19 @@ if (has_x) ex_a(i,j,k) = En * n0;                         // 只留法向分量 
 
 **不要**再花轮次去调 PIC 的 dt/密度/容差：全 PIC 在论文参数区本质不可行（`ω_pe/ω_ci ~ 10³–10⁴`），
 这是 20 轮实测的结论。
+
+
+## 八、第 37 轮核实：(5) 的真实基线
+
+| 求解器 | 现状 | 与 Yee 是否并列 |
+|---|---|---|
+| 场求解器（Yee/CKC/PSATD/ECT/隐式） | `Source/Plugins/FieldSolver`，`algo.maxwell_solver` 选择 | — （基准） |
+| **五阶矩流体** | `warpx_fluidmoments_static_${SD}`（独立 STATIC 目标）+ `fluids.species_names` | ✅ **已是独立目标** |
+| **恒星流体** | `star_fluid_plugin_${SD}`（独立 MODULE）+ `register_handlers(WarpXPluginHost*)` 自注册 | ✅ **已是独立插件模块** |
+| 十阶矩 / 矩方程 | 在 `PicEm/Modules/MomentsSolver` 内，经 `Source/MomentsSolver` 头文件路径编进 PicEm；**全目录无任何 `ParmParse`** | ❌ 既无独立目标，**也没有输入入口** |
+
+结论：所谓"与 Yee 并列"，对恒星与五阶矩**已经成立**（它们是独立的 CMake 目标/模块）；
+真正缺的是十阶矩——而它缺的不只是 CMake 目标，**缺的是从输入文件启用它的通路**（没有任何参数读取），
+这意味着要新增求解器选择键 + 驱动逻辑，属于功能开发而非结构搬移。
+
+所以 (5) 的正确描述是：「恒星/五阶矩已并列（可验收）；十阶矩需先有输入入口才能谈并列」。
