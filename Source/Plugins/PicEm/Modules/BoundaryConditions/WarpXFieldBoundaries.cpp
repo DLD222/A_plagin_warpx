@@ -52,6 +52,33 @@ void WarpX::ApplyEfieldBoundary(const int lev, PatchType patch_type, amrex::Real
 {
     using ablastr::fields::Direction;
 
+#if defined(AMREX_USE_EB)
+    // ---- PEC on embedded surfaces: zero the tangential E on cut cells ----
+    // (first slice: staircase form — every E component in a cell cut by the surface
+    //  is set to zero).  This lives here, in the boundary-conditions module, so it can
+    //  be validated before being moved into the standalone plugin.
+    if (EB::enabled()) {
+        auto const& eb_flags = fieldEBFactory(lev).getMultiEBCellFlagFab();
+        using ablastr::fields::Direction;
+        using warpx::fields::FieldType;
+        auto const efield = m_fields.get_alldirs(
+            (patch_type == PatchType::fine) ? FieldType::Efield_fp : FieldType::Efield_cp, lev);
+        for (amrex::MFIter mfi(eb_flags); mfi.isValid(); ++mfi) {
+            auto const& fab = eb_flags[mfi];
+            if (fab.getType() != amrex::FabType::singlevalued) { continue; }
+            auto const& flag = fab.const_array();
+            for (int idim = 0; idim < 3; ++idim) {
+                if (efield[idim] == nullptr) { continue; }
+                amrex::Array4<amrex::Real> const& E = efield[idim]->array(mfi);
+                amrex::Box const& tile = mfi.growntilebox(efield[idim]->nGrowVect());
+                amrex::ParallelFor(tile, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                    if (!flag(i, j, k).isRegular()) { E(i, j, k) = 0.0_rt; }
+                });
+            }
+        }
+    }
+#endif
+
     if (::isAnyBoundary<FieldBoundaryType::PEC>(field_boundary_lo, field_boundary_hi)) {
         if (patch_type == PatchType::fine) {
             PEC::ApplyPECtoEfield(

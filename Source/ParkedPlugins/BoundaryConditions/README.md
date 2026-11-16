@@ -47,3 +47,22 @@ g++ -std=c++20 -fopenmp -fsyntax-only \
 `CMakeLists.txt` 已写好目标，但**尚未**在主 `CMakeLists.txt` 里 `add_subdirectory`，
 因为接入需要同时确定"哪个求解器在何时调用它"（核心侧要持有 `IBoundaryConditions*`，
 由 Yee/CKC 的 `EvolveE` 在更新后调用）。这一步留到下一阶段，避免半接入导致构建/行为不一致。
+# 暂时停放的插件（不参与构建、不参与层检查）
+
+## BoundaryConditions
+
+PEC/电介质边界条件的独立插件原型。**暂停原因**：本仓库要求 `Source/Plugins/<层>` 必须登记在
+`WARPX_MODULE_LAYERS`，而登记后顶层会为它创建无源 OBJECT 目标，插件子目录再 `target_sources`
+仍然导致 `CMake Error: No SOURCES given`。协议没吃透之前不放进 `Source/Plugins/`，以免破坏构建。
+
+**其中已验证可用、已经落地的部分**（不在本目录，在正式代码里）：
+
+| 组件 | 位置 | 状态 |
+|---|---|---|
+| 边界条件接口 | `Source/Core/Runtime/IBoundaryConditions.H` | 编译通过 |
+| 只读 EB 几何接口 | `Source/Core/Runtime/IEBGeometry.H`、`EBGeometry.H` | 编译通过，core purity 检查通过 |
+| 核心接入点 | `RuntimeData::boundaryConditions()` | 编译通过 |
+| **PEC on EB（实际生效）** | `Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXFieldBoundaries.cpp` | **已构建、已实测** |
+
+本目录里的 `PlasmaBoundary.*` / `Register.cpp` 是把上面这套搬进独立插件时的现成代码，
+CMake 协议解决后可直接启用（自注册机制已实测 `factory REGISTERED`）。
