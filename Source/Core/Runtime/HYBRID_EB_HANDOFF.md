@@ -155,3 +155,43 @@ Examples/Tests/embedded_boundary_cube/inputs_test_2d_embedded_boundary_cube
 
 这条证明第 19 轮加进 `WarpX::ApplyEfieldBoundary` 的"cut cell 置零 E"**没有破坏既有的 EB 算例**。
 （该算例同时用了 `boundary.field_*=pec` 与 `warpx.eb_potential`，是覆盖最广的一个 EB 测试。）
+
+## 第 29–32 轮：边界条件（PEC / 电介质）的落地状态
+
+### PEC —— 已从"整格置零"升级为"切向投影"（已构建、已运行、已回归）
+
+`Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXFieldBoundaries.cpp`，在
+`WarpX::ApplyEfieldBoundary` 内、对 `FabType::singlevalued` 的切割格：
+
+```cpp
+amrex::Real const En = (e0*n0 + e1*n1 + e2*n2) / norm2;   // n 来自 getBndryNormal()
+if (has_x) ex_a(i,j,k) = En * n0;                          // 只保留法向分量
+```
+
+实测（同一算例、5 步、首步 max|E|）：无 PEC 5.85e5 → 整格置零 5.36e4 → **切向投影 4.93e4**。
+回归：仓库自带 `embedded_boundary_cube` 40 步通过。
+
+**注意**：这实现了正确的*条件形式*（E_t=0、保留 E_n），但**没有证明二阶精度**。
+要证明需要 cut-cell 面积加权 + 切面质心插值，并做 2× 网格加密的收敛测试（误差应降 4×）。
+
+### 电介质 —— subpixel 算法已验证，C++ 接线未做
+
+`Tools/warpx-studio/warpx_studio/verify/subpixel.py`：
+- 法向：`ε_face = 1/(f/ε2 + (1-f)/ε1)`（对应 D_n 连续）；
+- 切向：`ε_face = f·ε2 + (1-f)·ε1`（对应 E_t 连续）。
+解析值验证（f=0.5, ε1=1, ε2=4 → 1.6 / 2.5）+ Fresnel 反射系数 1/3，已纳入 selftest。
+
+**接线位置**（下一步）：
+1. `FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp:216` 附近
+   填充 `epsilon` 的地方——把解析表达式的结果按 `getVolFrac()` 做方向性平均；
+2. 或更简单：在 `MacroscopicEvolveE.cpp:264/316/358`（把 ε 插值到 Ex/Ey/Ez 位置的三处）
+   改成用面心 ε（那里已经在做方向插值，只需把输入端换成 subpixel 规则）。
+
+### 五项收尾的真实状态（第 32 轮）
+
+| 项 | 完成度 | 缺什么 |
+|---|---|---|
+| (1)(2) 两算例 | 40% | Ohm 律在导体停滞点（t≈0.8 ns）发散；已排除 4 个假设，锁定电子压力项的 `∇Pe/(e n)` |
+| (3) IEBGeometry + B_n 测量 | **100%** | — |
+| (4) 边界条件 | 55% | PEC 切向投影已落地（非二阶验证）；电介质算法已验证、未接线；未插件化 |
+| (5) 恒星/多阶矩并列 | 0% | `MomentsSolver` 需抽成独立 CMake 目标并注册到统一选择 |
