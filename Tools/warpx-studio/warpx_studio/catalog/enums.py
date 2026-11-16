@@ -63,6 +63,10 @@ CURATED: dict[str, tuple[list[str], str]] = {
     "boundary.particle_hi": (["periodic", "absorbing", "reflecting", "thermal", "none"],
                              "docs: boundary.particle_lo/hi bullets"),
     "geometry.dims": (["1", "2", "3", "RZ"], "docs: dimensionality"),
+    "algo.macroscopic_subpixel": (["0", "1"], "docs: algo.macroscopic_subpixel"),
+    "algo.macroscopic_sigma_method": (["backwardeuler", "laxwendroff"],
+                                      "docs: algo.macroscopic_sigma_method"),
+    "algo.em_solver_medium": (["vacuum", "macroscopic"], "docs: EM solver medium"),
     "warpx.E_ext_grid_init_style": (["none", "constant", "parse_e_ext_grid_function",
                                      "read_from_file"], "Source: Initialization"),
     "warpx.B_ext_grid_init_style": (["none", "constant", "parse_b_ext_grid_function",
@@ -96,6 +100,14 @@ GLOSSARY: dict[str, dict[str, str]] = {
         "energy-conserving": "能量守恒收集（默认，噪声低）",
         "momentum-conserving": "动量守恒收集",
         "direct": "直接插值，最快",
+    },
+    "algo.macroscopic_subpixel": {
+        "0": "关闭：按格点取材料，斜/曲面界面被阶梯化（一阶几何）",
+        "1": "开启：按体积分数做方向性平均（法向调和/切向算术），保持二阶",
+    },
+    "algo.macroscopic_sigma_method": {
+        "backwardeuler": "一阶隐式，稳健（默认）",
+        "laxwendroff": "二阶半隐式，易振荡、需更小时间步",
     },
     "algo.em_solver_medium": {
         "vacuum": "真空（标准 Maxwell）",

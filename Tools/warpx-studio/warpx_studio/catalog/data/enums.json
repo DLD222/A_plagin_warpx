@@ -18,6 +18,8 @@
   "boundary.particle_lo": "docs: boundary.particle_lo/hi bullets",
   "boundary.particle_hi": "docs: boundary.particle_lo/hi bullets",
   "geometry.dims": "docs: dimensionality",
+  "algo.macroscopic_subpixel": "docs: algo.macroscopic_subpixel",
+  "algo.macroscopic_sigma_method": "docs: algo.macroscopic_sigma_method",
   "warpx.E_ext_grid_init_style": "Source: Initialization",
   "warpx.B_ext_grid_init_style": "Source: Initialization",
   "<collision_name>.background_type": "source scan (string compares)",
@@ -248,6 +250,14 @@
    "2",
    "3",
    "RZ"
+  ],
+  "algo.macroscopic_subpixel": [
+   "0",
+   "1"
+  ],
+  "algo.macroscopic_sigma_method": [
+   "backwardeuler",
+   "laxwendroff"
   ],
   "warpx.E_ext_grid_init_style": [
    "none",
@@ -1058,8 +1068,8 @@
   "algo.load_balance_intervals": "文本；默认 0",
   "algo.load_balance_knapsack_factor": "数值（可写表达式，如 1.0e-6 或 0.1+2.3）；默认 1.24",
   "algo.load_balance_with_sfc": "0 = 关闭，1 = 开启；默认 0",
-  "algo.macroscopic_sigma_method": "文本",
-  "algo.macroscopic_subpixel": "整数；默认 0",
+  "algo.macroscopic_sigma_method": "可选：backwardeuler=一阶隐式，稳健（默认），laxwendroff=二阶半隐式，易振荡、需更小时间步",
+  "algo.macroscopic_subpixel": "0 = 关闭，1 = 开启；默认 0",
   "algo.maxwell_fdtd_solver": "文本或数值，按参数说明填写",
   "algo.maxwell_solver": "可选：yee=标准 FDTD（二阶精度，最常用，支持 PML/EB），ckc=Cole-Karkkainen 低色散 FDTD（省网格，稳定性稍差），psatd=伪谱方法（需 FFT 构建，色散极小，适合长距离传播），ect=Enlarged Cell Technique，共形/嵌入式边界的替代方案",
   "algo.particle_pusher": "可选：boris=经典 Boris 推进器，默认、最稳，vay=Vay 推进器，强场/大加速度下更准，hybrid=Boris 与 Vay 的混合（按 |E|/|B| 切换），kinetic_energy=能量守恒推进器，长时间积分不漂移，adaptive_boris=自适应 Boris，按局部磁化程度调整",
@@ -1558,6 +1568,14 @@
    "energy-conserving": "能量守恒收集（默认，噪声低）",
    "momentum-conserving": "动量守恒收集",
    "direct": "直接插值，最快"
+  },
+  "algo.macroscopic_subpixel": {
+   "0": "关闭：按格点取材料，斜/曲面界面被阶梯化（一阶几何）",
+   "1": "开启：按体积分数做方向性平均（法向调和/切向算术），保持二阶"
+  },
+  "algo.macroscopic_sigma_method": {
+   "backwardeuler": "一阶隐式，稳健（默认）",
+   "laxwendroff": "二阶半隐式，易振荡、需更小时间步"
   },
   "algo.em_solver_medium": {
    "vacuum": "真空（标准 Maxwell）",

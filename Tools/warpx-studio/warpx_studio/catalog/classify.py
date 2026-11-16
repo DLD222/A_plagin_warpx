@@ -164,6 +164,10 @@ HAND = {
     "boundary.field_hi": "场在高端边界的条件（每个方向一个）",
     "boundary.particle_lo": "粒子在低端边界的条件（每个方向一个）",
     "boundary.particle_hi": "粒子在高端边界的条件（每个方向一个）",
+    "algo.macroscopic_subpixel": "宏观介质求解的 subpixel 平滑开关：1 时按体积分数对 ε/σ/μ 做方向性平均"
+                                "（法向调和、切向算术），界面不再被阶梯化，保持二阶精度；0 时按格点取材料",
+    "algo.macroscopic_sigma_method": "宏观介质的 E 更新格式：backwardeuler（一阶隐式，稳）/"
+                                     "laxwendroff（二阶半隐式，易振荡、需更小步长）",
     "particles.species_names": "粒子组分名列表（由下面的组分卡片自动生成）",
     "particles.use_fdtd_nci_corr": "FDTD 数值 Cherenkov 不稳定性修正器",
     "diagnostics.diags_names": "诊断名列表（由诊断卡片自动生成）",
