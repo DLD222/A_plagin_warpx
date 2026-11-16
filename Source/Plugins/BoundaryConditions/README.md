@@ -28,6 +28,15 @@ g++ -std=c++20 -fopenmp -fsyntax-only \
     Source/Plugins/BoundaryConditions/PlasmaBoundary.cpp
 ```
 
+## 自注册机制
+
+`Register.cpp` 在加载时把自己的工厂登记到核心的
+`warpx::runtime::RegisterBoundaryConditions(...)`（header-only 注册表，定义在
+`Runtime/IBoundaryConditions.H`）。核心与 PicEm **都不出现** `PlasmaBoundary` 这个名字：
+
+- 没编译本插件 → 工厂为空 → `MakeBoundaryConditions()` 返回 `nullptr` → 所有调用退化为 no-op；
+- 编译了本插件 → 工厂被填入 → 求解器通过接口调用。
+
 ## 编译依赖说明
 
 `PlasmaBoundary.cpp` 只 include 核心头文件：`Runtime/IBoundaryConditions.H`、

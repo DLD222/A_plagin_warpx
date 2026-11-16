@@ -7,7 +7,7 @@ option(WarpX_PLUGIN_BC "Build the boundary-condition plugin (PEC + dielectric on
 
 if(WarpX_PLUGIN_BC)
     foreach(SD IN LISTS WarpX_DIMS)
-        add_library(warpx_boundaryconditions_${SD} STATIC PlasmaBoundary.cpp)
+        add_library(warpx_boundaryconditions_${SD} STATIC PlasmaBoundary.cpp Register.cpp)
         target_include_directories(warpx_boundaryconditions_${SD} PUBLIC
             ${CMAKE_SOURCE_DIR}/Source/Core
             ${CMAKE_SOURCE_DIR}/Source/Plugins/BoundaryConditions)

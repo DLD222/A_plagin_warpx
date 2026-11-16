@@ -5,7 +5,9 @@
 #include <ablastr/utils/Enums.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_REAL.H>
+#include <functional>
 #include <memory>
+#include <utility>
 
 /** \file
  *  Core-side contract for the *boundary-condition* plugin.
@@ -19,6 +21,38 @@
  *  `UnsupportedSolvers()` so the input layer can refuse the combination up front.
  */
 namespace warpx::runtime {
+
+class IEBGeometry;
+class IBoundaryConditions;
+
+/** Factory the boundary-condition plugin registers itself with.
+ *
+ *  The core stores a `std::function` only: it never includes a plugin header, and a
+ *  build without the plugin simply leaves the factory empty (all calls become no-ops).
+ *  Header-only so that adding the registry needs no CMake change.
+ */
+using BoundaryConditionsFactory =
+    std::function<std::unique_ptr<IBoundaryConditions>(IEBGeometry const&)>;
+
+inline BoundaryConditionsFactory& boundary_conditions_factory ()
+{
+    static BoundaryConditionsFactory factory;
+    return factory;
+}
+
+/** Called by the plugin (e.g. from a static initialiser). */
+inline void RegisterBoundaryConditions (BoundaryConditionsFactory factory)
+{
+    boundary_conditions_factory() = std::move(factory);
+}
+
+/** Create the plugin instance for this run, or nullptr when no plugin is built. */
+inline std::unique_ptr<IBoundaryConditions>
+MakeBoundaryConditions (IEBGeometry const& geometry)
+{
+    auto const& factory = boundary_conditions_factory();
+    return factory ? factory(geometry) : nullptr;
+}
 
 class IBoundaryConditions
 {
