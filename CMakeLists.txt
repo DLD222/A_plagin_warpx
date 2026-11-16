@@ -73,6 +73,7 @@ option(WarpX_PLUGIN_PARTICLECORE "Build the particle-core plugin (extracted part
 option(WarpX_PLUGIN_NEWTONGRAVITY "Build the Newton-gravity plugin (grad^2 phi = 4 pi G rho)" ON)
 option(WarpX_PLUGIN_FLUIDMOMENTS "Build the five-moment fluid plugin (Euler + HLLC)" ON)
 option(WarpX_PLUGIN_IMPLICIT "Build the implicit solver (theta/Strang/semi-implicit/Darwin)" ON)
+option(WarpX_PLUGIN_BC "Build the boundary-condition plugin (PEC + dielectric on embedded surfaces)" ON)
 
 
 # The implicit solver is built inside the field-solver plugin (it needs the
@@ -348,6 +349,9 @@ if(WarpX_PLUGIN_NEWTONGRAVITY)
 endif()
 if(WarpX_PLUGIN_FLUIDMOMENTS)
     list(APPEND WARPX_MODULE_LAYERS fluidmoments)
+endif()
+if(WarpX_PLUGIN_BC)
+    list(APPEND WARPX_MODULE_LAYERS boundaryconditions)
 endif()
 
 foreach(D IN LISTS WarpX_DIMS)
@@ -676,6 +680,7 @@ add_subdirectory(Source/Core/ablastr)
 if(WarpX_LIB)
     add_subdirectory(Source/Plugins/PicEm)
     add_subdirectory(Source/Plugins/PicEm/Modules/BoundaryConditions)
+    add_subdirectory(Source/Plugins/BoundaryConditions)
     if(WarpX_PLUGIN_COLLISION)
         add_subdirectory(Source/Plugins/Collision)
     endif()
