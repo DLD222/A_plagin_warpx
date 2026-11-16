@@ -6,8 +6,8 @@
  },
  "counts": {
   "total": 802,
-  "documented": 386,
-  "source_only": 416,
+  "documented": 387,
+  "source_only": 415,
   "with_runtime_gating": 194,
   "with_gating_rules": 36,
   "sites": 780,
@@ -8270,11 +8270,11 @@
   },
   {
    "name": "algo.macroscopic_subpixel",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "",
-   "doc_section": null,
+   "type": "integer",
+   "default": "0",
+   "optional": true,
+   "doc": "Binary flag (0 off, 1 on) for subpixel smoothing of the material coefficients when algo.em_solver_medium is macroscopic. Without it the permittivity, conductivity and permeability are taken from the cell that contains the sample point, so an interface that cuts through a cell is represented by a staircase. With it, the coefficients are averaged over the fraction of the cell that each material occupies, using a harmonic (normal) / arithmetic (tangential) average, which keeps the second-order accuracy of the scheme for curved or oblique interfaces. Only meaningful when the macroscopic medium solver is active (algo.em_solver_medium = macroscopic).",
+   "doc_section": "Numerics and algorithms",
    "sites": [
     {
      "file": "Source/Plugins/FieldSolver/FiniteDifference/MacroscopicProperties/MacroscopicProperties.cpp",
@@ -8293,7 +8293,7 @@
      "options": []
     }
    ],
-   "source_only": true,
+   "source_only": false,
    "required": false,
    "options": []
   },

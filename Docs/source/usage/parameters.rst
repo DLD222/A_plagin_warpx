@@ -4082,6 +4082,22 @@ Maxwell solver: macroscopic media
 
     Comparing the two methods, Lax-Wendroff is more prone to developing oscillations and requires a smaller timestep for stability. On the other hand, Backward Euler is more robust but it is first-order accurate in time compared to the second-order Lax-Wendroff method.
 
+.. pp:param:: algo.macroscopic_subpixel
+    :type: ``integer``
+    :default: ``0``
+    :optional:
+
+    Binary flag (``0`` off, ``1`` on) for subpixel smoothing of the material
+    coefficients when :pp:param:`algo.em_solver_medium` is ``macroscopic``.
+    Without it the permittivity, conductivity and permeability are taken from the
+    cell that contains the sample point, so an interface that cuts through a cell
+    is represented by a staircase. With it, the coefficients are averaged over the
+    fraction of the cell that each material occupies, using a harmonic (normal) /
+    arithmetic (tangential) average, which keeps the second-order accuracy of the
+    scheme for curved or oblique interfaces.
+    Only meaningful when the macroscopic medium solver is active
+    (:pp:param:`algo.em_solver_medium` = ``macroscopic``).
+
 .. pp:param:: macroscopic.sigma/epsilon/mu_function(x,y,z)
     :link_aliases:
         macroscopic.sigma_function(x,y,z)

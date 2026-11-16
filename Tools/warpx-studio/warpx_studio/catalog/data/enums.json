@@ -1059,7 +1059,7 @@
   "algo.load_balance_knapsack_factor": "数值（可写表达式，如 1.0e-6 或 0.1+2.3）；默认 1.24",
   "algo.load_balance_with_sfc": "0 = 关闭，1 = 开启；默认 0",
   "algo.macroscopic_sigma_method": "文本",
-  "algo.macroscopic_subpixel": "文本或数值，按参数说明填写",
+  "algo.macroscopic_subpixel": "整数；默认 0",
   "algo.maxwell_fdtd_solver": "文本或数值，按参数说明填写",
   "algo.maxwell_solver": "可选：yee=标准 FDTD（二阶精度，最常用，支持 PML/EB），ckc=Cole-Karkkainen 低色散 FDTD（省网格，稳定性稍差），psatd=伪谱方法（需 FFT 构建，色散极小，适合长距离传播），ect=Enlarged Cell Technique，共形/嵌入式边界的替代方案",
   "algo.particle_pusher": "可选：boris=经典 Boris 推进器，默认、最稳，vay=Vay 推进器，强场/大加速度下更准，hybrid=Boris 与 Vay 的混合（按 |E|/|B| 切换），kinetic_energy=能量守恒推进器，长时间积分不漂移，adaptive_boris=自适应 Boris，按局部磁化程度调整",
