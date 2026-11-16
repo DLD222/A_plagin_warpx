@@ -57,11 +57,11 @@ def start_server(port: int) -> subprocess.Popen:
     raise SystemExit("server did not start")
 
 
-def call(port: int, path: str, payload=None, timeout=600):
+def call(port: int, path: str, payload=None, timeout=600, method: str | None = None):
     data = json.dumps(payload).encode() if payload is not None else None
     request = urllib.request.Request(f"http://127.0.0.1:{port}{path}", data=data,
                                      headers={"Content-Type": "application/json"},
-                                     method="POST" if payload is not None else "GET")
+                                     method=method or ("POST" if payload is not None else "GET"))
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             body = response.read()
@@ -316,6 +316,30 @@ def run_checks(port: int) -> None:
         body = call(port, "/api/frame")[1]
         check("帧可下载", isinstance(body, bytes) and body[:4] == b"\x89PNG",
               f"{len(body)} bytes, PNG 头正确")
+
+    # ---- projects: create, remember, edit, delete ----------------------
+    from urllib.parse import quote
+
+    project = "自测任务-" + time.strftime("%H%M%S")
+    status, saved = call(port, "/api/projects", {
+        "name": project, "deck": {"params": starter["params"], "groups": starter["groups"]},
+        "settings": {"mpi": 2, "omp": 1}, "inputs": "# selftest"})
+    check("新建任务", status == 200 and saved.get("saved"), f"{project} @ {saved.get('updated')}")
+    listed = [p for p in call(port, "/api/projects")[1]["projects"] if p["name"] == project]
+    check("任务列表含新建项", bool(listed), str(listed[0]["dims"]) + "D")
+    status, loaded = call(port, "/api/projects/" + quote(project))
+    check("任务可重新打开", status == 200 and loaded["deck"]["params"]["max_step"] == "2000",
+          f"max_step={loaded['deck']['params'].get('max_step')}，设置 mpi={loaded['settings'].get('mpi')}")
+    edited = json.loads(json.dumps(loaded["deck"]))
+    edited["params"]["max_step"] = "1234"
+    call(port, "/api/projects", {"name": project, "deck": edited})
+    _, again = call(port, "/api/projects/" + quote(project))
+    check("改动可长期保存", again["deck"]["params"]["max_step"] == "1234",
+          f"改后重读 max_step={again['deck']['params']['max_step']}")
+    status, _ = call(port, "/api/projects/" + quote(project), method="DELETE")
+    check("任务可删除", status == 200, "已删除")
+    remaining = [p for p in call(port, "/api/projects")[1]["projects"] if p["name"] == project]
+    check("删除后不再出现", not remaining, f"剩余匹配 {len(remaining)} 个")
 
     # ---- checkpoints + restart -----------------------------------------
     _, chks = call(port, "/api/checkpoints")

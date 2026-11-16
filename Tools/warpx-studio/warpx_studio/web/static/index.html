@@ -70,6 +70,12 @@
   <button id="stop" disabled>■ 停止</button>
   <button id="pause" disabled>⏸ 暂停</button>
   <button id="resume" disabled>▶ 继续</button>
+  <select id="project" title="已保存的任务（项目）"></select>
+  <button id="project-new" title="新建任务">＋ 新建</button>
+  <button id="project-save" title="保存当前任务（同名覆盖）">💾 保存</button>
+  <button id="project-saveas" title="另存为新任务">另存为</button>
+  <button id="project-delete" title="删除当前任务">🗑</button>
+  <span id="project-state" style="font-size:12px;color:var(--dim)">未保存</span>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
   <button id="paraview" title="把当前结果导成 .vti/.pvd 并打开 ParaView">🔍 ParaView 深挖</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
@@ -129,6 +135,76 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {};
+let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
+
+function markDirty() {
+  DIRTY = true;
+  const el = document.getElementById("project-state");
+  if (el) { el.style.color = "var(--warn)"; el.textContent = "未保存"; }
+}
+function markSaved(at) {
+  DIRTY = false; PROJECT_SAVED_AT = at || "";
+  const el = document.getElementById("project-state");
+  if (el) { el.style.color = "var(--ok)"; el.textContent = "已保存 " + (at || "").slice(11, 19); }
+}
+function deckSettings() {
+  return {
+    binary: document.getElementById("binary").value,
+    mpi: Number(document.getElementById("mpi").value) || 1,
+    omp: Number(document.getElementById("omp").value) || 1,
+    live_fields: [...document.querySelectorAll(".livefield:checked")].map(x => x.value),
+    live_particles: document.getElementById("liveparticles")?.checked ? ["electrons"] : [],
+  };
+}
+function applySettings(settings) {
+  if (!settings) return;
+  if (settings.binary) document.getElementById("binary").value = settings.binary;
+  if (settings.mpi) document.getElementById("mpi").value = settings.mpi;
+  if (settings.omp) document.getElementById("omp").value = settings.omp;
+  if (settings.live_particles) document.getElementById("liveparticles").checked = settings.live_particles.length > 0;
+}
+
+async function refreshProjects(selectName) {
+  const data = await (await fetch("/api/projects")).json();
+  const select = document.getElementById("project");
+  select.innerHTML = '<option value="">（未命名任务）</option>';
+  for (const p of data.projects) {
+    const o = document.createElement("option");
+    o.value = p.name;
+    o.textContent = `${p.name} · ${p.dims}D · ${p.species} 物种 · ${(p.updated || "").slice(5, 16)}`;
+    o.title = p.notes || "";
+    select.appendChild(o);
+  }
+  if (selectName) select.value = selectName;
+  return data;
+}
+
+async function loadProject(name) {
+  const data = await (await fetch("/api/projects/" + encodeURIComponent(name))).json();
+  DECK.params = data.deck.params || {};
+  DECK.groups = data.deck.groups || {};
+  PROJECT_NAME = data.name;
+  applySettings(data.settings || {});
+  document.getElementById("project").value = data.name;
+  render();
+  markSaved(data.updated);
+  setStatus("已打开任务：" + data.name, "var(--ok)");
+}
+
+async function saveProject(name) {
+  const preview = await (await fetch("/api/preview", { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) })).json();
+  const r = await fetch("/api/projects", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, deck: DECK, settings: deckSettings(), inputs: preview.inputs }) });
+  const out = await r.json();
+  if (!r.ok) { setStatus("保存失败: " + (out.detail || ""), "var(--err)"); return false; }
+  PROJECT_NAME = name;
+  await refreshProjects(name);
+  markSaved(out.updated);
+  setStatus("已保存：" + name, "var(--ok)");
+  return true;
+}
 const NDIMS = () => {
   const raw = String(DECK.params["geometry.dims"] || "2").trim();
   if (raw === "1" || raw === "RCYLINDER" || raw === "RSPHERE") return 1;
@@ -203,7 +279,7 @@ function inputRow(name, value, onchange, instance) {
       parts.push(select);
     }
     const commit = () => onchange(parts.map(x => x.value).join(" "));
-    parts.forEach(x => { x.onchange = commit; box.appendChild(x); });
+    parts.forEach(x => { x.onchange = () => { commit(); markDirty(); }; box.appendChild(x); });
     wrap.append(lab, box);
     return wrap;
   }
@@ -212,7 +288,7 @@ function inputRow(name, value, onchange, instance) {
     area.value = value || "";
     area.rows = 2;
     area.style.cssText = "width:100%;background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px;font-family:ui-monospace,monospace";
-    area.oninput = () => { onchange(area.value); scheduleValidate(); };
+    area.oninput = () => { onchange(area.value); markDirty(); scheduleValidate(); };
     const bar = document.createElement("div");
     bar.style.cssText = "display:flex;gap:6px;margin-top:4px;align-items:center";
     const tpl = document.createElement("select");
@@ -261,13 +337,13 @@ function inputRow(name, value, onchange, instance) {
       inp.appendChild(e);
     }
     inp.value = value || "";
-    inp.onchange = () => { onchange(inp.value); scheduleValidate(); };
+    inp.onchange = () => { onchange(inp.value); markDirty(); scheduleValidate(); };
   } else {
     inp = document.createElement("input");
     inp.value = value || "";
     const param = CATALOG.params.find(p => p.name === name) || {};
     inp.placeholder = exampleFor(param, type);
-    inp.oninput = () => { onchange(inp.value); scheduleValidate(); };
+    inp.oninput = () => { onchange(inp.value); markDirty(); scheduleValidate(); };
   }
   box.appendChild(inp);
   if (guard.length) { const b = document.createElement("span"); b.className = "badge";
@@ -531,7 +607,7 @@ document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
 });
 document.getElementById("run").onclick = async () => {
   const sel = document.getElementById("binary");
-  const body = { ...DECK, binary: sel.value,
+  const body = { ...DECK, binary: sel.value, project: PROJECT_NAME || null,
     mpi: Number(document.getElementById("mpi").value) || 1,
     omp: Number(document.getElementById("omp").value) || 1,
     live_field: document.getElementById("livefield").value || null,
@@ -585,6 +661,38 @@ async function refreshIterations() {
     if (current) select.value = current;
   } catch (e) { /* no run yet */ }
 }
+document.getElementById("project").onchange = async (e) => {
+  const name = e.target.value;
+  if (!name) { PROJECT_NAME = ""; markDirty(); return; }
+  if (DIRTY && !confirm("当前改动尚未保存，仍要切换到 " + name + " 吗？")) {
+    e.target.value = PROJECT_NAME; return;
+  }
+  await loadProject(name);
+};
+document.getElementById("project-new").onclick = async () => {
+  const name = prompt("新任务名称：", "任务-" + new Date().toISOString().slice(5, 16).replace("T", " "));
+  if (!name) return;
+  const starter = await (await fetch("/api/starter?dims=" + document.getElementById("dims").value)).json();
+  DECK.params = starter.params; DECK.groups = starter.groups;
+  PROJECT_NAME = name; render();
+  await saveProject(name);
+};
+document.getElementById("project-save").onclick = async () => {
+  let name = PROJECT_NAME || document.getElementById("project").value;
+  if (!name) { name = prompt("保存为任务名："); if (!name) return; }
+  await saveProject(name);
+};
+document.getElementById("project-saveas").onclick = async () => {
+  const name = prompt("另存为：", (PROJECT_NAME || "任务") + "-副本");
+  if (name) await saveProject(name);
+};
+document.getElementById("project-delete").onclick = async () => {
+  const name = PROJECT_NAME || document.getElementById("project").value;
+  if (!name || !confirm("确定删除任务 " + name + " ？")) return;
+  await fetch("/api/projects/" + encodeURIComponent(name), { method: "DELETE" });
+  PROJECT_NAME = ""; await refreshProjects(); markDirty();
+  setStatus("已删除：" + name, "var(--warn)");
+};
 document.getElementById("liveapply").onclick = async () => {
   const fields = [...document.querySelectorAll(".livefield:checked")].map(x => x.value);
   const particles = document.getElementById("liveparticles").checked ? ["electrons"] : [];
@@ -626,12 +734,14 @@ function fillBinaries(dims) {
   else if (sel.options.length) sel.selectedIndex = 0;
 }
 
+document.addEventListener("DOMContentLoaded", () => {});
 async function switchDims(dims) {
   fillBinaries(dims);
   const starter = await (await fetch("/api/starter?dims=" + dims)).json();
   DECK.params = starter.params;
   DECK.groups = starter.groups;
   render();
+  markDirty();
   setStatus(`已切到 ${dims.toUpperCase()}：模板与可用二进制已更新`, "var(--acc)");
 }
 
@@ -644,9 +754,14 @@ async function switchDims(dims) {
   const bins = await (await fetch("/api/binaries")).json();
   BINARIES = bins.binaries;
   fillBinaries(document.getElementById("dims").value);
-  await loadStarter();
-  render();
+  const projects = await refreshProjects();
   document.getElementById("dims").onchange = (e) => switchDims(e.target.value);
+  if (projects.projects.length && projects.last) {
+    try { await loadProject(projects.last); }
+    catch (e) { await loadStarter(); render(); markDirty(); }
+  } else {
+    await loadStarter(); render(); markDirty();
+  }
   refreshCheckpoints();
   setInterval(refreshCheckpoints, 5000);
   refreshIterations();

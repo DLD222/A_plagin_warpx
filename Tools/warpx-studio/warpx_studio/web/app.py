@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from warpx_studio.deck import controls
+from warpx_studio.deck import controls, store
 from warpx_studio.deck.model import Deck, minimal_deck
 from warpx_studio.deck.validate import translate_error, validate
 from warpx_studio import plugins as studio_plugins
@@ -60,6 +60,7 @@ class DeckPayload(BaseModel):
 class RunPayload(DeckPayload):
     binary: str
     force: bool = False
+    project: str | None = None
     mpi: int = 1
     omp: int = 1
     live_field: str | None = "rho"
@@ -107,6 +108,41 @@ def api_starter(dims: str = "2d"):
         return deck_from(minimal_deck(dims))
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
+
+
+@app.get("/api/projects")
+def api_projects():
+    return {"projects": store.list_projects(), "last": store.last_opened()}
+
+
+@app.get("/api/projects/{name}")
+def api_project_load(name: str):
+    try:
+        return store.load(name)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, f"没有这个项目: {name}") from exc
+
+
+class ProjectPayload(BaseModel):
+    name: str
+    deck: dict = Field(default_factory=dict)
+    settings: dict = Field(default_factory=dict)
+    notes: str | None = None
+    inputs: str | None = None
+
+
+@app.post("/api/projects")
+def api_project_save(payload: ProjectPayload):
+    deck = payload.deck or {}
+    if not deck.get("params") and not deck.get("groups"):
+        raise HTTPException(400, "项目内容为空")
+    data = store.save(payload.name, deck, payload.settings, payload.notes, payload.inputs)
+    return {"saved": True, "name": data["name"], "updated": data["updated"]}
+
+
+@app.delete("/api/projects/{name}")
+def api_project_delete(name: str):
+    return {"deleted": store.delete(name)}
 
 
 @app.get("/api/controls")
@@ -165,6 +201,8 @@ def api_run(payload: RunPayload):
                     payload.live_component)
     live.start()
     STATE.update({"job": job, "live": live, "run_dir": run_dir, "deck": deck})
+    if payload.project:
+        store.record_run(payload.project, str(run_dir))
     return {"run_dir": str(run_dir), "started": True}
 
 
