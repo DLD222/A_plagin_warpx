@@ -88,7 +88,12 @@ def index() -> HTMLResponse:
 
 @app.get("/api/catalog")
 def api_catalog():
-    return {"catalog": load_json("catalog.json"), "zh": load_json("zh.json")}
+    payload = {"catalog": load_json("catalog.json"), "zh": load_json("zh.json")}
+    try:
+        payload["categories"] = load_json("categories.json")["categories"]
+    except FileNotFoundError:
+        payload["categories"] = []
+    return payload
 
 
 @app.get("/api/binaries")

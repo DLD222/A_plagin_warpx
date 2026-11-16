@@ -78,11 +78,11 @@
 </header>
 
 <nav>
-  <button data-step="1" class="active">1 几何与网格</button>
-  <button data-step="2">2 粒子组分</button>
-  <button data-step="3">3 场与算法</button>
+  <button data-step="1" class="active">1 网格与边界</button>
+  <button data-step="2">2 粒子/激光/碰撞</button>
+  <button data-step="3">3 场与外场</button>
   <button data-step="4">4 诊断输出</button>
-  <button data-step="5">5 全部参数</button>
+  <button data-step="5">5 全部（按物理分类）</button>
   <button data-step="6">6 插件</button>
   <button data-step="7">7 构建</button>
 </nav>
@@ -109,6 +109,13 @@
 </aside>
 
 <script>
+const STEP_CATEGORIES = {
+  1: ["mesh", "boundary", "eb"],
+  2: ["species", "laser", "collision"],
+  3: ["solver", "extern"],
+  4: ["diag"],
+  5: null,
+};
 const STEP_GROUPS = {
   1: ["geometry", "amr", "boundary", "(root)"],
   2: ["particles", "<species_name>"],
@@ -121,6 +128,7 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
   "<solver_name>": "solver" };
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
+let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {};
 const NDIMS = () => {
   const raw = String(DECK.params["geometry.dims"] || "2").trim();
   if (raw === "1" || raw === "RCYLINDER" || raw === "RSPHERE") return 1;
@@ -257,7 +265,8 @@ function inputRow(name, value, onchange, instance) {
   } else {
     inp = document.createElement("input");
     inp.value = value || "";
-    inp.placeholder = type ? type.split(",")[0].slice(0, 28) : "";
+    const param = CATALOG.params.find(p => p.name === name) || {};
+    inp.placeholder = exampleFor(param, type);
     inp.oninput = () => { onchange(inp.value); scheduleValidate(); };
   }
   box.appendChild(inp);
@@ -270,6 +279,24 @@ function inputRow(name, value, onchange, instance) {
   return wrap;
 }
 const innerInstance = (name) => name.startsWith("<");
+
+// grey example inside the box: the documented default when there is one, else a
+// type-appropriate sample so an empty field still says what to type
+function exampleFor(param, type) {
+  const t = String(type || "").toLowerCase();
+  const fallback = t.includes("int") && t.includes("list") ? "例如 64 64"
+    : t.includes("int") ? "例如 10"
+    : t.includes("float") || t.includes("real") ? "例如 1.0e-6"
+    : t.includes("string") || t.includes("strings") ? "例如 periodic"
+    : "例如 1";
+  const def = param.default;
+  if (def !== null && def !== undefined && String(def).trim() !== "") {
+    const text = String(def).trim();
+    return text.length > 34 ? "默认 " + text.slice(0, 34) + "…" : "默认 " + text;
+  }
+  if (param.options && param.options.length) return "选择其一，例如 " + param.options[0];
+  return fallback;
+}
 
 async function renderBuild() {
   const form = document.getElementById("form");
@@ -332,68 +359,77 @@ async function renderPlugins() {
   }
 }
 
+function renderTemplateCards(template, params, body) {
+  const instances = DECK.groups[template] = DECK.groups[template] || {};
+  for (const [inst, values] of Object.entries(instances)) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px";
+    const title = document.createElement("input");
+    title.value = inst;
+    title.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 6px";
+    title.onchange = () => {
+      if (!title.value || title.value === inst) return;
+      DECK.groups[template][title.value] = DECK.groups[template][inst];
+      delete DECK.groups[template][inst];
+      render();
+    };
+    const del = document.createElement("button");
+    del.textContent = "× 删除";
+    del.onclick = () => { delete instances[inst]; render(); };
+    bar.append(document.createTextNode(template.replace(/[<>]/g, "")), title, del);
+    card.appendChild(bar);
+    for (const full of params) {
+      const sub = full.slice(template.length + 1);
+      if (!visible(full, inst)) continue;
+      card.appendChild(inputRow(full, values[sub],
+        v => { DECK.groups[template][inst] = DECK.groups[template][inst] || {};
+               DECK.groups[template][inst][sub] = v; }, inst));
+    }
+    body.appendChild(card);
+  }
+  const add = document.createElement("button");
+  add.textContent = `+ 新增一张 ${(ZH.sections[template] || template)}`;
+  add.onclick = () => {
+    const base = TEMPLATE_BASE[template] || "item";
+    let n = 1; while (DECK.groups[template][base + n]) n++;
+    DECK.groups[template][base + n] = {};
+    render();
+  };
+  body.appendChild(add);
+}
+
 function render() {
   if (STEP === 6) { renderPlugins(); return; }
   if (STEP === 7) { renderBuild(); return; }
   const form = document.getElementById("form");
   form.innerHTML = "";
-  const wanted = STEP_GROUPS[STEP];
-  const groups = Object.keys(CATALOG.groups).filter(g => !wanted || wanted.includes(g));
-  for (const group of groups) {
-    const isTemplate = group.startsWith("<");
-    const params = paramsOf(group);
-    if (!params.length) continue;
+  const wanted = STEP_CATEGORIES[STEP];
+  const categories = CATALOG_CATEGORIES.length
+    ? CATALOG_CATEGORIES
+    : [{ id: "all", name: "全部参数", params: CATALOG.params.map(p => p.name) }];
+  for (const category of categories) {
+    if (wanted && !wanted.includes(category.id)) continue;
+    const names = category.params.filter(n => PARAM_BY_NAME[n]);
+    if (!names.length) continue;
     const sec = document.createElement("section");
     sec.className = "group";
     const head = document.createElement("h3");
-    head.innerHTML = `<span>${ZH.sections[group] || group}</span><span style="color:var(--dim)">${params.length} 项</span>`;
+    head.innerHTML = `<span>${category.name}</span><span style="color:var(--dim)">${names.length} 项</span>`;
     const body = document.createElement("div");
     body.className = "rows";
     head.onclick = () => { body.style.display = body.style.display === "none" ? "" : "none"; };
     sec.append(head, body);
 
-    if (isTemplate) {
-      const instances = DECK.groups[group] = DECK.groups[group] || {};
-      for (const [inst, values] of Object.entries(instances)) {
-        const card = document.createElement("div");
-        card.className = "card";
-        const bar = document.createElement("div");
-        bar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px";
-        const title = document.createElement("input");
-        title.value = inst; title.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 6px";
-        title.onchange = () => {
-          const old = inst; if (!title.value || title.value === old) return;
-          DECK.groups[group][title.value] = DECK.groups[group][old];
-          delete DECK.groups[group][old]; render();
-        };
-        const del = document.createElement("button");
-        del.textContent = "× 删除"; del.onclick = () => { delete instances[inst]; render(); };
-        bar.append(document.createTextNode(group.replace(/[<>]/g, "")), title, del);
-        card.appendChild(bar);
-        for (const p of params) {
-          const sub = p.name.slice(group.length + 1);
-          if (!visible(p.name, inst)) continue;
-          card.appendChild(inputRow(p.name, values[sub],
-            v => { DECK.groups[group][title.value] = DECK.groups[group][title.value] || {}; DECK.groups[group][title.value][sub] = v; },
-            inst));
-        }
-        body.appendChild(card);
-      }
-      const add = document.createElement("button");
-      add.textContent = `+ 新增一张 ${(ZH.sections[group] || group)}`;
-      add.onclick = () => {
-        const base = TEMPLATE_BASE[group] || "item";
-        let n = 1; while (DECK.groups[group][base + n]) n++;
-        DECK.groups[group][base + n] = {};
-        render();
-      };
-      body.appendChild(add);
-    } else {
-      for (const p of params) {
-        if (!visible(p.name)) continue;
-        body.appendChild(inputRow(p.name, DECK.params[p.name],
-          v => { DECK.params[p.name] = v; }));
-      }
+    const templates = [...new Set(names.filter(n => n.startsWith("<"))
+      .map(n => n.split(">")[0] + ">"))];
+    for (const template of templates) {
+      renderTemplateCards(template, names.filter(n => n.startsWith(template)), body);
+    }
+    for (const name of names.filter(n => !n.startsWith("<"))) {
+      if (!visible(name)) continue;
+      body.appendChild(inputRow(name, DECK.params[name], v => { DECK.params[name] = v; }));
     }
     form.appendChild(sec);
   }
@@ -602,6 +638,8 @@ async function switchDims(dims) {
 (async function init() {
   const data = await (await fetch("/api/catalog")).json();
   CATALOG = data.catalog; ZH = data.zh;
+  CATALOG_CATEGORIES = data.categories || [];
+  PARAM_BY_NAME = Object.fromEntries(CATALOG.params.map(p => [p.name, p]));
   CONTROLS = await (await fetch("/api/controls")).json();
   const bins = await (await fetch("/api/binaries")).json();
   BINARIES = bins.binaries;

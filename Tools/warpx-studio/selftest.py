@@ -124,6 +124,26 @@ def run_checks(port: int) -> None:
     check("中文说明", len(zh["params"]) >= 70,
           f"{len(zh['params'])} 条参数译文 + {len(zh['sections'])} 个分区标题")
 
+    # ---- v3: 每个参数都有中文、按物理分类、输入框有灰色示例 ----
+    _, catalog_payload = call(port, "/api/catalog")
+    all_names = [p["name"] for p in CATALOG_JSON["params"]] if False else \
+        [p["name"] for p in catalog_payload["catalog"]["params"]]
+    translated = [n for n in all_names if catalog_payload["zh"]["params"].get(n)]
+    check("每个参数都有中文", len(translated) == len(all_names),
+          f"{len(translated)}/{len(all_names)} 条")
+    categories = catalog_payload.get("categories") or []
+    check("按物理分类", len(categories) >= 8,
+          "、".join(f"{c['name']}({len(c['params'])})" for c in categories[:6]) + " …")
+    check("分类覆盖全部参数", sum(len(c["params"]) for c in categories) >= len(all_names),
+          f"{sum(len(c['params']) for c in categories)} 项落在 {len(categories)} 个分类里")
+    order = [c["order"] for c in categories]
+    check("分类顺序稳定", order == sorted(order), str(order))
+    status, page_html = call(port, "/")
+    if isinstance(page_html, bytes):
+        page_html = page_html.decode("utf-8", "replace")
+    check("输入框灰色示例", "exampleFor" in page_html and "默认 " in page_html,
+          "placeholder 取文档默认值，无默认值按类型给示例")
+
     # ---- deck model ------------------------------------------------------
     for dims in ("1d", "2d", "3d", "rz"):
         deck = minimal_deck(dims)
