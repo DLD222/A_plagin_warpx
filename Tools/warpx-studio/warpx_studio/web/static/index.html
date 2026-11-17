@@ -132,14 +132,6 @@
         <span id="rp-iter">—</span><span id="rp-count">—</span>
       </div>
     </div>
-    <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;font-size:12px">
-      <button id="rp-reset" title="重置视角">⟳ 重置</button>
-      <button id="rp-zoom-in" title="放大">＋</button>
-      <button id="rp-zoom-out" title="缩小">－</button>
-      <button id="rp-top" title="俯视（沿视图轴）">俯视</button>
-      <button id="rp-iso" title="斜视（默认 3/4 视角）">斜视</button>
-      <span style="color:var(--dim);align-self:center">拖动旋转 · 滚轮缩放 · Shift+拖动平移</span>
-    </div>
     <div id="rp-image-wrap" style="margin-top:6px;text-align:center">
       <img id="rp-image" alt="回放画面" style="max-width:100%;background:#000;display:none">
       <div id="rp-empty" style="color:var(--dim);font-size:12px">尚无回放画面</div>
@@ -819,22 +811,15 @@ function rpQuery() {
   const parts = document.getElementById("rp-particles").checked ? "electrons" : "";
   return { field, comp, parts };
 }
-const RP_CAM = { az: 0, el: 0, zoom: 1, px: 0, pz: 0 };
-
 function rpFrameUrl(iteration) {
   const { field, comp, parts } = rpQuery();
   const params = new URLSearchParams({ field, iteration: String(iteration) });
   if (comp) params.set("component", comp);
   if (parts) params.set("particles", parts);
-  if (RP_CAM.az) params.set("az", RP_CAM.az.toFixed(1));
-  if (RP_CAM.el) params.set("el", RP_CAM.el.toFixed(1));
-  if (RP_CAM.zoom !== 1) params.set("zoom", RP_CAM.zoom.toFixed(3));
-  if (RP_CAM.px) params.set("px", RP_CAM.px.toFixed(4));
-  if (RP_CAM.pz) params.set("pz", RP_CAM.pz.toFixed(4));
   params.set("t", String(Date.now()));
   return "/api/frame?" + params.toString();
 }
-function rpApplyCamera() { rpSchedule(); }
+
 function rpShow(skipRender) {
   const iter = RP_ITERS[RP_INDEX];
   document.getElementById("rp-iter").textContent = iter === undefined ? "—" : "迭代 " + iter;
@@ -906,53 +891,6 @@ document.getElementById("rp-field").onchange = () => { refreshComponentSelect();
 for (const id of ["rp-comp", "rp-particles"]) {
   document.getElementById(id).onchange = () => { rpShow(false); };
 }
-// ---- 鼠标交互：拖动旋转、Shift+拖动平移、滚轮缩放（全部在网页内完成）----
-(function () {
-  const img = document.getElementById("rp-image");
-  let dragging = false, mode = "rotate", lastX = 0, lastY = 0;
-  img.style.cursor = "grab";
-  img.addEventListener("mousedown", (e) => {
-    dragging = true; mode = e.shiftKey ? "pan" : "rotate";
-    lastX = e.clientX; lastY = e.clientY;
-    img.style.cursor = "grabbing";
-    e.preventDefault();
-  });
-  window.addEventListener("mouseup", () => { dragging = false; img.style.cursor = "grab"; });
-  window.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - lastX, dy = e.clientY - lastY;
-    lastX = e.clientX; lastY = e.clientY;
-    if (mode === "pan") {
-      RP_CAM.px += dx / 400;
-      RP_CAM.pz -= dy / 400;
-    } else {
-      RP_CAM.az += dx * 0.6;
-      RP_CAM.el = Math.max(-89, Math.min(89, RP_CAM.el + dy * 0.6));
-    }
-    rpSchedule();
-  });
-  img.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    RP_CAM.zoom = Math.max(0.2, Math.min(20, RP_CAM.zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
-    rpSchedule();
-  }, { passive: false });
-})();
-document.getElementById("rp-reset").onclick = () => {
-  RP_CAM.az = RP_CAM.el = 0; RP_CAM.zoom = 1; RP_CAM.px = RP_CAM.pz = 0;
-  rpShow(false);
-};
-document.getElementById("rp-zoom-in").onclick = () => {
-  RP_CAM.zoom = Math.min(20, RP_CAM.zoom * 1.25); rpApplyCamera();
-};
-document.getElementById("rp-zoom-out").onclick = () => {
-  RP_CAM.zoom = Math.max(0.2, RP_CAM.zoom / 1.25); rpApplyCamera();
-};
-document.getElementById("rp-top").onclick = () => {
-  RP_CAM.az = RP_CAM.el = 0; RP_CAM.zoom = 1; rpShow(false);
-};
-document.getElementById("rp-iso").onclick = () => {
-  RP_CAM.az = 35; RP_CAM.el = 25; rpShow(false);
-};
 document.getElementById("rp-save").onclick = async () => {
   const iter = RP_ITERS[RP_INDEX];
   if (iter === undefined) { setStatus("还没有可保存的画面", "var(--warn)"); return; }

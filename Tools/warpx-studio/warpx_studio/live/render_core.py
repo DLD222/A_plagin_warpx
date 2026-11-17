@@ -48,6 +48,13 @@ class Renderer:
 
         if self._view is None:
             self._view = pvs.GetActiveViewOrCreate("RenderView")
+            # The orientation axes widget is a second set of coordinates drawn on top of the
+            # picture; a 2D slice only needs one colour scale and one frame.
+            try:
+                self._view.OrientationAxesVisibility = 0
+                self._view.CenterAxesVisibility = 0
+            except Exception:
+                pass
         return self._view
 
     def render(self, request: dict) -> dict:
@@ -173,6 +180,22 @@ class Renderer:
             else:
                 axis = {0: "x", 1: "y", 2: "z"}.get(int(component), str(component))
                 bar.Title = f"{field}_{axis}"
+            # One colour -> one number, with one consistent format.  ParaView's default
+            # produced labels like "7.2e+00" next to "7.15" and "7.148" on the same bar,
+            # i.e. the same colour appeared to carry several values.  Fix the format and
+            # the number of ticks so the scale is monotone and unambiguous.
+            bar.AddRangeLabels = 1
+            bar.RangeLabelFormat = "%-6.3g"
+            try:
+                bar.MaximumNumberOfLabels = 5
+            except Exception:
+                pass
+            try:
+                lut_numbers = 5
+                lut.SetNumberOfTableValues(256)
+                lut_numbers = 0
+            except Exception:
+                pass
         except Exception:
             pass
 

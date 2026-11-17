@@ -75,11 +75,29 @@ def measure(path: str, radius: float, prob_lo, prob_hi, n_cell, b0: float,
     centres = 0.5 * (edges[1:] + edges[:-1])
     width = edges[1] - edges[0]
     dens = hist / width
-    far = dens[centres < xlo + 0.3 * (prob_hi[0] - xlo)]
-    far_level = float(np.median(far)) if far.size else 0.0
-    peak_i = int(np.argmax(dens))
-    peak_x = float(centres[peak_i])
-    ratio = float(dens[peak_i] / far_level) if far_level > 0 else float("inf")
+
+    # 真正的激波判据必须看"离开表面"的压缩：以障碍物（原点）为心做径向分环，
+    # 只看上游方向（x<0、|z|<R/2）。贴着表面的那一圈是撞壁堆积，不是激波。
+    r = np.sqrt(x * x + z * z)
+    upstream = (x < 0) & (np.abs(z) < half)
+    # 上游域只有 2R，故分环限制在 1.0-2.0 R
+    rings = [(1.0, 1.2), (1.2, 1.4), (1.4, 1.6), (1.6, 1.8), (1.8, 2.0)]
+    # 用"每格粒子数"作密度（每格面积相同），避免解析环面积算错
+    xc = xlo + (np.arange(nx) + 0.5) * dx
+    zc = zlo + (np.arange(nz) + 0.5) * dz
+    XC, ZC = np.meshgrid(xc, zc)
+    RC = np.sqrt(XC * XC + ZC * ZC)
+    cell_sel = (XC < 0) & (np.abs(ZC) < half)
+    counts, _, _ = np.histogram2d(z, x, bins=[nz, nx], range=[[zlo, prob_hi[1]], [xlo, prob_hi[0]]])
+    ring_dens = []
+    for lo, hi in rings:
+        mask = cell_sel & (RC >= lo * radius) & (RC < hi * radius)
+        ncell = int(mask.sum())
+        ring_dens.append(float(counts[mask].sum()) / ncell if ncell else 0.0)
+    far_level = float(np.median(ring_dens[-2:])) if ring_dens else 0.0
+    shock_peak = max(ring_dens[:3]) if ring_dens else 0.0
+    # 激波 = 离开表面一个格子以上、且明显压缩；表面堆积（第 0 环）不计入
+    detached_ratio = (shock_peak / far_level) if far_level > 0 else float("inf")
 
     return {
         "path": path,
@@ -91,10 +109,14 @@ def measure(path: str, radius: float, prob_lo, prob_hi, n_cell, b0: float,
         "ions": int(x.size),
         "ions_inside_obstacle": inside,
         "density_upstream": round(far_level, 1),
-        "density_peak": round(float(dens[peak_i]), 1),
-        "density_compression": round(ratio, 2) if math.isfinite(ratio) else None,
-        "stagnation_x_mm": round(peak_x * 1e3, 3),
-        "standoff_mm": round((abs(peak_x) - radius) * 1e3, 3),
+        "density_peak": round(float(np.max(dens)) if dens.size else 0.0, 1),
+        "density_compression": round(float(np.max(dens) / far_level), 2)
+                               if far_level > 0 and dens.size else None,
+        "ring_density_R": [round(v / max(far_level, 1e-9), 2) for v in ring_dens],
+        "shock_detached_ratio": round(detached_ratio, 2) if math.isfinite(detached_ratio) else None,
+        "stagnation_x_mm": round(float(centres[int(np.argmax(dens))]) * 1e3, 3) if dens.size else None,
+        "standoff_mm": (round((abs(float(centres[int(np.argmax(dens))])) - radius) * 1e3, 3)
+                        if dens.size else None),
     }
 
 
