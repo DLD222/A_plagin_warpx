@@ -841,6 +841,22 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
                 return;   // this is a per-particle lambda body, not a C++ loop
             }
 
+            // A particle can sit outside this tile (e.g. it just wrapped through a periodic
+            // boundary, or it ran far away).  Deposit only if its whole stencil is inside the
+            // J array; otherwise the atomic adds land outside the fab (ASAN: heap-buffer-
+            // overflow in Gpu::Atomic::AddNoRet).
+            {
+                amrex::Dim3 const jx_lo = lbound(Jx_arr);
+                amrex::Dim3 const jx_hi = ubound(Jx_arr);
+                int const i_c = lo.x + int(amrex::Math::floor(x_new));
+                int const k_c = lo.y + int(amrex::Math::floor(z_new));
+                if (i_c < jx_lo.x || i_c > jx_hi.x || k_c < jx_lo.y || k_c > jx_hi.y
+                    || i_c - 1 < jx_lo.x || i_c + depos_order + 1 > jx_hi.x
+                    || k_c - 1 < jx_lo.y || k_c + depos_order + 1 > jx_hi.y) {
+                    return;
+                }
+            }
+
             // Check whether the particle is close to the EB at the old and new position
             bool reduce_shape_old, reduce_shape_new;
 #ifdef AMREX_USE_CUDA
