@@ -835,6 +835,15 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             amrex::ignore_unused(reduced_particle_shape_mask, lo); // Needed to avoid compilation error with nvcc
 #endif
             if constexpr (reduce_shape_control == has_reduced_shape) {
+                // The mask lives on a different FabArray than the J tile, so its valid box
+                // need not match `lo` + the tile extent.  Clamp into the mask's own box;
+                // otherwise a particle near a tile edge reads out of bounds and the run
+                // crashes with a bare SIGSEGV (reproducible at >=64x40 cells with EB).
+                amrex::Dim3 const mask_lo = lbound(reduced_particle_shape_mask);
+                amrex::Dim3 const mask_hi = ubound(reduced_particle_shape_mask);
+                auto mask_i = [&] (int idx, int lo_d, int hi_d) {
+                    return amrex::max(lo_d, amrex::min(hi_d, idx));
+                };
 #if defined(WARPX_DIM_3D)
                 reduce_shape_old = reduced_particle_shape_mask(
                     lo.x + int(amrex::Math::floor(x_old)),
@@ -846,13 +855,13 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
                     lo.z + int(amrex::Math::floor(z_new)));
 #elif defined(WARPX_DIM_XZ) || defined(WARPX_DIM_RZ)
                 reduce_shape_old = reduced_particle_shape_mask(
-                    lo.x + int(amrex::Math::floor(x_old)),
-                    lo.y + int(amrex::Math::floor(z_old)),
-                    0);
+                    mask_i(lo.x + int(amrex::Math::floor(x_old)), mask_lo.x, mask_hi.x),
+                    mask_i(lo.y + int(amrex::Math::floor(z_old)), mask_lo.y, mask_hi.y),
+                    mask_i(0, mask_lo.z, mask_hi.z));
                 reduce_shape_new = reduced_particle_shape_mask(
-                    lo.x + int(amrex::Math::floor(x_new)),
-                    lo.y + int(amrex::Math::floor(z_new)),
-                    0);
+                    mask_i(lo.x + int(amrex::Math::floor(x_new)), mask_lo.x, mask_hi.x),
+                    mask_i(lo.y + int(amrex::Math::floor(z_new)), mask_lo.y, mask_hi.y),
+                    mask_i(0, mask_lo.z, mask_hi.z));
 #elif defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
                 reduce_shape_old = reduced_particle_shape_mask(
                     lo.x + int(amrex::Math::floor(x_old)),
