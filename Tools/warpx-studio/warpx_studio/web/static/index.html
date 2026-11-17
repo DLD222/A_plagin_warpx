@@ -94,26 +94,21 @@
   <button data-step="4">4 诊断输出</button>
   <button data-step="5">5 插件</button>
   <button data-step="6">6 构建</button>
+  <button data-step="7">7 可视化输出</button>
 </nav>
 
 <main>
   <div id="warn"></div>
-  <div id="form"></div>
-</main>
-
-<aside>
-  <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px;font-size:12px;align-items:center">
-    <span style="color:var(--dim)">场:</span>
-    <label><input type="checkbox" class="livefield" value="rho" checked> rho</label>
-    <label><input type="checkbox" class="livefield" value="E"> E</label>
-    <label><input type="checkbox" class="livefield" value="B"> B</label>
-    <label><input type="checkbox" id="liveparticles"> 粒子</label>
-    <select id="liveiter" title="回放历史迭代"><option value="">跟随最新</option></select>
-    <button id="liveapply">应用</button>
-    <button id="export">导出帧序列</button>
-  </div>
-  <div id="livegrid" style="display:grid;grid-template-columns:1fr;gap:4px;padding:0 6px"></div>
-  <section id="replay" style="padding:8px 6px;border-top:1px solid var(--line);margin-top:8px">
+  <section id="page-input">
+    <div id="paths" style="display:none;padding:6px 8px;font-size:12px;color:var(--dim);
+         border-bottom:1px solid var(--line);margin-bottom:6px"></div>
+    <div id="form"></div>
+  </section>
+  <section id="page-vis" style="display:none">
+    <div id="vis-paths" style="padding:6px 8px;font-size:12px;color:var(--dim);
+         border-bottom:1px solid var(--line);margin-bottom:6px"></div>
+    <div id="live-vis" style="padding:0 8px 8px"></div>
+    <section id="replay" style="padding:8px 6px;border-top:1px solid var(--line);margin-top:8px">
     <h3 style="margin:0 0 6px">回放与图片</h3>
     <div style="display:flex;gap:6px;align-items:center;font-size:12px;flex-wrap:wrap">
       <label>物理量
@@ -142,6 +137,21 @@
     </div>
     <div id="rp-gallery" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px"></div>
   </section>
+  </section>
+</main>
+
+<aside>
+  <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">场:</span>
+    <label><input type="checkbox" class="livefield" value="rho" checked> rho</label>
+    <label><input type="checkbox" class="livefield" value="E"> E</label>
+    <label><input type="checkbox" class="livefield" value="B"> B</label>
+    <label><input type="checkbox" id="liveparticles"> 粒子</label>
+    <select id="liveiter" title="回放历史迭代"><option value="">跟随最新</option></select>
+    <button id="liveapply">应用</button>
+    <button id="export">导出帧序列</button>
+  </div>
+  <div id="livegrid" style="display:grid;grid-template-columns:1fr;gap:4px;padding:0 6px"></div>
   <div id="meta">尚未开始计算</div>
   <pre id="log"></pre>
 </aside>
@@ -437,6 +447,9 @@ function exampleFor(param, type) {
 }
 
 async function renderBuild() {
+  document.getElementById("page-input").style.display = "";
+  document.getElementById("page-vis").style.display = "none";
+  renderPaths("paths");
   const form = document.getElementById("form");
   const dims = document.getElementById("dims").value;
   form.innerHTML = `
@@ -472,6 +485,34 @@ async function pollBuild() {
     if (s.state === "configure" || s.state === "build") setTimeout(pollBuild, 2000);
     if (s.state === "finished") refreshCheckpoints();
   }
+}
+
+// 可视化输出是独立页面：切过来时隐藏参数表单，并把输入/输出文件地址显示出来
+function renderVisualization() {
+  document.getElementById("page-input").style.display = "none";
+  document.getElementById("page-vis").style.display = "";
+  renderPaths("vis-paths");
+  refreshQuantities();
+  refreshReplay();
+  refreshGallery();
+  refreshLive();
+}
+
+function renderPaths(targetId) {
+  const box = document.getElementById(targetId);
+  if (!box) return;
+  fetch("/api/paths").then(r => r.json()).then(d => {
+    if (!d || !d.workdir) { box.style.display = "none"; return; }
+    box.style.display = "";
+    const rows = [
+      ["输入文件", d.inputs],
+      ["运行目录", d.workdir],
+      ["输出目录", d.diag_dir || "（还没产生输出）"],
+    ];
+    box.innerHTML = rows.map(([k, v]) =>
+      `<div><span style="color:var(--dim);display:inline-block;width:72px">${k}</span>` +
+      `<code style="user-select:all">${v || "-"}</code></div>`).join("");
+  }).catch(() => { box.style.display = "none"; });
 }
 
 async function renderPlugins() {
@@ -543,6 +584,10 @@ function renderTemplateCards(template, params, body) {
 function render() {
   if (STEP === 5) { renderPlugins(); return; }
   if (STEP === 6) { renderBuild(); return; }
+  if (STEP === 7) { renderVisualization(); return; }
+  document.getElementById("page-input").style.display = "";
+  document.getElementById("page-vis").style.display = "none";
+  renderPaths("paths");
   const form = document.getElementById("form");
   form.innerHTML = "";
   const wanted = STEP_CATEGORIES[STEP];

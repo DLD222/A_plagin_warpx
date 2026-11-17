@@ -629,6 +629,32 @@ def _safe_name(name: str) -> str:
 QUANTITIES_CACHE: dict = {"run": None, "items": []}
 
 
+@app.get("/api/paths")
+def api_paths():
+    """输入文件与输出文件的真实路径，界面上直接显示给用户。"""
+    job = STATE.get("job")
+    workdir = getattr(job, "run_dir", None) if job else None
+    if workdir is None:
+        workdir = STATE.get("run_dir")
+    if not workdir:
+        return {"workdir": None, "inputs": None, "diag_dir": None}
+    base = Path(workdir)
+    inputs = base / "inputs"
+    diag = None
+    pmd = sorted(base.rglob("paraview.pmd"))
+    if pmd:
+        diag = str(pmd[0].parent)
+    else:
+        for cand in sorted(base.rglob("openpmd_*.h5")):
+            diag = str(cand.parent)
+            break
+    return {"workdir": str(base),
+            "inputs": str(inputs) if inputs.is_file() else None,
+            "diag_dir": diag,
+            "snapshots": str(base / "snapshots"),
+            "frames": str(base / "web_frames")}
+
+
 @app.get("/api/quantities")
 def api_quantities():
     """List the field quantities this run can render, with their component counts.

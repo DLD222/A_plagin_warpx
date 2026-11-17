@@ -559,6 +559,14 @@ def run_checks(port: int) -> None:
     for marker in ("renderBuild", "renderPlugins", "switchDims", "scheduleValidate"):
         check(f"界面功能存在: {marker}", f"function {marker}" in page or f"{marker}(" in page,
               "在页面脚本中")
+    # 可视化独立成页，并能看到输入/输出文件地址
+    _, paths = call(port, "/api/paths")
+    check("可视化独立成页",
+          'id="page-vis"' in page and "renderVisualization" in page and 'data-step="7"' in page,
+          "step 7 = 可视化输出，与参数表单分页")
+    check("显示输入/输出文件地址",
+          bool(paths.get("inputs")) and bool(paths.get("diag_dir")),
+          f"输入 {paths.get('inputs')}；输出 {paths.get('diag_dir')}")
 
 
 if __name__ == "__main__":
