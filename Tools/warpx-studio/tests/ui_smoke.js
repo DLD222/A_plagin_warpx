@@ -20,7 +20,11 @@ function el(tag) {
     rows: 0, placeholder: "", scrollTop: 0, scrollHeight: 0,
     _text: "", _html: "",
     set textContent(v) { this._text = v; }, get textContent() { return this._text; },
-    set innerHTML(v) { this._html = v; }, get innerHTML() { return this._html; },
+    set innerHTML(v) {
+      this._html = v;
+      if (v === "") { this.children.length = 0; }   // 真实 DOM 里 innerHTML="" 会清空子节点
+    },
+    get innerHTML() { return this._html; },
     appendChild(c) { this.children.push(c); return c; },
     append(...cs) { cs.forEach((c) => this.children.push(c)); },
     removeChild() {}, remove() {}, addEventListener() {}, setAttribute() {},
@@ -33,6 +37,7 @@ const registry = {};
 global.document = {
   getElementById(id) { return registry[id] || (registry[id] = el("div")); },
   createElement(tag) { return el(tag); },
+  createTextNode(text) { const n = el("#text"); n._text = text; return n; },
   querySelectorAll() { return []; },
   querySelector() { return el("div"); },
   addEventListener() {},
@@ -78,7 +83,46 @@ eval(script);
 realSetTimeout(() => {
   try {
     render();
-    console.log("PASS: init + render() 没有异常");
+    // ---- 行为验收：取值门控在真实渲染里是否生效 -------------------------------
+function collectLabels(node, out) {
+  if (!node) return out;
+  const html = node._html || "";
+  const m = /<b>([^<]+)<\/b>/.exec(html);
+  if (m) out.push(m[1]);
+  for (const c of (node.children || [])) collectLabels(c, out);
+  return out;
+}
+
+if (global.window.__STUDIO_TEST__) {
+  const T = global.window.__STUDIO_TEST__;
+  const S = "<species_name>";
+  const scenario = (profile) => {
+    const deck = { params: {}, groups: { [S]: { ions: { profile, charge: "5*q_e", mass: "27*m_p" } } } };
+    T.setDECK(deck);
+    T.setStep(2);          // 物种参数在「2 粒子/激光/碰撞」这一步
+    T.render();
+    return collectLabels(registry["form"], []);
+  };
+  const asPdf = scenario("parse_density_function");
+  const asConst = scenario("constant");
+  const has = (rows, name) => rows.some((r) => r.replace(/\s/g, "") === name.replace(/\s/g, ""));
+
+  const problems = [];
+  if (!has(asPdf, "density_function(x,y,z)")) problems.push("profile=parse_density_function 时没显示 density_function(x,y,z)");
+  if (has(asPdf, "density")) problems.push("profile=parse_density_function 时仍然显示了 density");
+  if (!has(asConst, "density")) problems.push("profile=constant 时没显示 density");
+  if (has(asConst, "density_function(x,y,z)")) problems.push("profile=constant 时仍然显示了 density_function(x,y,z)");
+  if (problems.length) {
+    console.error("FAIL 取值门控在实际渲染中不生效:\n  " + problems.join("\n  "));
+    process.exit(1);
+  }
+  console.log(`PASS 取值门控的真实渲染: parse_density_function -> ${asPdf.filter(r=>/density/.test(r)).join(",")}; constant -> ${asConst.filter(r=>/density/.test(r)).join(",")}`);
+} else {
+  console.error("FAIL 页面没有暴露 __STUDIO_TEST__，无法做行为验收");
+  process.exit(1);
+}
+
+console.log("PASS: init + render() 没有异常");
   } catch (err) {
     console.log("FAIL: " + (err && err.stack ? err.stack : err));
     process.exit(1);

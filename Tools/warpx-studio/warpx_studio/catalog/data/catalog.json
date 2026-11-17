@@ -12015,6 +12015,46 @@
     "value": "parse_momentum_function",
     "raw": "value gate"
    }
+  ],
+  "<species_name>.read_density_distributed": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.read_temperature_in_eV_from_path": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.temperature_in_eV_mesh_name": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.read_u_mean_from_path": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.read_u_std_from_path": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
   ]
  },
  "build_guards": {

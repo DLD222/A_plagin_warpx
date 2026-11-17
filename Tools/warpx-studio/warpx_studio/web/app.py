@@ -89,7 +89,9 @@ def deck_from(payload: DeckPayload) -> Deck:
 
 @app.get("/", response_class=HTMLResponse)
 def index() -> HTMLResponse:
-    return HTMLResponse((HERE / "static/index.html").read_text(encoding="utf-8"))
+    # 不做缓存：改完界面后刷新就能看到新版本，避免"改了却没生效"的错觉
+    return HTMLResponse((HERE / "static/index.html").read_text(encoding="utf-8"),
+                        headers={"Cache-Control": "no-store, must-revalidate"})
 
 
 @app.get("/api/catalog")

@@ -37,7 +37,9 @@ S = "<species_name>."
 # ---- 密度剖面 ----
 gate([S + "density", S + "density_max", S + "density_min"], S + "profile", "constant")
 gate([S + "density_function(x,y,z)"], S + "profile", "parse_density_function")
-gate([S + "read_density_from_path", S + "density_mesh_name"], S + "profile", "read_from_file")
+gate([S + "read_density_from_path", S + "density_mesh_name", S + "read_density_distributed",
+      S + "read_temperature_in_eV_from_path", S + "temperature_in_eV_mesh_name",
+      S + "read_u_mean_from_path", S + "read_u_std_from_path"], S + "profile", "read_from_file")
 # 未填 profile 时 WarpX 默认 constant，所以 density 也要露出来
 gate([S + "density"], S + "profile", None)
 

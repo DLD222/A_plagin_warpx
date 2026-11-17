@@ -273,10 +273,25 @@ function deckGet(name) {
   }
   return "";
 }
+// 取"规则里那个参数"的实际值。模板参数（<species_name>.profile）必须按实例去
+// DECK.groups 里取，不能拼成 "ions.profile" —— 那样 deckGet 永远返回空串，
+// 取值门控就全部失效（这正是之前"选不同值没反应"的原因）。
+function ruleValue(param, instance) {
+  const tm = String(param).match(/^(<[a-z_]+>)\.(.+)$/);
+  if (tm) {
+    const key = TEMPLATE_ALIAS[tm[1]] || tm[1];
+    if (instance) {
+      const inst = (DECK.groups[key] || {})[instance];
+      const v = inst ? inst[tm[2]] : undefined;
+      return v === undefined ? "" : v;
+    }
+    return deckGet(param);          // 没有实例上下文时退化为第一个实例
+  }
+  return deckGet(param);
+}
+
 function ruleSatisfied(rule, instance) {
-  let param = rule.param;
-  if (instance && param.startsWith("<")) param = param.replace(/^<[a-z_]+>/, instance);
-  const raw = String(deckGet(param) ?? "").replace(/"/g, "").trim();
+  const raw = String(ruleValue(rule.param, instance) ?? "").replace(/"/g, "").trim();
   const value = raw.toLowerCase();
   if (rule.op === "truthy") return ["1", "true", "t", "yes"].includes(value);
   if (rule.op === "falsy") return !["1", "true", "t", "yes"].includes(value);
@@ -1136,6 +1151,12 @@ async function switchDims(dims) {
   markDirty();
   setStatus(`已切到 ${dims.toUpperCase()}：模板与可用二进制已更新`, "var(--acc)");
 }
+
+// 供自动化测试使用：暴露渲染入口与状态（浏览器里只是普通对象，不影响功能）
+window.__STUDIO_TEST__ = { render: () => render(), getDECK: () => DECK,
+                           setDECK: (d) => { DECK = d; }, visible,
+                           ruleSatisfied, orderByDependency, CATALOG: () => CATALOG,
+                           setStep: (n) => { STEP = n; }, getStep: () => STEP };
 
 (async function init() {
   const data = await (await fetch("/api/catalog")).json();
