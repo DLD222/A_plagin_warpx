@@ -22,9 +22,17 @@ ROOT = REPO / "audit_runs/studio_projects"
 LAST = REPO / "audit_runs/studio_projects/.last"
 
 
+# Symbols that carry meaning in a project name but are not filesystem-safe.  Without this
+# mapping `B∥` and `B⊥` both collapse to `B-`, so two projects silently overwrite each other.
+SLUG_SYMBOLS = {"∥": "par", "⊥": "perp", "‖": "par", "×": "x", "→": "to"}
+
+
 def slug(name: str) -> str:
     """Filesystem-safe directory name that stays readable."""
-    cleaned = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff._-]+", "-", (name or "").strip())
+    text = name or ""
+    for symbol, word in SLUG_SYMBOLS.items():
+        text = text.replace(symbol, word)
+    cleaned = re.sub(r"[^0-9A-Za-z\u4e00-\u9fff._-]+", "-", text.strip())
     cleaned = cleaned.strip("-._")[:60]
     return cleaned or f"project-{int(time.time())}"
 

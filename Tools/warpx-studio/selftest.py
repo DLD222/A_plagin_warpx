@@ -409,6 +409,11 @@ def run_checks(port: int) -> None:
     check("任务可删除", status == 200, "已删除")
     remaining = [p for p in call(port, "/api/projects")[1]["projects"] if p["name"] == project]
     check("删除后不再出现", not remaining, f"剩余匹配 {len(remaining)} 个")
+    # 项目名里的 ∥/⊥ 曾经都被替换成 "-"，导致两个项目写到同一目录、后者覆盖前者
+    from warpx_studio.deck.store import slug as _slug
+    check("项目名符号不冲突",
+          _slug("B∥轴") != _slug("B⊥轴") and _slug("B∥轴") == "Bpar轴",
+          f"{_slug('B∥轴')} vs {_slug('B⊥轴')}")
 
     # ---- checkpoints + restart -----------------------------------------
     _, chks = call(port, "/api/checkpoints")
