@@ -266,8 +266,11 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
                                                                                 Ex_stag, macro_cr, i, j, k, scomp);
             // P1: full matrix-vector product E_c = alpha E_c + beta0 sum_d (eps^-1)_{c,d} D_d,
             // beta0 = dt/(1+s) = beta*eps. The three curl components are evaluated at the
-            // same index (Meep collocated approximation, O(h) at an interface); J stays on
-            // the diagonal because its off-diagonal coupling is second order.
+            // same index (Meep collocated approximation, O(h) at an interface).  eps^-1 is
+            // applied to J with its FULL row: (eps^-1 J)_c = sum_d (eps^-1)_{c,d} J_d.  Using
+            // only the diagonal entry, as this used to, drops terms of the same order and is
+            // exactly wrong for an off-diagonal permittivity (a J along y then produces no Ex
+            // at all).
             amrex::Real const Dx = - T_Algo::DownwardDz(Hy, coefs_z, n_coefs_z, i, j, k,0)
                                     + T_Algo::DownwardDy(Hz, coefs_y, n_coefs_y, i, j, k,0);
             amrex::Real const Dy =   T_Algo::DownwardDz(Hx, coefs_z, n_coefs_z, i, j, k,0)
@@ -288,7 +291,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real beta_eps = amrex::Real(0.0);
             T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, ix0, dt, alpha, beta_eps);
             Ex(i, j, k) = alpha * Ex(i, j, k)
-                        + beta_eps * ( ix0*Dx + ix1*Dy + ix2*Dz - ix0 * jx(i, j, k));
+                        + beta_eps * ( ix0*Dx + ix1*Dy + ix2*Dz
+                                       - (ix0*jx(i, j, k) + ix1*jy(i, j, k)
+                                          + ix2*jz(i, j, k)) );
         });
 
         // Ey update
@@ -330,7 +335,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real beta_eps = amrex::Real(0.0);
             T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, iy1, dt, alpha, beta_eps);
             Ey(i, j, k) = alpha * Ey(i, j, k)
-                        + beta_eps * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0 - iy1 * jy(i, j, k));
+                        + beta_eps * ( iy0*Dx0 + iy1*Dy0 + iy2*Dz0
+                                       - (iy0*jx(i, j, k) + iy1*jy(i, j, k)
+                                          + iy2*jz(i, j, k)) );
         });
 
         // Ez update
@@ -372,7 +379,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             amrex::Real beta_eps = amrex::Real(0.0);
             T_MacroAlgo::coefficients_from_inv_eps(sigma_interp, iz2, dt, alpha, beta_eps);
             Ez(i, j, k) = alpha * Ez(i, j, k)
-                        + beta_eps * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0 - iz2 * jz(i, j, k));
+                        + beta_eps * ( iz0*Dx0 + iz1*Dy0 + iz2*Dz0
+                                       - (iz0*jx(i, j, k) + iz1*jy(i, j, k)
+                                          + iz2*jz(i, j, k)) );
         });
         // P2: exact exponential step for the conductive cells:
         //     E^{n+1} = M1 E^n + M2 (curlH - J)

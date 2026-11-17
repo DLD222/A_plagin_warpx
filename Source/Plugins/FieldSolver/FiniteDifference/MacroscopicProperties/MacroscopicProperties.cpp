@@ -572,19 +572,46 @@ MacroscopicProperties::InitData (
                 // tensor rotation.
                 amrex::Real nrmv[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
                 if (iface_on_n) {
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    // 1D: the only coordinate is z (r for the cylindrical/spherical 1D), and
+                    // `i` is its index; `j` is always 0.  Reading x = xlo + i*dx here meant
+                    // `interface_function(x,y,z)` received (i*dx, 0, zlo) — constant in z — so
+                    // a 1D interface silently collapsed into a uniform medium.
+                    amrex::Real const xn0 = amrex::Real(0.0);
+                    amrex::Real const yn0 = amrex::Real(0.0);
+                    amrex::Real const zn0 = zlo_n + amrex::Real(i) * dz_n;
+#elif defined(WARPX_DIM_3D)
                     amrex::Real const xn0 = xlo_n + amrex::Real(i) * dx_n;
-#if defined(WARPX_DIM_3D)
                     amrex::Real const yn0 = ylo_n + amrex::Real(j) * dy_n;
                     amrex::Real const zn0 = zlo_n + amrex::Real(k) * dz_n;
 #else
+                    amrex::Real const xn0 = xlo_n + amrex::Real(i) * dx_n;
                     amrex::Real const yn0 = amrex::Real(0.0);
                     amrex::Real const zn0 = zlo_n + amrex::Real(j) * dz_n;
 #endif
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    amrex::Real const hh0 = amrex::Real(0.5) * dz_n;
+#else
                     amrex::Real const hh0 = amrex::Real(0.5) * amrex::min(dx_n, dz_n);
+#endif
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    amrex::Real const gz0 = phi_n(xn0, yn0, zn0 + hh0) - phi_n(xn0, yn0, zn0 - hh0);
+                    amrex::Real const gn0 = std::abs(gz0);
+                    if (gn0 > amrex::Real(1e-30)) { nrmv[2] = gz0/gn0; }
+#else
                     amrex::Real const gx0 = phi_n(xn0 + hh0, yn0, zn0) - phi_n(xn0 - hh0, yn0, zn0);
                     amrex::Real const gz0 = phi_n(xn0, yn0, zn0 + hh0) - phi_n(xn0, yn0, zn0 - hh0);
+#if defined(WARPX_DIM_3D)
+                    // The y component was never computed, so nrmv[1] stayed 0 and a y-normal
+                    // interface could not be detected at all.
+                    amrex::Real const gy0 = phi_n(xn0, yn0 + hh0, zn0) - phi_n(xn0, yn0 - hh0, zn0);
+                    amrex::Real const gn0 = std::sqrt(gx0*gx0 + gy0*gy0 + gz0*gz0);
+                    if (gn0 > amrex::Real(1e-30)) { nrmv[0] = gx0/gn0; nrmv[1] = gy0/gn0; nrmv[2] = gz0/gn0; }
+#else
                     amrex::Real const gn0 = std::sqrt(gx0*gx0 + gz0*gz0);
                     if (gn0 > amrex::Real(1e-30)) { nrmv[0] = gx0/gn0; nrmv[2] = gz0/gn0; }
+#endif
+#endif
                 }
                 bool const normal = (std::abs(nrmv[c]) > amrex::Real(0.5));
 #if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
@@ -632,6 +659,12 @@ MacroscopicProperties::InitData (
                     ? sv_norm
                     : ((sL <= amrex::Real(0.0) || sR <= amrex::Real(0.0))
                         ? amrex::Real(0.0) : amrex::Real(0.5) * (sL + sR));
+#if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                amrex::Real const xn = amrex::Real(0.0);
+                amrex::Real const yn = amrex::Real(0.0);
+                amrex::Real const zn = zlo_n
+                    + (normal ? amrex::Real(i) + amrex::Real(0.5) : amrex::Real(i)) * dz_n;
+#else
                 amrex::Real const xn = xlo_n + amrex::Real(i) * dx_n;
 #if defined(WARPX_DIM_3D)
                 amrex::Real const yn = ylo_n + amrex::Real(j) * dy_n;
@@ -643,6 +676,7 @@ MacroscopicProperties::InitData (
                 amrex::Real const yn = amrex::Real(0.0);
                 amrex::Real const zn = zlo_n
                     + (normal ? amrex::Real(j) + amrex::Real(0.5) : amrex::Real(j)) * dz_n;
+#endif
 #endif
                 amrex::Real nrmv_t[3] = {amrex::Real(0.0), amrex::Real(0.0), amrex::Real(1.0)};
                 if (iface_on_n) {
@@ -769,7 +803,6 @@ MacroscopicProperties::InitData (
     for (int c = 0; c < 3; ++c) {
         m_eps_node[c]->FillBoundary(geom.periodicity());
         m_sigma_node[c]->FillBoundary(geom.periodicity());
-        m_eps_inv_node[c]->FillBoundary(geom.periodicity());
     }
     }
     // Node-centred inverse permittivity rows: row c of inv(eps_node[c]). Built here so
@@ -791,6 +824,13 @@ MacroscopicProperties::InitData (
                 ein(i,j,k,2) = emi.m[3*c + 2];
             });
         }
+    }
+    // The ghost cells must be filled AFTER the inverse is written: doing it before (as
+    // this used to) left the ghosts at their allocation value and any consumer that reads
+    // ghosts (periodic-seam divergence checks, external plugins via get_eps_inv_node_mf)
+    // silently got zeros.
+    for (int c = 0; c < 3; ++c) {
+        m_eps_inv_node[c]->FillBoundary(geom.periodicity());
     }
 
 

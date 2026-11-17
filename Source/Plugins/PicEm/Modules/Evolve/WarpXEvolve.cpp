@@ -619,7 +619,12 @@ WarpX::RunFinalizeStage ()
                                          m_runtime_context->config_snapshot};
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
         const bool core_replaced = scheduler.has_handlers(
-            warpx::runtime::Stage::AfterPush, warpx::runtime::Stage::AfterPush + 1);
+            warpx::runtime::Stage::AfterPush, warpx::runtime::Stage::AfterPush + 1);        // Every stage context carries step/time/dt: a plugin that replaces a stage needs
+        // them (E += dt*(...), CFL tests, time-stamped output) and used to get zeros here.
+        ctx.step = istep[0];
+        ctx.time = gett_new(0);
+        ctx.dt = getdt(0);
+
         scheduler.run(ctx, warpx::runtime::Stage::AfterPush,
                       warpx::runtime::Stage::BeforeCollisions);
         if (core_replaced) { return; }
@@ -644,7 +649,9 @@ WarpX::RunFieldSolveStage (amrex::Real a_cur_time)
         ctx.time = a_cur_time;
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
         const bool core_replaced = scheduler.has_handlers(
-            warpx::runtime::Stage::FieldSolve, warpx::runtime::Stage::FieldSolve + 1);
+            warpx::runtime::Stage::FieldSolve, warpx::runtime::Stage::FieldSolve + 1);        ctx.step = istep[0];
+        ctx.dt = getdt(0);
+
         scheduler.run(ctx, warpx::runtime::Stage::BeforeFieldSolve,
                       warpx::runtime::Stage::AfterFieldSolve);
         if (core_replaced) { return; }
@@ -667,6 +674,8 @@ WarpX::RunRegridStage (int step)
                                      m_runtime_context->host, m_runtime_context->data,
                                      m_runtime_context->config_snapshot};
     ctx.step = step;
+    ctx.time = gett_new(0);
+    ctx.dt = getdt(0);
     m_plugin_host->notify_regrid(ctx);
 }
 
@@ -678,6 +687,9 @@ WarpX::RunInitStages (int from, int to)
     warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
                                      m_runtime_context->host, m_runtime_context->data,
                                      m_runtime_context->config_snapshot};
+    ctx.step = istep[0];
+    ctx.time = gett_new(0);
+    ctx.dt = getdt(0);
     warpx::runtime::Scheduler scheduler(*m_plugin_host);
     amrex::ignore_unused(scheduler.run(ctx, from, to));
 }
@@ -690,6 +702,7 @@ WarpX::RunAfterFieldSolveStage (amrex::Real a_cur_time, amrex::Real a_dt)
     warpx::runtime::StageContext ctx{m_runtime_context, m_runtime_context->bus,
                                      m_runtime_context->host, m_runtime_context->data,
                                      m_runtime_context->config_snapshot};
+    ctx.step = istep[0];
     ctx.time = a_cur_time;
     ctx.dt = a_dt;
     // Nothing built-in follows at this point, so the takeover flag is ignored:
@@ -708,6 +721,8 @@ WarpX::RunDiagnosticsStage (int step)
                                          m_runtime_context->host, m_runtime_context->data,
                                          m_runtime_context->config_snapshot};
         ctx.step = step;
+        ctx.time = gett_new(0);
+        ctx.dt = getdt(0);
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
         const bool core_replaced = scheduler.has_handlers(
             warpx::runtime::Stage::Diagnostics, warpx::runtime::Stage::Diagnostics + 1);
@@ -746,8 +761,15 @@ WarpX::RunCollisionStage (int step, amrex::Real cur_time, amrex::Real dt)
         ctx.time = cur_time;
         ctx.dt = dt;
         warpx::runtime::Scheduler scheduler(*m_plugin_host);
-        if (scheduler.run(ctx, warpx::runtime::Stage::BeforeCollisions,
-                          warpx::runtime::Stage::AfterCollisions) > 0) { return; }
+        // Only a handler registered *at* the collision point replaces the core algorithm.
+        // Counting every executed handler (the old `run(...) > 0`) meant a read-only
+        // observer anywhere in [BeforeCollisions, AfterCollisions) silently disabled
+        // collisions for the whole run.
+        const bool core_replaced = scheduler.has_handlers(
+            warpx::runtime::Stage::Collisions, warpx::runtime::Stage::Collisions + 1);
+        amrex::ignore_unused(scheduler.run(ctx, warpx::runtime::Stage::BeforeCollisions,
+                                          warpx::runtime::Stage::AfterCollisions));
+        if (core_replaced) { return; }
     }
     if (m_collision_handler == nullptr) {
         if (!m_legacy_data) {

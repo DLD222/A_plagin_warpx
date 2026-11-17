@@ -1,13 +1,16 @@
 # 1D regression test for the macroscopic (dielectric) electromagnetic solver.
 #
-# A standing electromagnetic cavity mode is set up between two PEC walls along z.
-# The mode is initialized through the external magnetic field By(z) = cos(k z),
-# with E = 0 at t = 0, where k = p*pi/L is the cavity wavenumber. In a
-# non-dispersive dielectric (epsilon_r = 1.5, mu = mu0, sigma = 0) the mode
-# oscillates as By(z, t) = cos(k z) cos(omega t) with the reduced frequency
-# omega = c * k / sqrt(epsilon_r).
+# A standing wave is set up in a periodic 1D box along z.  The mode is initialised
+# through the external magnetic field By(z) = cos(kz) with E = 0 at t = 0, where
+# k = p*pi/L.  The box contains TWO dielectrics: epsilon_r = 1.5 for z < 0.5 and
+# epsilon_r = 1.0 for z > 0.5, so this exercises the subpixel interface path
+# (`interface_function` + `epsilon2`) rather than a uniform medium.
 #
-# This exercises the 1D macroscopic E-update.
+# NOTE (2026-11-17 review, N-01): `interface_function` must be written in the
+# coordinates WarpX actually uses for 1D, i.e. `z` — for 1D the parser is called as
+# (x=0, y=0, z).  This file used to say `x - 0.5`, which is constant in z and only
+# "worked" because the node-level builder wrongly read the grid index i as x.
+# The boundary condition is periodic (NOT PEC), as the deck below states.
 
 max_step = 60
 
@@ -35,9 +38,9 @@ algo.macroscopic_subpixel = 1
 warpx.Ex_external_grid_function(x,y,z) = 0.0
 warpx.Ey_external_grid_function(x,y,z) = 0.0
 warpx.Ez_external_grid_function(x,y,z) = 1.0e-3*cos(2*pi*z)
-macroscopic.interface_function(x,y,z) = x - 0.5
+macroscopic.interface_function(x,y,z) = z - 0.5
 
-# Initialize the p = 1 cavity mode through the external magnetic field (E = 0).
+# Initialize the p = 2 mode (matches my_constants.p below) through B (E = 0).
 my_constants.L  = 1.0
 my_constants.p  = 2
 my_constants.kz = p*pi/L

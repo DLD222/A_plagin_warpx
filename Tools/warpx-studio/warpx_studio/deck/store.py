@@ -12,6 +12,7 @@ project is remembered so a restarted browser comes back to where it was.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import time
@@ -37,8 +38,42 @@ def slug(name: str) -> str:
     return cleaned or f"project-{int(time.time())}"
 
 
+def _owner(folder_name: str) -> str | None:
+    manifest = ROOT / folder_name / "project.json"
+    if not manifest.is_file():
+        return None
+    try:
+        return json.loads(manifest.read_text(encoding="utf-8")).get("name")
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _hash_suffix(name: str) -> str:
+    return hashlib.sha1(name.encode("utf-8")).hexdigest()[:6]
+
+
+def _existing_folder(name: str) -> str | None:
+    """Folder that already holds `name`, if any.
+
+    `slug()` is lossy (`a b` and `a-b` both give `a-b`), so a project may live in the
+    plain folder or in the hash-suffixed one.  Checking both keeps lookups independent of
+    whether the *other* project with the same slug still exists.
+    """
+    base = slug(name)
+    for candidate in (base, f"{base}-{_hash_suffix(name)}"):
+        if _owner(candidate) == name:
+            return candidate
+    return None
+
+
 def _project_file(name: str) -> Path:
-    return ROOT / slug(name) / "project.json"
+    folder = _existing_folder(name)
+    if folder is None:
+        base = slug(name)
+        # The plain folder is free, or it belongs to a different project: in the latter
+        # case use a name-derived suffix instead of overwriting that project.
+        folder = base if _owner(base) is None else f"{base}-{_hash_suffix(name)}"
+    return ROOT / folder / "project.json"
 
 
 def list_projects() -> list[dict]:

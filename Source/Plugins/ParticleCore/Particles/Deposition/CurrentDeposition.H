@@ -833,18 +833,27 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             // index would then be INT_MIN and the shape-factor buffers below would be
             // written far out of bounds (ASAN: stack-buffer-overflow on sx/sz_*_buf).
             // Skipping such a particle keeps the failure a warning instead of a segfault.
-            if (!(std::isfinite(x_new) && std::isfinite(x_old)
-#if defined(WARPX_DIM_3D)
-                  && std::isfinite(y_new) && std::isfinite(y_old)
+            // The guard only applies where the corresponding coordinate exists: in 1D the
+            // kernel uses z alone.
+            {
+                bool sane = true;
+#if !defined(WARPX_DIM_1D_Z)
+                sane = sane && std::isfinite(x_new) && std::isfinite(x_old);
 #endif
-                  && std::isfinite(z_new) && std::isfinite(z_old))) {
-                return;   // this is a per-particle lambda body, not a C++ loop
+#if defined(WARPX_DIM_3D)
+                sane = sane && std::isfinite(y_new) && std::isfinite(y_old);
+#endif
+#if !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
+                sane = sane && std::isfinite(z_new) && std::isfinite(z_old);
+#endif
+                if (!sane) { return; }   // per-particle lambda body, not a C++ loop
             }
 
             // A particle can sit outside this tile (e.g. it just wrapped through a periodic
             // boundary, or it ran far away).  Deposit only if its whole stencil is inside the
             // J array; otherwise the atomic adds land outside the fab (ASAN: heap-buffer-
             // overflow in Gpu::Atomic::AddNoRet).
+#if !defined(WARPX_DIM_1D_Z) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
             {
                 amrex::Dim3 const jx_lo = lbound(Jx_arr);
                 amrex::Dim3 const jx_hi = ubound(Jx_arr);
@@ -856,6 +865,7 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
                     return;
                 }
             }
+#endif
 
             // Check whether the particle is close to the EB at the old and new position
             bool reduce_shape_old, reduce_shape_new;
