@@ -3500,7 +3500,7 @@
   },
   {
    "name": "<species_name>.npart_real",
-   "type": "int",
+   "type": "float",
    "default": null,
    "optional": true,
    "doc": "``<species_name>.npart_real`` (``float``) total number of real particles in the beam",
@@ -12583,6 +12583,12 @@
     "op": "equals",
     "value": "gaussian",
     "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
    }
   ],
   "<species_name>.uy_th": [
@@ -12591,6 +12597,12 @@
     "op": "equals",
     "value": "gaussian",
     "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
    }
   ],
   "<species_name>.uz_th": [
@@ -12598,6 +12610,12 @@
     "param": "<species_name>.momentum_distribution_type",
     "op": "equals",
     "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
     "raw": "value gate"
    }
   ],
@@ -12853,7 +12871,7 @@
    {
     "param": "<species_name>.injection_style",
     "op": "equals",
-    "value": "NFluxPerCell",
+    "value": "gaussian_beam",
     "raw": "value gate"
    }
   ],

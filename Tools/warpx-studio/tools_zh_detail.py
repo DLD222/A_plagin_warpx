@@ -80,8 +80,13 @@ def main() -> int:
         if hint.startswith("可选") and all(o in text for o in (p.get("options") or [])[:4]):
             hint = ""
         default = p.get("default")
-        default_txt = (f"默认 {default}" if default not in (None, "")
-                       else "不填就用 WarpX 默认值")
+        required = name.endswith(("npart_real", ".q_tot", ".npart"))
+        if required:
+            default_txt = "**必填**（与二选一的那个不能同时给）" if name.endswith(
+                ("npart_real", ".q_tot")) else "**必填**"
+        else:
+            default_txt = (f"默认 {default}" if default not in (None, "")
+                           else "不填就用 WarpX 默认值")
         detail = "；".join(x for x in (hint, default_txt) if x)
         needed = when_needed(catalog, name, params)   # 每条都写清"何时生效"
         if detail:

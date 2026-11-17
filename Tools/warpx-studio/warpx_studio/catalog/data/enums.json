@@ -1027,7 +1027,7 @@
   "<species_name>.mass": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.momentum_distribution_type": "含义：constant = 常数动量（冷等离子体，速度由 ux/uy/uz 给）；maxwellian = 麦克斯韦分布（给温度）；maxwell_juttner = 相对论麦克斯韦-于特纳分布（高温）；parse_momentum_function = 用表达式给动量（momentum_function_ux…） …",
   "<species_name>.npart": "单个整数",
-  "<species_name>.npart_real": "单个整数",
+  "<species_name>.npart_real": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.num_particles_per_cell": "单个整数",
   "<species_name>.num_particles_per_cell_each_dim": "几个数用空格分隔，个数按维度（二维两个、三维三个）",
   "<species_name>.physical_element": "文本",

@@ -4,6 +4,9 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
+    "<species_name>.npart_real": "高斯束团的**真实粒子总数**（个）——只用于 injection_style = gaussian_beam。与 `q_tot` **二选一且必须填一个**（源码断言：恰好指定其一；否则 abort）。中性物种必须用它，因为没法用总电荷。宏粒子权重 = npart_real / npart。可写科学计数法（如 5.6e28）",
+    "<species_name>.q_tot": "高斯束团的**总电荷**（库仑）——只用于 injection_style = gaussian_beam。与 `npart_real` 二选一且必须填一个；带电物种用这个，中性物种用 npart_real。宏粒子权重 = q_tot / (npart × 单粒子电荷)",
+    "<species_name>.npart": "高斯束团生成的**宏粒子数**（个，整数）——决定采样精度，不是物理粒子数。物理粒子总数由 npart_real（或 q_tot）给出，两者相除就是每个宏粒子代表的真实粒子数",
     "<species_name>.maxwellian_u_mean_distribution_type": "麦克斯韦分布的**平均动量**怎么给：constant = 直接填 ux_mean/uy_mean/uz_mean；parser = 用表达式 ux_mean_function(x,y,z)；read_from_file = 从 openPMD 文件读（配 read_u_mean_from_path）",
     "<species_name>.maxwellian_u_std_distribution_type": "麦克斯韦分布的**热展宽**怎么给：constant = 填 ux_std/uy_std/uz_std（u_std=sqrt(kT/mc²)）；parser = 用表达式 ux_std_function(x,y,z)；read_from_file = 从文件读。与 temperature 那个互斥，只能选一个",
     "<species_name>.maxwellian_temperature_in_eV_distribution_type": "麦克斯韦分布的**温度**（eV）怎么给：constant = 填 temperature_in_eV；parser = 用表达式 temperature_in_eV_function(x,y,z)；read_from_file = 从文件读。与 u_std 那个互斥",

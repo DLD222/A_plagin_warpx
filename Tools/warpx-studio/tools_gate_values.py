@@ -53,8 +53,7 @@ gate([S + "num_particles_per_cell"], S + "injection_style", "NRandomPerCell")
 # 面注入的全部配套参数都必须挂在 injection_style 上，否则会散落到列表末尾
 gate([S + "flux_normal_axis", S + "flux_direction", S + "flux_tmin", S + "flux_tmax",
       S + "flux_profile", S + "flux_function(x,y,z,t)", S + "surface_flux_pos", S + "flux",
-      S + "zinject_plane", S + "injection_sources", S + "do_continuous_injection",
-      S + "npart_real", S + "flux_tmin", S + "flux_tmax"],
+      S + "zinject_plane", S + "injection_sources", S + "do_continuous_injection"],
      S + "injection_style", "NFluxPerCell")
 gate([S + "inject_from_embedded_boundary"], S + "injection_style", "NFluxPerCell")
 gate([S + "injection_file"], S + "injection_style", "external_file")
@@ -64,7 +63,7 @@ gate([S + "multiple_particles_pos_x", S + "multiple_particles_pos_y",
       S + "multiple_particles_pos_z", S + "multiple_particles_ux",
       S + "multiple_particles_uy", S + "multiple_particles_uz",
       S + "multiple_particles_weight"], S + "injection_style", "multipleparticles")
-gate([S + "q_tot", S + "npart", S + "x_m", S + "y_m", S + "z_m", S + "x_rms", S + "y_rms",
+gate([S + "q_tot", S + "npart_real", S + "npart", S + "x_m", S + "y_m", S + "z_m", S + "x_rms", S + "y_rms",
       S + "z_rms", S + "focal_distance", S + "do_gaussian_beam_rotation",
       S + "gaussian_beam_rotation_angle", S + "gaussian_beam_rotation_axis"],
      S + "injection_style", "gaussian_beam")
