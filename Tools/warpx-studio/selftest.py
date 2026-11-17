@@ -222,8 +222,11 @@ def run_checks(port: int) -> None:
           "标准 FDTD" in glossary.get("algo.maxwell_solver", {}).get("yee", ""),
           f"{len(glossary)} 组取值带中文含义")
     derived = catalog_payload.get("derived") or {}
-    check("重复参数已折叠", "particles.species_names" in derived
-          and "warpx.do_pml" in derived,
+    # 只有真正的"别名/废弃项/扫描碎片"才折叠；species_names、lasers.names 这类
+    # 用户必须能填的名字不再折叠（之前正是它们被藏起来导致激光/碰撞打不开）
+    check("别名与废弃项已折叠", "warpx.do_pml" in derived
+          and "particles.species_names" not in derived
+          and "lasers.names" not in derived,
           f"{len(derived)} 条：{', '.join(list(derived)[:3])} …")
     check("扫描碎片已折叠", "Bfield_fp" in derived and "dEdx" in derived,
           "拼接键片段不再出现在表单里")
