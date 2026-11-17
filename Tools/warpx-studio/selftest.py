@@ -225,9 +225,10 @@ def run_checks(port: int) -> None:
     zh_params = {k: v for k, v in zh_params.items() if k in catalog_names}   # 只看界面上真会显示的
     junk = [n for n in zh_params
             if _re.search(r"参数「|参数含义见|（参数含义", zh_params[n] or "")]
-    too_short = [n for n in zh_params if 0 < len((zh_params[n] or "").strip()) < 10]
-    check("注释都是具体说明（无占位废话）", not junk and not too_short,
-          f"{len(zh_params)} 条中文说明；废话 {len(junk)}；过短 {len(too_short)}")
+    too_short = [n for n in zh_params if 0 < len((zh_params[n] or "").strip()) < 24]
+    no_detail = [n for n in zh_params if "取值：" not in (zh_params[n] or "")]
+    check("注释都是具体说明（含取值/默认）", not junk and not too_short and not no_detail,
+          f"{len(zh_params)} 条；废话 {len(junk)}；过短 {len(too_short)}；缺取值说明 {len(no_detail)}")
     check("取值含义说明", len(glossary) >= 10 and
           "标准 FDTD" in glossary.get("algo.maxwell_solver", {}).get("yee", ""),
           f"{len(glossary)} 组取值带中文含义")
