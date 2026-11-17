@@ -114,6 +114,45 @@
     <button id="export">导出帧序列</button>
   </div>
   <div id="livegrid" style="display:grid;grid-template-columns:1fr;gap:4px;padding:0 6px"></div>
+  <section id="replay" style="padding:8px 6px;border-top:1px solid var(--line);margin-top:8px">
+    <h3 style="margin:0 0 6px">回放与图片</h3>
+    <div style="display:flex;gap:6px;align-items:center;font-size:12px;flex-wrap:wrap">
+      <label>物理量
+        <select id="rp-field">
+          <option value="rho">电荷密度 rho</option>
+          <option value="E">电场 E</option>
+          <option value="B">磁场 B</option>
+          <option value="j">电流 j</option>
+        </select>
+      </label>
+      <label>分量
+        <select id="rp-comp">
+          <option value="">模 |F|</option>
+          <option value="x">x</option>
+          <option value="y">y</option>
+          <option value="z">z</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="rp-particles" checked> 叠加粒子</label>
+    </div>
+    <div style="margin-top:6px">
+      <input type="range" id="rp-slider" min="0" max="0" value="0" style="width:100%"
+             title="拖动查看不同时刻的可视化">
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim)">
+        <span id="rp-iter">—</span><span id="rp-count">—</span>
+      </div>
+    </div>
+    <div id="rp-image-wrap" style="margin-top:6px;text-align:center">
+      <img id="rp-image" alt="回放画面" style="max-width:100%;background:#000;display:none">
+      <div id="rp-empty" style="color:var(--dim);font-size:12px">尚无回放画面</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input id="rp-name" placeholder="图片名称（留空自动命名）"
+             style="flex:1;background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:3px 6px">
+      <button id="rp-save">💾 保存图片</button>
+    </div>
+    <div id="rp-gallery" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px"></div>
+  </section>
   <div id="meta">尚未开始计算</div>
   <pre id="log"></pre>
 </aside>
@@ -697,6 +736,110 @@ document.getElementById("restart").onclick = () => {
   render();
   document.getElementById("run").click();
 };
+// ---- 回放与图片：拖动进度条看任意时刻的画面，可保存/删除 -------------------
+let RP_ITERS = [], RP_INDEX = 0, RP_TIMER = null, RP_LOADED = false;
+
+function rpQuery() {
+  const field = document.getElementById("rp-field").value;
+  const comp = document.getElementById("rp-comp").value;
+  const parts = document.getElementById("rp-particles").checked ? "electrons" : "";
+  return { field, comp, parts };
+}
+function rpFrameUrl(iteration) {
+  const { field, comp, parts } = rpQuery();
+  const params = new URLSearchParams({ field, iteration: String(iteration) });
+  if (comp) params.set("component", comp);
+  if (parts) params.set("particles", parts);
+  params.set("t", String(Date.now()));
+  return "/api/frame?" + params.toString();
+}
+function rpShow(skipRender) {
+  const iter = RP_ITERS[RP_INDEX];
+  document.getElementById("rp-iter").textContent = iter === undefined ? "—" : "迭代 " + iter;
+  document.getElementById("rp-count").textContent = RP_ITERS.length
+    ? (RP_INDEX + 1) + " / " + RP_ITERS.length : "—";
+  if (skipRender || iter === undefined) return;
+  const img = document.getElementById("rp-image");
+  img.style.display = "";
+  document.getElementById("rp-empty").style.display = "none";
+  img.src = rpFrameUrl(iter);
+}
+function rpSchedule() {
+  clearTimeout(RP_TIMER);
+  RP_TIMER = setTimeout(() => { rpShow(false); refreshGallery(); }, 180);
+}
+async function refreshReplay() {
+  try {
+    const data = await (await fetch("/api/live/iterations")).json();
+    const iters = data.iterations || [];
+    if (!iters.length) return;
+    const slider = document.getElementById("rp-slider");
+    if (!RP_LOADED || iters.length !== RP_ITERS.length) {
+      RP_ITERS = iters;
+      slider.min = "0";
+      slider.max = String(iters.length - 1);
+      RP_INDEX = iters.length - 1;
+      slider.value = String(RP_INDEX);
+      RP_LOADED = true;
+      rpShow(false);
+    } else {
+      RP_ITERS = iters;
+    }
+  } catch (e) { /* no run yet */ }
+}
+async function refreshGallery() {
+  const box = document.getElementById("rp-gallery");
+  let list = [];
+  try { list = (await (await fetch("/api/snapshots")).json()).snapshots || []; } catch (e) { return; }
+  box.innerHTML = "";
+  for (const snap of list) {
+    const card = document.createElement("figure");
+    card.style.cssText = "margin:0;position:relative";
+    const img = document.createElement("img");
+    img.src = "/api/snapshot/" + encodeURIComponent(snap.stem) + "?t=" + Date.now();
+    img.title = `${snap.field}${snap.component ? "[" + snap.component + "]" : ""} @ iter ${snap.iteration}`;
+    img.style.cssText = "width:100%;border:1px solid var(--line);border-radius:4px;background:#000";
+    const cap = document.createElement("figcaption");
+    cap.textContent = `${snap.name}（${snap.field}${snap.component || ""} @ ${snap.iteration ?? "最新"}）`;
+    cap.style.cssText = "font-size:11px;color:var(--dim);overflow:hidden;text-overflow:ellipsis";
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = "删除这张图片";
+    del.style.cssText = "position:absolute;top:2px;right:2px;padding:0 5px;line-height:1.4";
+    del.onclick = async () => {
+      if (!confirm("删除图片 " + snap.name + " ？")) return;
+      await fetch("/api/snapshot/" + encodeURIComponent(snap.stem), { method: "DELETE" });
+      refreshGallery();
+    };
+    card.append(img, cap, del);
+    box.appendChild(card);
+  }
+}
+document.getElementById("rp-slider").oninput = (e) => {
+  RP_INDEX = Number(e.target.value);
+  rpShow(true);
+  rpSchedule();
+};
+for (const id of ["rp-field", "rp-comp", "rp-particles"]) {
+  document.getElementById(id).onchange = () => { rpShow(false); };
+}
+document.getElementById("rp-save").onclick = async () => {
+  const iter = RP_ITERS[RP_INDEX];
+  if (iter === undefined) { setStatus("还没有可保存的画面", "var(--warn)"); return; }
+  const { field, comp, parts } = rpQuery();
+  let name = document.getElementById("rp-name").value.trim();
+  if (!name) name = `${field}${comp || ""}_iter${iter}`;
+  const body = { name, iteration: iter, field, component: comp || null,
+                 particles: parts ? ["electrons"] : [] };
+  const r = await fetch("/api/snapshots", { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const out = await r.json();
+  if (!r.ok) { setStatus("保存失败: " + (out.detail || ""), "var(--err)"); return; }
+  document.getElementById("rp-name").value = "";
+  refreshGallery();
+  setStatus("已保存图片：" + name, "var(--ok)");
+};
+
 async function refreshIterations() {
   try {
     const data = await (await fetch("/api/live/iterations")).json();
@@ -823,6 +966,9 @@ async function switchDims(dims) {
   setInterval(refreshCheckpoints, 5000);
   refreshIterations();
   setInterval(refreshIterations, 8000);
+  refreshReplay();
+  setInterval(refreshReplay, 8000);
+  refreshGallery();
 })();
 </script>
 </body>

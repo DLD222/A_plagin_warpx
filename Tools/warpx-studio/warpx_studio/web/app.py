@@ -245,18 +245,26 @@ def api_stop():
 
 @app.post("/api/pause")
 def api_pause():
-    if not STATE["job"]:
+    job = STATE["job"]
+    if not job:
         raise HTTPException(400, "nothing to pause")
-    STATE["job"].pause()
-    return {"state": "paused"}
+    # A finished run cannot be paused: doing so used to mark it "paused" and the resume
+    # below would then mark it "running" forever (the monitor thread had already exited).
+    if job.state not in ("running",):
+        raise HTTPException(400, f"run is {job.state}, not running")
+    job.pause()
+    return {"state": job.state}
 
 
 @app.post("/api/resume")
 def api_resume():
-    if not STATE["job"]:
+    job = STATE["job"]
+    if not job:
         raise HTTPException(400, "nothing to resume")
-    STATE["job"].resume()
-    return {"state": "running"}
+    if job.state != "paused":
+        raise HTTPException(400, f"run is {job.state}, not paused")
+    job.resume()
+    return {"state": job.state}
 
 
 @app.post("/api/paraview")
@@ -483,9 +491,55 @@ def api_export(payload: ExportPayload):
             "ffmpeg": bool(ffmpeg)}
 
 
+FRAME_CACHE = Path()          # set together with STATE["run_dir"] on the first request
+
+
+def _render_frame(iteration: int | None, field: str, component: str | None,
+                  particles: list[str] | None) -> Path:
+    """Render one arbitrary (iteration, field, component) frame and cache it on disk.
+
+    The live view only renders the newest iteration for its configured fields; the
+    timeline in the web UI needs any iteration on demand, so this is a separate path
+    that reuses the same resident pvpython worker.
+    """
+    live: LiveView | None = STATE.get("live")
+    if live is None:
+        raise HTTPException(404, "no live view")
+    diag = live.diag_dir or Path(STATE["run_dir"])
+    pmd = diag / "paraview.pmd"
+    if not pmd.exists():
+        raise HTTPException(404, "this run has no openPMD output")
+
+    tag_parts = [field, component or "all"]
+    if particles:
+        tag_parts.append("p" + "-".join(sorted(particles)))
+    tag_parts.append("latest" if iteration is None else f"{int(iteration):08d}")
+    out = Path(STATE["run_dir"]) / "web_frames" / ("_".join(tag_parts) + ".png")
+    if out.exists():
+        return out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    request = {"pmd": str(pmd), "out": str(out), "field": field}
+    if component:
+        request["component"] = component
+    if particles:
+        request["particles"] = list(particles)
+    if iteration is not None:
+        request["iteration"] = int(iteration)
+    reply = live.worker.render(request)
+    if not reply.get("ok"):
+        raise HTTPException(500, reply.get("error") or "render failed")
+    return out
+
+
 @app.get("/api/frame")
-def api_frame(field: str | None = None):
-    live: LiveView | None = STATE["live"]
+def api_frame(field: str | None = None, component: str | None = None,
+              iteration: int | None = None, particles: str | None = None):
+    # Backwards compatible: with no extra arguments this serves the live view's own frame.
+    if field and (component or iteration is not None or particles):
+        species = [s.strip() for s in particles.split(",") if s.strip()] if particles else None
+        return FileResponse(_render_frame(iteration, field, component, species),
+                            media_type="image/png", headers={"Cache-Control": "no-store"})
+    live: LiveView | None = STATE.get("live")
     if live is None:
         raise HTTPException(404, "no live view")
     snapshot = live.snapshot()
@@ -498,6 +552,100 @@ def api_frame(field: str | None = None):
         raise HTTPException(404, "no frame rendered yet")
     return FileResponse(target, media_type="image/png",
                         headers={"Cache-Control": "no-store"})
+
+
+# ---------------------------------------------------------------------------
+# Saved pictures: the user picks a (iteration, quantity) frame and keeps it, and can
+# delete it again from the gallery.  Files live under <run>/snapshots/ so they survive
+# a server restart together with the run.
+# ---------------------------------------------------------------------------
+class SnapshotPayload(BaseModel):
+    name: str
+    iteration: int | None = None
+    field: str = "rho"
+    component: str | None = None
+    particles: list[str] = Field(default_factory=list)
+
+
+def _snapshot_dir() -> Path:
+    run = STATE.get("run_dir")
+    if not run:
+        raise HTTPException(400, "no run yet")
+    folder = Path(run) / "snapshots"
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
+
+
+def _snapshot_index(folder: Path) -> list[dict]:
+    path = folder / "index.json"
+    if not path.is_file():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def _write_index(folder: Path, entries: list[dict]) -> None:
+    (folder / "index.json").write_text(json.dumps(entries, ensure_ascii=False, indent=1) + "\n",
+                                       encoding="utf-8")
+
+
+def _safe_name(name: str) -> str:
+    import re as _re
+    cleaned = _re.sub(r"[^0-9A-Za-z\u4e00-\u9fff._-]+", "-", (name or "").strip()).strip("-._")
+    return cleaned[:60] or "snapshot"
+
+
+@app.get("/api/snapshots")
+def api_snapshots():
+    folder = _snapshot_dir()
+    return {"snapshots": _snapshot_index(folder), "dir": str(folder)}
+
+
+@app.post("/api/snapshots")
+def api_snapshot_save(payload: SnapshotPayload):
+    folder = _snapshot_dir()
+    stem = _safe_name(payload.name)
+    entries = _snapshot_index(folder)
+    if any(e.get("stem") == stem for e in entries):
+        raise HTTPException(409, f"已有同名图片：{payload.name}")
+    source = _render_frame(payload.iteration, payload.field, payload.component,
+                           payload.particles or None)
+    target = folder / f"{stem}.png"
+    target.write_bytes(source.read_bytes())
+    entries.append({
+        "stem": stem,
+        "name": payload.name,
+        "file": target.name,
+        "iteration": payload.iteration,
+        "field": payload.field,
+        "component": payload.component,
+        "particles": payload.particles,
+        "created": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    })
+    _write_index(folder, entries)
+    return {"saved": True, "name": payload.name, "file": target.name, "snapshots": entries}
+
+
+@app.get("/api/snapshot/{stem}")
+def api_snapshot_image(stem: str):
+    folder = _snapshot_dir()
+    target = folder / f"{_safe_name(stem)}.png"
+    if not target.is_file():
+        raise HTTPException(404, "no such snapshot")
+    return FileResponse(target, media_type="image/png", headers={"Cache-Control": "no-store"})
+
+
+@app.delete("/api/snapshot/{stem}")
+def api_snapshot_delete(stem: str):
+    folder = _snapshot_dir()
+    entries = _snapshot_index(folder)
+    keep = [e for e in entries if e.get("stem") != _safe_name(stem)]
+    removed = len(entries) - len(keep)
+    (folder / f"{_safe_name(stem)}.png").unlink(missing_ok=True)
+    _write_index(folder, keep)
+    return {"deleted": removed, "snapshots": keep}
 
 
 if __name__ == "__main__":

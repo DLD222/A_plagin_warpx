@@ -136,6 +136,28 @@ class Renderer:
             pvs.ColorBy(display, ("POINTS", field))
         display.SetScalarBarVisibility(view, True)
 
+        # Label the bar with the quantity actually shown.  When a component is selected by
+        # index ParaView keeps the vector's name and titles the bar "<field>Magnitude",
+        # which is wrong (and misleading when comparing saved pictures).
+        try:
+            lut = pvs.GetColorTransferFunction(field)
+            bar = pvs.GetScalarBar(lut, view)
+            # ParaView appends "Magnitude" as the component title even when a single
+            # component is shown; clear it so the bar reads "B_y" and not "B_y Magnitude".
+            try:
+                bar.ComponentTitle = ""
+            except Exception:
+                pass
+            if component is None:
+                bar.Title = field
+            elif isinstance(component, str):
+                bar.Title = f"{field}_{component}"
+            else:
+                axis = {0: "x", 1: "y", 2: "z"}.get(int(component), str(component))
+                bar.Title = f"{field}_{axis}"
+        except Exception:
+            pass
+
         pdisp = None
         species = request.get("particles") or []
         if species and not request.get("volume"):
