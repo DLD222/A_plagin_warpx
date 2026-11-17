@@ -1,0 +1,80 @@
+# 弓形激波：磁化等离子体绕导体圆柱（2D，hybrid：kinetic ions + fluid electrons）
+#
+# 为什么用 hybrid 而不是全 PIC：要出现离子尺度的弓形激波，必须 d_i ≲ R。
+# 在 R = 250 µm 下这要求 n_i ≳ 1e24；此时全 PIC 需要 dx ≲ lambda_D ≈ 3e-8 m，
+# 即 dx/lambda_D ≈ 1500，计算上不可行。hybrid 的电子是流体，没有这个约束。
+#
+# 无量纲判据（本算例实测）：
+#   d_i  = 0.236 mm   →  d_i/R = 0.9   （离子惯性长度与障碍物同量级 ✓）
+#   r_ci = 0.47 mm    →  r_ci/R = 1.9  （离子弱磁化，激波厚度由 d_i 决定）
+#   M_A  = v/vA = 2.0  （超阿尔芬，能形成激波 ✓）
+
+max_step = 4000
+
+amr.n_cell = 120 80
+amr.max_grid_size = 120
+amr.max_level = 0
+
+geometry.dims = 2
+geometry.prob_lo = -2.0e-3 -4.0e-3
+geometry.prob_hi =  9.0e-3  4.0e-3
+
+# 流从 -x 流向 +x，障碍物在原点；x 方向周期（早期无回流），z 方向周期
+boundary.field_lo = periodic periodic
+boundary.field_hi = periodic periodic
+boundary.particle_lo = periodic periodic
+boundary.particle_hi = periodic periodic
+
+warpx.cfl = 0.5
+warpx.const_dt = 1.026090e-10
+
+algo.maxwell_solver = hybrid
+algo.particle_shape = 1
+algo.current_deposition = direct
+# warpx.grid_type = collocated  # 与 EB 不兼容（见 BOW_SHOCK_REVIEW）
+hybrid_pic_model.elec_temp = 10
+hybrid_pic_model.n0_ref = 1.000e+24
+hybrid_pic_model.gamma = 1
+hybrid_pic_model.n_floor = 5e21
+hybrid_pic_model.substeps = 200
+# 自适应子步在 R=1mm 的陡峭场梯度下会超过默认 250 次尝试；放宽上限并允许更大误差
+hybrid_pic_model.max_substep_attempts = 2000
+# dt 降到 whistler 稳定区内，避免自适应子步爆炸
+
+# 官方验证过的 hybrid 算例用 RKF45 自适应子步；关掉它会让固定的 RK4 子步不稳定
+# RKF45 自适应子步在 cut cell 处误差估计退化（第 2 个半步 0 接受、2001 拒绝）→ 改用固定 RK4 子步
+hybrid_pic_model.use_rkf45 = 0
+
+# 外场：B 沿 +y（垂直纸面，对应论文 B∥ 情形），无外电场（hybrid 下 E 由 Ohm 定律给出）
+warpx.B_ext_grid_init_style = constant
+warpx.B_external_grid = 0.0 2.977801 0.0
+
+particles.species_names = ions
+ions.charge = 5*q_e
+ions.mass = 27*m_p
+ions.injection_style = NUniformPerCell
+ions.num_particles_per_cell_each_dim = 4 4
+ions.profile = constant
+ions.density = 1.000000e+24
+ions.xmin = -2.0e-3 ; ions.xmax = 10.0e-3
+ions.zmin = -4.0e-3 ; ions.zmax = 4.0e-3
+ions.momentum_distribution_type = constant
+ions.ux = 8.333333e-05
+ions.uy = 0.0
+ions.uz = 0.0
+ions.do_not_deposit = 0
+
+# hybrid 里电子是流体：不需要 macroparticles
+
+# 导体圆柱：隐函数 < 0 为导体内部
+warpx.eb_implicit_function = "(1.0e-3)^2 - (x*x + z*z)"
+
+# dx=100µm，dt=1e-10（dt*ω_whistler ≈ 0.03）；R=1mm 占 10 格
+# 修正：hybrid 不能有 electrons 物种（电子是隐式流体），否则电荷重复计入 → B 指数增长
+# R = 1 mm（20 格）: R/d_i = 4.2, r_ci/R = 0.47 → 障碍物远大于离子尺度，可形成 MHD 弓形激波
+# 4x4 ppc + 小步长：压低散粒噪声与 whistler 噪声
+diagnostics.diags_names = diag1
+diag1.intervals = 100
+diag1.diag_type = Full
+diag1.fields_to_plot = rho jx jy jz Ex Ey Ez Bx By Bz
+diag1.format = openpmd

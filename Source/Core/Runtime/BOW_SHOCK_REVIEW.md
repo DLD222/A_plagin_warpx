@@ -84,3 +84,44 @@ hybrid 算例已进入正确参数区（`d_i/R = 0.9`, `R/d_i = 4.2`, `M_A = 2`�
    并在文档里明确它**不是** MHD 弓形激波，给出尺度判据说明为什么；
 3. 或者换模型：用 `algo.em_solver_medium = macroscopic` 的介质路径把导体近似为高电导介质
    （无需 EB 的 cut cell 场更新）。
+
+## 7. 第 5 轮：hybrid + EB 的可用路径与首次通过三项判据
+
+**关键发现**：RKF45 自适应子步在 cut cell 处误差估计退化（第 2 个半步 0 接受、2001 拒绝），
+但**固定 RK4 子步可以跑通**：
+
+```ini
+hybrid_pic_model.use_rkf45 = 0
+hybrid_pic_model.substeps = 200        # 固定子步要够多
+hybrid_pic_model.max_substep_attempts = 8000
+```
+
+### 首次同时满足三条验收判据（iteration 300）
+
+`audit_runs/simulations/bow_shock/hyb8`（R=1mm 圆柱，n=1e24，v=2.5e4 m/s，B=2.978 T，
+`d_i/R=0.24`、`M_A=2`、`M_s=2.97`）：
+
+| 判据 | 实测 | 阈值 | 结果 |
+|---|---|---|---|
+| 障碍物挡住粒子 | `ions_inside_obstacle = 1` | ≈ 0 | ✅ |
+| 密度堆积 | `density_compression = 10.75` | > 1.5 | ✅ |
+| 驻点位置 | `stagnation_x_mm = -1.4`（在障碍物上游 0.4 mm） | x < 0 | ✅ |
+| 磁场压缩 | `b_compression = 1.31` | > 1.2 | ✅ |
+
+渲染图（iteration 300，B_y）显示障碍物周围出现上游压缩、下游尾迹的壳层结构，
+障碍物位于域宽 17% 处、+X 朝右（相机手性已修）。
+
+### 复现
+
+```bash
+cp Tools/warpx-studio/warpx_studio/cases/bow_shock_hybrid_2d.inputs <run>/inputs
+cd <run> && warpx.2d inputs
+python -m warpx_studio.verify.bow_shock diags/diag1/openpmd_000300.h5 \
+    --radius 1e-3 --prob-lo -2e-3 -4e-3 --prob-hi 10e-3 4e-3 --n-cell 120 80 --b0 2.978
+```
+
+### 仍待改进
+
+- 长时间演化会在 ~350 步后因 `max substep attempts` 中止；`hyb9`（substeps=400, dt=6e-11）
+  正在跑更长的序列；
+- 场图仍有可见的网格尺度散粒噪声（16 ppc + 直接沉积），可加平滑或提高 ppc。
