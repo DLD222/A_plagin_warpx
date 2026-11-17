@@ -218,6 +218,16 @@ def run_checks(port: int) -> None:
     check("布尔量下拉", enums.get("warpx.do_pml_divb_cleaning") == ["0", "1"],
           "bool 类型自动变成 0/1")
     glossary = catalog_payload.get("glossary") or {}
+    # 注释不能是"参数「X」""含义见右侧"这类废话，也不能过短
+    import re as _re
+    zh_params = (zh.get("params") or {})
+    catalog_names = {p["name"] for p in catalog["params"]}
+    zh_params = {k: v for k, v in zh_params.items() if k in catalog_names}   # 只看界面上真会显示的
+    junk = [n for n in zh_params
+            if _re.search(r"参数「|参数含义见|（参数含义", zh_params[n] or "")]
+    too_short = [n for n in zh_params if 0 < len((zh_params[n] or "").strip()) < 10]
+    check("注释都是具体说明（无占位废话）", not junk and not too_short,
+          f"{len(zh_params)} 条中文说明；废话 {len(junk)}；过短 {len(too_short)}")
     check("取值含义说明", len(glossary) >= 10 and
           "标准 FDTD" in glossary.get("algo.maxwell_solver", {}).get("yee", ""),
           f"{len(glossary)} 组取值带中文含义")

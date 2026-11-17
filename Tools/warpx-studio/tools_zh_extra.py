@@ -1,0 +1,42 @@
+"""人工撰写的补充说明（优先级高于 tools_zh_fill 里的旧条目）。
+
+单独放一个文件，避免与主词典里的重复键互相覆盖（Python 里后面的键会赢，
+之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
+"""
+CORRECTIONS: dict[str, str] = {
+    "<collision_name>.background_charge_state": "背景粒子的电荷态：中性气体写 0，一次电离写 1",
+    "<collision_name>.background_temperature": "背景气体温度（eV），决定背景粒子的热速度与碰撞截面",
+    "<collision_name>.start_step": "从第几步开始做碰撞；留空表示从第 0 步起",
+    "<diag_name>.num_snapshots_lab": "背变换诊断在实验室系输出的快照个数",
+    "<laser_name>.profile_duration": "激光脉宽（秒，FWHM），决定脉冲持续时间",
+    "<laser_name>.profile_focal_distance": "入射面到焦点的距离（米），正数向域内聚焦",
+    "<laser_name>.profile_waist": "激光束腰半径（米），决定焦斑大小与峰值强度",
+    "<species_name>.ionization_product_species": "场致电离产生的离子物种名（需同时开 do_field_ionization）",
+    "<species_name>.npart": "高斯束团的宏粒子总数（不是每格粒子数）",
+    "<species_name>.uy_mean": "y 方向平均动量（高斯分布中心值，u = γv/c）",
+    "<species_name>.uy_std": "y 方向动量标准差（热展宽，u 单位）",
+    "<species_name>.uz_mean": "z 方向平均动量（高斯分布中心值）",
+    "<species_name>.uz_std": "z 方向动量标准差（热展宽）",
+    "<species_name>.variables": "诊断要输出哪些粒子量：x y z ux uy uz w 等，空格分隔",
+    "do_similar_dm_pml": "1 = 让 PML 的阻尼系数与相邻网格间距自动匹配（默认开）",
+    "jacobian.pc_type": "雅可比矩阵预条件子类型：none / diagonal / lu",
+    "particle_thermalizer.theta": "热化器表面的倾斜角（度）",
+    "qed_schwinger.threshold_poisson_gaussian": "Schwinger 对产生的高斯-泊松抽样阈值，超过才抽样创建粒子",
+    "reduced_diags.intervals": "缩减诊断每隔多少步输出一次",
+    "warpx.do_qed_schwinger": "1 = 开启 Schwinger 机制（强电场直接产生电子-正电子对）",
+    "warpx.mirror_z_npoints": "镜像区域内沿 z 的采样点数（移动窗口用）",
+    "warpx.mirror_z_width": "镜像区域宽度（米），应与移动窗口宽度一致",
+    "warpx.n_field_gather_buffer": "场收集缓冲区格数（负载均衡时跨块取场的余量）",
+    "warpx.pml_delta": "PML 电导率剖面的最大系数（越大吸收越强、反射也越大）",
+    "warpx.reduced_diags_names": "缩减诊断的名字列表（每个名字对应一组 reduced_diags.* 参数）",
+    "warpx.sort_bin_size": "粒子排序时每个桶覆盖的格数（内存与速度的折中）",
+    "warpx.sort_intervals": "每隔多少步对粒子重排一次（提高缓存命中率）",
+    "warpx.use_hybrid_QED": "1 = 用 hybrid-QED 模型（强场修正的量子效应）",
+    "warpx.v_particle_pml": "粒子进入 PML 时的速度阻尼系数",
+    "<collision_name>.<scattering_process>_scattering_angle_model": "某个散射过程的散射角模型：isotropic / cumulative / 由数据表给出",
+    "<collision_name>.productA_temperature_eV": "反应产物 A 的温度（eV），产物热化时用",
+    "<collision_name>.productB_temperature_eV": "反应产物 B 的温度（eV）",
+    "<species>.do_qed_virtual_photons": "1 = 该物种开启虚光子 QED（强场下的非线性康普顿散射/对产生）",
+    "<species_name>.do_qed_breit_wheeler": "1 = 该物种开启 Breit-Wheeler 电子-正电子对产生",
+    "<species_name>.do_qed_quantum_sync": "1 = 该物种开启量子同步辐射（强场下光子发射）",
+}

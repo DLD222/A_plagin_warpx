@@ -11,6 +11,8 @@ import re
 
 DATA = pathlib.Path(__file__).parent / "warpx_studio/catalog/data"
 
+from tools_zh_extra import CORRECTIONS  # noqa: E402  人工说明（优先级最高）
+
 ZH_EXTRA: dict[str, str] = {
     # 诊断
     "<diag_name>.format": "诊断输出格式：plotfile（AMReX 自带，ParaView 可直开）/ openpmd（HDF5，通用）/ checkpoint（续算用）",
@@ -57,8 +59,6 @@ ZH_EXTRA: dict[str, str] = {
     "<species_name>.density_function(x,y,z)": "用数学表达式给密度分布（m^-3），可用 x y z 与 my_constants 里的常数。profile = parse_density_function 时用它",
     "<species_name>.read_density_from_path": "从 openPMD 文件读密度场时，该文件的路径。profile = read_from_file 时用它",
     "<species_name>.density_mesh_name": "从文件读密度时，文件里密度场的名字（默认 density）",
-    "<species_name>.density_max": "密度剖面的最大值（m^-3），用于限定解析剖面的上限",
-    "<species_name>.density_min": "密度剖面的最小值（m^-3）",
     "<species_name>.flux": "面注入的粒子通量（单位面积单位时间个数）",
     "<species_name>.flux_function(x,y,z,t)": "面注入通量的解析表达式，可用 x y z t。flux_profile = parse_flux_function 时用它",
     "<species_name>.flux_normal_axis": "面注入的发射面法向：x / y / z",
@@ -104,7 +104,6 @@ ZH_EXTRA: dict[str, str] = {
     "<species_name>.focal_distance": "高斯束的聚焦距离（米）",
     "<species_name>.inject_from_embedded_boundary": "1 = 从嵌入（导体）面注入粒子",
     "<species_name>.impose_t_lab_from_file": "1 = 从文件读取实验室系时间标签",
-    "<species_name>.do_continuous_injection": "1 = 随时间持续注入（来流），0 = 只在初始化铺一次",
     "<species_name>.split_type": "粒子分裂方式：proton-impact-ionization（质子碰撞电离）",
     "<species_name>.do_splitting": "1 = 开启粒子分裂",
     "<species_name>.do_resampling": "1 = 开启粒子重采样（控制每格粒子数）",
@@ -200,7 +199,6 @@ ZH_EXTRA: dict[str, str] = {
     "<diag_name>.<species_name>.random_fraction": "每个粒子被随机保留的概率（0–1）：1 = 全部输出，0.1 = 只输出十分之一",
     "<diag_name>.<species_name>.uniform_stride": "每隔多少个粒子输出一个（均匀抽样，与 random_fraction 二选一）",
     "<species_name>.ionization_initial_level": "初始电离能级：例如 0 表示中性原子，1 表示一次电离态",
-    "<species_name>.resampling_min_ppc": "重采样后的目标最小每格粒子数",
     "jacobian.pc_type": "雅可比矩阵的预条件子类型：none / diagonal / lu",
     "particle_thermalizer.theta": "热化器表面的倾斜角（度）",
     "<diag_name>.adios2_engine.parameters.*": "ADIOS2 引擎的参数（键值对，原样传给底层引擎，如 Threads=… ）",
@@ -391,7 +389,6 @@ ZH_EXTRA: dict[str, str] = {
     "newton.linear_solver": "牛顿迭代里用哪个线性求解器",
     "newton.pc_update_newton_interval": "每隔多少次牛顿迭代更新一次预条件子",
     "newton.pc_update_time_step_interval": "每隔多少个时间步更新一次预条件子",
-    "jacobian.pc_type": "预条件子类型",
     "implicit_evolve.theta": "隐式时间推进的 theta（1 = 全隐式，0.5 = Crank-Nicolson）",
     "interpolation.galerkin_scheme": "1 = 用 Galerkin 插值（粒子形状与场插值一致）",
     "precon_mat.verbose": "预条件矩阵的调试输出级别",
@@ -423,7 +420,6 @@ ZH_EXTRA: dict[str, str] = {
     "particle_thermalizer.momentum_threshold": "热化器触发的动量阈值",
     "particle_thermalizer.normal": "热化表面的法向（如 0 0 1）",
     "particle_thermalizer.start": "热化器作用的起始位置",
-    "particle_thermalizer.theta": "热化器表面倾角",
     "eb2.geom_type": "EB 几何描述方式：all_regular 无实体 / implicit_function 隐函数（本仓库用这个）/ stl 读 STL 文件",
     "eb2.stl_file": "几何用 STL 文件描述时的文件路径；必须同时把 eb2.geom_type 设为 stl",
     "<species>.qed_virtual_photons_do_beam_size_effect": "1 = 虚光子谱里计入束斑尺寸效应",
@@ -439,11 +435,6 @@ ZH_EXTRA: dict[str, str] = {
     "<species_name>.physical_element": "物理元素名（如 Al、H），用于查电离与热化参数",
     "<species_name>.radial_numpercell_power": "RZ 下粒子数沿半径的幂律分布指数",
     "<species_name>.random_theta": "1 = RZ 下方位角初始化为随机（否则取 0）",
-    "<species_name>.resampling_algorithm": "粒子重采样算法：leveling_thinning / momentum_correction",
-    "<species_name>.resampling_trigger_intervals": "每隔多少步检查一次重采样条件",
-    "<species_name>.resampling_trigger_max_avg_ppc": "每格平均粒子数超过该值时触发重采样",
-    "<species_name>.do_not_deposit":
-        "1 = 该物种不把电荷/电流沉积到网格（例如只当示踪粒子，或电荷由别的模块提供）；0 = 正常沉积（默认）",
     "<species_name>.rigid_advance":
         "1 = 一步内直接把粒子推到终点而不按场推近（大权重/注入粒子用，省时间但不受电磁力）；0 = 正常推近（默认）",
     "<species_name>.self_fields_absolute_tolerance": "该物种自场泊松求解的绝对容差",
@@ -454,7 +445,6 @@ ZH_EXTRA: dict[str, str] = {
 
     "<diag_name>.adios2_engine.type": "ADIOS2 引擎类型（如 bp4 / bp5 / sst）",
     "<diag_name>.adios2_operator.type": "ADIOS2 压缩算子类型（如 blosc / zfp）",
-    "<species_name>.split_type": "粒子分裂方式：proton-impact-ionization（质子碰撞电离）",
     "external_vector_potential.<field_name>.path": "外部矢势文件路径（从文件读取 A 时用）",
     "fluids.species_names": "参与流体模块的物种名列表",
     "lasers.names": "激光名称列表（每个名字对应一组 <名字>.* 激光参数）",
@@ -518,6 +508,9 @@ def fill(name: str, current: str) -> str:
     if parts:
         return f"{' · '.join(parts)}（参数含义见右侧取值与提示）"
     return "参数含义见右侧取值与提示"
+
+
+ZH_EXTRA.update(CORRECTIONS)   # 人工说明优先，覆盖词典里的旧短句
 
 
 def main() -> int:
