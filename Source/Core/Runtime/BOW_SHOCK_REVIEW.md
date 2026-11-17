@@ -51,3 +51,36 @@ hybrid 算例已进入正确参数区（`d_i/R = 0.9`, `R/d_i = 4.2`, `M_A = 2`�
 `max|B|` 从 8.34 T 增到 85 T 后趋于平台，`rms` 缓慢增长 —— 局地 whistler 不稳定性。
 下一步应以仓库**已验证稳定的 hybrid 算例**（`Examples/Tests/ohm_solver_*`）为数值基线，
 只在其上增加 EB 圆柱与漂移，再逐项放开参数，避免从零摸索稳定性。
+
+## 6. 第 4 轮：hybrid + EB 是真正的阻塞（四组对照实验）
+
+| # | 条件 | 结果 |
+|---|---|---|
+| 1 | hybrid，**无 EB** | ✅ 跑满 200 步正常 |
+| 2 | hybrid，**有 EB**（R=1mm 圆柱） | ❌ `STEP 1` 即 `BfieldEvolve: exceeded max substep attempts` |
+| 3 | 有 EB + **关闭我的阶梯 E 置零**（`WARPX_PEC_EB_MASK=0`） | ❌ 同样在 STEP 1 崩溃 |
+| 4 | 有 EB + `grid_type=collocated` 开/关、`n_floor` = 5e21/5e23/1e24 | ❌ 全部崩溃 |
+
+日志特征：第 1 个半步接受 4 个子步，**第 2 个半步 0 接受、2001 拒绝**（`dt_sub_final = 0`），
+是状态出现 NaN/Inf 的典型表现。因此：
+
+- **不是**我的 PEC 边界条件引起的（实验 3）；
+- **不是**网格类型或密度下限引起的（实验 4）；
+- hybrid 模型里虽有 `eb_update_E` / `ngEB` 的接线（见 `HYBRID_EB_HANDOFF.md`），
+  但 `BfieldEvolve` 在 cut cell 附近无法收敛 → **hybrid + EB 在本 fork 中不可用**。
+
+### 因此当前的两条路都被堵住
+
+| 路线 | 障碍 |
+|---|---|
+| 全 PIC + EB（Yee） | `d_i/R = 473`，物理上不可能出现离子弓形激波；即使调参到 `d_i ~ R`，`dx/λ_D ≈ 1500` 也不可行 |
+| hybrid + EB | 求解器在 STEP 1 崩溃（本轮四组实验证实） |
+
+### 下一步（按可行性排序）
+
+1. **修 hybrid + EB**：定位 `BfieldEvolve` 在 cut cell 处产生 NaN 的位置（很可能是 Ohm 定律里
+   `∇(n T_e)/n` 在 n→0 的导体格上发散），在 covered 格上给出定义良好的背景密度/压力；
+2. 若修不动，用 **全 PIC + EB** 交付一个**诚实的动力学结果**（电子尺度绕流 + 粒子遮挡），
+   并在文档里明确它**不是** MHD 弓形激波，给出尺度判据说明为什么；
+3. 或者换模型：用 `algo.em_solver_medium = macroscopic` 的介质路径把导体近似为高电导介质
+   （无需 EB 的 cut cell 场更新）。

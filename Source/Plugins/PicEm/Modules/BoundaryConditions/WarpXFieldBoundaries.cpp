@@ -6,6 +6,8 @@
 #include "WarpX_PEC.H"
 
 #include <AMReX.H>
+#include <cstdlib>
+#include <string>
 #include <AMReX_Geometry.H>
 #include <AMReX_IntVect.H>
 #include <AMReX_REAL.H>
@@ -62,7 +64,11 @@ void WarpX::ApplyEfieldBoundary(const int lev, PatchType patch_type, amrex::Real
     // NOTE: do not read MultiCutFab arrays (e.g. `getBndryNormal().const_array(mfi)`)
     // here — their data does not outlive the statement and ASAN flags it as
     // heap-use-after-free.  The staircase form needs no boundary normal.
-    if (EB::enabled()) {
+    // WARPX_PEC_EB_MASK=0 disables the staircase E=0 masking, for diagnosing whether a
+    // solver (e.g. hybrid) is disturbed by the discontinuity it introduces.
+    static bool const pec_eb_mask = (std::getenv("WARPX_PEC_EB_MASK") == nullptr
+                                     || std::string(std::getenv("WARPX_PEC_EB_MASK")) != "0");
+    if (EB::enabled() && pec_eb_mask) {
         auto const& eb_flags = fieldEBFactory(lev).getMultiEBCellFlagFab();
         using warpx::fields::FieldType;
         auto const efield = m_fields.get_alldirs(
