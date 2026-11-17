@@ -39,9 +39,14 @@ def value_hint(p: dict) -> str:
 
 def when_needed(catalog: dict, name: str, zh_params: dict) -> str:
     """这条参数在什么时候才生效（由 gating_rules 反推，用中文说出来）。"""
-    rules = (catalog.get("gating_rules") or {}).get(name) or []
+    raw_rules = (catalog.get("gating_rules") or {}).get(name) or []
+    rules = []
+    for r in raw_rules:                 # 规则可能是"与"组（list）
+        rules.extend(r if isinstance(r, list) else [r])
     sels = []
     for r in rules:
+        if not isinstance(r, dict):
+            continue
         sel = r.get("param")
         if not sel:
             continue

@@ -770,6 +770,31 @@
    "all_regular",
    "implicit_function",
    "stl"
+  ],
+  "<species_name>.maxwellian_u_mean_distribution_type": [
+   "constant",
+   "parser",
+   "read_from_file"
+  ],
+  "<species_name>.maxwellian_u_std_distribution_type": [
+   "constant",
+   "parser",
+   "read_from_file"
+  ],
+  "<species_name>.maxwellian_temperature_in_eV_distribution_type": [
+   "constant",
+   "parser",
+   "read_from_file"
+  ],
+  "<species_name>.maxwell_juttner_u_mean_distribution_type": [
+   "constant",
+   "parser",
+   "read_from_file"
+  ],
+  "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": [
+   "constant",
+   "parser",
+   "read_from_file"
   ]
  },
  "hints": {
@@ -782,12 +807,12 @@
   "<collision_name>.background_density": "单个数值，可写科学计数法（如 1.0e-6）",
   "<collision_name>.background_mass": "单个数值，可写科学计数法（如 1.0e-6）",
   "<collision_name>.background_temperature": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<collision_name>.background_type": "文本",
+  "<collision_name>.background_type": "可选：electrons / ions",
   "<collision_name>.beta_weight_exponent": "文本或数值，按参数说明填写",
   "<collision_name>.correct_energy_momentum": "文本或数值，按参数说明填写",
   "<collision_name>.create_photons": "0 = 关闭，1 = 开启（下拉选择）",
   "<collision_name>.create_products": "0 = 关闭，1 = 开启（下拉选择）",
-  "<collision_name>.cumulative_scattering_angle_model": "文本",
+  "<collision_name>.cumulative_scattering_angle_model": "可选：BOBYLEV / NANBU",
   "<collision_name>.decay_rate(x,y,z,t)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<collision_name>.energy_correction_sort_by_weight": "文本或数值，按参数说明填写",
   "<collision_name>.energy_fraction": "文本或数值，按参数说明填写",
@@ -813,13 +838,13 @@
   "<collision_name>.productA_temperature_eV": "单个数值，可写科学计数法（如 1.0e-6）",
   "<collision_name>.productB_temperature_eV": "单个数值，可写科学计数法（如 1.0e-6）",
   "<collision_name>.product_species": "文本",
-  "<collision_name>.save_particle_production": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<collision_name>.save_particle_production": "可选：0 / 1",
   "<collision_name>.scattering_angle_model": "文本",
   "<collision_name>.scattering_processes": "文本",
   "<collision_name>.species": "文本",
   "<collision_name>.start_step": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<collision_name>.type": "文本",
-  "<collision_name>.use_global_debye_length": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<collision_name>.type": "可选：bremsstrahlung / dsmc / hybrid_resistive_drag / linear_breit_wheeler / linear_compton / nuclearfusion …",
+  "<collision_name>.use_global_debye_length": "可选：0 / 1",
   "<collision_name>.weight_ratio": "单个数值，可写科学计数法（如 1.0e-6）",
   "<diag_name>.<species_name>.additional_variables": "多个名称，用空格分隔（例如 ions electrons）",
   "<diag_name>.<species_name>.plot_filter_function(t,x,y,z,ux,uy,uz)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
@@ -1582,9 +1607,9 @@
   "<species_name>.save_particles_at_ylo": "按左侧说明填写",
   "<species_name>.save_particles_at_zhi": "按左侧说明填写",
   "<species_name>.save_particles_at_zlo": "按左侧说明填写",
-  "boundary.field_hi": "按左侧说明填写",
-  "boundary.field_lo": "按左侧说明填写",
-  "boundary.particle_hi": "按左侧说明填写",
+  "boundary.field_hi": "可选：periodic / pml / absorbing_silver_mueller / damped / pec / pmc …",
+  "boundary.field_lo": "含义：periodic = 周期（对应的另一端也必须是周期）；pml = 完美匹配吸收层（电磁波无反射，网格外/内加层）；absorbing_silver_mueller = Silver-Müller 吸收边界（仅 Yee 求解器）；damped = 阻尼层（简易吸收） …",
+  "boundary.particle_hi": "可选：periodic / absorbing / reflecting / thermal / none",
   "geometry.prob_hi": "按左侧说明填写",
   "geometry.prob_lo": "按左侧说明填写",
   "hybrid_pic_model.Jx_external_grid_function(x,y,z,t)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
@@ -1603,11 +1628,11 @@
   "<species_name>.density_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<species_name>.flux_function(x,y,z,t)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<species_name>.gaussian_beam_rotation_axis": "文本",
-  "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": "文本",
-  "<species_name>.maxwell_juttner_u_mean_distribution_type": "文本",
-  "<species_name>.maxwellian_temperature_in_eV_distribution_type": "文本",
-  "<species_name>.maxwellian_u_mean_distribution_type": "文本",
-  "<species_name>.maxwellian_u_std_distribution_type": "文本",
+  "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": "可选：constant / parser / read_from_file",
+  "<species_name>.maxwell_juttner_u_mean_distribution_type": "可选：constant / parser / read_from_file",
+  "<species_name>.maxwellian_temperature_in_eV_distribution_type": "可选：constant / parser / read_from_file",
+  "<species_name>.maxwellian_u_mean_distribution_type": "可选：constant / parser / read_from_file",
+  "<species_name>.maxwellian_u_std_distribution_type": "可选：constant / parser / read_from_file",
   "<species_name>.momentum_function_ux(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<species_name>.momentum_function_uy(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<species_name>.momentum_function_uz(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",

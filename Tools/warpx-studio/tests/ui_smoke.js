@@ -139,6 +139,66 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log("PASS 面注入参数紧跟开关: " + window.slice(0, 6).join(", ") + " …");
 
+  // 动量分布两级联动：选 maxwellian -> 出现 u_std/u_mean；再选 parser -> 出现 *_function
+  T.setDECK({ params: {}, groups: { [S]: { ions: { momentum_distribution_type: "constant" } } } });
+  T.setStep(2); T.render();
+  const pickSelect = (pred) => {
+    const walk = (n) => {
+      if (!n) return null;
+      if (n.tagName === "select" && pred(n)) return n;
+      for (const c of (n.children || [])) { const r = walk(c); if (r) return r; }
+      return null;
+    };
+    return walk(registry["form"]);
+  };
+  const momSel = pickSelect((n) => (n.children || []).some((o) => o.value === "maxwellian"));
+  if (!momSel) { console.error("FAIL 找不到 momentum_distribution_type 下拉"); process.exit(1); }
+  momSel.value = "maxwellian"; momSel.onchange();
+  await new Promise((r) => realSetTimeout(r, 250));
+  const rows2 = collectLabels(registry["form"], []);
+  const has2 = (k) => rows2.some((r) => r.trim() === k);
+  if (!has2("ux_std") || !has2("ux_mean") || has2("ux")) {
+    console.error("FAIL 选 maxwellian 后应出现 ux_std/ux_mean 且隐藏 ux；实际含 ux=" + has2("ux")
+                  + " ux_std=" + has2("ux_std") + " ux_mean=" + has2("ux_mean"));
+    process.exit(1);
+  }
+  // 找到"名字是 maxwellian_u_std_distribution_type 的那一行"里的下拉框
+  // 找到"标签是某参数名的那个 row"，再从它的子节点里取下拉框
+  const findRowSelect = (paramName) => {
+    const re = new RegExp("<b>[^<]*" + paramName + "<\\/b>");
+    let found = null;
+    const walk = (n) => {
+      if (!n || found) return;
+      const kids = n.children || [];
+      const hasLabel = kids.some((c) => re.test(c._html || ""));
+      if (hasLabel) {
+        const pick = (m) => {
+          if (!m) return null;
+          if (m.tagName === "select") return m;
+          for (const c of (m.children || [])) { const r = pick(c); if (r) return r; }
+          return null;
+        };
+        const sel2 = pick(n);
+        if (sel2) { found = sel2; return; }
+      }
+      for (const c of kids) walk(c);
+    };
+    walk(registry["form"]);
+    return found;
+  };
+  const stdSel = findRowSelect("maxwellian_u_std_distribution_type");
+  if (stdSel) {
+    stdSel.value = "parser"; stdSel.onchange();
+    await new Promise((r) => realSetTimeout(r, 250));
+    const rows3 = collectLabels(registry["form"], []);
+    const has3 = (k) => rows3.some((r) => r.trim() === k);
+    if (!has3("ux_std_function(x,y,z)") || has3("ux_std")) {
+      console.error("FAIL 子类型选 parser 后应出现 ux_std_function(x,y,z) 且隐藏 ux_std");
+      process.exit(1);
+    }
+    console.log("PASS 动量两级联动: maxwellian -> ux_std/ux_mean；子类型 parser -> ux_std_function(x,y,z)");
+  }
+
   // 填充区域参数只在 NUniformPerCell / NRandomPerCell 时出现
   const boxOf = (style) => dumpScenario(
     { params: {}, groups: { [S]: { ions: style ? { injection_style: style } : {} } } }, 2,

@@ -309,7 +309,11 @@ function visible(name, instance) {
   if (hiddenAsDerived(name)) return false;
   const rules = (CATALOG.gating_rules || {})[name];
   if (!rules || !rules.length) return true;
-  return rules.some(r => ruleSatisfied(r, instance));
+  // 一条规则 = 单个条件；一条规则是数组 = 多个条件"与"（用于两级联动，
+  // 例如 momentum_distribution_type=maxwellian 且 maxwellian_u_std_distribution_type=parser）
+  return rules.some((r) => (Array.isArray(r)
+    ? r.every((x) => ruleSatisfied(x, instance))
+    : ruleSatisfied(r, instance)));
 }
 
 function inputRow(name, value, onchange, instance) {
