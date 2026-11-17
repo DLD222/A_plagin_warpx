@@ -47,10 +47,13 @@ gate([S + "density"], S + "profile", None)
 gate([S + "num_particles_per_cell_each_dim", S + "xmin", S + "xmax", S + "zmin", S + "zmax"],
      S + "injection_style", "NUniformPerCell")
 gate([S + "num_particles_per_cell"], S + "injection_style", "NRandomPerCell")
+# 面注入的全部配套参数都必须挂在 injection_style 上，否则会散落到列表末尾
 gate([S + "flux_normal_axis", S + "flux_direction", S + "flux_tmin", S + "flux_tmax",
-      S + "flux_profile", S + "flux_function(x,y,z,t)", S + "surface_flux_pos",
-      S + "inject_from_embedded_boundary", S + "do_continuous_injection"],
+      S + "flux_profile", S + "flux_function(x,y,z,t)", S + "surface_flux_pos", S + "flux",
+      S + "zinject_plane", S + "injection_sources", S + "do_continuous_injection",
+      S + "npart_real", S + "flux_tmin", S + "flux_tmax"],
      S + "injection_style", "NFluxPerCell")
+gate([S + "inject_from_embedded_boundary"], S + "injection_style", "NFluxPerCell")
 gate([S + "injection_file"], S + "injection_style", "external_file")
 gate([S + "single_particle_pos", S + "single_particle_u", S + "single_particle_weight"],
      S + "injection_style", "singleparticle")

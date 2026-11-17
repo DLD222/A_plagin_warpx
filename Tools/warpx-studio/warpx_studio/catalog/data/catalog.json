@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 462,
+  "total": 498,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -912,6 +912,330 @@
   ]
  },
  "params": [
+  {
+   "name": "<collision_name>.<scattering_process>_cross_section",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string``  Only for ``dsmc`` and ``background_mcc``. Path to the file containing cross-section data for the given scattering processes. The cross-section file must have exactly 2 columns of data, the first contai",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.<scattering_process>_energy",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``dsmc`` and ``background_mcc``. The energy cost of the process, in eV. It is required for ``excitationX`` and ``ionization``, optional for ``charge_exchange`` and ``two_product_reaction`` (whi",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.<scattering_process>_scattering_angle_model",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string`` :optional:  Only for ``dsmc`` and ``background_mcc``, and only for ``elasticX``, ``excitationX``, ``charge_exchange`` and ``two_product_reaction``. The model used to determine the scattering angle of th",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.CoulombLog",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :optional:  Only for ``pairwisecoulomb``. A provided fixed Coulomb logarithm of the collision type ``<collision_name>``. For example, a typical Coulomb logarithm has a form of :math:`\\ln(\\lambda_D/R)`, w",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.Z",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``integer``  Only for ``bremsstrahlung``. The atomic number of the target ion species. Currently, only the values 1, 2, 5, 6 are supported.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.background_charge_state",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``background_stopping``, where it is required when ``background_type`` is set to ``ions``. This specifies the charge state of the background ions.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.background_density",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``background_mcc`` and ``background_stopping``. The density of the background in :math:`m^{-3}`. Can also provide ``<collision_name>.background_density(x,y,z,t)`` using the parser initializatio",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.background_mass",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :optional:  Only for ``background_mcc`` and ``background_stopping``. The mass of the background gas in kg. With ``background_mcc``, if not given the mass of the colliding species will be used unless ioni",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.background_temperature",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``background_mcc`` and ``background_stopping``. The temperature of the background in Kelvin. Can also provide ``<collision_name>.background_temperature(x,y,z,t)`` using the parser initializatio",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.background_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string``  Only for ``background_stopping``, where it is required, the type of the background. The possible values are ``electrons`` and ``ions``. When ``electrons``, equation 14.12 from Goldston and Rutherford i",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.create_photons",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``integer``  Only for ``bremsstrahlung``. Whether photons will be created, defaults to 1 (true).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.create_products",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``bool`` :default: ``1`` :optional:  Only for ``nuclearfusion``. When true, the product particles are created, otherwise not.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.cumulative_scattering_angle_model",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string`` :default: ``bobylev`` :optional:  Only for ``pairwisecoulomb``. Specifies the cumulative scattering distribution used to compute the scattering angle. The possible values are ``bobylev`` and ``nanbu``. ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.decay_rate(x,y,z,t)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: `string`  The parent species decay rate (only for ``pulsed_decay``).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.event_multiplier",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :optional:  Only for ``nuclearfusion``, ``linear_breit_wheeler``, and ``linear_compton``. Increasing ``event_multiplier`` creates more macroparticles products, but with lower weight (in such a way that t",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.ionization_species",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``background_mcc``. If the scattering process is ``ionization`` the produced species must also be given. For example if argon properties is used for the background gas, a species of argon ions ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.ionization_target_species",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string``  Only for ``dsmc`` with impact ionization. This specifies which one of the colliding particles is ionized.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.koT1_cut",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``bremsstrahlung``. Minimum energy of the photons created. This is relative to the electron energy, defaulting to 1.e-4.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.legendre_angular_distribution_coefficients",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string`` :optional:  Only for ``nuclearfusion``. Path to an energy-dependent table of Legendre coefficients used by the ``legendre`` scattering angle model. Each nonempty row contains a center-of-mass energy in ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.legendre_angular_distribution_coefficients_format",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string``  Format of :pp:param:`<collision_name>.legendre_angular_distribution_coefficients`. This parameter is required when a coefficient table is specified. ``ENDF`` selects the orthonormal Legendre coefficien",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.multiplier",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float``  Only for ``bremsstrahlung``. Multiplier for the collision probability. Any resulting photons will have the electron weight divided the multiplier. The default is 1. This must be greater than or equal to",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.ndt_subcycle",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``int`` :optional:  Execute collision ``ndt_subcycle`` times per PIC time step. The effective collision time step is ``dt_collision = dt_PIC / ndt_subcycle``. Must be >= 1. Mutually exclusive with ``ndt_supercycle",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.ndt_supercycle",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``int`` :optional:  Execute collision once every ``ndt_supercycle`` PIC time steps. The effective collision time step is ``dt_collision = ndt_supercycle * dt_PIC``. Must be >= 1. Mutually exclusive with ``ndt_subc",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.probability_target_value",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :optional:  Only for ``nuclearfusion``, ``linear_breit_wheeler``, and ``linear_compton``. When the probability of fusion or linear Breit-Wheeler for a given collision exceeds ``probability_threshold``, W",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.probability_threshold",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :optional:  Only for ``nuclearfusion``, ``linear_breit_wheeler``, and ``linear_compton``. If the event multiplier is too high and results in a probability that approaches 1 (for a given collision between",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.productA_temperature_eV",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: `float array, size 3`  Direction-dependent temperature used to assign a random thermal velocity to product species A (only for ``pulsed_decay``). Example: ``<collision_name>.productA_temperature_eV = 0.1 0.2 0.3``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.productB_temperature_eV",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: `float array, size 3`  Direction-dependent temperature used to assign a random thermal velocity to product species B (only for ``pulsed_decay``). Example: ``<collision_name>.productB_temperature_eV = 0.1 0.2 0.3``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.product_species",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``strings``  Only for ``dsmc``, ``linear_breit_wheeler``, ``nuclearfusion``, and ``bremsstrahlung``. The name(s) of the species in which to add the new macroparticles created by the reaction. If using ``dsmc`` wit",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.save_particle_production",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``bool`` :default: ``0`` :optional:  Only for ``nuclearfusion``. When true, the integrated product particle density is saved in a MultiFab with the name ``<collision_name>_particle_production``. The data can be wr",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.scattering_angle_model",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string`` :default: ``isotropic`` :optional:  Only for ``nuclearfusion``. The scattering angle for the products of the fusion reaction. The possible values are ``isotropic``, ``forward``, ``backward``, and ``lege",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.scattering_processes",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``strings`` separated by spaces  Only for ``dsmc`` and ``background_mcc``. The scattering processes that should be included. Available options are ``elasticX``, ``excitationX``, ``two_product_reaction`` and ``char",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.species",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``strings``  If using ``dsmc``, ``pairwisecoulomb``, ``nuclearfusion``, ``bremsstrahlung``, or ``inverse_bremsstrahlung`` this should be the name(s) of the species, between which the collision will be considered. ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.start_step",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``int`` :default: ``0`` :optional:  First time step on which the collision is applied. Must be >= 0. When used with ``ndt_supercycle``, this acts as an offset: the collision is executed on steps ``start_step``, ``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string`` :optional:  The type of collision. The types implemented are:  - ``pairwisecoulomb`` for pair-wise Coulomb collisions, the default if unspecified. This provides a pair-wise relativistic elastic Monte Ca",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.use_global_debye_length",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``bool`` :optional:  Only for ``pairwisecoulomb``. When set, the Debye length used in the Coulomb log is calculated including all species in the simulation. The lengths are combined using the square root of one ov",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<collision_name>.weight_ratio",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``int`` :default: 1 :optional:  The ratio of the weight of the parent particle to the product particles (only for ``pulsed_decay``). This can only be a positive integer, since this is the number of product particl",
+   "core": false,
+   "options": null
+  },
   {
    "name": "<diag_name>.<species_name>.additional_variables",
    "type": "list of `strings` separated by spaces",
@@ -12215,6 +12539,38 @@
     "param": "<species_name>.profile",
     "op": "equals",
     "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.zinject_plane": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.injection_sources": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.npart_real": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
     "raw": "value gate"
    }
   ]

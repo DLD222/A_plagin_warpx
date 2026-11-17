@@ -125,6 +125,27 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log(`PASS 开关默认可见: ${mustSee.join(", ")}`);
 
+  // 面注入：injection_style=NFluxPerCell 时，配套参数必须紧跟其后（含 zinject_plane）
+  const fluxRows = dumpScenario(
+    { params: {}, groups: { [S]: { ions: { injection_style: "NFluxPerCell" } } } }, 2, "面注入顺序");
+  const idx = fluxRows.findIndex((r) => r.trim() === "injection_style");
+  const window = fluxRows.slice(idx + 1, idx + 16).map((r) => r.trim());
+  const fluxNeeded = ["zinject_plane", "flux_normal_axis", "surface_flux_pos", "flux"];
+  const fluxMissing = fluxNeeded.filter((n) => !window.includes(n));
+  if (idx < 0 || fluxMissing.length) {
+    console.error("FAIL 面注入参数没有紧跟 injection_style: 缺 " + fluxMissing.join(", ")
+                  + "；实际紧跟的 15 行 = " + window.join(", "));
+    process.exit(1);
+  }
+  console.log("PASS 面注入参数紧跟开关: " + window.slice(0, 6).join(", ") + " …");
+
+  // 碰撞：三个名字 -> 三张卡片
+  const colRows = dumpScenario(
+    { params: { "collisions.collision_names": "ee ei ii" },
+      groups: { [S]: { ions: {} }, "<collision_name>": { ee: {}, ei: {}, ii: {} } } },
+    2, "三种碰撞");
+  console.log("PASS 碰撞卡片: 出现 " + ["CoulombLog", "species", "type"].filter((k) => colRows.some((r) => r.includes(k))).length + " 类参数");
+
   // 激光：填了 lasers.names 之后，该激光的参数必须出现
   const laserRows = dumpScenario(
     { params: { "lasers.names": "www" }, groups: { [S]: { ions: {} }, "<laser_name>": { www: {} } } },
