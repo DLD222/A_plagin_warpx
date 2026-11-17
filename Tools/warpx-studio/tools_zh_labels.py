@@ -171,6 +171,28 @@ def strip_junk(label: str, name: str) -> str:
     return text or ""
 
 
+def strip_english(text: str) -> str:
+    """去掉混进来的英文句子，只留中文说明。
+
+    物理量、单位、参数取值、代码标识符保持原样（例如 `periodic`、`m^-3`、`gamma`）。
+    """
+    if not text:
+        return text
+    # 以句号切分，丢掉"整句都是英文单词"的段落
+    parts = re.split(r"(?<=。)", text)
+    kept = []
+    for part in parts:
+        words = re.findall(r"[A-Za-z]{2,}", part)
+        cjk = len(re.findall(r"[\u4e00-\u9fff]", part))
+        if words and cjk == 0:
+            continue                      # 纯英文句子，丢弃
+        if len(" ".join(words)) > 2 * cjk and cjk < 6:
+            continue                      # 英文占主导的段落，丢弃
+        kept.append(part)
+    out = "".join(kept).strip()
+    return out            # 全英文时返回空串，绝不回落成英文原文
+
+
 def main() -> int:
     cat = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
     names = {p["name"] for p in cat["params"]}
@@ -193,11 +215,8 @@ def main() -> int:
         if new != old:
             params[name] = new
             changed += 1
-        # 没有人工说明的条目：用英文原文的第一句兜底，至少说明它做什么
-        if name not in curated and docs.get(name) and len(params.get(name, "")) < 24:
-            first = re.split(r"(?<=[.!?])\s", docs[name])[0][:160]
-            if first and first not in params[name]:
-                params[name] = (f"{params[name]}。" if params.get(name) else "") + first
+        # 全部用中文：把以前拼上的英文句子去掉（用户要求注释只写汉语）
+        params[name] = strip_english(params.get(name, ""))
     zh_path.write_text(json.dumps(zh, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"更新 {changed} 条；人工撰写 {len(curated)} 条")
     for probe in ("geometry.prob_lo/hi", "boundary.field_lo/hi", "boundary.particle_lo",

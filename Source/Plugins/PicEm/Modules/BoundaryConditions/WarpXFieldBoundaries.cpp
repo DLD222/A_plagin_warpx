@@ -55,17 +55,14 @@ void WarpX::ApplyEfieldBoundary(const int lev, PatchType patch_type, amrex::Real
     using ablastr::fields::Direction;
 
 #if defined(AMREX_USE_EB)
-    // ---- PEC on embedded surfaces, staircase form ----
-    // Cells that the surface covers are inside the conductor, so the electric field
-    // there is zero; with a staircase mask this also sets the tangential component on
-    // the surface to zero, which is the PEC condition `E_tangential = 0`.
-    // (The normal component of B is handled separately in `ApplyBfieldBoundary`, where
-    //  it is made *continuous* rather than zero.)
-    // NOTE: do not read MultiCutFab arrays (e.g. `getBndryNormal().const_array(mfi)`)
-    // here — their data does not outlive the statement and ASAN flags it as
-    // heap-use-after-free.  The staircase form needs no boundary normal.
-    // WARPX_PEC_EB_MASK=0 disables the staircase E=0 masking, for diagnosing whether a
-    // solver (e.g. hybrid) is disturbed by the discontinuity it introduces.
+    // ---- 嵌入面上的理想导体（PEC），阶梯形式 ----
+    // 被表面覆盖的格子位于导体内部，那里电场为零；用阶梯掩码时，这同时把表面上的
+    // 切向分量置零，即 PEC 条件 `E_tangential = 0`。
+    // （B 的法向分量在 `ApplyBfieldBoundary` 里单独处理，那里要求它**连续**而不是为零。）
+    // 注意：不要在这里读 MultiCutFab 数组（例如 `getBndryNormal().const_array(mfi)`）——
+    // 它们的数据活不过这条语句，ASAN 会报 heap-use-after-free。阶梯形式不需要边界法向。
+    // WARPX_PEC_EB_MASK=0 可临时关闭"阶梯格 E 置零"，用来判断某个求解器（例如 hybrid）
+    // 是否被它引入的阶跃所干扰。
     static bool const pec_eb_mask = (std::getenv("WARPX_PEC_EB_MASK") == nullptr
                                      || std::string(std::getenv("WARPX_PEC_EB_MASK")) != "0");
     if (EB::enabled() && pec_eb_mask) {

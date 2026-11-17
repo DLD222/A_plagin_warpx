@@ -296,7 +296,8 @@ function inputRow(name, value, onchange, instance) {
   const lab = document.createElement("label");
   lab.innerHTML = `<b>${name.split(".").slice(innerInstance(name) ? 1 : 0).join(".") || name}</b>` +
     `<br><span style="font-size:12px;color:var(--dim)">${zh || type || ""}</span>`;
-  lab.title = (zh ? zh + "\n\n" : "") + docOf(name) + (type ? `\n类型: ${type}` : "") +
+  // 提示只写中文：说明 + 类型 + 构建条件（英文原文不再显示）
+  lab.title = (zh || "") + (type ? `\n类型: ${type}` : "") +
     (guard.length ? `\n构建条件: ${guard.join("; ")}` : "");
   const box = document.createElement("div");
   if (CONTROLS.boundary_keys && CONTROLS.boundary_keys[name]) {

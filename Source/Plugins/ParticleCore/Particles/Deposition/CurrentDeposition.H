@@ -829,12 +829,10 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             double const z_old = z_new - dt*dinv.z*uzp[ip]*gaminv;
 #endif
 
-            // Guard: if the fields blew up, a particle position can be NaN/inf.  Its cell
-            // index would then be INT_MIN and the shape-factor buffers below would be
-            // written far out of bounds (ASAN: stack-buffer-overflow on sx/sz_*_buf).
-            // Skipping such a particle keeps the failure a warning instead of a segfault.
-            // The guard only applies where the corresponding coordinate exists: in 1D the
-            // kernel uses z alone.
+            // 防护：场爆炸后粒子坐标可能是 NaN/inf，此时格索引会变成 INT_MIN，下面形状因子
+            // 的缓冲区就会被写到界外（ASAN 曾报 stack-buffer-overflow，变量 sx/sz_*_buf）。
+            // 跳过这类粒子，让失败表现为告警而不是段错误。
+            // 只在对应坐标存在时才检查：1D 只用 z。
             {
                 bool sane = true;
 #if !defined(WARPX_DIM_1D_Z)
@@ -849,10 +847,9 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
                 if (!sane) { return; }   // per-particle lambda body, not a C++ loop
             }
 
-            // A particle can sit outside this tile (e.g. it just wrapped through a periodic
-            // boundary, or it ran far away).  Deposit only if its whole stencil is inside the
-            // J array; otherwise the atomic adds land outside the fab (ASAN: heap-buffer-
-            // overflow in Gpu::Atomic::AddNoRet).
+            // 粒子可能落在本 tile 之外（刚穿过周期边界，或者被场推到很远）。只有整个模板都
+            // 落在 J 数组内才沉积；否则原子加会写到 fab 之外
+            // （ASAN 曾报 heap-buffer-overflow，位置在 Gpu::Atomic::AddNoRet）。
 #if !defined(WARPX_DIM_1D_Z) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
             {
                 amrex::Dim3 const jx_lo = lbound(Jx_arr);

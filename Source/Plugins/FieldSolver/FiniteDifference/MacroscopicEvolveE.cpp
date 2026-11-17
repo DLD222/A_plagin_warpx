@@ -266,11 +266,9 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
                                                                                 Ex_stag, macro_cr, i, j, k, scomp);
             // P1: full matrix-vector product E_c = alpha E_c + beta0 sum_d (eps^-1)_{c,d} D_d,
             // beta0 = dt/(1+s) = beta*eps. The three curl components are evaluated at the
-            // same index (Meep collocated approximation, O(h) at an interface).  eps^-1 is
-            // applied to J with its FULL row: (eps^-1 J)_c = sum_d (eps^-1)_{c,d} J_d.  Using
-            // only the diagonal entry, as this used to, drops terms of the same order and is
-            // exactly wrong for an off-diagonal permittivity (a J along y then produces no Ex
-            // at all).
+            // 同一索引（Meep 共位近似，界面处为 O(h)）。eps^-1 对 J 用**完整行**作用：
+            // (eps^-1 J)_c = sum_d (eps^-1)_{c,d} J_d。只用对角元（旧写法）会丢掉同阶项，
+            // 对非对角介电张量完全错误（沿 y 的 J 将完全不产生 Ex）。
             amrex::Real const Dx = - T_Algo::DownwardDz(Hy, coefs_z, n_coefs_z, i, j, k,0)
                                     + T_Algo::DownwardDy(Hz, coefs_y, n_coefs_y, i, j, k,0);
             amrex::Real const Dy =   T_Algo::DownwardDz(Hx, coefs_z, n_coefs_z, i, j, k,0)

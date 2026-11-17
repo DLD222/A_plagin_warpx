@@ -323,12 +323,10 @@ void sigma_step_average (const Mat3& eps, const Mat3& sigma, amrex::Real dt, Mat
     amrex::Real lb[3], Vb[9];
     jacobi_eigh(B, lb, Vb);
 
-    // A conductivity stitched together from two anisotropic blocks is not guaranteed to
-    // stay positive semi-definite (a normal block averaged harmonically while the
-    // normal-tangential coupling is averaged arithmetically can produce a negative
-    // eigenvalue).  For a negative eigenvalue exp(-B dt) *grows* exponentially, so the
-    // run would diverge with no diagnostic at all.  Clamp to the PSD cone: a slightly
-    // over-smoothed conductivity is physical, an exponentially growing field is not.
+    // 由两块各向异性拼接出的电导率不保证仍是半正定：法向块取调和平均、法向-切向耦合
+    // 取算术平均时，可能出现负特征值。对负特征值 exp(-B dt) 会**指数放大**，整个算例会
+    // 在没有任何提示的情况下发散。这里投影到半正定锥：电导率略被平滑是可接受的，
+    // 场指数增长不是。
     for (int ii = 0; ii < 3; ++ii) {
         if (lb[ii] < amrex::Real(0.0)) { lb[ii] = amrex::Real(0.0); }
     }
