@@ -298,7 +298,7 @@
   "<species_name>.do_splitting": "1 = 开启粒子分裂（取值：可选 0 / 1；默认 0）",
   "<species_name>.do_symmetrize": "1 = 对粒子做对称化（成对生成镜像粒子）（取值：0 = 关闭，1 = 开启；不填就用 WarpX 默认值）",
   "<species_name>.do_temperature_deposition": "是否沉积温度：1 开 / 0 关（取值：可选 0 / 1；默认 false）",
-  "<species_name>.flux": "面注入的粒子通量（单位面积单位时间个数）（取值：单个数值，可写 1.0e-6 这样的科学计数法；不填就用 WarpX 默认值；仅在 injection_style = NFluxPerCell 时生效）",
+  "<species_name>.flux": "面注入的**宏粒子通量**（个数/(m²·s)）。它直接决定粒子权重：源码里 `weight = flux × 面元缩放 × dt`，因此**物理密度 n = flux · dt / A**（A 是该格发射面的面积，二维里 A = 面内格长 × 1 m）。反推公式：**flux = n · A / dt**。例：n=1e24 m^-3、dz=1e-4 m、dt=1e-10 s → flux = 1e30。`num_particles_per_cell` 只决定每格每步放几个宏粒子（统计噪声），不改变物理密度（取值：单个数值，可写 1.0e-6 这样的科学计数法；不填就用 WarpX 默认值；仅在 injection_style = NFluxPerCell 时生效）",
   "<species_name>.flux_direction": "面注入的方向：+1 沿法向正向，-1 反向（取值：文本；不填就用 WarpX 默认值；仅在 inject_from_embedded_boundary 打开 或 injection_style = NFluxPerCell 时生效）",
   "<species_name>.flux_normal_axis": "面注入的发射面法向：x / y / z（取值：文本；不填就用 WarpX 默认值；仅在 inject_from_embedded_boundary 打开 或 injection_style = NFluxPerCell 时生效）",
   "<species_name>.flux_profile": "面注入的流量剖面：constant 常数 / parse_flux_function 用函数（取值：不填就用 WarpX 默认值；仅在 injection_style = NFluxPerCell 时生效）",
