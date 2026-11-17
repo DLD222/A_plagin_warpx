@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 446,
+  "total": 444,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -3474,15 +3474,6 @@
    "core": false
   },
   {
-   "name": "<species_name>.save_particles_at_xlo/ylo/zlo/xhi/yhi/zhi/eb",
-   "type": "0",
-   "default": null,
-   "optional": true,
-   "doc": ":link_aliases: <species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: ``0`` or ``1`` :default: ``0`` :optional:  If ``1`` particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the ``save_particles_at_eb`` flag can be set to ``1`` to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a ``BoundaryScrapingDiagnostic``. It is also accessible via the Python interface. The function ``get_particle_boundary_buffer``, found in the ``picmi.Simulation`` class as ``sim.extension.get_particle_boundary_buffer()``, can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument ``comp_name=\"stepScraped\"`` to the above mentioned function.  .. note::  When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call ``clear_buffer()``.",
-   "core": false,
-   "options": null
-  },
-  {
    "name": "<species_name>.save_particles_at_yhi",
    "type": null,
    "default": null,
@@ -4039,15 +4030,6 @@
    "default": null,
    "optional": true,
    "doc": "<species_name>.xmin,ymin,zmin",
-   "core": false,
-   "options": null
-  },
-  {
-   "name": "<species_name>.xmin/ymin/zmin/xmax/ymax/zmax",
-   "type": "float",
-   "default": null,
-   "optional": true,
-   "doc": ":link_aliases: <species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: ``float`` :default: unlimited :optional:  When :pp:param:`<species_name>.xmin` and :pp:param:`<species_name>.xmax` are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction ``i``, then the default (i.e. if the range is not specified) range will be the simulation box, :pp:param:`[geometry.prob_hi[i], geometry.prob_lo[i]]`.",
    "core": false,
    "options": null
   },

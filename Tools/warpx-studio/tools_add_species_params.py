@@ -75,6 +75,8 @@ def main() -> int:
     for name in sorted(set(items) | set(blocks)):
         if not name.startswith("<species_name>.") or name in names:
             continue
+        if "/" in name:
+            continue        # 文档里的并排简写（xmin/ymin/...）不是真实参数名
         tail = name.rsplit(".", 1)[-1]
         if tail in {".", ""}:
             continue
