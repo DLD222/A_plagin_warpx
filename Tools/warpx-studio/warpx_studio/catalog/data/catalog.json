@@ -12170,6 +12170,12 @@
     "op": "equals",
     "value": "NUniformPerCell",
     "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
+    "raw": "value gate"
    }
   ],
   "<species_name>.xmax": [
@@ -12177,6 +12183,12 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NUniformPerCell",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
     "raw": "value gate"
    }
   ],
@@ -12186,6 +12198,12 @@
     "op": "equals",
     "value": "NUniformPerCell",
     "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
+    "raw": "value gate"
    }
   ],
   "<species_name>.zmax": [
@@ -12193,6 +12211,12 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NUniformPerCell",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
     "raw": "value gate"
    }
   ],
@@ -12571,6 +12595,34 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ymin": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ymax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
     "raw": "value gate"
    }
   ]

@@ -4,6 +4,12 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
+    "<species_name>.xmin": "粒子**初始填充区域**的下界（米）。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时决定铺粒子的范围；留空 = 整个计算域。NFluxPerCell 用 surface_flux_pos / flux_normal_axis 指定发射面，gaussian_beam 用 x_m / z_m 指定束心",
+    "<species_name>.xmax": "粒子**初始填充区域**的上界（米）；与 xmin 配对使用。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时生效，留空 = 计算域上界",
+    "<species_name>.zmin": "粒子**初始填充区域**的下界（米，z 方向）。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时生效；NFluxPerCell 的位置用 zinject_plane 给",
+    "<species_name>.zmax": "粒子**初始填充区域**的上界（米，z 方向）；与 zmin 配对。只在 NUniformPerCell / NRandomPerCell 时生效",
+    "<species_name>.ymin": "粒子初始填充区域的 y 下界（米）；二维没有 y，可忽略",
+    "<species_name>.ymax": "粒子初始填充区域的 y 上界（米）；二维可忽略",
     "<collision_name>.background_charge_state": "背景粒子的电荷态：中性气体写 0，一次电离写 1",
     "<collision_name>.background_temperature": "背景气体温度（eV），决定背景粒子的热速度与碰撞截面",
     "<collision_name>.start_step": "从第几步开始做碰撞；留空表示从第 0 步起",

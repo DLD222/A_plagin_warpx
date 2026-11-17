@@ -78,7 +78,7 @@ def main() -> int:
         default_txt = (f"默认 {default}" if default not in (None, "")
                        else "不填就用 WarpX 默认值")
         detail = "；".join(x for x in (hint, default_txt) if x)
-        needed = when_needed(catalog, name, params) if len(text) < 40 else ""
+        needed = when_needed(catalog, name, params)   # 每条都写清"何时生效"
         if detail:
             tail = f"取值：{detail}"
             if needed:

@@ -139,6 +139,23 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log("PASS 面注入参数紧跟开关: " + window.slice(0, 6).join(", ") + " …");
 
+  // 填充区域参数只在 NUniformPerCell / NRandomPerCell 时出现
+  const boxOf = (style) => dumpScenario(
+    { params: {}, groups: { [S]: { ions: style ? { injection_style: style } : {} } } }, 2,
+    "填充区域 " + (style || "未选"));
+  const boxCases = [
+    [null, false], ["NUniformPerCell", true], ["NRandomPerCell", true], ["NFluxPerCell", false],
+  ];
+  for (const [style, expect] of boxCases) {
+    const rows = boxOf(style);
+    const present = ["xmin", "xmax", "zmin", "zmax"].some((k) => rows.some((r) => r.trim() === k));
+    if (present !== expect) {
+      console.error(`FAIL 填充区域显示错误: injection_style=${style || "(未填)"} 期望${expect ? "显示" : "隐藏"}，实际${present ? "显示" : "隐藏"}`);
+      process.exit(1);
+    }
+  }
+  console.log("PASS 填充区域只在 NUniformPerCell/NRandomPerCell 出现");
+
   // 碰撞：三个名字 -> 三张卡片
   const colRows = dumpScenario(
     { params: { "collisions.collision_names": "ee ei ii" },

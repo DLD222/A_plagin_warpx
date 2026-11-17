@@ -44,8 +44,11 @@ gate([S + "read_density_from_path", S + "density_mesh_name", S + "read_density_d
 gate([S + "density"], S + "profile", None)
 
 # ---- 注入方式 ----
-gate([S + "num_particles_per_cell_each_dim", S + "xmin", S + "xmax", S + "zmin", S + "zmax"],
-     S + "injection_style", "NUniformPerCell")
+# 填充区域对"按体积铺粒子"的两种方式都有效
+gate([S + "num_particles_per_cell_each_dim"], S + "injection_style", "NUniformPerCell")
+for _box in (S + "xmin", S + "xmax", S + "zmin", S + "zmax", S + "ymin", S + "ymax"):
+    gate([_box], S + "injection_style", "NUniformPerCell")
+    gate([_box], S + "injection_style", "NRandomPerCell")
 gate([S + "num_particles_per_cell"], S + "injection_style", "NRandomPerCell")
 # 面注入的全部配套参数都必须挂在 injection_style 上，否则会散落到列表末尾
 gate([S + "flux_normal_axis", S + "flux_direction", S + "flux_tmin", S + "flux_tmax",
