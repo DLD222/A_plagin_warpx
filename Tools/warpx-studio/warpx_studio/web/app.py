@@ -270,7 +270,7 @@ def api_resume():
 
 
 @app.post("/api/paraview")
-def api_paraview(launch: bool = True):
+def api_paraview(launch: bool = False):
     """Export the current run to VTK and hand it to the ParaView GUI."""
     import shutil
     import subprocess
