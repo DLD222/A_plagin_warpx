@@ -1596,7 +1596,8 @@
   "warpx.B_external_grid": "按左侧说明填写",
   "warpx.E_external_grid": "按左侧说明填写",
   "warpx.fine_tag_hi": "按左侧说明填写",
-  "warpx.fine_tag_lo": "按左侧说明填写"
+  "warpx.fine_tag_lo": "按左侧说明填写",
+  "eb2.stl_file": "文本"
  },
  "glossary": {
   "algo.maxwell_solver": {

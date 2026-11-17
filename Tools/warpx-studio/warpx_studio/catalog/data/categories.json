@@ -81,8 +81,10 @@
     "boundary.particle_eb",
     "eb2.geom_type",
     "warpx.eb_implicit_function",
-    "warpx.eb_potential(x,y,z,t)"
-   ]
+    "warpx.eb_potential(x,y,z,t)",
+    "eb2.stl_file"
+   ],
+   "note": "导体面的**场**边界条件在 WarpX 里是固定的理想导体（PEC）：面内 E 置零（等效 E_tangential = 0），B 的法向分量保持连续，切向分量允许跳变（表面电流）。**没有**对应输入参数，也不需要设置；这里可配的只有几何形状与**粒子**撞面后的行为。"
   },
   {
    "id": "species",

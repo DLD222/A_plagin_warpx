@@ -528,6 +528,13 @@ async function renderPlugins() {
     const body = document.createElement("div");
     body.className = "rows";
     body.textContent = "加载中…";
+    if (category.note) {
+      const note = document.createElement("div");
+      note.style.cssText = ("padding:6px 10px;font-size:12px;color:var(--dim);"
+        + "border-bottom:1px solid var(--line);line-height:1.5");
+      note.innerHTML = category.note;
+      sec.append(note);
+    }
     sec.append(head, body);
     form.appendChild(sec);
     fetch("/api/panel/" + plugin.id).then(r => r.json()).then(d => { body.innerHTML = d.html; });

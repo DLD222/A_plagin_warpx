@@ -466,7 +466,7 @@
   "diagnostics.enable": "1 = 启用该诊断 / 0 = 关闭",
   "do_device_synchronize": "其它参数参数「do_device_synchronize」",
   "do_similar_dm_pml": "PML 吸收层。",
-  "eb2.geom_type": "EB 几何描述方式：all_regular 无实体 / implicit_function 隐函数 / stl 文件",
+  "eb2.geom_type": "EB 几何描述方式：all_regular 无实体 / implicit_function 隐函数（本仓库用这个）/ stl 读 STL 文件",
   "eb_implicit_function": "嵌入边界（EB） · 嵌入边界·函数（eb_implicit_function）",
   "enabled": "其它参数 · 是否启用（enabled）",
   "euclid_factor_levels": "网格与几何 · 系数·层数（euclid_factor_levels）",
@@ -873,6 +873,7 @@
   "hybrid_pic_model.Jx_external_grid_function(x,y,z,t)": "外部电流密度的 x 分量解析式（A/m²）",
   "<species_name>.save_particles_at_eb": "1 = 保存撞到导体（EB）面上被吸收/反射的粒子",
   "warpx.fine_tag_lo": "加密区域的下界角点（米）",
-  "macroscopic.epsilon_function(x,y,z)": "用解析函数给介电常数分布（优先于常数）"
+  "macroscopic.epsilon_function(x,y,z)": "用解析函数给介电常数分布（优先于常数）",
+  "eb2.stl_file": "几何用 STL 文件描述时的文件路径；必须同时把 eb2.geom_type 设为 stl"
  }
 }

@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 351,
+  "total": 352,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -4334,6 +4334,15 @@
     "stl"
    ],
    "core": true
+  },
+  {
+   "name": "eb2.stl_file",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Path to an STL file describing the embedded boundary surface.",
+   "core": false,
+   "options": null
   },
   {
    "name": "external_vector_potential.<field_name>.A[x,y,z]_external_grid_function(x,y,z)",
