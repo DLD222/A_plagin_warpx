@@ -197,11 +197,14 @@
    "read_from_file"
   ],
   "<species_name>.momentum_distribution_type": [
+   "at_rest",
    "constant",
+   "uniform",
+   "gaussian",
+   "gaussianflux",
    "maxwellian",
    "maxwell_juttner",
-   "parse_momentum_function",
-   "read_from_file"
+   "parse_momentum_function"
   ],
   "<species_name>.position_initialization": [
    "standard",
@@ -1025,7 +1028,7 @@
   "<species_name>.ionization_initial_level": "单个整数",
   "<species_name>.ionization_product_species": "文本",
   "<species_name>.mass": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.momentum_distribution_type": "含义：constant = 常数动量（冷等离子体，速度由 ux/uy/uz 给）；maxwellian = 麦克斯韦分布（给温度）；maxwell_juttner = 相对论麦克斯韦-于特纳分布（高温）；parse_momentum_function = 用表达式给动量（momentum_function_ux…） …",
+  "<species_name>.momentum_distribution_type": "含义：at_rest = 静止（动量为 0）；constant = 常数值（ux/uy/uz 给三个方向的分量）；uniform = 均匀分布（用 ux_min/ux_max 等给出每个方向的上下限）；gaussian = 高斯分布（ux_m/uy_m/uz_m 给中心，ux_th/uy_th/uz_th 给热展宽） …",
   "<species_name>.npart": "单个整数",
   "<species_name>.npart_real": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.num_particles_per_cell": "单个整数",
@@ -1068,13 +1071,13 @@
   "<species_name>.symmetrization_order": "单个整数",
   "<species_name>.ux": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.ux_m": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.ux_max": "文本或数值，按参数说明填写",
-  "<species_name>.ux_min": "文本或数值，按参数说明填写",
+  "<species_name>.ux_max": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.ux_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.ux_th": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy_m": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.uy_max": "文本或数值，按参数说明填写",
-  "<species_name>.uy_min": "文本或数值，按参数说明填写",
+  "<species_name>.uy_max": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uy_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy_th": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uz": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uz_m": "单个数值，可写科学计数法（如 1.0e-6）",
@@ -1751,11 +1754,14 @@
    "read_from_file": "从文件读密度场"
   },
   "<species_name>.momentum_distribution_type": {
-   "constant": "常数动量（冷等离子体，速度由 ux/uy/uz 给）",
-   "maxwellian": "麦克斯韦分布（给温度）",
-   "maxwell_juttner": "相对论麦克斯韦-于特纳分布（高温）",
-   "parse_momentum_function": "用表达式给动量（momentum_function_ux…）",
-   "read_from_file": "从文件读动量分布"
+   "at_rest": "静止（动量为 0）",
+   "constant": "常数值（ux/uy/uz 给三个方向的分量）",
+   "uniform": "均匀分布（用 ux_min/ux_max 等给出每个方向的上下限）",
+   "gaussian": "高斯分布（ux_m/uy_m/uz_m 给中心，ux_th/uy_th/uz_th 给热展宽）",
+   "gaussianflux": "高斯通量分布（只在 injection_style=NFluxPerCell 时可用，需 flux_normal_axis/flux_direction）",
+   "maxwellian": "非相对论麦克斯韦分布（u_mean + u_std 或 temperature，三者各有 constant/parser/read_from_file 子类型）",
+   "maxwell_juttner": "相对论 Maxwell-Jüttner 分布（u_mean + temperature，没有 u_std）",
+   "parse_momentum_function": "用表达式给动量（momentum_function_ux/uy/uz(x,y,z)）"
   },
   "boundary.field_lo": {
    "periodic": "周期（对应的另一端也必须是周期）",

@@ -199,6 +199,36 @@ if (global.window.__STUDIO_TEST__) {
     console.log("PASS 动量两级联动: maxwellian -> ux_std/ux_mean；子类型 parser -> ux_std_function(x,y,z)");
   }
 
+  // 八种动量分布各自需要的参数（含 uniform / gaussianflux / Jüttner）
+  const momDeck = (v, extra = {}) => ({ params: {},
+    groups: { [S]: { ions: Object.assign({ momentum_distribution_type: v }, extra) } } });
+  const momRows = (v, extra) => dumpScenario(momDeck(v, extra), 2, "动量 " + v);
+  const momCases = [
+    ["at_rest", {}, []],
+    ["constant", {}, ["ux", "uy", "uz"]],
+    ["uniform", {}, ["ux_min", "ux_max", "uy_min", "uy_max", "uz_min", "uz_max"]],
+    ["gaussian", {}, ["ux_m", "ux_th", "uy_m", "uy_th"]],
+    ["gaussianflux", {}, ["ux_m", "flux_normal_axis", "flux_direction"]],
+    ["maxwellian", {}, ["ux_mean", "ux_std", "maxwellian_u_std_distribution_type"]],
+    ["maxwell_juttner", {}, ["ux_mean", "temperature_in_eV", "maxwell_juttner_temperature_in_eV_distribution_type"]],
+    ["parse_momentum_function", {}, ["momentum_function_ux(x,y,z)"]],
+  ];
+  for (const [dist, extra, must] of momCases) {
+    const rows = momRows(dist, extra);
+    const has = (k) => rows.some((r) => r.trim() === k);
+    const missing = must.filter((k) => !has(k));
+    if (missing.length) {
+      console.error(`FAIL ${dist} 缺少参数: ` + missing.join(", ")
+                    + "；实际 = " + rows.slice(0, 20).join(", "));
+      process.exit(1);
+    }
+    if (dist !== "constant" && has("ux")) {
+      console.error(`FAIL ${dist} 不该出现 ux（ux 只属于 constant）`);
+      process.exit(1);
+    }
+  }
+  console.log("PASS 八种动量分布各自带出正确参数（uniform/gaussianflux/Jüttner 齐全，ux 只属于 constant）");
+
   // 填充区域参数只在 NUniformPerCell / NRandomPerCell 时出现
   const boxOf = (style) => dumpScenario(
     { params: {}, groups: { [S]: { ions: style ? { injection_style: style } : {} } } }, 2,

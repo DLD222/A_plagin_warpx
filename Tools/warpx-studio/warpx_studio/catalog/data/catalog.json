@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 498,
+  "total": 502,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -3391,11 +3391,14 @@
    "source_only": false,
    "required": false,
    "options": [
+    "at_rest",
     "constant",
+    "uniform",
+    "gaussian",
+    "gaussianflux",
     "maxwellian",
     "maxwell_juttner",
-    "parse_momentum_function",
-    "read_from_file"
+    "parse_momentum_function"
    ],
    "core": true
   },
@@ -4317,6 +4320,15 @@
    "options": null
   },
   {
+   "name": "<species_name>.ux_max",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "uniform 分布在该方向的上下限",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.ux_mean",
    "type": "float",
    "default": null,
@@ -4331,6 +4343,15 @@
    "default": null,
    "optional": true,
    "doc": "``<species_name>.ux_mean_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_min",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "uniform 分布在该方向的上下限",
    "core": false,
    "options": null
   },
@@ -4380,6 +4401,15 @@
    "options": null
   },
   {
+   "name": "<species_name>.uy_max",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "uniform 分布在该方向的上下限",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.uy_mean",
    "type": "float",
    "default": null,
@@ -4394,6 +4424,15 @@
    "default": null,
    "optional": true,
    "doc": "``<species_name>.uy_mean_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_min",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "uniform 分布在该方向的上下限",
    "core": false,
    "options": null
   },
@@ -10653,34 +10692,6 @@
   ]
  },
  "gating_rules": {
-  "<species_name>.flux_direction": [
-   {
-    "param": "<species_name>.inject_from_embedded_boundary",
-    "op": "truthy",
-    "value": null,
-    "raw": "if (m_inject_from_eb)"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.flux_normal_axis": [
-   {
-    "param": "<species_name>.inject_from_embedded_boundary",
-    "op": "truthy",
-    "value": null,
-    "raw": "if (m_inject_from_eb)"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
-   }
-  ],
   "<species_name>.gaussian_beam_rotation_angle": [
    {
     "param": "<species_name>.do_gaussian_beam_rotation",
@@ -12481,215 +12492,19 @@
     "raw": "value gate"
    }
   ],
-  "<species_name>.ux": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "constant",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "empty",
-     "value": null,
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.uy": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "constant",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "empty",
-     "value": null,
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.uz": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "constant",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "empty",
-     "value": null,
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.ux_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uy_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uz_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.ux_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uy_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uz_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
-  ],
   "<species_name>.maxwellian_u_mean_distribution_type": [
    {
     "param": "<species_name>.momentum_distribution_type",
     "op": "equals",
     "value": "maxwellian",
-    "raw": "value gate"
+    "raw": "momentum"
    },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.momentum_function_ux(x,y,z)": [
    {
     "param": "<species_name>.momentum_distribution_type",
     "op": "equals",
-    "value": "parse_momentum_function",
+    "value": "maxwellian",
     "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "parse_momentum_function",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.momentum_function_uy(x,y,z)": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "parse_momentum_function",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.momentum_function_uz(x,y,z)": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "parse_momentum_function",
-     "raw": "momentum gate"
-    }
-   ]
+   }
   ],
   "<species_name>.read_density_distributed": [
    {
@@ -12699,149 +12514,27 @@
     "raw": "value gate"
    }
   ],
-  "<species_name>.read_temperature_in_eV_from_path": [
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.temperature_in_eV_mesh_name": [
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
-  "<species_name>.read_u_mean_from_path": [
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   },
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwellian_u_mean_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ]
-  ],
   "<species_name>.read_u_std_from_path": [
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   },
    [
     {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    },
-    {
-     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum gate"
-    }
-   ]
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
   ],
   "<species_name>.flux": [
    {
@@ -12904,76 +12597,334 @@
    }
   ],
   "<species_name>.maxwellian_u_std_distribution_type": [
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    }
-   ]
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "momentum"
+   }
   ],
   "<species_name>.maxwellian_temperature_in_eV_distribution_type": [
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    }
-   ]
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "momentum"
+   }
   ],
   "<species_name>.maxwell_juttner_u_mean_distribution_type": [
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    }
-   ]
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwell_juttner",
+    "raw": "momentum"
+   }
   ],
   "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": [
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum gate"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwell_juttner",
-     "raw": "momentum gate"
-    }
-   ]
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwell_juttner",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.flux_normal_axis": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux_direction": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux_min": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.ux_max": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.uy_min": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.uy_max": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.uz_min": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.uz_max": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "uniform",
+    "raw": "momentum"
+   }
+  ],
+  "<species_name>.ux_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussianflux",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_ux(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_uy(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_uz(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "momentum"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
+   }
   ],
   "<species_name>.ux_mean": [
    [
@@ -12981,13 +12932,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -12995,13 +12946,41 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "momentum"
     }
    ]
   ],
@@ -13011,13 +12990,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13025,13 +13004,41 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "momentum"
     }
    ]
   ],
@@ -13041,13 +13048,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13055,13 +13062,41 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "momentum"
     }
    ]
   ],
@@ -13071,13 +13106,27 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "parser",
+     "raw": "momentum"
     }
    ]
   ],
@@ -13087,13 +13136,27 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "parser",
+     "raw": "momentum"
     }
    ]
   ],
@@ -13103,15 +13166,65 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "parser",
+     "raw": "momentum"
     }
    ]
+  ],
+  "<species_name>.read_u_mean_from_path": [
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwellian_u_mean_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
   ],
   "<species_name>.ux_std": [
    [
@@ -13119,13 +13232,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13133,13 +13246,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13149,13 +13262,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13163,13 +13276,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13179,13 +13292,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13193,13 +13306,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13209,13 +13322,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13225,13 +13338,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13241,13 +13354,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
   ],
@@ -13257,13 +13370,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13271,13 +13384,27 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum gate"
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "momentum"
     }
    ]
   ],
@@ -13287,13 +13414,13 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ],
    [
@@ -13301,15 +13428,87 @@
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum gate"
+     "raw": "momentum"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum gate"
+     "raw": "momentum"
     }
    ]
+  ],
+  "<species_name>.read_temperature_in_eV_from_path": [
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.temperature_in_eV_mesh_name": [
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "momentum"
+    },
+    {
+     "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "momentum"
+    }
+   ],
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
   ]
  },
  "build_guards": {

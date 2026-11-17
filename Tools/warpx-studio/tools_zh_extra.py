@@ -4,6 +4,11 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
+    "<species_name>.momentum_distribution_type": "初始动量分布（u = γv/c 的单位）。八种取值与各自需要的参数：**at_rest** 静止（无需其他参数）；**constant** → ux/uy/uz；**uniform** → ux_min/ux_max、uy_min/uy_max、uz_min/uz_max；**gaussian** → ux_m/uy_m/uz_m（中心）+ ux_th/uy_th/uz_th（展宽）；**gaussianflux** → 同样 6 个 + flux_normal_axis/flux_direction（只能配 NFluxPerCell）；**maxwellian**（非相对论）→ 平均动量 + 热展宽（ux_std 系）**或**温度（二者互斥），各有 constant/parser/read_from_file；**maxwell_juttner**（相对论）→ 平均动量 + 温度（**没有 u_std 分支**）；**parse_momentum_function** → momentum_function_ux/uy/uz(x,y,z)",
+    "<species_name>.ux_min": "uniform 分布在 x 方向的**下限**（u = γv/c 单位）；与 ux_max 配对，粒子在两者之间均匀抽样",
+    "<species_name>.ux_max": "uniform 分布在 x 方向的**上限**（u = γv/c 单位）",
+    "<species_name>.uy_min": "uniform 分布在 y 方向的下限",
+    "<species_name>.uy_max": "uniform 分布在 y 方向的上限",
     "<species_name>.npart_real": "高斯束团的**真实粒子总数**（个）——只用于 injection_style = gaussian_beam。与 `q_tot` **二选一且必须填一个**（源码断言：恰好指定其一；否则 abort）。中性物种必须用它，因为没法用总电荷。宏粒子权重 = npart_real / npart。可写科学计数法（如 5.6e28）",
     "<species_name>.q_tot": "高斯束团的**总电荷**（库仑）——只用于 injection_style = gaussian_beam。与 `npart_real` 二选一且必须填一个；带电物种用这个，中性物种用 npart_real。宏粒子权重 = q_tot / (npart × 单粒子电荷)",
     "<species_name>.npart": "高斯束团生成的**宏粒子数**（个，整数）——决定采样精度，不是物理粒子数。物理粒子总数由 npart_real（或 q_tot）给出，两者相除就是每个宏粒子代表的真实粒子数",
