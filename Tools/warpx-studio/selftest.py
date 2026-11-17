@@ -586,6 +586,37 @@ def run_checks(port: int) -> None:
         ("碰撞", "collisions.energy_fraction", "collisions.collision_names", "c1"),
     ]
     ok = all((not shown(dep, {})) and shown(dep, {sw: val}) for _, dep, sw, val in cases)
+    # 取值门控：选不同值 -> 显示不同参数集合
+    rules_v = catalog.get("gating_rules") or {}
+    def vis_v(name, deck):
+        rs = rules_v.get(name) or []
+        if not rs: return True
+        def sat(r):
+            raw = str(deck.get(r["param"], "") or "").replace('"', "").strip(); v = raw.lower()
+            if r["op"] == "truthy": return v in ("1", "true", "t", "yes")
+            if r["op"] == "nonempty": return raw != "" and v != "none"
+            if r["op"] == "notequals": return v != str(r.get("value") or "").lower()
+            if r["op"] == "contains": return str(r.get("value") or "").lower() in v
+            if r["op"] == "empty": return raw == ""
+            return v == str(r.get("value") or "").lower()
+        return any(sat(r) for r in rs)
+    S = "<species_name>."
+    value_cases = [
+        (S + "density", {S + "profile": "constant"}, True),
+        (S + "density", {S + "profile": "parse_density_function"}, False),
+        (S + "density_function(x,y,z)", {S + "profile": "parse_density_function"}, True),
+        (S + "read_density_from_path", {S + "profile": "read_from_file"}, True),
+        (S + "flux_normal_axis", {S + "injection_style": "NFluxPerCell"}, True),
+        (S + "flux_normal_axis", {S + "injection_style": "NUniformPerCell"}, False),
+        (S + "injection_file", {S + "injection_style": "external_file"}, True),
+    ]
+    bad_v = [c for c in value_cases if vis_v(c[0], c[1]) != c[2]]
+    check("取值门控（选不同值显示不同参数）", not bad_v,
+          f"{len(value_cases)} 组对照；不一致 {len(bad_v)} 组")
+    check("依赖项紧跟开关（按依赖排序）",
+          "function orderByDependency" in page and "orderByDependency(params)" in page
+          and "scheduleFormRender" in page,
+          "改了值会重渲染，开关后面紧跟依赖项")
     check("功能开关门控", ok and shown("<species_name>.do_field_ionization", {}),
           f"{len(rules)} 条规则；关时隐藏、开时展开、开关本身始终可见")
     check("显示输入/输出文件地址",

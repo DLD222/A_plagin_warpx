@@ -331,7 +331,8 @@ function inputRow(name, value, onchange, instance) {
       parts.push(select);
     }
     const commit = () => onchange(parts.map(x => x.value).join(" "));
-    parts.forEach(x => { x.onchange = () => { commit(); markDirty(); }; box.appendChild(x); });
+    parts.forEach(x => { x.onchange = () => { commit(); markDirty(); scheduleFormRender(); };
+                         box.appendChild(x); });
     wrap.append(lab, box);
     return wrap;
   }
@@ -396,13 +397,20 @@ function inputRow(name, value, onchange, instance) {
     hint.style.cssText = "font-size:11.5px;color:var(--dim);margin-top:2px;min-height:14px";
     const showHint = () => { hint.textContent = gloss[inp.value] ? "· " + gloss[inp.value] : ""; };
     showHint();
-    inp.onchange = () => { onchange(inp.value); showHint(); markDirty(); scheduleValidate(); };
+    inp.onchange = () => {
+      onchange(inp.value); showHint(); markDirty(); scheduleValidate();
+      scheduleFormRender();          // 值变了，依赖参数要跟着显示/隐藏
+    };
   } else {
     inp = document.createElement("input");
     inp.value = value || "";
     const param = CATALOG.params.find(p => p.name === name) || {};
     inp.placeholder = exampleFor(param, type);
     inp.oninput = () => { onchange(inp.value); markDirty(); scheduleValidate(); };
+    // 文本输入在失焦/回车时再重渲染：填了 collision_names、eb 几何这类开关后，
+    // 它们的依赖参数要立刻出现
+    inp.onchange = () => { onchange(inp.value); markDirty(); scheduleValidate();
+                           scheduleFormRender(); };
   }
   box.appendChild(inp);
   if (HINTS[name]) {
@@ -546,6 +554,42 @@ async function renderPlugins() {
   }
 }
 
+// 按依赖关系排序：一个开关后面紧跟它的依赖参数，用户能顺着往下填。
+// 依赖图来自 gating_rules（dependent 的规则里 param 就是它的选择器）。
+function orderByDependency(names) {
+  const deps = {}, isDependent = new Set();
+  const inSet = new Set(names);
+  for (const n of names) {
+    for (const r of ((CATALOG.gating_rules || {})[n] || [])) {
+      const sel = r.param;
+      if (!inSet.has(sel) || sel === n) continue;
+      (deps[sel] = deps[sel] || []).push(n);
+      isDependent.add(n);
+    }
+  }
+  const out = [], seen = new Set();
+  const push = (n) => {
+    if (seen.has(n)) return;
+    seen.add(n); out.push(n);
+    for (const d of (deps[n] || [])) push(d);
+  };
+  for (const n of names) if (!isDependent.has(n)) push(n);   // 先放"根"参数
+  for (const n of names) push(n);                            // 兜底：循环依赖剩下的
+  return out;
+}
+
+// 值变化会改变门控 -> 需要重新渲染表单；保留滚动位置与焦点
+let RENDER_TIMER = null;
+function scheduleFormRender() {
+  clearTimeout(RENDER_TIMER);
+  RENDER_TIMER = setTimeout(() => {
+    const main = document.querySelector("main");
+    const top = main ? main.scrollTop : 0;
+    render();
+    if (main) main.scrollTop = top;
+  }, 120);
+}
+
 function renderTemplateCards(template, params, body) {
   // 源码里 <species> 与 <species_name> 是同一个命名空间，统一成后者
   const key = TEMPLATE_ALIAS[template] || template;
@@ -569,7 +613,7 @@ function renderTemplateCards(template, params, body) {
     del.onclick = () => { delete instances[inst]; render(); };
     bar.append(document.createTextNode(template.replace(/[<>]/g, "")), title, del);
     card.appendChild(bar);
-    for (const full of params) {
+    for (const full of orderByDependency(params)) {
       const sub = full.slice(template.length + 1);
       if (!visible(full, inst)) continue;
       card.appendChild(inputRow(full, values[sub],
@@ -627,8 +671,20 @@ function render() {
     }
     // 默认只渲染"常用"参数，其余折叠在一个按钮后面：351 项全铺开会非常长
     const plain = names.filter(n => !n.startsWith("<") && visible(n));
-    const coreNames = plain.filter(n => PARAM_BY_NAME[n] && PARAM_BY_NAME[n].core);
-    const restNames = plain.filter(n => !(PARAM_BY_NAME[n] && PARAM_BY_NAME[n].core));
+    const ordered = orderByDependency(plain);
+    // 开关在"常用"里时，它的依赖参数也提到常用里，否则会散落在折叠区
+    const promoted = new Set(ordered.filter(n => PARAM_BY_NAME[n] && PARAM_BY_NAME[n].core));
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const n of ordered) {
+        if (promoted.has(n)) continue;
+        const rs = (CATALOG.gating_rules || {})[n] || [];
+        if (rs.some(r => promoted.has(r.param))) { promoted.add(n); grew = true; }
+      }
+    }
+    const coreNames = ordered.filter(n => promoted.has(n));
+    const restNames = ordered.filter(n => !promoted.has(n));
     for (const name of coreNames) {
       body.appendChild(inputRow(name, DECK.params[name], v => { DECK.params[name] = v; }));
     }
