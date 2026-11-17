@@ -94,8 +94,18 @@ def run_checks(port: int) -> None:
     _, catalog_payload = call(port, "/api/catalog")
     catalog, zh = catalog_payload["catalog"], catalog_payload["zh"]
     counts = catalog["counts"]
-    check("目录规模", counts["total"] >= 700,
-          f"{counts['total']} 参数 = {counts['documented']} 文档 + {counts['source_only']} 仅源码")
+    # 目录已按 tools_prune_catalog.py 裁剪：只保留"有文档或被示例算例使用"的参数，
+    # 去掉 AMReX 内部开关、别名与求解器内部旋钮。这里断言裁剪生效且关键参数仍在。
+    names = {p["name"] for p in catalog["params"]}
+    essential = ["max_step", "stop_time", "amr.n_cell", "geometry.dims",
+                 "algo.maxwell_solver", "warpx.eb_implicit_function",
+                 "warpx.const_dt", "particles.species_names"]
+    missing = [n for n in essential if n not in names]
+    check("目录已裁剪且保留关键参数",
+          300 <= counts["total"] <= 400 and not missing
+          and not any(n.startswith(("amrex.", "ablastr.")) for n in names),
+          f"{counts['total']} 参数（裁剪前 802）；缺失关键项 {missing or '无'}；"
+          f"无 amrex./ablastr. 内部开关")
     check("gating 提取", counts["with_runtime_gating"] >= 120,
           f"{counts['with_runtime_gating']} 条带运行期条件，{counts['with_gating_rules']} 条可执行规则")
     check("可重复组", sum(1 for g in catalog["groups"] if g.startswith("<")) >= 6,
