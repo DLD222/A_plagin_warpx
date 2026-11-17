@@ -4,6 +4,9 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
+    "<species_name>.x_cut": "gaussian_beam 的裁剪范围：|x-x_m| > x_cut·x_rms 的粒子不注入（留空 = 不裁剪）。注意 q_tot 是**未裁剪**束的总电荷，裁剪后实际注入的电荷会变少",
+    "<species_name>.y_cut": "gaussian_beam 的裁剪范围：|y-y_m| > y_cut·y_rms 的粒子不注入；二维没有 y，可忽略",
+    "<species_name>.z_cut": "gaussian_beam 的裁剪范围：|z-z_m| > z_cut·z_rms 的粒子不注入",
     "<species_name>.momentum_distribution_type": "初始动量分布（u = γv/c 的单位）。八种取值与各自需要的参数：**at_rest** 静止（无需其他参数）；**constant** → ux/uy/uz；**uniform** → ux_min/ux_max、uy_min/uy_max、uz_min/uz_max；**gaussian** → ux_m/uy_m/uz_m（中心）+ ux_th/uy_th/uz_th（展宽）；**gaussianflux** → 同样 6 个 + flux_normal_axis/flux_direction（只能配 NFluxPerCell）；**maxwellian**（非相对论）→ 平均动量 + 热展宽（ux_std 系）**或**温度（二者互斥），各有 constant/parser/read_from_file；**maxwell_juttner**（相对论）→ 平均动量 + 温度（**没有 u_std 分支**）；**parse_momentum_function** → momentum_function_ux/uy/uz(x,y,z)",
     "<species_name>.ux_min": "uniform 分布在 x 方向的**下限**（u = γv/c 单位）；与 ux_max 配对，粒子在两者之间均匀抽样",
     "<species_name>.ux_max": "uniform 分布在 x 方向的**上限**（u = γv/c 单位）",
