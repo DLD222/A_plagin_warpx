@@ -19,6 +19,11 @@ CURATED: dict[str, str] = {
     # ---------------- 网格与几何 ----------------
     "geometry.dims":
         "模拟维度：1 / 2 / 3 / RZ。二维是 (x,z) 平面，三维是 (x,y,z)，RZ 是轴对称 (r,z)",
+    "geometry.prob_lo":
+        "计算域**下界**角点坐标（米）：二维写 2 个数 `x z`（例 `-2e-3 -4e-3`），三维写 `x y z`",
+    "geometry.prob_hi":
+        "计算域**上界**角点坐标（米）：二维写 2 个数 `x z`（例 `5e-3 2e-3`），三维写 `x y z`。"
+        "与 prob_lo 一起决定盒子大小，格距 dx=(prob_hi-prob_lo)/n_cell",
     "geometry.prob_lo/hi":
         "计算域的两个角点坐标（米）：prob_lo 下界、prob_hi 上界。二维按 (x, z) 顺序写两个数，"
         "例如 `-2e-3 -4e-3` = x∈[-2mm]、z∈[-4mm]。它只决定盒子多大，不是边界条件；"
@@ -37,6 +42,13 @@ CURATED: dict[str, str] = {
         "每隔多少步重做一次 AMR 网格重划分；0 = 不重划分",
 
     # ---------------- 边界条件（场与粒子是两套） ----------------
+    "boundary.field_lo":
+        "**场** 在低端（x、z 的负向）的边界条件，按方向分别给出（二维顺序 x z）："
+        "periodic / pec 理想导体壁 / pml / open / absorbing / neumann / dirichlet。"
+        "这是场的边界，与粒子边界互不影响",
+    "boundary.field_hi":
+        "**场** 在高端（x、z 的正向）的边界条件，按方向分别给出（二维顺序 x z）："
+        "periodic / pec / pml / open / absorbing / neumann / dirichlet",
     "boundary.field_lo/hi":
         "**场** 在低端（_lo）/ 高端（_hi）的边界条件，按方向分别给出，二维顺序是 x、z。"
         "可选 periodic 周期 / pec 理想导体壁（切向 E=0，本仓库用它做导体）/ pml 吸收层 / "
@@ -46,6 +58,8 @@ CURATED: dict[str, str] = {
         "**粒子** 在低端边界的条件，按方向分别给出（二维顺序 x、z）。"
         "可选 periodic / absorbing 吸收（飞出即删除）/ reflecting 反射 / thermal 热化发射。"
         "与 boundary.field_lo 是两套独立设置：场周期不等于粒子周期",
+    "boundary.particle_hi":
+        "**粒子** 在高端边界的条件，按方向分别给出（二维顺序 x z）：periodic / absorbing / reflecting / thermal",
     "boundary.particle_lo/hi":
         "**粒子** 低端与高端的边界条件，按方向分别给出（二维顺序 x、z）："
         "periodic / absorbing / reflecting / thermal",
@@ -99,6 +113,10 @@ CURATED: dict[str, str] = {
         "物理时间上限（秒）；与 max_step 谁先到就停",
     "warpx.B_ext_grid_init_style":
         "外部磁场的初始化方式：constant 固定值（配 warpx.B_external_grid）/ parse_B_ext_grid_function 用函数",
+    "warpx.E_external_grid":
+        "外部电场固定值（V/m）：二维给 2 个数（x z）或 3 个。磁化等离子体垂直 B 漂移时必须设 E = -v×B",
+    "warpx.B_external_grid":
+        "外部磁场固定值（T）：二维给 2 个数（x z）或 3 个（x y z）。二维轴向场写在 y 分量上",
     "warpx.E/B_external_grid":
         "外部电磁场的固定值（国际单位），按方向给 3 个数。磁化等离子体垂直 B 漂移时还必须同时设 "
         "E = -v×B，否则初始态不是平衡态，流会被洛伦兹力偏转",
@@ -164,6 +182,7 @@ def main() -> int:
     curated = {k: v for k, v in CURATED.items() if k in names}
     changed = 0
     for name in names:
+        params.setdefault(name, "")          # 拆分新增的参数还没有译文
         if name in curated:
             if params.get(name) != curated[name]:
                 params[name] = curated[name]

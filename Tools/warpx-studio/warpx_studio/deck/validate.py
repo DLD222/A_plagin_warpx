@@ -107,6 +107,15 @@ def validate(deck, catalog: dict) -> list[dict]:
     issues: list[dict] = []
     params = {p["name"]: p for p in catalog["params"]}
 
+    # A parameter name containing "/" is a documentation artefact (e.g. the old
+    # `geometry.prob_lo/hi` row): WarpX has no such key, so writing it produces an
+    # input line that is silently ignored.  Catch it here instead of at run time.
+    for key in list(deck.params):
+        if "/" in key:
+            issues.append({"severity": "error", "param": key,
+                           "message": "不是 WarpX 参数：`/` 表示文档里并排定义的两个参数，"
+                                      "应分别填写（例如 geometry.prob_lo 与 geometry.prob_hi）"})
+
     def check(label: str, full: str, value) -> None:
         info = params.get(full, {})
         kind = info.get("type") or STRUCTURAL_TYPES.get(full, "")

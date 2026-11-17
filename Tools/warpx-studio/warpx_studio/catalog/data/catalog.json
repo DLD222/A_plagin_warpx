@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 331,
+  "total": 351,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -2893,7 +2893,7 @@
    ]
   },
   {
-   "name": "<species_name>.save_particles_at_xlo/ylo/zlo/xhi/yhi/zhi/eb",
+   "name": "<species_name>.save_particles_at_eb",
    "type": null,
    "default": null,
    "optional": false,
@@ -2901,8 +2901,73 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_xhi",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_xlo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_yhi",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_ylo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_zhi",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.save_particles_at_zlo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: 0 or 1 :default: 0 :optional: If 1 particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the save_particles_at_eb flag can be set to 1 to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a BoundaryScrapingDiagnostic. It is also accessible via the Python interface. The function get_particle_boundary_buffer, found in the picmi.Simulation class as sim.extension.get_particle_boundary_buffer(), can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument comp_name=\"stepScraped\" to the above mentioned function. .. note:: When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call clear_buffer().",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "<species_name>.self_fields_absolute_tolerance",
@@ -3028,7 +3093,7 @@
    "options": []
   },
   {
-   "name": "<species_name>.xmin/ymin/zmin/xmax/ymax/zmax",
+   "name": "<species_name>.xmax",
    "type": null,
    "default": null,
    "optional": false,
@@ -3036,8 +3101,40 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "<species_name>.xmin",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: float :default: unlimited :optional: When <species_name>.xmin and <species_name>.xmax are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction i, then the default (i.e. if the range is not specified) range will be the simulation box, [geometry.prob_hi[i], geometry.prob_lo[i]].",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.ymax",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: float :default: unlimited :optional: When <species_name>.xmin and <species_name>.xmax are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction i, then the default (i.e. if the range is not specified) range will be the simulation box, [geometry.prob_hi[i], geometry.prob_lo[i]].",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.ymin",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: float :default: unlimited :optional: When <species_name>.xmin and <species_name>.xmax are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction i, then the default (i.e. if the range is not specified) range will be the simulation box, [geometry.prob_hi[i], geometry.prob_lo[i]].",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "<species_name>.zinject_plane",
@@ -3059,6 +3156,28 @@
    "source_only": false,
    "required": true,
    "options": []
+  },
+  {
+   "name": "<species_name>.zmax",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: float :default: unlimited :optional: When <species_name>.xmin and <species_name>.xmax are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction i, then the default (i.e. if the range is not specified) range will be the simulation box, [geometry.prob_hi[i], geometry.prob_lo[i]].",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "<species_name>.zmin",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "<species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: float :default: unlimited :optional: When <species_name>.xmin and <species_name>.xmax are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction i, then the default (i.e. if the range is not specified) range will be the simulation box, [geometry.prob_hi[i], geometry.prob_lo[i]].",
+   "doc_section": "Particle initialization",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "algo.charge_deposition",
@@ -3553,16 +3672,26 @@
    "options": []
   },
   {
-   "name": "boundary.field_lo/hi",
+   "name": "boundary.field_hi",
    "type": null,
    "default": null,
    "optional": false,
-   "doc": "boundary.field_lo,hi boundary.field_lo boundary.field_hi :type: 2 strings for 2D, 3 strings for 3D :default: pml Boundary conditions applied to fields at the lower and upper domain boundaries. Options are: * Periodic: This option can be used to set periodic domain boundaries. Note that if the fields for lo in a certain dimension are set to periodic, then the corresponding upper boundary must also be set to periodic. If particle boundaries are not specified in the input file, then particles boundaries by default will be set to periodic. If particles boundaries are specified, then they must be set to periodic corresponding to the periodic field boundaries. * pml (default): This option can be used to add Perfectly Matched Layers (PML) around the simulation domain. See the PML theory section for more details. Additional pml algorithms can be explored using the parameters warpx.do_pml_in_domain, warpx.pml_has_particles, and warpx.do_pml_j_damping. * absorbing_silver_mueller: This option can be used to set the Silver-Mueller absorbing boundary conditions. These boundary conditions are simpler and less computationally expensive than the pml, but are also less effective at absorbing the field. They only work with the Yee Maxwell solver. * damped: This is the recommended option in the moving direction when using the spectral solver with moving window (currently only supported along z). This boundary condition applies a damping factor to the electric and magnetic fields in the outer half of the guard cells, using a sine squared profile. As the spectral solver is by nature periodic, the damping prevents fields from wrapping around to the other end of the domain when the periodicity is not desired. This boundary condition is only valid when using the spectral solver. * pec: This option can be used to set a Perfect Electric Conductor at the simulation boundary. Please see the PEC theory section for more details. Note that PEC boundary is invalid at r=0 for RZ, RCYLINDER, and RSPHERE. Please use none option. This boundary condition does not work with the spectral solver. There is the additional input parameter particles.crop_on_PEC_boundary which sets whether particle trajectories are cropped when particles cross PEC boundaries, defaulting to false. * pmc: This option can be used to set a Perfect Magnetic Conductor at the simulation boundary. Please see the PEC theory section for more details. This is equivalent to Neumann. This boundary condition does not work with the spectral solver. * pec_insulator: This option specifies a mixed perfect electric conductor and insulator boundary, where some part of the boundary is PEC and some is insulator. In the insulator portion, the normal fields are extrapolated and the tangential fields are either set to the specified value or extrapolated. The region that is insulator is specified using a spatially dependent expression with the insulator being in the area where the value of the expression is greater than zero. The expressions are given for the low and high boundary on each axis, as listed below. The tangential fields are specified as expressions that can depend on the location and time. The tangential fields are in two pairs, the electric fields and the magnetic fields. In each pair, if one is specified, the other will be set to zero if not also specified. There is the additional input parameter particles.crop_on_PEC_boundary which sets whether particle trajectories are cropped when particles cross pec_insulator boundaries, defaulting to false. * insulator.area_x_lo(y,z): For the lower x (or r) boundary, expression specifying the insulator location * insulator.area_x_hi(y,z): For the upper x (or r) boundary, expression specifying the insulator location * insulator.area_y_lo(x,z): For the lower y boundary, expression specifying the insulator location * insulator.area_y_hi(x,z): For the upper y boundary, expression specifying the insulator location * insulator.area_z_lo(x,y): For the lower z boundary, expression specifying the insulator location * insulator.area_z_hi(x,y): For the upper z boundary, expression specifying the insulator location * insulator.Ey_x_lo(y,z,t), insulator.Ez_x_lo(y,z,t), insulator.By_x_lo(y,z,t), insulator.Bz_x_lo(y,z,t): expressions of the tangential field values for the lower x (or r) boundary * insulator.Ey_x_hi(y,z,t), insulator.Ez_x_hi(y,z,t), insulator.By_x_hi(y,z,t), insulator.Bz_x_hi(y,z,t): expressions of the tangential field values for the upper x (or r) boundary * insulator.Ex_y_lo(x,z,t), insulator.Ez_y_lo(x,z,t), insulator.Bx_y_lo(x,z,t), insulator.Bz_y_lo(x,z,t): expressions of the tangential field values for the lower y boundary * insulator.Ex_y_hi(x,z,t), insulator.Ez_y_hi(x,z,t), insulator.Bx_y_hi(x,z,t), insulator.Bz_y_hi(x,z,t): expressions of the tangential field values for the upper y boundary * insulator.Ex_z_lo(x,y,t), insulator.Ey_z_lo(x,y,t), insulator.Bx_z_lo(x,y,t), insulator.By_z_lo(x,y,t): expressions of the tangential field values for the lower z boundary * insulator.Ex_z_hi(x,y,t), insulator.Ey_z_hi(x,y,t), insulator.Bx_z_hi(x,y,t), insulator.By_z_hi(x,y,t): expressions of the tangential field values for the upper z boundary * none: No boundary condition is applied to the fields with the electromagnetic solver. This option must be used for the lower boundary, r=0, with RZ, RCYLINDER, and RSPHERE. * neumann: For the electrostatic multigrid solver, a Neumann boundary condition (with gradient of the potential equal to 0) will be applied on the specified boundary. * open: For the electrostatic Poisson solver based on a Integrated Green Function method.",
+   "doc": "场的高端边界条件（按方向，二维 x z）",
    "doc_section": "Domain Boundary Conditions",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "boundary.field_lo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "场的低端边界条件（按方向，二维 x z）",
+   "doc_section": "Domain Boundary Conditions",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "boundary.particle_eb",
@@ -3579,6 +3708,17 @@
     "Reflecting",
     "Thermal"
    ]
+  },
+  {
+   "name": "boundary.particle_hi",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "粒子的高端边界条件（按方向，二维 x z）",
+   "doc_section": "Domain Boundary Conditions",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "boundary.particle_lo",
@@ -3608,24 +3748,6 @@
     "reflecting",
     "thermal",
     "none"
-   ]
-  },
-  {
-   "name": "boundary.particle_lo/hi",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "boundary.particle_lo boundary.particle_hi :type: 2 strings for 2D, 3 strings for 3D :default: absorbing Options are: * Absorbing: Particles leaving the boundary will be deleted. * Periodic: Particles leaving the boundary will re-enter from the opposite boundary. The field boundary condition must be consistently set to periodic and both lower and upper boundaries must be periodic. * Reflecting: Particles leaving the boundary are reflected from the boundary back into the domain. When boundary.reflect_all_velocities is false, the sign of only the normal velocity is changed, otherwise the sign of all velocities are changed. * Thermal: Particles leaving the boundary are reflected from the boundary back into the domain and their velocities are thermalized. The tangential velocity components are sampled from gaussian distribution and the component normal to the boundary is sampled from gaussian flux distribution. The standard deviation for these distributions should be provided for each species using boundary.<species_name>.u_th. The same standard deviation is used to sample all components. * None: No boundary conditions are applied to the particles. When using RZ, RCYLINDER, and RSPHERE, this option must be used for the lower radial boundary, the first value of boundary.particle_lo. This should not be used in any other cases.",
-   "doc_section": "Domain Boundary Conditions",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": [
-    "Absorbing",
-    "None",
-    "Periodic",
-    "Reflecting",
-    "Thermal"
    ]
   },
   {
@@ -3688,18 +3810,6 @@
     }
    ],
    "source_only": true,
-   "required": false,
-   "options": []
-  },
-  {
-   "name": "boundary.potential_lo/hi_x/y/z",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "boundary.potential_lo_x/y/z boundary.potential_hi_x/y/z boundary.potential_lo_x boundary.potential_lo_y boundary.potential_lo_z boundary.potential_hi_x boundary.potential_hi_y boundary.potential_hi_z :default: 0 Gives the value of the electric potential, in Volts, at the boundaries, for pec boundaries. With electrostatic solvers (i.e., with warpx.do_electrostatic = ...), this is used in order to compute the potential in the simulation volume at each timestep. When using other solvers (e.g. Maxwell solver), setting these variables will trigger an electrostatic solve at t=0, to compute the initial electric field produced by the boundaries.",
-   "doc_section": "Domain Boundary Conditions",
-   "sites": [],
-   "source_only": false,
    "required": false,
    "options": []
   },
@@ -4236,16 +4346,26 @@
    ]
   },
   {
-   "name": "geometry.prob_lo/hi",
+   "name": "geometry.prob_hi",
    "type": null,
    "default": null,
    "optional": false,
-   "doc": "geometry.prob_lo geometry.prob_hi :type: 2 floats in 2D, 3 floats in 3D :unit: meters The extent of the full simulation box. This box is rectangular, and thus its extent is given here by the coordinates of the lower corner (geometry.prob_lo) and upper corner (geometry.prob_hi). The first axis of the coordinates is x (or r with cylindrical) and the last is z.",
+   "doc": "计算域上界角点坐标（米）：二维写 2 个数 `x z`，三维写 3 个 `x y z`",
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "geometry.prob_lo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "计算域下界角点坐标（米）：二维写 2 个数 `x z`，三维写 3 个 `x y z`",
+   "doc_section": "Setting up the field mesh",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "gmres.absolute_tolerance",
@@ -4332,7 +4452,7 @@
    "options": []
   },
   {
-   "name": "hybrid_pic_model.J[x/y/z]_external_grid_function(x,y,z,t)",
+   "name": "hybrid_pic_model.Jx_external_grid_function(x,y,z,t)",
    "type": "float or str",
    "default": "0",
    "optional": true,
@@ -4340,8 +4460,29 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "hybrid_pic_model.Jy_external_grid_function(x,y,z,t)",
+   "type": "float or str",
+   "default": "0",
+   "optional": true,
+   "doc": "If algo.maxwell_solver is set to hybrid, this sets the external current (on the grid) in A/m^2.",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "hybrid_pic_model.Jz_external_grid_function(x,y,z,t)",
+   "type": "float or str",
+   "default": "0",
+   "optional": true,
+   "doc": "If algo.maxwell_solver is set to hybrid, this sets the external current (on the grid) in A/m^2.",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "hybrid_pic_model.add_external_fields",
@@ -4919,6 +5060,17 @@
    "options": []
   },
   {
+   "name": "macroscopic.epsilon_function(x,y,z)",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "macroscopic.sigma_function(x,y,z) macroscopic.epsilon_function(x,y,z) macroscopic.mu_function(x,y,z) :type: string To initialize spatially varying conductivity, permittivity, and permeability, respectively, using a mathematical function in the input. Constants required in the mathematical expression can be set using my_constants. These parameters are parsed if algo.em_solver_medium = macroscopic.",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
    "name": "macroscopic.mu",
    "type": null,
    "default": null,
@@ -4940,6 +5092,17 @@
    "source_only": true,
    "required": false,
    "options": []
+  },
+  {
+   "name": "macroscopic.mu_function(x,y,z)",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "macroscopic.sigma_function(x,y,z) macroscopic.epsilon_function(x,y,z) macroscopic.mu_function(x,y,z) :type: string To initialize spatially varying conductivity, permittivity, and permeability, respectively, using a mathematical function in the input. Constants required in the mathematical expression can be set using my_constants. These parameters are parsed if algo.em_solver_medium = macroscopic.",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "macroscopic.sigma",
@@ -4965,19 +5128,7 @@
    "options": []
   },
   {
-   "name": "macroscopic.sigma/epsilon/mu",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "macroscopic.sigma macroscopic.epsilon macroscopic.mu :type: double To initialize a constant conductivity, permittivity, and permeability of the computational medium, respectively. The default values are the corresponding values in vacuum.",
-   "doc_section": "Numerics and algorithms",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": []
-  },
-  {
-   "name": "macroscopic.sigma/epsilon/mu_function(x,y,z)",
+   "name": "macroscopic.sigma_function(x,y,z)",
    "type": null,
    "default": null,
    "optional": false,
@@ -4985,8 +5136,7 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
   },
   {
    "name": "max_step",
@@ -5229,26 +5379,6 @@
     "parse_b_ext_particle_function",
     "read_from_file",
     "repeated_plasma_lens"
-   ]
-  },
-  {
-   "name": "particles.E/B_ext_particle_init_style",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "particles.E_ext_particle_init_style particles.B_ext_particle_init_style :type: string :default: \"none\" :optional: These parameters determine the type of the external electric and magnetic fields respectively that are applied directly to the particles at every timestep. The field values are specified in the lab frame. With the default none style, no field is applied. Possible values are constant, parse_E_ext_particle_function or parse_B_ext_particle_function, or repeated_plasma_lens. * constant: a constant field is applied, given by the input parameters particles.E_external_particle or particles.B_external_particle, which are lists of the field components. * parse_E_ext_particle_function or parse_B_ext_particle_function: the field is specified as an analytic expression that is a function of space (x,y,z) and time (t), relative to the lab frame. The E-field is specified by the input parameters: * particles.Ex_external_particle_function(x,y,z,t) * particles.Ey_external_particle_function(x,y,z,t) * particles.Ez_external_particle_function(x,y,z,t) The B-field is specified by the input parameters: * particles.Bx_external_particle_function(x,y,z,t) * particles.By_external_particle_function(x,y,z,t) * particles.Bz_external_particle_function(x,y,z,t) Note that the position is defined in Cartesian coordinates, as a function of (x,y,z), even for RZ, RCYLINDER, and RSPHERE. * read_from_file: load external fields from openPMD files. There are two ways to specify external field data: **single-field mode** and **multi-field mode**. **Single-field mode** In this mode, a single external E and/or B field is loaded from the path given by particles.read_fields_from_path. This parameter must always be provided when using read_from_file. The time dependency of the E- and B-field can be specified by the input parameters: * particles.read_fields_E_dependency(t) * particles.read_fields_B_dependency(t) The time dependency scales the corresponding field uniformly in space and per level by the given function of time t (in seconds). Example: .. code-block:: none particles.E_ext_particle_init_style = read_from_file particles.B_ext_particle_init_style = read_from_file particles.read_fields_from_path = diags/field_input particles.read_fields_E_dependency(t) = cos(2*pi*2e6*t) particles.read_fields_B_dependency(t) = cos(2*pi*2e6*t + pi/2) If both B_ext_particle_init_style and E_ext_particle_init_style are set to read_from_file, the same openPMD file specified by particles.read_fields_from_path should contain both E and B field data. **Multi-field mode** In this mode, several field maps can be loaded independently. Each field is given a unique name listed in * particles.E_ext_particle_fields (for electric fields) * particles.B_ext_particle_fields (for magnetic fields) Each named field must define its own path and may optionally define a time dependency. The general key particles.read_fields_from_path is ignored when these lists are provided. Example: .. code-block:: none particles.B_ext_particle_init_style = read_from_file particles.B_ext_particle_fields = b1 b2 particles.b1.read_fields_from_path = diags/Bfield_map1 particles.b1.read_fields_B_dependency(t) = cos(omega*t + phase) particles.b2.read_fields_from_path = diags/Bfield_map2 particles.b2.read_fields_B_dependency(t) = cos(2*omega*t + phase) Each field's scaling function is evaluated independently and may contain user-defined constants. The expressions are parsed on the C++ side. .. note:: When using read_from_file, the fields loaded from file are interpolated to the resolution of the grid used for the simulation. These interpolated fields are visible to diagnostics. To prepare openPMD-compatible field data files, see the `openPMD-example-datasets <https://github.com/openPMD/openPMD-example-datasets>`__. * repeated_plasma_lens: apply a series of plasma lenses. The properties of the lenses are defined in the lab frame by the input parameters: * repeated_plasma_lens_period, the period length of the repeat, a single float number, * repeated_plasma_lens_starts, the start of each lens relative to the period, an array of floats, * repeated_plasma_lens_lengths, the length of each lens, an array of floats, * repeated_plasma_lens_strengths_E, the electric focusing strength of each lens, an array of floats, when particles.E_ext_particle_init_style is set to repeated_plasma_lens. * repeated_plasma_lens_strengths_B, the magnetic focusing strength of each lens, an array of floats, when particles.B_ext_particle_init_style is set to repeated_plasma_lens. The repeated lenses are only defined for z > 0. Once the number of lenses specified in the input are exceeded, the repeated lens stops. The applied field is uniform longitudinally (along z) with a hard edge, where residence corrections are used for more accurate field calculation. On the time step when a particle enters or leaves each lens, the field applied is scaled by the fraction of the time step spent within the lens. The fields are of the form E_x = \\mathrm{strength} \\cdot x, E_y = \\mathrm{strength} \\cdot y, and E_z = 0, and B_x = \\mathrm{strength} \\cdot y, B_y = -\\mathrm{strength} \\cdot x, and B_z = 0.",
-   "doc_section": "External fields",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": [
-    "constant",
-    "parse_E_ext_particle_function",
-    "read_from_file",
-    "repeated_plasma_lens",
-    "repeated_plasma_lens_lengths",
-    "repeated_plasma_lens_period",
-    "repeated_plasma_lens_starts"
    ]
   },
   {
@@ -5681,18 +5811,6 @@
    "options": []
   },
   {
-   "name": "psatd.nox/noy/noz",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "psatd.nox psatd.noy psatd.noz :type: integer :default: 16 for all :optional: The order of accuracy of the spatial derivatives, when using the code compiled with a PSATD solver. If psatd.periodic_single_box_fft is used, these can be set to inf for infinite-order PSATD.",
-   "doc_section": "Numerics and algorithms",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": []
-  },
-  {
    "name": "psatd.noy",
    "type": null,
    "default": null,
@@ -5757,18 +5875,6 @@
     }
    ],
    "source_only": true,
-   "required": false,
-   "options": []
-  },
-  {
-   "name": "psatd.nx/ny/nz_guard",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "psatd.nx_guard psatd.ny_guard psatd.nz_guard :type: integer :optional: The number of guard cells to use with PSATD solver. If not set by users, these values are calculated automatically and determined *empirically* and equal the order of the solver for collocated grids and half the order of the solver for staggered grids.",
-   "doc_section": "Numerics and algorithms",
-   "sites": [],
-   "source_only": false,
    "required": false,
    "options": []
   },
@@ -6256,18 +6362,6 @@
    "options": []
   },
   {
-   "name": "qed_schwinger.xmin/ymin/zmin/xmax/ymax/zmax",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "qed_schwinger.xmin qed_schwinger.ymin qed_schwinger.zmin qed_schwinger.xmax qed_schwinger.ymax qed_schwinger.zmax qed_schwinger.xmin,ymin,zmin qed_schwinger.xmax,ymax,zmax qed_schwinger.xmin,ymin,zmin,xmax,ymax,zmax :type: float :default: unlimited :optional: When qed_schwinger.xmin and qed_schwinger.xmax are set, they delimit the region within which Schwinger pairs can be created. The same is applicable in the other directions.",
-   "doc_section": "QED",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": []
-  },
-  {
    "name": "qed_schwinger.y_size",
    "type": "float",
    "default": null,
@@ -6290,6 +6384,17 @@
    "source_only": false,
    "required": false,
    "options": []
+  },
+  {
+   "name": "qed_schwinger.ymax",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "qed_schwinger.xmin qed_schwinger.ymin qed_schwinger.zmin qed_schwinger.xmax qed_schwinger.ymax qed_schwinger.zmax qed_schwinger.xmin,ymin,zmin qed_schwinger.xmax,ymax,zmax qed_schwinger.xmin,ymin,zmin,xmax,ymax,zmax :type: float :default: unlimited :optional: When qed_schwinger.xmin and qed_schwinger.xmax are set, they delimit the region within which Schwinger pairs can be created. The same is applicable in the other directions.",
+   "doc_section": "QED",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "qed_schwinger.ymin",
@@ -6340,6 +6445,17 @@
    "source_only": true,
    "required": false,
    "options": []
+  },
+  {
+   "name": "qed_schwinger.zmin",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "qed_schwinger.xmin qed_schwinger.ymin qed_schwinger.zmin qed_schwinger.xmax qed_schwinger.ymax qed_schwinger.zmax qed_schwinger.xmin,ymin,zmin qed_schwinger.xmax,ymax,zmax qed_schwinger.xmin,ymin,zmin,xmax,ymax,zmax :type: float :default: unlimited :optional: When qed_schwinger.xmin and qed_schwinger.xmax are set, they delimit the region within which Schwinger pairs can be created. The same is applicable in the other directions.",
+   "doc_section": "QED",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "reduced_diags.extension",
@@ -6467,16 +6583,15 @@
    ]
   },
   {
-   "name": "warpx.E/B_external_grid",
+   "name": "warpx.B_external_grid",
    "type": null,
    "default": null,
    "optional": false,
-   "doc": "warpx.E_external_grid warpx.B_external_grid :type: list of 3 floats required when warpx.E_ext_grid_init_style = \"constant\" and when warpx.B_ext_grid_init_style = \"constant\", respectively. External uniform and constant electrostatic and magnetostatic field added to the grid at initialization. Use with caution as these fields are used for the field solver. In particular, do not use any other boundary condition than periodic.",
+   "doc": "外部磁场固定值（T），按方向给 2 个(2D)/3 个(3D)数",
    "doc_section": "External fields",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
   },
   {
    "name": "warpx.E_ext_grid_init_style",
@@ -6494,6 +6609,17 @@
     "parse_e_ext_grid_function",
     "read_from_file"
    ]
+  },
+  {
+   "name": "warpx.E_external_grid",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "外部电场固定值（V/m），按方向给 2 个(2D)/3 个(3D)数",
+   "doc_section": "External fields",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "warpx.cfl",
@@ -6538,7 +6664,7 @@
    "options": []
   },
   {
-   "name": "warpx.current_centering_nox/noy/noz",
+   "name": "warpx.current_centering_nox",
    "type": null,
    "default": null,
    "optional": false,
@@ -6546,8 +6672,29 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "warpx.current_centering_noy",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.current_centering_nox warpx.current_centering_noy warpx.current_centering_noz warpx.current_centering_no<x,y,z> :type: integer :optional: The order of interpolation used with hybrid grids (warpx.grid_type = hybrid) to interpolate the currents from the cell nodes to the cell centers when warpx.do_current_centering = 1, before pushing the Maxwell fields on staggered grids. Default: warpx.current_centering_no<x,y,z> = 8 with hybrid grids (typically necessary to ensure stability in boosted-frame simulations of relativistic plasmas and beams).",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "warpx.current_centering_noz",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.current_centering_nox warpx.current_centering_noy warpx.current_centering_noz warpx.current_centering_no<x,y,z> :type: integer :optional: The order of interpolation used with hybrid grids (warpx.grid_type = hybrid) to interpolate the currents from the cell nodes to the cell centers when warpx.do_current_centering = 1, before pushing the Maxwell fields on staggered grids. Default: warpx.current_centering_no<x,y,z> = 8 with hybrid grids (typically necessary to ensure stability in boosted-frame simulations of relativistic plasmas and beams).",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "warpx.do_current_centering",
@@ -7061,19 +7208,7 @@
    "options": []
   },
   {
-   "name": "warpx.field/particle_io_nfiles",
-   "type": null,
-   "default": null,
-   "optional": false,
-   "doc": "warpx.field_io_nfiles warpx.particle_io_nfiles :type: int :default: 1024 :optional: The maximum number of files to use when writing field and particle data to plotfile directories.",
-   "doc_section": "Diagnostics and output",
-   "sites": [],
-   "source_only": false,
-   "required": false,
-   "options": []
-  },
-  {
-   "name": "warpx.field_centering_nox/noy/noz",
+   "name": "warpx.field_centering_nox",
    "type": null,
    "default": null,
    "optional": false,
@@ -7081,8 +7216,40 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "warpx.field_centering_noy",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.field_centering_nox warpx.field_centering_noy warpx.field_centering_noz :type: integer :optional: The order of interpolation used with staggered or hybrid grids (warpx.grid_type = staggered or warpx.grid_type = hybrid) and momentum-conserving field gathering (algo.field_gathering = momentum-conserving) to interpolate the electric and magnetic fields from the cell centers to the cell nodes, before gathering the fields from the cell nodes to the particle positions. Default: warpx.field_centering_no<x,y,z> = 2 with staggered grids, warpx.field_centering_no<x,y,z> = 8 with hybrid grids (typically necessary to ensure stability in boosted-frame simulations of relativistic plasmas and beams).",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "warpx.field_centering_noz",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.field_centering_nox warpx.field_centering_noy warpx.field_centering_noz :type: integer :optional: The order of interpolation used with staggered or hybrid grids (warpx.grid_type = staggered or warpx.grid_type = hybrid) and momentum-conserving field gathering (algo.field_gathering = momentum-conserving) to interpolate the electric and magnetic fields from the cell centers to the cell nodes, before gathering the fields from the cell nodes to the particle positions. Default: warpx.field_centering_no<x,y,z> = 2 with staggered grids, warpx.field_centering_no<x,y,z> = 8 with hybrid grids (typically necessary to ensure stability in boosted-frame simulations of relativistic plasmas and beams).",
+   "doc_section": "Numerics and algorithms",
+   "sites": [],
+   "source_only": false,
+   "required": false
+  },
+  {
+   "name": "warpx.field_io_nfiles",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.field_io_nfiles warpx.particle_io_nfiles :type: int :default: 1024 :optional: The maximum number of files to use when writing field and particle data to plotfile directories.",
+   "doc_section": "Diagnostics and output",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "warpx.filter_npass_each_dir",
@@ -7097,7 +7264,7 @@
    "options": []
   },
   {
-   "name": "warpx.fine_tag_lo/hi",
+   "name": "warpx.fine_tag_hi",
    "type": null,
    "default": null,
    "optional": false,
@@ -7105,8 +7272,18 @@
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false,
-   "options": []
+   "required": false
+  },
+  {
+   "name": "warpx.fine_tag_lo",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.fine_tag_lo warpx.fine_tag_hi :type: 2 floats in 2D, 3 floats in 3D :unit: meters :optional: **When using static mesh refinement with 1 level**, the extent of the refined patch. This patch is rectangular, and thus its extent is given here by the coordinates of the lower corner (warpx.fine_tag_lo) and upper corner (warpx.fine_tag_hi).",
+   "doc_section": "Setting up the field mesh",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "warpx.grid_type",
@@ -7430,6 +7607,17 @@
    "source_only": false,
    "required": false,
    "options": []
+  },
+  {
+   "name": "warpx.particle_io_nfiles",
+   "type": null,
+   "default": null,
+   "optional": false,
+   "doc": "warpx.field_io_nfiles warpx.particle_io_nfiles :type: int :default: 1024 :optional: The maximum number of files to use when writing field and particle data to plotfile directories.",
+   "doc_section": "Diagnostics and output",
+   "sites": [],
+   "source_only": false,
+   "required": false
   },
   {
    "name": "warpx.pml_delta",

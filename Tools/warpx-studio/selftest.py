@@ -99,13 +99,15 @@ def run_checks(port: int) -> None:
     names = {p["name"] for p in catalog["params"]}
     essential = ["max_step", "stop_time", "amr.n_cell", "geometry.dims",
                  "algo.maxwell_solver", "warpx.eb_implicit_function",
-                 "warpx.const_dt", "particles.species_names"]
+                 "warpx.const_dt", "particles.species_names",
+                 "geometry.prob_lo", "geometry.prob_hi", "boundary.field_lo", "boundary.field_hi"]
     missing = [n for n in essential if n not in names]
+    composite = [n for n in names if "/" in n]
     check("目录已裁剪且保留关键参数",
-          300 <= counts["total"] <= 400 and not missing
+          300 <= counts["total"] <= 420 and not missing and not composite
           and not any(n.startswith(("amrex.", "ablastr.")) for n in names),
           f"{counts['total']} 参数（裁剪前 802）；缺失关键项 {missing or '无'}；"
-          f"无 amrex./ablastr. 内部开关")
+          f"含 '/' 的合并项 {composite or '无'}；无 amrex./ablastr. 内部开关")
     check("gating 提取", counts["with_runtime_gating"] >= 120,
           f"{counts['with_runtime_gating']} 条带运行期条件，{counts['with_gating_rules']} 条可执行规则")
     check("可重复组", sum(1 for g in catalog["groups"] if g.startswith("<")) >= 6,
