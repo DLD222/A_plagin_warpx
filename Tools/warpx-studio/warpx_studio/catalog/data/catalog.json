@@ -9292,6 +9292,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_breit_wheeler)"
+   },
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "<species_name>.qed_breit_wheeler_pos_product_species": [
@@ -9300,6 +9306,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_breit_wheeler)"
+   },
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "<species_name>.qed_quantum_sync_phot_product_species": [
@@ -9308,6 +9320,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_quantum_sync)"
+   },
+   {
+    "param": "<species_name>.do_qed_quantum_sync",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "<species_name>.qed_virtual_photon_species_name": [
@@ -9416,6 +9434,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.pos_product_species": [
@@ -9424,6 +9454,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.threshold_poisson_gaussian": [
@@ -9432,6 +9474,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.xmax": [
@@ -9440,6 +9494,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.xmin": [
@@ -9448,6 +9514,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.y_size": [
@@ -9456,6 +9534,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.ymax": [
@@ -9464,6 +9554,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.ymin": [
@@ -9472,6 +9574,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.zmax": [
@@ -9480,6 +9594,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "qed_schwinger.zmin": [
@@ -9488,6 +9614,18 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_schwinger)"
+   },
+   {
+    "param": "<species_name>.do_qed_schwinger",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.quantum_xi",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "skip_particle_picard_init": [
@@ -9596,6 +9734,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (do_moving_window)"
+   },
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "warpx.moving_window_dir": [
@@ -9604,6 +9748,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (do_moving_window)"
+   },
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "warpx.moving_window_v": [
@@ -9612,6 +9762,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (do_moving_window)"
+   },
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ],
   "warpx.start_moving_window_step": [
@@ -9620,6 +9776,992 @@
     "op": "truthy",
     "value": null,
     "raw": "if (do_moving_window)"
+   },
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.ionization_initial_level": [
+   {
+    "param": "<species_name>.do_field_ionization",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.ionization_product_species": [
+   {
+    "param": "<species_name>.do_field_ionization",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.do_adk_correction": [
+   {
+    "param": "<species_name>.do_field_ionization",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.initialize_self_fields": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.self_fields_absolute_tolerance": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.self_fields_max_iters": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.self_fields_required_precision": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_lo_x": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_hi_x": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_lo_y": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_hi_y": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_lo_z": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.potential_hi_z": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "equals",
+    "value": "none",
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species>.qed_virtual_photons_do_beam_size_effect": [
+   {
+    "param": "<species>.do_qed_virtual_photons",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "qed_qs.chi_min": [
+   {
+    "param": "<species_name>.do_qed_quantum_sync",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "<species>.do_qed_virtual_photons",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "qed_qs.photon_creation_energy_threshold": [
+   {
+    "param": "<species_name>.do_qed_quantum_sync",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "<species>.do_qed_virtual_photons",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "qed_qs.lookup_table_mode": [
+   {
+    "param": "<species_name>.do_qed_quantum_sync",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "<species>.do_qed_virtual_photons",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "qed_bw.chi_min": [
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "qed_bw.lookup_table_mode": [
+   {
+    "param": "<species_name>.do_qed_breit_wheeler",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.beta_weight_exponent": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.correct_energy_momentum": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.energy_correction_sort_by_weight": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.energy_fraction": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.np_warning_threshold": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.shuffling_method": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "collisions.split_momentum_push": [
+   {
+    "param": "collisions.collision_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "lasers.deposit_on_main_grid": [
+   {
+    "param": "lasers.names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "reduced_diags.extension": [
+   {
+    "param": "warpx.reduced_diags_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "reduced_diags.intervals": [
+   {
+    "param": "warpx.reduced_diags_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "reduced_diags.path": [
+   {
+    "param": "warpx.reduced_diags_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "reduced_diags.precision": [
+   {
+    "param": "warpx.reduced_diags_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "reduced_diags.separator": [
+   {
+    "param": "warpx.reduced_diags_names",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.num_mirrors": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.mirror_z": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.mirror_z_width": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.mirror_z_npoints": [
+   {
+    "param": "warpx.do_moving_window",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.projection_div_cleaner.atol": [
+   {
+    "param": "warpx.do_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.projection_div_cleaner.rtol": [
+   {
+    "param": "warpx.do_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.do_pml_divb_cleaning": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.do_pml_dive_cleaning": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.do_pml_j_damping": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.pml_has_particles": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.pml_ncell": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.do_similar_dm_pml": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.do_pml_in_domain": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.pml_delta": [
+   {
+    "param": "warpx.do_pml_divb_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "warpx.do_pml_dive_cleaning",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_lo",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   },
+   {
+    "param": "boundary.field_hi",
+    "op": "contains",
+    "value": "pml",
+    "raw": "feature gate"
+   }
+  ],
+  "boundary.particle_eb": [
+   {
+    "param": "warpx.eb_implicit_function",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "eb2.geom_type",
+    "op": "equals",
+    "value": "stl",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.eb_potential(x,y,z,t)": [
+   {
+    "param": "warpx.eb_implicit_function",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "eb2.geom_type",
+    "op": "equals",
+    "value": "stl",
+    "raw": "feature gate"
+   }
+  ],
+  "eb2.stl_file": [
+   {
+    "param": "warpx.eb_implicit_function",
+    "op": "nonempty",
+    "value": null,
+    "raw": "feature gate"
+   },
+   {
+    "param": "eb2.geom_type",
+    "op": "equals",
+    "value": "stl",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.elec_temp": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.n0_ref": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.gamma": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.n_floor": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.substeps": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.use_rkf45": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.max_substep_attempts": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.substep_rtol": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.substep_atol": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.substep_safety": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.substep_max_growth": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.plasma_hyper_resistivity(rho,B)": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.add_external_fields": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.include_joule_heating": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.solve_electron_energy_equation": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.holmstrom_vacuum_region": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "hybrid_pic_model.vacuum_seam_switch_mode": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "hybrid",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.periodic_single_box_fft": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.current_correction": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.do_time_averaging": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.JRhom": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.update_with_rho": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.v_galilean": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.v_comoving": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.use_default_v_galilean": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.use_default_v_comoving": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.nx_guard": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.ny_guard": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "psatd.nz_guard": [
+   {
+    "param": "algo.maxwell_solver",
+    "op": "equals",
+    "value": "psatd",
+    "raw": "feature gate"
+   }
+  ],
+  "macroscopic.epsilon": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "macroscopic.epsilon2": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "macroscopic.sigma": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "macroscopic.mu": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "algo.macroscopic_subpixel": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "algo.macroscopic_sigma_method": [
+   {
+    "param": "algo.em_solver_medium",
+    "op": "equals",
+    "value": "macroscopic",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.B_external_grid": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
+    "op": "notequals",
+    "value": "none",
+    "raw": "feature gate"
+   }
+  ],
+  "warpx.E_external_grid": [
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "notequals",
+    "value": "none",
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.resampling_algorithm": [
+   {
+    "param": "<species_name>.do_resampling",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.resampling_trigger_intervals": [
+   {
+    "param": "<species_name>.do_resampling",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.resampling_trigger_max_avg_ppc": [
+   {
+    "param": "<species_name>.do_resampling",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.resampling_min_ppc": [
+   {
+    "param": "<species_name>.do_resampling",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
+   }
+  ],
+  "<species_name>.split_type": [
+   {
+    "param": "<species_name>.do_splitting",
+    "op": "truthy",
+    "value": null,
+    "raw": "feature gate"
    }
   ]
  },

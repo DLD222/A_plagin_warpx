@@ -276,9 +276,13 @@ function deckGet(name) {
 function ruleSatisfied(rule, instance) {
   let param = rule.param;
   if (instance && param.startsWith("<")) param = param.replace(/^<[a-z_]+>/, instance);
-  const value = String(deckGet(param)).replace(/"/g, "").trim().toLowerCase();
+  const raw = String(deckGet(param) ?? "").replace(/"/g, "").trim();
+  const value = raw.toLowerCase();
   if (rule.op === "truthy") return ["1", "true", "t", "yes"].includes(value);
   if (rule.op === "falsy") return !["1", "true", "t", "yes"].includes(value);
+  if (rule.op === "nonempty") return raw !== "" && value !== "none";
+  if (rule.op === "notequals") return value !== String(rule.value ?? "").toLowerCase();
+  if (rule.op === "contains") return value.includes(String(rule.value ?? "").toLowerCase());
   return value === String(rule.value).toLowerCase();
 }
 function hiddenAsDerived(name) {

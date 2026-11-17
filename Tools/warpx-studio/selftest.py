@@ -564,6 +564,29 @@ def run_checks(port: int) -> None:
     check("可视化独立成页",
           'id="page-vis"' in page and "renderVisualization" in page and 'data-step="7"' in page,
           "step 7 = 可视化输出，与参数表单分页")
+    # 功能开关门控：依赖参数默认隐藏，打开开关后才出现，开关本身始终可见
+    rules = catalog.get("gating_rules") or {}
+    def shown(name, deck):
+        rs = rules.get(name) or []
+        if not rs:
+            return True
+        def sat(r):
+            raw = str(deck.get(r["param"], "") or "").replace('"', "").strip()
+            v = raw.lower()
+            if r["op"] == "truthy": return v in ("1", "true", "t", "yes")
+            if r["op"] == "nonempty": return raw != "" and v != "none"
+            if r["op"] == "notequals": return v != str(r.get("value") or "").lower()
+            if r["op"] == "contains": return str(r.get("value") or "").lower() in v
+            return v == str(r.get("value") or "").lower()
+        return any(sat(r) for r in rs)
+    cases = [
+        ("电离", "<species_name>.ionization_initial_level", "<species_name>.do_field_ionization", "1"),
+        ("hybrid", "hybrid_pic_model.elec_temp", "algo.maxwell_solver", "hybrid"),
+        ("碰撞", "collisions.energy_fraction", "collisions.collision_names", "c1"),
+    ]
+    ok = all((not shown(dep, {})) and shown(dep, {sw: val}) for _, dep, sw, val in cases)
+    check("功能开关门控", ok and shown("<species_name>.do_field_ionization", {}),
+          f"{len(rules)} 条规则；关时隐藏、开时展开、开关本身始终可见")
     check("显示输入/输出文件地址",
           bool(paths.get("inputs")) and bool(paths.get("diag_dir")),
           f"输入 {paths.get('inputs')}；输出 {paths.get('diag_dir')}")
