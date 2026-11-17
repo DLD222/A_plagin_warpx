@@ -224,6 +224,50 @@ void WarpX::ApplyBfieldBoundary (const int lev, PatchType patch_type, Subcycling
 {
     using ablastr::fields::Direction;
 
+#if defined(AMREX_USE_EB)
+    // ---- Ideal-conductor surface: keep B_normal CONTINUOUS across it ----
+    // A perfect conductor does not expel the normal field: flux is frozen inside it, so
+    // B_n must match across the surface while B_t may jump (surface current).  With a
+    // staircase representation the "normal" is an axis direction, so the rule is: for a
+    // covered cell, take B in the component whose direction points at the neighbouring
+    // fluid cell and copy that fluid cell's value; leave the other components frozen.
+    // (Zeroing B instead would violate B_n continuity and is wrong.)
+    if (EB::enabled()) {
+        auto const& eb_factory = fieldEBFactory(lev);
+        auto const& eb_flags = eb_factory.getMultiEBCellFlagFab();
+        using warpx::fields::FieldType;
+        auto const bfield = m_fields.get_alldirs(
+            (patch_type == PatchType::fine) ? FieldType::Bfield_fp : FieldType::Bfield_cp, lev);
+        if (bfield[0] != nullptr && bfield[1] != nullptr && bfield[2] != nullptr) {
+            for (amrex::MFIter mfi(eb_flags); mfi.isValid(); ++mfi) {
+                auto const& fab = eb_flags[mfi];
+                if (fab.getType() == amrex::FabType::regular) { continue; }
+                auto const& flag = fab.const_array();
+                amrex::Box const& tile = mfi.validbox();
+                auto const bx_a = bfield[0]->array(mfi);
+                auto const by_a = bfield[1]->array(mfi);
+                auto const bz_a = bfield[2]->array(mfi);
+                amrex::ParallelFor(tile, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                    if (!flag(i, j, k).isCovered()) { return; }
+                    // Staircase: look for the first fluid neighbour, and copy the component
+                    // that is normal to that face.
+                    if (!flag(i + 1, j, k).isCovered()) { bx_a(i, j, k) = bx_a(i + 1, j, k); }
+                    else if (!flag(i - 1, j, k).isCovered()) { bx_a(i, j, k) = bx_a(i - 1, j, k); }
+#if AMREX_SPACEDIM == 2
+                    else if (!flag(i, j, k + 1).isCovered()) { bz_a(i, j, k) = bz_a(i, j, k + 1); }
+                    else if (!flag(i, j, k - 1).isCovered()) { bz_a(i, j, k) = bz_a(i, j, k - 1); }
+#else
+                    else if (!flag(i, j + 1, k).isCovered()) { by_a(i, j, k) = by_a(i, j + 1, k); }
+                    else if (!flag(i, j - 1, k).isCovered()) { by_a(i, j, k) = by_a(i, j - 1, k); }
+                    else if (!flag(i, j, k + 1).isCovered()) { bz_a(i, j, k) = bz_a(i, j, k + 1); }
+                    else if (!flag(i, j, k - 1).isCovered()) { bz_a(i, j, k) = bz_a(i, j, k - 1); }
+#endif
+                });
+            }
+        }
+    }
+#endif
+
     if (::isAnyBoundary<FieldBoundaryType::PEC>(field_boundary_lo, field_boundary_hi)) {
         if (patch_type == PatchType::fine) {
             PEC::ApplyPECtoBfield(
