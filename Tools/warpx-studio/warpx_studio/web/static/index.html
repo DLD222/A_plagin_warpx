@@ -595,11 +595,35 @@ function orderByDependency(names) {
 
 // 值变化会改变门控 -> 需要重新渲染表单；保留滚动位置与焦点
 let RENDER_TIMER = null;
+// 名字列表（lasers.names / collisions.collision_names / particles.species_names /
+// diagnostics.diags_names）与对应的模板实例保持同步：填了名字就自动出现该实例的参数卡片。
+function syncInstancesFromNames() {
+  const pairs = [
+    ["lasers.names", "<laser_name>"],
+    ["collisions.collision_names", "<collision_name>"],
+    ["particles.species_names", "<species_name>"],
+    ["diagnostics.diags_names", "<diag_name>"],
+  ];
+  let changed = false;
+  for (const [listName, template] of pairs) {
+    const raw = String(deckGet(listName) || "").trim();
+    if (!raw) continue;
+    const names = raw.split(/\s+/).filter(Boolean);
+    const key = TEMPLATE_ALIAS[template] || template;
+    DECK.groups[key] = DECK.groups[key] || {};
+    for (const n of names) {
+      if (!DECK.groups[key][n]) { DECK.groups[key][n] = {}; changed = true; }
+    }
+  }
+  return changed;
+}
+
 function scheduleFormRender() {
   clearTimeout(RENDER_TIMER);
   RENDER_TIMER = setTimeout(() => {
     const main = document.querySelector("main");
     const top = main ? main.scrollTop : 0;
+    syncInstancesFromNames();
     render();
     if (main) main.scrollTop = top;
   }, 120);
@@ -612,6 +636,8 @@ function renderTemplateCards(template, params, body) {
   for (const [inst, values] of Object.entries(instances)) {
     const card = document.createElement("div");
     card.className = "card";
+    card.style.cssText = "border:1px solid var(--acc);border-radius:8px;padding:10px;margin:14px 0 18px;"
+                       + "background:rgba(255,255,255,0.02)";
     const bar = document.createElement("div");
     bar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px";
     const title = document.createElement("input");
@@ -642,7 +668,9 @@ function renderTemplateCards(template, params, body) {
   add.onclick = () => {
     const base = TEMPLATE_BASE[key] || "item";
     let n = 1; while (DECK.groups[key][base + n]) n++;
-    DECK.groups[key][base + n] = {};
+    // 新组分默认继承"上一个组分"的全部取值，用户只需要改差异项
+    const prev = Object.values(instances).pop();
+    DECK.groups[key][base + n] = prev ? JSON.parse(JSON.stringify(prev)) : {};
     render();
   };
   body.appendChild(add);

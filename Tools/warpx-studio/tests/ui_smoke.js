@@ -125,6 +125,34 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log(`PASS 开关默认可见: ${mustSee.join(", ")}`);
 
+  // 激光：填了 lasers.names 之后，该激光的参数必须出现
+  const laserRows = dumpScenario(
+    { params: { "lasers.names": "www" }, groups: { [S]: { ions: {} }, "<laser_name>": { www: {} } } },
+    2, "激光 www");
+  const laserOk = laserRows.some((r) => r.includes("wavelength") || r.includes("a0"));
+  if (!laserOk) { console.error("FAIL 激光参数没出现（lasers.names=www 时应有 wavelength/a0 等）"); process.exit(1); }
+  console.log("PASS 激光参数随 lasers.names 出现: " + laserRows.filter(r=>/wavelength|a0|profile/.test(r)).slice(0,3).join(", "));
+
+  // 新增组分要独立成卡片，并继承上一个组分的取值
+  T.setDECK({ params: {}, groups: { [S]: { ions: { charge: "5*q_e", density: "1e24" } } } });
+  T.setStep(2); T.render();
+  const addBtn = (function findAdd(n) {
+    if (!n) return null;
+    if (n.tagName === "button" && /新增一张/.test(n.textContent || n._text || "")) return n;
+    for (const c of (n.children || [])) { const r = findAdd(c); if (r) return r; }
+    return null;
+  })(registry["form"]);
+  if (!addBtn) { console.error("FAIL 找不到「新增一张」按钮"); process.exit(1); }
+  addBtn.onclick();
+  const groups = T.getDECK().groups[S];
+  const names = Object.keys(groups);
+  const last = groups[names[names.length - 1]] || {};
+  if (!(names.length >= 2 && last.charge === "5*q_e" && last.density === "1e24")) {
+    console.error("FAIL 新组分没有继承上一个组分的取值: " + JSON.stringify(groups));
+    process.exit(1);
+  }
+  console.log(`PASS 新增组分: ${names[0]} -> ${names[names.length - 1]}（继承 charge/density）`);
+
   const asPdf = scenario("parse_density_function");
   const asConst = scenario("constant");
   const has = (rows, name) => rows.some((r) => r.replace(/\s/g, "") === name.replace(/\s/g, ""));

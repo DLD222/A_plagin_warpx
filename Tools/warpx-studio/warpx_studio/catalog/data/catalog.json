@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 444,
+  "total": 462,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -1861,6 +1861,168 @@
     "1"
    ],
    "core": true
+  },
+  {
+   "name": "<laser_name>.a0",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :comment: dimensionless  Peak normalized amplitude of the laser field, in the focal plane (given in the lab frame, just as ``e_max`` above). See the description of :pp:param:`<laser_name>.e_max` for the ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.beta",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: seconds :default: ``0.`` :optional:  Angular dispersion (or angular chirp) at focus in direction :pp:param:`<laser_name>.stc_direction`. See definition in :cite:t:`param-AkturkOE2004`.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.direction",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``3 floats in 3D``  The coordinates of a vector that points in the propagation direction of the laser. The norm of this vector is unimportant, only its direction matters.  The plane of the antenna that will emit t",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.do_continuous_injection",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``0`` or ``1`` :default: ``0`` :optional:  Whether or not to use continuous injection. If the antenna starts outside of the simulation domain but enters it at some point (due to moving window or moving antenna in ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.e_max",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: V/m  Peak amplitude of the laser field, in the focal plane.  For a laser with a wavelength :math:`\\lambda = 0.8\\,\\mu m`, the peak amplitude is related to :math:`a_0` by:  .. math::  E_{max} = a_0 ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.min_particles_per_mode",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``int`` :default: ``4`` :optional:  When using the RZ version, this specifies the minimum number of particles per angular mode. The laser particles are loaded into radial spokes, with the number of spokes given by",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.phi0",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: radians :default: ``0.`` :optional:  The Carrier Envelope Phase, i.e. the phase of the laser oscillation, at the position where the laser envelope is maximum (only used for the ``\"gaussian\"`` prof",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.phi2",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: seconds**2 :default: ``0.`` :optional:  The amount of temporal chirp :math:`\\phi^{(2)}` at focus (in the lab frame). Namely, a wave packet centered on the frequency :math:`(\\omega_0 + \\delta \\omeg",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.polarization",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``3 floats in 3D and 2D``  The coordinates of a vector that points in the direction of polarization of the laser. The norm of this vector is unimportant, only its direction matters.  .. note:: Even in 2D, all the ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.position",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``3 floats in 3D and 2D`` :unit: meters  The coordinates of one of the point of the antenna that will emit the laser. The plane of the antenna is entirely defined by :pp:param:`<laser_name>.position` and :pp:param",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.profile",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``string``  The spatio-temporal shape of the laser. The options that are currently implemented are:  - ``\"Gaussian\"``: The transverse and longitudinal profiles are Gaussian. - ``\"parse_field_function\"``: the laser",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.profile_duration",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: seconds  The duration of the laser pulse for the ``\"gaussian\"`` profile, defined as :math:`\\tau` below:  .. math::  E(\\boldsymbol{x},t) \\propto \\exp\\left( -\\frac{(t-t_{peak})^2}{\\tau^2} \\right)  N",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.profile_focal_distance",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: meters  The distance from ``laser_position`` to the focal plane. (where the distance is defined along the direction given by :pp:param:`<laser_name>.direction`.)  Use a negative number for a defoc",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.profile_t_peak",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: seconds  The time at which the laser reaches its peak intensity, at the position given by :pp:param:`<laser_name>.position` (only used for the ``\"gaussian\"`` profile)  When running a **boosted-fra",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.profile_waist",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: meters  The waist of the transverse Gaussian :math:`w_0`, i.e. defined such that the electric field of the laser pulse in the focal plane is of the form:  .. math::  E(\\boldsymbol{x},t) \\propto \\e",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.stc_direction",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``3 floats`` :default: ``1. 0. 0.`` :optional:  Direction of laser spatio-temporal couplings. See definition in :cite:t:`param-AkturkOE2004`.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.wavelength",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: meters  The wavelength of the laser in vacuum.  When running a **boosted-frame simulation**, provide the value of :pp:param:`<laser_name>.wavelength` in the laboratory frame, and use :pp:param:`wa",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<laser_name>.zeta",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":type: ``float`` :unit: meters.seconds :default: ``0.`` :optional:  Spatial chirp at focus in direction :pp:param:`<laser_name>.stc_direction`. See definition in :cite:t:`param-AkturkOE2004`.",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species>.do_qed_virtual_photons",
