@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 352,
+  "total": 446,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -1921,6 +1921,24 @@
    "core": false
   },
   {
+   "name": "<species_name>.additional_variables",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ".. pp:param:: <diag_name>.<species_name>.additional_variables",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.attribute",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* ``<species_name>.attribute.<int_attrib_name>(x,y,z,ux,uy,uz,t)`` (``string``)",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.charge",
    "type": "float",
    "default": "NaN",
@@ -1961,6 +1979,24 @@
    "core": true
   },
   {
+   "name": "<species_name>.density",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "parameter ``<species_name>.density``. i.e., the plasma density in :math:`m^{-3}`.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.density_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "It requires additional argument ``<species_name>.density_function(x,y,z)``, which is a",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.density_max",
    "type": "float",
    "default": "infinity",
@@ -1981,6 +2017,15 @@
    "required": false,
    "options": [],
    "core": false
+  },
+  {
+   "name": "<species_name>.density_mesh_name",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "file must contain a field with the name given by ``<species_name>.density_mesh_name``",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.density_min",
@@ -2136,6 +2181,24 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.do_gaussian_beam_rotation",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.do_gaussian_beam_rotation`` (``bool``, optional) the positions of the beam particles are rotated around the beam centroid.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.do_gaussian_beam_rotation_momenta",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.do_gaussian_beam_rotation_momenta`` (``bool``, optional) the momenta of the beam particles are also rotated using the same transformation appli",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.do_not_deposit",
@@ -2355,6 +2418,15 @@
    "core": false
   },
   {
+   "name": "<species_name>.do_symmetrize",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.do_symmetrize`` (``bool``, optional) whether to symmetrize the beam",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.do_temperature_deposition",
    "type": "bool",
    "default": "false",
@@ -2378,6 +2450,42 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.flux",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* ``constant``: Constant flux. This requires the additional parameter ``<species_name>.flux``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.flux_direction",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.flux_direction`` (``int``) only used when injecting from a plane, ``-1`` or ``+1``, direction of flux relative to the plane",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.flux_function(x,y,z,t)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "It requires the additional argument ``<species_name>.flux_function(x,y,z,t)``, which is a",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.flux_normal_axis",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.flux_normal_axis`` (``string``) only used when injecting from a plane, ``x``, ``y``, or ``z`` for 3D, ``x`` or ``z`` for 2D, or ``r``, ``t``, o",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.flux_profile",
@@ -2405,6 +2513,60 @@
    "core": false
   },
   {
+   "name": "<species_name>.flux_tmax",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.flux_tmax`` (``float``) optional time at which the flux will be turned off. Ignored when negative.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.flux_tmin",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.flux_tmin`` (``float``) optional time at which the flux will be turned on. Ignored when negative.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.focal_distance",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.focal_distance`` (``float``, optional) distance between the beam centroid and the position of the focal plane of the beam, along the direction ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.gaussian_beam_rotation_angle",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.gaussian_beam_rotation_angle`` (``float``) angle of rotation around the specified axis, in radians.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.gaussian_beam_rotation_axis",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.gaussian_beam_rotation_axis`` (list of 3 ``floats``) axis around which the rotation takes place",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.impose_t_lab_from_file",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.impose_t_lab_from_file`` (``bool``, optional) only read if warpx.gamma_boost > 1., it allows to set t_lab for the Lorentz Transform as being th",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.initialize_self_fields",
    "type": "bool",
    "default": null,
@@ -2428,6 +2590,24 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.inject_from_embedded_boundary",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.inject_from_embedded_boundary`` (``0`` or ``1``) whether to inject from the embedded boundary or from a user-specified plane. The default is ``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.injection_file",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.injection_file`` (``string``) openPMD file name",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.injection_sources",
@@ -2585,6 +2765,51 @@
    "core": true
   },
   {
+   "name": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.maxwell_juttner_temperature_in_eV_distribution_type`` (`string`, default ``constant``):",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.maxwell_juttner_u_mean_distribution_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.maxwell_juttner_u_mean_distribution_type`` (`string`, default ``constant``):",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.maxwellian_temperature_in_eV_distribution_type``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.maxwellian_u_mean_distribution_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.maxwellian_u_mean_distribution_type`` (`string`, default ``constant``):",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.maxwellian_u_std_distribution_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.maxwellian_u_std_distribution_type`` (`string`, default ``constant``):",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.momentum_distribution_type",
    "type": "string",
    "default": null,
@@ -2643,6 +2868,123 @@
    "core": true
   },
   {
+   "name": "<species_name>.momentum_function_ux(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "file. It requires additional arguments ``<species_name>.momentum_function_ux(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.momentum_function_uy(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.momentum_function_uy(x,y,z)`` and ``<species_name>.momentum_function_uz(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.momentum_function_uz(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.momentum_function_uy(x,y,z)`` and ``<species_name>.momentum_function_uz(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_pos_x",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_pos_x`` (list of ``floats``) X positions of the particles [meter]",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_pos_y",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_pos_y`` (list of ``floats``) Y positions of the particles [meter]",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_pos_z",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_pos_z`` (list of ``floats``) Z positions of the particles [meter]",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_ux",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_ux`` (list of ``floats``) X normalized momenta of the particles, i.e. :math:`\\gamma \\beta_x`",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_uy",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_uy`` (list of ``floats``) Y normalized momenta of the particles, i.e. :math:`\\gamma \\beta_y`",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_uz",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_uz`` (list of ``floats``) Z normalized momenta of the particles, i.e. :math:`\\gamma \\beta_z`",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.multiple_particles_weight",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.multiple_particles_weight`` (list of ``floats``) macroparticle weights, i.e. number of physical particles each represents",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.npart",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.npart`` (``int``) number of macroparticles in the beam",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.npart_real",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.npart_real`` (``float``) total number of real particles in the beam",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.num_particles_per_cell",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "This requires the additional parameter ``<species_name>.num_particles_per_cell``.",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.num_particles_per_cell_each_dim",
    "type": "3 integers in 3D, RZ, RSPHERE, 2 integers in 2D and RCYLINDER",
    "default": null,
@@ -2678,6 +3020,24 @@
    "required": true,
    "options": [],
    "core": false
+  },
+  {
+   "name": "<species_name>.plot_filter_function",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``BoundaryScrapingDiagnostics`` can be used with :pp:param:`<diag_name>.<species_name>.random_fraction`, :pp:param:`<diag_name>.<species_name>.uniform_stride`, ",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.plot_filter_function(t,x,y,z,ux,uy,uz)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": ".. pp:param:: <diag_name>.<species_name>.plot_filter_function(t,x,y,z,ux,uy,uz)",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.profile",
@@ -2726,6 +3086,15 @@
     "read_from_file"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.q_tot",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.q_tot`` (``float``) beam charge",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.qed_breit_wheeler_ele_product_species",
@@ -2827,6 +3196,15 @@
    "core": false
   },
   {
+   "name": "<species_name>.random_fraction",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ".. pp:param:: <diag_name>.<species_name>.random_fraction",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.random_theta",
    "type": "bool",
    "default": "1",
@@ -2852,6 +3230,51 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.read_density_distributed",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.read_density_distributed=true``, which controls how the",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.read_density_from_path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.read_density_from_path`` must be specified. The openPMD",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.read_temperature_in_eV_from_path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.read_temperature_in_eV_from_path`` (openPMD file path). The file must",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.read_u_mean_from_path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.read_u_mean_from_path`` (openPMD file path). The file must contain",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.read_u_std_from_path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.read_u_std_from_path`` (openPMD file path). The file must contain",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.resampling_algorithm",
@@ -2880,6 +3303,42 @@
     "velocity_coincidence_thinning"
    ],
    "core": false
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_delta_ur",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.resampling_algorithm_delta_ur`` (``float``)",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_n_phi",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.resampling_algorithm_n_phi`` (``int``)",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_n_theta",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.resampling_algorithm_n_theta`` (``int``)",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.resampling_algorithm_target_ratio",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.resampling_algorithm_target_ratio`` (``float``) optional (default ``1.5``)",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.resampling_min_ppc",
@@ -3015,6 +3474,15 @@
    "core": false
   },
   {
+   "name": "<species_name>.save_particles_at_xlo/ylo/zlo/xhi/yhi/zhi/eb",
+   "type": "0",
+   "default": null,
+   "optional": true,
+   "doc": ":link_aliases: <species_name>.save_particles_at_xlo/ylo/zlo <species_name>.save_particles_at_xhi/yhi/zhi <species_name>.save_particles_at_xlo <species_name>.save_particles_at_ylo <species_name>.save_particles_at_zlo <species_name>.save_particles_at_xhi <species_name>.save_particles_at_yhi <species_name>.save_particles_at_zhi <species_name>.save_particles_at_eb :type: ``0`` or ``1`` :default: ``0`` :optional:  If ``1`` particles of this species will be copied to the scraped particle buffer for the specified boundary if they leave the simulation domain in the specified direction. **If USE_EB=TRUE** the ``save_particles_at_eb`` flag can be set to ``1`` to also save particle data for the particles of this species that are absorbed at the embedded boundary. The scraped particle buffer can be used to track particle fluxes out of the simulation. The particle data can be written out by setting up a ``BoundaryScrapingDiagnostic``. It is also accessible via the Python interface. The function ``get_particle_boundary_buffer``, found in the ``picmi.Simulation`` class as ``sim.extension.get_particle_boundary_buffer()``, can be used to access the scraped particle buffer. An entry is included for every particle in the buffer of the timestep at which the particle was scraped. This can be accessed by passing the argument ``comp_name=\"stepScraped\"`` to the above mentioned function.  .. note::  When accessing the data via Python, the scraped particle buffer relies on the user to clear the buffer after processing the data. The buffer will grow unbounded as particles are scraped and therefore could lead to memory issues if not periodically cleared. To clear the buffer call ``clear_buffer()``.",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.save_particles_at_yhi",
    "type": null,
    "default": null,
@@ -3129,6 +3597,51 @@
    "core": false
   },
   {
+   "name": "<species_name>.single_particle_pos",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.single_particle_pos`` (``3 floats``) particle 3D position [meter]",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.single_particle_u",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.single_particle_u`` (``3 floats``) particle 3D normalized momentum, i.e. :math:`\\gamma \\beta`",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.single_particle_weight",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.single_particle_weight`` (``float``) macroparticle weight, i.e. number of physical particles it represents",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.source1",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "parameters ``<species_name>.source1.injection_style`` and ``<species_name>.source2.injection_style``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.source2",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "parameters ``<species_name>.source1.injection_style`` and ``<species_name>.source2.injection_style``.",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.species_type",
    "type": "string",
    "default": "unspecified",
@@ -3191,6 +3704,303 @@
    "core": false
   },
   {
+   "name": "<species_name>.surface_flux_pos",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.surface_flux_pos`` (``float``) only used when injecting from a plane, location of the injection plane [meter]",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.symmetrization_order",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.symmetrization_order`` (``int``) order of symmetrization, default is 4, can be 4 or 8.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.temperature_in_eV",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* If ``constant``, the following is required: ``<species_name>.temperature_in_eV`` (`float`).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.temperature_in_eV_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.temperature_in_eV_function(x,y,z)``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.temperature_in_eV_mesh_name",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.temperature_in_eV_mesh_name`` (default ``temperature_in_eV``). See",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.u",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "are ``<species_name>.u<x,y,z>_min`` and ``<species_name>.u<x,y,z>_max`` in each",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.u_th",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``boundary.<species_name>.u_th``. The same standard deviation is used to sample all components.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uniform_stride",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": ".. pp:param:: <diag_name>.<species_name>.uniform_stride",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux``, ``<species_name>.uy`` and ``<species_name>.uz``, the normalized",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_m",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux_m``, ``<species_name>.uy_m`` and ``<species_name>.uz_m`` as",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_mean",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* If ``constant``, the following are required: ``<species_name>.ux_mean``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_mean_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux_mean_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_std",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* If ``constant``, the following are required: ``<species_name>.ux_std``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_std_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux_std_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.ux_th",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "well as standard deviations along each direction ``<species_name>.ux_th``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux``, ``<species_name>.uy`` and ``<species_name>.uz``, the normalized",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_m",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux_m``, ``<species_name>.uy_m`` and ``<species_name>.uz_m`` as",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_mean",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_mean``, ``<species_name>.uz_mean`` (`float`, default ``0``).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_mean_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_mean_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_std",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_std``, ``<species_name>.uz_std`` (`float`, default ``0``).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_std_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_std_function(x,y,z)``,",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uy_th",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_th`` and ``<species_name>.uz_th``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.ux``, ``<species_name>.uy`` and ``<species_name>.uz``, the normalized",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_m",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "set using ``<species_name>.uz_m`` instead of setting it for each source.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_max",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "direction respectively (e.g., ``<species_name>.uz_min = 0.2`` and ``<species_name>.uz_max = 0.4``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_mean",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_mean``, ``<species_name>.uz_mean`` (`float`, default ``0``).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_mean_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uz_mean_function(x,y,z)``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_min",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "direction respectively (e.g., ``<species_name>.uz_min = 0.2`` and ``<species_name>.uz_max = 0.4``",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_std",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_std``, ``<species_name>.uz_std`` (`float`, default ``0``).",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_std_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uz_std_function(x,y,z)``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.uz_th",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.uy_th`` and ``<species_name>.uz_th``.",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.variables",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ".. pp:param:: <diag_name>.<species_name>.variables",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.x",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "* ``<species_name>.x/y/z_m`` (``float``) average position in ``x/y/z``",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.xmax",
    "type": null,
    "default": null,
@@ -3203,6 +4013,15 @@
    "core": true
   },
   {
+   "name": "<species_name>.xmax,ymax,zmax",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "<species_name>.xmax,ymax,zmax",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "<species_name>.xmin",
    "type": null,
    "default": null,
@@ -3213,6 +4032,24 @@
    "source_only": false,
    "required": false,
    "core": true
+  },
+  {
+   "name": "<species_name>.xmin,ymin,zmin",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "<species_name>.xmin,ymin,zmin",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "<species_name>.xmin/ymin/zmin/xmax/ymax/zmax",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": ":link_aliases: <species_name>.xmin,ymin,zmin <species_name>.xmax,ymax,zmax <species_name>.xmin/ymin/zmin <species_name>.xmax/ymax/zmax <species_name>.xmin <species_name>.ymin <species_name>.zmin <species_name>.xmax <species_name>.ymax <species_name>.zmax :type: ``float`` :default: unlimited :optional:  When :pp:param:`<species_name>.xmin` and :pp:param:`<species_name>.xmax` are set, they delimit the region within which particles are injected. If periodic boundary conditions are used in direction ``i``, then the default (i.e. if the range is not specified) range will be the simulation box, :pp:param:`[geometry.prob_hi[i], geometry.prob_lo[i]]`.",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.ymax",
@@ -3237,6 +4074,15 @@
    "source_only": false,
    "required": false,
    "core": false
+  },
+  {
+   "name": "<species_name>.z_shift",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "``<species_name>.z_shift`` (``float``, optional) when set this value will be added to the longitudinal, ``z``, position of the particles. The default is no shif",
+   "core": false,
+   "options": null
   },
   {
    "name": "<species_name>.zinject_plane",
@@ -9268,6 +10114,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_inject_from_eb)"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
    }
   ],
   "<species_name>.flux_normal_axis": [
@@ -9276,6 +10128,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_inject_from_eb)"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
    }
   ],
   "<species_name>.gaussian_beam_rotation_angle": [
@@ -9284,6 +10142,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (do_rotation)"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
    }
   ],
   "<species_name>.qed_breit_wheeler_ele_product_species": [
@@ -9342,6 +10206,12 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_inject_from_eb)"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
    }
   ],
   "algo.load_balance_knapsack_factor": [
@@ -10762,6 +11632,406 @@
     "op": "truthy",
     "value": null,
     "raw": "feature gate"
+   }
+  ],
+  "<species_name>.density": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.profile",
+    "op": "empty",
+    "value": null,
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.density_max": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.density_min": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.density_function(x,y,z)": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "parse_density_function",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.read_density_from_path": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.density_mesh_name": [
+   {
+    "param": "<species_name>.profile",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.num_particles_per_cell_each_dim": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.xmin": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.xmax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.zmin": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.zmax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NUniformPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.num_particles_per_cell": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NRandomPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux_tmin": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux_tmax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux_profile": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.flux_function(x,y,z,t)": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.inject_from_embedded_boundary": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.do_continuous_injection": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "NFluxPerCell",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.injection_file": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "external_file",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.single_particle_pos": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "singleparticle",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.single_particle_u": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "singleparticle",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.single_particle_weight": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "singleparticle",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_pos_x": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_pos_y": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_pos_z": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_ux": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_uy": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_uz": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.multiple_particles_weight": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "multipleparticles",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.q_tot": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.npart": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.focal_distance": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.do_gaussian_beam_rotation": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.gaussian_beam_rotation_axis": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "constant",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz_m": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.ux_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uy_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.uz_th": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "value gate"
+   },
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.maxwellian_u_mean_distribution_type": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "maxwellian",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_ux(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_uy(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
+   }
+  ],
+  "<species_name>.momentum_function_uz(x,y,z)": [
+   {
+    "param": "<species_name>.momentum_distribution_type",
+    "op": "equals",
+    "value": "parse_momentum_function",
+    "raw": "value gate"
    }
   ]
  },

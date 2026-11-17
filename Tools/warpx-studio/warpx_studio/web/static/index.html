@@ -283,6 +283,7 @@ function ruleSatisfied(rule, instance) {
   if (rule.op === "nonempty") return raw !== "" && value !== "none";
   if (rule.op === "notequals") return value !== String(rule.value ?? "").toLowerCase();
   if (rule.op === "contains") return value.includes(String(rule.value ?? "").toLowerCase());
+  if (rule.op === "empty") return raw === "";
   return value === String(rule.value).toLowerCase();
 }
 function hiddenAsDerived(name) {

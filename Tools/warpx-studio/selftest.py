@@ -104,7 +104,8 @@ def run_checks(port: int) -> None:
     missing = [n for n in essential if n not in names]
     composite = [n for n in names if "/" in n]
     check("目录已裁剪且保留关键参数",
-          300 <= counts["total"] <= 420 and not missing and not composite
+          # 446 = 裁剪后的 351 + 从文档补回的 94 个 <species_name>.* 参数
+          300 <= counts["total"] <= 500 and not missing and not composite
           and not any(n.startswith(("amrex.", "ablastr.")) for n in names),
           f"{counts['total']} 参数（裁剪前 802）；缺失关键项 {missing or '无'}；"
           f"含 '/' 的合并项 {composite or '无'}；无 amrex./ablastr. 内部开关")
