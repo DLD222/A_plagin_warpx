@@ -36,8 +36,10 @@ def _read_fields(path: str) -> dict:
                 return node[:]
             return node[comp][:]
 
+        # 2D runs still carry the out-of-plane component (B_y / E_y), and for the
+        # B-parallel-to-axis case that is the *tangential* one — it must be included.
         result = {name: np.asarray(pick(name))
-                  for name in ("B/x", "B/z", "E/x", "E/z")}
+                  for name in ("B/x", "B/y", "B/z", "E/x", "E/y", "E/z")}
     result["iteration"] = iteration
     return result
 
@@ -47,8 +49,8 @@ def measure(path: str, radius: float, prob_lo, prob_hi, n_cell,
     import numpy as np
 
     fields = _read_fields(path)
-    bx, bz = fields["B/x"], fields["B/z"]
-    ex, ez = fields["E/x"], fields["E/z"]
+    bx, by, bz = fields["B/x"], fields["B/y"], fields["B/z"]
+    ex, ey, ez = fields["E/x"], fields["E/y"], fields["E/z"]
     nz, nx = bx.shape
     dx = (prob_hi[0] - prob_lo[0]) / n_cell[0]
     dz = (prob_hi[1] - prob_lo[1]) / n_cell[1]
@@ -69,14 +71,16 @@ def measure(path: str, radius: float, prob_lo, prob_hi, n_cell,
             theta = math.radians(deg)
             nxv, nzv = math.cos(theta), math.sin(theta)
             x, z = r * nxv, r * nzv
-            bxv, bzv = interp(bx, x, z), interp(bz, x, z)
-            exv, ezv = interp(ex, x, z), interp(ez, x, z)
-            bn_normal = bxv * nxv + bzv * nzv
+            bxv, byv, bzv = interp(bx, x, z), interp(by, x, z), interp(bz, x, z)
+            exv, eyv, ezv = interp(ex, x, z), interp(ey, x, z), interp(ez, x, z)
+            bn_normal = bxv * nxv + bzv * nzv          # n has no y component in 2D
             bn.append(bn_normal)
-            bt.append(math.hypot(bxv - bn_normal * nxv, bzv - bn_normal * nzv))
+            bt.append(math.sqrt((bxv - bn_normal * nxv) ** 2 + byv * byv
+                                + (bzv - bn_normal * nzv) ** 2))
             en = exv * nxv + ezv * nzv
-            et.append(math.hypot(exv - en * nxv, ezv - en * nzv))
-            efull.append(math.hypot(exv, ezv))
+            et.append(math.sqrt((exv - en * nxv) ** 2 + eyv * eyv
+                                + (ezv - en * nzv) ** 2))
+            efull.append(math.sqrt(exv * exv + eyv * eyv + ezv * ezv))
 
     scale = b0 if b0 else max(abs(v) for v in bn) or 1.0
     return {
