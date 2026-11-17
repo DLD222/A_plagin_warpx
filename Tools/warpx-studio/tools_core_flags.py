@@ -47,9 +47,12 @@ CORE = {
 def main() -> int:
     cat_path = DATA / "catalog.json"
     catalog = json.loads(cat_path.read_text(encoding="utf-8"))
+    # 所有门控规则里的"选择器"都必须是常用项：开关一旦被折叠，用户就没法打开对应功能
+    selectors = {r["param"] for rs in (catalog.get("gating_rules") or {}).values()
+                 for r in rs if r.get("param")}
     core = 0
     for p in catalog["params"]:
-        p["core"] = p["name"] in CORE
+        p["core"] = p["name"] in CORE or p["name"] in selectors
         core += int(p["core"])
     cat_path.write_text(json.dumps(catalog, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"常用参数 {core} / {len(catalog['params'])}；其余默认折叠")

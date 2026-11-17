@@ -103,6 +103,28 @@ if (global.window.__STUDIO_TEST__) {
     T.render();
     return collectLabels(registry["form"], []);
   };
+  // 诊断：把"面注入"与"激光/碰撞"场景实际渲染出的行打印出来
+  const dumpScenario = (deck, step, title) => {
+    T.setDECK(deck); T.setStep(step); T.render();
+    const rows = collectLabels(registry["form"], []);
+    if (process.env.UI_DUMP) {
+      console.log(`--- ${title} (${rows.length} 行) ---`);
+      console.log(rows.join("\n"));
+    }
+    return rows;
+  };
+  dumpScenario({ params: {}, groups: { [S]: { ions: { injection_style: "NFluxPerCell" } } } }, 2,
+               "面注入 NFluxPerCell");
+
+  const base2 = dumpScenario({ params: {}, groups: { [S]: { ions: {} } } }, 2, "空算例");
+  const mustSee = ["lasers.names", "collisions.collision_names", "injection_style", "profile"];
+  const missed = mustSee.filter((n) => !base2.some((r) => r.trim() === n));
+  if (missed.length) {
+    console.error("FAIL 开关被折叠，用户打不开: " + missed.join(", "));
+    process.exit(1);
+  }
+  console.log(`PASS 开关默认可见: ${mustSee.join(", ")}`);
+
   const asPdf = scenario("parse_density_function");
   const asConst = scenario("constant");
   const has = (rows, name) => rows.some((r) => r.replace(/\s/g, "") === name.replace(/\s/g, ""));

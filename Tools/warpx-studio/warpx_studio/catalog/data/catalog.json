@@ -1876,7 +1876,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "<species>.qed_virtual_photons_do_beam_size_effect",
@@ -1984,7 +1984,7 @@
    "default": null,
    "optional": true,
    "doc": "parameter ``<species_name>.density``. i.e., the plasma density in :math:`m^{-3}`.",
-   "core": false,
+   "core": true,
    "options": null
   },
   {
@@ -2180,7 +2180,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.do_gaussian_beam_rotation",
@@ -2188,7 +2188,7 @@
    "default": null,
    "optional": true,
    "doc": "``<species_name>.do_gaussian_beam_rotation`` (``bool``, optional) the positions of the beam particles are rotated around the beam centroid.",
-   "core": false,
+   "core": true,
    "options": null
   },
   {
@@ -2331,7 +2331,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.do_qed_quantum_sync",
@@ -2365,7 +2365,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.do_resampling",
@@ -2390,7 +2390,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.do_splitting",
@@ -2415,7 +2415,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.do_symmetrize",
@@ -2597,7 +2597,7 @@
    "default": null,
    "optional": true,
    "doc": "``<species_name>.inject_from_embedded_boundary`` (``0`` or ``1``) whether to inject from the embedded boundary or from a user-specified plane. The default is ``",
-   "core": false,
+   "core": true,
    "options": null
   },
   {
@@ -3085,7 +3085,7 @@
     "parse_density_function",
     "read_from_file"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "<species_name>.q_tot",
@@ -3772,7 +3772,7 @@
    "default": null,
    "optional": true,
    "doc": "``<species_name>.ux``, ``<species_name>.uy`` and ``<species_name>.uz``, the normalized",
-   "core": false,
+   "core": true,
    "options": null
   },
   {
@@ -3826,7 +3826,7 @@
    "default": null,
    "optional": true,
    "doc": "well as standard deviations along each direction ``<species_name>.ux_th``,",
-   "core": false,
+   "core": true,
    "options": null
   },
   {
@@ -4205,7 +4205,7 @@
     "constant",
     "macroscopic"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "algo.field_gathering",
@@ -4328,7 +4328,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "algo.macroscopic_sigma_method",
@@ -4929,7 +4929,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "collisions.correct_energy_momentum",
@@ -6018,7 +6018,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "lattice.elements",
@@ -7829,7 +7829,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_device_synchronize",
@@ -7867,7 +7867,7 @@
    "source_only": true,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_dive_cleaning",
@@ -7902,7 +7902,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_dynamic_scheduling",
@@ -7940,7 +7940,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_initial_div_cleaning",
@@ -7987,7 +7987,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_pml_divb_cleaning",
@@ -8012,7 +8012,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_pml_dive_cleaning",
@@ -8037,7 +8037,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_pml_in_domain",
@@ -8109,7 +8109,7 @@
     "0",
     "1"
    ],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.do_shared_mem_charge_deposition",
@@ -8908,7 +8908,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.reduced_diags_names",
@@ -8921,7 +8921,7 @@
    "source_only": false,
    "required": false,
    "options": [],
-   "core": false
+   "core": true
   },
   {
    "name": "warpx.ref_patch_function(x,y,z)",
