@@ -57,7 +57,8 @@ class Renderer:
         )
 
         pmd = request["pmd"]
-        out = request["out"]
+        # `out` is not needed in listing mode, so it is fetched lazily below.
+        out = request.get("out")
         reader = self.reader(pmd)
         if not reader._timemap:
             return {"ok": False, "error": "the series has no iterations yet"}
@@ -87,6 +88,23 @@ class Renderer:
                   for i in range(block.GetPointData().GetNumberOfArrays())]
         if not arrays:
             return {"ok": False, "error": "the iteration has no field arrays"}
+
+        # Listing mode: report exactly what the file contains.  The web UI builds its
+        # quantity menu from this instead of assuming that every field has x/y/z
+        # components (charge density rho is a scalar and has none).
+        if request.get("list"):
+            catalogue = []
+            for name in arrays:
+                arr = block.GetPointData().GetArray(name)
+                ncomp = arr.GetNumberOfComponents() if arr is not None else 1
+                comps = []
+                if ncomp > 1:
+                    for c in range(ncomp):
+                        cname = arr.GetComponentName(c) if arr is not None else None
+                        comps.append({"index": c, "name": cname or "xyz"[c] if c < 3 else str(c),
+                                      "axis": "xyz"[c] if c < 3 else str(c)})
+                catalogue.append({"name": name, "ncomp": ncomp, "components": comps})
+            return {"ok": True, "iteration": iteration, "quantities": catalogue}
 
         field = request.get("field") if request.get("field") in arrays else arrays[0]
         component = None
@@ -195,8 +213,44 @@ class Renderer:
         if species and not request.get("volume"):
             # look slightly off-axis so the particles lift off the field plane
             direction = [0.35, 1.0, 0.25]
+
+        # Interactive camera: the web page sends the orbit angles / zoom / pan it wants,
+        # so rotation and zooming happen in the browser instead of a separate GUI window.
+        cam = request.get("camera") or {}
+        azimuth = float(cam.get("azimuth", 0.0))     # degrees around the view-up axis
+        elevation = float(cam.get("elevation", 0.0))  # degrees towards the view-up axis
+        zoom = float(cam.get("zoom", 1.0))           # >1 zooms in
+        pan = list(cam.get("pan") or [0.0, 0.0])      # fraction of the view height (x, z)
+        while len(pan) < 3:
+            pan.append(0.0)
+
         norm = sum(c * c for c in direction) ** 0.5
-        camera.SetPosition(*[f + distance * c / norm for f, c in zip(focal, direction)])
+        dir_unit = [c / norm for c in direction]
+        if azimuth or elevation:
+            import math
+            up = [0.0, 1.0, 0.0] if view_axis != "y" else [0.0, 0.0, 1.0]
+            # rotate dir_unit around `up` by azimuth, then tilt by elevation
+            ax, ay, az = up
+            ca, sa = math.cos(math.radians(azimuth)), math.sin(math.radians(azimuth))
+            dot = dir_unit[0]*ax + dir_unit[1]*ay + dir_unit[2]*az
+            cross = [dir_unit[1]*az - dir_unit[2]*ay,
+                     dir_unit[2]*ax - dir_unit[0]*az,
+                     dir_unit[0]*ay - dir_unit[1]*ax]
+            rotated = [dir_unit[i]*ca + cross[i]*sa + ax*dot*(1-ca) if i == 0 else
+                       dir_unit[i]*ca + cross[i]*sa + ay*dot*(1-ca) if i == 1 else
+                       dir_unit[i]*ca + cross[i]*sa + az*dot*(1-ca) for i in range(3)]
+            ce, se = math.cos(math.radians(elevation)), math.sin(math.radians(elevation))
+            # tilt towards `up`
+            dir_unit = [rotated[i]*ce + up[i]*se for i in range(3)]
+            n2 = sum(c * c for c in dir_unit) ** 0.5 or 1.0
+            dir_unit = [c / n2 for c in dir_unit]
+
+        distance = distance / max(zoom, 1e-3)
+        # pan in the view plane: horizontal -> x, vertical -> z for the x-z plane views
+        pan_offset = [pan[0] * distance * 0.5, 0.0, pan[1] * distance * 0.5]
+        focal = [focal[i] + pan_offset[i] for i in range(3)]
+        camera.SetPosition(*[f + distance * c for f, c in zip(focal, dir_unit)])
+        camera.SetFocalPoint(*focal)
         camera.SetViewUp(0.0, 0.0, 1.0) if view_axis == "y" else camera.SetViewUp(0.0, 1.0, 0.0)
         pvs.Render()
         pvs.SaveScreenshot(out, view, ImageResolution=[width, height])
@@ -223,4 +277,8 @@ class Renderer:
         return {"ok": True, "iteration": iteration, "time": time, "field": field,
                 "species": len(species_available),
                 "component": component, "range": list(data_range), "png": out,
-                "arrays": arrays, "view_axis": view_axis}
+                "arrays": arrays, "view_axis": view_axis,
+                "camera": {"azimuth": cam.get("azimuth", 0.0),
+                           "elevation": cam.get("elevation", 0.0),
+                           "zoom": cam.get("zoom", 1.0),
+                           "pan": cam.get("pan", [0.0, 0.0])}}

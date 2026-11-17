@@ -38,7 +38,8 @@ global.document = {
   addEventListener() {},
   body: el("body"),
 };
-global.window = { open() { return el("div"); } };
+global.window = { open() { return el("div"); },
+                 addEventListener() {}, removeEventListener() {} };
 global.confirm = () => true;
 global.prompt = () => "stub";
 global.alert = () => {};

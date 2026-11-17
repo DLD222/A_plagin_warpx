@@ -339,6 +339,25 @@ def api_paraview_close():
     return close_paraview()
 
 
+@app.post("/api/paraview/close-all")
+def api_paraview_close_all():
+    """Force-kill every ParaView on this machine.
+
+    The window's own close button does not work under WSLg for a process we spawned in
+    its own session, and the tracked PID may have been re-parented, so the UI needs a
+    way that always works.
+    """
+    import subprocess
+    killed = close_paraview()
+    # Only the GUI, never the resident render worker (`bin/pvpython`): killing that
+    # would break the in-page viewer until it restarts.
+    for pattern in (r"bin/paraview( |$)", r"bin/paraview-[0-9]"):
+        subprocess.run(["pkill", "-f", pattern], capture_output=True)
+    running = subprocess.run(["pgrep", "-fc", "paraview"], capture_output=True, text=True)
+    return {"closed": True, "tracked": killed.get("closed", False),
+            "remaining": (running.stdout or "0").strip()}
+
+
 @app.get("/api/paraview/status")
 def api_paraview_status():
     proc = PARAVIEW.get("proc")
@@ -495,7 +514,8 @@ FRAME_CACHE = Path()          # set together with STATE["run_dir"] on the first 
 
 
 def _render_frame(iteration: int | None, field: str, component: str | None,
-                  particles: list[str] | None) -> Path:
+                  particles: list[str] | None,
+                  camera: dict | None = None) -> Path:
     """Render one arbitrary (iteration, field, component) frame and cache it on disk.
 
     The live view only renders the newest iteration for its configured fields; the
@@ -514,6 +534,9 @@ def _render_frame(iteration: int | None, field: str, component: str | None,
     if particles:
         tag_parts.append("p" + "-".join(sorted(particles)))
     tag_parts.append("latest" if iteration is None else f"{int(iteration):08d}")
+    if camera:
+        tag_parts.append("c" + "_".join(f"{k}{camera[k]}" for k in sorted(camera)
+                                        if camera[k] not in (None, 0, 0.0, 1.0)))
     out = Path(STATE["run_dir"]) / "web_frames" / ("_".join(tag_parts) + ".png")
     if out.exists():
         return out
@@ -525,6 +548,8 @@ def _render_frame(iteration: int | None, field: str, component: str | None,
         request["particles"] = list(particles)
     if iteration is not None:
         request["iteration"] = int(iteration)
+    if camera:
+        request["camera"] = camera
     reply = live.worker.render(request)
     if not reply.get("ok"):
         raise HTTPException(500, reply.get("error") or "render failed")
@@ -533,11 +558,15 @@ def _render_frame(iteration: int | None, field: str, component: str | None,
 
 @app.get("/api/frame")
 def api_frame(field: str | None = None, component: str | None = None,
-              iteration: int | None = None, particles: str | None = None):
+              iteration: int | None = None, particles: str | None = None,
+              az: float = 0.0, el: float = 0.0, zoom: float = 1.0,
+              px: float = 0.0, pz: float = 0.0):
     # Backwards compatible: with no extra arguments this serves the live view's own frame.
-    if field and (component or iteration is not None or particles):
+    if field and (component or iteration is not None or particles
+                  or az or el or zoom != 1.0 or px or pz):
         species = [s.strip() for s in particles.split(",") if s.strip()] if particles else None
-        return FileResponse(_render_frame(iteration, field, component, species),
+        camera = {"azimuth": az, "elevation": el, "zoom": zoom, "pan": [px, pz]}
+        return FileResponse(_render_frame(iteration, field, component, species, camera),
                             media_type="image/png", headers={"Cache-Control": "no-store"})
     live: LiveView | None = STATE.get("live")
     if live is None:
@@ -595,6 +624,36 @@ def _safe_name(name: str) -> str:
     import re as _re
     cleaned = _re.sub(r"[^0-9A-Za-z\u4e00-\u9fff._-]+", "-", (name or "").strip()).strip("-._")
     return cleaned[:60] or "snapshot"
+
+
+QUANTITIES_CACHE: dict = {"run": None, "items": []}
+
+
+@app.get("/api/quantities")
+def api_quantities():
+    """List the field quantities this run can render, with their component counts.
+
+    The list comes from the file itself (the resident renderer enumerates the arrays),
+    so the UI cannot offer something the output does not contain — in particular it
+    will not offer x/y/z for a scalar such as the charge density `rho`.
+    """
+    live: LiveView | None = STATE.get("live")
+    if live is None:
+        raise HTTPException(400, "no run yet")
+    run = STATE.get("run_dir")
+    if QUANTITIES_CACHE.get("run") == run and QUANTITIES_CACHE.get("items"):
+        return {"quantities": QUANTITIES_CACHE["items"],
+                "diag": str(live.diag_dir or run)}
+    diag = live.diag_dir or Path(run)
+    pmd = diag / "paraview.pmd"
+    if not pmd.exists():
+        raise HTTPException(404, "this run has no openPMD output")
+    reply = live.worker.render({"pmd": str(pmd), "list": True})
+    if not reply.get("ok"):
+        raise HTTPException(500, reply.get("error") or "cannot inspect the output")
+    items = reply.get("quantities", [])
+    QUANTITIES_CACHE.update({"run": run, "items": items})
+    return {"quantities": items, "diag": str(diag)}
 
 
 @app.get("/api/snapshots")

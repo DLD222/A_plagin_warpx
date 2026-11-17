@@ -79,9 +79,9 @@
   <label style="font-size:12px;color:var(--dim)" title="派生/别名的参数默认折叠，勾选后显示">
     <input type="checkbox" id="show-derived"> 显示派生参数</label>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
-  <button id="paraview" title="把当前结果导成 .vti/.pvd 并打开 ParaView">🔍 ParaView 深挖</button>
-  <button id="paraview-close" title="关闭网页打开的 ParaView 窗口（WSLg 下窗口按钮常常关不掉）"
-          style="display:none">✕ 关闭 ParaView</button>
+  <button id="paraview" title="在网页内交互查看（旋转/缩放/回放），不再弹外部窗口">🔍 网页内查看</button>
+  <button id="paraview-ext" title="导出 .vti/.pvd 并打开外部 ParaView（WSLg 下窗口按钮可能关不掉，用右边强制关闭）">↗ 外部 ParaView</button>
+  <button id="paraview-close" title="强制杀掉所有 ParaView 进程（外部窗口关不掉时用这个）">✕ 关闭 ParaView</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
   <button id="restart" title="把选中 checkpoint 设为 amr.restart 并运行">⏩ 续算</button>
   <span id="status"><span class="dot" style="background:var(--dim)"></span>空闲</span>
@@ -118,20 +118,10 @@
     <h3 style="margin:0 0 6px">回放与图片</h3>
     <div style="display:flex;gap:6px;align-items:center;font-size:12px;flex-wrap:wrap">
       <label>物理量
-        <select id="rp-field">
-          <option value="rho">电荷密度 rho</option>
-          <option value="E">电场 E</option>
-          <option value="B">磁场 B</option>
-          <option value="j">电流 j</option>
-        </select>
+        <select id="rp-field"><option value="">（运行后自动列出）</option></select>
       </label>
-      <label>分量
-        <select id="rp-comp">
-          <option value="">模 |F|</option>
-          <option value="x">x</option>
-          <option value="y">y</option>
-          <option value="z">z</option>
-        </select>
+      <label id="rp-comp-label">分量
+        <select id="rp-comp"></select>
       </label>
       <label><input type="checkbox" id="rp-particles" checked> 叠加粒子</label>
     </div>
@@ -141,6 +131,14 @@
       <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim)">
         <span id="rp-iter">—</span><span id="rp-count">—</span>
       </div>
+    </div>
+    <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;font-size:12px">
+      <button id="rp-reset" title="重置视角">⟳ 重置</button>
+      <button id="rp-zoom-in" title="放大">＋</button>
+      <button id="rp-zoom-out" title="缩小">－</button>
+      <button id="rp-top" title="俯视（沿视图轴）">俯视</button>
+      <button id="rp-iso" title="斜视（默认 3/4 视角）">斜视</button>
+      <span style="color:var(--dim);align-self:center">拖动旋转 · 滚轮缩放 · Shift+拖动平移</span>
     </div>
     <div id="rp-image-wrap" style="margin-top:6px;text-align:center">
       <img id="rp-image" alt="回放画面" style="max-width:100%;background:#000;display:none">
@@ -708,7 +706,19 @@ document.getElementById("paraview-close").onclick = async () => {
             out.closed ? "var(--ok)" : "var(--dim)");
   document.getElementById("paraview-close").style.display = "none";
 };
-document.getElementById("paraview").onclick = async () => {
+document.getElementById("paraview-close").onclick = async () => {
+  const r = await fetch("/api/paraview/close-all", { method: "POST" });
+  const out = await r.json();
+  setStatus(out.remaining === "0" ? "已关闭所有 ParaView" : `仍有 ${out.remaining} 个 ParaView 进程`,
+            out.remaining === "0" ? "var(--ok)" : "var(--warn)");
+  document.getElementById("paraview-close").style.display = "none";
+};
+document.getElementById("paraview").onclick = () => {
+  document.getElementById("replay").scrollIntoView({ behavior: "smooth", block: "start" });
+  refreshQuantities(); refreshReplay(); refreshGallery();
+  setStatus("已在网页内打开交互查看器：拖动旋转、滚轮缩放、进度条回放", "var(--ok)");
+};
+document.getElementById("paraview-ext").onclick = async () => {
   setStatus("正在导出 VTK …", "var(--warn)");
   const r = await fetch("/api/paraview", { method: "POST" });
   const out = await r.json();
@@ -738,21 +748,93 @@ document.getElementById("restart").onclick = () => {
 };
 // ---- 回放与图片：拖动进度条看任意时刻的画面，可保存/删除 -------------------
 let RP_ITERS = [], RP_INDEX = 0, RP_TIMER = null, RP_LOADED = false;
+let RP_QUANTITIES = [];
+
+const QUANTITY_LABEL = {
+  rho: "电荷密度 rho（标量）",
+  E: "电场 E（矢量）",
+  B: "磁场 B（矢量）",
+  j: "电流密度 j（矢量）",
+};
+function quantityLabel(q) {
+  const base = QUANTITY_LABEL[q.name] || q.name;
+  return q.ncomp > 1 ? base : `${base}`;
+}
+
+// 物理量直接从输出里枚举：标量（如 rho）没有分量，不显示分量下拉。
+function fillQuantitySelect() {
+  const field = document.getElementById("rp-field");
+  const comp = document.getElementById("rp-comp");
+  const compLabel = document.getElementById("rp-comp-label");
+  const previous = field.value;
+  field.innerHTML = "";
+  for (const q of RP_QUANTITIES) {
+    const o = document.createElement("option");
+    o.value = q.name;
+    o.textContent = quantityLabel(q);
+    field.appendChild(o);
+  }
+  if (previous && RP_QUANTITIES.some(q => q.name === previous)) field.value = previous;
+  refreshComponentSelect();
+}
+function currentQuantity() {
+  return RP_QUANTITIES.find(q => q.name === document.getElementById("rp-field").value) || null;
+}
+function refreshComponentSelect() {
+  const q = currentQuantity();
+  const comp = document.getElementById("rp-comp");
+  const label = document.getElementById("rp-comp-label");
+  comp.innerHTML = "";
+  if (!q || q.ncomp <= 1) {
+    // 标量：没有分量可选，直接隐藏这一栏（电荷密度就是这种情况）
+    label.style.display = "none";
+    comp.value = "";
+    return;
+  }
+  label.style.display = "";
+  const mod = document.createElement("option");
+  mod.value = ""; mod.textContent = "模 |F|";
+  comp.appendChild(mod);
+  for (const c of q.components) {
+    const o = document.createElement("option");
+    o.value = c.axis || c.name;
+    o.textContent = c.axis || c.name;
+    comp.appendChild(o);
+  }
+}
+async function refreshQuantities() {
+  try {
+    const data = await (await fetch("/api/quantities")).json();
+    const items = data.quantities || [];
+    if (JSON.stringify(items) === JSON.stringify(RP_QUANTITIES)) return;
+    RP_QUANTITIES = items;
+    fillQuantitySelect();
+  } catch (e) { /* no run yet */ }
+}
 
 function rpQuery() {
   const field = document.getElementById("rp-field").value;
-  const comp = document.getElementById("rp-comp").value;
+  const q = currentQuantity();
+  const comp = (q && q.ncomp > 1) ? document.getElementById("rp-comp").value : "";
   const parts = document.getElementById("rp-particles").checked ? "electrons" : "";
   return { field, comp, parts };
 }
+const RP_CAM = { az: 0, el: 0, zoom: 1, px: 0, pz: 0 };
+
 function rpFrameUrl(iteration) {
   const { field, comp, parts } = rpQuery();
   const params = new URLSearchParams({ field, iteration: String(iteration) });
   if (comp) params.set("component", comp);
   if (parts) params.set("particles", parts);
+  if (RP_CAM.az) params.set("az", RP_CAM.az.toFixed(1));
+  if (RP_CAM.el) params.set("el", RP_CAM.el.toFixed(1));
+  if (RP_CAM.zoom !== 1) params.set("zoom", RP_CAM.zoom.toFixed(3));
+  if (RP_CAM.px) params.set("px", RP_CAM.px.toFixed(4));
+  if (RP_CAM.pz) params.set("pz", RP_CAM.pz.toFixed(4));
   params.set("t", String(Date.now()));
   return "/api/frame?" + params.toString();
 }
+function rpApplyCamera() { rpSchedule(); }
 function rpShow(skipRender) {
   const iter = RP_ITERS[RP_INDEX];
   document.getElementById("rp-iter").textContent = iter === undefined ? "—" : "迭代 " + iter;
@@ -820,9 +902,57 @@ document.getElementById("rp-slider").oninput = (e) => {
   rpShow(true);
   rpSchedule();
 };
-for (const id of ["rp-field", "rp-comp", "rp-particles"]) {
+document.getElementById("rp-field").onchange = () => { refreshComponentSelect(); rpShow(false); };
+for (const id of ["rp-comp", "rp-particles"]) {
   document.getElementById(id).onchange = () => { rpShow(false); };
 }
+// ---- 鼠标交互：拖动旋转、Shift+拖动平移、滚轮缩放（全部在网页内完成）----
+(function () {
+  const img = document.getElementById("rp-image");
+  let dragging = false, mode = "rotate", lastX = 0, lastY = 0;
+  img.style.cursor = "grab";
+  img.addEventListener("mousedown", (e) => {
+    dragging = true; mode = e.shiftKey ? "pan" : "rotate";
+    lastX = e.clientX; lastY = e.clientY;
+    img.style.cursor = "grabbing";
+    e.preventDefault();
+  });
+  window.addEventListener("mouseup", () => { dragging = false; img.style.cursor = "grab"; });
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    if (mode === "pan") {
+      RP_CAM.px += dx / 400;
+      RP_CAM.pz -= dy / 400;
+    } else {
+      RP_CAM.az += dx * 0.6;
+      RP_CAM.el = Math.max(-89, Math.min(89, RP_CAM.el + dy * 0.6));
+    }
+    rpSchedule();
+  });
+  img.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    RP_CAM.zoom = Math.max(0.2, Math.min(20, RP_CAM.zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+    rpSchedule();
+  }, { passive: false });
+})();
+document.getElementById("rp-reset").onclick = () => {
+  RP_CAM.az = RP_CAM.el = 0; RP_CAM.zoom = 1; RP_CAM.px = RP_CAM.pz = 0;
+  rpShow(false);
+};
+document.getElementById("rp-zoom-in").onclick = () => {
+  RP_CAM.zoom = Math.min(20, RP_CAM.zoom * 1.25); rpApplyCamera();
+};
+document.getElementById("rp-zoom-out").onclick = () => {
+  RP_CAM.zoom = Math.max(0.2, RP_CAM.zoom / 1.25); rpApplyCamera();
+};
+document.getElementById("rp-top").onclick = () => {
+  RP_CAM.az = RP_CAM.el = 0; RP_CAM.zoom = 1; rpShow(false);
+};
+document.getElementById("rp-iso").onclick = () => {
+  RP_CAM.az = 35; RP_CAM.el = 25; rpShow(false);
+};
 document.getElementById("rp-save").onclick = async () => {
   const iter = RP_ITERS[RP_INDEX];
   if (iter === undefined) { setStatus("还没有可保存的画面", "var(--warn)"); return; }
@@ -966,7 +1096,9 @@ async function switchDims(dims) {
   setInterval(refreshCheckpoints, 5000);
   refreshIterations();
   setInterval(refreshIterations, 8000);
+  refreshQuantities();
   refreshReplay();
+  setInterval(refreshQuantities, 15000);
   setInterval(refreshReplay, 8000);
   refreshGallery();
 })();
