@@ -1240,7 +1240,7 @@
   },
   {
    "name": "<diag_name>.do_back_transformed_fields",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Only used when <diag_name>.diag_type is BackTransformed Whether to back transform the fields or not. Note that for BackTransformed diagnostics, at least one of the options <diag_name>.do_back_transformed_fields or <diag_name>.do_back_transformed_particles must be 1.",
@@ -1264,7 +1264,7 @@
   },
   {
    "name": "<diag_name>.do_back_transformed_particles",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Only used when <diag_name>.diag_type is BackTransformed Whether to back transform the particle data or not. Note that for BackTransformed diagnostics, at least one of the options <diag_name>.do_back_transformed_fields or <diag_name>.do_back_transformed_particles must be 1. If diag_name.write_species = 0, then <diag_name>.do_back_transformed_particles will be set to 0 in the simulation and particles will not be backtransformed.",
@@ -1333,7 +1333,7 @@
   },
   {
    "name": "<diag_name>.dump_rz_modes",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Whether to save all modes when in RZ. When openpmd_backend = openpmd, this parameter is ignored and all modes are saved.",
@@ -1591,7 +1591,7 @@
   },
   {
    "name": "<diag_name>.particle_fields.<field_name>.do_average",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Whether the diagnostic is an average or a sum. With an average, the sum over the specified function is divided by the sum of the particle weights in each cell.",
@@ -1642,7 +1642,7 @@
   },
   {
    "name": "<diag_name>.plot_raw_fields",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "By default, the fields written in the plot files are averaged on the cell centers. When <diag_name>.plot_raw_fields = 1, then the raw (i.e. non-averaged) fields are also saved in the output files. Only works with <diag_name>.format = plotfile. See `this section <https://yt-project.org/doc/examining/loading_data.html#viewing-raw-fields-in-warpx>`__ in the yt documentation for more details on how to view raw fields.",
@@ -1666,7 +1666,7 @@
   },
   {
    "name": "<diag_name>.plot_raw_fields_guards",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Only used when <diag_name>.plot_raw_fields = 1. Whether to include the guard cells in the output of the raw fields. Only works with <diag_name>.format = plotfile.",
@@ -1779,7 +1779,7 @@
   },
   {
    "name": "<diag_name>.write_species",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Whether to write species output or not. For checkpoint format, always set this parameter to 1.",
@@ -1819,7 +1819,7 @@
   },
   {
    "name": "<species>.do_qed_virtual_photons",
-   "type": "boolean",
+   "type": "bool",
    "default": "false",
    "optional": true,
    "doc": "Create a population of virtual photons associated with <species>. It only works if <species> is an electron or a positron species. The virtual photon species has to be created as a regular photon species in the input file. Virtual photons are created from scratch at each timestep at the same position as the parent particle. This implies that different primary species must have different virtual photon species. The energy of the virtual photons is sampled from their spectrum (see :cite:t:`param-LandauVol4` section 99 for more details). The momentum of the virtual photons is parallel to that of the parent particle. This feature also requires the following input parameters: * <species>.qed_virtual_photon_species_name (string) name of the virtual photon species associated with the current lepton species. * <virtual_photon_species>.qed_virtual_photons_min_energy (float, in Joules) minimum energy of the virtual photons * <virtual_photon_species>.qed_virtual_photons_multiplier (int), sampling factor for the virtual photons. A sampling factor of f means that the number of virtual photons is multiplied by f, while their weights are divided by f. The virtual photons can undergo collisions via the linear Breit-Wheeler or linear Compton processes. This is useful to model incoherent beam-beam effects in colliders (e.g. pair generation, radiative Bhabha scattering). This QED feature is separated from the strong-field QED modules (quantum synchrotron and non-linear Breit-Wheeler). It requires WarpX to be compiled with WarpX_QED=ON (CMake) or QED=TRUE (GNU Make).",
@@ -1834,7 +1834,7 @@
   },
   {
    "name": "<species>.qed_virtual_photons_do_beam_size_effect",
-   "type": "boolean",
+   "type": "bool",
    "default": "false",
    "optional": true,
    "doc": "Applies the beam size effect on the virtual photons. This effect reduces the radiative Bhabha scattering cross section by approximately half, by smearing the impact parameter of the virtual photons on a disc around the equivalent primary. This accounts for the finite transverse size of the colliding bunches. Otherwise all virtual photons are assumed at the same impact parameter. The (transverse) virtual photon coordinates will be randomized around the coordinate of the corresponding primary and distributed on a disc perpendicular to the primary's propagation direction. The radius of the disc is \\rho=\\frac{\\hbar}{\\sqrt{Q^2(1-x)}}, where Q is the photon virtuality and x is the fractional photon energy. See :cite:t:`param-Kicsiny2024` for more details.",
@@ -1965,7 +1965,7 @@
   },
   {
    "name": "<species_name>.do_adk_correction",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Whether to apply the correction to the ADK theory proposed by Zhang, Lan and Lu in `Q. Zhang et al. (Phys. Rev. A 90, 043410, 2014) <https://doi.org/10.1103/PhysRevA.90.043410>`__. If so, the probability of ionization is modified using an empirical model that should be more accurate in the regime of high electric fields. Currently, this is only implemented for Hydrogen, although Argon is also available in the same reference.",
@@ -2034,7 +2034,7 @@
   },
   {
    "name": "<species_name>.do_continuous_injection",
-   "type": "0 or 1",
+   "type": "bool",
    "default": null,
    "optional": false,
    "doc": "Whether to inject particles during the simulation, and not only at initialization. This can be required with a moving window and/or when running in a boosted frame.",
@@ -2058,7 +2058,7 @@
   },
   {
    "name": "<species_name>.do_field_ionization",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Do field ionization for this species (using the ADK theory).",
@@ -2082,7 +2082,7 @@
   },
   {
    "name": "<species_name>.do_not_deposit",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "If 1 is given, both charge deposition and current deposition will not be done, thus that species does not contribute to the fields.",
@@ -2114,7 +2114,7 @@
   },
   {
    "name": "<species_name>.do_not_gather",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "If 1 is given, field gather from grids will not be done, thus that species will not be affected by the field on grids.",
@@ -2146,7 +2146,7 @@
   },
   {
    "name": "<species_name>.do_not_push",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "If 1 is given, this species will not be pushed by any pusher during the simulation.",
@@ -2244,7 +2244,7 @@
   },
   {
    "name": "<species_name>.do_resampling",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "If 1 resampling is performed for this species. This means that the number of macroparticles will be reduced at specific timesteps while preserving the distribution function as much as possible (details depend on the chosen resampling algorithm). This can be useful in situations with continuous creation of particles (e.g. with ionization or with QED effects). At least one resampling trigger (see below) must be specified to actually perform resampling.",
@@ -2292,7 +2292,7 @@
   },
   {
    "name": "<species_name>.do_temperature_deposition",
-   "type": "boolean",
+   "type": "bool",
    "default": "false",
    "optional": true,
    "doc": "When running with Ohm's Law Hybrid Solver, this will enable temperature deposition in each dimension with a matched shape function and filtering used for current deposition. This is required when using the electron energy solver with electron-ion temperature relaxation.",
@@ -2340,7 +2340,7 @@
   },
   {
    "name": "<species_name>.initialize_self_fields",
-   "type": "0 or 1",
+   "type": "bool",
    "default": null,
    "optional": false,
    "doc": "Whether to calculate the space-charge fields associated with this species at the beginning of the simulation. The fields are calculated for the mean gamma of the species.",
@@ -3364,7 +3364,7 @@
   },
   {
    "name": "algo.load_balance_with_sfc",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "If this is 1: use a Space-Filling Curve (SFC) algorithm in order to perform load-balancing of the simulation. If this is 0: the Knapsack algorithm is used instead.",
@@ -4122,7 +4122,7 @@
   },
   {
    "name": "diagnostics.enable",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Whether to enable or disable diagnostics. This flag overwrites all other diagnostics input parameters.",
@@ -4921,7 +4921,7 @@
   },
   {
    "name": "interpolation.galerkin_scheme",
-   "type": "0 or 1",
+   "type": "bool",
    "default": null,
    "optional": false,
    "doc": "Whether to use a Galerkin scheme when gathering fields to particles. When set to 1, the interpolation orders used for field-gathering are reduced for certain field components along certain directions. For example, E_z is gathered using algo.particle_shape along (x,y) and algo.particle_shape - 1 along z. See equations (21)-(23) of :cite:t:`param-Godfrey2013` and associated references for details. Default: interpolation.galerkin_scheme = 0 with collocated grids, or momentum-conserving field gathering, or when algo.current_deposition = direct ; interpolation.galerkin_scheme = 1 otherwise. With algo.evolve_scheme = semi_implicit_darwin, the particle pushes of the Darwin solver do not use this parameter: the electrostatic field is always gathered with the Galerkin scheme (unless momentum-conserving field gathering is used), while the magnetic field and the inductive electric field are always gathered without it, consistent with the mass matrices. .. warning:: The default behavior should not normally be changed. At present, this parameter is intended mainly for testing and development purposes.",
@@ -5002,7 +5002,7 @@
   },
   {
    "name": "lattice.reverse",
-   "type": "boolean",
+   "type": "bool",
    "default": "false",
    "optional": true,
    "doc": "Reverse the list of elements in the lattice.",
@@ -5648,7 +5648,7 @@
   },
   {
    "name": "particles.use_fdtd_nci_corr",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Whether to activate the FDTD Numerical Cherenkov Instability corrector. Not currently available in the RZ, RCYLINDER, and RSPHERE configuration.",
@@ -5722,7 +5722,7 @@
   },
   {
    "name": "psatd.current_correction",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1, with the exceptions mentioned below",
    "optional": false,
    "doc": "If true, a current correction scheme in Fourier space is applied in order to guarantee charge conservation. The default value is psatd.current_correction = 1, unless a charge-conserving current deposition scheme is used (by setting algo.current_deposition = esirkepov or algo.current_deposition = vay) or unless the div(E) cleaning scheme is used (by setting warpx.do_dive_cleaning = 1). If psatd.v_galilean is zero, the spectral solver used is the standard PSATD scheme described in :cite:t:`param-VayJCP2013` and the current correction reads .. math:: \\widehat{\\boldsymbol{J}}^{\\,n+1/2}_{\\mathrm{correct}} = \\widehat{\\boldsymbol{J}}^{\\,n+1/2} - \\bigg(\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{J}}^{\\,n+1/2} - i \\frac{\\widehat{\\rho}^{n+1} - \\widehat{\\rho}^{n}}{\\Delta{t}}\\bigg) \\frac{\\boldsymbol{k}}{k^2} If psatd.v_galilean is non-zero, the spectral solver used is the Galilean PSATD scheme described in :cite:t:`param-LehePRE2016` and the current correction reads .. math:: \\widehat{\\boldsymbol{J}}^{\\,n+1/2}_{\\mathrm{correct}} = \\widehat{\\boldsymbol{J}}^{\\,n+1/2} - \\bigg(\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{J}}^{\\,n+1/2} - (\\boldsymbol{k}\\cdot\\boldsymbol{v}_G) \\,\\frac{\\widehat\\rho^{n+1} - \\widehat\\rho^{n}\\theta^2}{1 - \\theta^2}\\bigg) \\frac{\\boldsymbol{k}}{k^2} where \\theta=\\exp(i\\,\\boldsymbol{k}\\cdot\\boldsymbol{v}_G\\,\\Delta{t}/2). This option is currently implemented only for the standard PSATD, Galilean PSATD, and averaged Galilean PSATD schemes, while it is not yet available for the PSATD JRhom algorithm.",
@@ -5746,7 +5746,7 @@
   },
   {
    "name": "psatd.do_time_averaging",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "Whether to use an averaged Galilean PSATD algorithm or standard Galilean PSATD.",
@@ -5979,7 +5979,7 @@
   },
   {
    "name": "psatd.periodic_single_box_fft",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "If true, this will *not* incorporate the guard cells into the box over which FFTs are performed. This is only valid when WarpX is run with periodic boundaries and a single box. In this case, using psatd.periodic_single_box_fft is equivalent to using a global FFT over the whole domain. Therefore, all the approximations that are usually made when using local FFTs with guard cells (for problems with multiple boxes) become exact in the case of the periodic, single-box FFT without guard cells.",
@@ -6003,7 +6003,7 @@
   },
   {
    "name": "psatd.update_with_rho",
-   "type": "0 or 1",
+   "type": "bool",
    "default": null,
    "optional": false,
    "doc": "If true, the update equation for the electric field is expressed in terms of both the current density and the charge density, namely \\widehat{\\boldsymbol{J}}^{\\,n+1/2}, \\widehat\\rho^{n}, and \\widehat\\rho^{n+1}. If false, instead, the update equation for the electric field is expressed in terms of the current density \\widehat{\\boldsymbol{J}}^{\\,n+1/2} only. If charge is expected to be conserved (by setting, for example, psatd.current_correction = 1), then the two formulations are expected to be equivalent. If psatd.v_galilean is zero, the spectral solver used is the standard PSATD scheme described in :cite:t:`param-VayJCP2013`: 1. if psatd.update_with_rho = 0, the update equation for the electric field reads .. math:: \\begin{split} \\widehat{\\boldsymbol{E}}^{\\,n+1}= & \\: C \\widehat{\\boldsymbol{E}}^{\\,n} + i \\, \\frac{S c}{k} \\boldsymbol{k}\\times\\widehat{\\boldsymbol{B}}^{\\,n} - \\frac{S}{\\epsilon_0 c \\, k} \\widehat{\\boldsymbol{J}}^{\\,n+1/2} \\\\[0.2cm] & +\\frac{1-C}{k^2} (\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{E}}^{\\,n}) \\boldsymbol{k} + \\frac{1}{\\epsilon_0 k^2} \\left(\\frac{S}{c \\, k}-\\Delta{t}\\right) (\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{J}}^{\\,n+1/2}) \\boldsymbol{k} \\end{split} 2. if psatd.update_with_rho = 1, the update equation for the electric field reads .. math:: \\begin{split} \\widehat{\\boldsymbol{E}}^{\\,n+1}= & \\: C\\widehat{\\boldsymbol{E}}^{\\,n} + i \\, \\frac{S c}{k} \\boldsymbol{k}\\times\\widehat{\\boldsymbol{B}}^{\\,n} - \\frac{S}{\\epsilon_0 c \\, k} \\widehat{\\boldsymbol{J}}^{\\,n+1/2} \\\\[0.2cm] & + \\frac{i}{\\epsilon_0 k^2} \\left(C-\\frac{S}{c\\,k}\\frac{1}{\\Delta{t}}\\right) \\widehat{\\rho}^{n} \\boldsymbol{k} - \\frac{i}{\\epsilon_0 k^2} \\left(1-\\frac{S}{c \\, k} \\frac{1}{\\Delta{t}}\\right)\\widehat{\\rho}^{n+1} \\boldsymbol{k} \\end{split} The coefficients C and S are defined in :cite:t:`param-VayJCP2013`. If psatd.v_galilean is non-zero, the spectral solver used is the Galilean PSATD scheme described in :cite:t:`param-LehePRE2016`: 1. if psatd.update_with_rho = 0, the update equation for the electric field reads .. math:: \\begin{split} \\widehat{\\boldsymbol{E}}^{\\,n+1} = & \\: \\theta^{2} C \\widehat{\\boldsymbol{E}}^{\\,n} + i \\, \\theta^{2} \\frac{S c}{k} \\boldsymbol{k}\\times\\widehat{\\boldsymbol{B}}^{\\,n} + \\frac{i \\, \\nu \\, \\theta \\, \\chi_1 - \\theta^{2} S}{\\epsilon_0 c \\, k} \\widehat{\\boldsymbol{J}}^{\\,n+1/2} \\\\[0.2cm] & + \\theta^{2} \\frac{\\chi_2-\\chi_3}{k^{2}} (\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{E}}^{\\,n}) \\boldsymbol{k} + i \\, \\frac{\\chi_2\\left(\\theta^{2}-1\\right)}{\\epsilon_0 c \\, k^{3} \\nu} (\\boldsymbol{k}\\cdot\\widehat{\\boldsymbol{J}}^{\\,n+1/2}) \\boldsymbol{k} \\end{split} 2. if psatd.update_with_rho = 1, the update equation for the electric field reads .. math:: \\begin{split} \\widehat{\\boldsymbol{E}}^{\\,n+1} = & \\: \\theta^{2} C \\widehat{\\boldsymbol{E}}^{\\,n} + i \\, \\theta^{2} \\frac{S c}{k} \\boldsymbol{k}\\times\\widehat{\\boldsymbol{B}}^{\\,n} + \\frac{i \\, \\nu \\, \\theta \\, \\chi_1 - \\theta^{2} S}{\\epsilon_0 c \\, k} \\widehat{\\boldsymbol{J}}^{\\,n+1/2} \\\\[0.2cm] & + i \\, \\frac{\\theta^{2} \\chi_3}{\\epsilon_0 k^{2}} \\widehat{\\rho}^{\\,n} \\boldsymbol{k} - i \\, \\frac{\\chi_2}{\\epsilon_0 k^{2}} \\widehat{\\rho}^{\\,n+1} \\boldsymbol{k} \\end{split} The coefficients C, S, \\theta, \\nu, \\chi_1, \\chi_2, and \\chi_3 are defined in :cite:t:`param-LehePRE2016`. The default value for psatd.update_with_rho is 1 if psatd.v_galilean is non-zero and 0 otherwise. The option psatd.update_with_rho = 0 is not implemented with the following algorithms: comoving PSATD (psatd.v_comoving), time averaging (psatd.do_time_averaging = 1), div(E) cleaning (warpx.do_dive_cleaning = 1), and PSATD JRhom (psatd.JRhom). Note that the update with and without rho is also supported in RZ geometry.",
@@ -6048,7 +6048,7 @@
   },
   {
    "name": "psatd.use_default_v_galilean",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "This can be used in boosted-frame simulations only and sets the Galilean velocity along the z direction automatically as v_{G} = -\\sqrt{1-1/\\gamma^2}, where \\gamma is the Lorentz factor of the boosted frame (set by warpx.gamma_boost). See the section Numerical Stability and alternate formulation in a Galilean frame for more information on the Galilean algorithm for boosted-frame simulations.",
@@ -6758,7 +6758,7 @@
   },
   {
    "name": "warpx.do_dive_cleaning",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "Whether to use modified Maxwell equations that progressively eliminate the error in div(E)-\\rho. This can be useful when using a current deposition algorithm which is not strictly charge-conserving, or when using mesh refinement. These modified Maxwell equation will cause the error to propagate (at the speed of light) to the boundaries of the simulation domain, where it can be absorbed.",
@@ -6792,7 +6792,7 @@
   },
   {
    "name": "warpx.do_dynamic_scheduling",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Whether to activate OpenMP dynamic scheduling.",
@@ -6828,7 +6828,7 @@
   },
   {
    "name": "warpx.do_initial_div_cleaning",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "Whether to use a projection method to scrub A/B field divergence in externally loaded fields. This applies to both externally loaded grid fields (warpx.B_ext_grid_init_style) and externally applied particle fields (particles.B_ext_particle_init_style = read_from_file); when several applied field maps are stacked, each map is cleaned independently. It is supported for the electromagnetic (Yee, hybrid-PIC), electrostatic (labframe) and magnetostatic (labframe-electromagnetostatic, with the multigrid Poisson solver) solvers. This is automatically turned on if external/initial grid B or time varying A fields are loaded; for applied particle fields it must be enabled explicitly (opt-in).",
@@ -7080,7 +7080,7 @@
   },
   {
    "name": "warpx.do_subcycling",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "Whether or not to use sub-cycling. Different refinement levels have a different cell size, which results in different Courant–Friedrichs–Lewy (CFL) limits for the time step. By default, when using mesh refinement, the same time step is used for all levels. This time step is taken as the CFL limit of the finest level. Hence, for coarser levels, the timestep is only a fraction of the CFL limit for this level, which may lead to numerical artifacts. With sub-cycling, each level evolves with its own time step, set to its own CFL limit. In practice, it means that when level 0 performs one iteration, level 1 performs two iterations. Currently, this option is only supported when amr.max_level = 1 and when the refinement ratio amr.ref_ratio is 2 in all directions. More information can be found at https://ieeexplore.ieee.org/document/8659392. Sub-cycling is only implemented for the finite-difference electromagnetic solvers (algo.maxwell_solver = yee, ckc or ect). It is not supported with the electrostatic and magnetostatic solvers (see warpx.do_electrostatic), with the hybrid-PIC solver (algo.maxwell_solver = hybrid), nor with the spectral solver (algo.maxwell_solver = psatd); WarpX aborts if sub-cycling is requested with any of these solvers. It also requires the explicit evolve scheme (algo.evolve_scheme = explicit, the default), since the implicit and semi-implicit schemes do not sub-cycle.",
@@ -7880,7 +7880,7 @@
   },
   {
    "name": "warpx.roundrobin_sfc",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": true,
    "doc": "Whether to use AMReX's RRSFS strategy for making DistributionMapping to override the default space filling curve (SFC) strategy. If this is enabled, the round robin method is used to distribute Boxes ordered by SFC. This could potentially mitigate the load imbalance issue during initialization by avoiding putting neighboring boxes on the same process.",
@@ -8068,7 +8068,7 @@
   },
   {
    "name": "warpx.synchronize_velocity_for_diagnostics",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "1",
    "optional": true,
    "doc": "Whether to synchronize the particle velocities with the particle positions in the diagnostics. In its normal operation, WarpX is using the leap frog algorithm to advance the particles, and leaves the positions and velocities of the particles unsynchronized at the end of each time step, with the velocities lagging behind a half step. When this option is turned on, whenever any diagnostics will be calculated, the velocities will be advanced a half step to synchronize with the position before the diagnostics are generated.",
@@ -8092,7 +8092,7 @@
   },
   {
    "name": "warpx.use_filter",
-   "type": "0 or 1",
+   "type": "bool",
    "default": null,
    "optional": false,
    "doc": "Whether to use filtering in the simulation. With the explicit evolve scheme, the filtering is turned on by default, except for RZ FDTD. With the implicit evolve schemes, the filtering is turned off by default. The filtering smooths the charge and currents on the mesh, after depositing them from the macro-particles. With implicit schemes, the electric field is also filtered (to maintain consistency for energy conservation). This uses a bilinear filter (see the filtering section). With the RZ PSATD solver, the filtering is done in k-space. .. warning:: Known bug: filter currently not working with FDTD solver in RZ geometry (see https://github.com/BLAST-WarpX/warpx/issues/1943).",
@@ -8116,7 +8116,7 @@
   },
   {
    "name": "warpx.use_filter_compensation",
-   "type": "0 or 1",
+   "type": "bool",
    "default": "0",
    "optional": false,
    "doc": "Whether to add compensation when applying filtering. This is only supported with the RZ spectral solver.",

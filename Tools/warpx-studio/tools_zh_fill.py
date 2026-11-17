@@ -57,6 +57,9 @@ ZH_EXTRA: dict[str, str] = {
     "<species_name>.resampling_min_ppc": "重采样后的目标最小每格粒子数",
     "jacobian.pc_type": "雅可比矩阵的预条件子类型：none / diagonal / lu",
     "particle_thermalizer.theta": "热化器表面的倾斜角（度）",
+    "<diag_name>.adios2_engine.parameters.*": "ADIOS2 引擎的参数（键值对，原样传给底层引擎，如 Threads=… ）",
+    "<diag_name>.adios2_operator.parameters.*": "ADIOS2 压缩算子的参数（键值对，如 accuracy=… ）",
+    "<diag_name>.intervals": "每隔多少步输出一次（整数）；写 0 表示不输出",
     "<diag_name>.time_average_mode": "时间平均的取样方式：fixed_start 从固定步开始 / dynamic_start 按需自动开始",
     "external_vector_potential.<field_name>.read_from_file": "1 = 该矢势分量从文件读，而不是用解析函数",
     "warpx.E_ext_grid_init_style": "外部电场初始化方式：constant 固定值（配 warpx.E_external_grid）/ parse_E_ext_grid_function 用解析函数",
@@ -173,8 +176,13 @@ ZH_EXTRA: dict[str, str] = {
     "warpx.reduced_diags_names": "缩减诊断的名称列表",
     "warpx.synchronize_velocity_for_diagnostics": "1 = 输出诊断前同步粒子速度（GPU 上保证一致）",
     "warpx.eb_implicit_function": "导体几何的隐函数：F>0 是实体内部，F<0 是流体区，F=0 是表面",
-    "particles.deposit_on_main_grid": "1 = 粒子电荷/电流只沉积到最粗层",
-    "particles.gather_from_main_grid": "1 = 粒子取场只从最粗层取",
+    "particles.deposit_on_main_grid":
+        "只在用网格加密（AMR）时有意义：把物种名写在这里（空格分隔，如 `ions electrons`），"
+        "这些物种的电荷/电流就直接沉积到**主网格（最粗层）**，即使粒子位于加密区内部。"
+        "留空 = 按粒子所在层正常沉积。注意这里填的是**物种名**，不是 0/1",
+    "particles.gather_from_main_grid":
+        "只在用网格加密（AMR）时有意义：写在这里的物种，取场时只从**主网格（最粗层）**取，"
+        "即使粒子位于加密区内部。留空 = 按粒子所在层取场。填的是**物种名**，不是 0/1",
     "particles.do_tiling": "1 = 用 tile 并行（小块并行，适合多核）",
     "particles.use_fdtd_nci_corr": "1 = 开启 FDTD 的 NCI 修正滤波器",
     "particles.max_grid_crossings": "一个粒子一步内最多跨几个网格（超出则拆步）",
@@ -287,7 +295,10 @@ ZH_EXTRA: dict[str, str] = {
     "<species_name>.resampling_algorithm": "粒子重采样算法：leveling_thinning / momentum_correction",
     "<species_name>.resampling_trigger_intervals": "每隔多少步检查一次重采样条件",
     "<species_name>.resampling_trigger_max_avg_ppc": "每格平均粒子数超过该值时触发重采样",
-    "<species_name>.rigid_advance": "1 = 一步内直接推到终点（大权重粒子用）",
+    "<species_name>.do_not_deposit":
+        "1 = 该物种不把电荷/电流沉积到网格（例如只当示踪粒子，或电荷由别的模块提供）；0 = 正常沉积（默认）",
+    "<species_name>.rigid_advance":
+        "1 = 一步内直接把粒子推到终点而不按场推近（大权重/注入粒子用，省时间但不受电磁力）；0 = 正常推近（默认）",
     "<species_name>.self_fields_absolute_tolerance": "该物种自场泊松求解的绝对容差",
     "<species_name>.self_fields_required_precision": "该物种自场求解需要的相对精度",
     "<species_name>.zinject_plane": "面注入所在的 z 位置（米）",
