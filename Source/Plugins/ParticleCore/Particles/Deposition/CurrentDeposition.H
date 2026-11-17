@@ -829,6 +829,18 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             double const z_old = z_new - dt*dinv.z*uzp[ip]*gaminv;
 #endif
 
+            // Guard: if the fields blew up, a particle position can be NaN/inf.  Its cell
+            // index would then be INT_MIN and the shape-factor buffers below would be
+            // written far out of bounds (ASAN: stack-buffer-overflow on sx/sz_*_buf).
+            // Skipping such a particle keeps the failure a warning instead of a segfault.
+            if (!(std::isfinite(x_new) && std::isfinite(x_old)
+#if defined(WARPX_DIM_3D)
+                  && std::isfinite(y_new) && std::isfinite(y_old)
+#endif
+                  && std::isfinite(z_new) && std::isfinite(z_old))) {
+                return;   // this is a per-particle lambda body, not a C++ loop
+            }
+
             // Check whether the particle is close to the EB at the old and new position
             bool reduce_shape_old, reduce_shape_new;
 #ifdef AMREX_USE_CUDA
@@ -913,8 +925,13 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             // which can be at a different grid location.
             // Keep these double to avoid bug in single precision
 #if !defined(WARPX_DIM_1D_Z)
-            double sx_new[depos_order + 3] = {0.};
-            double sx_old[depos_order + 3] = {0.};
+            // Two extra leading entries: when the particle crosses a cell to the left, the
+            // reduced-shape redeposit writes at index 1+i_shift with i_shift as low as -3,
+            // which used to run off the front of the buffer (stack-buffer-overflow, ASAN).
+            double sx_new_buf[depos_order + 6] = {0.};
+            double sx_old_buf[depos_order + 6] = {0.};
+            double* const sx_new = sx_new_buf + 2;
+            double* const sx_old = sx_old_buf + 2;
             const int i_new = compute_shape_factor(sx_new+1, x_new );
             const int i_old = compute_shifted_shape_factor(sx_old, x_old, i_new);
             // If particle is close to the embedded boundary, recompute deposition with order 1 shape
@@ -932,8 +949,13 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             }
 #endif
 #if defined(WARPX_DIM_3D)
-            double sy_new[depos_order + 3] = {0.};
-            double sy_old[depos_order + 3] = {0.};
+            // Two extra leading entries: when the particle crosses a cell to the left, the
+            // reduced-shape redeposit writes at index 1+i_shift with i_shift as low as -3,
+            // which used to run off the front of the buffer (stack-buffer-overflow, ASAN).
+            double sy_new_buf[depos_order + 6] = {0.};
+            double sy_old_buf[depos_order + 6] = {0.};
+            double* const sy_new = sy_new_buf + 2;
+            double* const sy_old = sy_old_buf + 2;
             const int j_new = compute_shape_factor(sy_new+1, y_new);
             const int j_old = compute_shifted_shape_factor(sy_old, y_old, j_new);
             // If particle is close to the embedded boundary, recompute deposition with order 1 shape
@@ -951,8 +973,13 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
             }
 #endif
 #if !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-            double sz_new[depos_order + 3] = {0.};
-            double sz_old[depos_order + 3] = {0.};
+            // Two extra leading entries: when the particle crosses a cell to the left, the
+            // reduced-shape redeposit writes at index 1+i_shift with i_shift as low as -3,
+            // which used to run off the front of the buffer (stack-buffer-overflow, ASAN).
+            double sz_new_buf[depos_order + 6] = {0.};
+            double sz_old_buf[depos_order + 6] = {0.};
+            double* const sz_new = sz_new_buf + 2;
+            double* const sz_old = sz_old_buf + 2;
             const int k_new = compute_shape_factor(sz_new+1, z_new );
             const int k_old = compute_shifted_shape_factor(sz_old, z_old, k_new );
             // If particle is close to the embedded boundary, recompute deposition with order 1 shape

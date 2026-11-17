@@ -53,48 +53,32 @@ void WarpX::ApplyEfieldBoundary(const int lev, PatchType patch_type, amrex::Real
     using ablastr::fields::Direction;
 
 #if defined(AMREX_USE_EB)
-    // ---- PEC on embedded surfaces: enforce E_tangential = 0 on cut cells ----
-    // The boundary normal comes from AMReX's cut-cell geometry, so the condition is
-    // "keep only the normal component" rather than "zero the whole cell" (which would
-    // also kill the normal component).
+    // ---- PEC on embedded surfaces, staircase form ----
+    // Cells that the surface covers are inside the conductor, so the electric field
+    // there is zero; with a staircase mask this also sets the tangential component on
+    // the surface to zero, which is the PEC condition `E_tangential = 0`.
+    // (The normal component of B is handled separately in `ApplyBfieldBoundary`, where
+    //  it is made *continuous* rather than zero.)
+    // NOTE: do not read MultiCutFab arrays (e.g. `getBndryNormal().const_array(mfi)`)
+    // here — their data does not outlive the statement and ASAN flags it as
+    // heap-use-after-free.  The staircase form needs no boundary normal.
     if (EB::enabled()) {
-        auto const& eb_factory = fieldEBFactory(lev);
-        auto const& eb_flags = eb_factory.getMultiEBCellFlagFab();
-        auto const& bndry_normal = eb_factory.getBndryNormal();
+        auto const& eb_flags = fieldEBFactory(lev).getMultiEBCellFlagFab();
         using warpx::fields::FieldType;
         auto const efield = m_fields.get_alldirs(
             (patch_type == PatchType::fine) ? FieldType::Efield_fp : FieldType::Efield_cp, lev);
         for (amrex::MFIter mfi(eb_flags); mfi.isValid(); ++mfi) {
             auto const& fab = eb_flags[mfi];
-            if (fab.getType() != amrex::FabType::singlevalued) { continue; }
+            if (fab.getType() == amrex::FabType::regular) { continue; }
             auto const& flag = fab.const_array();
-            auto const& nrm = bndry_normal.const_array(mfi);
             amrex::Box const& tile = mfi.validbox();
-            amrex::Array4<amrex::Real> ex_a{}, ey_a{}, ez_a{};
-            int has_x = 0, has_y = 0, has_z = 0;
-            if (efield[0] != nullptr) { ex_a = efield[0]->array(mfi); has_x = 1; }
-            if (efield[1] != nullptr) { ey_a = efield[1]->array(mfi); has_y = 1; }
-            if (efield[2] != nullptr) { ez_a = efield[2]->array(mfi); has_z = 1; }
-            amrex::ParallelFor(tile, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
-                if (flag(i, j, k).isRegular()) { return; }
-                amrex::Real const n0 = nrm(i, j, k, 0);
-                amrex::Real const n1 = nrm(i, j, k, 1);
-                amrex::Real const n2 = nrm(i, j, k, 2);
-                amrex::Real const norm2 = n0*n0 + n1*n1 + n2*n2;
-                if (norm2 < 1.e-30_rt) {
-                    if (has_x) { ex_a(i, j, k) = 0.0_rt; }
-                    if (has_y) { ey_a(i, j, k) = 0.0_rt; }
-                    if (has_z) { ez_a(i, j, k) = 0.0_rt; }
-                    return;
-                }
-                amrex::Real const e0 = has_x ? ex_a(i, j, k) : 0.0_rt;
-                amrex::Real const e1 = has_y ? ey_a(i, j, k) : 0.0_rt;
-                amrex::Real const e2 = has_z ? ez_a(i, j, k) : 0.0_rt;
-                amrex::Real const En = (e0*n0 + e1*n1 + e2*n2) / norm2;
-                if (has_x) { ex_a(i, j, k) = En * n0; }
-                if (has_y) { ey_a(i, j, k) = En * n1; }
-                if (has_z) { ez_a(i, j, k) = En * n2; }
-            });
+            for (int idim = 0; idim < 3; ++idim) {
+                if (efield[idim] == nullptr) { continue; }
+                amrex::Array4<amrex::Real> const E = efield[idim]->array(mfi);
+                amrex::ParallelFor(tile, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                    if (flag(i, j, k).isCovered()) { E(i, j, k) = 0.0_rt; }
+                });
+            }
         }
     }
 #endif

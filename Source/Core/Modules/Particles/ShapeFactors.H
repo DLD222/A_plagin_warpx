@@ -102,13 +102,29 @@ struct Compute_shifted_shape_factor
     {
         if constexpr (depos_order == 0){
             const auto i = static_cast<int>(std::floor(x_old + T(0.5)));
-            const int i_shift = i - i_new;
+            int i_shift = i - i_new;
+
+            // A particle that ran far outside the tile (e.g. after a numerical blow-up)
+
+            // would index the shape-factor buffer far out of bounds (ASAN: stack-buffer-
+
+            // overflow).  Clamping keeps the write inside the padded buffer.
+
+            i_shift = i_shift < -2 ? -2 : (i_shift > 2 ? 2 : i_shift);
             sx[1+i_shift] = T(1.0);
             return i;
         }
         else if constexpr (depos_order == 1){
             const auto i = static_cast<int>(std::floor(x_old));
-            const int i_shift = i - i_new;
+            int i_shift = i - i_new;
+
+            // A particle that ran far outside the tile (e.g. after a numerical blow-up)
+
+            // would index the shape-factor buffer far out of bounds (ASAN: stack-buffer-
+
+            // overflow).  Clamping keeps the write inside the padded buffer.
+
+            i_shift = i_shift < -2 ? -2 : (i_shift > 2 ? 2 : i_shift);
             const T xint = x_old - T(i);
             sx[1+i_shift] = T(1.0) - xint;
             sx[2+i_shift] = xint;
@@ -116,7 +132,15 @@ struct Compute_shifted_shape_factor
         }
         else if constexpr (depos_order == 2){
             const auto i = static_cast<int>(x_old + T(0.5));
-            const int i_shift = i - (i_new + 1);
+            int i_shift = i - (i_new + 1);
+
+            // A particle that ran far outside the tile (e.g. after a numerical blow-up)
+
+            // would index the shape-factor buffer far out of bounds (ASAN: stack-buffer-
+
+            // overflow).  Clamping keeps the write inside the padded buffer.
+
+            i_shift = i_shift < -2 ? -2 : (i_shift > 2 ? 2 : i_shift);
             const T xint = x_old - T(i);
             sx[1+i_shift] = T(0.5)*(T(0.5) - xint)*(T(0.5) - xint);
             sx[2+i_shift] = T(0.75) - xint*xint;
@@ -126,7 +150,15 @@ struct Compute_shifted_shape_factor
         }
         else if constexpr (depos_order == 3){
             const auto i = static_cast<int>(x_old);
-            const int i_shift = i - (i_new + 1);
+            int i_shift = i - (i_new + 1);
+
+            // A particle that ran far outside the tile (e.g. after a numerical blow-up)
+
+            // would index the shape-factor buffer far out of bounds (ASAN: stack-buffer-
+
+            // overflow).  Clamping keeps the write inside the padded buffer.
+
+            i_shift = i_shift < -2 ? -2 : (i_shift > 2 ? 2 : i_shift);
             const T xint = x_old - T(i);
             sx[1+i_shift] = (T(1.0))/(T(6.0))*(T(1.0) - xint)*(T(1.0) - xint)*(T(1.0) - xint);
             sx[2+i_shift] = (T(2.0))/(T(3.0)) - xint*xint*(T(1.0) - xint/(T(2.0)));
@@ -137,7 +169,15 @@ struct Compute_shifted_shape_factor
         }
         else if constexpr (depos_order == 4){
             const auto i = static_cast<int>(x_old + T(0.5));
-            const int i_shift = i - (i_new + 2);
+            int i_shift = i - (i_new + 2);
+
+            // A particle that ran far outside the tile (e.g. after a numerical blow-up)
+
+            // would index the shape-factor buffer far out of bounds (ASAN: stack-buffer-
+
+            // overflow).  Clamping keeps the write inside the padded buffer.
+
+            i_shift = i_shift < -2 ? -2 : (i_shift > 2 ? 2 : i_shift);
             const T xint = x_old - T(i);
             sx[1+i_shift] = (T(1.0))/(T(24.0))*(T(0.5) - xint)*(T(0.5) - xint)*(T(0.5) - xint)*(T(0.5) - xint);
             sx[2+i_shift] = (T(1.0))/(T(24.0))*(T(4.75) - T(11.0)*xint + T(4.0)*xint*xint*(T(1.5) + xint - xint*xint));
