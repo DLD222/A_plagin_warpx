@@ -420,9 +420,10 @@ function exampleFor(param, type) {
   if (param.name === "amr.n_cell") return "例如 " + axes.map(() => 64).join(" ") + "（" + axes.join(" ") + "）";
   if (param.name === "geometry.prob_lo" || param.name === "geometry.prob_hi")
     return "例如 " + axes.map(() => "0.0").join(" ") + "（" + axes.join(" ") + "）";
-  if (param.name && param.name.startsWith("boundary.") && param.name.includes("_lo") === false
-      && param.name.endsWith("_hi") === false && !param.name.includes("particle"))
-    return "例如 " + axes.map(() => "periodic").join(" ");
+  if (param.name && /^boundary\.(field|particle)_(lo|hi)$/.test(param.name))
+    return "例如 " + axes.map(() => "periodic").join(" ") + "（每个方向一个）";
+  if (param.name && param.name.startsWith("boundary.potential_"))
+    return "例如 0.0（伏特；0 = 接地导体壁）";
   const t = String(type || "").toLowerCase();
   const fallback = t.includes("int") && t.includes("list") ? "例如 64 64"
     : t.includes("int") ? "例如 10"
