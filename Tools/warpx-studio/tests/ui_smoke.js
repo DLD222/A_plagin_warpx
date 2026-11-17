@@ -199,6 +199,21 @@ if (global.window.__STUDIO_TEST__) {
     console.log("PASS 动量两级联动: maxwellian -> ux_std/ux_mean；子类型 parser -> ux_std_function(x,y,z)");
   }
 
+  // 两级联动必须在"常用区"里直接出现（不能掉进折叠区）
+  const juttnerRows = dumpScenario(
+    { params: {}, groups: { [S]: { ions: {
+        momentum_distribution_type: "maxwell_juttner",
+        maxwell_juttner_u_mean_distribution_type: "constant",
+        maxwell_juttner_temperature_in_eV_distribution_type: "constant" } } } },
+    2, "Jüttner constant/constant");
+  for (const need of ["ux_mean", "uy_mean", "uz_mean", "temperature_in_eV"]) {
+    if (!juttnerRows.some((r) => r.trim() === need)) {
+      console.error(`FAIL Jüttner + 子类型 constant 时缺少 ${need}（可能被折叠或排序丢失）`);
+      process.exit(1);
+    }
+  }
+  console.log("PASS Jüttner 两级选择后立即出现 ux_mean/uy_mean/uz_mean/temperature_in_eV");
+
   // 八种注入方式各自需要的参数（逐一核对）
   const styleRows = (st) => dumpScenario(
     { params: {}, groups: { [S]: { ions: { injection_style: st } } } }, 2, "注入 " + st);

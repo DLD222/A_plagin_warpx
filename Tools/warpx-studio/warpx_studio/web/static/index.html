@@ -579,11 +579,14 @@ function orderByDependency(names) {
   const deps = {}, isDependent = new Set();
   const inSet = new Set(names);
   for (const n of names) {
-    for (const r of ((CATALOG.gating_rules || {})[n] || [])) {
-      const sel = r.param;
-      if (!inSet.has(sel) || sel === n) continue;
-      (deps[sel] = deps[sel] || []).push(n);
-      isDependent.add(n);
+    for (const r0 of ((CATALOG.gating_rules || {})[n] || [])) {
+      // 规则可能是"与"组（数组）：组里每个参数都是这条依赖的选择器
+      for (const r of (Array.isArray(r0) ? r0 : [r0])) {
+        const sel = r && r.param;
+        if (!sel || !inSet.has(sel) || sel === n) continue;
+        (deps[sel] = deps[sel] || []).push(n);
+        isDependent.add(n);
+      }
     }
   }
   const out = [], seen = new Set();
@@ -730,7 +733,11 @@ function render() {
       for (const n of ordered) {
         if (promoted.has(n)) continue;
         const rs = (CATALOG.gating_rules || {})[n] || [];
-        if (rs.some(r => promoted.has(r.param))) { promoted.add(n); grew = true; }
+        const sels = [];
+        for (const r0 of rs) {
+          for (const r of (Array.isArray(r0) ? r0 : [r0])) if (r && r.param) sels.push(r.param);
+        }
+        if (sels.some((sel) => promoted.has(sel))) { promoted.add(n); grew = true; }
       }
     }
     const coreNames = ordered.filter(n => promoted.has(n));
