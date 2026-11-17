@@ -208,11 +208,15 @@ class Renderer:
         camera = view.GetActiveCamera()
         focal = list(camera.GetFocalPoint())
         distance = camera.GetDistance()
-        direction = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0],
+        # Camera placement decides whether +x points right on screen.  With the camera on
+        # the +y side and up = +z the screen-right axis is -x, i.e. the picture comes out
+        # mirrored: the flow then appears to run into the obstacle from the wrong side and
+        # the bow shock looks reversed.  Look from -y instead so +x is to the right.
+        direction = {"x": [1.0, 0.0, 0.0], "y": [0.0, -1.0, 0.0],
                      "z": [0.0, 0.0, 1.0]}.get(view_axis, [1.0, -1.0, 1.0])
         if species and not request.get("volume"):
             # look slightly off-axis so the particles lift off the field plane
-            direction = [0.35, 1.0, 0.25]
+            direction = [0.35, -1.0, 0.25]
 
         # Interactive camera: the web page sends the orbit angles / zoom / pan it wants,
         # so rotation and zooming happen in the browser instead of a separate GUI window.
