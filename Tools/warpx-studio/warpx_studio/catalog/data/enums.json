@@ -155,6 +155,7 @@
   ],
   "algo.em_solver_medium": [
    "vacuum",
+   "constant",
    "macroscopic"
   ],
   "algo.particle_shape": [
@@ -170,8 +171,8 @@
   ],
   "<diag_name>.format": [
    "plotfile",
-   "checkpoint",
    "openpmd",
+   "checkpoint",
    "ascent",
    "sensei"
   ],
@@ -739,6 +740,36 @@
    "constant",
    "parse_b_ext_particle_function",
    "read_from_file"
+  ],
+  "boundary.particle_lo/hi": [
+   "Absorbing",
+   "None",
+   "Periodic",
+   "Reflecting",
+   "Thermal"
+  ],
+  "boundary.particle_eb": [
+   "Absorbing",
+   "Reflecting",
+   "Thermal"
+  ],
+  "<species_name>.flux_profile": [
+   "constant",
+   "parse_flux_function"
+  ],
+  "particles.E/B_ext_particle_init_style": [
+   "constant",
+   "parse_E_ext_particle_function",
+   "read_from_file",
+   "repeated_plasma_lens",
+   "repeated_plasma_lens_lengths",
+   "repeated_plasma_lens_period",
+   "repeated_plasma_lens_starts"
+  ],
+  "eb2.geom_type": [
+   "all_regular",
+   "implicit_function",
+   "stl"
   ]
  },
  "hints": {

@@ -202,6 +202,16 @@ def run_checks(port: int) -> None:
           str(enums.get("algo.maxwell_solver")))
     check("诊断类型下拉", "TimeAveraged" in (enums.get("<diag_name>.diag_type") or []),
           str(enums.get("<diag_name>.diag_type")))
+    # 有固定取值的参数必须是下拉，不能让人手打（boundary.particle_eb 曾是填空）
+    must_select = {
+        "boundary.particle_eb": ["Absorbing", "Reflecting", "Thermal"],
+        "eb2.geom_type": ["all_regular", "implicit_function", "stl"],
+        "algo.em_solver_medium": ["vacuum", "constant", "macroscopic"],
+    }
+    missing_select = [n for n, v in must_select.items() if enums.get(n) != v]
+    check("固定取值参数是下拉", not missing_select,
+          f"{len(must_select) - len(missing_select)}/{len(must_select)} 个已设为下拉"
+          + (f"；缺: {missing_select}" if missing_select else ""))
     check("布尔量下拉", enums.get("warpx.do_pml_divb_cleaning") == ["0", "1"],
           "bool 类型自动变成 0/1")
     glossary = catalog_payload.get("glossary") or {}
