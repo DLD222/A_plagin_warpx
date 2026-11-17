@@ -4,7 +4,8 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
-    "<species_name>.flux": "面注入的**宏粒子通量**（个数/(m²·s)）。它直接决定粒子权重：源码里 `weight = flux × 面元缩放 × dt`，因此**物理密度 n = flux · dt / A**（A 是该格发射面的面积，二维里 A = 面内格长 × 1 m）。反推公式：**flux = n · A / dt**。例：n=1e24 m^-3、dz=1e-4 m、dt=1e-10 s → flux = 1e30。`num_particles_per_cell` 只决定每格每步放几个宏粒子（统计噪声），不改变物理密度",
+    "<species_name>.flux": "面注入的**宏粒子**面通量（个/(m²·s)）。稳态每格粒子数由注入与穿越平衡决定：每格每步注入 flux·A·dt 个，粒子以速度 v 穿越长度 dx 的一格需 τ=dx/v，故 **ppc = flux·A·τ = flux·dx·dz/v**（二维 A = dz·1m）。反推 **flux = ppc·v/(dx·dz)**：v=2.5e4 m/s、dx=dz=1e-4 m、ppc=64 → **flux = 1.6e14**",
+
     "<species_name>.xmin": "粒子**初始填充区域**的下界（米）。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时决定铺粒子的范围；留空 = 整个计算域。NFluxPerCell 用 surface_flux_pos / flux_normal_axis 指定发射面，gaussian_beam 用 x_m / z_m 指定束心",
     "<species_name>.xmax": "粒子**初始填充区域**的上界（米）；与 xmin 配对使用。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时生效，留空 = 计算域上界",
     "<species_name>.zmin": "粒子**初始填充区域**的下界（米，z 方向）。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时生效；NFluxPerCell 的位置用 zinject_plane 给",
