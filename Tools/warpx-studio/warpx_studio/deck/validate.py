@@ -58,7 +58,7 @@ def _value(deck, name: str):
 
 
 def _rule_ok(deck, rule: dict, instance: str | None) -> bool:
-    param = rule["param"]
+    param = rule.get("param")
     if instance and param.startswith("<"):
         param = param.split(">", 1)[0] + ">" + param.split(">", 1)[1]
         prefix, _, sub = param.partition(".")
@@ -67,18 +67,29 @@ def _rule_ok(deck, rule: dict, instance: str | None) -> bool:
     else:
         raw = _value(deck, param) or ""
     text = str(raw).strip().strip('"').lower()
-    if rule["op"] == "truthy":
+    op = rule.get("op")
+    if op == "truthy":
         return text in TRUE_WORDS
-    if rule["op"] == "falsy":
+    if op == "falsy":
         return text not in TRUE_WORDS
-    return text == str(rule["value"]).lower()
+    if op == "nonempty":
+        return text not in ("", "none")
+    if op == "empty":
+        return text == ""
+    if op == "notequals":
+        return text != str(rule.get("value", "")).lower()
+    if op == "contains":
+        return str(rule.get("value", "")).lower() in text
+    return text == str(rule.get("value", "")).lower()
 
 
 def visible(name: str, catalog: dict, deck, instance: str | None = None) -> bool:
     rules = catalog.get("gating_rules", {}).get(name)
     if not rules:
         return True
-    return any(_rule_ok(deck, rule, instance) for rule in rules)
+    # 一条规则可能是"与"组（list）：组内全满足才算一条成立；组之间取"或"
+    return any((all(_rule_ok(deck, x, instance) for x in rule) if isinstance(rule, list)
+                else _rule_ok(deck, rule, instance)) for rule in rules)
 
 
 NUMERIC = re.compile(r"\b(int|integer|float|real|double|bool|number)s?\b", re.I)

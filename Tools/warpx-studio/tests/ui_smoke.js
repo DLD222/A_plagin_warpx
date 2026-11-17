@@ -97,7 +97,9 @@ if (global.window.__STUDIO_TEST__) {
   const T = global.window.__STUDIO_TEST__;
   const S = "<species_name>";
   const scenario = (profile) => {
-    const deck = { params: {}, groups: { [S]: { ions: { profile, charge: "5*q_e", mass: "27*m_p" } } } };
+    // 密度剖面现在依赖注入方式：必须同时给 NUniformPerCell 才会生效
+    const deck = { params: {}, groups: { [S]: { ions: {
+      injection_style: "NUniformPerCell", profile, charge: "5*q_e", mass: "27*m_p" } } } };
     T.setDECK(deck);
     T.setStep(2);          // 物种参数在「2 粒子/激光/碰撞」这一步
     T.render();
@@ -117,7 +119,9 @@ if (global.window.__STUDIO_TEST__) {
                "面注入 NFluxPerCell");
 
   const base2 = dumpScenario({ params: {}, groups: { [S]: { ions: {} } } }, 2, "空算例");
-  const mustSee = ["lasers.names", "collisions.collision_names", "injection_style", "profile"];
+  // profile 现在只在 NUniformPerCell/NRandomPerCell 下出现（属于体积注入），
+  // 所以它不再要求"默认可见"；这里只查真正的功能开关与注入方式开关。
+  const mustSee = ["lasers.names", "collisions.collision_names", "injection_style"];
   const missed = mustSee.filter((n) => !base2.some((r) => r.trim() === n));
   if (missed.length) {
     console.error("FAIL 开关被折叠，用户打不开: " + missed.join(", "));
@@ -198,6 +202,28 @@ if (global.window.__STUDIO_TEST__) {
     }
     console.log("PASS 动量两级联动: maxwellian -> ux_std/ux_mean；子类型 parser -> ux_std_function(x,y,z)");
   }
+
+  // 密度剖面只属于按体积铺粒子的注入方式
+  const densRows = (st, prof) => dumpScenario(
+    { params: {}, groups: { [S]: { ions: Object.assign({ injection_style: st },
+        prof ? { profile: prof } : {}) } } }, 2, `密度 ${st} ${prof || ""}`);
+  const fluxDens = densRows("NFluxPerCell", "");
+  if (fluxDens.some((r) => r.trim() === "profile")) {
+    console.error("FAIL 面注入(NFluxPerCell)不该出现 profile");
+    process.exit(1);
+  }
+  const uniDens = densRows("NUniformPerCell", "");
+  if (!uniDens.some((r) => r.trim() === "profile") || !uniDens.some((r) => r.trim() === "density")) {
+    console.error("FAIL NUniformPerCell 应出现 profile 与 density");
+    process.exit(1);
+  }
+  const pdfDens = densRows("NUniformPerCell", "parse_density_function");
+  if (!pdfDens.some((r) => r.trim() === "density_function(x,y,z)")
+      || pdfDens.some((r) => r.trim() === "density")) {
+    console.error("FAIL profile=parse_density_function 时应出 density_function 且隐藏 density");
+    process.exit(1);
+  }
+  console.log("PASS 密度剖面只属于 NUniformPerCell/NRandomPerCell，面注入下隐藏");
 
   // 两级联动必须在"常用区"里直接出现（不能掉进折叠区）
   const juttnerRows = dumpScenario(

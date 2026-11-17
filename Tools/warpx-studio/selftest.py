@@ -581,19 +581,30 @@ def run_checks(port: int) -> None:
           "step 7 = 可视化输出，与参数表单分页")
     # 功能开关门控：依赖参数默认隐藏，打开开关后才出现，开关本身始终可见
     rules = catalog.get("gating_rules") or {}
+
+    def _flat(rs):
+        out = []
+        for r in rs or []:
+            out.extend(r if isinstance(r, list) else [r])   # 规则可能是"与"组
+        return [x for x in out if isinstance(x, dict)]
+
     def shown(name, deck):
         rs = rules.get(name) or []
         if not rs:
             return True
+
         def sat(r):
-            raw = str(deck.get(r["param"], "") or "").replace('"', "").strip()
+            raw = str(deck.get(r.get("param"), "") or "").replace('"', "").strip()
             v = raw.lower()
-            if r["op"] == "truthy": return v in ("1", "true", "t", "yes")
-            if r["op"] == "nonempty": return raw != "" and v != "none"
-            if r["op"] == "notequals": return v != str(r.get("value") or "").lower()
-            if r["op"] == "contains": return str(r.get("value") or "").lower() in v
+            op = r.get("op")
+            if op == "truthy": return v in ("1", "true", "t", "yes")
+            if op == "nonempty": return raw != "" and v != "none"
+            if op == "notequals": return v != str(r.get("value") or "").lower()
+            if op == "contains": return str(r.get("value") or "").lower() in v
+            if op == "empty": return raw == ""
             return v == str(r.get("value") or "").lower()
-        return any(sat(r) for r in rs)
+
+        return any((all(sat(x) for x in r) if isinstance(r, list) else sat(r)) for r in rs)
     cases = [
         ("电离", "<species_name>.ionization_initial_level", "<species_name>.do_field_ionization", "1"),
         ("hybrid", "hybrid_pic_model.elec_temp", "algo.maxwell_solver", "hybrid"),
@@ -606,20 +617,24 @@ def run_checks(port: int) -> None:
         rs = rules_v.get(name) or []
         if not rs: return True
         def sat(r):
-            raw = str(deck.get(r["param"], "") or "").replace('"', "").strip(); v = raw.lower()
-            if r["op"] == "truthy": return v in ("1", "true", "t", "yes")
-            if r["op"] == "nonempty": return raw != "" and v != "none"
-            if r["op"] == "notequals": return v != str(r.get("value") or "").lower()
-            if r["op"] == "contains": return str(r.get("value") or "").lower() in v
-            if r["op"] == "empty": return raw == ""
+            raw = str(deck.get(r.get("param"), "") or "").replace('"', "").strip(); v = raw.lower()
+            op = r.get("op")
+            if op == "truthy": return v in ("1", "true", "t", "yes")
+            if op == "nonempty": return raw != "" and v != "none"
+            if op == "notequals": return v != str(r.get("value") or "").lower()
+            if op == "contains": return str(r.get("value") or "").lower() in v
+            if op == "empty": return raw == ""
             return v == str(r.get("value") or "").lower()
-        return any(sat(r) for r in rs)
+        return any((all(sat(x) for x in r) if isinstance(r, list) else sat(r)) for r in rs)
     S = "<species_name>."
     value_cases = [
-        (S + "density", {S + "profile": "constant"}, True),
-        (S + "density", {S + "profile": "parse_density_function"}, False),
-        (S + "density_function(x,y,z)", {S + "profile": "parse_density_function"}, True),
-        (S + "read_density_from_path", {S + "profile": "read_from_file"}, True),
+        (S + "density", {S + "profile": "constant", S + "injection_style": "NUniformPerCell"}, True),
+        (S + "density", {S + "profile": "parse_density_function",
+                         S + "injection_style": "NUniformPerCell"}, False),
+        (S + "density_function(x,y,z)", {S + "profile": "parse_density_function",
+                                         S + "injection_style": "NUniformPerCell"}, True),
+        (S + "read_density_from_path", {S + "profile": "read_from_file",
+                                        S + "injection_style": "NUniformPerCell"}, True),
         (S + "flux_normal_axis", {S + "injection_style": "NFluxPerCell"}, True),
         (S + "flux_normal_axis", {S + "injection_style": "NUniformPerCell"}, False),
         (S + "injection_file", {S + "injection_style": "external_file"}, True),
