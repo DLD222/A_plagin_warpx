@@ -29,6 +29,11 @@ RUNS = REPO / "audit_runs/studio"
 app = FastAPI(title="WarpX Studio", version="0.1.0")
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
 STATE: dict = {"job": None, "live": None, "run_dir": None}
+# The ParaView GUI launched from the web UI.  It is tracked so the UI can also close it:
+# under WSLg the window manager usually cannot close the window (the Qt process keeps
+# running and the window stays on screen), so an explicit "close" endpoint is the only
+# reliable way to get rid of it.
+PARAVIEW: dict = {"proc": None, "pvd": None}
 BUILD: dict = {"job": None}
 CATALOG: dict = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
 
@@ -281,10 +286,57 @@ def api_paraview(launch: bool = True):
     if launch:
         gui = shutil.which("paraview") or os.path.expanduser("~/.local/bin/paraview")
         if Path(gui).exists():
-            subprocess.Popen([gui, summary["pvd"]], start_new_session=True,
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            close_paraview()                       # one GUI at a time
+            proc = subprocess.Popen([gui, summary["pvd"]], start_new_session=True,
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            PARAVIEW.update({"proc": proc, "pvd": summary["pvd"]})
             launched = True
-    return {**summary, "launched": launched}
+    return {**summary, "launched": launched, "pid": (PARAVIEW["proc"].pid
+                                                     if PARAVIEW["proc"] else None)}
+
+
+def close_paraview() -> dict:
+    """Terminate the ParaView GUI started by the web UI (SIGTERM, then SIGKILL)."""
+    import signal
+    import time
+
+    proc = PARAVIEW.get("proc")
+    pvd = PARAVIEW.get("pvd")
+    killed = False
+    if proc is not None and proc.poll() is None:
+        try:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            pass
+        for _ in range(20):
+            if proc.poll() is not None:
+                break
+            time.sleep(0.1)
+        if proc.poll() is None:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                pass
+            try:
+                proc.wait(timeout=5)
+            except Exception:
+                pass
+        killed = proc.poll() is not None
+    PARAVIEW.update({"proc": None, "pvd": None})
+    return {"closed": killed, "pvd": pvd}
+
+
+@app.post("/api/paraview/close")
+def api_paraview_close():
+    return close_paraview()
+
+
+@app.get("/api/paraview/status")
+def api_paraview_status():
+    proc = PARAVIEW.get("proc")
+    return {"running": bool(proc is not None and proc.poll() is None),
+            "pid": proc.pid if proc is not None else None,
+            "pvd": PARAVIEW.get("pvd")}
 
 
 class BuildPayload(BaseModel):

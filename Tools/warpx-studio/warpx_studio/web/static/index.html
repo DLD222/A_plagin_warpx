@@ -80,6 +80,8 @@
     <input type="checkbox" id="show-derived"> 显示派生参数</label>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
   <button id="paraview" title="把当前结果导成 .vti/.pvd 并打开 ParaView">🔍 ParaView 深挖</button>
+  <button id="paraview-close" title="关闭网页打开的 ParaView 窗口（WSLg 下窗口按钮常常关不掉）"
+          style="display:none">✕ 关闭 ParaView</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
   <button id="restart" title="把选中 checkpoint 设为 amr.restart 并运行">⏩ 续算</button>
   <span id="status"><span class="dot" style="background:var(--dim)"></span>空闲</span>
@@ -660,13 +662,21 @@ document.getElementById("run").onclick = async () => {
 document.getElementById("stop").onclick = () => fetch("/api/stop", { method: "POST" });
 document.getElementById("pause").onclick = () => fetch("/api/pause", { method: "POST" });
 document.getElementById("resume").onclick = () => fetch("/api/resume", { method: "POST" });
+document.getElementById("paraview-close").onclick = async () => {
+  const r = await fetch("/api/paraview/close", { method: "POST" });
+  const out = await r.json();
+  setStatus(out.closed ? "已关闭 ParaView" : "ParaView 未在运行（或已退出）",
+            out.closed ? "var(--ok)" : "var(--dim)");
+  document.getElementById("paraview-close").style.display = "none";
+};
 document.getElementById("paraview").onclick = async () => {
   setStatus("正在导出 VTK …", "var(--warn)");
   const r = await fetch("/api/paraview", { method: "POST" });
   const out = await r.json();
   if (!r.ok) { setStatus("导出失败: " + (out.detail || "").slice(0, 80), "var(--err)"); return; }
   setStatus(`已导出 ${out.iterations} 个迭代 → ${out.pvd}` +
-            (out.launched ? "（已在 ParaView 中打开）" : "（未检测到 ParaView 可执行文件）"), "var(--ok)");
+            (out.launched ? "（已在 ParaView 中打开，可用右侧按钮关闭）" : "（未检测到 ParaView 可执行文件）"), "var(--ok)");
+  if (out.launched) document.getElementById("paraview-close").style.display = "";
 };
 async function refreshCheckpoints() {
   const data = await (await fetch("/api/checkpoints")).json();
