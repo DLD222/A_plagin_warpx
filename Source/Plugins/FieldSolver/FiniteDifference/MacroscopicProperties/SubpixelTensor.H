@@ -322,6 +322,16 @@ void sigma_step_average (const Mat3& eps, const Mat3& sigma, amrex::Real dt, Mat
     Mat3 const B = mul(eps_ih, mul(sigma, eps_ih));
     amrex::Real lb[3], Vb[9];
     jacobi_eigh(B, lb, Vb);
+
+    // A conductivity stitched together from two anisotropic blocks is not guaranteed to
+    // stay positive semi-definite (a normal block averaged harmonically while the
+    // normal-tangential coupling is averaged arithmetically can produce a negative
+    // eigenvalue).  For a negative eigenvalue exp(-B dt) *grows* exponentially, so the
+    // run would diverge with no diagnostic at all.  Clamp to the PSD cone: a slightly
+    // over-smoothed conductivity is physical, an exponentially growing field is not.
+    for (int ii = 0; ii < 3; ++ii) {
+        if (lb[ii] < amrex::Real(0.0)) { lb[ii] = amrex::Real(0.0); }
+    }
     // (1 - exp(-B dt)) / B = dt * C_B
     Mat3 const eint = mat3_fun(lb, Vb, 3, dt);
     Mat3 Cin{};

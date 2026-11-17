@@ -13,56 +13,43 @@
 | `FillFacePermittivity` / `ApplyDielectricJump` | ⬜ 待实现（subpixel 平滑：面心 ε 按体积分数方向性平均） |
 | 流体壁面条件（法向速度/热流/应力张量） | ⬜ 待实现（供五阶矩/十阶矩/恒星求解器用） |
 
-## 编译
+
+## 编译（**注意：目前没有生效的构建开关**）
+
+顶层的 `CMakeLists.txt` **没有** `WarpX_PLUGIN_BC` 选项，也没有把这个目录加进
+`WARPX_MODULE_LAYERS`。因此下面的命令**不会启用任何东西**，本目录的代码**不会**被编进
+`warpx.2d`：
 
 ```bash
+# 无效：选项不存在，configure 会忽略它（只是不会报错）
 cmake -S . -B build -DWarpX_DIMS=2 -DWarpX_PLUGIN_BC=ON
 ```
 
-单文件语法检查（不接主构建时也可验证）：
+单文件语法检查仍然有效（用来防止代码腐烂）：
 
 ```bash
 g++ -std=c++20 -fopenmp -fsyntax-only \
-    $(DEFINES from build/CMakeFiles/warpx_picem_2d.dir/flags.make) \
-    -I Source/Core -I Source/Plugins/BoundaryConditions \
-    Source/Plugins/BoundaryConditions/PlasmaBoundary.cpp
+    $(grep '^CXX_DEFINES' build/CMakeFiles/warpx_picem_2d.dir/flags.make | cut -d= -f2-) \
+    $(grep '^CXX_INCLUDES' build/CMakeFiles/warpx_picem_2d.dir/flags.make | cut -d= -f2-) \
+    -I Source/Core -I Source/ParkedPlugins/BoundaryConditions \
+    Source/ParkedPlugins/BoundaryConditions/PlasmaBoundary.cpp
 ```
 
-## 自注册机制
+## 实际生效的 PEC 在哪里
 
-`Register.cpp` 在加载时把自己的工厂登记到核心的
-`warpx::runtime::RegisterBoundaryConditions(...)`（header-only 注册表，定义在
-`Runtime/IBoundaryConditions.H`）。核心与 PicEm **都不出现** `PlasmaBoundary` 这个名字：
+`Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXFieldBoundaries.cpp`（PicEm 插件内部）：
 
-- 没编译本插件 → 工厂为空 → `MakeBoundaryConditions()` 返回 `nullptr` → 所有调用退化为 no-op；
-- 编译了本插件 → 工厂被填入 → 求解器通过接口调用。
+- `ApplyEfieldBoundary`：EB 覆盖格 `E = 0`（阶梯掩码，`E_t = 0`）；
+- `ApplyBfieldBoundary`：EB 覆盖格复制相邻流体格的**法向** B，切向 B 冻结（`B_n` 连续）。
 
-## 编译依赖说明
+核心接口 `RuntimeData::boundaryConditions()` / `IBoundaryConditions` 目前**没有消费者**：
+求解器直接调用了 PicEm 里的实现，尚未通过接口。
 
-`PlasmaBoundary.cpp` 只 include 核心头文件：`Runtime/IBoundaryConditions.H`、
-`Runtime/IEBGeometry.H`、`Core/Fields.H`、`AMReX_EBFabFactory.H`。不引用 FieldSolver / PicEm 的 EB 模块。
+## 要真正插件化还缺什么（2026-11-17 审查 N-05）
 
-## 待接入主构建
-
-`CMakeLists.txt` 已写好目标，但**尚未**在主 `CMakeLists.txt` 里 `add_subdirectory`，
-因为接入需要同时确定"哪个求解器在何时调用它"（核心侧要持有 `IBoundaryConditions*`，
-由 Yee/CKC 的 `EvolveE` 在更新后调用）。这一步留到下一阶段，避免半接入导致构建/行为不一致。
-# 暂时停放的插件（不参与构建、不参与层检查）
-
-## BoundaryConditions
-
-PEC/电介质边界条件的独立插件原型。**暂停原因**：本仓库要求 `Source/Plugins/<层>` 必须登记在
-`WARPX_MODULE_LAYERS`，而登记后顶层会为它创建无源 OBJECT 目标，插件子目录再 `target_sources`
-仍然导致 `CMake Error: No SOURCES given`。协议没吃透之前不放进 `Source/Plugins/`，以免破坏构建。
-
-**其中已验证可用、已经落地的部分**（不在本目录，在正式代码里）：
-
-| 组件 | 位置 | 状态 |
-|---|---|---|
-| 边界条件接口 | `Source/Core/Runtime/IBoundaryConditions.H` | 编译通过 |
-| 只读 EB 几何接口 | `Source/Core/Runtime/IEBGeometry.H`、`EBGeometry.H` | 编译通过，core purity 检查通过 |
-| 核心接入点 | `RuntimeData::boundaryConditions()` | 编译通过 |
-| **PEC on EB（实际生效）** | `Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXFieldBoundaries.cpp` | **已构建、已实测** |
-
-本目录里的 `PlasmaBoundary.*` / `Register.cpp` 是把上面这套搬进独立插件时的现成代码，
-CMake 协议解决后可直接启用（自注册机制已实测 `factory REGISTERED`）。
+1. 顶层 `CMakeLists.txt` 允许**扫描** `Source/Plugins/*` 自动登记层，而不是硬编码
+   `WARPX_MODULE_LAYERS`；
+2. 自动生成 `_WARPX_PLUGIN_ANCHORS` 的 `-u,<anchor>`，不再要求手工添加；
+3. 在 `WarpX::ApplyEfieldBoundary` / `ApplyBfieldBoundary` 里引用核心接口指针
+   （`RuntimeData::boundaryConditions()`），由插件注册表提供实现；
+4. 处理静态库链接期注册被丢弃的问题（`--whole-archive` 或显式初始化函数）。
