@@ -922,7 +922,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.<species_name>.plot_filter_function(t,x,y,z,ux,uy,uz)",
@@ -934,7 +935,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.<species_name>.random_fraction",
@@ -946,7 +948,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.<species_name>.uniform_stride",
@@ -958,7 +961,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.<species_name>.variables",
@@ -970,7 +974,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.additional_fields_to_plot",
@@ -982,7 +987,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.adios2_engine.parameters.*",
@@ -994,7 +1000,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.adios2_engine.type",
@@ -1015,7 +1022,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.adios2_operator.parameters.*",
@@ -1027,7 +1035,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.adios2_operator.type",
@@ -1048,7 +1057,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.average_period_steps",
@@ -1071,7 +1081,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.average_period_time",
@@ -1094,7 +1105,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.average_start_step",
@@ -1129,7 +1141,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.buffer_flush_limit_btd",
@@ -1152,7 +1165,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.buffer_size",
@@ -1173,7 +1187,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.coarsening_ratio",
@@ -1185,7 +1200,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.diag_hi",
@@ -1197,7 +1213,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.diag_lo",
@@ -1209,7 +1226,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.diag_type",
@@ -1236,7 +1254,8 @@
     "Full",
     "TimeAveraged",
     "BackTransformed"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<diag_name>.do_back_transformed_fields",
@@ -1260,7 +1279,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.do_back_transformed_particles",
@@ -1284,7 +1304,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.dt_snapshots_lab",
@@ -1305,7 +1326,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.dump_last_timestep",
@@ -1329,7 +1351,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.dump_rz_modes",
@@ -1355,7 +1378,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.dz_snapshots_lab",
@@ -1378,7 +1402,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.fields_to_plot",
@@ -1390,7 +1415,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<diag_name>.file_min_digits",
@@ -1411,7 +1437,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.file_prefix",
@@ -1440,7 +1467,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<diag_name>.format",
@@ -1484,7 +1512,8 @@
     "checkpoint",
     "ascent",
     "sensei"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<diag_name>.intervals",
@@ -1496,7 +1525,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<diag_name>.num_snapshots_lab",
@@ -1517,7 +1547,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.openpmd_backend",
@@ -1546,7 +1577,8 @@
     "h5",
     "bp",
     "json"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.openpmd_encoding",
@@ -1575,7 +1607,8 @@
     "f",
     "g",
     "v"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.particle_fields.<field_name>(x,y,z,ux,uy,uz)",
@@ -1587,7 +1620,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.particle_fields.<field_name>.do_average",
@@ -1602,7 +1636,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.particle_fields.<field_name>.filter(x,y,z,ux,uy,uz)",
@@ -1614,7 +1649,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.particle_fields_species",
@@ -1626,7 +1662,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.particle_fields_to_plot",
@@ -1638,7 +1675,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.plot_raw_fields",
@@ -1662,7 +1700,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.plot_raw_fields_guards",
@@ -1686,7 +1725,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.sensei_config",
@@ -1709,7 +1749,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.sensei_pin_mesh",
@@ -1732,7 +1773,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.species",
@@ -1744,7 +1786,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<diag_name>.time_average_mode",
@@ -1775,7 +1818,8 @@
     "dynamic_start",
     "fixed_start",
     "none"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<diag_name>.write_species",
@@ -1815,7 +1859,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<species>.do_qed_virtual_photons",
@@ -1830,7 +1875,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species>.qed_virtual_photons_do_beam_size_effect",
@@ -1845,7 +1891,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.addIntegerAttributes",
@@ -1857,7 +1904,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.addRealAttributes",
@@ -1869,7 +1917,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.charge",
@@ -1908,7 +1957,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<species_name>.density_max",
@@ -1929,7 +1979,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.density_min",
@@ -1961,7 +2012,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.do_adk_correction",
@@ -1985,7 +2037,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_backward_propagation",
@@ -2009,7 +2062,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_classical_radiation_reaction",
@@ -2030,7 +2084,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.do_continuous_injection",
@@ -2054,7 +2109,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_field_ionization",
@@ -2078,7 +2134,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_not_deposit",
@@ -2110,7 +2167,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<species_name>.do_not_gather",
@@ -2142,7 +2200,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_not_push",
@@ -2174,7 +2233,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_qed_breit_wheeler",
@@ -2207,7 +2267,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.do_qed_quantum_sync",
@@ -2240,7 +2301,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.do_resampling",
@@ -2264,7 +2326,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_splitting",
@@ -2288,7 +2351,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.do_temperature_deposition",
@@ -2312,7 +2376,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.flux_profile",
@@ -2336,7 +2401,8 @@
    "options": [
     "constant",
     "parse_flux_function"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.initialize_self_fields",
@@ -2360,7 +2426,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.injection_sources",
@@ -2372,7 +2439,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.injection_style",
@@ -2429,7 +2497,8 @@
     "singleparticle",
     "multipleparticles",
     "none"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<species_name>.ionization_initial_level",
@@ -2450,7 +2519,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.ionization_product_species",
@@ -2471,7 +2541,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.mass",
@@ -2510,7 +2581,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<species_name>.momentum_distribution_type",
@@ -2567,7 +2639,8 @@
     "maxwell_juttner",
     "parse_momentum_function",
     "read_from_file"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "<species_name>.num_particles_per_cell_each_dim",
@@ -2579,7 +2652,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "<species_name>.physical_element",
@@ -2602,7 +2676,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.profile",
@@ -2649,7 +2724,8 @@
     "constant",
     "parse_density_function",
     "read_from_file"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.qed_breit_wheeler_ele_product_species",
@@ -2673,7 +2749,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.qed_breit_wheeler_pos_product_species",
@@ -2697,7 +2774,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.qed_quantum_sync_phot_product_species",
@@ -2721,7 +2799,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.radial_numpercell_power",
@@ -2744,7 +2823,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.random_theta",
@@ -2770,7 +2850,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.resampling_algorithm",
@@ -2797,7 +2878,8 @@
    "options": [
     "leveling_thinning",
     "velocity_coincidence_thinning"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.resampling_min_ppc",
@@ -2826,7 +2908,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.resampling_trigger_intervals",
@@ -2838,7 +2921,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.resampling_trigger_max_avg_ppc",
@@ -2859,7 +2943,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.rigid_advance",
@@ -2890,7 +2975,8 @@
     "1",
     "false",
     "true"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_eb",
@@ -2901,7 +2987,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_xhi",
@@ -2912,7 +2999,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_xlo",
@@ -2923,7 +3011,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_yhi",
@@ -2934,7 +3023,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_ylo",
@@ -2945,7 +3035,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_zhi",
@@ -2956,7 +3047,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.save_particles_at_zlo",
@@ -2967,7 +3059,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.self_fields_absolute_tolerance",
@@ -2988,7 +3081,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.self_fields_max_iters",
@@ -3009,7 +3103,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.self_fields_required_precision",
@@ -3030,7 +3125,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.species_type",
@@ -3069,7 +3165,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.split_type",
@@ -3090,7 +3187,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.xmax",
@@ -3101,7 +3199,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "<species_name>.xmin",
@@ -3112,7 +3211,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "<species_name>.ymax",
@@ -3123,7 +3223,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.ymin",
@@ -3134,7 +3235,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "<species_name>.zinject_plane",
@@ -3155,7 +3257,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "<species_name>.zmax",
@@ -3166,7 +3269,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "<species_name>.zmin",
@@ -3177,7 +3281,8 @@
    "doc_section": "Particle initialization",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "algo.charge_deposition",
@@ -3189,7 +3294,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.costs_heuristic_cells_wt",
@@ -3212,7 +3318,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.costs_heuristic_particles_wt",
@@ -3235,7 +3342,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.current_deposition",
@@ -3251,7 +3359,8 @@
     "esirkepov",
     "direct",
     "vay"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "algo.em_solver_medium",
@@ -3267,7 +3376,8 @@
     "vacuum",
     "constant",
     "macroscopic"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.field_gathering",
@@ -3292,7 +3402,8 @@
     "energy-conserving",
     "momentum-conserving",
     "direct"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.load_balance_costs_update",
@@ -3304,7 +3415,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.load_balance_efficiency_ratio_threshold",
@@ -3325,7 +3437,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.load_balance_intervals",
@@ -3337,7 +3450,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.load_balance_knapsack_factor",
@@ -3360,7 +3474,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "algo.load_balance_with_sfc",
@@ -3384,7 +3499,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.macroscopic_sigma_method",
@@ -3399,7 +3515,8 @@
    "options": [
     "backwardeuler",
     "laxwendroff"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.macroscopic_subpixel",
@@ -3431,7 +3548,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.maxwell_solver",
@@ -3448,7 +3566,8 @@
     "ckc",
     "psatd",
     "ect"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "algo.particle_pusher",
@@ -3466,7 +3585,8 @@
     "hybrid",
     "kinetic_energy",
     "adaptive_boris"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "algo.particle_shape",
@@ -3503,7 +3623,8 @@
     "2",
     "3",
     "4"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "amr.max_grid_size",
@@ -3515,7 +3636,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "amr.max_level",
@@ -3594,7 +3716,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "amr.n_cell",
@@ -3606,7 +3729,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "amr.ref_ratio",
@@ -3618,7 +3742,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "amr.ref_ratio_vect",
@@ -3630,7 +3755,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "amr.restart",
@@ -3669,7 +3795,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.field_hi",
@@ -3680,7 +3807,8 @@
    "doc_section": "Domain Boundary Conditions",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "boundary.field_lo",
@@ -3691,7 +3819,8 @@
    "doc_section": "Domain Boundary Conditions",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "boundary.particle_eb",
@@ -3707,7 +3836,8 @@
     "Absorbing",
     "Reflecting",
     "Thermal"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "boundary.particle_hi",
@@ -3718,7 +3848,8 @@
    "doc_section": "Domain Boundary Conditions",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "boundary.particle_lo",
@@ -3748,7 +3879,8 @@
     "reflecting",
     "thermal",
     "none"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "boundary.potential_hi_x",
@@ -3769,7 +3901,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.potential_hi_y",
@@ -3790,7 +3923,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.potential_hi_z",
@@ -3811,7 +3945,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.potential_lo_x",
@@ -3832,7 +3967,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.potential_lo_y",
@@ -3853,7 +3989,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.potential_lo_z",
@@ -3874,7 +4011,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "boundary.reflect_all_velocities",
@@ -3898,7 +4036,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "boundary.verboncoeur_axis_correction",
@@ -3924,7 +4063,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "collisions.beta_weight_exponent",
@@ -3947,7 +4087,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "collisions.collision_names",
@@ -3959,7 +4100,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "collisions.correct_energy_momentum",
@@ -3985,7 +4127,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "collisions.energy_correction_sort_by_weight",
@@ -4011,7 +4154,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "collisions.energy_fraction",
@@ -4042,7 +4186,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "collisions.np_warning_threshold",
@@ -4065,7 +4210,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "collisions.shuffling_method",
@@ -4080,7 +4226,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "collisions.split_momentum_push",
@@ -4106,7 +4253,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "diagnostics.diags_names",
@@ -4118,7 +4266,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "diagnostics.enable",
@@ -4142,7 +4291,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "do_similar_dm_pml",
@@ -4154,7 +4304,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "eb2.geom_type",
@@ -4181,7 +4332,8 @@
     "all_regular",
     "implicit_function",
     "stl"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "external_vector_potential.<field_name>.A[x,y,z]_external_grid_function(x,y,z)",
@@ -4193,7 +4345,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "external_vector_potential.<field_name>.A_time_external_grid_function(t)",
@@ -4205,7 +4358,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "external_vector_potential.<field_name>.path",
@@ -4217,7 +4371,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "external_vector_potential.<field_name>.read_from_file",
@@ -4232,7 +4387,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "external_vector_potential.do_diva_cleaning",
@@ -4256,7 +4412,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "external_vector_potential.fields",
@@ -4268,7 +4425,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "fluids.species_names",
@@ -4280,7 +4438,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "geometry.dims",
@@ -4343,7 +4502,8 @@
     "2",
     "3",
     "RZ"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "geometry.prob_hi",
@@ -4354,7 +4514,8 @@
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "geometry.prob_lo",
@@ -4365,7 +4526,8 @@
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "gmres.absolute_tolerance",
@@ -4386,7 +4548,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "gmres.max_iterations",
@@ -4407,7 +4570,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "gmres.relative_tolerance",
@@ -4428,7 +4592,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "gmres.verbose_int",
@@ -4449,7 +4614,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.Jx_external_grid_function(x,y,z,t)",
@@ -4460,7 +4626,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "hybrid_pic_model.Jy_external_grid_function(x,y,z,t)",
@@ -4471,7 +4638,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "hybrid_pic_model.Jz_external_grid_function(x,y,z,t)",
@@ -4482,7 +4650,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "hybrid_pic_model.add_external_fields",
@@ -4506,7 +4675,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.elec_temp",
@@ -4529,7 +4699,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "hybrid_pic_model.electron_ion_relaxation_rate(rho,Te,Ti,t)",
@@ -4541,7 +4712,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.gamma",
@@ -4562,7 +4734,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.holmstrom_vacuum_region",
@@ -4586,7 +4759,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.include_joule_heating",
@@ -4610,7 +4784,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.joule_redirect_Te_threshold",
@@ -4631,7 +4806,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.max_substep_attempts",
@@ -4652,7 +4828,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.n0_ref",
@@ -4673,7 +4850,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "hybrid_pic_model.n_floor",
@@ -4694,7 +4872,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "hybrid_pic_model.plasma_hyper_resistivity(rho,B)",
@@ -4706,7 +4885,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.plasma_resistivity(rho,J,t)",
@@ -4718,7 +4898,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.plasma_resistivity_<species>(rho_s,rho,Te,J,J_s,B,t)",
@@ -4730,7 +4911,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.solve_electron_energy_equation",
@@ -4764,7 +4946,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.substep_atol",
@@ -4785,7 +4968,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.substep_max_growth",
@@ -4806,7 +4990,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.substep_rtol",
@@ -4827,7 +5012,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.substep_safety",
@@ -4848,7 +5034,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "hybrid_pic_model.substeps",
@@ -4869,7 +5056,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "hybrid_pic_model.use_rkf45",
@@ -4884,7 +5072,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "hybrid_pic_model.vacuum_seam_switch_mode",
@@ -4896,7 +5085,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "implicit_evolve.theta",
@@ -4917,7 +5107,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "interpolation.galerkin_scheme",
@@ -4941,7 +5132,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "jacobian.pc_type",
@@ -4962,7 +5154,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "lasers.deposit_on_main_grid",
@@ -4974,7 +5167,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "lasers.names",
@@ -4986,7 +5180,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "lattice.elements",
@@ -4998,7 +5193,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "lattice.reverse",
@@ -5013,7 +5209,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "macroscopic.epsilon",
@@ -5036,7 +5233,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "macroscopic.epsilon2",
@@ -5057,7 +5255,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "macroscopic.epsilon_function(x,y,z)",
@@ -5068,7 +5267,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "macroscopic.mu",
@@ -5091,7 +5291,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "macroscopic.mu_function(x,y,z)",
@@ -5102,7 +5303,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "macroscopic.sigma",
@@ -5125,7 +5327,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "macroscopic.sigma_function(x,y,z)",
@@ -5136,7 +5339,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "max_step",
@@ -5148,7 +5352,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "newton.linear_solver",
@@ -5181,7 +5386,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "newton.pc_update_newton_interval",
@@ -5202,7 +5408,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "newton.pc_update_time_step_interval",
@@ -5223,7 +5430,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particle_thermalizer.end",
@@ -5244,7 +5452,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particle_thermalizer.momentum_threshold",
@@ -5256,7 +5465,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particle_thermalizer.normal",
@@ -5285,7 +5495,8 @@
     "x",
     "y",
     "z"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "particle_thermalizer.species",
@@ -5297,7 +5508,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particle_thermalizer.start",
@@ -5318,7 +5530,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particle_thermalizer.theta",
@@ -5339,7 +5552,8 @@
    ],
    "source_only": false,
    "required": true,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.B_ext_particle_init_style",
@@ -5379,7 +5593,8 @@
     "parse_b_ext_particle_function",
     "read_from_file",
     "repeated_plasma_lens"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "particles.E_ext_particle_init_style",
@@ -5419,7 +5634,8 @@
     "parse_e_ext_particle_function",
     "read_from_file",
     "repeated_plasma_lens"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "particles.crop_on_PEC_boundary",
@@ -5440,7 +5656,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.deposit_on_main_grid",
@@ -5452,7 +5669,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.do_tiling",
@@ -5476,7 +5694,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "particles.gather_from_main_grid",
@@ -5488,7 +5707,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.max_grid_crossings",
@@ -5512,7 +5732,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.photon_species",
@@ -5533,7 +5754,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.read_fields_from_path",
@@ -5596,7 +5818,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.repeated_plasma_lens_period",
@@ -5620,7 +5843,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.rigid_injected_species",
@@ -5632,7 +5856,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "particles.species_names",
@@ -5644,7 +5869,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "particles.use_fdtd_nci_corr",
@@ -5668,7 +5894,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "precon_mat.verbose",
@@ -5697,7 +5924,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.JRhom",
@@ -5718,7 +5946,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.current_correction",
@@ -5742,7 +5971,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "psatd.do_time_averaging",
@@ -5774,7 +6004,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "psatd.nox",
@@ -5808,7 +6039,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.noy",
@@ -5842,7 +6074,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.noz",
@@ -5876,7 +6109,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.nx_guard",
@@ -5909,7 +6143,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.ny_guard",
@@ -5942,7 +6177,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.nz_guard",
@@ -5975,7 +6211,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.periodic_single_box_fft",
@@ -5999,7 +6236,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "psatd.update_with_rho",
@@ -6023,7 +6261,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "psatd.use_default_v_comoving",
@@ -6044,7 +6283,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.use_default_v_galilean",
@@ -6068,7 +6308,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "psatd.v_comoving",
@@ -6080,7 +6321,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "psatd.v_galilean",
@@ -6092,7 +6334,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_bw.chi_min",
@@ -6123,7 +6366,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_bw.lookup_table_mode",
@@ -6154,7 +6398,8 @@
     "builtin",
     "generate",
     "load"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "qed_qs.chi_min",
@@ -6183,7 +6428,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_qs.lookup_table_mode",
@@ -6214,7 +6460,8 @@
     "builtin",
     "generate",
     "load"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "qed_qs.photon_creation_energy_threshold",
@@ -6237,7 +6484,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.ele_product_species",
@@ -6262,7 +6510,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.pos_product_species",
@@ -6287,7 +6536,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.threshold_poisson_gaussian",
@@ -6311,7 +6561,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.xmax",
@@ -6335,7 +6586,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.xmin",
@@ -6359,7 +6611,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.y_size",
@@ -6383,7 +6636,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.ymax",
@@ -6394,7 +6648,8 @@
    "doc_section": "QED",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "qed_schwinger.ymin",
@@ -6420,7 +6675,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.zmax",
@@ -6444,7 +6700,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "qed_schwinger.zmin",
@@ -6455,7 +6712,8 @@
    "doc_section": "QED",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "reduced_diags.extension",
@@ -6476,7 +6734,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "reduced_diags.intervals",
@@ -6488,7 +6747,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "reduced_diags.path",
@@ -6509,7 +6769,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "reduced_diags.precision",
@@ -6530,7 +6791,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "reduced_diags.separator",
@@ -6551,7 +6813,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "stop_time",
@@ -6563,7 +6826,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "warpx.B_ext_grid_init_style",
@@ -6580,7 +6844,8 @@
     "constant",
     "parse_b_ext_grid_function",
     "read_from_file"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "warpx.B_external_grid",
@@ -6591,7 +6856,8 @@
    "doc_section": "External fields",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "warpx.E_ext_grid_init_style",
@@ -6608,7 +6874,8 @@
     "constant",
     "parse_e_ext_grid_function",
     "read_from_file"
-   ]
+   ],
+   "core": true
   },
   {
    "name": "warpx.E_external_grid",
@@ -6619,7 +6886,8 @@
    "doc_section": "External fields",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": true
   },
   {
    "name": "warpx.cfl",
@@ -6640,7 +6908,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "warpx.const_dt",
@@ -6661,7 +6930,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "warpx.current_centering_nox",
@@ -6672,7 +6942,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.current_centering_noy",
@@ -6683,7 +6954,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.current_centering_noz",
@@ -6694,7 +6966,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.do_current_centering",
@@ -6718,7 +6991,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_device_synchronize",
@@ -6733,7 +7007,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_divb_cleaning",
@@ -6754,7 +7029,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_dive_cleaning",
@@ -6788,7 +7064,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_dynamic_scheduling",
@@ -6812,7 +7089,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_electrostatic",
@@ -6824,7 +7102,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_initial_div_cleaning",
@@ -6848,7 +7127,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_moving_window",
@@ -6869,7 +7149,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_pml_divb_cleaning",
@@ -6893,7 +7174,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_pml_dive_cleaning",
@@ -6917,7 +7199,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_pml_in_domain",
@@ -6938,7 +7221,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_pml_j_damping",
@@ -6959,7 +7243,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_qed_schwinger",
@@ -6986,7 +7271,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_shared_mem_charge_deposition",
@@ -7010,7 +7296,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_shared_mem_current_deposition",
@@ -7034,7 +7321,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.do_similar_dm_pml",
@@ -7055,7 +7343,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_single_precision_comms",
@@ -7076,7 +7365,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.do_subcycling",
@@ -7100,7 +7390,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.dt_update_diagnostic_file",
@@ -7123,7 +7414,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.dt_update_interval",
@@ -7135,7 +7427,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.dt_update_write_interval",
@@ -7147,7 +7440,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.eb_implicit_function",
@@ -7170,7 +7464,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": true
   },
   {
    "name": "warpx.eb_potential(x,y,z,t)",
@@ -7182,7 +7477,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.end_moving_window_step",
@@ -7205,7 +7501,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.field_centering_nox",
@@ -7216,7 +7513,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.field_centering_noy",
@@ -7227,7 +7525,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.field_centering_noz",
@@ -7238,7 +7537,8 @@
    "doc_section": "Numerics and algorithms",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.field_io_nfiles",
@@ -7249,7 +7549,8 @@
    "doc_section": "Diagnostics and output",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.filter_npass_each_dir",
@@ -7261,7 +7562,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.fine_tag_hi",
@@ -7272,7 +7574,8 @@
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.fine_tag_lo",
@@ -7283,7 +7586,8 @@
    "doc_section": "Setting up the field mesh",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.grid_type",
@@ -7295,7 +7599,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.max_dt",
@@ -7316,7 +7621,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.max_omegac_dt",
@@ -7337,7 +7643,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.max_omegap_dt",
@@ -7358,7 +7665,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.maxlevel_extEMfield_init",
@@ -7379,7 +7687,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.mffile_nstreams",
@@ -7400,7 +7709,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.mirror_z",
@@ -7412,7 +7722,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.mirror_z_npoints",
@@ -7424,7 +7735,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.mirror_z_width",
@@ -7436,7 +7748,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.moving_window_dir",
@@ -7473,7 +7786,8 @@
     "x",
     "y",
     "z"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.moving_window_v",
@@ -7496,7 +7810,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.n_current_deposition_buffer",
@@ -7517,7 +7832,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.n_field_gather_buffer",
@@ -7538,7 +7854,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.n_rz_azimuthal_modes",
@@ -7561,7 +7878,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.num_mirrors",
@@ -7582,7 +7900,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.numprocs",
@@ -7594,7 +7913,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.override_sync_intervals",
@@ -7606,7 +7926,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.particle_io_nfiles",
@@ -7617,7 +7938,8 @@
    "doc_section": "Diagnostics and output",
    "sites": [],
    "source_only": false,
-   "required": false
+   "required": false,
+   "core": false
   },
   {
    "name": "warpx.pml_delta",
@@ -7638,7 +7960,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.pml_has_particles",
@@ -7659,7 +7982,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.pml_ncell",
@@ -7680,7 +8004,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.projection_div_cleaner.atol",
@@ -7701,7 +8026,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.projection_div_cleaner.rtol",
@@ -7722,7 +8048,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.quantum_xi",
@@ -7743,7 +8070,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.reduced_diags_names",
@@ -7755,7 +8083,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.ref_patch_function(x,y,z)",
@@ -7767,7 +8096,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.refine_plasma",
@@ -7788,7 +8118,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.refine_region_change_time",
@@ -7813,7 +8144,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.refine_start_time",
@@ -7834,7 +8166,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.refine_stop_time",
@@ -7855,7 +8188,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.regrid_int",
@@ -7876,7 +8210,8 @@
    ],
    "source_only": true,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.roundrobin_sfc",
@@ -7900,7 +8235,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.shared_mem_current_tpb",
@@ -7921,7 +8257,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.shared_tilesize",
@@ -7933,7 +8270,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.sort_bin_size",
@@ -7945,7 +8283,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.sort_idx_type",
@@ -7957,7 +8296,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.sort_intervals",
@@ -7969,7 +8309,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.sort_particles_for_deposition",
@@ -7993,7 +8334,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.split_high_density_boxes",
@@ -8017,7 +8359,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.split_high_density_boxes_min_box_size",
@@ -8029,7 +8372,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.split_high_density_boxes_threshold",
@@ -8041,7 +8385,8 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.start_moving_window_step",
@@ -8064,7 +8409,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   },
   {
    "name": "warpx.synchronize_velocity_for_diagnostics",
@@ -8088,7 +8434,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.use_filter",
@@ -8112,7 +8459,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.use_filter_compensation",
@@ -8136,7 +8484,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.use_hybrid_QED",
@@ -8160,7 +8509,8 @@
    "options": [
     "0",
     "1"
-   ]
+   ],
+   "core": false
   },
   {
    "name": "warpx.v_particle_pml",
@@ -8181,7 +8531,8 @@
    ],
    "source_only": false,
    "required": false,
-   "options": []
+   "options": [],
+   "core": false
   }
  ],
  "gating": {

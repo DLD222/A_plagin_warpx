@@ -92,9 +92,8 @@
   <button data-step="2">2 粒子/激光/碰撞</button>
   <button data-step="3">3 场与外场</button>
   <button data-step="4">4 诊断输出</button>
-  <button data-step="5">5 全部（按物理分类）</button>
-  <button data-step="6">6 插件</button>
-  <button data-step="7">7 构建</button>
+  <button data-step="5">5 插件</button>
+  <button data-step="6">6 构建</button>
 </nav>
 
 <main>
@@ -153,14 +152,12 @@ const STEP_CATEGORIES = {
   2: ["species", "laser", "collision"],
   3: ["solver", "extern"],
   4: ["diag"],
-  5: null,
 };
 const STEP_GROUPS = {
   1: ["geometry", "amr", "boundary", "(root)"],
   2: ["particles", "<species_name>"],
   3: ["algo", "warpx", "psatd", "hybrid_pic_model"],
   4: ["diagnostics", "<diag_name>", "<reduced_diags_name>", "collisions", "<collision_name>"],
-  5: null,
 };
 const TEMPLATE_ALIAS = { "<species>": "<species_name>" };
 const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collision",
@@ -544,8 +541,8 @@ function renderTemplateCards(template, params, body) {
 }
 
 function render() {
-  if (STEP === 6) { renderPlugins(); return; }
-  if (STEP === 7) { renderBuild(); return; }
+  if (STEP === 5) { renderPlugins(); return; }
+  if (STEP === 6) { renderBuild(); return; }
   const form = document.getElementById("form");
   form.innerHTML = "";
   const wanted = STEP_CATEGORIES[STEP];
@@ -575,9 +572,29 @@ function render() {
     for (const [key, entry] of byTemplate) {
       renderTemplateCards(entry.prefix, entry.params, body);
     }
-    for (const name of names.filter(n => !n.startsWith("<"))) {
-      if (!visible(name)) continue;
+    // 默认只渲染"常用"参数，其余折叠在一个按钮后面：351 项全铺开会非常长
+    const plain = names.filter(n => !n.startsWith("<") && visible(n));
+    const coreNames = plain.filter(n => PARAM_BY_NAME[n] && PARAM_BY_NAME[n].core);
+    const restNames = plain.filter(n => !(PARAM_BY_NAME[n] && PARAM_BY_NAME[n].core));
+    for (const name of coreNames) {
       body.appendChild(inputRow(name, DECK.params[name], v => { DECK.params[name] = v; }));
+    }
+    if (restNames.length) {
+      const more = document.createElement("div");
+      more.className = "rows";
+      more.style.display = "none";
+      for (const name of restNames) {
+        more.appendChild(inputRow(name, DECK.params[name], v => { DECK.params[name] = v; }));
+      }
+      const toggle = document.createElement("button");
+      toggle.textContent = `展开其余 ${restNames.length} 项`;
+      toggle.style.cssText = "margin:6px 8px;font-size:12px";
+      toggle.onclick = () => {
+        const open = more.style.display !== "none";
+        more.style.display = open ? "none" : "";
+        toggle.textContent = open ? `展开其余 ${restNames.length} 项` : "收起";
+      };
+      body.append(more, toggle);
     }
     form.appendChild(sec);
   }
@@ -675,7 +692,7 @@ async function poll() {
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
   b.classList.add("active"); STEP = Number(b.dataset.step); render();
-  if (STEP === 6) setInterval(() => { if (STEP === 6) renderPlugins(); }, 3000);
+  if (STEP === 5) setInterval(() => { if (STEP === 5) renderPlugins(); }, 3000);
 });
 document.getElementById("run").onclick = async () => {
   const sel = document.getElementById("binary");

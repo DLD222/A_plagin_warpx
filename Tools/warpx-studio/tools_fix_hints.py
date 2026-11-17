@@ -33,11 +33,17 @@ def is_expression(name: str) -> bool:
     return bool(EXPR_RE.search(name)) and any(v in name for v in ("x", "y", "z", "t"))
 
 
-def hint_for(name: str, ptype: str | None, options) -> str:
+def hint_for(name: str, ptype: str | None, options, glossary: dict | None = None) -> str:
     t = (ptype or "").lower()
     if t in {"bool", "boolean"}:
         return "0 = 关闭，1 = 开启（下拉选择）"
     if options:
+        meanings = (glossary or {}).get(name) or {}
+        if meanings:
+            pairs = [f"{v} = {meanings[v]}" for v in options if v in meanings]
+            if pairs:
+                text = "；".join(pairs[:4])
+                return "含义：" + text + (" …" if len(options) > 4 else "")
         joined = " / ".join(options[:6])
         return f"可选：{joined}" + (" …" if len(options) > 6 else "")
     if is_expression(name):
@@ -79,10 +85,11 @@ def main() -> int:
     doc = json.loads(enums_path.read_text(encoding="utf-8"))
     catalog = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
     hints = doc.get("hints") or {}
+    glossary = doc.get("glossary") or {}
     changed = 0
     for p in catalog["params"]:
         name = p["name"]
-        new = hint_for(name, p.get("type"), p.get("options"))
+        new = hint_for(name, p.get("type"), p.get("options"), glossary)
         if hints.get(name) != new:
             hints[name] = new
             changed += 1
