@@ -27,7 +27,9 @@ def find_diag_dir(run_dir: Path) -> Path | None:
     """The directory WarpX wrote ``paraview.pmd`` into (``<run>/diag1`` for a diag named diag1)."""
     if (run_dir / "paraview.pmd").exists():
         return run_dir
-    for candidate in sorted(run_dir.glob("*/paraview.pmd")):
+    # Decks commonly use a `diags/` sub-directory (e.g. `diags/diag1/paraview.pmd`), so the
+    # search has to be recursive, not one level deep.
+    for candidate in sorted(run_dir.rglob("paraview.pmd")):
         return candidate.parent
     return None
 
