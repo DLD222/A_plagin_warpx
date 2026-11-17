@@ -80,7 +80,7 @@ process.on("unhandledRejection", (err) => {
 });
 
 eval(script);
-realSetTimeout(() => {
+realSetTimeout(async () => {
   try {
     render();
     // ---- 行为验收：取值门控在真实渲染里是否生效 -------------------------------
@@ -190,6 +190,36 @@ if (global.window.__STUDIO_TEST__) {
     process.exit(1);
   }
   console.log(`PASS 新增组分: ${names[0]} -> ${names[names.length - 1]}（继承 charge/density）`);
+
+  // 真实交互：在页面里把 injection_style 改成 NFluxPerCell，等防抖重渲染，
+  // 检查面注入的参数是否出现、填充区域是否消失（这才是用户实际做的动作）
+  T.setDECK({ params: {}, groups: { [S]: { ions: { injection_style: "NUniformPerCell" } } } });
+  T.setStep(2);
+  T.render();
+  const findInjectionSelect = (n) => {
+    if (!n) return null;
+    // 桩里 option 是被 appendChild 进 children 的，不在 n.options 上
+    if (n.tagName === "select"
+        && (n.children || []).some((o) => o.value === "NFluxPerCell")) return n;
+    for (const c of (n.children || [])) { const r = findInjectionSelect(c); if (r) return r; }
+    return null;
+  };
+  const injSel = findInjectionSelect(registry["form"]);
+  if (!injSel) { console.error("FAIL 页面里找不到 injection_style 下拉框"); process.exit(1); }
+  injSel.value = "NFluxPerCell";
+  injSel.onchange();
+  await new Promise((r) => realSetTimeout(r, 250));
+  const after = collectLabels(registry["form"], []);
+  const need = ["zinject_plane", "flux_normal_axis", "surface_flux_pos"];
+  const miss = need.filter((k) => !after.some((r) => r.trim() === k));
+  if (miss.length) {
+    console.error("FAIL 选中 NFluxPerCell 后没有出现: " + miss.join(", ")
+                  + "；实际前 25 行 = " + after.slice(0, 25).join(", "));
+    process.exit(1);
+  }
+  const boxGone = ["xmin", "xmax", "zmin", "zmax"].every((k) => !after.some((r) => r.trim() === k));
+  if (!boxGone) { console.error("FAIL 选中 NFluxPerCell 后，填充区域参数仍然存在"); process.exit(1); }
+  console.log("PASS 交互：选中 NFluxPerCell -> 出现 " + need.join(", ") + "，填充区域消失");
 
   const asPdf = scenario("parse_density_function");
   const asConst = scenario("constant");

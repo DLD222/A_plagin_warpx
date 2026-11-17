@@ -655,7 +655,10 @@ function renderTemplateCards(template, params, body) {
     bar.append(document.createTextNode(template.replace(/[<>]/g, "")), title, del);
     card.appendChild(bar);
     for (const full of orderByDependency(params)) {
-      const sub = full.slice(template.length + 1);
+      // 同一张卡片里可能混着 <species>.x 与 <species_name>.x 两种前缀，
+      // 必须按"这一行自己的前缀"截断，否则会算出 ame>.injection_style 这种坏键，
+      // 值写进去后门控读不到（表现为"选了选项参数不出现"）。
+      const sub = full.slice(full.indexOf(">") + 2);
       if (!visible(full, inst)) continue;
       card.appendChild(inputRow(full, values[sub],
         v => { DECK.groups[key][inst] = DECK.groups[key][inst] || {};
