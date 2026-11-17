@@ -17,7 +17,7 @@ CORRECTIONS: dict[str, str] = {
     "<species_name>.maxwellian_temperature_in_eV_distribution_type": "麦克斯韦分布的**温度**（eV）怎么给：constant = 填 temperature_in_eV；parser = 用表达式 temperature_in_eV_function(x,y,z)；read_from_file = 从文件读。与 u_std 那个互斥",
     "<species_name>.maxwell_juttner_u_mean_distribution_type": "相对论麦克斯韦（Jüttner）分布的**平均动量**怎么给：constant / parser / read_from_file（同 maxwellian 的规则）",
     "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": "相对论麦克斯韦（Jüttner）分布的**温度**（eV）怎么给：constant / parser / read_from_file",
-    "<species_name>.flux": "面注入的**宏粒子**面通量（个/(m²·s)）。稳态每格粒子数由注入与穿越平衡决定：每格每步注入 flux·A·dt 个，粒子以速度 v 穿越长度 dx 的一格需 τ=dx/v，故 **ppc = flux·A·τ = flux·dx·dz/v**（二维 A = dz·1m）。反推 **flux = ppc·v/(dx·dz)**：v=2.5e4 m/s、dx=dz=1e-4 m、ppc=64 → **flux = 1.6e14**",
+    "<species_name>.flux": "**宏粒子**面通量（宏粒子个数/(m²·s)）——注意它不等于物理粒子流密度 Γ=n·v。源码里每个宏粒子的权重是 `weight = flux × V/(A·num_particles_per_cell) × dt`，所以同一个 flux 在改了 num_particles_per_cell 或网格后代表的物理流会变。**按物理流反推**：Γ=n·v（个/(m²·s)）→ flux = Γ·A·num_particles_per_cell/(V/dt)… 实际使用时更稳的做法是**按想要的稳态 ppc 反推**：ppc = flux·dx·dz/v，即 flux = ppc·v/(dx·dz)。例 v=2.5e4 m/s、dx=dz=1e-4 m、ppc=64 → flux = 1.6e14",
 
     "<species_name>.xmin": "粒子**初始填充区域**的下界（米）。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时决定铺粒子的范围；留空 = 整个计算域。NFluxPerCell 用 surface_flux_pos / flux_normal_axis 指定发射面，gaussian_beam 用 x_m / z_m 指定束心",
     "<species_name>.xmax": "粒子**初始填充区域**的上界（米）；与 xmin 配对使用。只在 injection_style = NUniformPerCell 或 NRandomPerCell 时生效，留空 = 计算域上界",

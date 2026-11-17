@@ -199,6 +199,38 @@ if (global.window.__STUDIO_TEST__) {
     console.log("PASS 动量两级联动: maxwellian -> ux_std/ux_mean；子类型 parser -> ux_std_function(x,y,z)");
   }
 
+  // 八种注入方式各自需要的参数（逐一核对）
+  const styleRows = (st) => dumpScenario(
+    { params: {}, groups: { [S]: { ions: { injection_style: st } } } }, 2, "注入 " + st);
+  const styleCases = [
+    ["none", []],
+    ["NUniformPerCell", ["num_particles_per_cell_each_dim", "xmin", "xmax", "zmin", "zmax"]],
+    ["NRandomPerCell", ["num_particles_per_cell", "xmin", "xmax"]],
+    ["NFluxPerCell", ["flux", "flux_normal_axis", "flux_direction", "surface_flux_pos",
+                      "flux_profile", "flux_tmin", "flux_tmax", "zinject_plane"]],
+    ["SingleParticle", ["single_particle_pos", "single_particle_u", "single_particle_weight"]],
+    ["MultipleParticles", ["multiple_particles_pos_x", "multiple_particles_ux",
+                           "multiple_particles_weight"]],
+    ["gaussian_beam", ["q_tot", "npart_real", "npart", "x_m", "y_m", "z_m",
+                       "x_rms", "y_rms", "z_rms", "x_cut", "focal_distance",
+                       "do_symmetrize", "do_gaussian_beam_rotation"]],
+    ["external_file", ["injection_file", "z_shift", "impose_t_lab_from_file"]],
+  ];
+  for (const [st, must] of styleCases) {
+    const rows = styleRows(st);
+    const has = (k) => rows.some((r) => r.trim() === k);
+    const missing = must.filter((k) => !has(k));
+    if (missing.length) {
+      console.error(`FAIL 注入方式 ${st} 缺少: ` + missing.join(", "));
+      process.exit(1);
+    }
+    if (st !== "NFluxPerCell" && has("flux")) {
+      console.error(`FAIL ${st} 不该出现 flux（只属于 NFluxPerCell）`);
+      process.exit(1);
+    }
+  }
+  console.log("PASS 八种注入方式各自带出正确参数（flux 只属于面注入）");
+
   // 八种动量分布各自需要的参数（含 uniform / gaussianflux / Jüttner）
   const momDeck = (v, extra = {}) => ({ params: {},
     groups: { [S]: { ions: Object.assign({ momentum_distribution_type: v }, extra) } } });
