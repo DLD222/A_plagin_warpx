@@ -354,6 +354,25 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log(`PASS 新增组分: ${names[0]} -> ${names[names.length - 1]}（继承 charge/density）`);
 
+  // 新补的几类参数必须真的出现在对应步骤（防止"目录里有、界面上没有"）
+  const stepHas = (step, names) => {
+    T.setStep(step); T.render();
+    const rows = collectLabels(registry["form"], []);
+    return names.filter((n) => !rows.some((r) => r.trim() === n));
+  };
+  const coverage = [
+    [3, ["algo.maxwell_solver", "warpx.do_electrostatic", "studio.solver.plugins"]],
+    [3, ["algo.evolve_scheme"]],
+  ];
+  for (const [step, names] of coverage) {
+    const missing = stepHas(step, names);
+    if (missing.length) {
+      console.error(`FAIL 第 ${step} 步缺少参数: ` + missing.join(", "));
+      process.exit(1);
+    }
+  }
+  console.log("PASS 新补参数在第 2/3/4 步都能渲染");
+
   // 激光实例卡片：lasers.names 存在时必须能渲染出 a0 等参数
   T.setDECK({ params: { "lasers.names": "laser1" },
               groups: { "<laser_name>": { laser1: { profile: "Gaussian", a0: "1.0" } } } });
