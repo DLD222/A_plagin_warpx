@@ -28,3 +28,14 @@
 python Tools/warpx-studio/tests/parity_sweep.py --manifest parity_40.json
 python Tools/warpx-studio/tests/parity_sweep.py --dim 2d --limit 16
 ```
+
+## 第 16 轮：全量回归
+```
+selftest             108/108
+ui_smoke             14/14
+parity_inputs        446/446 输入文本往返一致
+plugin_smoke         4/4 插件经网页加载并运行
+parity_40.json       34 逐字段一致 + 1 设计性差异 + 5 无法比较/跳过 + 0 失败
+1D（20 例抽样）      17/18 逐字段一致（唯一失败是 macroscopic 设计性差异）
+2D（20 例抽样）      17/20 逐字段一致（3 个失败全部是参考版崩溃）
+```
