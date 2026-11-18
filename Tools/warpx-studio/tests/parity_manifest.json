@@ -1,0 +1,12 @@
+{
+  "note": "验收项 5 的抽样清单：1D/2D 快速算例，走网页 API 跑 fork 与原版并逐字段比较（相对容差 1e-10）。",
+  "dim1d": [
+    "Examples/Tests/single_particle/inputs_test_1d_synchronize_velocity",
+    "Examples/Tests/resampling/inputs_test_1d_resample_velocity_coincidence_thinning",
+    "Examples/Tests/resampling/inputs_test_1d_resample_velocity_coincidence_thinning_cartesian"
+  ],
+  "dim2d": [
+    "Examples/Tests/langmuir/inputs_test_2d_langmuir_multi",
+    "Examples/Tests/single_particle/inputs_test_2d_bilinear_filter"
+  ]
+}
