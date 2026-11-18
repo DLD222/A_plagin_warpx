@@ -1,0 +1,137 @@
+[
+ {
+  "file": "Source/Plugins/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H",
+  "upstream_rel": "Particles/Collision/BinaryCollision/Bremsstrahlung/BremsstrahlungFunc.H",
+  "diff_lines": 12
+ },
+ {
+  "file": "Source/Plugins/Diagnostics/ComputeDiagFunctors/PhiFunctor.cpp",
+  "upstream_rel": "Diagnostics/ComputeDiagFunctors/PhiFunctor.cpp",
+  "diff_lines": 14
+ },
+ {
+  "file": "Source/Plugins/Diagnostics/ReducedDiags/MultiReducedDiags.H",
+  "upstream_rel": "Diagnostics/ReducedDiags/MultiReducedDiags.H",
+  "diff_lines": 14
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/BoundaryConditions/WarpXEvolvePML.cpp",
+  "upstream_rel": "BoundaryConditions/WarpXEvolvePML.cpp",
+  "diff_lines": 25
+ },
+ {
+  "file": "Source/Plugins/Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp",
+  "upstream_rel": "Diagnostics/ComputeDiagFunctors/RhoFunctor.cpp",
+  "diff_lines": 26
+ },
+ {
+  "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldEnergy.cpp",
+  "upstream_rel": "Diagnostics/ReducedDiags/FieldEnergy.cpp",
+  "diff_lines": 27
+ },
+ {
+  "file": "Source/Plugins/ParticleCore/Particles/PhysicalParticleContainer.H",
+  "upstream_rel": "Particles/PhysicalParticleContainer.H",
+  "diff_lines": 30
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/BoundaryConditions/PML.H",
+  "upstream_rel": "BoundaryConditions/PML.H",
+  "diff_lines": 34
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Electrostatic/LabFrameExplicitES.cpp",
+  "upstream_rel": "FieldSolver/ElectrostaticSolvers/LabFrameExplicitES.cpp",
+  "diff_lines": 42
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Implicit/NonlinearSolvers/JacobianFunctionMF.H",
+  "upstream_rel": "NonlinearSolvers/JacobianFunctionMF.H",
+  "diff_lines": 42
+ },
+ {
+  "file": "Source/Core/Solvers/WarpXSolverDOF.cpp",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/WarpXSolverDOF.cpp",
+  "diff_lines": 43
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/Parallelization/WarpXComm.cpp",
+  "upstream_rel": "Parallelization/WarpXComm.cpp",
+  "diff_lines": 43
+ },
+ {
+  "file": "Source/Plugins/Diagnostics/ReducedDiags/FieldPoyntingFlux.cpp",
+  "upstream_rel": "Diagnostics/ReducedDiags/FieldPoyntingFlux.cpp",
+  "diff_lines": 45
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.H",
+  "upstream_rel": "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.H",
+  "diff_lines": 58
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Implicit/SemiImplicitEM.H",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/SemiImplicitEM.H",
+  "diff_lines": 72
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Implicit/StrangImplicitSpectralEM.H",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/StrangImplicitSpectralEM.H",
+  "diff_lines": 81
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Implicit/SemiImplicitDarwin.H",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/SemiImplicitDarwin.H",
+  "diff_lines": 87
+ },
+ {
+  "file": "Source/Plugins/ParticleCore/Particles/MultiParticleContainer.H",
+  "upstream_rel": "Particles/MultiParticleContainer.H",
+  "diff_lines": 87
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/Initialization/WarpXInit.cpp",
+  "upstream_rel": "Initialization/WarpXInit.cpp",
+  "diff_lines": 90
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Implicit/ThetaImplicitEM.H",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/ThetaImplicitEM.H",
+  "diff_lines": 101
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/FieldSolver/WarpXImplicitOps.cpp",
+  "upstream_rel": "FieldSolver/ImplicitSolvers/WarpXImplicitOps.cpp",
+  "diff_lines": 106
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/Electrostatic/ElectrostaticSolver.cpp",
+  "upstream_rel": "FieldSolver/ElectrostaticSolvers/ElectrostaticSolver.cpp",
+  "diff_lines": 114
+ },
+ {
+  "file": "Source/Plugins/FieldSolver/FiniteDifference/FiniteDifferenceSolver.H",
+  "upstream_rel": "FieldSolver/FiniteDifferenceSolver/FiniteDifferenceSolver.H",
+  "diff_lines": 145
+ },
+ {
+  "file": "Source/Plugins/PicEm/Modules/Fluids/QdsmcParticleContainer.cpp",
+  "upstream_rel": "Fluids/QdsmcParticleContainer.cpp",
+  "diff_lines": 198
+ },
+ {
+  "file": "Source/Plugins/PicEm/WarpX.H",
+  "upstream_rel": "WarpX.H",
+  "diff_lines": 242
+ },
+ {
+  "file": "Source/Plugins/Collision/PulsedDecay/PulsedDecay.cpp",
+  "upstream_rel": "Particles/Collision/PulsedDecay/PulsedDecay.cpp",
+  "diff_lines": 291
+ },
+ {
+  "file": "Source/Core/Modules/Particles/Gather/FieldGather.H",
+  "upstream_rel": "Particles/Gather/FieldGather.H",
+  "diff_lines": 359
+ }
+]
