@@ -354,6 +354,17 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log(`PASS 新增组分: ${names[0]} -> ${names[names.length - 1]}（继承 charge/density）`);
 
+  // 激光实例卡片：lasers.names 存在时必须能渲染出 a0 等参数
+  T.setDECK({ params: { "lasers.names": "laser1" },
+              groups: { "<laser_name>": { laser1: { profile: "Gaussian", a0: "1.0" } } } });
+  T.setStep(2); T.render();
+  const laserCardRows = collectLabels(registry["form"], []);
+  if (!laserCardRows.some((r) => r.trim() === "a0")) {
+    console.error("FAIL 激光卡片没渲染（缺 a0）");
+    process.exit(1);
+  }
+  console.log("PASS 激光卡片渲染（<laser_name>.a0）");
+
   // 降维诊断：warpx.reduced_diags_names 存在时，<reduced_diags_name>.type 必须出现
   T.setDECK({ params: { "warpx.reduced_diags_names": "rd1" },
               groups: { "<reduced_diags_name>": { rd1: { type: "FieldEnergy" } } } });
