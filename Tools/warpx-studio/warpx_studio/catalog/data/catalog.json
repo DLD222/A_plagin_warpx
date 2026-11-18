@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 512,
+  "total": 525,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -4860,6 +4860,15 @@
    "core": true
   },
   {
+   "name": "algo.evolve_scheme",
+   "type": "string",
+   "default": "explicit",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "algo.field_gathering",
    "type": "string",
    "default": null,
@@ -8411,6 +8420,32 @@
    "core": true
   },
   {
+   "name": "warpx.abort_on_warning_threshold",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": [
+    "low",
+    "medium",
+    "high"
+   ]
+  },
+  {
+   "name": "warpx.boost_direction",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": [
+    "x",
+    "y",
+    "z"
+   ]
+  },
+  {
    "name": "warpx.cfl",
    "type": "float",
    "default": "0.999",
@@ -9117,6 +9152,15 @@
    "core": false
   },
   {
+   "name": "warpx.gamma_boost",
+   "type": "float",
+   "default": "1.",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.grid_type",
    "type": "string, collocated, staggered or hybrid",
    "default": null,
@@ -9128,6 +9172,15 @@
    "required": false,
    "options": [],
    "core": false
+  },
+  {
+   "name": "warpx.magnetostatic_solver_max_iters",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.max_dt",
@@ -9535,6 +9588,15 @@
    "core": false
   },
   {
+   "name": "warpx.poisson_solver",
+   "type": "string",
+   "default": "multigrid",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.projection_div_cleaner.atol",
    "type": "float",
    "default": "0",
@@ -9599,6 +9661,15 @@
    "required": false,
    "options": [],
    "core": true
+  },
+  {
+   "name": "warpx.random_seed",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.reduced_diags_names",
@@ -9764,6 +9835,42 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "warpx.safe_guard_cells",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_max_iters",
+   "type": "int",
+   "default": "200",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_required_precision",
+   "type": "float",
+   "default": "1.e-11",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.serialize_initial_conditions",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.shared_mem_current_tpb",
@@ -10040,6 +10147,15 @@
    "core": false
   },
   {
+   "name": "warpx.used_inputs_file",
+   "type": "string",
+   "default": "warpx_used_inputs",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.v_particle_pml",
    "type": "float",
    "default": "1",
@@ -10072,6 +10188,15 @@
     "0",
     "1"
    ]
+  },
+  {
+   "name": "warpx.write_diagnostics_on_restart",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   }
  ],
  "gating": {

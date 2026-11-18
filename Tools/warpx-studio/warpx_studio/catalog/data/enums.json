@@ -603,18 +603,15 @@
    "pulsed_decay"
   ],
   "warpx.abort_on_warning_threshold": [
-   "high",
    "low",
-   "medium"
+   "medium",
+   "high"
   ],
   "warpx.always_warn_immediately": [
    "0",
    "1"
   ],
   "warpx.boost_direction": [
-   "X",
-   "Y",
-   "Z",
    "x",
    "y",
    "z"
@@ -1807,7 +1804,9 @@
    "multigrid": "多重网格迭代（默认，任意边界）",
    "fft": "FFT 泊松（快，要求周期/开放边界）",
    "cudss": "cuDSS 直接解（需 GPU 与 cuDSS 编译）"
-  }
+  },
+  "warpx.boost_direction": {},
+  "warpx.abort_on_warning_threshold": {}
  },
  "derived": {
   "warpx.do_pml": "已废弃：本 fork 会报 \"do_pml is not supported anymore\"，请改用 boundary.field_lo / boundary.field_hi = pml",
