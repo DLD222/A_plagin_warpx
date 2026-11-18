@@ -300,6 +300,13 @@ def run_checks(port: int) -> None:
           top.to_inputs().splitlines()[:2])
     solver_cat = next((c for c in json.loads((data / "categories.json").read_text())["categories"]
                        if c["id"] == "solver_choice"), None)
+    # 验收项：所有官方算例的输入文本必须能被网页原样往返（不改写用户输入）
+    import subprocess as _sp
+    r = _sp.run([str(Path(sys.executable)), str(STUDIO / "tests/parity_inputs.py")],
+                capture_output=True, text=True, cwd=str(STUDIO))
+    last = (r.stdout or "").strip().splitlines()[-1] if r.stdout.strip() else "无输出"
+    check("官方算例输入往返一致", r.returncode == 0, last)
+
     check("求解器与插件分类存在且含插件键",
           solver_cat is not None and "studio.solver.plugins" in solver_cat["params"],
           solver_cat["name"] if solver_cat else "缺失")
