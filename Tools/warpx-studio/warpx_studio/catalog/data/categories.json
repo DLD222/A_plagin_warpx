@@ -442,6 +442,7 @@
     "<diag_name>.species",
     "<diag_name>.time_average_mode",
     "<diag_name>.write_species",
+    "<reduced_diags_name>.type",
     "amrex.async_out",
     "diagnostics.diags_names",
     "diagnostics.enable",

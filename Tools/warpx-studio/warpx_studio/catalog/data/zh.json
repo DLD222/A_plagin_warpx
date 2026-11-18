@@ -110,7 +110,7 @@
   "amr.max_grid_size_x": "x 方向单块最大网格数",
   "<diag_name>.openpmd_backend": "openPMD 后端（取值：下拉选择，共 3 项 —— `h5` = HDF5（单文件，ParaView 直接读）；`bp` = ADIOS2 BP（并行 I/O 更快）；`json` = JSON（只适合小数据/调试））",
   "<diag_name>.write_species": "1 = 同时输出粒子数据，0 = 只输出场（取值：下拉选择，共 2 项 —— `0`；`1`）",
-  "<reduced_diags_name>.type": "诊断与输出 · 类型（<reduced_diags_name>type）（类型 string，必填）",
+  "<reduced_diags_name>.type": "降维诊断的类型（21 种下拉）：决定这个 reduced diag 算什么——FieldEnergy 场总能量、ParticleNumber 粒子数、ParticleHistogram 粒子量直方图、FieldProbe 定点场采样、RhoMaximum 电荷密度最大值等；每个类型还有自己的专属参数（取值：下拉选择，共 21 项 —— FieldEnergy=场总能量；FieldMaximum=场最大值；FieldMomentum=场总动量；FieldPoyntingFlux=坡印廷通量；FieldProbe=定点采样；FieldReduction=区域积分/极值；ParticleNumber=粒子数；ParticleEnergy=粒子能量；ParticleMomentum=粒子动量；ParticleExtrema=位置/动量极值；ParticleHistogram=一维直方图；ParticleHistogram2D=二维直方图；BeamRelevant=束流发射度；ColliderRelevant=对撞量；DifferentialLuminosity=微分亮度；DifferentialLuminosity2D=二维微分亮度；ChargeOnEB=EB 电荷；RhoMaximum=电荷密度最大值；LoadBalanceCosts=负载代价；LoadBalanceEfficiency=负载效率；Timestep=时间步长；默认 必填）",
   "<reduced_diags_name>.intervals": "归约诊断输出间隔（步）",
   "<collision_name>.<scattering_process>_cross_section": "某个散射过程的截面数据文件路径（DSMC / MCC 用），例如 elastic_cross_section（取值：单个数值，可写科学计数法（如 1.0e-6）；不填就用 WarpX 默认值）",
   "<collision_name>.<scattering_process>_energy": "某个散射过程的特征能量（eV），例如 elastic_energy（取值：单个数值，可写 1.0e-6 这样的科学计数法；不填就用 WarpX 默认值）",

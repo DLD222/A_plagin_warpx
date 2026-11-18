@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 542,
+  "total": 543,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -2373,6 +2373,37 @@
    "doc": ":type: ``float`` :unit: meters.seconds :default: ``0.`` :optional:  Spatial chirp at focus in direction :pp:param:`<laser_name>.stc_direction`. See definition in :cite:t:`param-AkturkOE2004`.",
    "core": false,
    "options": null
+  },
+  {
+   "name": "<reduced_diags_name>.type",
+   "type": "string",
+   "default": null,
+   "optional": false,
+   "doc": "",
+   "core": false,
+   "options": [
+    "BeamRelevant",
+    "ChargeOnEB",
+    "ColliderRelevant",
+    "DifferentialLuminosity",
+    "DifferentialLuminosity2D",
+    "ParticleEnergy",
+    "ParticleExtrema",
+    "ParticleHistogram",
+    "ParticleHistogram2D",
+    "ParticleMomentum",
+    "ParticleNumber",
+    "FieldEnergy",
+    "FieldMaximum",
+    "FieldMomentum",
+    "FieldPoyntingFlux",
+    "FieldProbe",
+    "FieldReduction",
+    "LoadBalanceCosts",
+    "LoadBalanceEfficiency",
+    "RhoMaximum",
+    "Timestep"
+   ]
   },
   {
    "name": "<species>.do_qed_virtual_photons",

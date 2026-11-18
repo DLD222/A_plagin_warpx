@@ -815,6 +815,29 @@
    "semi_implicit_em",
    "strang_implicit_spectral_em",
    "semi_implicit_darwin"
+  ],
+  "<reduced_diags_name>.type": [
+   "BeamRelevant",
+   "ChargeOnEB",
+   "ColliderRelevant",
+   "DifferentialLuminosity",
+   "DifferentialLuminosity2D",
+   "ParticleEnergy",
+   "ParticleExtrema",
+   "ParticleHistogram",
+   "ParticleHistogram2D",
+   "ParticleMomentum",
+   "ParticleNumber",
+   "FieldEnergy",
+   "FieldMaximum",
+   "FieldMomentum",
+   "FieldPoyntingFlux",
+   "FieldProbe",
+   "FieldReduction",
+   "LoadBalanceCosts",
+   "LoadBalanceEfficiency",
+   "RhoMaximum",
+   "Timestep"
   ]
  },
  "hints": {
@@ -1820,6 +1843,29 @@
    "semi_implicit_em": "半隐式电磁：粒子隐式、场显式（仍受 CFL 限制，θ=0.5）",
    "strang_implicit_spectral_em": "Strang 分裂全隐式：谱方法半步 + 粒子整步，色散极小",
    "semi_implicit_darwin": "半隐式 Darwin（静磁达尔文近似）：保留低频磁场、滤掉光波；需同时设 warpx.do_electrostatic 且 maxwell_solver = yee"
+  },
+  "<reduced_diags_name>.type": {
+   "BeamRelevant": "束流相关量（发射度、亮度等）",
+   "ChargeOnEB": "嵌入边界上的总电荷（需 EB 构建）",
+   "ColliderRelevant": "对撞相关量（ luminosity 等）",
+   "DifferentialLuminosity": "微分亮度（按能量/角度）",
+   "DifferentialLuminosity2D": "二维微分亮度",
+   "ParticleEnergy": "粒子总能量",
+   "ParticleExtrema": "粒子位置/动量的极值",
+   "ParticleHistogram": "粒子量的一维直方图",
+   "ParticleHistogram2D": "粒子量的二维直方图",
+   "ParticleMomentum": "粒子总动量",
+   "ParticleNumber": "粒子数随时间",
+   "FieldEnergy": "电磁场总能量",
+   "FieldMaximum": "场的最大值",
+   "FieldMomentum": "场的总动量",
+   "FieldPoyntingFlux": "坡印廷通量（能量流）",
+   "FieldProbe": "指定点/线上的场采样",
+   "FieldReduction": "场的区域积分/平均/极值",
+   "LoadBalanceCosts": "每步每网格的计算代价（负载均衡用）",
+   "LoadBalanceEfficiency": "负载均衡效率",
+   "RhoMaximum": "电荷密度的最大值（诊断散度误差）",
+   "Timestep": "时间步长随时间"
   }
  },
  "derived": {
