@@ -292,11 +292,14 @@ def api_paraview(launch: bool = False):
     if result.returncode != 0:
         raise HTTPException(500, (result.stderr or result.stdout)[-500:])
     summary = json.loads(result.stdout.strip().splitlines()[-1])
+    # 任何情况下都不再启动外部 ParaView GUI：它会弹窗、打断操作、而且窗口关不掉。
+    # 需要看图请用网页内的交互查看器（无头渲染，不弹窗）。
+    # 只有显式设置环境变量 WARPX_STUDIO_ALLOW_PV_GUI=1 时才允许（默认禁止）。
     launched = False
-    if launch:
+    if launch and os.environ.get("WARPX_STUDIO_ALLOW_PV_GUI") == "1":
         gui = shutil.which("paraview") or os.path.expanduser("~/.local/bin/paraview")
         if Path(gui).exists():
-            close_paraview()                       # one GUI at a time
+            close_paraview()
             proc = subprocess.Popen([gui, summary["pvd"]], start_new_session=True,
                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             PARAVIEW.update({"proc": proc, "pvd": summary["pvd"]})

@@ -78,7 +78,6 @@
     <input type="checkbox" id="show-derived"> 显示派生参数</label>
   <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
   <button id="paraview" title="在网页内交互查看（旋转/缩放/回放），不再弹外部窗口">🔍 网页内查看</button>
-  <button id="paraview-ext" title="导出 .vti/.pvd 并打开外部 ParaView（WSLg 下窗口按钮可能关不掉，用右边强制关闭）">↗ 外部 ParaView</button>
   <button id="paraview-close" title="强制杀掉所有 ParaView 进程（外部窗口关不掉时用这个）">✕ 关闭 ParaView</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
   <button id="restart" title="把选中 checkpoint 设为 amr.restart 并运行">⏩ 续算</button>
@@ -877,13 +876,6 @@ document.getElementById("stop").onclick = () => fetch("/api/stop", { method: "PO
 document.getElementById("pause").onclick = () => fetch("/api/pause", { method: "POST" });
 document.getElementById("resume").onclick = () => fetch("/api/resume", { method: "POST" });
 document.getElementById("paraview-close").onclick = async () => {
-  const r = await fetch("/api/paraview/close", { method: "POST" });
-  const out = await r.json();
-  setStatus(out.closed ? "已关闭 ParaView" : "ParaView 未在运行（或已退出）",
-            out.closed ? "var(--ok)" : "var(--dim)");
-  document.getElementById("paraview-close").style.display = "none";
-};
-document.getElementById("paraview-close").onclick = async () => {
   const r = await fetch("/api/paraview/close-all", { method: "POST" });
   const out = await r.json();
   setStatus(out.remaining === "0" ? "已关闭所有 ParaView" : `仍有 ${out.remaining} 个 ParaView 进程`,
@@ -895,15 +887,7 @@ document.getElementById("paraview").onclick = () => {
   refreshQuantities(); refreshReplay(); refreshGallery();
   setStatus("已在网页内打开交互查看器：拖动旋转、滚轮缩放、进度条回放", "var(--ok)");
 };
-document.getElementById("paraview-ext").onclick = async () => {
-  setStatus("正在导出 VTK …", "var(--warn)");
-  const r = await fetch("/api/paraview", { method: "POST" });
-  const out = await r.json();
-  if (!r.ok) { setStatus("导出失败: " + (out.detail || "").slice(0, 80), "var(--err)"); return; }
-  setStatus(`已导出 ${out.iterations} 个迭代 → ${out.pvd}` +
-            (out.launched ? "（已在 ParaView 中打开，可用右侧按钮关闭）" : "（未检测到 ParaView 可执行文件）"), "var(--ok)");
-  if (out.launched) document.getElementById("paraview-close").style.display = "";
-};
+// 外部 ParaView 入口已移除（会弹窗且关不掉）；需要看图请用网页内查看器
 async function refreshCheckpoints() {
   const data = await (await fetch("/api/checkpoints")).json();
   const sel = document.getElementById("checkpoint");

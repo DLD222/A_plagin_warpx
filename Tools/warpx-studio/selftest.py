@@ -656,6 +656,19 @@ def run_checks(port: int) -> None:
           "改了值会重渲染，开关后面紧跟依赖项")
     check("功能开关门控", ok and shown("<species_name>.do_field_ionization", {}),
           f"{len(rules)} 条规则；关时隐藏、开时展开、开关本身始终可见")
+    # 任何情况下都不能弹出外部 ParaView GUI（用户明确要求）
+    import subprocess as _sp
+    def _gui_count():
+        out = _sp.run(["pgrep", "-af", "paraview"], capture_output=True, text=True).stdout
+        # 只数 GUI（bin/paraview），不算无头渲染的 pvpython
+        return len([ln for ln in out.splitlines() if "bin/paraview" in ln and "pvpython" not in ln])
+    before = _gui_count()
+    call(port, "/api/paraview?launch=true", {})
+    import time as _t
+    _t.sleep(2)
+    after = _gui_count()
+    check("不弹外部 ParaView 窗口", after <= before,
+          f"调用 /api/paraview?launch=true 前后 GUI 进程数 {before} → {after}")
     check("显示输入/输出文件地址",
           bool(paths.get("inputs")) and bool(paths.get("diag_dir")),
           f"输入 {paths.get('inputs')}；输出 {paths.get('diag_dir')}")
