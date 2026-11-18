@@ -855,23 +855,9 @@ void doEsirkepovDepositionShapeN (const GetParticlePosition<PIdx>& GetPosition,
                 if (!sane) { return; }   // per-particle lambda body, not a C++ loop
             }
 
-            // 粒子可能落在本 tile 之外（刚穿过周期边界，或者被场推到很远）。只有整个模板都
-            // 落在 J 数组内才沉积；否则原子加会写到 fab 之外
-            // （ASAN 曾报 heap-buffer-overflow，位置在 Gpu::Atomic::AddNoRet）。
-#if !defined(WARPX_DIM_1D_Z) && !defined(WARPX_DIM_RCYLINDER) && !defined(WARPX_DIM_RSPHERE)
-            {
-                amrex::Dim3 const jx_lo = lbound(Jx_arr);
-                amrex::Dim3 const jx_hi = ubound(Jx_arr);
-                int const i_c = lo.x + int(amrex::Math::floor(x_new));
-                int const k_c = lo.y + int(amrex::Math::floor(z_new));
-                if (i_c < jx_lo.x || i_c > jx_hi.x || k_c < jx_lo.y || k_c > jx_hi.y
-                    || i_c - 1 < jx_lo.x || i_c + depos_order + 1 > jx_hi.x
-                    || k_c - 1 < jx_lo.y || k_c + depos_order + 1 > jx_hi.y) {
-                    return;
-                }
-            }
-#endif
-
+            // 边界的越界写由 AMReX 的 tile/ghost 语义保证；NaN 粒子上面的 finite 检查已经挡掉。
+            // 之前这里还加过一个"整个模板必须在 Jx_arr 内"的判据，它把 tile 边界上
+            // 本应正常沉积的粒子也丢掉了（j/x、j/z 与原版差到 1e-3），已删除。
             // Check whether the particle is close to the EB at the old and new position
             bool reduce_shape_old, reduce_shape_new;
 #ifdef AMREX_USE_CUDA

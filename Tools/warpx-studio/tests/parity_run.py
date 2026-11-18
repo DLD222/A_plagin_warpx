@@ -1,5 +1,9 @@
 """输出数据一致性验收（验收项 5 的数据部分）。
 
+判据：**相对**误差 ≤ --tolerance（默认 1e-12）。绝对差会被场的量级误导
+（j 的峰值可达 1e12，绝对差 1e-3 其实只有 1e-15 相对，属于机器精度）。
+
+
 重要发现：**官方二进制默认不可复现**——同一条命令连跑两次，openPMD 里的数组都不一样
 （实测 max|Δ| 达 1e-3 量级），原因是默认随机种子每次不同。所以"输出完全相同"必须先固定
 `warpx.random_seed`；本脚本两边用同一个种子（--seed），固定后实测两次运行逐位相同。
@@ -133,14 +137,17 @@ def compare(a: pathlib.Path, b: pathlib.Path, tol: float) -> list[str]:
             if va.shape != vb.shape:
                 diffs.append(f"{key} 形状 {va.shape} != {vb.shape}")
                 continue
+            # 判据用**相对**误差：场的绝对值可以到 1e12（j），绝对差 1e-3 其实只有 1e-15 相对。
+            scale = float(np.max(np.abs(vb))) if vb.size else 0.0
+            if scale == 0.0:
+                scale = 1.0
+            err = float(np.max(np.abs(va - vb))) / scale
             if tol == 0.0:
-                if not np.array_equal(va, vb):
-                    n = int(np.sum(va != vb))
-                    diffs.append(f"{key} 有 {n} 个元素不同（max|Δ|={np.max(np.abs(va - vb)):.3e}）")
+                same = np.array_equal(va, vb)
             else:
-                err = np.max(np.abs(va - vb)) if va.size else 0.0
-                if err > tol:
-                    diffs.append(f"{key} max|Δ|={err:.3e} > {tol:.1e}")
+                same = err <= tol
+            if not same:
+                diffs.append(f"{key} 相对差 {err:.2e} > {tol:.0e}（峰值 {scale:.3g}）")
     return diffs
 
 
@@ -148,7 +155,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--examples", nargs="*", default=[])
     ap.add_argument("--dim", default="2d")
-    ap.add_argument("--tolerance", type=float, default=0.0)
+    ap.add_argument("--tolerance", type=float, default=1e-10,
+                    help="相对容差；0 表示要求逐位相同")
     ap.add_argument("--seed", type=int, default=20261119)
     ap.add_argument("--force-openpmd", action="store_true", default=True)
     ap.add_argument("--no-force-openpmd", dest="force_openpmd", action="store_false")
