@@ -23,6 +23,9 @@ def candidates(dim: str, cells_max: int, steps_max: int) -> list[pathlib.Path]:
     for f in sorted((REPO / "Examples/Tests").rglob("inputs*")):
         if not f.is_file() or f.suffix == ".py":
             continue
+        # inputs_base_* 只是片段（需要 inputs_test_* 覆盖），单独跑没有意义
+        if f.name.startswith("inputs_base"):
+            continue
         text = f.read_text(errors="ignore")
         m = re.search(r"max_step\s*=\s*(\d+)", text)
         d = re.search(r"geometry\.dims\s*=\s*(\d|RZ|rz)", text)
