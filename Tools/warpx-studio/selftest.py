@@ -106,7 +106,13 @@ def run_checks(port: int) -> None:
     check("目录已裁剪且保留关键参数",
           # 502 = 裁剪后的 351 + 补回的物种/激光/碰撞/动量参数（文档里有、原目录漏掉的）
           300 <= counts["total"] <= 700 and not missing and not composite
-          and not any(n.startswith(("amrex.", "ablastr.")) for n in names),
+          # amrex.* 只允许 26.11 文档里面向用户的那几个运行控制项
+          and not any(n.startswith("ablastr.") for n in names)
+          and not any(n.startswith("amrex.") for n in names
+                      if n not in {"amrex.abort_on_unused_inputs", "amrex.omp_threads",
+                                   "amrex.async_out", "amrex.async_out_nfiles",
+                                   "amrex.abort_on_out_of_gpu_memory",
+                                   "amrex.the_arena_is_managed", "amrex.use_profiler_syncs"}),
           f"{counts['total']} 参数（裁剪前 802）；缺失关键项 {missing or '无'}；"
           f"含 '/' 的合并项 {composite or '无'}；无 amrex./ablastr. 内部开关")
     check("gating 提取", counts["with_runtime_gating"] >= 120,
