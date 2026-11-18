@@ -60,11 +60,15 @@ def inline_file_directive(text: str, origin: pathlib.Path) -> str:
     for name in base_names:
         candidate = origin.parent / name
         if candidate.exists():
-            parts.append(candidate.read_text(errors="ignore"))
+            text = candidate.read_text(errors="ignore")
+            # 基础文件末尾可能没有换行，直接拼接会把两行粘成
+            # "proton2.do_not_push = 1proton2.do_not_deposit = 1" 这种坏行
+            parts.append(text if text.endswith("\n") else text + "\n")
         else:
-            parts.append(f"# 未找到基础文件 {name}")
+            parts.append(f"# 未找到基础文件 {name}\n")
     parts.append("\n".join(kept))
-    return "\n".join(parts)
+    merged = "".join(parts)
+    return merged if merged.endswith("\n") else merged + "\n"
 
 
 def post(path: str, body: dict) -> dict:
@@ -129,6 +133,10 @@ def compare(a: pathlib.Path, b: pathlib.Path, tol: float) -> list[str]:
                     fa_fields[f"{k}/{c}"] = np.array(node[c])
                     fb_fields[f"{k}/{c}"] = (np.array(gb[k][c])
                                              if k in gb and c in gb[k] else None)
+        # 场的"峰值"可能是 1e-21 这种本质为零的量（EB 内部、对称分量），此时相对误差没有
+        # 意义。用全场最大幅值做地板：绝对差小于 1e-6 × 全场峰值就当作一致。
+        global_peak = max((float(np.max(np.abs(v))) for v in fa_fields.values() if v.size),
+                          default=1.0) or 1.0
         for key, va in fa_fields.items():
             vb = fb_fields.get(key)
             if vb is None:
@@ -139,8 +147,7 @@ def compare(a: pathlib.Path, b: pathlib.Path, tol: float) -> list[str]:
                 continue
             # 判据用**相对**误差：场的绝对值可以到 1e12（j），绝对差 1e-3 其实只有 1e-15 相对。
             scale = float(np.max(np.abs(vb))) if vb.size else 0.0
-            if scale == 0.0:
-                scale = 1.0
+            scale = max(scale, 1e-6 * global_peak)
             err = float(np.max(np.abs(va - vb))) / scale
             if tol == 0.0:
                 same = np.array_equal(va, vb)

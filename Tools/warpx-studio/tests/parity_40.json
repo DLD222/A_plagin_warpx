@@ -40,6 +40,6 @@
     "Examples/Tests/nuclear_fusion/inputs_test_3d_proton_boron_fusion",
     "Examples/Tests/qed/inputs_test_3d_qed_schwinger_1",
     "Examples/Tests/qed/inputs_test_3d_qed_schwinger_2",
-    "Examples/Tests/macroscopic_solver/inputs_1d_periodic_interface"
+    "Examples/Tests/electrostatic_dirichlet_bc/inputs_test_2d_dirichlet_bc"
   ]
 }

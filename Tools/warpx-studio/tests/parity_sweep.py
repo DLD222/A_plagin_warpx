@@ -65,9 +65,29 @@ def main() -> int:
     ap.add_argument("--cells-max", type=int, default=20000)
     ap.add_argument("--steps-max", type=int, default=200)
     ap.add_argument("--tolerance", type=float, default=1e-10)
+    ap.add_argument("--manifest", default=None,
+                    help="JSON 清单文件（例如 tests/parity_40.json），按清单逐条跑，忽略 --dim")
     args = ap.parse_args()
 
-    files = candidates(args.dim, args.cells_max, args.steps_max)[: args.limit]
+    if args.manifest:
+        import json
+        data = json.loads((REPO / "Tools/warpx-studio/tests" / args.manifest
+                           if not pathlib.Path(args.manifest).is_absolute()
+                           else pathlib.Path(args.manifest)).read_text())
+        files = [REPO / e for e in data["examples"]]
+        dims = {}
+        for f in files:
+            text = f.read_text(errors="ignore")
+            for name in re.findall(r"^\s*FILE\s*=\s*(\S+)", text, re.M):
+                base = f.parent / name
+                if base.exists():
+                    text = base.read_text(errors="ignore") + "\n" + text
+            m = re.search(r"geometry\.dims\s*=\s*(\d|RZ|rz)", text)
+            dims[f] = {"1": "1d", "2": "2d", "3": "3d", "RZ": "rz", "rz": "rz"}.get(
+                m.group(1) if m else "2", "2d")
+    else:
+        files = candidates(args.dim, args.cells_max, args.steps_max)[: args.limit]
+        dims = {f: args.dim for f in files}
     if not files:
         print("没有符合条件的算例")
         return 2
@@ -75,7 +95,7 @@ def main() -> int:
     for f in files:
         rel = f.relative_to(REPO)
         r = subprocess.run([sys.executable, str(REPO / "Tools/warpx-studio/tests/parity_run.py"),
-                            "--examples", str(rel), "--dim", args.dim,
+                            "--examples", str(rel), "--dim", dims.get(f, args.dim),
                             "--tolerance", str(args.tolerance)],
                            capture_output=True, text=True)
         ok = r.returncode == 0
@@ -85,7 +105,8 @@ def main() -> int:
             for line in (r.stdout or "").splitlines():
                 if line.strip().startswith(("B/", "E/", "j/", "缺少", "rho")):
                     print("     ", line.strip())
-    print(f"\n{args.dim}: {len(passed)}/{len(files)} 通过")
+    label = args.manifest or args.dim
+    print(f"\n{label}: {len(passed)}/{len(files)} 通过")
     return 0 if not failed else 1
 
 
