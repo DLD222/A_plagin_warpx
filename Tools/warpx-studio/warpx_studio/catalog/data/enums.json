@@ -808,6 +808,13 @@
    "multigrid",
    "fft",
    "cudss"
+  ],
+  "algo.evolve_scheme": [
+   "explicit",
+   "theta_implicit_em",
+   "semi_implicit_em",
+   "strang_implicit_spectral_em",
+   "semi_implicit_darwin"
   ]
  },
  "hints": {
@@ -1806,7 +1813,14 @@
    "cudss": "cuDSS 直接解（需 GPU 与 cuDSS 编译）"
   },
   "warpx.boost_direction": {},
-  "warpx.abort_on_warning_threshold": {}
+  "warpx.abort_on_warning_threshold": {},
+  "algo.evolve_scheme": {
+   "explicit": "显式（默认）：FDTD/PSATD 标准推进，受 CFL 限制",
+   "theta_implicit_em": "θ 隐式电磁：粒子与场都隐式，可用大步长，需 Newton 迭代",
+   "semi_implicit_em": "半隐式电磁：粒子隐式、场显式（仍受 CFL 限制，θ=0.5）",
+   "strang_implicit_spectral_em": "Strang 分裂全隐式：谱方法半步 + 粒子整步，色散极小",
+   "semi_implicit_darwin": "半隐式 Darwin（静磁达尔文近似）：保留低频磁场、滤掉光波；需同时设 warpx.do_electrostatic 且 maxwell_solver = yee"
+  }
  },
  "derived": {
   "warpx.do_pml": "已废弃：本 fork 会报 \"do_pml is not supported anymore\"，请改用 boundary.field_lo / boundary.field_hi = pml",

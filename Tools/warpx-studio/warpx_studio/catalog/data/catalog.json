@@ -4866,7 +4866,13 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "explicit",
+    "theta_implicit_em",
+    "semi_implicit_em",
+    "strang_implicit_spectral_em",
+    "semi_implicit_darwin"
+   ]
   },
   {
    "name": "algo.field_gathering",
@@ -9621,7 +9627,11 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "multigrid",
+    "fft",
+    "cudss"
+   ]
   },
   {
    "name": "warpx.projection_div_cleaner.atol",
@@ -9870,7 +9880,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.self_fields_max_iters",
@@ -9897,7 +9910,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.shared_mem_current_tpb",
@@ -10223,7 +10239,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   }
  ],
  "gating": {
