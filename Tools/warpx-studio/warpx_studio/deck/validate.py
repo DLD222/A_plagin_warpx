@@ -98,8 +98,12 @@ def _check_number(value: str, kind: str) -> str | None:
     if not value or not NUMERIC.search(kind or "") or "string" in (kind or "").lower():
         return None
     text = value.strip().strip('"')
-    if re.search(r"[+\-*/()^]|sqrt|log|exp|pi\b|q_e|m_e|clight", text):
-        return None                     # an AMReX parser expression: trust it
+    # WarpX 的数值参数接受 AMReX 常量与表达式：
+    #   m_e, m_p, m_i, q_e, clight, pi, epsilon0, mu0 ... 以及 27*m_p、5*q_e 这类写法
+    WARPX_CONSTANTS = (r"m_e|m_p|m_i|m_n|q_e|q_p|clight|pi|epsilon0|mu0|hbar|"
+                       r"eV|keV|MeV|GeV|micro|nano|femto|atto")
+    if re.search(r"[+\-*/()^]", text) or re.search(WARPX_CONSTANTS, text):
+        return None                     # 表达式/常量：交给 WarpX 解析，不在前端判死
     parts = SPACE_LIST.split(text)
     for part in parts:
         try:

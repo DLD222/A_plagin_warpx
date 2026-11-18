@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 511,
+  "total": 512,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -10053,6 +10053,15 @@
    "required": false,
    "options": [],
    "core": false
+  },
+  {
+   "name": "warpx.verbose",
+   "type": "int",
+   "default": "1",
+   "optional": true,
+   "doc": "AMReX 日志详细程度",
+   "core": false,
+   "options": null
   }
  ],
  "gating": {

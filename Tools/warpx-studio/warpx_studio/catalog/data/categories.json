@@ -8,7 +8,8 @@
     "amr.restart",
     "max_step",
     "stop_time",
-    "warpx.do_electrostatic"
+    "warpx.do_electrostatic",
+    "warpx.verbose"
    ]
   },
   {

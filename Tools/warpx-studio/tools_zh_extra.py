@@ -4,6 +4,9 @@
 之前就因为这点导致"新写的详细说明被旧短句盖掉"）。
 """
 CORRECTIONS: dict[str, str] = {
+    "warpx.verbose": "AMReX 运行日志的详细程度：0 = 几乎不打印，1 = 常规进度（默认），2 = 更详细（调试用）（取值：整数 0/1/2；默认 1；始终生效）",
+    "<species_name>.mass": "该粒子质量（千克）。可直接写 WarpX 常量或表达式：电子 `m_e`、质子 `m_p`、铝 `27*m_p`、氘 `2*m_p`。**所有注入方式都必需**（不是只在外部文件时才用）",
+    "<species_name>.charge": "该粒子电荷（库仑）。电子写 `-q_e`、质子 `q_e`、离子 Z=5 写 `5*q_e`，也可直接写数值（如 1.602e-19）。**所有注入方式都必需**",
     "<species_name>.x_cut": "gaussian_beam 的裁剪范围：|x-x_m| > x_cut·x_rms 的粒子不注入（留空 = 不裁剪）。注意 q_tot 是**未裁剪**束的总电荷，裁剪后实际注入的电荷会变少",
     "<species_name>.y_cut": "gaussian_beam 的裁剪范围：|y-y_m| > y_cut·y_rms 的粒子不注入；二维没有 y，可忽略",
     "<species_name>.z_cut": "gaussian_beam 的裁剪范围：|z-z_m| > z_cut·z_rms 的粒子不注入",
