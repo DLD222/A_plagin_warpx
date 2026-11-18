@@ -18,15 +18,15 @@ REPO = pathlib.Path(__file__).resolve().parents[3]
 
 
 def candidates(dim: str, cells_max: int, steps_max: int) -> list[pathlib.Path]:
-    want = dim[:-1] if dim.endswith("d") else dim
+    want = "RZ" if dim.lower() in ("rz", "r-z") else (dim[:-1] if dim.endswith("d") else dim)
     out = []
     for f in sorted((REPO / "Examples/Tests").rglob("inputs*")):
         if not f.is_file() or f.suffix == ".py":
             continue
         text = f.read_text(errors="ignore")
         m = re.search(r"max_step\s*=\s*(\d+)", text)
-        d = re.search(r"geometry\.dims\s*=\s*(\d)", text)
-        if not m or not d or d.group(1) != want:
+        d = re.search(r"geometry\.dims\s*=\s*(\d|RZ|rz)", text)
+        if not m or not d or d.group(1).upper() != str(want).upper():
             continue
         # 需要外部数据文件的算例无法自包含地跑（两边都会读失败），跳过
         if re.search(r"load_density|read_from_file|injection_file|read_[a-z_]*_from_path|"
