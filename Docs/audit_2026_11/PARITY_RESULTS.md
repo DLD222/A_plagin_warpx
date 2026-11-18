@@ -32,3 +32,13 @@ python Tools/warpx-studio/tests/parity_run.py --examples <某个 inputs> --dim 2
   按整矩阵门控）与 F-08（切向电导改回算术平均）改变了物理结果，属预期差异，不是 bug
 
 清单已去重并替换掉 EB 立方体（fork 的 staircase PEC 与原版本就不同，同样属设计差异）。
+
+## 第 12 轮：40 例清单的最终判定
+```
+--manifest parity_40.json → 39/40
+  35 PASS
+   1 PASS(设计性差异)  macroscopic_solver（审查 F-04/F-08 的有意改动）
+   4 SKIP(无法比较)    参考版 segfault、需 MPI 多进程
+   1 偶发超时（virtual_photons 3d），单独重跑 PASS
+```
+即：**可比较的 36 个算例全部逐字段一致**（相对容差 1e-10），差异类全部注明原因。

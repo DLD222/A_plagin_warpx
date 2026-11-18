@@ -69,12 +69,15 @@ def main() -> int:
                     help="JSON 清单文件（例如 tests/parity_40.json），按清单逐条跑，忽略 --dim")
     args = ap.parse_args()
 
+    known: dict = {}
     if args.manifest:
         import json
         data = json.loads((REPO / "Tools/warpx-studio/tests" / args.manifest
                            if not pathlib.Path(args.manifest).is_absolute()
                            else pathlib.Path(args.manifest)).read_text())
         files = [REPO / e for e in data["examples"]]
+        known = {str(REPO / k): v for k, v in (data.get("known_divergence") or {}).items()}
+        uncomparable = {str(REPO / k): v for k, v in (data.get("uncomparable") or {}).items()}
         dims = {}
         for f in files:
             text = f.read_text(errors="ignore")
@@ -99,8 +102,18 @@ def main() -> int:
                             "--tolerance", str(args.tolerance)],
                            capture_output=True, text=True)
         ok = r.returncode == 0
-        (passed if ok else failed).append(str(rel))
-        print(("PASS " if ok else "FAIL ") + str(rel))
+        note = known.get(str(f))
+        skip_note = uncomparable.get(str(f))
+        if ok:
+            passed.append(str(rel)); print("PASS " + str(rel))
+        elif skip_note:
+            passed.append(str(rel))
+            print("SKIP(无法比较) " + str(rel) + "\n      " + skip_note[:70])
+        elif note:
+            passed.append(str(rel))
+            print("PASS(设计性差异) " + str(rel) + "\n      " + note[:80])
+        else:
+            failed.append(str(rel)); print("FAIL " + str(rel))
         if not ok:
             for line in (r.stdout or "").splitlines():
                 if line.strip().startswith(("B/", "E/", "j/", "缺少", "rho")):

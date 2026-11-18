@@ -41,5 +41,14 @@
     "Examples/Tests/qed/inputs_test_3d_qed_schwinger_1",
     "Examples/Tests/qed/inputs_test_3d_qed_schwinger_2",
     "Examples/Tests/electrostatic_dirichlet_bc/inputs_test_2d_dirichlet_bc"
-  ]
+  ],
+  "known_divergence": {
+    "Examples/Tests/macroscopic_solver/inputs_1d_periodic_interface": "有意分流：代码审查 F-04（张量电导按整 3x3 门控）+ F-08（切向电导改回文档承诺的算术平均）改变了宏观介质中的场演化；上游那两处是 bug"
+  },
+  "uncomparable": {
+    "Examples/Tests/nuclear_fusion/inputs_test_2d_proton_boron_fusion": "参考版 segfault（需 MPI 多进程），两边都无输出，无法比较",
+    "Examples/Tests/nuclear_fusion/inputs_test_3d_proton_boron_fusion": "同上（参考版崩溃）",
+    "Examples/Tests/nuclear_fusion/inputs_test_rz_deuterium_tritium_fusion": "同上（参考版崩溃）",
+    "Examples/Tests/initial_plasma_profile/inputs_test_2d_parabolic_channel_initialization": "参考版崩溃，两边都无输出"
+  }
 }
