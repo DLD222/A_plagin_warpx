@@ -17,7 +17,6 @@ foreach(D IN LISTS WarpX_DIMS)
     if(TARGET lib_${SD})
         add_executable(test_runtime_snapshot_${SD} test_runtime_snapshot.cpp)
         add_executable(compile_only_field_solver_interface_${SD} compile_only_field_solver_interface.cpp)
-        add_executable(compile_only_field_solver_engine_interface_${SD} compile_only_field_solver_engine_interface.cpp)
         add_executable(compile_only_particle_contracts_${SD} compile_only_particle_contracts.cpp)
         add_executable(compile_only_particle_access_contracts_${SD} compile_only_particle_access_contracts.cpp)
         add_executable(compile_only_collision_contracts_${SD} compile_only_collision_contracts.cpp)
@@ -48,7 +47,6 @@ foreach(D IN LISTS WarpX_DIMS)
         target_link_libraries(compile_only_collision_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(compile_only_particle_access_contracts_${SD} PRIVATE lib_${SD})
         target_link_libraries(compile_only_particle_contracts_${SD} PRIVATE lib_${SD})
-        target_link_libraries(compile_only_field_solver_engine_interface_${SD} PRIVATE lib_${SD})
         target_link_libraries(compile_only_field_solver_interface_${SD} PRIVATE lib_${SD})
         target_link_libraries(test_runtime_snapshot_${SD} PRIVATE lib_${SD}
             $<TARGET_OBJECTS:warpx_picem_${SD}>
@@ -66,7 +64,6 @@ foreach(D IN LISTS WarpX_DIMS)
         # named compile_only_* and registered here explicitly -- an executable that is
         # never run is not a test.
         foreach(contract IN ITEMS compile_only_field_solver_interface
-                                    compile_only_field_solver_engine_interface
                                     compile_only_particle_contracts
                                     compile_only_particle_access_contracts
                                     compile_only_collision_contracts)
