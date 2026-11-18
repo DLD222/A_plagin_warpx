@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 528,
+  "total": 542,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -5295,6 +5295,33 @@
    "core": false
   },
   {
+   "name": "amrex.abort_on_unused_inputs",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "amrex.async_out",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "amrex.omp_threads",
+   "type": "string",
+   "default": "nosmt",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "boundary.field_hi",
    "type": null,
    "default": null,
@@ -9207,7 +9234,43 @@
    "core": false
   },
   {
+   "name": "warpx.limit_verbose_step",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.magnetostatic_solver_absolute_tolerance",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.magnetostatic_solver_max_iters",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.magnetostatic_solver_required_precision",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.magnetostatic_solver_verbosity",
    "type": "int",
    "default": null,
    "optional": true,
@@ -9886,6 +9949,42 @@
    ]
   },
   {
+   "name": "warpx.self_fields_absolute_tolerance",
+   "type": "float",
+   "default": "0.0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_agglomeration",
+   "type": "int",
+   "default": "1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_consolidation",
+   "type": "int",
+   "default": "1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_max_coarsening_level",
+   "type": "int",
+   "default": "30",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.self_fields_max_iters",
    "type": "int",
    "default": "200",
@@ -9895,9 +9994,27 @@
    "options": null
   },
   {
+   "name": "warpx.self_fields_num_final_sweeps",
+   "type": "int",
+   "default": "8",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.self_fields_required_precision",
    "type": "float",
    "default": "1.e-11",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_verbosity",
+   "type": "int",
+   "default": "2",
    "optional": true,
    "doc": "",
    "core": false,
@@ -10113,6 +10230,15 @@
     "1"
    ],
    "core": false
+  },
+  {
+   "name": "warpx.tiny_profiler_flush_interval",
+   "type": "string",
+   "default": "-1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.use_filter",

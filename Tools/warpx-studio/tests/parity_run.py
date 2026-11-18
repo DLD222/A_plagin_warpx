@@ -176,6 +176,7 @@ def main() -> int:
         return 2
 
     results = []
+    skipped: list[str] = []
     for name in args.examples:
         src = REPO / name
         if not src.exists():
@@ -187,11 +188,29 @@ def main() -> int:
         # 所以比较前必须固定种子，否则"完全一致"无从谈起。两边用同一个值。
         if "warpx.random_seed" not in deck.params:
             deck.params["warpx.random_seed"] = str(args.seed)
+        # 有些算例必须写 plotfile（plot_raw_fields），openPMD 不支持这些量，强行改格式会
+        # abort。这类算例用 openPMD 无法逐字段比较，明确跳过而不是算作失败。
+        # plot_raw_fields 存在诊断分组里，不在顶层 params
+        diag_insts = deck.groups.get("<diag_name>", {})
+        wants_raw = any(str(vals.get(key, "")).strip() in ("1", "true")
+                        for vals in diag_insts.values()
+                        for key in ("plot_raw_fields", "plot_raw_fields_guards"))
+        if wants_raw:
+            print(f"SKIP {name}: 需要 plotfile（plot_raw_fields），无法用 openPMD 比较")
+            results.append((name, []))
+            skipped.append(name)
+            continue
         if args.force_openpmd:
             # 只用 openPMD 才能逐数组比较；这只改诊断格式，不动物理参数。
             diags = str(deck.params.get("diagnostics.diags_names", "")).strip().split()
             for diag_name in (diags or ["diag1"]):
-                deck.params[f"{diag_name}.format"] = "openpmd"
+                # 诊断实例的参数存在 groups["<diag_name>"][实例] 里，不是顶层 params；
+                # 写错地方的话 format 不会生效，输出仍是 plotfile（就没有 h5 可比）
+                inst = deck.groups.get("<diag_name>", {}).get(diag_name)
+                if inst is not None:
+                    inst["format"] = "openpmd"
+                else:
+                    deck.params[f"{diag_name}.format"] = "openpmd"
         run_fork = run_via_web(deck, fork)
         run_ref = run_via_web(deck, ref)
         h5_fork, h5_ref = find_h5(run_fork), find_h5(run_ref)
@@ -206,13 +225,17 @@ def main() -> int:
         diffs = compare(h5_ref[-1], h5_fork[-1], args.tolerance)
         results.append((name, diffs))
 
-    ok = sum(1 for _, d in results if not d)
+    ok = sum(1 for name, d in results if not d and name not in skipped)
     for name, diffs in results:
         print(("PASS " if not diffs else "FAIL ") + name)
         for d in diffs[:4]:
             print("    ", d)
-    print(f"\n{ok}/{len(results)} 个算例输出完全一致")
-    return 0 if ok == len(results) else 1
+    compared = len(results) - len(skipped)
+    print(f"\n{ok}/{compared} 个算例输出完全一致"
+          + (f"（{len(skipped)} 个跳过：需要 plotfile）" if skipped else ""))
+    if compared == 0:
+        return 3                     # 全部无法比较
+    return 0 if ok == compared else 1
 
 
 if __name__ == "__main__":

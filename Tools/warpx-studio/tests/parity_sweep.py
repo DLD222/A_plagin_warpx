@@ -70,6 +70,7 @@ def main() -> int:
     args = ap.parse_args()
 
     known: dict = {}
+    uncomparable: dict = {}
     if args.manifest:
         import json
         data = json.loads((REPO / "Tools/warpx-studio/tests" / args.manifest
@@ -102,10 +103,14 @@ def main() -> int:
                             "--tolerance", str(args.tolerance)],
                            capture_output=True, text=True)
         ok = r.returncode == 0
+        skip = r.returncode == 3
         note = known.get(str(f))
         skip_note = uncomparable.get(str(f))
         if ok:
             passed.append(str(rel)); print("PASS " + str(rel))
+        elif skip:
+            passed.append(str(rel))
+            print("SKIP(需 plotfile) " + str(rel))
         elif skip_note:
             passed.append(str(rel))
             print("SKIP(无法比较) " + str(rel) + "\n      " + skip_note[:70])
