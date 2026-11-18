@@ -1719,6 +1719,9 @@ private:
     int regrid_int = -1;
     amrex::Real refine_start_time = -1.0;
     amrex::Real refine_stop_time = -1.0;
+    /** fork 专属开关：1 = 启用 refine_start_time / refine_stop_time /
+     *  refine_region_change_time 的延迟加密；0（默认）= 与上游 26.11 行为一致 */
+    int deferred_refine = 0;
 
     amrex::Real cfl = amrex::Real(0.999);
 

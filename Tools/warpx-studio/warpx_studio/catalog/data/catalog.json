@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 527,
+  "total": 528,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -8542,6 +8542,15 @@
    "source_only": false,
    "required": false,
    "core": false
+  },
+  {
+   "name": "warpx.deferred_refine",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.do_current_centering",

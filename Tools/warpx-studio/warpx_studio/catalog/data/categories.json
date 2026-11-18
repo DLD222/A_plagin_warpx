@@ -539,6 +539,7 @@
     "warpx.current_centering_nox",
     "warpx.current_centering_noy",
     "warpx.current_centering_noz",
+    "warpx.deferred_refine",
     "warpx.do_current_centering",
     "warpx.do_device_synchronize",
     "warpx.do_divb_cleaning",

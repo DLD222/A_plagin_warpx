@@ -897,6 +897,8 @@ WarpX::ReadParameters ()
         pp_warpx.query("limit_verbose_step", m_limit_verbose_step);
         utils::parser::queryWithParser(pp_warpx, "regrid_int", regrid_int);
         utils::parser::queryWithParser(pp_warpx, "refine_start_time", refine_start_time);
+        // fork 专属：延迟加密（默认关闭，保持与上游 26.11 一致的行为）
+        utils::parser::queryWithParser(pp_warpx, "deferred_refine", deferred_refine);
         utils::parser::queryWithParser(pp_warpx, "refine_stop_time", refine_stop_time);
         pp_warpx.query("do_subcycling", m_do_subcycling);
         pp_warpx.query("use_hybrid_QED", use_hybrid_QED);
@@ -3882,14 +3884,25 @@ void
 WarpX::ErrorEst (int lev, TagBoxArray& tags, Real time, int ngrow)
 {
     if (m_amr_policy != nullptr) { m_amr_policy->tag(lev, tags, time, ngrow); return; }
-    if (refine_start_time >= 0.0_rt && time < refine_start_time) { return; }
-    if (refine_stop_time >= 0.0_rt && time > refine_stop_time) { return; }
+    // 初始网格（time == 0）必须照常打标签：上游 26.11 在 t=0 就用 ref_patch_function
+    // 建好细网格，而这里原来把 t=0 也挡在 refine_start_time 之外，导致初始没有 level 1，
+    // 与上游的输出在第一步就对不上（dynamic_regrid 算例实测：参考版 iter0 已有 B_lvl1，
+    // fork 没有）。开关只应影响"后续时刻是否继续加密"，不应影响初始网格。
+    // 这几个开关（refine_start_time / refine_stop_time / refine_region_change_time）是 fork
+    // 自己的"延迟加密"特性，上游 26.11 完全没有它。默认必须**关闭**，否则同一份官方算例在
+    // 两边会得到不同的网格（dynamic_regrid 实测：fork 在 iter8 的 B/y 是 9.1e-3，上游 5.2e-3）。
+    // 想要延迟加密的算例显式写 warpx.deferred_refine = 1。
+    if (deferred_refine) {
+        if (refine_start_time >= 0.0_rt && time > 0.0_rt && time < refine_start_time) { return; }
+        if (refine_stop_time >= 0.0_rt && time > refine_stop_time) { return; }
+    }
     const auto problo = Geom(lev).ProbLoArray();
     const auto dx = Geom(lev).CellSizeArray();
 
     amrex::ParserExecutor<3> ref_parser;
     if (ref_patch_parser) { ref_parser = ref_patch_parser->compile<3>(); }
-    const bool use_second = refine_region_change_time >= 0.0_rt && time >= refine_region_change_time;
+    const bool use_second = deferred_refine && refine_region_change_time >= 0.0_rt
+                            && time >= refine_region_change_time;
     const auto ftlo = use_second ? fine_tag_lo2 : fine_tag_lo;
     const auto fthi = use_second ? fine_tag_hi2 : fine_tag_hi;
 #ifdef AMREX_USE_OMP

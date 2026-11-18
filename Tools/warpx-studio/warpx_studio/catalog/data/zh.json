@@ -928,6 +928,7 @@
   "<species_name>.density_function(x,y,z)": "用数学表达式给密度分布（m^-3），可用 x y z 与 my_constants 里的常数。profile = parse_density_function 时用它（取值：写成含 x y z（必要时 t）的表达式，可用 sin/cos/exp/sqrt 等；不填就用 WarpX 默认值；仅在 injection_style = NUniformPerCell 或 profile = parse_density_function 时生效）",
   "<species_name>.attribute": "给粒子额外加的属性名（取值：单个数值，可写 1.0e-6 这样的科学计数法；不填就用 WarpX 默认值）",
   "studio.solver.plugins": "要加载的插件求解器（多选，多个用 `:` 分隔）：`star_gravity_plugin.so` = 恒星自引力（泊松求解 + 发布 star_gx/gy/gz）；`star_fluid_plugin.so` = 高阶矩流体（MUSCL + 显式扩散）。等价于环境变量 WARPX_PLUGIN_PATH，留空 = 只用内建求解器（yee/psatd/ect/hybrid/静电/静磁）（取值：插件库文件名列表；默认 空）",
-  "studio.plugin.star_profile": "星体密度剖面文件路径（恒星引力插件读取，等价于 WARPX_STAR_PROFILE）：每行 r,rhop 的文本表；默认 Docs/research_notes/star_plugins/data/ssm_S_profile.csv（取值：文件路径；默认 上述路径）"
+  "studio.plugin.star_profile": "星体密度剖面文件路径（恒星引力插件读取，等价于 WARPX_STAR_PROFILE）：每行 r,rhop 的文本表；默认 Docs/research_notes/star_plugins/data/ssm_S_profile.csv（取值：文件路径；默认 上述路径）",
+  "warpx.deferred_refine": "fork 专属：1 = 启用延迟加密（配合 warpx.refine_start_time / refine_stop_time / refine_region_change_time），0（默认）= 与上游 26.11 行为一致（初始就按 ref_patch_function 加密）（取值：0 或 1；默认 0）"
  }
 }
