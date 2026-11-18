@@ -25,7 +25,6 @@ ALWAYS_REQUIRED = (
     "algo.particle_shape",
     "<species_name>.charge",
     "<species_name>.mass",
-    "<species_name>.profile",
     "<species_name>.momentum_distribution_type",
     "<diag_name>.diag_type",
 )
@@ -143,7 +142,11 @@ def validate(deck, catalog: dict) -> list[dict]:
     for name, value in deck.params.items():
         check(name, name, value)
     for name in ALWAYS_REQUIRED:
-        if not name.startswith("<") and not str(deck.params.get(name, "")).strip():
+        if name.startswith("<"):
+            continue
+        if not visible(name, catalog, deck, None):
+            continue          # 当前配置下不适用（例如面注入时的 profile）
+        if not str(deck.params.get(name, "")).strip():
             check(name, name, deck.params.get(name, ""))
 
     for template, instances in deck.groups.items():
@@ -153,6 +156,8 @@ def validate(deck, catalog: dict) -> list[dict]:
                 if not name.startswith(template + "."):
                     continue
                 sub = name[len(template) + 1:]
+                if not visible(name, catalog, deck, instance):
+                    continue      # 当前配置下不适用
                 if sub not in instances[instance]:
                     check(f"{instance}.{sub}", name, "")
     for template, instances in deck.groups.items():

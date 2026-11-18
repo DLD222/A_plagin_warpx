@@ -10787,6 +10787,12 @@
     "raw": "injection"
    },
    {
+    "param": "<species_name>.do_gaussian_beam_rotation",
+    "op": "truthy",
+    "value": null,
+    "raw": "injection"
+   },
+   {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
@@ -13241,6 +13247,12 @@
     "raw": "injection"
    },
    {
+    "param": "<species_name>.do_symmetrize",
+    "op": "truthy",
+    "value": null,
+    "raw": "injection"
+   },
+   {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
@@ -13254,6 +13266,12 @@
    }
   ],
   "<species_name>.gaussian_beam_rotation_axis": [
+   {
+    "param": "<species_name>.do_gaussian_beam_rotation",
+    "op": "truthy",
+    "value": null,
+    "raw": "injection"
+   },
    {
     "param": "<species_name>.do_gaussian_beam_rotation",
     "op": "truthy",
@@ -13651,22 +13669,6 @@
     "raw": "injection"
    }
   ],
-  "<species_name>.charge": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "external_file",
-    "raw": "injection"
-   }
-  ],
-  "<species_name>.mass": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "external_file",
-    "raw": "injection"
-   }
-  ],
   "<species_name>.z_shift": [
    {
     "param": "<species_name>.injection_style",
@@ -13682,318 +13684,6 @@
     "value": "external_file",
     "raw": "injection"
    }
-  ],
-  "<species_name>.profile": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.density": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.density_max": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.density_min": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.density_function(x,y,z)": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "parse_density_function",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "parse_density_function",
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.read_density_from_path": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.density_mesh_name": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ]
-  ],
-  "<species_name>.read_density_distributed": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ]
   ]
  },
  "build_guards": {

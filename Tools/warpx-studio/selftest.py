@@ -269,10 +269,18 @@ def run_checks(port: int) -> None:
     errors = [i for i in validate(bad, catalog) if i["severity"] == "error"]
     check("校验：类型错误被拦", any(i["param"] == "amr.n_cell" for i in errors),
           errors[0]["message"] if errors else "未拦下")
-    missing = minimal_deck("2d"); missing.groups["<species_name>"]["electrons"].pop("profile")
+    # 必填项要真正必填：拿掉 charge 必须报错
+    missing = minimal_deck("2d"); missing.groups["<species_name>"]["electrons"].pop("charge")
     errors = [i for i in validate(missing, catalog) if i["severity"] == "error"]
-    check("校验：必填项被拦", any("profile" in i["param"] for i in errors),
+    check("校验：必填项被拦", any("charge" in i["param"] for i in errors),
           errors[0]["param"] if errors else "未拦下")
+    # profile 只在按体积铺粒子时才是必需的：面注入下不该报缺（以前会误报）
+    fluxdeck = minimal_deck("2d")
+    fluxdeck.groups["<species_name>"]["electrons"]["injection_style"] = "NFluxPerCell"
+    fluxdeck.groups["<species_name>"]["electrons"].pop("profile", None)
+    errs2 = [i for i in validate(fluxdeck, catalog) if i["severity"] == "error"
+             and "profile" in i["param"]]
+    check("校验：面注入不误报 profile", not errs2, f"{len(errs2)} 条误报")
     big = minimal_deck("2d"); big.params["amr.n_cell"] = "4096 4096"
     warns = [i for i in validate(big, catalog) if i["severity"] == "warn"]
     check("校验：资源预估", bool(warns), warns[0]["message"][:60] if warns else "无警告")

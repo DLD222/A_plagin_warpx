@@ -48,7 +48,8 @@ REQUIRES: dict[str, list[str]] = {
                       "do_symmetrize", "symmetrization_order", "focal_distance",
                       "do_gaussian_beam_rotation", "gaussian_beam_rotation_axis",
                       "gaussian_beam_rotation_angle", "do_gaussian_beam_rotation_momenta"],
-    "external_file": ["injection_file", "charge", "mass", "z_shift", "impose_t_lab_from_file"],
+    # charge/mass 是通用参数（文件里读不到时才需要手写），不挂在外部文件门下
+    "external_file": ["injection_file", "z_shift", "impose_t_lab_from_file"],
 }
 
 NEW_PARAMS = {
