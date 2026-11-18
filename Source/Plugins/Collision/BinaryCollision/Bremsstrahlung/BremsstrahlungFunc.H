@@ -355,15 +355,12 @@ public:
                 amrex::Print() << "        n2 = " << n2 << "\n";
                 amrex::Print() << "        sigma_total = " << sigma_total << "\n";
 #endif
-                // Same order as upstream 26.11: `arg` is reset first, so the division is by 1 and
-                // `fmulti` keeps its value.  The fork had the two statements swapped, which
-                // reduced fmulti by the old (oversized) arg and therefore changed the photon
-                // weight by up to a factor `multiplier`.  No bundled case sets multiplier > 1, so
-                // the two forms agree everywhere it is tested -- but the produced photon weights
-                // differ for a user who does, and keeping upstream's form is what makes the
-                // outputs comparable.
-                arg = 1.0_prt;
+                // 上游 26.11 调整了这两句的顺序：先按 **旧的 arg** 归一化 fmulti，再把 arg 复位。
+                // fork 原先沿用 26.10 的顺序（先复位再除），两者在 multiplier == 1 时等价，
+                // 但 multiplier > 1 时光子权重会差一个因子。这里跟上游 26.11 一致，
+                // 这样同一份输入在两边的输出才能逐位可比。
                 fmulti = std::max(fmulti/arg, 1.0_prt);
+                arg = 1.0_prt;
             }
             //q12 = 1.0 - exp(-arg)
             amrex::ParticleReal const q12 = arg;
