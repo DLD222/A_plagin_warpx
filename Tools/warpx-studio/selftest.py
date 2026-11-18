@@ -306,6 +306,12 @@ def run_checks(port: int) -> None:
                 capture_output=True, text=True, cwd=str(STUDIO))
     last = (r.stdout or "").strip().splitlines()[-1] if r.stdout.strip() else "无输出"
     check("官方算例输入往返一致", r.returncode == 0, last)
+    # 插件与内建求解器平权：网页选择插件 -> 真的加载并运行
+    r2 = _sp.run([str(Path(sys.executable)), str(STUDIO / "tests/plugin_smoke.py")],
+                 capture_output=True, text=True, cwd=str(STUDIO))
+    tail2 = (r2.stdout or "").strip().splitlines()
+    check("插件求解器可经网页运行", r2.returncode == 0,
+          " / ".join(tail2[-2:]) if tail2 else "无输出")
 
     check("求解器与插件分类存在且含插件键",
           solver_cat is not None and "studio.solver.plugins" in solver_cat["params"],
