@@ -228,7 +228,13 @@ void fluid_step (WarpXStageContext* ctx, void*)
             have_g = false;
         }
     }
-    amrex::ignore_unused(gx, gy, gz);
+    // F-01: the bus handed us the acceleration but the old code stopped here and the fluid
+    // advanced without self-gravity (hydrostatic balance was silently broken).  Assemble the
+    // pointers and actually consume them in the Strang-split kick below.
+    amrex::Vector<amrex::MultiFab const*> g_ptrs(AMREX_SPACEDIM, nullptr);
+    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+        g_ptrs[d] = out[d];
+    }
 
     // Electromagnetic coupling: E and B are NOT computed here.  The existing electromagnetic plugin
     // publishes them on the bus and this reads them through the ABI - the one cross-plugin channel
@@ -301,10 +307,43 @@ void fluid_step (WarpXStageContext* ctx, void*)
             }
         };
         warpx::plugins::fluid::IdealGasEOS eos;
+        amrex::Real const dt_sub_half = 0.5 * dt_sub;
         for (int s = 0; s < n_sub; ++s) {
+            // Strang splitting: half gravity kick, hydro sweep, half kick (PHYSICS_SPEC 2.4).
+            // Without g on the bus the kick is a no-op with g = 0, so the plugin still works
+            // standalone (that is the independence the architecture promises).
+            if (have_g) {
+                warpx::plugins::fluid::applyGravitySource(state, g_ptrs, dt_sub_half, g_layout);
+            }
             fill_halo();
             for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
                 warpx::plugins::fluid::advanceSweep(state, geom, dir, dt_sub, eos, g_layout);
+            }
+            if (have_g) {
+                warpx::plugins::fluid::applyGravitySource(state, g_ptrs, dt_sub_half, g_layout);
+            }
+        }
+    }
+
+    // F-02: the gravity plugin solves Poisson against `star_rho`, but nothing ever updated it:
+    // the fluid advanced and the source stayed at the initial solar model, i.e. an undeclared
+    // Cowling approximation, and AMR kept refining the initial profile.  Publish the evolved
+    // density here.  It is written through the existing field handle rather than declared in
+    // kWrites on purpose: a "fluid writes star_rho / gravity reads star_rho" edge would close a
+    // cycle with "gravity writes star_g / fluid reads star_g".  The coupling is lagged by one
+    // step, which is the standard explicit arrangement.
+    {
+        void* raw_rho = nullptr;
+        if (warpx_stage_field(ctx, "star_rho", 0, &raw_rho) == 1 && raw_rho != nullptr) {
+            auto& rho_tgt = *static_cast<amrex::MultiFab*>(raw_rho);
+            if (rho_tgt.boxArray() == state.boxArray()
+                && rho_tgt.DistributionMap() == state.DistributionMap()) {
+                amrex::MultiFab total_density(state.boxArray(), state.DistributionMap(), 1, 0);
+                warpx::plugins::fluid::computeTotalDensity(state, total_density, g_layout);
+                amrex::MultiFab::Copy(rho_tgt, total_density, 0, 0, 1, 0);
+            } else if (g_steps <= 3.0) {
+                std::printf("[fluid] warning: star_rho layout differs from the fluid state; "
+                            "the gravity source stays frozen (Cowling approximation).\n");
             }
         }
     }
@@ -336,7 +375,7 @@ void fluid_step (WarpXStageContext* ctx, void*)
     if (g_steps <= 3.0 || std::fmod(g_steps, 50.0) == 0.0) {
         std::printf("[fluid] step %.0f: %d sub-steps, energy = %g, g: %s, E/B: %s,"
                     " max|E| = %g, joule = %g, Mach = %.3e\n",
-                    g_steps, n_sub, g_energy, have_g ? "yes" : "no",
+                    g_steps, n_sub, g_energy, have_g ? "consumed" : "absent",
                     have_em ? "yes" : "no", g_emax, joule, g_mach);
     }
 }

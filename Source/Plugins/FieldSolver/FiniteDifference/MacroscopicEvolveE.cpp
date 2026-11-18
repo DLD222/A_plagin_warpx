@@ -247,8 +247,15 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // sigma > 0 cells are handled by the exponential step below; leaving them
             // untouched here keeps E^n available for the matrix product.
             // node sigma drives both the skip and the damping (§4.1)
+            // F-04: the exponential step owns a node when the *whole* 3x3 matrix is non-zero.
+            // Keying this on the diagonal alone skipped pure off-diagonal (Hall) conductivity and
+            // left the BE branch running with sigma = 0, i.e. the conductor was invisible.
+            amrex::Real tensor_norm = amrex::Real(0.0);
+            if (has_sig_mat) {
+                for (int a = 0; a < 9; ++a) { tensor_norm += amrex::Math::abs(m2a(i, j, k, a)); }
+            }
             amrex::Real const sigma_node = has_sig_mat ? sn0(i, j, k, 0) : amrex::Real(0.0);
-            if (has_sig_mat && sigma_node > amrex::Real(0.0)) { return; }   // exponential step handles it
+            if (has_sig_mat && tensor_norm > amrex::Real(0.0)) { return; }   // exponential step handles it
 
             // Interpolate conductivity, sigma, to Ex position on the grid
             // sigma-free cells must not inherit damping from a neighbouring conductor
@@ -302,8 +309,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // sigma > 0 cells are handled by the exponential step below; leaving them
             // untouched here keeps E^n available for the matrix product.
             // node sigma drives both the skip and the damping (§4.1)
+            amrex::Real tensor_norm = amrex::Real(0.0);
+            if (has_sig_mat) {
+                for (int a = 0; a < 9; ++a) { tensor_norm += amrex::Math::abs(m2a(i, j, k, a)); }
+            }
             amrex::Real const sigma_node = has_sig_mat ? sn1(i, j, k, 1) : amrex::Real(0.0);
-            if (has_sig_mat && sigma_node > amrex::Real(0.0)) { return; }   // exponential step handles it
+            if (has_sig_mat && tensor_norm > amrex::Real(0.0)) { return; }   // exponential step handles it
 
             // Interpolate conductivity, sigma, to Ey position on the grid
             // sigma-free cells must not inherit damping from a neighbouring conductor
@@ -346,8 +357,12 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
             // sigma > 0 cells are handled by the exponential step below; leaving them
             // untouched here keeps E^n available for the matrix product.
             // node sigma drives both the skip and the damping (§4.1)
+            amrex::Real tensor_norm = amrex::Real(0.0);
+            if (has_sig_mat) {
+                for (int a = 0; a < 9; ++a) { tensor_norm += amrex::Math::abs(m2a(i, j, k, a)); }
+            }
             amrex::Real const sigma_node = has_sig_mat ? sn2(i, j, k, 2) : amrex::Real(0.0);
-            if (has_sig_mat && sigma_node > amrex::Real(0.0)) { return; }   // exponential step handles it
+            if (has_sig_mat && tensor_norm > amrex::Real(0.0)) { return; }   // exponential step handles it
 
             // Interpolate conductivity, sigma, to Ez position on the grid
             // sigma-free cells must not inherit damping from a neighbouring conductor
@@ -448,7 +463,13 @@ void FiniteDifferenceSolver::MacroscopicEvolveECartesian (
                 FieldAccessorMacroscopic const Hy(b1, mun);
                 FieldAccessorMacroscopic const Hz(b2, mun);
                 amrex::ParallelFor(tb, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
-                    if (sn(i, j, k, c) <= amrex::Real(0.0)) { return; }
+                    // F-04: gate on the whole matrix, not on this component's diagonal, and
+                    // never skip just one row of a coupled system: the exponential update for
+                    // component c already sums over d (m1/m2 * eold[d]), so a node with any
+                    // non-zero tensor entry must take part for all three components.
+                    amrex::Real tnorm = amrex::Real(0.0);
+                    for (int a = 0; a < 9; ++a) { tnorm += amrex::Math::abs(m2(i, j, k, a)); }
+                    if (tnorm <= amrex::Real(0.0)) { return; }
                     amrex::Real const cx = - T_Algo::DownwardDz(Hy, czs, ncz, i, j, k,0)
                                            + T_Algo::DownwardDy(Hz, cys, ncy, i, j, k,0);
                     amrex::Real const cy =   T_Algo::DownwardDz(Hx, czs, ncz, i, j, k,0)

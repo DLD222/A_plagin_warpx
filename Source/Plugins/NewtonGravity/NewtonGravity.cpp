@@ -47,7 +47,15 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     rhs.setVal(amrex::Real(0.0));
     amrex::MultiFab::Copy(rhs, rho, 0, 0, 1, 0);
 
-    if (boundary == PotentialBoundary::periodic) {
+    // F-03: the *effective* boundary decides, not the requested one.  A caller that asks for
+    // "open" inside a fully periodic box really gets a periodic Laplacian - whose null space is
+    // the constant - so the source must be made mean-free or the system is singular and MLMG
+    // cannot converge.  Previously the zero-mean removal was keyed on the request instead.
+    bool fully_periodic = true;
+    for (int d = 0; d < AMREX_SPACEDIM; ++d) { fully_periodic = fully_periodic && geom.isPeriodic(d); }
+    bool const periodic_solve = (boundary == PotentialBoundary::periodic) || fully_periodic;
+
+    if (periodic_solve) {
         amrex::Real const mean = rho.sum(0) / geom.ProbSize();
         rhs.plus(-mean, 0, 1);
     }
@@ -60,7 +68,7 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     // The interior is the initial guess: the open case must keep the caller's ghost cells,
     // which hold the Dirichlet data, so only the valid cells are touched here.
     phi.setVal(amrex::Real(0.0), 0, 1, 0);
-    if (boundary == PotentialBoundary::periodic) { phi.FillBoundary(geom.periodicity()); }
+    if (periodic_solve) { phi.FillBoundary(geom.periodicity()); }
 
     // One level: the plugin solves on the level the caller hands it.
     amrex::BoxArray const& ba = rhs.boxArray();
@@ -81,7 +89,7 @@ void NewtonGravitySolver::solvePotential (amrex::MultiFab const& rho,
     // case that needs it.  "open" therefore means Dirichlet on the non-periodic faces only.
     amrex::Array<amrex::LinOpBCType, AMREX_SPACEDIM> lobc;
     for (int d = 0; d < AMREX_SPACEDIM; ++d) {
-        lobc[d] = ((boundary == PotentialBoundary::periodic) || geom.isPeriodic(d))
+        lobc[d] = (periodic_solve || geom.isPeriodic(d))
                       ? amrex::LinOpBCType::Periodic
                       : amrex::LinOpBCType::Dirichlet;
     }

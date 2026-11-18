@@ -80,21 +80,42 @@ static void fill_dirichlet_ghosts (amrex::MultiFab& phi, amrex::Geometry const& 
     if (mass_cgs <= 0.0) { return; }
     auto const dx = geom.CellSizeArray();
     auto const plo = geom.ProbLoArray();
+    amrex::Box const dom = geom.Domain();
     double const G = warpx::plugins::gravity::NewtonGravitySolver::gravitational_constant_cgs;
     for (amrex::MFIter mfi(phi); mfi.isValid(); ++mfi) {
         amrex::Box const& fb = mfi.fabbox();
         amrex::Box const& vb = mfi.validbox();
         auto a = phi.array(mfi);
         for (int i = fb.smallEnd(0); i <= fb.bigEnd(0); ++i) {
-            if (vb.contains(amrex::IntVect(AMREX_D_DECL(i, fb.smallEnd(1), fb.smallEnd(2))))) { continue; }
             for (int j = star_box_lo(fb, 1); j <= star_box_hi(fb, 1); ++j) {
                 for (int k = star_box_lo(fb, 2); k <= star_box_hi(fb, 2); ++k) {
                     amrex::IntVect const iv(AMREX_D_DECL(i, j, k));
                     if (vb.contains(iv)) { continue; }
-                    double const x = plo[0] + (i + 0.5) * dx[0];
-                    double const y = (AMREX_SPACEDIM > 1) ? plo[1] + (j + 0.5) * dx[1] : 0.0;
-                    double const z = (AMREX_SPACEDIM > 2) ? plo[2] + (k + 0.5) * dx[2] : 0.0;
-                    double const r = std::sqrt(x * x + y * y + z * z);
+
+                    // F-03: a ghost in a *periodic* direction must stay a periodic image.
+                    // Overwriting it with the monopole potential replaces the mirror value by
+                    // something from outside the box, and the first interior acceleration (a
+                    // central difference) then reads that wrong value.
+                    bool outside_periodic = false;
+                    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+                        if (!geom.isPeriodic(d)) { continue; }
+                        if (iv[d] < dom.smallEnd(d) || iv[d] > dom.bigEnd(d)) { outside_periodic = true; }
+                    }
+                    if (outside_periodic) { continue; }
+
+                    // F-06: AMReX treats the ghost data handed to setLevelBC as values on the
+                    // domain *face*, not at ghost cell centres.  Clamp the normal coordinate to
+                    // the face; using (i + 0.5) dx introduced a half-cell shift (first order).
+                    double p[3] = {0.0, 0.0, 0.0};
+                    for (int d = 0; d < AMREX_SPACEDIM; ++d) {
+                        double c = plo[d] + (static_cast<double>(iv[d]) + 0.5) * dx[d];
+                        if (iv[d] < dom.smallEnd(d)) { c = plo[d]; }
+                        if (iv[d] > dom.bigEnd(d)) {
+                            c = plo[d] + static_cast<double>(dom.length(d)) * dx[d];
+                        }
+                        p[d] = c;
+                    }
+                    double const r = std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
                     a(i, j, k) = (r > 0.0) ? static_cast<amrex::Real>(-G * mass_cgs / r)
                                            : static_cast<amrex::Real>(0.0);
                 }

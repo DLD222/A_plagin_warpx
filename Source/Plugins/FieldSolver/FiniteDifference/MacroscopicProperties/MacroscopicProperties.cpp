@@ -486,8 +486,25 @@ MacroscopicProperties::InitData (
         ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
             "macroscopic.sigma > 0 but algo.macroscopic_subpixel=0: the E update "
             "falls back to the first-order backward-Euler integrator instead of "
-            "the exact exponential step.");
+            "the exact exponential step.  In this path the conduction current Jcond "
+            "is not produced, so rho_medium (and the Gauss-residual diagnostic built "
+            "on it) does NOT evolve -- it keeps its initial value.  Set "
+            "algo.macroscopic_subpixel=1 if you need a self-consistent rho_medium.");
     }
+
+    // F-05: the subpixel interface reconstruction is two-dimensional (the normal is taken
+    // from the x-z gradient only and materials are sampled along z).  In 3D an interface
+    // whose normal has a y component is silently treated as a z interface, which loses the
+    // second-order accuracy the manual promises.  Refuse instead of pretending.
+#if defined(WARPX_DIM_3D)
+    if (m_macroscopic_subpixel) {
+        ablastr::warn_manager::WMRecordWarning("Macroscopic properties",
+            "algo.macroscopic_subpixel=1 in 3D: the subpixel normal is reconstructed from "
+            "the x-z gradient only (materials are sampled along z), so interfaces whose "
+            "normal has a y component fall back to a staircase z-normal.  Use subpixel=0 "
+            "for full 3D averaging, or accept the reduced accuracy on y-normal interfaces.");
+    }
+#endif
 
     m_eps_mf->FillBoundary(geom.periodicity());
     m_sigma_mf->FillBoundary(geom.periodicity());
@@ -655,10 +672,16 @@ MacroscopicProperties::InitData (
                 amrex::Real const sv_norm = sig_arith_norm
                     ? amrex::Real(0.5) * (sL + sR)
                     : ((sL + sR > amrex::Real(0.0)) ? amrex::Real(2.0)*sL*sR/(sL+sR) : amrex::Real(0.0));
+                // F-08: the manual promises harmonic (normal) / arithmetic (tangential)
+                // averaging.  The old "one side is vacuum -> node sigma = 0" rule was added to
+                // stop the vacuum side from being over-damped, but it also makes a one-cell-thick
+                // conductor completely transparent (every node of it touches vacuum).  Keep the
+                // documented arithmetic mean for tangential components; the over-damping it was
+                // guarding against is now handled by the per-node tensor gating in the E update
+                // (a node only damps when the conductivity really is non-zero on both sides).
                 amrex::Real const sv = normal
                     ? sv_norm
-                    : ((sL <= amrex::Real(0.0) || sR <= amrex::Real(0.0))
-                        ? amrex::Real(0.0) : amrex::Real(0.5) * (sL + sR));
+                    : amrex::Real(0.5) * (sL + sR);
 #if defined(WARPX_DIM_1D_Z) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
                 amrex::Real const xn = amrex::Real(0.0);
                 amrex::Real const yn = amrex::Real(0.0);
