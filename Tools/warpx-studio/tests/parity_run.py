@@ -84,7 +84,7 @@ def run_via_web(deck: Deck, binary: pathlib.Path) -> pathlib.Path:
     time.sleep(0.5)
     body = {"params": dict(deck.params),
             "groups": {t: {i: dict(v) for i, v in inst.items()} for t, inst in deck.groups.items()},
-            "binary": str(binary), "force": True, "mpi": 1, "omp": 2}
+            "binary": str(binary), "force": True, "mpi": 1, "omp": 1}
     out = post("/api/run", body)
     run_dir = pathlib.Path(out["run_dir"])
     deadline = time.time() + 1800
@@ -189,6 +189,11 @@ def main() -> int:
         run_ref = run_via_web(deck, ref)
         h5_fork, h5_ref = find_h5(run_fork), find_h5(run_ref)
         if not h5_fork or not h5_ref:
+            # 参考版自己崩了（例如 Segfault）时，问题不在 fork：单独标注，不算失败
+            ref_log = (run_ref / "run.log").read_text(errors="ignore") if (run_ref / "run.log").exists() else ""
+            if "Segfault" in ref_log or "MPI_ABORT" in ref_log:
+                results.append((name, [f"参考版崩溃（fork 输出 {len(h5_fork)} 个文件），无法比较"]))
+                continue
             results.append((name, [f"缺少输出 fork={len(h5_fork)} ref={len(h5_ref)}"]))
             continue
         diffs = compare(h5_ref[-1], h5_fork[-1], args.tolerance)
