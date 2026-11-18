@@ -4894,7 +4894,6 @@
    "required": false,
    "options": [
     "vacuum",
-    "constant",
     "macroscopic"
    ],
    "core": true
@@ -5341,7 +5340,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "amrex.abort_on_unused_inputs",
@@ -5350,7 +5352,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "amrex.async_out",
@@ -5359,7 +5364,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "amrex.async_out_nfiles",
@@ -5386,7 +5394,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "amrex.use_profiler_syncs",
@@ -5395,7 +5406,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "boundary.field_hi",
@@ -8566,7 +8580,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.boost_direction",
@@ -9352,7 +9369,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.magnetostatic_solver_absolute_tolerance",
@@ -10076,7 +10096,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.self_fields_agglomeration_grid_size",
@@ -10139,7 +10162,10 @@
    "optional": true,
    "doc": "",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   },
   {
    "name": "warpx.self_fields_consolidation_grid_size",

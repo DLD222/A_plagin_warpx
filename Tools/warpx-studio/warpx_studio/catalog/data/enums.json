@@ -156,7 +156,6 @@
   ],
   "algo.em_solver_medium": [
    "vacuum",
-   "constant",
    "macroscopic"
   ],
   "algo.particle_shape": [
@@ -1753,8 +1752,8 @@
    "laxwendroff": "二阶半隐式，易振荡、需更小时间步"
   },
   "algo.em_solver_medium": {
-   "vacuum": "真空（标准 Maxwell）",
-   "macroscopic": "宏观介质（含介电张量/电导率/磁化）"
+   "vacuum": "真空（默认）：麦克斯韦方程用 ε0/μ0，不读 macroscopic.* 参数",
+   "macroscopic": "宏观介质：用 macroscopic.epsilon/sigma/mu 或它们的 parser 版本；对应 macroscopic（介质）电磁求解器"
   },
   "algo.particle_shape": {
    "1": "线性样条（最快，噪声最大）",

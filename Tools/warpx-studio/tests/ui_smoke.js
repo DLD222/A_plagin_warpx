@@ -371,6 +371,18 @@ if (global.window.__STUDIO_TEST__) {
       process.exit(1);
     }
   }
+  // 选 macroscopic 介质后，macroscopic.* 必须出现（否则用户找不到介质参数）
+  T.setDECK({ params: { "algo.em_solver_medium": "macroscopic" }, groups: {} });
+  T.setStep(3); T.render();
+  const macroRows = collectLabels(registry["form"], []);
+  for (const need of ["macroscopic.epsilon", "macroscopic.sigma", "macroscopic.mu"]) {
+    if (!macroRows.some((r) => r.trim() === need)) {
+      console.error("FAIL 选了 macroscopic 介质后缺少 " + need);
+      process.exit(1);
+    }
+  }
+  console.log("PASS 选 macroscopic 介质后出现 epsilon/sigma/mu");
+
   console.log("PASS 新补参数在第 2/3/4 步都能渲染");
 
   // 激光实例卡片：lasers.names 存在时必须能渲染出 a0 等参数

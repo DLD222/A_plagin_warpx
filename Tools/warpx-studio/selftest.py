@@ -215,7 +215,8 @@ def run_checks(port: int) -> None:
     must_select = {
         "boundary.particle_eb": ["Absorbing", "Reflecting", "Thermal"],
         "eb2.geom_type": ["all_regular", "implicit_function", "stl"],
-        "algo.em_solver_medium": ["vacuum", "constant", "macroscopic"],
+        # 源码 Enum 只有 Vacuum/Macroscopic；目录里曾多写了一个不存在的 "constant"
+        "algo.em_solver_medium": ["vacuum", "macroscopic"],
     }
     missing_select = [n for n, v in must_select.items() if enums.get(n) != v]
     check("固定取值参数是下拉", not missing_select,
