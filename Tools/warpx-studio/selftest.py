@@ -201,7 +201,7 @@ def run_checks(port: int) -> None:
     enums = catalog_payload.get("enums") or {}
     check("固定取值改下拉", len(enums) >= 100,
           f"{len(enums)} 个参数有取值列表")
-    check("求解器下拉", enums.get("algo.maxwell_solver") == ["yee", "ckc", "psatd", "ect"],
+    check("求解器下拉", enums.get("algo.maxwell_solver") == ["yee", "ckc", "psatd", "ect", "hybrid"],
           str(enums.get("algo.maxwell_solver")))
     check("诊断类型下拉", "TimeAveraged" in (enums.get("<diag_name>.diag_type") or []),
           str(enums.get("<diag_name>.diag_type")))

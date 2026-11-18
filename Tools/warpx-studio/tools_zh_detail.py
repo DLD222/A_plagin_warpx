@@ -75,7 +75,10 @@ def main() -> int:
             continue
         if "取值：" in text:
             continue
+        opts = p.get("options") or []
         hint = value_hint(p)
+        if opts:                      # 下拉选择：写明是选择题，不是填空
+            hint = f"下拉选择，共 {len(opts)} 项"
         # 说明里已经列过可选值时，不再重复
         if hint.startswith("可选") and all(o in text for o in (p.get("options") or [])[:4]):
             hint = ""

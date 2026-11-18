@@ -5045,7 +5045,8 @@
     "yee",
     "ckc",
     "psatd",
-    "ect"
+    "ect",
+    "hybrid"
    ],
    "core": true
   },
@@ -8622,7 +8623,13 @@
    "sites": [],
    "source_only": false,
    "required": false,
-   "options": [],
+   "options": [
+    "none",
+    "labframe",
+    "labframe-electromagnetostatic",
+    "labframe-effective-potential",
+    "relativistic"
+   ],
    "core": true
   },
   {
@@ -10061,7 +10068,10 @@
    "optional": true,
    "doc": "AMReX 日志详细程度",
    "core": false,
-   "options": null
+   "options": [
+    "0",
+    "1"
+   ]
   }
  ],
  "gating": {

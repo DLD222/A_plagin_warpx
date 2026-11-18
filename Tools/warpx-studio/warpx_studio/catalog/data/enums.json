@@ -134,7 +134,8 @@
    "yee",
    "ckc",
    "psatd",
-   "ect"
+   "ect",
+   "hybrid"
   ],
   "algo.particle_pusher": [
    "boris",
@@ -798,6 +799,18 @@
    "constant",
    "parser",
    "read_from_file"
+  ],
+  "warpx.do_electrostatic": [
+   "none",
+   "labframe",
+   "labframe-electromagnetostatic",
+   "labframe-effective-potential",
+   "relativistic"
+  ],
+  "warpx.poisson_solver": [
+   "multigrid",
+   "fft",
+   "cudss"
   ]
  },
  "hints": {
@@ -1684,7 +1697,8 @@
    "yee": "标准 FDTD（二阶精度，最常用，支持 PML/EB）",
    "ckc": "Cole-Karkkainen 低色散 FDTD（省网格，稳定性稍差）",
    "psatd": "伪谱方法（需 FFT 构建，色散极小，适合长距离传播）",
-   "ect": "Enlarged Cell Technique，共形/嵌入式边界的替代方案"
+   "ect": "Enlarged Cell Technique，共形/嵌入式边界的替代方案",
+   "hybrid": "混合 PIC（Ohm 定律求 E，电子当作流体；离子动力学；不解析电磁波，可用大步长）"
   },
   "algo.particle_pusher": {
    "boris": "经典 Boris 推进器，默认、最稳",
@@ -1781,6 +1795,18 @@
    "reflecting": "粒子镜面反射",
    "thermal": "热化边界（按壁温重新发射）",
    "none": "不做粒子边界处理"
+  },
+  "warpx.do_electrostatic": {
+   "none": "纯电磁（默认）：每步用 Maxwell 方程推进 E/B，有电磁波与激光",
+   "labframe": "实验室系静电：每步解泊松方程求 E，没有电磁波；步长不受 CFL 限制",
+   "labframe-electromagnetostatic": "实验室系静磁静电：解泊松 + 静磁，忽略位移电流",
+   "labframe-effective-potential": "实验室系有效势：用势函数解，适合强流束",
+   "relativistic": "相对论静电：在粒子静止系解泊松，适合强相对论束"
+  },
+  "warpx.poisson_solver": {
+   "multigrid": "多重网格迭代（默认，任意边界）",
+   "fft": "FFT 泊松（快，要求周期/开放边界）",
+   "cudss": "cuDSS 直接解（需 GPU 与 cuDSS 编译）"
   }
  },
  "derived": {
