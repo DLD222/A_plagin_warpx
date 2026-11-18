@@ -29,7 +29,10 @@ LIST_KEYS = {
     "<species_name>": "particles.species_names",
     "<collision_name>": "collisions.collision_names",
     "<diag_name>": "diagnostics.diags_names",
-    "<reduced_diags_name>": "diagnostics.reduced_diags_names",
+    # WarpX 读的是 warpx.reduced_diags_names（MultiReducedDiags.cpp: queryarr 在
+    # pp_warpx 上）。写成 diagnostics.* 会让解析永远认不出实例，用户设了降维诊断
+    # 也不会在界面上出现（同 control 分类那次的性质）。
+    "<reduced_diags_name>": "warpx.reduced_diags_names",
     "<laser_name>": "lasers.names",
     "<solver_name>": None,
 }

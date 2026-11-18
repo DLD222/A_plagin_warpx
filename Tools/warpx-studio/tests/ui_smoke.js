@@ -354,6 +354,17 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log(`PASS 新增组分: ${names[0]} -> ${names[names.length - 1]}（继承 charge/density）`);
 
+  // 降维诊断：warpx.reduced_diags_names 存在时，<reduced_diags_name>.type 必须出现
+  T.setDECK({ params: { "warpx.reduced_diags_names": "rd1" },
+              groups: { "<reduced_diags_name>": { rd1: { type: "FieldEnergy" } } } });
+  T.setStep(4); T.render();
+  const rdRows = collectLabels(registry["form"], []);
+  if (!rdRows.some((r) => r.trim() === "type")) {
+    console.error("FAIL 降维诊断卡片没渲染（缺 type）");
+    process.exit(1);
+  }
+  console.log("PASS 降维诊断卡片渲染（<reduced_diags_name>.type）");
+
   // 真实交互：在页面里把 injection_style 改成 NFluxPerCell，等防抖重渲染，
   // 检查面注入的参数是否出现、填充区域是否消失（这才是用户实际做的动作）
   T.setDECK({ params: {}, groups: { [S]: { ions: { injection_style: "NUniformPerCell" } } } });
