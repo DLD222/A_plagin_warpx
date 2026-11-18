@@ -92,8 +92,9 @@ def main() -> int:
             continue
         keep = []
         for r in rs:
-            flat = r if isinstance(r, list) else [r]
-            if any(isinstance(x, dict) and x.get("param") == STYLE for x in flat):
+            # 只清"单条件就是 injection_style"的旧规则；
+            # 「与」组里既含 injection_style 又含 profile 的（密度剖面）必须保留
+            if isinstance(r, dict) and r.get("param") == STYLE:
                 continue
             keep.append(r)
         if keep:
