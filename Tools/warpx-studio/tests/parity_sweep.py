@@ -124,7 +124,11 @@ def main() -> int:
                 if line.strip().startswith(("B/", "E/", "j/", "缺少", "rho")):
                     print("     ", line.strip())
     label = args.manifest or args.dim
-    print(f"\n{label}: {len(passed)}/{len(files)} 通过")
+    n_div = sum(1 for f in files if known.get(str(f)))
+    n_skip = sum(1 for f in files if uncomparable.get(str(f)))
+    plain = len(passed) - n_div - n_skip
+    print(f"\n{label}: {len(passed)}/{len(files)} 通过"
+          f"（逐字段一致 {plain}；设计性差异 {n_div}；无法比较/跳过 {n_skip}；失败 {len(failed)}）")
     return 0 if not failed else 1
 
 
