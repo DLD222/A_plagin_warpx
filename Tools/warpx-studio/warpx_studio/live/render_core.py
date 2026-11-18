@@ -159,6 +159,12 @@ class Renderer:
             pvs.ColorBy(display, ("POINTS", field, component))
         else:
             pvs.ColorBy(display, ("POINTS", field))
+        # 颜色连续：在映射到色标之前先做插值，否则网格级色块会肉眼可见
+        try:
+            display.InterpolateScalarsBeforeMapping = 1
+            display.UseLookupTableScalarRange = 1
+        except Exception:
+            pass
         display.SetScalarBarVisibility(view, True)
 
         # Label the bar with the quantity actually shown.  When a component is selected by
@@ -214,6 +220,11 @@ class Renderer:
                 pprod.GetClientSideObject().SetOutput(particles)
                 pdisp = pvs.Show(pprod, view)
                 pdisp.Representation = "Point Gaussian"
+                try:
+                    pdisp.GaussianRadius = max(float(request.get("particle_radius") or 0.0), 1e-30)
+                    pdisp.Opacity = 0.35
+                except Exception:
+                    pass
                 diagonal = sum((block.GetBounds()[2 * i + 1] - block.GetBounds()[2 * i]) ** 2
                                for i in range(3)) ** 0.5
                 try:
@@ -237,9 +248,7 @@ class Renderer:
         # the bow shock looks reversed.  Look from -y instead so +x is to the right.
         direction = {"x": [1.0, 0.0, 0.0], "y": [0.0, -1.0, 0.0],
                      "z": [0.0, 0.0, 1.0]}.get(view_axis, [1.0, -1.0, 1.0])
-        if species and not request.get("volume"):
-            # look slightly off-axis so the particles lift off the field plane
-            direction = [0.35, -1.0, 0.25]
+        # 二维就是一张平面：始终正视，不为了粒子做斜视（斜视会让用户以为图像被旋转了）
 
         # Interactive camera: the web page sends the orbit angles / zoom / pan it wants,
         # so rotation and zooming happen in the browser instead of a separate GUI window.
@@ -285,6 +294,15 @@ class Renderer:
         data_range = array.GetRange(component) if (array is not None and component is not None) \
             else (array.GetRange() if array is not None else (0.0, 0.0))
 
+        # 色标必须显式移除：只 Delete(display) 会把色标留在视图里，
+        # 连续切换物理量就会出现好几个色标叠在一起（用户看到的三条色带）。
+        try:
+            display.SetScalarBarVisibility(view, False)
+            bar = display.GetScalarBarActor(view)
+            if bar is not None:
+                view.RemoveScalarBarActor(bar)
+        except Exception:
+            pass
         # Drop the per-frame proxies: the reader cache is what we want to keep.
         if pdisp is not None:
             pvs.Delete(pdisp)

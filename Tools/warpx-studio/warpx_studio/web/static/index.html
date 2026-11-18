@@ -85,7 +85,7 @@
 </header>
 
 <nav>
-  <button data-step="1" class="active">1 网格与边界</button>
+  <button data-step="1" class="active">1 运行控制·网格·边界</button>
   <button data-step="2">2 粒子/激光/碰撞</button>
   <button data-step="3">3 场与外场</button>
   <button data-step="4">4 诊断输出</button>
@@ -153,13 +153,13 @@
 
 <script>
 const STEP_CATEGORIES = {
-  1: ["mesh", "boundary", "eb"],
+  1: ["control", "mesh", "boundary", "eb"],
   2: ["species", "laser", "collision"],
   3: ["solver", "extern"],
   4: ["diag"],
 };
 const STEP_GROUPS = {
-  1: ["geometry", "amr", "boundary", "(root)"],
+  1: ["(root)", "geometry", "amr", "boundary"],
   2: ["particles", "<species_name>"],
   3: ["algo", "warpx", "psatd", "hybrid_pic_model"],
   4: ["diagnostics", "<diag_name>", "<reduced_diags_name>", "collisions", "<collision_name>"],
