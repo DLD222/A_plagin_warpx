@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 543,
+  "total": 560,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -2208,6 +2208,15 @@
     "1"
    ],
    "core": true
+  },
+  {
+   "name": "<element_name>.type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "<laser_name>.a0",
@@ -5326,6 +5335,15 @@
    "core": false
   },
   {
+   "name": "amrex.abort_on_out_of_gpu_memory",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "amrex.abort_on_unused_inputs",
    "type": "int",
    "default": "0",
@@ -5344,9 +5362,36 @@
    "options": null
   },
   {
+   "name": "amrex.async_out_nfiles",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "amrex.omp_threads",
    "type": "string",
    "default": "nosmt",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "amrex.the_arena_is_managed",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "amrex.use_profiler_syncs",
+   "type": "int",
+   "default": "0",
    "optional": true,
    "doc": "",
    "core": false,
@@ -8515,6 +8560,15 @@
    ]
   },
   {
+   "name": "warpx.always_warn_immediately",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.boost_direction",
    "type": "string",
    "default": null,
@@ -8526,6 +8580,15 @@
     "y",
     "z"
    ]
+  },
+  {
+   "name": "warpx.break_signals",
+   "type": "string",
+   "default": "SIGTERM",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.cfl",
@@ -8548,6 +8611,24 @@
    "required": false,
    "options": [],
    "core": true
+  },
+  {
+   "name": "warpx.checkpoint_signals",
+   "type": "string",
+   "default": "SIGUSR1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.compute_max_step_from_btd",
+   "type": "int",
+   "default": "0",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   },
   {
    "name": "warpx.const_dt",
@@ -9998,9 +10079,72 @@
    "options": null
   },
   {
+   "name": "warpx.self_fields_agglomeration_grid_size",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_bottom_absolute_tolerance",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_bottom_max_iters",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_bottom_relative_tolerance",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_bottom_solver",
+   "type": "int",
+   "default": "1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_bottom_verbosity",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
    "name": "warpx.self_fields_consolidation",
    "type": "int",
    "default": "1",
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
+  },
+  {
+   "name": "warpx.self_fields_consolidation_grid_size",
+   "type": "int",
+   "default": null,
    "optional": true,
    "doc": "",
    "core": false,
@@ -10400,6 +10544,15 @@
     "0",
     "1"
    ]
+  },
+  {
+   "name": "warpx.zmax_plasma_to_compute_max_step",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": false,
+   "options": null
   }
  ],
  "gating": {
