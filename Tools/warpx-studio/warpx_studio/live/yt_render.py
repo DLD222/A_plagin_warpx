@@ -73,10 +73,11 @@ def render(iteration_file: str, out_png: str, field: str, component: str | None 
     nz, nx = data.shape                      # openPMD 顺序是 (z, x)
     dz, dx = float(spacing[0]), float(spacing[1])
     z0, x0 = float(offset[0]), float(offset[1])
-    bbox = np.array([[x0, x0 + nx * dx],
+    bbox = np.array([[z0, z0 + nz * dz],
                      [0.0, max(dx, 1e-9)],        # y 方向一层厚度，否则切片/投影为空
-                     [z0, z0 + nz * dz]])
-    arr = data.T[:, None, :]                      # yt 需要三维形状 (nx, 1, nz)
+                     [x0, x0 + nx * dx]])
+    # yt 把第一维放竖直方向。要 x 水平、z 竖直 → 第一维给 z，第三维给 x
+    arr = data[:, None, :]                        # (nz, 1, nx)
     dims = (arr.shape[0], 1, arr.shape[2])
     ds = yt.load_uniform_grid({"d": arr}, dims,
                               length_unit="m",
@@ -91,6 +92,7 @@ def render(iteration_file: str, out_png: str, field: str, component: str | None 
     # 不画坐标轴，保持纯图
     sl.set_axes_unit("mm")
     sl.save(out_png)
+
     finite = data[np.isfinite(data)]
     return {"ok": True, "out": out_png, "iteration": it, "field": label,
             "range": [float(finite.min()), float(finite.max())],
