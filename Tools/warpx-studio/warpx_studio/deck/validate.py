@@ -173,6 +173,26 @@ def validate(deck, catalog: dict) -> list[dict]:
                     continue
                 check(label, full, value)
 
+    # amr.restart must be a checkpoint *path*, not an index.  A bare number becomes
+    # "./1/WarpXHeader" at run time and WarpX aborts with "Couldn't open file".  Catch it here
+    # instead of after a 30 s start-up (the 2026-11-18 report: the tooltip said "0/1").
+    restart = str(deck.params.get("amr.restart", "") or "").strip().strip('"')
+    if restart:
+        import os as _os
+        looks_numeric = restart.isdigit()
+        has_header = _os.path.exists(_os.path.join(restart, "WarpXHeader")) or \
+            any(_os.path.exists(_os.path.join(restart + str(n), "WarpXHeader"))
+                for n in range(0, 10))
+        if looks_numeric:
+            issues.append({"severity": "error", "param": "amr.restart",
+                           "message": f"`{restart}` 是数字，会被当成目录名：应填 checkpoint "
+                                      "目录前缀（如 diag1/checkpoint0001），否则 WarpX 报 "
+                                      f"`Couldn't open file: {restart}/WarpXHeader`"})
+        elif not has_header:
+            issues.append({"severity": "warn", "param": "amr.restart",
+                           "message": f"在当前目录找不到 `{restart}/WarpXHeader`；"
+                                      "checkpoint 路径是相对运行目录解析的，确认它存在"})
+
     # resource estimate
     try:
         cells = 1

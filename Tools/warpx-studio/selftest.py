@@ -281,6 +281,28 @@ def run_checks(port: int) -> None:
     errs2 = [i for i in validate(fluxdeck, catalog) if i["severity"] == "error"
              and "profile" in i["param"]]
     check("校验：面注入不误报 profile", not errs2, f"{len(errs2)} 条误报")
+    # 回归：amr.restart 填数字必须被拦（2026-11-18 报错 Couldn't open file: 1/WarpXHeader）
+    restart_bad = minimal_deck("2d")
+    restart_bad.params["amr.restart"] = "1"
+    errs3 = [i for i in validate(restart_bad, catalog)
+             if i["severity"] == "error" and i["param"] == "amr.restart"]
+    check("校验：amr.restart 填数字被拦", bool(errs3), "未拦下")
+
+    # 插件求解器与内建求解器平权：选择插件 -> 环境变量，且不写进 inputs
+    top = Deck()
+    top.set("max_step", "5")
+    top.set("studio.solver.plugins", "star_gravity_plugin.so:star_fluid_plugin.so")
+    top.set("studio.plugin.star_profile", "/tmp/profile.csv")
+    env = top.env() if hasattr(top, "env") else {}
+    check("插件求解器 -> WARPX_PLUGIN_PATH",
+          env.get("WARPX_PLUGIN_PATH", "").count(".so") == 2, str(env))
+    check("插件选择不写进 WarpX inputs", "studio." not in top.to_inputs(),
+          top.to_inputs().splitlines()[:2])
+    solver_cat = next((c for c in json.loads((data / "categories.json").read_text())["categories"]
+                       if c["id"] == "solver_choice"), None)
+    check("求解器与插件分类存在且含插件键",
+          solver_cat is not None and "studio.solver.plugins" in solver_cat["params"],
+          solver_cat["name"] if solver_cat else "缺失")
     big = minimal_deck("2d"); big.params["amr.n_cell"] = "4096 4096"
     warns = [i for i in validate(big, catalog) if i["severity"] == "warn"]
     check("校验：资源预估", bool(warns), warns[0]["message"][:60] if warns else "无警告")

@@ -1,6 +1,25 @@
 {
  "categories": [
   {
+   "id": "solver_choice",
+   "name": "求解器与插件（yee/psatd/ect/hybrid·静电·静磁·插件）",
+   "order": -1,
+   "note": "先在这里选求解器家族，再填它的参数",
+   "params": [
+    "algo.maxwell_solver",
+    "warpx.do_electrostatic",
+    "warpx.poisson_solver",
+    "algo.evolve_scheme",
+    "warpx.gamma_boost",
+    "warpx.boost_direction",
+    "warpx.self_fields_max_iters",
+    "warpx.self_fields_required_precision",
+    "warpx.magnetostatic_solver_max_iters",
+    "studio.solver.plugins",
+    "studio.plugin.star_profile"
+   ]
+  },
+  {
    "id": "control",
    "name": "运行控制与仿真时间",
    "order": 0,

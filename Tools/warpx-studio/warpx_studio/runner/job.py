@@ -54,6 +54,8 @@ class Job:
         self.started_at = time.time()
 
     # -- lifecycle ---------------------------------------------------------
+    env_extra: dict | None = None
+
     def start(self) -> None:
         self.workdir.mkdir(parents=True, exist_ok=True)
         (self.workdir / "inputs").write_text(self.inputs_text)
@@ -64,6 +66,10 @@ class Job:
                 command = [mpiexec, "-n", str(self.mpi), *command]
         env = os.environ.copy()
         env["OMP_NUM_THREADS"] = str(self.omp)
+        # 插件求解器由 deck 的 studio.solver.* 选择，通过环境变量交给运行时
+        # （WARPX_PLUGIN_PATH / WARPX_STAR_PROFILE）。这样插件和内建求解器同一入口。
+        for key, value in (self.env_extra or {}).items():
+            env[key] = str(value)
         # The simulation writes straight to a log file, not into a pipe: if this server
         # dies, a broken pipe would kill WarpX with SIGPIPE and the run could never be
         # re-attached.

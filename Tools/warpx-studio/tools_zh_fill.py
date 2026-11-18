@@ -49,7 +49,12 @@ ZH_EXTRA: dict[str, str] = {
     "algo.field_gathering": "场收集方式：energy-conserving / momentum-conserving / direct",
     "algo.charge_deposition": "电荷沉积方式：standard / momentum-conserving",
     # 其它
-    "amr.restart": "从哪个 checkpoint 续算：写文件名或 0/1（1 = 取最近一个）",
+    # 这条原来写成"0/1（1 = 取最近一个）"是错的：WarpX 把 amr.restart 当成
+    # **checkpoint 的文件前缀/目录**，写 1 会变成去找 ./1/WarpXHeader 而 abort。
+    "amr.restart": (
+        "续算时从哪个 checkpoint 读：填 checkpoint 的**目录前缀**（例如 "
+        "`diag1/checkpoint0001` 或 `/abs/run/chk0001`），不是序号。留空 = 从头算。"
+        "填 `1` 这类纯数字会被当成目录名，报 `Couldn't open file: 1/WarpXHeader`"),
     "amr.ref_ratio_vect": "每个方向各自的加密比（比统一的 amr.ref_ratio 更灵活）",
     "collisions.correct_energy_momentum": "1 = 碰撞后强制修正能量与动量守恒",
     "collisions.energy_fraction": "碰撞能量分配比例（0–1）",

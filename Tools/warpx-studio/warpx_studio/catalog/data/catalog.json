@@ -5,7 +5,7 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 525,
+  "total": 527,
   "documented": 331,
   "source_only": 0,
   "with_runtime_gating": 194,
@@ -8358,6 +8358,24 @@
    "required": false,
    "options": [],
    "core": true
+  },
+  {
+   "name": "studio.plugin.star_profile",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": true,
+   "options": null
+  },
+  {
+   "name": "studio.solver.plugins",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "",
+   "core": true,
+   "options": null
   },
   {
    "name": "warpx.B_ext_grid_init_style",

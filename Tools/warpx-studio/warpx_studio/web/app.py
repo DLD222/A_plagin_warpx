@@ -211,6 +211,7 @@ def api_run(payload: RunPayload):
         pass
     job = Job(run_dir, binary, deck.to_inputs(), mpi=payload.mpi, omp=payload.omp,
               max_step=max_step)
+    job.env_extra = deck.env() if hasattr(deck, "env") else {}
     job.start()
     live = LiveView(run_dir, run_dir / "live.png", payload.live_field,
                     payload.live_component)
