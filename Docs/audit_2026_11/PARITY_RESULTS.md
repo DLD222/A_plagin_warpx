@@ -22,3 +22,13 @@
 python Tools/warpx-studio/tests/parity_sweep.py --dim 2d --limit 12
 python Tools/warpx-studio/tests/parity_run.py --examples <某个 inputs> --dim 2d
 ```
+
+## 40 例清单的完整跑批（第 10 轮）
+`python Tools/warpx-studio/tests/parity_sweep.py --manifest parity_40.json` → **34/40 通过**
+
+未通过 6 条：
+- 4× 参考版崩溃（nuclear_fusion 2d/3d/rz、parabolic_channel）
+- 2× `macroscopic_solver/inputs_1d_periodic_interface`：**有意分流**——代码审查 F-04（张量电导
+  按整矩阵门控）与 F-08（切向电导改回算术平均）改变了物理结果，属预期差异，不是 bug
+
+清单已去重并替换掉 EB 立方体（fork 的 staircase PEC 与原版本就不同，同样属设计差异）。
