@@ -1,0 +1,8 @@
+{
+  "note": "全部官方算例比对时，这些差异是设计性的（fork 故意与上游不同），不是 bug。",
+  "entries": {
+    "Examples/Tests/embedded_boundary_cube/*": "fork 的阶梯式 PEC/EB 掩码（E_tangential=0 + B_n 连续）与原版的 EB 处理不同，属设计差异",
+    "Examples/Tests/boundaries/inputs_3d_solar_amr": "该算例配合 fork 的恒星插件（star_gravity/star_fluid）；插件不加载时两边网格演化本就不同",
+    "Examples/Tests/macroscopic_solver/inputs_1d_periodic_interface": "代码审查 F-04（张量电导整矩阵门控）+ F-08（切向电导算术平均）的有意修复"
+  }
+}
