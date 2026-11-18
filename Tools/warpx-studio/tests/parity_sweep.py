@@ -27,6 +27,11 @@ def candidates(dim: str, cells_max: int, steps_max: int) -> list[pathlib.Path]:
         if f.name.startswith("inputs_base"):
             continue
         text = f.read_text(errors="ignore")
+        # 把 FILE 指令内联后再判断维度/规模，否则会被基础文件里的值误导
+        for name in re.findall(r"^\s*FILE\s*=\s*(\S+)", text, re.M):
+            base = f.parent / name
+            if base.exists():
+                text = base.read_text(errors="ignore") + "\n" + text
         m = re.search(r"max_step\s*=\s*(\d+)", text)
         d = re.search(r"geometry\.dims\s*=\s*(\d|RZ|rz)", text)
         if not m or not d or d.group(1).upper() != str(want).upper():
