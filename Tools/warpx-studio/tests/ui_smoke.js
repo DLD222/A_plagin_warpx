@@ -425,7 +425,8 @@ if (global.window.__STUDIO_TEST__) {
   // 侧边栏：报错所在步骤必须标红并显示错误数
   const nav1 = el("button"); nav1.dataset.step = "3"; nav1.className = "";
   const nav2 = el("button"); nav2.dataset.step = "1"; nav2.className = "";
-  global.__NAV_BUTTONS__ = [nav1, nav2];
+  const navMid = el("button"); navMid.dataset.step = "2"; navMid.className = "";
+  global.__NAV_BUTTONS__ = [nav1, nav2, navMid];
   markIssues([{ param: "algo.particle_shape", message: "必填", severity: "error" }]);
   if (!String(nav1.className).includes("err")) {
     console.error("FAIL 第 3 步按钮没标红，class=" + nav1.className);
@@ -445,6 +446,55 @@ if (global.window.__STUDIO_TEST__) {
     console.error("FAIL 清除错误后按钮仍是红的");
     process.exit(1);
   }
+  // 更要紧的：实例级报错（ions.density 这种）必须同样能定位，
+  // 不能只对 algo.particle_shape 这种顶层参数有效。
+  T.setDECK({ params: { max_step: "5", "particles.species_names": "ions" },
+              groups: { "<species_name>": { ions: { injection_style: "NUniformPerCell",
+                                                     profile: "constant", density: "n0" } } } });
+  T.setStep(2); T.render();
+  markIssues([{ param: "ions.density", message: "`n0` 不是合法的数值", severity: "error" }]);
+  T.setStep(2); T.render();
+  const densityRow = findRow(registry["form"], "<species_name>.density");
+  if (!densityRow) {
+    console.error("FAIL 物种卡片里找不到 density 行");
+    process.exit(1);
+  }
+  if (!String(densityRow.className || "").includes("err")) {
+    console.error("FAIL 实例级报错（ions.density）没有标红对应行，class=" + densityRow.className);
+    process.exit(1);
+  }
+  // 一次多个报错、跨不同步骤时，两个步骤都要标红（用户实际遇到的情形）
+  T.setStep(2); T.render();
+  markIssues([
+    { param: "algo.particle_shape", message: "必填", severity: "error" },
+    { param: "ions.density", message: "n0 不是数值", severity: "error" },
+  ]);
+  T.setStep(2); T.render();
+  const rowsNow = collectLabels(registry["form"], []);
+  const nav3 = (global.__NAV_BUTTONS__ || []).find((b) => b.dataset.step === "3");
+  const step2Btn = (global.__NAV_BUTTONS__ || []).find((b) => b.dataset.step === "2");
+  if (!String(nav3.className).includes("err") || !String(step2Btn.className).includes("err")) {
+    console.error("FAIL 多个报错跨步骤时没有都标红: step2=" + step2Btn.className + " step3=" + nav3.className);
+    process.exit(1);
+  }
+  markIssues([]);
+  // 第三种报错来源：顶层数值（amr.n_cell）必须落到第 1 步并标红
+  T.setDECK({ params: { max_step: "5", "amr.n_cell": "64 abc" }, groups: {} });
+  T.setStep(1); T.render();
+  markIssues([{ param: "amr.n_cell", message: "abc 不是整数", severity: "error" }]);
+  T.setStep(1); T.render();
+  const ncellRow = findRow(registry["form"], "amr.n_cell");
+  if (!ncellRow || !String(ncellRow.className || "").includes("err")) {
+    console.error("FAIL 顶层数值报错（amr.n_cell）没有标红");
+    process.exit(1);
+  }
+  markIssues([]);
+  console.log("PASS 顶层数值报错（amr.n_cell）也能定位");
+
+  console.log("PASS 多个报错跨步骤时侧边栏都标红");
+
+  console.log("PASS 实例级报错（ions.density）能定位到模板行");
+
   console.log("PASS 侧边栏按步骤标红并带错误数角标");
 
   console.log("PASS 校验报错定位到参数行（标红）");

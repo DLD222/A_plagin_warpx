@@ -337,11 +337,23 @@ function visible(name, instance) {
     : ruleSatisfied(r, instance)));
 }
 
+// 一行是否要标红：模板行 <species_name>.density 对应实例行 ions.density，
+// 两种写法都要能匹配上校验结果。
+function rowHasError(name, instance) {
+  if (!ERR_PARAMS || !ERR_PARAMS.size) { return false; }
+  if (ERR_PARAMS.has(name)) { return true; }
+  if (!instance) { return false; }
+  const key = TEMPLATE_ALIAS[String(name).split(">")[0] + ">"] || String(name).split(">")[0] + ">";
+  const sub = String(name).slice(String(name).indexOf(">") + 2);
+  if (key === String(name).split(">")[0] + ">") { return ERR_PARAMS.has(`${instance}.${sub}`); }
+  return ERR_PARAMS.has(`${instance}.${sub}`);
+}
+
 function inputRow(name, value, onchange, instance) {
   const wrap = document.createElement("div");
   wrap.className = "row";
   wrap.dataset.param = name;                       // 校验报错时按名字定位这一行
-  if (ERR_PARAMS.has(name)) { wrap.classList.add("err"); }
+  if (rowHasError(name, instance)) { wrap.classList.add("err"); }
   if (instance) { wrap.dataset.instance = String(instance); }
   const type = typeOf(name), guard = guardOf(name), zh = ZH.params[name];
   const lab = document.createElement("label");
@@ -871,12 +883,41 @@ async function runValidation() {
 }
 
 // 把校验错误映射到"第几步 / 哪个分类 / 哪一行"，否则参数一多根本找不到
+// 把校验给的参数名（可能是实例级，如 ions.density）归一到模板级
+// （<species_name>.density），并找到它所属的分类。
+const TEMPLATE_OF_INSTANCE = () => {
+  const map = new Map();
+  for (const [tpl, insts] of Object.entries(DECK.groups || {})) {
+    const key = TEMPLATE_ALIAS[tpl] || tpl;
+    for (const inst of Object.keys(insts || {})) { map.set(inst, key); }
+  }
+  return map;
+};
+
+function normalizeParamName(name) {
+  const raw = String(name || "");
+  if (raw.startsWith("<")) { return raw; }
+  const head = raw.split(".")[0];
+  const tpl = TEMPLATE_OF_INSTANCE().get(head);
+  if (!tpl) { return raw; }
+  return tpl + raw.slice(head.length);
+}
+
 function categoryOfParam(name) {
-  const base = String(name).split(".")[0];
-  for (const c of (CATALOG_CATEGORIES || [])) {
-    if (c.params.includes(name) || c.params.includes(base + ".*")) return c.id;
-    if (c.params.some(p => p.startsWith("<") && name.includes(".") &&
-        p.split(">")[0] + ">" === String(name).split(".")[0] + ">")) return c.id;
+  const norm = normalizeParamName(name);
+  const cats = CATALOG_CATEGORIES || [];
+  // 1) 精确命中
+  for (const c of cats) { if (c.params.includes(norm)) return c.id; }
+  // 2) 模板命中的再按"同一模板"归入同一分类
+  if (norm.startsWith("<")) {
+    for (const c of cats) {
+      if (c.params.some(p => p.split(">")[0] === norm.split(">")[0])) return c.id;
+    }
+  }
+  // 3) 退化为前缀（例如 diag1.intervals -> <diag_name>.intervals）
+  const head = String(name).split(".")[0];
+  for (const c of cats) {
+    if (c.params.some(p => p.startsWith(head + "."))) return c.id;
   }
   return null;
 }

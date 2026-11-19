@@ -173,6 +173,20 @@ def validate(deck, catalog: dict) -> list[dict]:
                     continue
                 check(label, full, value)
 
+    # intervals 是"时间间隔语法"（100 / 1::2 / 0::10:20 这类），写字母一定是错的；
+    # 不检查的话运行到第一步才由 WarpX 报错，用户根本不知道是哪一行。
+    import re as _re
+    _intervals = _re.compile(r"^\s*-?\d+(\s*::\s*-?\d+)*\s*$")
+    for tpl, instances in deck.groups.items():
+        if "diag" not in tpl and "reduced" not in tpl:
+            continue
+        for name, values in instances.items():
+            raw = str(values.get("intervals", "") or "").strip().strip('"')
+            if raw and not _intervals.match(raw):
+                issues.append({"severity": "error", "param": f"{name}.intervals",
+                               "message": f"`{raw}` 不是合法的时间间隔：应为整数或用 `::` 分隔的"
+                                          "区间（如 100、1::2）"})
+
     # amr.restart must be a checkpoint *path*, not an index.  A bare number becomes
     # "./1/WarpXHeader" at run time and WarpX aborts with "Couldn't open file".  Catch it here
     # instead of after a 30 s start-up (the 2026-11-18 report: the tooltip said "0/1").
