@@ -107,7 +107,13 @@ def load(name: str) -> dict:
     path = _project_file(name)
     if not path.is_file():
         raise FileNotFoundError(name)
-    return json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not data.get("inputs"):
+        # 兼容旧项目：原文只存在同目录的 inputs 文件里
+        legacy = path.parent / "inputs"
+        if legacy.is_file():
+            data["inputs"] = legacy.read_text(encoding="utf-8", errors="ignore")
+    return data
 
 
 def save(name: str, deck: dict, settings: dict | None = None,
@@ -129,6 +135,9 @@ def save(name: str, deck: dict, settings: dict | None = None,
         "notes": notes if notes is not None else previous.get("notes", ""),
         "last_run": previous.get("last_run"),
         "runs": previous.get("runs", []),
+        # 用户手写的输入原文必须存进 project.json，否则刷新后读不回来
+        # （以前只写到 folder/inputs，load() 读不到，界面就退回到"从表单重新生成"）
+        "inputs": inputs if inputs is not None else previous.get("inputs", ""),
     }
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     if inputs:

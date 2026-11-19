@@ -581,6 +581,17 @@ def run_checks(port: int) -> None:
     check("任务可删除", status == 200, "已删除")
     remaining = [p for p in call(port, "/api/projects")[1]["projects"] if p["name"] == project]
     check("删除后不再出现", not remaining, f"剩余匹配 {len(remaining)} 个")
+    # 手写原文必须跟着项目一起存下来，刷新后要能读回（以前只写 folder/inputs，
+    # load() 读不到，界面就退回到"从表单重新生成"，用户以为保存没生效）
+    _text = "# 我的注释\n#define n0 1.e24\nmax_step = 42\n"
+    call(port, "/api/projects", method="POST", payload={
+        "name": project, "deck": {"params": {"max_step": "42"}, "groups": {}},
+        "settings": {}, "inputs": _text})
+    from warpx_studio.deck import store as _store
+    _reloaded = _store.load(project)
+    check("手写原文随项目保存", _reloaded.get("inputs") == _text,
+          f"读回 {len(_reloaded.get('inputs') or '')} 字符")
+
     # 项目名里的 ∥/⊥ 曾经都被替换成 "-"，导致两个项目写到同一目录、后者覆盖前者
     from warpx_studio.deck.store import slug as _slug
     check("项目名符号不冲突",

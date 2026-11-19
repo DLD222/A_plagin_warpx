@@ -768,6 +768,9 @@ function textToForm() {
     }
     if (main) main.scrollTop = top;
     SAVED_TEXT = ta.value;                       // 记住用户原文
+    if (PROJECT_NAME) {                          // 已打开任务：顺手写进项目文件
+      saveProject(PROJECT_NAME).catch(() => {});
+    }
     const nSpecies = Object.keys(d.deck.groups["<species_name>"] || {}).length;
     const nDiags = Object.keys(d.deck.groups["<diag_name>"] || {}).length;
     setTextStatus(`已保存：${d.params} 个顶层参数、${nSpecies} 个物种、${nDiags} 个诊断`, "var(--ok)");
