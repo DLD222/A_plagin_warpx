@@ -39,6 +39,11 @@
   nav button .badge { background:var(--err); color:#fff; border-radius:9px; padding:0 5px;
                       margin-left:6px; font-size:11px; }
   .group.err > h3 { color:var(--err); border-color:var(--err); }
+  /* 输入文本页是独立页面：进入后隐藏导航和表单页，谁也别想把它们再打开 */
+  body.text-mode nav,
+  body.text-mode #page-input,
+  body.text-mode #page-vis { display: none !important; }
+  body:not(.text-mode) #page-text { display: none !important; }
   .row input { background:#0f1116; color:var(--fg); border:1px solid var(--line);
          border-radius:4px; padding:3px 6px; width:100%; font-family:ui-monospace,monospace; }
   .row .hint { grid-column:1/-1; color:var(--dim); font-size:12px; margin:-2px 0 6px; }
@@ -109,7 +114,7 @@
          border-bottom:1px solid var(--line);margin-bottom:6px"></div>
     <div id="form"></div>
   </section>
-  <section id="page-text" style="display:none;padding:0 8px 8px">
+  <section id="page-text">
     <div style="display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap">
       <b style="font-size:14px">输入文本</b>
       <span id="text-status" style="font-size:12px;color:var(--dim)">未修改</span>
@@ -1353,21 +1358,15 @@ document.getElementById("export").onclick = async () => {
 // ---- 输入文本页：整页编辑，和表单双向同步 -------------------------------
 
 function showTextPage() {
-  // 独立页面：连左侧 1~7 步导航一起隐藏，避免和表单界面混在一起
-  document.getElementById("page-input").style.display = "none";
-  document.getElementById("page-vis").style.display = "none";
-  const nav = document.querySelector("nav");
-  if (nav) { nav.style.display = "none"; }
-  document.getElementById("page-text").style.display = "";
+  // 独立页面：靠 body 上的 class 统一切换，CSS 用 !important 保证
+  // 下拉/表单重新渲染时不会把表单页或侧边栏又打开（之前的 bug）
+  document.body.classList.add("text-mode");
   formToText();                                  // 打开时把当前表单内容填进文本
   setTextStatus("未修改", "var(--dim)");
 }
 
 function hideTextPage() {
-  document.getElementById("page-text").style.display = "none";
-  const nav = document.querySelector("nav");
-  if (nav) { nav.style.display = ""; }
-  document.getElementById("page-input").style.display = "";
+  document.body.classList.remove("text-mode");
   render();
 }
 

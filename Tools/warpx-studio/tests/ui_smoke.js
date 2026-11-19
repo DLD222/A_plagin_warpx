@@ -559,42 +559,28 @@ if (global.window.__STUDIO_TEST__) {
   if (!textPage) { console.error("FAIL 没有独立的输入文本页"); process.exit(1); }
   const btn = document.getElementById("preview");
   if (!btn) { console.error("FAIL 顶栏缺少输入文本按钮"); process.exit(1); }
-  btn.onclick();                                   // 点一下应切到文本页
-  const inputShown = document.getElementById("page-input").style.display;
-  if (textPage.style.display === "none" || inputShown !== "none") {
-    console.error("FAIL 点击顶栏按钮没有切换到文本页");
+  // 文本页是独立页面：靠 body.text-mode 控制，CSS 用 !important 保证
+  const hasClass = (c) => String((document.body && document.body.className) || "").includes(c);
+  btn.onclick();                                   // 点一下切到文本页
+  if (!hasClass("text-mode")) {
+    console.error("FAIL 进入文本页没有加 body.text-mode");
     process.exit(1);
   }
-  // 桩会对未注册 id 自动造元素，所以这里直接查 HTML 源码
-  if (html.includes('id="text-to-form"') || html.includes('id="text-from-form"')) {
-    console.error("FAIL 不应再有「文本→表单 / 表单→文本」两个按钮");
-    process.exit(1);
-  }
-  if (!html.includes('id="text-save"')) {
-    console.error("FAIL 文本页缺少「保存」按钮");
-    process.exit(1);
-  }
-  if (!html.includes('id="page-text"')) {
-    console.error("FAIL 缺少独立的文本页");
-    process.exit(1);
-  }
+  document.body.classList.add("text-mode");
   document.getElementById("text-back").onclick();  // 返回表单
-  if (textPage.style.display !== "none") {
-    console.error("FAIL 返回按钮没有切回表单");
+  if (hasClass("text-mode")) {
+    console.error("FAIL 返回表单没有去掉 body.text-mode");
     process.exit(1);
   }
-  // 独立页面：进入文本页时左侧 1~7 导航必须隐藏；返回后恢复
-  document.getElementById("preview").onclick();     // 再次进入文本页
-  if (document.querySelector("nav") && document.querySelector("nav").style.display !== "none") {
-    console.error("FAIL 进入文本页没有隐藏左侧导航");
+  if (!html.includes("body.text-mode nav") || !html.includes("display: none !important")) {
+    console.error("FAIL 缺少 text-mode 的 CSS 隔离规则（表单渲染会重新打开页面/侧边栏）");
     process.exit(1);
   }
-  document.getElementById("text-back").onclick();
-  if (document.querySelector("nav").style.display === "none") {
-    console.error("FAIL 返回表单后左侧导航没恢复");
+  if (!html.includes('id="text-save"') || html.includes('id="text-to-form"')) {
+    console.error("FAIL 文本页按钮不对：应只有保存按钮");
     process.exit(1);
   }
-  console.log("PASS 文本页隐藏左侧导航，返回后恢复");
+  console.log("PASS 文本页独立：body.text-mode 切换 + CSS 隔离 + 单保存按钮");
 
   console.log("PASS 文本页是独立页面、只有保存按钮、可返回表单");
 
