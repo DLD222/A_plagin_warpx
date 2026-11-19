@@ -29,9 +29,9 @@ ALWAYS_REQUIRED = (
     "geometry.prob_lo",
     "geometry.prob_hi",
     "amr.n_cell",
+    "amr.max_level",          # WarpX 用 getval 读它，缺了直接 abort（实测）
     "algo.particle_shape",
-    "<species_name>.charge",
-    "<species_name>.mass",
+    # charge/mass 不在这里：设了 species_type 时由它推导（WarpX 实测允许）
     "<species_name>.momentum_distribution_type",
     "<diag_name>.diag_type",
 )
@@ -193,6 +193,19 @@ def validate(deck, catalog: dict) -> list[dict]:
                 issues.append({"severity": "error", "param": f"{name}.intervals",
                                "message": f"`{raw}` 不是合法的时间间隔：应为整数或用 `::` 分隔的"
                                           "区间（如 100、1::2）"})
+
+    # 每个物种：要么给 species_type（charge/mass 由它推导），要么 charge 和 mass 都写。
+    # 实测：只写 species_type 的算例 WarpX 能正常跑；原来把 charge/mass 当无条件必填，
+    # 那种合法算例会被误报。
+    for instance, values in deck.groups.get("<species_name>", {}).items():
+        if str(values.get("species_type", "") or "").strip():
+            continue
+        lacking = [k for k in ("charge", "mass")
+                   if not str(values.get(k, "") or "").strip()]
+        if lacking:
+            issues.append({"severity": "error", "param": f"{instance}.{lacking[0]}",
+                           "message": f"物种 `{instance}` 既没写 species_type，也没写 "
+                                      + "、".join(lacking) + "；两类信息至少要给一套"})
 
     # amr.restart must be a checkpoint *path*, not an index.  A bare number becomes
     # "./1/WarpXHeader" at run time and WarpX aborts with "Couldn't open file".  Catch it here

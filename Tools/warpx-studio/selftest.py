@@ -286,6 +286,20 @@ def run_checks(port: int) -> None:
     bare.set("max_step", "5")
     errs_geo = [i for i in validate(bare, catalog) if i["severity"] == "error"]
     geo_missing = {i["param"] for i in errs_geo}
+    # amr.max_level 也是硬性必填（实测 WarpX 用 getval 读它）
+    check("校验：amr.max_level 必填被拦",
+          any(i["param"] == "amr.max_level" for i in errs_geo),
+          "未拦下")
+    # species_type 与 charge/mass 二选一：只写 species_type 不该误报
+    typed = minimal_deck("2d")
+    typed.groups["<species_name>"]["electrons"].pop("charge", None)
+    typed.groups["<species_name>"]["electrons"].pop("mass", None)
+    typed.groups["<species_name>"]["electrons"]["species_type"] = "electron"
+    errs_t = [i for i in validate(typed, catalog) if i["severity"] == "error"
+              and i["param"].startswith("electrons.")]
+    check("校验：species_type 合法不误报", not errs_t,
+          f"{len(errs_t)} 条误报")
+
     check("校验：几何/网格必填被拦",
           {"geometry.dims", "geometry.prob_lo", "geometry.prob_hi", "amr.n_cell"} <= geo_missing,
           "缺 " + ", ".join(sorted({"geometry.dims", "geometry.prob_lo",
