@@ -198,6 +198,8 @@ let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINA
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
 let VALIDATION_ON = false;        // 输入校验总开关：默认关闭（不报错、不标红、不拦运行）
+// 用户手写并保存过的原文：默认以它为准，不再用生成器覆盖（注释、#define、排版都要留住）
+let SAVED_TEXT = null;
 let ERR_PARAMS = new Set();          // 校验报错的参数名：渲染时给对应行标红
 let ERR_STEPS = new Map();           // 每个步骤的错误条数：侧边栏角标
 let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false, HINTS = {};
@@ -250,6 +252,7 @@ async function loadProject(name) {
   DECK.params = data.deck.params || {};
   DECK.groups = data.deck.groups || {};
   PROJECT_NAME = data.name;
+  SAVED_TEXT = typeof data.inputs === "string" && data.inputs.trim() ? data.inputs : null;
   applySettings(data.settings || {});
   document.getElementById("project").value = data.name;
   render();
@@ -262,7 +265,8 @@ async function saveProject(name) {
     headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) })).json();
   const r = await fetch("/api/projects", { method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, deck: DECK, settings: deckSettings(), inputs: preview.inputs }) });
+    body: JSON.stringify({ name, deck: DECK, settings: deckSettings(),
+                           inputs: SAVED_TEXT !== null ? SAVED_TEXT : preview.inputs }) });
   const out = await r.json();
   if (!r.ok) { setStatus("保存失败: " + (out.detail || ""), "var(--err)"); return false; }
   PROJECT_NAME = name;
@@ -723,7 +727,10 @@ function textToForm() {
     syncInstancesFromNames();
     render();
     if (main) main.scrollTop = top;
-    setTextStatus(`已保存（${d.params} 个参数，表单已更新）`, "var(--ok)");
+    SAVED_TEXT = ta.value;                       // 记住用户原文
+    const nSpecies = Object.keys(d.deck.groups["<species_name>"] || {}).length;
+    const nDiags = Object.keys(d.deck.groups["<diag_name>"] || {}).length;
+    setTextStatus(`已保存：${d.params} 个顶层参数、${nSpecies} 个物种、${nDiags} 个诊断`, "var(--ok)");
   }).catch(() => setTextStatus("解析失败", "var(--err)"))
     .finally(() => { TEXT_LOCK = false; });
 }
@@ -1070,7 +1077,9 @@ document.getElementById("run").onclick = async () => {
     }
   } catch (e) { /* 离线时照旧尝试运行 */ }
   const sel = document.getElementById("binary");
+  const ta = document.getElementById("inputs-text");
   const body = { ...DECK, binary: sel.value, project: PROJECT_NAME || null,
+    inputs_text: SAVED_TEXT !== null ? SAVED_TEXT : (ta ? ta.value : null),
     mpi: Number(document.getElementById("mpi").value) || 1,
     omp: Number(document.getElementById("omp").value) || 1,
     live_field: document.getElementById("livefield").value || null,
@@ -1361,8 +1370,13 @@ function showTextPage() {
   // 独立页面：靠 body 上的 class 统一切换，CSS 用 !important 保证
   // 下拉/表单重新渲染时不会把表单页或侧边栏又打开（之前的 bug）
   document.body.classList.add("text-mode");
-  formToText();                                  // 打开时把当前表单内容填进文本
-  setTextStatus("未修改", "var(--dim)");
+  const ta = document.getElementById("inputs-text");
+  if (SAVED_TEXT !== null) {
+    ta.value = SAVED_TEXT;                       // 原文照搬
+    setTextStatus("未修改", "var(--dim)");
+  } else {
+    formToText();                                // 还没有原文时，才从表单生成
+  }
 }
 
 function hideTextPage() {

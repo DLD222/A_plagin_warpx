@@ -70,6 +70,7 @@ class RunPayload(DeckPayload):
     omp: int = 1
     live_field: str | None = "rho"
     live_component: str | None = None
+    inputs_text: str | None = None   # 用户手写的原文：原样落盘，不重新生成
 
 
 def load_json(name: str):
@@ -224,7 +225,12 @@ def api_run(payload: RunPayload):
         max_step = int(str(deck.get("max_step", "")).strip())
     except ValueError:
         pass
-    job = Job(run_dir, binary, deck.to_inputs(), mpi=payload.mpi, omp=payload.omp,
+    # 有手写原文就直接用它：注释、#define 宏、排版都保留，
+    # 不能让表单重新生成把用户写的东西冲掉。
+    inputs_text = (payload.inputs_text or "").strip() or deck.to_inputs()
+    if payload.inputs_text:
+        inputs_text += "\n"
+    job = Job(run_dir, binary, inputs_text, mpi=payload.mpi, omp=payload.omp,
               max_step=max_step)
     job.env_extra = deck.env() if hasattr(deck, "env") else {}
     job.start()

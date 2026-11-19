@@ -580,6 +580,19 @@ if (global.window.__STUDIO_TEST__) {
     console.error("FAIL 文本页按钮不对：应只有保存按钮");
     process.exit(1);
   }
+  // 用户手写原文必须被保留：保存后再次进入文本页要看到"原文"，不是重新生成的
+  const ta2 = document.getElementById("inputs-text");
+  ta2.value = "# 我的注释\n#define n0 1.e24\nmax_step = 7\n";
+  document.getElementById("text-save").onclick();
+  document.getElementById("text-back").onclick();
+  document.getElementById("preview").onclick();
+  if (!String(ta2.value).includes("#define n0 1.e24")) {
+    console.error("FAIL 手写原文被生成器覆盖了：" + String(ta2.value).slice(0, 60));
+    process.exit(1);
+  }
+  document.getElementById("text-back").onclick();
+  console.log("PASS 用户手写原文（注释/#define）不会被覆盖");
+
   console.log("PASS 文本页独立：body.text-mode 切换 + CSS 隔离 + 单保存按钮");
 
   console.log("PASS 文本页是独立页面、只有保存按钮、可返回表单");
