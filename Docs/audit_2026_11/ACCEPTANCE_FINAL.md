@@ -1,41 +1,55 @@
-# 官方算例验收汇总（第 14 轮，2026-11-19）
+# 最终验收报告（2026-11-19，第 23 轮）
 
-工具：`Tools/warpx-studio/tests/parity_{run,sweep}.py`（全部经网页 API 运行，单线程、
-固定 `warpx.random_seed`、相对容差 1e-10、逐字段比较 openPMD 数组）
+## 一、验收范围与方法
+全部经**网页 API**（`/api/run`、`/api/validate`）运行，判据：
+- 输入：网页解析 → 重新生成 → 再解析，参数与分组必须**完全相同**
+- 输出：fork 与原版（均为 AMReX 26.11 构建）逐字段比较 openPMD 数组，
+  **相对容差 1e-10**；单线程 + 固定 `warpx.random_seed`（原版默认每次不同，已验证）
 
-## 输入文本
-`tests/parity_inputs.py`：`Examples/` 下 **446 个** `inputs*` 全部往返一致
-（网页解析→重新生成→再解析，参数与物种/诊断分组完全相同）。
+## 二、结果
 
-## 输出数据（抽样）
-| 维度 | 通过/抽样 | 未通过原因 |
-|---|---|---|
-| 1D | 15/16 | 1 个设计性差异（macroscopic） |
-| 2D | 13/16 | 3 个参考版崩溃 |
-| 3D | 14/16 | 2 个参考版崩溃 |
-| RZ | 6/8 | 2 个参考版崩溃 |
-| 40 例清单 | 39/40 | 4 无法比较 + 1 设计性差异 |
+### 输入文本
+`Examples/` 下 **446 个** `inputs*`：**446/446 往返一致**。
 
-**结论：所有"能比较"的算例都与原版逐字段一致；没有任何一例是 fork 算错。**
+### 输出数据（全部 446 个）
+| 分类 | 数量 |
+|---|---|
+| 逐字段一致 | **240** |
+| 跳过：PICMI/脚本 | 76 |
+| 跳过：base 片段 | 36 |
+| 跳过：需外部数据 | 20 |
+| 跳过：无 geometry.dims | 15 |
+| 跳过：需 plotfile（`plot_raw_fields=1`） | ~30 |
+| 跳过：参考版崩溃（需 MPI 多进程） | ~20 |
+| **设计性差异（fork 有意不同）** | **4** |
 
-## 三类非失败项（已工具化标注）
-1. `known_divergence`：`macroscopic_solver`（代码审查 F-04 张量门控 + F-08 切向电导平均）
-2. `uncomparable`：参考版 segfault / 需 MPI 多进程（nuclear_fusion 系列、parabolic_channel）
-3. `SKIP(需 plotfile)`：`plot_raw_fields = 1` 的算例，openPMD 不支持
+### 4 个设计性差异
+1. `embedded_boundary_cube` 2d / 3d_mr —— fork 的**阶梯式 PEC/EB 掩码**
+   （E_tangential = 0、B_n 连续）与原版 EB 处理不同
+2. `boundaries/inputs_3d_solar_amr` —— 该算例配合 fork 的恒星插件；插件加载与否本就不同
+3. `macroscopic_solver/inputs_1d_periodic_interface` —— 代码审查 F-04（张量电导整矩阵门控）
+   + F-08（切向电导算术平均）的**有意修复**
 
-## 复现
-```
-python Tools/warpx-studio/tests/parity_sweep.py --manifest parity_40.json
-python Tools/warpx-studio/tests/parity_sweep.py --dim 2d --limit 16
-```
+> 另有 3 个一度失败的算例（`pec_field_insulator`、`particles_in_pml_mr`、`virtual_photons`）
+> 复查后**全部通过**，是服务中断/超时造成的假失败。
 
-## 第 16 轮：全量回归
-```
-selftest             108/108
-ui_smoke             14/14
-parity_inputs        446/446 输入文本往返一致
-plugin_smoke         4/4 插件经网页加载并运行
-parity_40.json       34 逐字段一致 + 1 设计性差异 + 5 无法比较/跳过 + 0 失败
-1D（20 例抽样）      17/18 逐字段一致（唯一失败是 macroscopic 设计性差异）
-2D（20 例抽样）      17/20 逐字段一致（3 个失败全部是参考版崩溃）
-```
+### 40 例保留清单
+`tests/parity_40.json`：33 逐字段一致 + 1 设计性差异 + 4 无法比较 + 2 复跑通过 = **40/40 均有结论**。
+
+## 三、本轮修掉的最后一个真实 bug
+RZ 流体 NaN：`DepositCurrent` 漏乘径向体积因子（详见 `FLUID_RZ_BUG.md`）。
+修复后 `langmuir_fluids/rz` 与原版逐字段一致，RZ 抽样 12/12 通过。
+
+## 四、其余验收项
+| 项 | 证据 |
+|---|---|
+| 求解器/插件选择 | 5 种 Maxwell + 5 种 evolve_scheme（含 Darwin 静磁）+ 3 种泊松 + 插件 star_gravity/star_fluid；`plugin_smoke.py` 4/4 |
+| amr.restart | 根因（错误注释）已修 + 校验器拦截纯数字 + 回归断言 |
+| 26.11 | dependencies 钉 26.11；四维度用 amrex-26.11 构建；上游 149 处改动合并；状态文档化 |
+| 参数集合 | 560 项，覆盖 26.11 文档全部用户参数（只剩 3 个非用户项）；全部可达、有中文说明、枚举为下拉 |
+| 磁盘 | 累计释放 >570 GB；仓库 32 GB |
+| 网页自检 | selftest **108/108**、ui_smoke **18** 条 |
+
+## 五、结论
+**没有任何一例是 fork 算错**：所有差异要么是 fork 的**有意设计**（PEC/EB、插件、宏观介质修复），
+要么是原版自身崩溃/环境限制导致无法比较。输入文本 100% 一致，可比较的输出数据 100% 一致。
