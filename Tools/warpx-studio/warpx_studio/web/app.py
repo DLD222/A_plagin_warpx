@@ -186,6 +186,21 @@ def api_preview(payload: DeckPayload):
     return {"inputs": deck.to_inputs()}
 
 
+class TextPayload(BaseModel):
+    text: str = ""
+
+
+@app.post("/api/parse")
+def api_parse(payload: TextPayload):
+    """把用户手写的 inputs 文本解析成表单结构（文本 <-> 表单双向同步用）。"""
+    try:
+        deck = Deck.from_inputs(payload.text)
+    except Exception as exc:                       # noqa: BLE001
+        return JSONResponse(status_code=400,
+                            content={"detail": f"解析失败: {exc}"})
+    return {"deck": deck.as_dict(), "inputs": deck.to_inputs(), "params": len(deck.params)}
+
+
 @app.post("/api/run")
 def api_run(payload: RunPayload):
     binary = Path(payload.binary)

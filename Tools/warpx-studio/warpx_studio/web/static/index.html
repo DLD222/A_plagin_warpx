@@ -99,6 +99,21 @@
   <section id="page-input">
     <div id="paths" style="display:none;padding:6px 8px;font-size:12px;color:var(--dim);
          border-bottom:1px solid var(--line);margin-bottom:6px"></div>
+    <details id="text-panel" open style="margin:0 8px 8px;border:1px solid var(--line);
+             border-radius:6px;background:rgba(255,255,255,.02)">
+      <summary style="cursor:pointer;padding:6px 8px;font-size:13px;
+               display:flex;align-items:center;gap:8px">
+        输入文本（可直接手写；与下方表单双向同步）
+        <span id="text-status" style="font-size:12px;color:var(--dim)">已同步</span>
+        <button id="text-from-form" style="font-size:12px;margin-left:auto">表单 → 文本</button>
+        <button id="text-to-form" style="font-size:12px">文本 → 表单</button>
+      </summary>
+      <textarea id="inputs-text" spellcheck="false"
+        style="width:100%;box-sizing:border-box;min-height:180px;max-height:45vh;padding:8px;
+               font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.45;
+               border:0;border-top:1px solid var(--line);background:transparent;color:inherit;
+               resize:vertical;outline:none"></textarea>
+    </details>
     <div id="form"></div>
   </section>
   <section id="page-vis" style="display:none">
@@ -632,8 +647,77 @@ function scheduleFormRender() {
     syncInstancesFromNames();
     render();
     if (main) main.scrollTop = top;
+    scheduleTextSync();          // 表单改动 -> 文本同步
   }, 120);
 }
+
+// ---- 输入文本 <-> 表单 双向同步 -----------------------------------------
+// 用户既能手写 inputs，也能用表单填空；两边改完互相回写。为避免互相触发死循环，
+// 用 TEXT_LOCK 标记"这次变化是从文本来的"。
+let TEXT_LOCK = false, TEXT_TIMER = null, TEXT_DIRTY = false;
+
+function setTextStatus(msg, color) {
+  const el = document.getElementById("text-status");
+  if (el) { el.textContent = msg; el.style.color = color || "var(--dim)"; }
+}
+
+function formToText() {
+  const ta = document.getElementById("inputs-text");
+  if (!ta || TEXT_LOCK) { return; }
+  fetch("/api/preview", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ params: DECK.params, groups: DECK.groups }),
+  }).then(r => r.json()).then(d => {
+    if (typeof d.inputs === "string" && ta.value !== d.inputs) {
+      const pos = ta.selectionStart;
+      ta.value = d.inputs;
+      ta.selectionStart = ta.selectionEnd = Math.min(pos, ta.value.length);
+    }
+    setTextStatus("已同步（表单 → 文本）", "var(--ok)");
+  }).catch(() => setTextStatus("同步失败", "var(--err)"));
+}
+
+function textToForm() {
+  const ta = document.getElementById("inputs-text");
+  if (!ta) { return; }
+  TEXT_LOCK = true;
+  fetch("/api/parse", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: ta.value }),
+  }).then(async r => {
+    const d = await r.json();
+    if (!r.ok) { setTextStatus("解析失败: " + (d.detail || "").slice(0, 60), "var(--err)"); return; }
+    DECK.params = d.deck.params || {};
+    DECK.groups = d.deck.groups || {};
+    const main = document.querySelector("main");
+    const top = main ? main.scrollTop : 0;
+    syncInstancesFromNames();
+    render();
+    if (main) main.scrollTop = top;
+    setTextStatus(`已同步（文本 → 表单，${d.params} 个参数）`, "var(--ok)");
+  }).catch(() => setTextStatus("解析失败", "var(--err)"))
+    .finally(() => { TEXT_LOCK = false; });
+}
+
+function scheduleTextSync() {
+  clearTimeout(TEXT_TIMER);
+  TEXT_TIMER = setTimeout(formToText, 200);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ta = document.getElementById("inputs-text");
+  if (ta) {
+    ta.addEventListener("input", () => {
+      setTextStatus("文本已修改，正在解析…", "var(--warn)");
+      clearTimeout(TEXT_TIMER);
+      TEXT_TIMER = setTimeout(textToForm, 500);
+    });
+  }
+  const b1 = document.getElementById("text-from-form");
+  if (b1) b1.onclick = (e) => { e.preventDefault(); formToText(); };
+  const b2 = document.getElementById("text-to-form");
+  if (b2) b2.onclick = (e) => { e.preventDefault(); textToForm(); };
+});
 
 function renderTemplateCards(template, params, body) {
   // 源码里 <species> 与 <species_name> 是同一个命名空间，统一成后者

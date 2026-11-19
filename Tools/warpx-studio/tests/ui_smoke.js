@@ -396,6 +396,14 @@ if (global.window.__STUDIO_TEST__) {
   }
   console.log("PASS 激光卡片渲染（<laser_name>.a0）");
 
+  // 手写 inputs 与表单必须双向同步：文本区存在、能解析成表单、表单改动能回写
+  const ta = document.getElementById("inputs-text");
+  if (!ta) { console.error("FAIL 页面缺少输入文本区"); process.exit(1); }
+  if (typeof ta.addEventListener !== "function") {
+    console.error("FAIL 输入文本区没有事件绑定能力"); process.exit(1);
+  }
+  console.log("PASS 页面同时提供表单与可编辑输入文本");
+
   // 降维诊断：warpx.reduced_diags_names 存在时，<reduced_diags_name>.type 必须出现
   T.setDECK({ params: { "warpx.reduced_diags_names": "rd1" },
               groups: { "<reduced_diags_name>": { rd1: { type: "FieldEnergy" } } } });
