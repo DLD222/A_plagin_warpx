@@ -22,6 +22,13 @@ TRUE_WORDS = {"1", "true", "t", "yes", "y", "on"}
 # the starter deck and reading the abort message).  The catalog's `required` flag is
 # broader - it also covers reads inside branches - and is metadata for tooltips only.
 ALWAYS_REQUIRED = (
+    # 几何三件套和网格数缺一个 WarpX 就直接 abort（"must specify the parameter
+    # 'geometry.prob_lo'"）。它们必须和 particle_shape 一样当成硬性必填项，
+    # 否则用户点运行才看到报错。
+    "geometry.dims",
+    "geometry.prob_lo",
+    "geometry.prob_hi",
+    "amr.n_cell",
     "algo.particle_shape",
     "<species_name>.charge",
     "<species_name>.mass",

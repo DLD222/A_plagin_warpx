@@ -281,6 +281,16 @@ def run_checks(port: int) -> None:
     errors = [i for i in validate(missing, catalog) if i["severity"] == "error"]
     check("校验：必填项被拦", any("charge" in i["param"] for i in errors),
           errors[0]["param"] if errors else "未拦下")
+    # 几何/网格缺一个 WarpX 就直接 abort（"must specify geometry.prob_lo"），必须拦住
+    bare = Deck()
+    bare.set("max_step", "5")
+    errs_geo = [i for i in validate(bare, catalog) if i["severity"] == "error"]
+    geo_missing = {i["param"] for i in errs_geo}
+    check("校验：几何/网格必填被拦",
+          {"geometry.dims", "geometry.prob_lo", "geometry.prob_hi", "amr.n_cell"} <= geo_missing,
+          "缺 " + ", ".join(sorted({"geometry.dims", "geometry.prob_lo",
+                                  "geometry.prob_hi", "amr.n_cell"} - geo_missing)))
+
     # profile 只在按体积铺粒子时才是必需的：面注入下不该报缺（以前会误报）
     fluxdeck = minimal_deck("2d")
     fluxdeck.groups["<species_name>"]["electrons"]["injection_style"] = "NFluxPerCell"

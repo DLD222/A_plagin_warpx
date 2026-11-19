@@ -1047,6 +1047,22 @@ document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   if (STEP === 5) setInterval(() => { if (STEP === 5) renderPlugins(); }, 3000);
 });
 document.getElementById("run").onclick = async () => {
+  // 运行前先同步校验一次：之前依赖后台防抖校验，用户手快时会在校验结果回来之前
+  // 就把缺 geometry.prob_lo 的算例发出去，WarpX 起跑三秒后才 abort。
+  try {
+    const vr = await fetch("/api/validate", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) });
+    const vd = await vr.json();
+    const errs = (vd.issues || []).filter(i => i.severity === "error");
+    LAST_ISSUES = vd.issues || [];
+    markIssues(errs);
+    if (errs.length) {
+      const names = errs.slice(0, 4).map(i => i.param).join("、");
+      setStatus(`有 ${errs.length} 个错误，先按侧边栏红标补齐（${names}${errs.length > 4 ? " …" : ""}）`,
+                "var(--err)");
+      return;
+    }
+  } catch (e) { /* 离线时照旧尝试运行 */ }
   const sel = document.getElementById("binary");
   const body = { ...DECK, binary: sel.value, project: PROJECT_NAME || null,
     mpi: Number(document.getElementById("mpi").value) || 1,
