@@ -943,7 +943,10 @@ function markIssues(errors) {
   document.querySelectorAll(".row").forEach(row => {
     const name = row.dataset ? row.dataset.param : null;
     if (!name) { return; }
-    if (ERR_PARAMS.has(name)) { row.classList.add("err"); }
+    // 必须用 rowHasError：模板行是 <species_name>.density，报错给的是 ions.density，
+    // 直接查集合会把已经标红的行又抹掉（用户看到侧边栏红了、行不红就是这个原因）。
+    const inst = row.dataset ? row.dataset.instance : null;
+    if (rowHasError(name, inst)) { row.classList.add("err"); }
     else { row.classList.remove("err"); }
   });
   document.querySelectorAll("section.group").forEach(sec => {

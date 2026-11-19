@@ -58,6 +58,18 @@ global.document = {
   createTextNode(text) { const n = el("#text"); n._text = text; return n; },
   querySelectorAll(sel) {
     if (sel === "nav button") { return global.__NAV_BUTTONS__ || []; }
+    if (sel === ".row" || sel === "section.group") {
+      const want = sel === ".row" ? "row" : "group";
+      const out = [];
+      const walk = (n) => {
+        if (!n) return;
+        if (want === "row" && n.dataset && n.dataset.param) out.push(n);
+        if (want === "group" && String(n.className).includes("group")) out.push(n);
+        for (const c of (n.children || [])) walk(c);
+      };
+      walk(registry["form"]);
+      return out;
+    }
     return [];
   },
   querySelector() { return el("div"); },
@@ -492,6 +504,21 @@ if (global.window.__STUDIO_TEST__) {
   console.log("PASS 顶层数值报错（amr.n_cell）也能定位");
 
   console.log("PASS 多个报错跨步骤时侧边栏都标红");
+
+  // 关键回归：markIssues 里的 DOM 清理不能把已标红的行抹掉
+  // （浏览器里侧边栏红了、行不红，就是这段用错了集合判定）
+  T.setDECK({ params: { max_step: "5", "particles.species_names": "ions" },
+              groups: { "<species_name>": { ions: { injection_style: "NUniformPerCell",
+                                                     profile: "constant", density: "n0" } } } });
+  T.setStep(2); T.render();
+  const rowAfterMark = findRow(registry["form"], "<species_name>.density");
+  if (!rowAfterMark) { console.error("FAIL 第 2 步找不到 density 行"); process.exit(1); }
+  markIssues([{ param: "ions.density", message: "n0 不是数值", severity: "error" }]);
+  if (!String(rowAfterMark.className || "").includes("err")) {
+    console.error("FAIL markIssues 执行后密度行被抹掉了标红，class=" + rowAfterMark.className);
+    process.exit(1);
+  }
+  console.log("PASS markIssues 不会抹掉已标红的行");
 
   console.log("PASS 实例级报错（ions.density）能定位到模板行");
 
