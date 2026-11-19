@@ -310,7 +310,11 @@ def validate(deck, catalog: dict) -> list[dict]:
     return issues
 
 
-ERROR_LINE = re.compile(r"(?:###\s*ERROR\s*:\s*|ParmParse::getval\(\):\s*)(.+)")
+ERROR_LINE = re.compile(
+    r"(?:###\s*ERROR\s*:\s*"
+    r"|ParmParse::\w+(?:\(\))?\s*:\s*"      # ParmParse::getval(): / ParmParse::sgetarr:
+    r"|\bnot found in database\b\s*(\S+)?)"  # 兜底：xxx not found in database
+    r"(.+)")
 PARAM_HINT = re.compile(r"([a-z_][a-z0-9_]*(?:\.[a-z0-9_]+)+)")
 MUST_BE_SET = re.compile(r"([a-z_][a-z0-9_.]+)\s+must be set")
 NOT_RECOGNIZED = re.compile(r"string\s+'([^']+)'\s+not recognized")
@@ -349,7 +353,7 @@ def translate_error(line: str, catalog: dict, deck=None) -> dict | None:
     match = ERROR_LINE.search(line)
     if not match:
         return None
-    message = match.group(1).strip()
+    message = (match.group(2) or match.group(1) or "").strip()
     param = None
     for pattern in (MUST_BE_SET, NOT_FOUND):
         found = pattern.search(message) or pattern.search(line)
@@ -377,6 +381,18 @@ def translate_error(line: str, catalog: dict, deck=None) -> dict | None:
             hint.append(info["doc"][:220])
         if info.get("required"):
             hint.append("这是必填项（源码里用 get 读取）")
+    # "X(x,y,z) not found in database"：最典型的原因是函数参数表写少了坐标，
+    # 或者参数名拼错。这句提示对用户没有可操作性，这里翻译成人话。
+    sig = re.search(r"([A-Za-z_][\w.]*)\(([^)]*)\)\s+not found in database", message)
+    if sig:
+        name, raw_args = sig.group(1), sig.group(2)
+        args = ",".join(a.strip() for a in raw_args.split(",") if a.strip())
+        if len(args.split(",")) < 3:
+            hint.append(f"函数参数表写成了 `({raw_args})`；WarpX 的位置类函数必须写 (x,y,z)"
+                        "（用不到的坐标会自动补 0，不能省略）")
+        else:
+            hint.append(f"WarpX 里没有 `{name}(...)` 这一项：参数名拼错了，或该函数在当前"
+                        "求解器/维度下不存在")
     if not hint:
         if "must be set" in message:
             hint.append("这是必填项，请在表单里补上")

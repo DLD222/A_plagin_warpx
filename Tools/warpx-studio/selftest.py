@@ -309,6 +309,13 @@ def run_checks(port: int) -> None:
     import inspect as _inspect
     from warpx_studio.web import app as _app
     _src = _inspect.getsource(_app.api_run)
+    # 运行日志里最常见的 "X not found in database" 必须翻译成可操作的提示
+    from warpx_studio.deck.validate import translate_error as _te
+    _d = _te("ParmParse::sgetarr: electrons..density_function(x,y) not found in database",
+             catalog, None)
+    check("错误翻译：函数参数表少写坐标能提示",
+          bool(_d) and "(x,y,z)" in (_d.get("hint") or ""), str(_d))
+
     check("运行接口：校验默认关闭（不再拦运行）",
           "if payload.validate else []" in _src, "后端仍无条件校验")
 
