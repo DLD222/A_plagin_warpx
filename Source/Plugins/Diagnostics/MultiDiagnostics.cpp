@@ -104,15 +104,34 @@ MultiDiagnostics::DoComputeAndPack (int step, bool force_flush)
 void
 MultiDiagnostics::FilterComputePackFlush (int step, bool force_flush, bool BackTransform)
 {
+    auto check_finite = [&](Diagnostics& diag, int step) {
+        auto const& bufs = diag.getMultiFabOutput();
+        for (std::size_t ibuf = 0; ibuf < bufs.size(); ++ibuf) {
+            for (int lev = 0; lev < static_cast<int>(bufs[ibuf].size()); ++lev) {
+                amrex::MultiFab const& mf = bufs[ibuf][lev];
+                // min/max 比较会忽略 NaN（任何比较对 NaN 都为 false），所以必须用
+                // AMReX 的 contains_nan；否则 NaN 永远检查不出来。
+                if (mf.contains_nan(0, mf.nComp(), 0, /*local=*/true)) {
+                    amrex::Abort("Diagnostics: output of '" + diag.GetName()
+                                 + "' contains NaN/Inf at level " + std::to_string(lev)
+                                 + ", step " + std::to_string(step)
+                                 + ". Aborting instead of writing a meaningless file.");
+                }
+            }
+        }
+    };
+
     int i = 0;
     for (auto& diag : alldiags){
         if (BackTransform) {
             if (diags_types[i] == DiagTypes::BackTransformed) {
                 diag->FilterComputePackFlush (step, force_flush);
+                check_finite(*diag, step);
             }
         } else {
             if (diags_types[i] != DiagTypes::BackTransformed) {
                 diag->FilterComputePackFlush (step, force_flush);
+                check_finite(*diag, step);
             }
         }
         ++i;
@@ -126,6 +145,19 @@ MultiDiagnostics::FilterComputePackFlushLastTimestep (int step)
         if (diag->DoDumpLastTimestep()){
             constexpr bool force_flush = true;
             diag->FilterComputePackFlush (step, force_flush);
+            // 最后一步同样要检查：RZ 流体就是在这里把整场 NaN 写进了输出文件
+            auto const& bufs = diag->getMultiFabOutput();
+            for (std::size_t ibuf = 0; ibuf < bufs.size(); ++ibuf) {
+                for (int lev = 0; lev < static_cast<int>(bufs[ibuf].size()); ++lev) {
+                    amrex::MultiFab const& mf = bufs[ibuf][lev];
+                    if (mf.contains_nan(0, mf.nComp(), 0, /*local=*/true)) {
+                        amrex::Abort("Diagnostics: output of '" + diag->GetName()
+                                     + "' contains NaN/Inf at level " + std::to_string(lev)
+                                     + ", step " + std::to_string(step)
+                                     + ". Aborting instead of writing a meaningless file.");
+                    }
+                }
+            }
         }
     }
 }

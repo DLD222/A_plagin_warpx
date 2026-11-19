@@ -215,6 +215,10 @@ public:
     mutable std::unique_ptr<warpx::runtime::RuntimeData> m_legacy_data;
     mutable std::unique_ptr<warpx::runtime::HostServices> m_legacy_host;
 
+    /** 输出缓冲区（写盘前会做 NaN/Inf 检查，见 MultiDiagnostics::FilterComputePackFlush）。 */
+    [[nodiscard]] amrex::Vector< amrex::Vector< amrex::MultiFab > > const &
+    getMultiFabOutput () const { return m_mf_output; }
+
 protected:
     /** Read Parameters of the base Diagnostics class */
     bool BaseReadParameters ();
