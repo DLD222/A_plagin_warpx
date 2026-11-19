@@ -402,7 +402,22 @@ if (global.window.__STUDIO_TEST__) {
   if (typeof ta.addEventListener !== "function") {
     console.error("FAIL 输入文本区没有事件绑定能力"); process.exit(1);
   }
-  console.log("PASS 页面同时提供表单与可编辑输入文本");
+  const textPage = document.getElementById("page-text");
+  if (!textPage) { console.error("FAIL 没有独立的输入文本页"); process.exit(1); }
+  const btn = document.getElementById("preview");
+  if (!btn) { console.error("FAIL 顶栏缺少输入文本按钮"); process.exit(1); }
+  btn.onclick();                                   // 点一下应切到文本页
+  const inputShown = document.getElementById("page-input").style.display;
+  if (textPage.style.display === "none" || inputShown !== "none") {
+    console.error("FAIL 点击顶栏按钮没有切换到文本页");
+    process.exit(1);
+  }
+  document.getElementById("text-back").onclick();  // 返回表单
+  if (textPage.style.display !== "none") {
+    console.error("FAIL 返回按钮没有切回表单");
+    process.exit(1);
+  }
+  console.log("PASS 顶栏按钮切到独立文本页、可返回表单");
 
   // 降维诊断：warpx.reduced_diags_names 存在时，<reduced_diags_name>.type 必须出现
   T.setDECK({ params: { "warpx.reduced_diags_names": "rd1" },

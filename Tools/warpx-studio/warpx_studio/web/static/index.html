@@ -76,7 +76,7 @@
   <span id="project-state" style="font-size:12px;color:var(--dim)">未保存</span>
   <label style="font-size:12px;color:var(--dim)" title="派生/别名的参数默认折叠，勾选后显示">
     <input type="checkbox" id="show-derived"> 显示派生参数</label>
-  <button id="preview" title="查看生成的输入文件">📄 输入文件</button>
+  <button id="preview" title="打开输入文本页（可直接手写，与表单同步）">📄 输入文本</button>
   <button id="paraview" title="在网页内交互查看（旋转/缩放/回放），不再弹外部窗口">🔍 网页内查看</button>
   <button id="paraview-close" title="强制杀掉所有 ParaView 进程（外部窗口关不掉时用这个）">✕ 关闭 ParaView</button>
   <select id="checkpoint" title="从某个 checkpoint 继续算"><option value="">（无 checkpoint）</option></select>
@@ -99,22 +99,21 @@
   <section id="page-input">
     <div id="paths" style="display:none;padding:6px 8px;font-size:12px;color:var(--dim);
          border-bottom:1px solid var(--line);margin-bottom:6px"></div>
-    <details id="text-panel" open style="margin:0 8px 8px;border:1px solid var(--line);
-             border-radius:6px;background:rgba(255,255,255,.02)">
-      <summary style="cursor:pointer;padding:6px 8px;font-size:13px;
-               display:flex;align-items:center;gap:8px">
-        输入文本（可直接手写；与下方表单双向同步）
-        <span id="text-status" style="font-size:12px;color:var(--dim)">已同步</span>
-        <button id="text-from-form" style="font-size:12px;margin-left:auto">表单 → 文本</button>
-        <button id="text-to-form" style="font-size:12px">文本 → 表单</button>
-      </summary>
-      <textarea id="inputs-text" spellcheck="false"
-        style="width:100%;box-sizing:border-box;min-height:180px;max-height:45vh;padding:8px;
-               font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.45;
-               border:0;border-top:1px solid var(--line);background:transparent;color:inherit;
-               resize:vertical;outline:none"></textarea>
-    </details>
     <div id="form"></div>
+  </section>
+  <section id="page-text" style="display:none;padding:0 8px 8px">
+    <div style="display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap">
+      <b style="font-size:14px">输入文本</b>
+      <span id="text-status" style="font-size:12px;color:var(--dim)">已同步</span>
+      <button id="text-to-form" style="font-size:12px">文本 → 表单</button>
+      <button id="text-from-form" style="font-size:12px">表单 → 文本</button>
+      <button id="text-back" style="font-size:12px;margin-left:auto">← 返回表单</button>
+    </div>
+    <textarea id="inputs-text" spellcheck="false" wrap="off"
+      style="width:100%;box-sizing:border-box;height:calc(100vh - 200px);padding:12px;
+             font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.5;
+             background:#ffffff;color:#111111;border:1px solid var(--line);border-radius:6px;
+             resize:vertical;outline:none;tab-size:4"></textarea>
   </section>
   <section id="page-vis" style="display:none">
     <div id="vis-paths" style="padding:6px 8px;font-size:12px;color:var(--dim);
@@ -654,7 +653,7 @@ function scheduleFormRender() {
 // ---- 输入文本 <-> 表单 双向同步 -----------------------------------------
 // 用户既能手写 inputs，也能用表单填空；两边改完互相回写。为避免互相触发死循环，
 // 用 TEXT_LOCK 标记"这次变化是从文本来的"。
-let TEXT_LOCK = false, TEXT_TIMER = null, TEXT_DIRTY = false;
+let TEXT_LOCK = false, TEXT_TIMER = null;
 
 function setTextStatus(msg, color) {
   const el = document.getElementById("text-status");
@@ -700,24 +699,11 @@ function textToForm() {
 }
 
 function scheduleTextSync() {
+  const page = document.getElementById("page-text");
+  if (!page || page.style.display === "none") { return; }   // 文本页没打开就不必刷
   clearTimeout(TEXT_TIMER);
   TEXT_TIMER = setTimeout(formToText, 200);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const ta = document.getElementById("inputs-text");
-  if (ta) {
-    ta.addEventListener("input", () => {
-      setTextStatus("文本已修改，正在解析…", "var(--warn)");
-      clearTimeout(TEXT_TIMER);
-      TEXT_TIMER = setTimeout(textToForm, 500);
-    });
-  }
-  const b1 = document.getElementById("text-from-form");
-  if (b1) b1.onclick = (e) => { e.preventDefault(); formToText(); };
-  const b2 = document.getElementById("text-to-form");
-  if (b2) b2.onclick = (e) => { e.preventDefault(); textToForm(); };
-});
 
 function renderTemplateCards(template, params, body) {
   // 源码里 <species> 与 <species_name> 是同一个命名空间，统一成后者
@@ -1230,12 +1216,43 @@ document.getElementById("export").onclick = async () => {
   setStatus(r.ok ? `导出 ${out.count} 帧 → ${out.dir}${out.mp4 ? "（含 mp4）" : "（无 ffmpeg，仅 PNG）"}`
                  : "导出失败: " + (out.detail || ""), r.ok ? "var(--ok)" : "var(--err)");
 };
-document.getElementById("preview").onclick = async () => {
-  const r = await fetch("/api/preview", { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(DECK) });
-  const out = await r.json();
-  const win = window.open("", "_blank"); win.document.write("<pre>" + out.inputs.replace(/</g, "&lt;") + "</pre>");
-};
+// ---- 输入文本页：整页编辑，和表单双向同步 -------------------------------
+
+function showTextPage() {
+  document.getElementById("page-input").style.display = "none";
+  document.getElementById("page-vis").style.display = "none";
+  document.getElementById("page-text").style.display = "";
+  formToText();                                  // 打开时先把表单同步过去
+}
+
+function hideTextPage() {
+  document.getElementById("page-text").style.display = "none";
+  document.getElementById("page-input").style.display = "";
+  render();
+}
+
+document.getElementById("preview").onclick = showTextPage;
+document.getElementById("text-back").onclick = hideTextPage;
+
+document.getElementById("text-to-form").onclick = () => textToForm();
+document.getElementById("text-from-form").onclick = () => formToText();
+{
+  const ta = document.getElementById("inputs-text");
+  ta.addEventListener("input", () => {
+    setTextStatus("文本已修改，正在解析…", "var(--warn)");
+    clearTimeout(TEXT_TIMER);
+    TEXT_TIMER = setTimeout(textToForm, 500);
+  });
+  // Tab 键插入缩进而不是跳出编辑区
+  ta.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const p = ta.selectionStart;
+      ta.value = ta.value.slice(0, p) + "  " + ta.value.slice(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = p + 2;
+    }
+  });
+}
 
 function fillBinaries(dims) {
   const sel = document.getElementById("binary");
