@@ -112,16 +112,15 @@
   <section id="page-text" style="display:none;padding:0 8px 8px">
     <div style="display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap">
       <b style="font-size:14px">输入文本</b>
-      <span id="text-status" style="font-size:12px;color:var(--dim)">已同步</span>
-      <button id="text-to-form" style="font-size:12px">文本 → 表单</button>
-      <button id="text-from-form" style="font-size:12px">表单 → 文本</button>
-      <button id="text-back" style="font-size:12px;margin-left:auto">← 返回表单</button>
+      <span id="text-status" style="font-size:12px;color:var(--dim)">未修改</span>
+      <button id="text-save" style="font-size:13px;font-weight:500">💾 保存</button>
+      <button id="text-back" style="font-size:13px;margin-left:auto">← 返回表单</button>
     </div>
     <textarea id="inputs-text" spellcheck="false" wrap="off"
-      style="width:100%;box-sizing:border-box;height:calc(100vh - 200px);padding:12px;
+      style="width:100%;box-sizing:border-box;height:calc(100vh - 190px);padding:12px;
              font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.5;
              background:#ffffff;color:#111111;border:1px solid var(--line);border-radius:6px;
-             resize:vertical;outline:none;tab-size:4"></textarea>
+             resize:none;outline:none;tab-size:4"></textarea>
   </section>
   <section id="page-vis" style="display:none">
     <div id="vis-paths" style="padding:6px 8px;font-size:12px;color:var(--dim);
@@ -673,7 +672,6 @@ function scheduleFormRender() {
     render();
     if (main) main.scrollTop = top;
     markIssues(LAST_ISSUES.filter(i => i.severity === "error"));
-    scheduleTextSync();          // 表单改动 -> 文本同步
   }, 120);
 }
 
@@ -720,16 +718,9 @@ function textToForm() {
     syncInstancesFromNames();
     render();
     if (main) main.scrollTop = top;
-    setTextStatus(`已同步（文本 → 表单，${d.params} 个参数）`, "var(--ok)");
+    setTextStatus(`已保存（${d.params} 个参数，表单已更新）`, "var(--ok)");
   }).catch(() => setTextStatus("解析失败", "var(--err)"))
     .finally(() => { TEXT_LOCK = false; });
-}
-
-function scheduleTextSync() {
-  const page = document.getElementById("page-text");
-  if (!page || page.style.display === "none") { return; }   // 文本页没打开就不必刷
-  clearTimeout(TEXT_TIMER);
-  TEXT_TIMER = setTimeout(formToText, 200);
 }
 
 function renderTemplateCards(template, params, body) {
@@ -1362,14 +1353,20 @@ document.getElementById("export").onclick = async () => {
 // ---- 输入文本页：整页编辑，和表单双向同步 -------------------------------
 
 function showTextPage() {
+  // 独立页面：连左侧 1~7 步导航一起隐藏，避免和表单界面混在一起
   document.getElementById("page-input").style.display = "none";
   document.getElementById("page-vis").style.display = "none";
+  const nav = document.querySelector("nav");
+  if (nav) { nav.style.display = "none"; }
   document.getElementById("page-text").style.display = "";
-  formToText();                                  // 打开时先把表单同步过去
+  formToText();                                  // 打开时把当前表单内容填进文本
+  setTextStatus("未修改", "var(--dim)");
 }
 
 function hideTextPage() {
   document.getElementById("page-text").style.display = "none";
+  const nav = document.querySelector("nav");
+  if (nav) { nav.style.display = ""; }
   document.getElementById("page-input").style.display = "";
   render();
 }
@@ -1396,14 +1393,12 @@ function hideTextPage() {
 document.getElementById("preview").onclick = showTextPage;
 document.getElementById("text-back").onclick = hideTextPage;
 
-document.getElementById("text-to-form").onclick = () => textToForm();
-document.getElementById("text-from-form").onclick = () => formToText();
+document.getElementById("text-save").onclick = () => textToForm();
 {
   const ta = document.getElementById("inputs-text");
   ta.addEventListener("input", () => {
-    setTextStatus("文本已修改，正在解析…", "var(--warn)");
-    clearTimeout(TEXT_TIMER);
-    TEXT_TIMER = setTimeout(textToForm, 500);
+    // 只做提示，不自动解析：自动解析会重新渲染表单、把页面切回去
+    setTextStatus("有未保存的修改（点「保存」生效）", "var(--warn)");
   });
   // Tab 键插入缩进而不是跳出编辑区
   ta.addEventListener("keydown", (e) => {
