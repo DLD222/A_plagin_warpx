@@ -33,6 +33,12 @@
          align-items:center; padding:2px 0; }
   .row label { color:var(--dim); font-size:13px; }
   .row label b { color:var(--fg); font-weight:500; }
+  .row.err { background:rgba(220,60,60,.12); border-left:3px solid var(--err); padding-left:6px; }
+  .row.err label b { color:var(--err); }
+  nav button.err { border-color:var(--err); color:var(--err); }
+  nav button .badge { background:var(--err); color:#fff; border-radius:9px; padding:0 5px;
+                      margin-left:6px; font-size:11px; }
+  .group.err > h3 { color:var(--err); border-color:var(--err); }
   .row input { background:#0f1116; color:var(--fg); border:1px solid var(--line);
          border-radius:4px; padding:3px 6px; width:100%; font-family:ui-monospace,monospace; }
   .row .hint { grid-column:1/-1; color:var(--dim); font-size:12px; margin:-2px 0 6px; }
@@ -185,6 +191,8 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
+let ERR_PARAMS = new Set();          // 校验报错的参数名：渲染时给对应行标红
+let ERR_STEPS = new Map();           // 每个步骤的错误条数：侧边栏角标
 let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false, HINTS = {};
 let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
 
@@ -332,6 +340,9 @@ function visible(name, instance) {
 function inputRow(name, value, onchange, instance) {
   const wrap = document.createElement("div");
   wrap.className = "row";
+  wrap.dataset.param = name;                       // 校验报错时按名字定位这一行
+  if (ERR_PARAMS.has(name)) { wrap.classList.add("err"); }
+  if (instance) { wrap.dataset.instance = String(instance); }
   const type = typeOf(name), guard = guardOf(name), zh = ZH.params[name];
   const lab = document.createElement("label");
   lab.innerHTML = `<b>${name.split(".").slice(innerInstance(name) ? 1 : 0).join(".") || name}</b>` +
@@ -646,6 +657,7 @@ function scheduleFormRender() {
     syncInstancesFromNames();
     render();
     if (main) main.scrollTop = top;
+    markIssues(LAST_ISSUES.filter(i => i.severity === "error"));
     scheduleTextSync();          // 表单改动 -> 文本同步
   }, 120);
 }
@@ -854,7 +866,68 @@ async function runValidation() {
                 (i.options && i.options.length ? `（可选值: ${i.options.join(" / ")}）` : "") + `</div>`)
       .join("");
     document.getElementById("run").disabled = errors.length > 0;
+    markIssues(errors);
   } catch (e) { /* offline */ }
+}
+
+// 把校验错误映射到"第几步 / 哪个分类 / 哪一行"，否则参数一多根本找不到
+function categoryOfParam(name) {
+  const base = String(name).split(".")[0];
+  for (const c of (CATALOG_CATEGORIES || [])) {
+    if (c.params.includes(name) || c.params.includes(base + ".*")) return c.id;
+    if (c.params.some(p => p.startsWith("<") && name.includes(".") &&
+        p.split(">")[0] + ">" === String(name).split(".")[0] + ">")) return c.id;
+  }
+  return null;
+}
+
+function stepOfCategory(cid) {
+  for (const [step, cats] of Object.entries(STEP_CATEGORIES || {})) {
+    if (cats.includes(cid)) return Number(step);
+  }
+  return null;
+}
+
+function markIssues(errors) {
+  ERR_PARAMS = new Set((errors || []).map(i => i.param));
+  ERR_STEPS = new Map();
+  for (const issue of (errors || [])) {
+    const cid = categoryOfParam(issue.param);
+    const step = cid ? stepOfCategory(cid) : null;
+    if (step) { ERR_STEPS.set(step, (ERR_STEPS.get(step) || 0) + 1); }
+  }
+  paintNavErrors();
+  // 只改样式，不重画表单：重画会再次触发校验，形成 render→validate→render 的循环。
+  // 已经渲染出来的行直接加/去 err；下次渲染时 inputRow 也会自动带上。
+  document.querySelectorAll(".row").forEach(row => {
+    const name = row.dataset ? row.dataset.param : null;
+    if (!name) { return; }
+    if (ERR_PARAMS.has(name)) { row.classList.add("err"); }
+    else { row.classList.remove("err"); }
+  });
+  document.querySelectorAll("section.group").forEach(sec => {
+    if (sec.querySelector && sec.querySelector(".row.err")) { sec.classList.add("err"); }
+    else { sec.classList.remove("err"); }
+  });
+}
+
+function paintNavErrors() {
+  const nav = document.querySelectorAll ? document.querySelectorAll("nav button") : [];
+  for (const btn of nav) {
+    btn.classList.remove("err");
+    const old = btn.querySelector ? btn.querySelector(".badge") : null;
+    if (old && old.remove) { old.remove(); }
+    const step = Number(btn.dataset ? btn.dataset.step : btn.getAttribute("data-step"));
+    const n = ERR_STEPS.get(step);
+    if (!n) { continue; }
+    btn.classList.add("err");
+    if (btn.appendChild && document.createElement) {
+      const span = document.createElement("span");
+      span.className = "badge";
+      span.textContent = String(n);
+      btn.appendChild(span);
+    }
+  }
 }
 
 function validate() {

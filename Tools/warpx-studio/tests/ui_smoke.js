@@ -13,10 +13,26 @@ const dataDir = process.argv[3];
 const html = fs.readFileSync(htmlPath, "utf8");
 const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 
-function el(tag) {
+function makeClassList(node) {
+  // 真实 DOM 里 classList 和 className 是同一份数据；桩必须同步，否则
+  // "给行加 err 类" 这类断言看不到效果。
   return {
+    add(c) {
+      const set = new Set(String(node.className || "").split(/\s+/).filter(Boolean));
+      set.add(c); node.className = [...set].join(" ");
+    },
+    remove(c) {
+      const set = new Set(String(node.className || "").split(/\s+/).filter(Boolean));
+      set.delete(c); node.className = [...set].join(" ");
+    },
+    contains(c) { return String(node.className || "").split(/\s+/).includes(c); },
+  };
+}
+
+function el(tag) {
+  const node = {
     tagName: tag, children: [], style: {}, dataset: {}, options: [], selectedIndex: 0,
-    classList: { add() {}, remove() {} }, checked: true, value: "", title: "",
+    className: "", checked: true, value: "", title: "",
     rows: 0, placeholder: "", scrollTop: 0, scrollHeight: 0,
     _text: "", _html: "",
     set textContent(v) { this._text = v; }, get textContent() { return this._text; },
@@ -31,6 +47,8 @@ function el(tag) {
     getAttribute() { return null; }, focus() {}, click() {},
     querySelector() { return el("div"); }, querySelectorAll() { return []; },
   };
+  node.classList = makeClassList(node);
+  return node;
 }
 
 const registry = {};
@@ -38,7 +56,10 @@ global.document = {
   getElementById(id) { return registry[id] || (registry[id] = el("div")); },
   createElement(tag) { return el(tag); },
   createTextNode(text) { const n = el("#text"); n._text = text; return n; },
-  querySelectorAll() { return []; },
+  querySelectorAll(sel) {
+    if (sel === "nav button") { return global.__NAV_BUTTONS__ || []; }
+    return [];
+  },
   querySelector() { return el("div"); },
   addEventListener() {},
   body: el("body"),
@@ -382,6 +403,51 @@ if (global.window.__STUDIO_TEST__) {
     }
   }
   console.log("PASS 选 macroscopic 介质后出现 epsilon/sigma/mu");
+
+  // 校验报错必须能定位到具体参数行（标红），否则参数一多找不到
+  const findRow = (node, key) => {
+    if (!node) return null;
+    if (node.dataset && node.dataset.param === key) return node;
+    for (const c of (node.children || [])) { const r = findRow(c, key); if (r) return r; }
+    return null;
+  };
+  T.setDECK({ params: { max_step: "5" }, groups: {} });
+  T.setStep(3); T.render();
+  markIssues([{ param: "algo.particle_shape", message: "必填", severity: "error" }]);
+  T.setStep(3); T.render();
+  const badRow = findRow(registry["form"], "algo.particle_shape");
+  if (!badRow) { console.error("FAIL 找不到 algo.particle_shape 这一行"); process.exit(1); }
+  if (!String(badRow.className || "").includes("err")) {
+    console.error("FAIL 报错参数行没标红，class=" + badRow.className);
+    process.exit(1);
+  }
+  markIssues([]);
+  // 侧边栏：报错所在步骤必须标红并显示错误数
+  const nav1 = el("button"); nav1.dataset.step = "3"; nav1.className = "";
+  const nav2 = el("button"); nav2.dataset.step = "1"; nav2.className = "";
+  global.__NAV_BUTTONS__ = [nav1, nav2];
+  markIssues([{ param: "algo.particle_shape", message: "必填", severity: "error" }]);
+  if (!String(nav1.className).includes("err")) {
+    console.error("FAIL 第 3 步按钮没标红，class=" + nav1.className);
+    process.exit(1);
+  }
+  const badge = (nav1.children || []).find((c) => String(c.className).includes("badge"));
+  if (!badge || badge.textContent !== "1") {
+    console.error("FAIL 第 3 步按钮没有错误数角标");
+    process.exit(1);
+  }
+  if (String(nav2.className).includes("err")) {
+    console.error("FAIL 第 1 步不该标红");
+    process.exit(1);
+  }
+  markIssues([]);
+  if (String(nav1.className).includes("err")) {
+    console.error("FAIL 清除错误后按钮仍是红的");
+    process.exit(1);
+  }
+  console.log("PASS 侧边栏按步骤标红并带错误数角标");
+
+  console.log("PASS 校验报错定位到参数行（标红）");
 
   console.log("PASS 新补参数在第 2/3/4 步都能渲染");
 
