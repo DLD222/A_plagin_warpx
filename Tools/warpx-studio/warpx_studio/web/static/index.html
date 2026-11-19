@@ -562,6 +562,34 @@ async function pollBuild() {
   }
 }
 
+// 实时帧刷新（之前只有调用、没有定义，第 7 步一渲染就抛
+// "refreshLive is not defined"，表现成保存文本时报"解析失败"）
+async function refreshLive() {
+  const meta = document.getElementById("meta");
+  try {
+    const s = await (await fetch("/api/status")).json();
+    const live = s.live || {};
+    if (meta) {
+      meta.textContent = live.meta && live.meta.summary
+        ? live.meta.summary + (live.meta.ok ? "" : "（渲染失败）")
+        : "等待第一个输出迭代…";
+    }
+    const grid = document.getElementById("livegrid");
+    const frames = live.frames || [];
+    if (grid && frames.length) {
+      if (grid.childElementCount !== frames.length) {
+        grid.innerHTML = frames.map(f => `<img alt="${f.field}" style="width:100%;background:#000">`).join("");
+      }
+      frames.forEach((f, i) => {
+        const img = grid.children[i];
+        if (img && f.png) {
+          img.src = "/api/frame?field=" + encodeURIComponent(f.field) + "&t=" + Date.now();
+        }
+      });
+    }
+  } catch (e) { /* 离线/未运行时静默 */ }
+}
+
 // 可视化输出是独立页面：切过来时隐藏参数表单，并把输入/输出文件地址显示出来
 function renderVisualization() {
   document.getElementById("page-input").style.display = "none";
@@ -594,12 +622,13 @@ async function renderPlugins() {
   const form = document.getElementById("form");
   form.innerHTML = "";
   const data = await (await fetch("/api/plugins")).json();
-  if (!data.plugins.length) {
+  const plugins = (data && data.plugins) || [];       // 接口异常时也不能崩
+  if (!plugins.length) {
     form.innerHTML = '<div class="warn tip">把 .py 文件放进 warpx_studio/plugins/ ' +
       '（或 ~/.config/warpx-studio/plugins/），暴露 NAME 与 panel(context) 即可出现在这里。</div>';
     return;
   }
-  for (const plugin of data.plugins) {
+  for (const plugin of plugins) {
     const sec = document.createElement("section");
     sec.className = "group";
     const head = document.createElement("h3");
@@ -719,13 +748,24 @@ function textToForm() {
     body: JSON.stringify({ text: ta.value }),
   }).then(async r => {
     const d = await r.json();
-    if (!r.ok) { setTextStatus("解析失败: " + (d.detail || "").slice(0, 60), "var(--err)"); return; }
+    if (!r.ok) {
+      const detail = typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail || "");
+      setTextStatus("解析失败: " + String(detail).slice(0, 80), "var(--err)");
+      return;
+    }
     DECK.params = d.deck.params || {};
     DECK.groups = d.deck.groups || {};
     const main = document.querySelector("main");
     const top = main ? main.scrollTop : 0;
     syncInstancesFromNames();
-    render();
+    try {
+      render();
+    } catch (err) {
+      // 表单渲染出错不等于文本解析失败，分开提示，免得误导
+      setTextStatus("文本已解析，但表单渲染出错: " + String((err && err.message) || err).slice(0, 70),
+                    "var(--err)");
+      return;
+    }
     if (main) main.scrollTop = top;
     SAVED_TEXT = ta.value;                       // 记住用户原文
     const nSpecies = Object.keys(d.deck.groups["<species_name>"] || {}).length;

@@ -591,6 +591,51 @@ if (global.window.__STUDIO_TEST__) {
     process.exit(1);
   }
   document.getElementById("text-back").onclick();
+  // 用户这份"朗缪尔波"deck 必须在 1~7 步都能渲染（曾经 render 抛异常被误报成"解析失败"）
+  T.setDECK({
+    params: {
+      max_step: "800", "amr.n_cell": "64 64", "amr.max_grid_size": "32",
+      "amr.max_level": "0", "geometry.dims": "2",
+      "geometry.prob_lo": "-20.e-6 -20.e-6", "geometry.prob_hi": "20.e-6  20.e-6",
+      "boundary.field_lo": "periodic periodic", "boundary.field_hi": "periodic periodic",
+      "boundary.particle_lo": "periodic periodic", "boundary.particle_hi": "periodic periodic",
+      "warpx.cfl": "0.99", "warpx.verbose": "1",
+      "algo.maxwell_solver": "yee", "algo.particle_shape": "1",
+      "particles.species_names": "electrons ions",
+      "diagnostics.diags_names": "chk diag1 field_energy",
+      "my_constants.n0": "1.e24", "my_constants.delta": "0.01",
+      "my_constants.kx": "157079.63",
+    },
+    groups: {
+      "<species_name>": {
+        electrons: { charge: "-q_e", mass: "m_e", injection_style: "NUniformPerCell",
+                     profile: "parse_density_function",
+                     "density_function(x,y)": "\"n0 * (1.0 + delta * sin(kx * x))\"",
+                     momentum_distribution_type: "gaussian" },
+        ions: { charge: "q_e", mass: "m_p", injection_style: "NUniformPerCell",
+                profile: "constant", density: "1.e24",
+                momentum_distribution_type: "constant" },
+      },
+      "<diag_name>": {
+        chk: { diag_type: "Full", format: "checkpoint", intervals: "200" },
+        diag1: { diag_type: "Full", format: "openpmd", intervals: "10",
+                 fields_to_plot: "Ex Ey Ez Bx By Bz rho" },
+        field_energy: { diag_type: "ReducedDiags", reduced_diags_name: "FieldEnergy",
+                        intervals: "1" },
+      },
+    },
+  });
+  for (const step of [1, 2, 3, 4, 5, 6, 7]) {
+    try {
+      T.setStep(step); T.render();
+    } catch (e) {
+      console.error(`FAIL 第 ${step} 步渲染抛异常: ${e && e.message}`);
+      process.exit(1);
+    }
+  }
+  await new Promise((r) => realSetTimeout(r, 30));   // 等异步渲染（插件页）走完
+  console.log("PASS 朗缪尔波 deck 在 1~7 步都能渲染");
+
   console.log("PASS 用户手写原文（注释/#define）不会被覆盖");
 
   console.log("PASS 文本页独立：body.text-mode 切换 + CSS 隔离 + 单保存按钮");
