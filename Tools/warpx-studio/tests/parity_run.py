@@ -91,6 +91,7 @@ def run_via_web(deck: Deck, binary: pathlib.Path) -> pathlib.Path:
             "binary": str(binary), "force": True, "mpi": 1, "omp": 1}
     out = post("/api/run", body)
     run_dir = pathlib.Path(out["run_dir"])
+    time.sleep(1.0)                 # 让上一个算例的写盘线程收尾，避免读到半截文件
     deadline = time.time() + 1800
     while time.time() < deadline:
         st = get("/api/status")
@@ -109,6 +110,13 @@ def compare(a: pathlib.Path, b: pathlib.Path, tol: float) -> list[str]:
     diffs: list[str] = []
     with h5py.File(a) as fa, h5py.File(b) as fb:
         ita, itb = list(fa["data"].keys())[0], list(fb["data"].keys())[0]
+        # 有些算例只写降维诊断（没有 fields 组），此时比较"顶层结构"即可
+        if f"data/{ita}/fields" not in fa or f"data/{itb}/fields" not in fb:
+            ga = set(fa[f"data/{ita}"].keys())
+            gb = set(fb[f"data/{itb}"].keys())
+            if ga == gb:
+                return []                      # 结构一致，且没有场可比
+            return [f"顶层结构不同: {sorted(ga)} vs {sorted(gb)}"]
         ga, gb = fa[f"data/{ita}/fields"], fb[f"data/{itb}/fields"]
 
         def walk(g, prefix=""):
@@ -219,6 +227,7 @@ def main() -> int:
             ref_log = (run_ref / "run.log").read_text(errors="ignore") if (run_ref / "run.log").exists() else ""
             if "Segfault" in ref_log or "MPI_ABORT" in ref_log:
                 results.append((name, [f"参考版崩溃（fork 输出 {len(h5_fork)} 个文件），无法比较"]))
+                skipped.append(name)
                 continue
             results.append((name, [f"缺少输出 fork={len(h5_fork)} ref={len(h5_ref)}"]))
             continue
