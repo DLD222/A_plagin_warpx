@@ -124,12 +124,43 @@ class Deck:
     def from_inputs(cls, text: str) -> "Deck":
         deck = cls()
         raw: list[tuple[str, str]] = []
-        for line in text.splitlines():
-            stripped = line.split("#", 1)[0].strip()
+        # WarpX 的输入允许**跨行**的值（例如写在引号里的 parser 表达式）：
+        #   proton2.momentum_function_uz(x,y,z) = "if(y - floor(y) < 0.1,
+        #                                          0., sqrt(...))"
+        # 逐行硬切会把它切成两条，后半段没有 "=" 被丢掉，前半段引号不闭合，
+        # 再序列化时就会和下一行粘成 "…= 1proton2.do_not_deposit = 1"。
+        # 因此先按引号是否闭合把行拼回去，再做解析。
+        pending: str | None = None
+        continuation: str | None = None
+        for raw_line in text.splitlines():
+            line = raw_line
+            if continuation is not None:
+                line = continuation + line.strip()
+                continuation = None
+            chunk = line if pending is not None else line.split("#", 1)[0]
+            merged = chunk if pending is None else pending + "\n" + chunk
+
+            # WarpX 也允许用反斜杠把一条参数续到下一行：
+            #   electrons.density_function(x,y,z) = \
+            #       "n0*exp(...)"
+            if pending is None and merged.rstrip().endswith("\\"):
+                continuation = merged.rstrip()[:-1]
+                continue
+
+            if merged.count('"') % 2 == 1:
+                pending = merged
+                continue
+            pending = None
+            stripped = merged.strip()
             if not stripped or "=" not in stripped:
                 continue
             key, value = stripped.split("=", 1)
             raw.append((key.strip(), value.strip()))
+        if pending is not None:
+            stripped = pending.strip()
+            if "=" in stripped:
+                key, value = stripped.split("=", 1)
+                raw.append((key.strip(), value.strip()))
         # first pass: which instances exist, from the list keys
         instances: dict[str, set[str]] = {}
         for key, value in raw:

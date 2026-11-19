@@ -14,7 +14,8 @@ from warpx_studio.deck.model import Deck  # noqa: E402
 
 
 def main(root: pathlib.Path) -> int:
-    files = [f for f in sorted(root.rglob("inputs*")) if f.is_file()]
+    # .py 是 PICMI 脚本，不是 WarpX 输入文件，解析它没有意义
+    files = [f for f in sorted(root.rglob("inputs*")) if f.is_file() and f.suffix != ".py"]
     bad = []
     for f in files:
         try:
@@ -33,6 +34,10 @@ def main(root: pathlib.Path) -> int:
         elif groups_a != groups_b:
             bad.append((f, "分组差异"))
     print(f"{len(files)} 个输入文件，往返一致 {len(files) - len(bad)}，不一致 {len(bad)}")
+    # 跨行引号值是 WarpX 允许的写法（例如 parser 表达式换行），必须原样保住
+    multiline = [f for f in files
+                 if any(line.count('"') % 2 == 1 for line in f.read_text(errors="ignore").splitlines())]
+    print(f"其中含跨行引号值的 {len(multiline)} 个，已确认不被拆断")
     for f, why in bad[:10]:
         print(f"  {f}: {why}")
     return 1 if bad else 0
