@@ -1080,6 +1080,7 @@ document.getElementById("run").onclick = async () => {
   const ta = document.getElementById("inputs-text");
   const body = { ...DECK, binary: sel.value, project: PROJECT_NAME || null,
     inputs_text: SAVED_TEXT !== null ? SAVED_TEXT : (ta ? ta.value : null),
+    validate: VALIDATION_ON, force: !VALIDATION_ON,   // 校验关着就不要拦运行
     mpi: Number(document.getElementById("mpi").value) || 1,
     omp: Number(document.getElementById("omp").value) || 1,
     live_field: document.getElementById("livefield").value || null,

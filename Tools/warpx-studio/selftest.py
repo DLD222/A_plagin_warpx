@@ -305,6 +305,13 @@ def run_checks(port: int) -> None:
           "缺 " + ", ".join(sorted({"geometry.dims", "geometry.prob_lo",
                                   "geometry.prob_hi", "amr.n_cell"} - geo_missing)))
 
+    # 运行接口默认不拦：用户关掉校验后必须能起跑（曾经后端仍拦，网页显示"参数校验未通过"）
+    import inspect as _inspect
+    from warpx_studio.web import app as _app
+    _src = _inspect.getsource(_app.api_run)
+    check("运行接口：校验默认关闭（不再拦运行）",
+          "if payload.validate else []" in _src, "后端仍无条件校验")
+
     # profile 只在按体积铺粒子时才是必需的：面注入下不该报缺（以前会误报）
     fluxdeck = minimal_deck("2d")
     fluxdeck.groups["<species_name>"]["electrons"]["injection_style"] = "NFluxPerCell"

@@ -71,6 +71,7 @@ class RunPayload(DeckPayload):
     live_field: str | None = "rho"
     live_component: str | None = None
     inputs_text: str | None = None   # 用户手写的原文：原样落盘，不重新生成
+    validate: bool = False           # 是否做参数校验并拦截（网页里"输入校验"关掉时传 false）
 
 
 def load_json(name: str):
@@ -213,7 +214,8 @@ def api_run(payload: RunPayload):
         STATE["live"].stop()
 
     deck = deck_from(payload)
-    issues = validate(deck, CATALOG)
+    # 校验默认关闭：用户明确要求"暂停所有报错功能"，只有客户端主动开启校验时才拦。
+    issues = validate(deck, CATALOG) if payload.validate else []
     errors = [issue for issue in issues if issue["severity"] == "error"]
     if errors and not payload.force:
         return JSONResponse(status_code=400, content={
