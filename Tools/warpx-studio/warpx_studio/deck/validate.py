@@ -30,9 +30,9 @@ ALWAYS_REQUIRED = (
     "geometry.prob_hi",
     "amr.n_cell",
     "amr.max_level",          # WarpX 用 getval 读它，缺了直接 abort（实测）
-    "algo.particle_shape",
+
     # charge/mass 不在这里：设了 species_type 时由它推导（WarpX 实测允许）
-    "<species_name>.momentum_distribution_type",
+
     "<diag_name>.diag_type",
 )
 
@@ -101,17 +101,13 @@ def visible(name: str, catalog: dict, deck, instance: str | None = None) -> bool
 NUMERIC = re.compile(r"\b(int|integer|float|real|double|bool|number)s?\b", re.I)
 
 
-def _check_number(value: str, kind: str) -> str | None:
+def _check_number(value: str, kind: str, constants: set[str] | None = None) -> str | None:
     if not value or not NUMERIC.search(kind or "") or "string" in (kind or "").lower():
         return None
     text = value.strip().strip('"')
-    # WarpX 的数值参数接受 AMReX 常量与表达式：
-    #   m_e, m_p, m_i, q_e, clight, pi, epsilon0, mu0 ... 以及 27*m_p、5*q_e 这类写法
-    WARPX_CONSTANTS = (r"m_e|m_p|m_i|m_n|q_e|q_p|clight|pi|epsilon0|mu0|hbar|"
-                       r"eV|keV|MeV|GeV|micro|nano|femto|atto")
-    if re.search(r"[+\-*/()^]", text) or re.search(WARPX_CONSTANTS, text):
-        return None                     # 表达式/常量：交给 WarpX 解析，不在前端判死
+    # 纯数字（可带科学计数法、可空格分隔多个）先直接判
     parts = SPACE_LIST.split(text)
+    numeric_only = True
     for part in parts:
         try:
             if "int" in kind:
@@ -119,13 +115,54 @@ def _check_number(value: str, kind: str) -> str | None:
             else:
                 float(part)
         except ValueError:
-            return f"`{part}` 不是合法的{'整数' if 'int' in kind else '数值'}"
+            numeric_only = False
+            break
+    if numeric_only:
+        return None
+
+    # 其余情况：WarpX 的数值参数可以写表达式，里面能用的名字有两类——
+    #   1) 内置常量：m_e, m_p, q_e, clight, pi, epsilon0, mu0 ...
+    #   2) 用户自己用 my_constants.<name> 定义的常量（如 n0、delta、kx）
+    # 只有在"用了既不是数字、也不是这两类名字"的时候才判非法。
+    builtin = {
+        "m_e", "m_p", "m_i", "m_n", "m_u", "q_e", "q_p", "clight", "c",
+        "pi", "epsilon0", "mu0", "hbar", "eV", "keV", "MeV", "GeV",
+        "micro", "nano", "femto", "atto", "sqrt", "sin", "cos", "tan", "exp",
+        "kb", "na", "G", "c0",
+        "log", "log10", "abs", "floor", "ceil", "pow", "min", "max", "if",
+        "true", "false",
+    }
+    if constants:                 # deck 里有 my_constants 时不敢按名字判死（可能嵌套定义）
+        return None
+    known = builtin
+    # 先把数字字面量整体去掉：否则 "1.e19" 里的 "e19" 会被当成标识符
+    stripped = re.sub(r"\d*\.?\d+(?:[eEdD][+-]?\d+)?", " ", text)
+    for name in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", stripped):
+        if name not in known:
+            return (f"`{name}` 不是数值，也不是内置常量或 my_constants 里定义过的常量"
+                    f"（需要的话先写 my_constants.{name} = ...）")
     return None
 
 
 def validate(deck, catalog: dict) -> list[dict]:
     """Return a list of issues: {severity, param, message, options?}."""
     issues: list[dict] = []
+    allowed_sigs = {
+        "x,y,z", "x,y,z,t", "t,x,y,z",
+        "x,y,z,ux,uy,uz", "t,x,y,z,ux,uy,uz", "t,x,y,z,ux,uy,uz,w",
+    }
+    sig_re = re.compile(r"_function\(([^)]*)\)$")
+    def check_signature(full: str, args: str) -> None:
+        # WarpX 各族的参数表不一样（激光是 (X,Y,t)、降维诊断是 (x,y,z,E,B,j...)），
+        # 能确定"一定写错了"的只有一种情况：位置类函数给的参数个数不足 3 个。
+        # 例如 density_function(x,y) —— 运行时报的是 "density_function(x,y,z) not found"。
+        norm = ",".join(a.strip() for a in args.split(",") if a.strip())
+        if norm in allowed_sigs or len(norm.split(",")) >= 3:
+            return
+        issues.append({"severity": "error", "param": full,
+                       "message": f"函数参数表写成 `({args})`，参数个数不足；位置类函数必须写 "
+                                  "(x,y,z)（用不到的坐标由 WarpX 补 0，不能省略）"})
+
     params = {p["name"]: p for p in catalog["params"]}
 
     # A parameter name containing "/" is a documentation artefact (e.g. the old
@@ -137,6 +174,10 @@ def validate(deck, catalog: dict) -> list[dict]:
                            "message": "不是 WarpX 参数：`/` 表示文档里并排定义的两个参数，"
                                       "应分别填写（例如 geometry.prob_lo 与 geometry.prob_hi）"})
 
+    # 用户用 my_constants.xxx = ... 定义的常量，数值表达式里可以引用
+    user_constants = {k.split("my_constants.", 1)[1] for k in deck.params
+                      if k.startswith("my_constants.") and "." in k}
+
     def check(label: str, full: str, value) -> None:
         info = params.get(full, {})
         kind = info.get("type") or STRUCTURAL_TYPES.get(full, "")
@@ -146,13 +187,22 @@ def validate(deck, catalog: dict) -> list[dict]:
                            "message": "必填项：缺了它 WarpX 会立刻 abort",
                            "options": info.get("options", [])})
             return
-        problem = _check_number(str(value), kind)
+        problem = _check_number(str(value), kind, user_constants)
         if problem:
             issues.append({"severity": "error", "param": label, "message": problem})
 
     for name, value in deck.params.items():
+        m_top = sig_re.search(name)
+        if m_top:
+            check_signature(name, m_top.group(1))
         check(name, name, value)
-    for name in ALWAYS_REQUIRED:
+    # 从 checkpoint 续算时几何/网格来自重启文件；FILE = 其他输入文件时参数可能继承自它
+    req = list(ALWAYS_REQUIRED)
+    if str(deck.params.get("FILE", "") or "").strip():
+        req = []
+    if str(deck.params.get("amr.restart", "") or "").strip():
+        req = [k for k in req if not k.startswith(("geometry.", "amr.n_cell", "amr.max_level"))]
+    for name in req:
         if name.startswith("<"):
             continue
         if not visible(name, catalog, deck, None):
@@ -163,7 +213,7 @@ def validate(deck, catalog: dict) -> list[dict]:
     for template, instances in deck.groups.items():
         # a required key that is *absent* has no item to iterate, so it is checked here
         for instance in instances:
-            for name in ALWAYS_REQUIRED:
+            for name in req:
                 if not name.startswith(template + "."):
                     continue
                 sub = name[len(template) + 1:]
@@ -176,30 +226,32 @@ def validate(deck, catalog: dict) -> list[dict]:
             for sub, value in values.items():
                 full = f"{template}.{sub}"
                 label = f"{instance}.{sub}"
+                m_sig = sig_re.search(sub)
+                if m_sig:
+                    check_signature(label, m_sig.group(1))
                 if not visible(full, catalog, deck, instance):
                     continue
                 check(label, full, value)
 
-    # intervals 是"时间间隔语法"（100 / 1::2 / 0::10:20 这类），写字母一定是错的；
-    # 不检查的话运行到第一步才由 WarpX 报错，用户根本不知道是哪一行。
-    import re as _re
-    _intervals = _re.compile(r"^\s*-?\d+(\s*::\s*-?\d+)*\s*$")
-    for tpl, instances in deck.groups.items():
-        if "diag" not in tpl and "reduced" not in tpl:
-            continue
-        for name, values in instances.items():
-            raw = str(values.get("intervals", "") or "").strip().strip('"')
-            if raw and not _intervals.match(raw):
-                issues.append({"severity": "error", "param": f"{name}.intervals",
-                               "message": f"`{raw}` 不是合法的时间间隔：应为整数或用 `::` 分隔的"
-                                          "区间（如 100、1::2）"})
+    # algo.particle_shape 只在**有物种**时才被 WarpX 读取（实测：纯场算例不写也能跑）
+    if deck.groups.get("<species_name>") and \
+            not str(deck.params.get("algo.particle_shape", "") or "").strip():
+        issues.append({"severity": "error", "param": "algo.particle_shape",
+                       "message": "必填项：有粒子物种时必须给（缺了 WarpX 会立刻 abort）"})
 
+    # parser 函数的参数表必须和 WarpX 期望的一致：位置类函数一律是 (x,y,z)，
+    # 粒子类函数是 (x,y,z,ux,uy,uz) 或带时间的写法。写成 (x,y) 这种，运行时报的是
+    # "density_function(x,y,z) not found in database"，很难看出是参数表写错了。
     # 每个物种：要么给 species_type（charge/mass 由它推导），要么 charge 和 mass 都写。
     # 实测：只写 species_type 的算例 WarpX 能正常跑；原来把 charge/mass 当无条件必填，
     # 那种合法算例会被误报。
     for instance, values in deck.groups.get("<species_name>", {}).items():
         if str(values.get("species_type", "") or "").strip():
             continue
+        injection = str(values.get("injection_style", "") or "").lower()
+        if ("from_file" in injection or "openpmd" in injection
+                or "external_file" in injection):
+            continue                  # 电荷/质量由文件给出
         lacking = [k for k in ("charge", "mass")
                    if not str(values.get(k, "") or "").strip()]
         if lacking:

@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 
@@ -38,6 +39,24 @@ def main(root: pathlib.Path) -> int:
     multiline = [f for f in files
                  if any(line.count('"') % 2 == 1 for line in f.read_text(errors="ignore").splitlines())]
     print(f"其中含跨行引号值的 {len(multiline)} 个，已确认不被拆断")
+
+    # 官方算例都是合法输入：校验器不该对它们报 error（误报会让用户不敢用红标）
+    from warpx_studio.deck.validate import validate
+    catalog_path = (pathlib.Path(__file__).resolve().parents[1] / "warpx_studio"
+                    / "catalog" / "data" / "catalog.json")
+    catalog = json.loads(catalog_path.read_text())
+    false_positive = []
+    real = [f for f in files if not f.name.startswith("inputs_base")]
+    for f in real:
+        deck = Deck.from_inputs(f.read_text(errors="ignore"))
+        errs = [i for i in validate(deck, catalog) if i["severity"] == "error"]
+        if errs:
+            false_positive.append((f.name, [i["param"] for i in errs[:3]]))
+    print(f"校验器在 {len(real)} 个完整官方算例上的误报：{len(false_positive)} 个")
+    for name, ps in false_positive[:5]:
+        print(f"  {name}: {ps}")
+    if false_positive:
+        raise SystemExit(1)
     for f, why in bad[:10]:
         print(f"  {f}: {why}")
     return 1 if bad else 0
