@@ -522,6 +522,13 @@ if (global.window.__STUDIO_TEST__) {
 
   console.log("PASS 实例级报错（ions.density）能定位到模板行");
 
+  // 默认必须关闭校验：不报错、不拦运行（用户要求"暂停所有报错功能"）
+  if (typeof VALIDATION_ON !== "undefined" && VALIDATION_ON) {
+    console.error("FAIL 输入校验默认应为关闭");
+    process.exit(1);
+  }
+  console.log("PASS 输入校验默认关闭");
+
   console.log("PASS 侧边栏按步骤标红并带错误数角标");
 
   console.log("PASS 校验报错定位到参数行（标红）");

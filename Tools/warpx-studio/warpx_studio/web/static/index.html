@@ -82,6 +82,8 @@
   <span id="project-state" style="font-size:12px;color:var(--dim)">未保存</span>
   <label style="font-size:12px;color:var(--dim)" title="派生/别名的参数默认折叠，勾选后显示">
     <input type="checkbox" id="show-derived"> 显示派生参数</label>
+  <label style="font-size:12px;color:var(--dim)" title="默认关闭：不检查、不标红、不拦运行">
+    <input type="checkbox" id="validation-on"> 输入校验</label>
   <button id="preview" title="打开输入文本页（可直接手写，与表单同步）">📄 输入文本</button>
   <button id="paraview" title="在网页内交互查看（旋转/缩放/回放），不再弹外部窗口">🔍 网页内查看</button>
   <button id="paraview-close" title="强制杀掉所有 ParaView 进程（外部窗口关不掉时用这个）">✕ 关闭 ParaView</button>
@@ -191,6 +193,7 @@ const TEMPLATE_BASE = { "<species_name>": "species", "<collision_name>": "collis
 let CATALOG = null, ZH = null, DECK = { params: {}, groups: {} }, STEP = 1, BINARIES = [];
 let CONTROLS = { field_bc: [], particle_bc: [], boundary_keys: {}, templates: {} };
 let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
+let VALIDATION_ON = false;        // 输入校验总开关：默认关闭（不报错、不标红、不拦运行）
 let ERR_PARAMS = new Set();          // 校验报错的参数名：渲染时给对应行标红
 let ERR_STEPS = new Map();           // 每个步骤的错误条数：侧边栏角标
 let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false, HINTS = {};
@@ -866,6 +869,13 @@ function scheduleValidate() {
   VALIDATE_TIMER = setTimeout(runValidation, 350);
 }
 async function runValidation() {
+  if (!VALIDATION_ON) {
+    LAST_ISSUES = [];
+    markIssues([]);
+    document.getElementById("warn").innerHTML = "";
+    document.getElementById("run").disabled = false;
+    return;
+  }
   try {
     const r = await fetch("/api/validate", { method: "POST",
       headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) });
@@ -1049,7 +1059,7 @@ document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
 document.getElementById("run").onclick = async () => {
   // 运行前先同步校验一次：之前依赖后台防抖校验，用户手快时会在校验结果回来之前
   // 就把缺 geometry.prob_lo 的算例发出去，WarpX 起跑三秒后才 abort。
-  try {
+  if (VALIDATION_ON) try {
     const vr = await fetch("/api/validate", { method: "POST",
       headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) });
     const vd = await vr.json();
@@ -1362,6 +1372,25 @@ function hideTextPage() {
   document.getElementById("page-text").style.display = "none";
   document.getElementById("page-input").style.display = "";
   render();
+}
+
+{
+  const cb = document.getElementById("validation-on");
+  if (cb) {
+    cb.checked = VALIDATION_ON;
+    cb.onchange = () => {
+      VALIDATION_ON = cb.checked;
+      if (VALIDATION_ON) {
+        runValidation();
+      } else {
+        LAST_ISSUES = [];
+        markIssues([]);
+        document.getElementById("warn").innerHTML = "";
+        document.getElementById("run").disabled = false;
+        setStatus("已暂停输入校验", "var(--dim)");
+      }
+    };
+  }
 }
 
 document.getElementById("preview").onclick = showTextPage;
