@@ -1503,6 +1503,10 @@ void WarpXFluidContainer::DepositCurrent(
         jz_type[i] = jz.ixType()[i];
     }
 
+    // RZ 体积因子需要 dr 与轴的修正开关（与 DepositCharge 里的用法一致）
+    const amrex::Real dr = data().cellSize(lev)[0];
+    const bool use_axis_correction = data().useVerboncoeurAxisCorrection();
+
     // We now need to create a mask to fix the double counting.
     const amrex::Geometry &geom = data().geom(lev);
     const amrex::Periodicity &period = geom.periodicity();
@@ -1571,6 +1575,21 @@ void WarpXFluidContainer::DepositCurrent(
         // Here, we do not perform any coarsening.
         const amrex::GpuArray<int, 3U> coarsening_ratio = {1, 1, 1};
 
+#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+        // RZ 下必须先乘上该分量所在位置的径向体积因子：后续 FinalizeJ 会做
+        // 1/(2*pi*r) 的反向缩放，父层不乘、会后层除，等于电流被放大了 2*pi*r 倍，
+        // 轴上尤其严重 —— RZ 流体算例就是这样在几十步内炸成 NaN 的。
+        // 节点量用 i*dr，单元中心量用 (i+1/2)*dr。
+        const amrex::Real rmin = data().lowerCorner(tile_box_x, lev).x;
+        const int irmin = amrex::lbound(tile_box_x).x;
+        const amrex::Real rmin_x = rmin
+            + (jx_type[0] == amrex::IndexType::NODE ? 0.0_rt : 0.5_rt*dr);
+        const amrex::Real rmin_y = rmin
+            + (jy_type[0] == amrex::IndexType::NODE ? 0.0_rt : 0.5_rt*dr);
+        const amrex::Real rmin_z = rmin
+            + (jz_type[0] == amrex::IndexType::NODE ? 0.0_rt : 0.5_rt*dr);
+#endif
+
 
         // Interpolate fluid current and deposit it
         // ( mask double counting )
@@ -1579,19 +1598,43 @@ void WarpXFluidContainer::DepositCurrent(
             {
                 const amrex::Real jx_tmp = ablastr::coarsen::sample::Interp(tmp_jx_fluid_arr,
                     j_nodal_type, jx_type, coarsening_ratio, i, j, k, 0);
-                if ( owner_mask_x_arr(i,j,k) ) { jx_arr(i, j, k) += jx_tmp; }
+                if ( owner_mask_x_arr(i,j,k) ) {
+#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    const amrex::Real volume_factor = RadialVolumeFactor(
+                        rmin_x + (i - irmin)*dr, dr, use_axis_correction);
+#else
+                    const amrex::Real volume_factor = 1.0_rt;
+#endif
+                    jx_arr(i, j, k) += volume_factor*jx_tmp;
+                }
             },
             [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept
             {
                 const amrex::Real jy_tmp = ablastr::coarsen::sample::Interp(tmp_jy_fluid_arr,
                     j_nodal_type, jy_type, coarsening_ratio, i, j, k, 0);
-                if ( owner_mask_y_arr(i,j,k) ) { jy_arr(i, j, k) += jy_tmp; }
+                if ( owner_mask_y_arr(i,j,k) ) {
+#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    const amrex::Real volume_factor = RadialVolumeFactor(
+                        rmin_y + (i - irmin)*dr, dr, use_axis_correction);
+#else
+                    const amrex::Real volume_factor = 1.0_rt;
+#endif
+                    jy_arr(i, j, k) += volume_factor*jy_tmp;
+                }
             },
             [=] AMREX_GPU_DEVICE(int i, int j, int k) noexcept
             {
                 const amrex::Real jz_tmp = ablastr::coarsen::sample::Interp(tmp_jz_fluid_arr,
                     j_nodal_type, jz_type, coarsening_ratio, i, j, k, 0);
-                if ( owner_mask_z_arr(i,j,k) ) { jz_arr(i, j, k) += jz_tmp; }
+                if ( owner_mask_z_arr(i,j,k) ) {
+#if defined(WARPX_DIM_RZ) || defined(WARPX_DIM_RCYLINDER) || defined(WARPX_DIM_RSPHERE)
+                    const amrex::Real volume_factor = RadialVolumeFactor(
+                        rmin_z + (i - irmin)*dr, dr, use_axis_correction);
+#else
+                    const amrex::Real volume_factor = 1.0_rt;
+#endif
+                    jz_arr(i, j, k) += volume_factor*jz_tmp;
+                }
             }
         );
     }
