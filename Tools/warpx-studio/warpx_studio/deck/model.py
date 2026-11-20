@@ -197,7 +197,7 @@ DIM_DEFAULTS = {
     "3d": ("3", "32 32 32", "-10.e-6 -10.e-6 -10.e-6", "10.e-6 10.e-6 10.e-6",
            "1 1 1", {"xmin": "-10.e-6", "xmax": "10.e-6", "ymin": "-10.e-6",
                      "ymax": "10.e-6", "zmin": "-10.e-6", "zmax": "10.e-6"}),
-    "rz": ("RZ", "64 64", "0.0 -20.e-6", "20.e-6 20.e-6", "1 1",
+    "rz": ("RZ", "64 64", "0.0 -20.e-6", "20.e-6 20.e-6", "1 4 1",
            {"xmin": "0.0", "xmax": "20.e-6", "zmin": "-20.e-6", "zmax": "20.e-6"}),
 }
 
@@ -226,10 +226,18 @@ def minimal_deck(dims: str = "2d") -> Deck:
     deck.set("geometry.dims", geom_dims)
     deck.set("geometry.prob_lo", lo)
     deck.set("geometry.prob_hi", hi)
-    deck.set("boundary.field_lo", " ".join(["periodic"] * len(n_cell.split())))
-    deck.set("boundary.field_hi", " ".join(["periodic"] * len(n_cell.split())))
-    deck.set("boundary.particle_lo", " ".join(["periodic"] * len(n_cell.split())))
-    deck.set("boundary.particle_hi", " ".join(["periodic"] * len(n_cell.split())))
+    # RZ 的 r 方向不能是 periodic（WarpX 会直接 abort）；r 用 none，
+    # z 方向才 periodic。1D/2D/3D 保持全 periodic。
+    if geom_dims == "RZ":
+        deck.set("boundary.field_lo", "none periodic")
+        deck.set("boundary.field_hi", "none periodic")
+        deck.set("boundary.particle_lo", "none periodic")
+        deck.set("boundary.particle_hi", "absorbing periodic")
+    else:
+        deck.set("boundary.field_lo", " ".join(["periodic"] * len(n_cell.split())))
+        deck.set("boundary.field_hi", " ".join(["periodic"] * len(n_cell.split())))
+        deck.set("boundary.particle_lo", " ".join(["periodic"] * len(n_cell.split())))
+        deck.set("boundary.particle_hi", " ".join(["periodic"] * len(n_cell.split())))
     deck.set("warpx.cfl", "0.99")
     deck.set("warpx.verbose", "1")
     deck.set("algo.maxwell_solver", "yee")
@@ -261,16 +269,42 @@ def minimal_deck(dims: str = "2d") -> Deck:
     ):
         deck.set_group_value("<diag_name>", "chk", key, value)
 
+    # 默认 HDF5 输出：完整场 + 该物种的密度/温度/每格粒子数 + 完整粒子记录。
+    # 注意：这是“新建项目”的默认值，不会改写已有项目。
+    if geom_dims == "1":
+        fields = ["Ez", "Bx", "By", "jz", "rho", "divE", "divB", "part_per_cell"]
+        particle_vars = "z ux uy uz w"
+    elif geom_dims == "RZ":
+        fields = ["Er", "Et", "Ez", "Br", "Bt", "Bz", "jr", "jt", "jz",
+                  "rho", "divE", "divB", "part_per_cell"]
+        particle_vars = "x z ux uy uz w"
+    elif geom_dims == "3":
+        fields = ["Ex", "Ey", "Ez", "Bx", "By", "Bz", "jx", "jy", "jz",
+                  "rho", "divE", "divB", "part_per_cell"]
+        particle_vars = "x y z ux uy uz w"
+    else:
+        fields = ["Ex", "Ey", "Ez", "Bx", "By", "Bz", "jx", "jy", "jz",
+                  "rho", "divE", "divB", "part_per_cell"]
+        particle_vars = "x z ux uy uz w"
+    for sp in deck.groups.get("<species_name>", {}):
+        fields.append(f"rho_{sp}")
+        # RZ 的 FullDiagnostics 在 T_<species>/part_per_cell_<species> 上
+        # 有 ncomp 断言问题（本地实测），默认先避开；rho_<species> 正常。
+        if geom_dims != "RZ":
+            fields += [f"T_{sp}", f"part_per_cell_{sp}"]
     deck.add_instance("<diag_name>", "diag1")
     for key, value in (
         ("diag_type", "Full"),
         ("format", "openpmd"),
-        ("fields_to_plot", "Ex Ey Ez Bx By Bz rho"),
-        ("intervals", "10"),
+        ("openpmd_backend", "h5"),
+        ("fields_to_plot", " ".join(fields)),
+        ("intervals", "1"),
         ("write_species", "1"),
         ("file_prefix", "diag1"),
     ):
         deck.set_group_value("<diag_name>", "diag1", key, value)
+    for sp in deck.groups.get("<species_name>", {}):
+        deck.set_group_value("<diag_name>", "diag1", f"{sp}.variables", particle_vars)
     return deck
 
 

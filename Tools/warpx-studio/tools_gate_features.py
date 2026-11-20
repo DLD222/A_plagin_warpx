@@ -32,12 +32,12 @@ gate(["<species_name>.ionization_initial_level", "<species_name>.ionization_prod
       "<species_name>.do_adk_correction"],
      [rule("<species_name>.do_field_ionization")])
 
-# 静电 / 静磁求解器：只有 warpx.do_electrostatic 不是 none 才显示
-gate(["<species_name>.initialize_self_fields", "<species_name>.self_fields_absolute_tolerance",
-      "<species_name>.self_fields_max_iters", "<species_name>.self_fields_required_precision",
-      "boundary.potential_lo_x", "boundary.potential_hi_x", "boundary.potential_lo_y",
+# 静电边界电势：只有 warpx.do_electrostatic 选了一个非 none 求解器才显示。
+# 物种级 initialize_self_fields/self_fields_* 属于物种自身（电磁运行也会读），
+# 不归这个开关管；它们由 tools_gate_selectors.py 处理。
+gate(["boundary.potential_lo_x", "boundary.potential_hi_x", "boundary.potential_lo_y",
       "boundary.potential_hi_y", "boundary.potential_lo_z", "boundary.potential_hi_z"],
-     [rule("warpx.do_electrostatic", "equals", "none"), rule("warpx.do_electrostatic", "nonempty")])
+     [rule("warpx.do_electrostatic", "nonempty")])
 
 # QED：各物种开关任一打开才显示对应参数
 gate(["<species_name>.qed_breit_wheeler_ele_product_species",

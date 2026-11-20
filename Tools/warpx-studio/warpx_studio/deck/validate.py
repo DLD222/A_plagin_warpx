@@ -86,6 +86,14 @@ def _rule_ok(deck, rule: dict, instance: str | None) -> bool:
         return text != str(rule.get("value", "")).lower()
     if op == "contains":
         return str(rule.get("value", "")).lower() in text
+    if op == "in":
+        allowed = str(rule.get("value", "")).lower().split()
+        return text in allowed
+    if op == "member":
+        if not instance:
+            return False
+        listed = str(_value(deck, param) or "").replace('"', "").split()
+        return str(instance) in listed
     return text == str(rule.get("value", "")).lower()
 
 
@@ -259,6 +267,96 @@ def validate(deck, catalog: dict) -> list[dict]:
                            "message": f"物种 `{instance}` 既没写 species_type，也没写 "
                                       + "、".join(lacking) + "；两类信息至少要给一套"})
 
+    def _clean(value) -> str:
+        """输入里的枚举值可能带引号（官方算例就写 "electron"），比较前去掉。"""
+        return str(value or "").strip().strip('"').strip("'").strip().lower()
+
+    # gaussianflux 只允许 NFluxPerCell（SpeciesUtils.cpp 里 assert）。
+    for instance, values in deck.groups.get("<species_name>", {}).items():
+        if str(values.get("momentum_distribution_type", "") or "").strip().lower()                 != "gaussianflux":
+            continue
+        style = _clean(values.get("injection_style"))
+        if style != "nfluxpercell":
+            issues.append({
+                "severity": "error", "param": f"{instance}.momentum_distribution_type",
+                "message": "gaussianflux 只能与 injection_style = NFluxPerCell 搭配"
+                           "（源码 assert）；否则改用 gaussian 或改成 NFluxPerCell"})
+
+    # QED 量子同步：缺 chi_min / 查找表 / 光子产物会在 MultiParticleContainer 里 abort。
+    for instance, values in deck.groups.get("<species_name>", {}).items():
+        if _clean(values.get("do_qed_quantum_sync")) not in ("1", "true", "t", "yes"):
+            continue
+        if not str(deck.params.get("qed_qs.chi_min", "") or "").strip():
+            issues.append({"severity": "error", "param": "qed_qs.chi_min",
+                           "message": "开启 do_qed_quantum_sync 时必须给 qed_qs.chi_min"})
+        mode = _clean(deck.params.get("qed_qs.lookup_table_mode"))
+        if mode not in ("builtin", "generate", "load"):
+            issues.append({"severity": "error", "param": "qed_qs.lookup_table_mode",
+                           "message": "qed_qs.lookup_table_mode 必须是 builtin / generate / load"})
+        elif mode == "load" and not str(deck.params.get("qed_qs.load_table_from", "") or "").strip():
+            issues.append({"severity": "error", "param": "qed_qs.load_table_from",
+                           "message": "lookup_table_mode=load 时必须给 qed_qs.load_table_from"})
+        prod = _clean(values.get("qed_quantum_sync_phot_product_species"))
+        names = [n.strip().strip('"').strip("'") for n in
+                 str(deck.params.get("particles.species_names", "") or "").split()]
+        if not prod or prod not in names:
+            issues.append({"severity": "error",
+                           "param": f"{instance}.qed_quantum_sync_phot_product_species",
+                           "message": f"光子产物物种 {prod or '未指定'} 不在 particles.species_names 中"})
+        else:
+            pvals = deck.groups.get("<species_name>", {}).get(prod, {})
+            if _clean(pvals.get("species_type")) != "photon":
+                issues.append({"severity": "error",
+                               "param": f"{instance}.qed_quantum_sync_phot_product_species",
+                               "message": f"产物物种 {prod} 的 species_type 必须是 photon"})
+
+    # 碰撞的 supercycle / subcycle 只能选一个（CollisionBase.cpp:34 assert）。
+    for instance, values in deck.groups.get("<collision_name>", {}).items():
+        if str(values.get("ndt_supercycle", "") or "").strip() and \
+                str(values.get("ndt_subcycle", "") or "").strip():
+            issues.append({
+                "severity": "error", "param": f"{instance}.ndt_subcycle",
+                "message": "ndt_supercycle 与 ndt_subcycle 只能选一个"
+                           "（两个都写 CollisionBase.cpp 会 abort）；请清空其中一个"})
+
+    # 经典辐射反作用只允许 species_type=electron/positron，且必须用 Boris
+    # （PhysicalParticleContainer.cpp:262-276 的两条 ALWAYS_ASSERT）。
+    _pusher = str(deck.params.get("algo.particle_pusher", "") or "boris").strip().lower()
+    for instance, values in deck.groups.get("<species_name>", {}).items():
+        crr = _clean(values.get("do_classical_radiation_reaction"))
+        if crr not in ("1", "true", "t", "yes"):
+            continue
+        stype = _clean(values.get("species_type"))
+        if stype not in ("electron", "positron"):
+            issues.append({
+                "severity": "error",
+                "param": f"{instance}.do_classical_radiation_reaction",
+                "message": "经典辐射反作用只支持 species_type = electron / positron；"
+                           f"当前是 {stype or '未指定'}。请设置 species_type，"
+                           "或关闭 do_classical_radiation_reaction（仅写 charge/mass 不够）"})
+        if _pusher != "boris":
+            issues.append({
+                "severity": "error",
+                "param": "algo.particle_pusher",
+                "message": "开启经典辐射反作用时必须用 Boris 推进器；"
+                           f"当前 algo.particle_pusher = {_pusher}"})
+
+    # Maxwellian 的温度与 u_std 两条分支互斥（TemperatureProperties.cpp 里 assert）。
+    # 表单切换子类型时会清掉另一支；手写文本仍可能同时写两个，这里拦下。
+    for instance, values in deck.groups.get("<species_name>", {}).items():
+        if _clean(values.get("momentum_distribution_type")) != "maxwellian":
+            continue
+        has_ustd = bool(str(values.get("maxwellian_u_std_distribution_type", "") or "").strip())
+        has_temp = bool(str(values.get(
+            "maxwellian_temperature_in_eV_distribution_type", "") or "").strip())
+        if has_ustd and has_temp:
+            issues.append({
+                "severity": "error",
+                "param": f"{instance}.maxwellian_temperature_in_eV_distribution_type",
+                "message": "maxwellian_u_std_distribution_type 与 "
+                           "maxwellian_temperature_in_eV_distribution_type 只能二选一"
+                           "（两个都写 WarpX 会 abort）；请清空其中一个及其参数"})
+
     # amr.restart must be a checkpoint *path*, not an index.  A bare number becomes
     # "./1/WarpXHeader" at run time and WarpX aborts with "Couldn't open file".  Catch it here
     # instead of after a 30 s start-up (the 2026-11-18 report: the tooltip said "0/1").
@@ -302,7 +400,44 @@ def validate(deck, catalog: dict) -> list[dict]:
     if diags and not any(str(v.get("format", "")).lower() == "openpmd" for v in diags.values()):
         issues.append({"severity": "warn", "param": "<diag_name>",
                        "message": "没有 format=openpmd 的诊断，实时画面不会有数据"})
+    # diag_type 决定哪些 format 合法（MultiDiagnostics / FullDiagnostics /
+    # BTDiagnostics / BoundaryScrapingDiagnostics 的 assert）。
+    FORMAT_BY_DIAG_TYPE = {
+        "Full": {"plotfile", "openpmd", "checkpoint", "ascent", "sensei", "catalyst"},
+        "TimeAveraged": {"plotfile", "openpmd", "checkpoint", "ascent", "sensei", "catalyst"},
+        "BackTransformed": {"plotfile", "openpmd"},
+        "BoundaryScraping": {"openpmd"},
+    }
     for name, values in diags.items():
+        diag_type = str(values.get("diag_type", "") or "").strip()
+        fmt = str(values.get("format", "") or "plotfile").strip().lower()
+        allowed = FORMAT_BY_DIAG_TYPE.get(diag_type)
+        if allowed is not None and fmt not in allowed:
+            issues.append({
+                "severity": "error", "param": f"{name}.format",
+                "message": f"diag_type={diag_type} 只支持 format = "
+                           + " / ".join(sorted(allowed)) + f"；当前是 {fmt}",
+                "options": sorted(allowed)})
+        if diag_type == "BackTransformed" and str(
+                values.get("particle_fields_to_plot", "") or "").strip():
+            issues.append({
+                "severity": "error", "param": f"{name}.particle_fields_to_plot",
+                "message": "BackTransformed 诊断不支持粒子场输出（源码 assert）"})
+
+    for name, values in diags.items():
+        # 普通诊断和降维诊断是两套命名：把 field_energy.diag_type = ReducedDiags 写进
+        # diagnostics.diags_names 时，WarpX 运行到 "diag_type must be Full, ..." 才 abort。
+        # 这里提前拦下，并说明降维诊断的正确写法。
+        diag_type = str(values.get("diag_type", "") or "").strip()
+        if diag_type and diag_type not in {
+                "Full", "TimeAveraged", "BackTransformed", "BoundaryScraping"}:
+            issues.append({
+                "severity": "error", "param": f"{name}.diag_type",
+                "message": f"普通诊断的 diag_type 不能是 `{diag_type}`；只接受 Full / "
+                           "TimeAveraged / BackTransformed / BoundaryScraping。"
+                           f"如果这是降维诊断，请改用 warpx.reduced_diags_names = {name}，"
+                           f"再写 {name}.type = FieldEnergy",
+                "options": ["Full", "TimeAveraged", "BackTransformed", "BoundaryScraping"]})
         if str(values.get("format", "")).lower() == "openpmd" and not (
                 values.get("intervals") or values.get("period")):
             issues.append({"severity": "warn", "param": f"{name}.intervals",
@@ -327,6 +462,7 @@ MESSAGE_TO_PARAM = {
     "particle boundary condition": "boundary.particle_lo",
     "position initialization strategy": "<species_name>.position_initialization",
     "momentum initialization strategy": "<species_name>.momentum_initialization",
+    "diag_type must be": "<diag_name>.diag_type",
 }
 NOT_FOUND = re.compile(r"([A-Za-z_][\w.]*\.{1,2}\w+)\s+not found")
 
@@ -383,16 +519,37 @@ def translate_error(line: str, catalog: dict, deck=None) -> dict | None:
             hint.append("这是必填项（源码里用 get 读取）")
     # "X(x,y,z) not found in database"：最典型的原因是函数参数表写少了坐标，
     # 或者参数名拼错。这句提示对用户没有可操作性，这里翻译成人话。
+    # 注意：WarpX 报的是它**期望**的名字（如 density_function(x,y,z)），用户真正
+    # 写错的键（density_function(x,y)）不在报错行里，只能回 deck 里找同前缀的键。
     sig = re.search(r"([A-Za-z_][\w.]*)\(([^)]*)\)\s+not found in database", message)
     if sig:
-        name, raw_args = sig.group(1), sig.group(2)
+        name = re.sub(r"\.{2,}", ".", sig.group(1))      # electrons..density_function
+        raw_args = sig.group(2)
         args = ",".join(a.strip() for a in raw_args.split(",") if a.strip())
-        if len(args.split(",")) < 3:
+        actual = None
+        instance, _, base = name.rpartition(".")
+        if instance and getattr(deck, "groups", None):
+            values = deck.groups.get("<species_name>", {}).get(instance, {})
+            candidate = next((k for k in values if k.startswith(base + "(")), None)
+            if candidate and candidate != f"{base}({raw_args})":
+                actual = candidate
+        if actual:
+            param = f"{instance}.{actual}"
+            hint.append(f"你写的是 `{actual}`；WarpX 要求 `{base}({raw_args})`——位置类函数的"
+                        "参数表不能省略坐标（用不到的坐标由 WarpX 补 0）")
+        elif len(args.split(",")) < 3:
             hint.append(f"函数参数表写成了 `({raw_args})`；WarpX 的位置类函数必须写 (x,y,z)"
                         "（用不到的坐标会自动补 0，不能省略）")
         else:
             hint.append(f"WarpX 里没有 `{name}(...)` 这一项：参数名拼错了，或该函数在当前"
                         "求解器/维度下不存在")
+    # 把降维诊断写进普通诊断列表是另一类常见错误（FieldEnergy 等）：
+    # 报错是 "<diag>.diag_type must be Full, TimeAveraged, ..."。
+    if "diag_type must be" in message.lower():
+        hint.append("普通诊断的 diag_type 只接受 Full / TimeAveraged / BackTransformed / "
+                    "BoundaryScraping；FieldEnergy 这类属于降维诊断，应写 "
+                    "warpx.reduced_diags_names = <name>，再写 <name>.type = FieldEnergy，"
+                    "不要放进 diagnostics.diags_names")
     if not hint:
         if "must be set" in message:
             hint.append("这是必填项，请在表单里补上")

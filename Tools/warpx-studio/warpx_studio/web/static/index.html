@@ -200,13 +200,20 @@ let CATALOG_CATEGORIES = [], PARAM_BY_NAME = {}, ENUMS = {};
 let VALIDATION_ON = false;        // 输入校验总开关：默认关闭（不报错、不标红、不拦运行）
 // 用户手写并保存过的原文：默认以它为准，不再用生成器覆盖（注释、#define、排版都要留住）
 let SAVED_TEXT = null;
+// 谁是"最新的一份"：true = 文本框里的原文，false = 表单(deck)。
+// 以前运行总是优先发 SAVED_TEXT，于是"加载过文本的项目后改表单/换项目"都会
+// 把旧文本原样发出去，看起来就是"改了完全不生效"。现在只有文本确实比表单新时才用它。
+let TEXT_AHEAD = false;
 let ERR_PARAMS = new Set();          // 校验报错的参数名：渲染时给对应行标红
 let ERR_STEPS = new Map();           // 每个步骤的错误条数：侧边栏角标
 let GLOSSARY = {}, DERIVED = {}, SHOW_DERIVED = false, HINTS = {};
 let PROJECT_NAME = "", PROJECT_SAVED_AT = "", DIRTY = true;
 
-function markDirty() {
+// keepText=true 用于只改运行设置（二进制/MPI/线程）的场合：这些不属于 inputs 文本，
+// 不能让用户手写的原文因此作废。
+function markDirty(keepText) {
   DIRTY = true;
+  if (!keepText) TEXT_AHEAD = false;
   const el = document.getElementById("project-state");
   if (el) { el.style.color = "var(--warn)"; el.textContent = "未保存"; }
 }
@@ -226,10 +233,28 @@ function deckSettings() {
 }
 function applySettings(settings) {
   if (!settings) return;
-  if (settings.binary) document.getElementById("binary").value = settings.binary;
+  if (settings.binary) {
+    // 只有该维度的二进制列表里确实有这个文件时才恢复，否则 select.value 会被
+    // 置空（浏览器行为），下一次运行就会发一个空 binary 给后端。
+    const sel = document.getElementById("binary");
+    const options = Array.from(sel.children || []);
+    if (options.some(o => o.value === settings.binary)) sel.value = settings.binary;
+  }
   if (settings.mpi) document.getElementById("mpi").value = settings.mpi;
   if (settings.omp) document.getElementById("omp").value = settings.omp;
+  if (Array.isArray(settings.live_fields)) {
+    document.querySelectorAll(".livefield").forEach(cb => {
+      cb.checked = settings.live_fields.includes(cb.value);
+    });
+  }
   if (settings.live_particles) document.getElementById("liveparticles").checked = settings.live_particles.length > 0;
+}
+
+// geometry.dims 是 "1"/"2"/"3"/"RZ"；顶栏下拉框用的是 "1d"/"2d"/"3d"/"rz"。
+// 项目切换时必须先把维度对上，再重建二进制列表，否则拿到的还是旧维度的可执行文件。
+function normalizeDims(value) {
+  const name = String(value ?? "").trim().toUpperCase();
+  return ({ "1": "1d", "2": "2d", "3": "3d", "RZ": "rz" })[name] || null;
 }
 
 async function refreshProjects(selectName) {
@@ -239,7 +264,9 @@ async function refreshProjects(selectName) {
   for (const p of data.projects) {
     const o = document.createElement("option");
     o.value = p.name;
-    o.textContent = `${p.name} · ${p.dims}D · ${p.species} 物种 · ${(p.updated || "").slice(5, 16)}`;
+    // RZ 不能再加 D（以前显示成 "RZD"），1/2/3 才是 "2D" 这种写法
+    const dimsLabel = String(p.dims || "?").toUpperCase() === "RZ" ? "RZ" : `${p.dims}D`;
+    o.textContent = `${p.name} · ${dimsLabel} · ${p.species} 物种 · ${(p.updated || "").slice(5, 16)}`;
     o.title = p.notes || "";
     select.appendChild(o);
   }
@@ -248,27 +275,73 @@ async function refreshProjects(selectName) {
 }
 
 async function loadProject(name) {
-  const data = await (await fetch("/api/projects/" + encodeURIComponent(name))).json();
-  DECK.params = data.deck.params || {};
-  DECK.groups = data.deck.groups || {};
+  let response, data;
+  try {
+    response = await fetch("/api/projects/" + encodeURIComponent(name));
+    data = await response.json();
+  } catch (err) {
+    setStatus("打开任务失败：" + ((err && err.message) || "网络错误"), "var(--err)");
+    return false;
+  }
+  // 以前这里不看 r.ok：项目名里带 "/" 时后端 404，data 只有 {detail}，
+  // 下一行 data.deck.params 抛异常 → 整个切换静默失败，页面还停在上一个项目。
+  if (!response.ok || !data || !data.deck) {
+    const why = (data && data.detail) || ("HTTP " + response.status);
+    setStatus("打开任务失败：" + why, "var(--err)");
+    return false;
+  }
+
+  const deck = data.deck;
+  DECK.params = deck.params || {};
+  DECK.groups = deck.groups || {};
+
+  // 1) 先对齐维度：二进制下拉是按维度过滤的，顺序反了就会把二进制设为 ""。
+  const dims = normalizeDims(DECK.params["geometry.dims"]);
+  if (dims) document.getElementById("dims").value = dims;
+  fillBinaries(document.getElementById("dims").value);
+
+  // 2) 恢复该任务的运行设置（二进制只有在当前维度列表里存在时才生效）。
+  applySettings(data.settings || {});
+
   PROJECT_NAME = data.name;
   SAVED_TEXT = typeof data.inputs === "string" && data.inputs.trim() ? data.inputs : null;
-  applySettings(data.settings || {});
+  const ta = document.getElementById("inputs-text");
+  if (ta) {
+    ta.value = SAVED_TEXT || "";
+    TEXT_AHEAD = SAVED_TEXT !== null;
+  }
   document.getElementById("project").value = data.name;
   render();
+  // 文本页正开着时，显示的必须是新任务的原文（以前这里不动 textarea，
+  // 用户看到旧项目的内容、一点运行又原样把旧文本发出去）。
+  if (document.body.classList.contains("text-mode")) {
+    if (SAVED_TEXT !== null) setTextStatus("未修改", "var(--dim)");
+    else { setTextStatus("正在按表单生成…", "var(--dim)"); formToText(); }
+  }
   markSaved(data.updated);
   setStatus("已打开任务：" + data.name, "var(--ok)");
+  return true;
 }
 
 async function saveProject(name) {
   const preview = await (await fetch("/api/preview", { method: "POST",
     headers: { "Content-Type": "application/json" }, body: JSON.stringify(DECK) })).json();
+  const ta = document.getElementById("inputs-text");
+  // 只有文本确实比表单新时才保存原文；否则保存表单生成的版本，
+  // 否则会出现"project.json 里的 deck 是新的、inputs 还是旧的"这种自相矛盾状态。
+  const text = TEXT_AHEAD ? ((ta && ta.value) || SAVED_TEXT || "") : "";
+  const inputs = text.trim() ? text : preview.inputs;
   const r = await fetch("/api/projects", { method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, deck: DECK, settings: deckSettings(),
-                           inputs: SAVED_TEXT !== null ? SAVED_TEXT : preview.inputs }) });
+    body: JSON.stringify({ name, deck: DECK, settings: deckSettings(), inputs }) });
   const out = await r.json();
   if (!r.ok) { setStatus("保存失败: " + (out.detail || ""), "var(--err)"); return false; }
+  SAVED_TEXT = inputs;
+  // 文本页开着且还有没点「保存」的编辑时，不要用生成结果覆盖用户正在写的文本；
+  // 这时保存的是表单(deck)，文本仍然是"未保存"状态（运行也仍以 deck 为准）。
+  const keepUnsavedEdits = document.body.classList.contains("text-mode") && !TEXT_AHEAD;
+  if (ta && ta.value !== inputs && !keepUnsavedEdits) ta.value = inputs;
+  TEXT_AHEAD = !keepUnsavedEdits;
   PROJECT_NAME = name;
   await refreshProjects(name);
   markSaved(out.updated);
@@ -331,6 +404,17 @@ function ruleSatisfied(rule, instance) {
   if (rule.op === "notequals") return value !== String(rule.value ?? "").toLowerCase();
   if (rule.op === "contains") return value.includes(String(rule.value ?? "").toLowerCase());
   if (rule.op === "empty") return raw === "";
+  if (rule.op === "in") {
+    // 一个选择器有多个取值都读这个参数（例如注入方式 NUniform/NRandom/NFlux）
+    const allowed = String(rule.value ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+    return allowed.includes(value);
+  }
+  if (rule.op === "member") {
+    // 顶层列表里包含当前实例名（例如 particles.rigid_injected_species = ions）
+    if (!instance) return false;
+    const list = String(ruleValue(rule.param, null) ?? "").replace(/"/g, "").trim();
+    return list.split(/\s+/).includes(String(instance));
+  }
   return value === String(rule.value).toLowerCase();
 }
 function hiddenAsDerived(name) {
@@ -445,6 +529,8 @@ function inputRow(name, value, onchange, instance) {
     options = (name.includes("particle") ? (CONTROLS.style_options || {}).particle
                                          : (CONTROLS.style_options || {}).grid) || [];
   }
+  // 下拉框自己会加一个"（未设置）"；options 里若混进空串就会出现两个（截图 bug）
+  options = [...new Set(options.filter(o => String(o).trim() !== ""))];
   let inp;
   if (options.length) {
     inp = document.createElement("select");
@@ -506,6 +592,13 @@ function exampleFor(param, type) {
     return "例如 " + axes.map(() => "periodic").join(" ") + "（每个方向一个）";
   if (param.name && param.name.startsWith("boundary.potential_"))
     return "例如 0.0（伏特；0 = 接地导体壁）";
+  if (param.name === "warpx.const_dt") return "例如 1.0e-15（秒）";
+  if (param.name === "warpx.cfl") return "例如 0.5（无量纲）";
+  const nm = param.name || "";
+  if (/\.(ux|uy|uz)_(mean|m)$/.test(nm)) return "例如 0.1（≈0.1c，无量纲）";
+  if (/\.(ux|uy|uz)_(std|th)$/.test(nm)) return "例如 0.01（≈1%c 热展宽，无量纲）";
+  if (/\.(ux|uy|uz)$/.test(nm)) return "例如 0.1（≈0.1c，无量纲）";
+  if (nm.endsWith("temperature_in_eV")) return "例如 10（eV）";
   const t = String(type || "").toLowerCase();
   const fallback = t.includes("int") && t.includes("list") ? "例如 64 64"
     : t.includes("int") ? "例如 10"
@@ -558,7 +651,19 @@ async function pollBuild() {
 ` + (s.log || []).join("\n");
     pre.scrollTop = pre.scrollHeight;
     if (s.state === "configure" || s.state === "build") setTimeout(pollBuild, 2000);
-    if (s.state === "finished") refreshCheckpoints();
+    if (s.state === "finished") {
+      refreshCheckpoints();
+      // 新构建的产物要立刻出现在顶栏下拉里（以前只有刷新页面才看得到，
+      // 用户会以为"刚编出来的版本不能用"）；并直接选中它。
+      await refreshBinaries();
+      const built = BINARIES.find(b => b.dims === s.dims
+        && b.path.startsWith(String(s.dir) + "/bin/"));
+      if (built) {
+        document.getElementById("binary").value = built.path;
+        markDirty(true);
+        pre.textContent += `\n已选中新构建: ${built.path}`;
+      }
+    }
   }
 }
 
@@ -588,6 +693,188 @@ async function refreshLive() {
       });
     }
   } catch (e) { /* 离线/未运行时静默 */ }
+}
+
+// ---- 表单模块：openPMD / HDF5 输出设置 -------------------------------
+// 这个模块属于“4 诊断输出”的参数表单；它写 diagnosis.format/backend 和
+// HDF5 根属性。物理场/粒子记录仍由 WarpX 诊断决定。
+function buildHdf5Module() {
+  const sec = document.createElement("section");
+  sec.className = "group";
+  const head = document.createElement("h3");
+  head.innerHTML = '<span>openPMD / HDF5 输出</span><span style="color:var(--dim)">元数据与格式</span>';
+  const body = document.createElement("div");
+  body.className = "rows";
+  sec.append(head, body);
+
+  const row = document.createElement("div");
+  row.className = "row";
+  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:4px 8px";
+  const mkSelect = (id, options) => {
+    const sel = document.createElement("select");
+    sel.id = id;
+    sel.style.cssText = "background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 5px";
+    for (const [value, text] of options) {
+      const o = document.createElement("option"); o.value = value; o.textContent = text; sel.appendChild(o);
+    }
+    return sel;
+  };
+  const diagSel = mkSelect("h5-diag", []);
+  const fmtSel = mkSelect("h5-format", [["openpmd", "openpmd"], ["plotfile", "plotfile"], ["checkpoint", "checkpoint"]]);
+  const beSel = mkSelect("h5-backend", [["h5", "h5（HDF5，推荐）"], ["bp", "bp（ADIOS2）"]]);
+  const intInput = document.createElement("input");
+  intInput.id = "h5-intervals"; intInput.type = "number"; intInput.min = "1"; intInput.step = "1";
+  intInput.value = "1"; intInput.title = "每隔多少步写一次该诊断；1 = 每步";
+  intInput.style.cssText = "width:90px;background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 5px";
+  for (const [labelText, el] of [["诊断", diagSel], ["格式", fmtSel], ["openPMD 后端", beSel], ["每隔步数", intInput]]) {
+    const lab = document.createElement("label");
+    lab.style.cssText = "font-size:12px;color:var(--dim)";
+    lab.append(labelText + " ", el);
+    row.appendChild(lab);
+  }
+  body.appendChild(row);
+
+  const note = document.createElement("div");
+  note.style.cssText = "padding:4px 10px;font-size:12px;color:var(--dim);line-height:1.5";
+  note.textContent = "自定义 HDF5 根属性（JSON，可选）。算例结束后写入每个 openpmd_*.h5 的根 attributes；只写元数据，不能新增物理场。";
+  body.appendChild(note);
+
+  const meta = document.createElement("textarea");
+  meta.id = "h5-meta"; meta.spellcheck = false; meta.rows = 4;
+  meta.placeholder = '{"author": "杜良多", "comment": "中性电子/正电子注入", "institution": "..."}';
+  meta.style.cssText = "width:calc(100% - 20px);box-sizing:border-box;margin:4px 10px;padding:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#0f1116;color:var(--fg);border:1px solid var(--line);border-radius:4px;resize:vertical";
+  body.appendChild(meta);
+
+  const foot = document.createElement("div");
+  foot.style.cssText = "display:flex;gap:8px;align-items:center;padding:4px 10px;font-size:12px";
+  const apply = document.createElement("button");
+  apply.id = "h5-apply"; apply.textContent = "写入 Deck / 保存项目"; apply.style.fontSize = "12px";
+  const full = document.createElement("button");
+  full.id = "h5-full"; full.textContent = "全量字段/物种"; full.style.fontSize = "12px";
+  full.title = "把当前诊断改成：openpmd+h5、每步、所有场、所有物种密度/温度/每格粒子数、全部粒子变量";
+  const status = document.createElement("span"); status.id = "h5-status"; status.style.color = "var(--dim)";
+  foot.append(apply, full, status); body.appendChild(foot);
+
+  const names = String(deckGet("diagnostics.diags_names") || "").trim().split(/\s+/).filter(Boolean);
+  diagSel.innerHTML = "";
+  if (names.length) {
+    for (const n of names) {
+      const o = document.createElement("option"); o.value = n; o.textContent = n; diagSel.appendChild(o);
+    }
+    diagSel.value = names[0];
+  } else {
+    const o = document.createElement("option"); o.value = "";
+    o.textContent = "（先在下方诊断列表里填 diagnostics.diags_names）"; diagSel.appendChild(o);
+  }
+  const groupOfDiag = (n) => (DECK.groups["<diag_name>"] || {})[n] || {};
+  const loadValues = () => {
+    const g = groupOfDiag(diagSel.value);
+    fmtSel.value = g.format || "openpmd";
+    beSel.value = g.openpmd_backend || "h5";
+    intInput.value = g.intervals || "1";
+    meta.value = DECK.params["studio.hdf5_metadata"] || "";
+    status.textContent = ""; status.style.color = "var(--dim)";
+  };
+  const setDiagValues = () => {
+    const n = diagSel.value;
+    if (!n) return false;
+    const nint = Number(intInput.value);
+    if (!Number.isInteger(nint) || nint < 1) {
+      status.textContent = "输出间隔必须是 >=1 的整数"; status.style.color = "var(--err)";
+      return false;
+    }
+    DECK.groups["<diag_name>"] = DECK.groups["<diag_name>"] || {};
+    const g = DECK.groups["<diag_name>"][n] = DECK.groups["<diag_name>"][n] || {};
+    g.format = fmtSel.value;
+    g.openpmd_backend = beSel.value;
+    g.intervals = String(nint);
+    markDirty();
+    status.textContent = "已写入 Deck；点顶部保存或这里保存项目";
+    status.style.color = "var(--warn)";
+    return true;
+  };
+  diagSel.onchange = loadValues;
+  fmtSel.onchange = setDiagValues;
+  beSel.onchange = setDiagValues;
+  intInput.onchange = setDiagValues;
+  meta.oninput = () => {
+    const text = meta.value.trim();
+    if (text) DECK.params["studio.hdf5_metadata"] = text;
+    else delete DECK.params["studio.hdf5_metadata"];
+    markDirty();
+    if (!text) { status.textContent = ""; return; }
+    try { JSON.parse(text); status.textContent = "JSON 格式 OK"; status.style.color = "var(--ok)"; }
+    catch (e) { status.textContent = "JSON 格式错误: " + e.message; status.style.color = "var(--err)"; }
+  };
+  apply.onclick = async () => {
+    if (!diagSel.value) { status.textContent = "没有诊断可设置"; status.style.color = "var(--err)"; return; }
+    const text = meta.value.trim();
+    if (text) {
+      try { JSON.parse(text); }
+      catch (e) { status.textContent = "JSON 格式错误: " + e.message; status.style.color = "var(--err)"; return; }
+      DECK.params["studio.hdf5_metadata"] = text;
+    } else delete DECK.params["studio.hdf5_metadata"];
+    if (!setDiagValues()) return;
+    if (PROJECT_NAME) {
+      apply.disabled = true; status.textContent = "正在保存…"; status.style.color = "var(--dim)";
+      const ok = await saveProject(PROJECT_NAME);
+      apply.disabled = false;
+      status.textContent = ok ? "已保存；算例结束后写入 .h5" : "保存失败";
+      status.style.color = ok ? "var(--ok)" : "var(--err)";
+    } else {
+      status.textContent = "已写入 Deck；先保存项目再运行";
+      status.style.color = "var(--warn)";
+    }
+  };
+  full.onclick = () => {
+    const n = diagSel.value;
+    if (!n) { status.textContent = "没有诊断可设置"; status.style.color = "var(--err)"; return; }
+    const raw = String(DECK.params["geometry.dims"] || "2").trim().toUpperCase();
+    let fields, pvars;
+    if (raw === "1") {
+      fields = ["Ez", "Bx", "By", "jz", "rho", "divE", "divB", "part_per_cell"];
+      pvars = "z ux uy uz w";
+    } else if (raw === "RZ") {
+      fields = ["Er", "Et", "Ez", "Br", "Bt", "Bz", "jr", "jt", "jz",
+                "rho", "divE", "divB", "part_per_cell"];
+      pvars = "x z ux uy uz w";
+    } else if (raw === "3") {
+      fields = ["Ex", "Ey", "Ez", "Bx", "By", "Bz", "jx", "jy", "jz",
+                "rho", "divE", "divB", "part_per_cell"];
+      pvars = "x y z ux uy uz w";
+    } else {
+      fields = ["Ex", "Ey", "Ez", "Bx", "By", "Bz", "jx", "jy", "jz",
+                "rho", "divE", "divB", "part_per_cell"];
+      pvars = "x z ux uy uz w";
+    }
+    if (DECK.params["warpx.eb_implicit_function"]) fields.push("eb_covered");
+    const es = String(DECK.params["warpx.do_electrostatic"] || "none").trim().toLowerCase();
+    if (es && es !== "none") fields.push("phi");
+    if (String(DECK.params["algo.maxwell_solver"] || "").toLowerCase() === "hybrid") {
+      fields.push("Te", "Pe");
+    }
+    const species = String(deckGet("particles.species_names") || "").trim().split(/\s+/).filter(Boolean);
+    for (const sp of species) {
+      fields.push("rho_" + sp);
+      // RZ 的 FullDiagnostics 对 T_/part_per_cell_ 物种场有 ncomp 断言问题，
+      // 默认只加 rho_<species>；2D/3D/1D 才加全套。
+      if (raw !== "RZ") fields.push("T_" + sp, "part_per_cell_" + sp);
+    }
+    DECK.groups["<diag_name>"] = DECK.groups["<diag_name>"] || {};
+    const g = DECK.groups["<diag_name>"][n] = DECK.groups["<diag_name>"][n] || {};
+    g.format = "openpmd";
+    g.openpmd_backend = "h5";
+    g.intervals = "1";
+    g.write_species = "1";
+    g.fields_to_plot = fields.join(" ");
+    for (const sp of species) g[sp + ".variables"] = pvars;
+    fmtSel.value = "openpmd"; beSel.value = "h5"; intInput.value = "1";
+    markDirty();
+    status.textContent = "已写入全量 HDF5 设置（含粒子）；点顶部保存";
+    status.style.color = "var(--warn)";
+  };
+  loadValues();
+  return sec;
 }
 
 // 可视化输出是独立页面：切过来时隐藏参数表单，并把输入/输出文件地址显示出来
@@ -686,6 +973,7 @@ function syncInstancesFromNames() {
     ["collisions.collision_names", "<collision_name>"],
     ["particles.species_names", "<species_name>"],
     ["diagnostics.diags_names", "<diag_name>"],
+    ["warpx.reduced_diags_names", "<reduced_diags_name>"],
   ];
   let changed = false;
   for (const [listName, template] of pairs) {
@@ -730,12 +1018,16 @@ function formToText() {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ params: DECK.params, groups: DECK.groups }),
   }).then(r => r.json()).then(d => {
-    if (typeof d.inputs === "string" && ta.value !== d.inputs) {
-      const pos = ta.selectionStart;
-      ta.value = d.inputs;
-      ta.selectionStart = ta.selectionEnd = Math.min(pos, ta.value.length);
+    if (typeof d.inputs === "string") {
+      if (ta.value !== d.inputs) {
+        const pos = ta.selectionStart;
+        ta.value = d.inputs;
+        ta.selectionStart = ta.selectionEnd = Math.min(pos, ta.value.length);
+      }
+      SAVED_TEXT = d.inputs;
+      TEXT_AHEAD = true;                 // 这份文本就是当前表单的完整表达
+      setTextStatus("已同步（表单 → 文本）", "var(--ok)");
     }
-    setTextStatus("已同步（表单 → 文本）", "var(--ok)");
   }).catch(() => setTextStatus("同步失败", "var(--err)"));
 }
 
@@ -768,6 +1060,7 @@ function textToForm() {
     }
     if (main) main.scrollTop = top;
     SAVED_TEXT = ta.value;                       // 记住用户原文
+    TEXT_AHEAD = true;                           // 文本已解析回表单，两边现在是同一份
     if (PROJECT_NAME) {                          // 已打开任务：顺手写进项目文件
       saveProject(PROJECT_NAME).catch(() => {});
     }
@@ -777,6 +1070,15 @@ function textToForm() {
   }).catch(() => setTextStatus("解析失败", "var(--err)"))
     .finally(() => { TEXT_LOCK = false; });
 }
+
+// Maxwellian 的 u_std 与 temperature_in_eV 是源码里互斥的两支。表单只隐藏参数
+// 不会删值，旧值仍会被序列化 → WarpX assert。切换子类型时清掉另一支。
+const MW_USTD_KEYS = ["ux_std", "uy_std", "uz_std",
+  "ux_std_function(x,y,z)", "uy_std_function(x,y,z)", "uz_std_function(x,y,z)",
+  "read_u_std_from_path"];
+const MW_TEMP_KEYS = ["temperature_in_eV", "temperature_in_eV_function(x,y,z)",
+  "read_temperature_in_eV_from_path", "temperature_in_eV_mesh_name"];
+function clearKeys(obj, keys) { for (const k of keys) delete obj[k]; }
 
 function renderTemplateCards(template, params, body) {
   // 源码里 <species> 与 <species_name> 是同一个命名空间，统一成后者
@@ -810,8 +1112,19 @@ function renderTemplateCards(template, params, body) {
       const sub = full.slice(full.indexOf(">") + 2);
       if (!visible(full, inst)) continue;
       card.appendChild(inputRow(full, values[sub],
-        v => { DECK.groups[key][inst] = DECK.groups[key][inst] || {};
-               DECK.groups[key][inst][sub] = v; }, inst));
+        v => {
+          const group = DECK.groups[key][inst] = DECK.groups[key][inst] || {};
+          group[sub] = v;
+          if (v) {
+            if (sub === "maxwellian_u_std_distribution_type") {
+              delete group["maxwellian_temperature_in_eV_distribution_type"];
+              clearKeys(group, MW_TEMP_KEYS);
+            } else if (sub === "maxwellian_temperature_in_eV_distribution_type") {
+              delete group["maxwellian_u_std_distribution_type"];
+              clearKeys(group, MW_USTD_KEYS);
+            }
+          }
+        }, inst));
     }
     body.appendChild(card);
   }
@@ -906,6 +1219,7 @@ function render() {
     }
     form.appendChild(sec);
   }
+  if (STEP === 4) form.appendChild(buildHdf5Module());
   validate();
 }
 
@@ -1060,7 +1374,13 @@ function setStatus(text, colour) {
     `<span class="dot" style="background:${colour}"></span>${text}`;
 }
 
+let POLLING = false, POLL_TIMER = null;
 async function poll() {
+  // 防止多个轮询循环叠在一起：init、启动成功、409 都会调用 poll。
+  // 每次进入先取消已排队的定时器；仍在进行中的那次会在结束后重新排一个。
+  if (POLL_TIMER) { clearTimeout(POLL_TIMER); POLL_TIMER = null; }
+  if (POLLING) return;
+  POLLING = true;
   try {
     const s = await (await fetch("/api/status")).json();
     if (s.state === "idle") return;
@@ -1094,7 +1414,8 @@ async function poll() {
       });
     }
   } catch (e) { /* keep polling */ }
-  setTimeout(poll, 1200);
+  finally { POLLING = false; }
+  POLL_TIMER = setTimeout(poll, 1200);
 }
 
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
@@ -1121,8 +1442,15 @@ document.getElementById("run").onclick = async () => {
   } catch (e) { /* 离线时照旧尝试运行 */ }
   const sel = document.getElementById("binary");
   const ta = document.getElementById("inputs-text");
+  if (!sel.value) {
+    setStatus("没有选择可执行文件（当前维度没有可用二进制，先在第 6 步构建）", "var(--err)");
+    return;
+  }
+  // 只有文本确实比表单新时才发原文；否则发 deck。旧写法只要 SAVED_TEXT 非空
+  // 就永远优先发文本，导致"换项目 / 改表单后结果不变"。
+  const text = TEXT_AHEAD ? ((ta && ta.value) || SAVED_TEXT || "") : "";
   const body = { ...DECK, binary: sel.value, project: PROJECT_NAME || null,
-    inputs_text: SAVED_TEXT !== null ? SAVED_TEXT : (ta ? ta.value : null),
+    inputs_text: text.trim() ? text : null,
     validate: VALIDATION_ON, force: !VALIDATION_ON,   // 校验关着就不要拦运行
     mpi: Number(document.getElementById("mpi").value) || 1,
     omp: Number(document.getElementById("omp").value) || 1,
@@ -1131,7 +1459,22 @@ document.getElementById("run").onclick = async () => {
   const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body) });
   const out = await r.json();
-  if (!r.ok) { setStatus(out.detail || "启动失败", "var(--err)"); return; }
+  if (!r.ok) {
+    if (r.status === 409) {
+      // 后端同一时间只允许一个仿真；把"还有任务在跑"翻译成人话，并显示进度。
+      let extra = "";
+      try {
+        const s = await (await fetch("/api/status")).json();
+        if (s.max_step) extra = `（当前 step ${s.step}/${s.max_step}）`;
+        else if (s.step) extra = `（当前 step ${s.step}）`;
+      } catch (e) { /* ignore */ }
+      setStatus(`已有算例在运行${extra}：先点「停止」或等它结束，再运行新算例`, "var(--err)");
+      poll();          // 同步按钮状态（运行中时「运行」应禁用）
+      return;
+    }
+    setStatus(out.detail || "启动失败", "var(--err)");
+    return;
+  }
   setStatus("已启动 · " + out.run_dir, "var(--ok)"); poll();
 };
 document.getElementById("stop").onclick = () => fetch("/api/stop", { method: "POST" });
@@ -1358,18 +1701,25 @@ document.getElementById("show-derived").onchange = (e) => {
 };
 document.getElementById("project").onchange = async (e) => {
   const name = e.target.value;
+  const previous = PROJECT_NAME;
   if (!name) { PROJECT_NAME = ""; markDirty(); return; }
   if (DIRTY && !confirm("当前改动尚未保存，仍要切换到 " + name + " 吗？")) {
     e.target.value = PROJECT_NAME; return;
   }
-  await loadProject(name);
+  // 打开失败（项目不存在 / 读取错误）时把下拉框退回上一个项目，
+  // 而不是留着一个其实没打开的名字。
+  if (!(await loadProject(name))) e.target.value = previous || "";
 };
 document.getElementById("project-new").onclick = async () => {
   const name = prompt("新任务名称：", "任务-" + new Date().toISOString().slice(5, 16).replace("T", " "));
   if (!name) return;
   const starter = await (await fetch("/api/starter?dims=" + document.getElementById("dims").value)).json();
   DECK.params = starter.params; DECK.groups = starter.groups;
-  PROJECT_NAME = name; render();
+  PROJECT_NAME = name;
+  SAVED_TEXT = null; TEXT_AHEAD = false;
+  const ta = document.getElementById("inputs-text");
+  if (ta) ta.value = "";
+  render();
   await saveProject(name);
 };
 document.getElementById("project-save").onclick = async () => {
@@ -1384,8 +1734,12 @@ document.getElementById("project-saveas").onclick = async () => {
 document.getElementById("project-delete").onclick = async () => {
   const name = PROJECT_NAME || document.getElementById("project").value;
   if (!name || !confirm("确定删除任务 " + name + " ？")) return;
-  await fetch("/api/projects/" + encodeURIComponent(name), { method: "DELETE" });
-  PROJECT_NAME = ""; await refreshProjects(); markDirty();
+  const r = await fetch("/api/projects/" + encodeURIComponent(name), { method: "DELETE" });
+  if (!r.ok) { setStatus("删除失败", "var(--err)"); return; }
+  PROJECT_NAME = ""; SAVED_TEXT = null; TEXT_AHEAD = false;
+  const ta = document.getElementById("inputs-text");
+  if (ta) ta.value = "";
+  await refreshProjects(); markDirty();
   setStatus("已删除：" + name, "var(--warn)");
 };
 document.getElementById("liveapply").onclick = async () => {
@@ -1415,11 +1769,14 @@ function showTextPage() {
   // 下拉/表单重新渲染时不会把表单页或侧边栏又打开（之前的 bug）
   document.body.classList.add("text-mode");
   const ta = document.getElementById("inputs-text");
-  if (SAVED_TEXT !== null) {
+  // 只有文本确实比表单新时才原样显示；表单改过就按当前 deck 重新生成，
+  // 否则用户会对着上一份旧文本点运行。
+  if (TEXT_AHEAD && SAVED_TEXT !== null) {
     ta.value = SAVED_TEXT;                       // 原文照搬
     setTextStatus("未修改", "var(--dim)");
   } else {
-    formToText();                                // 还没有原文时，才从表单生成
+    setTextStatus("正在按表单生成…", "var(--dim)");
+    formToText();                                // 从当前表单生成一份
   }
 }
 
@@ -1454,7 +1811,11 @@ document.getElementById("text-save").onclick = () => textToForm();
 {
   const ta = document.getElementById("inputs-text");
   ta.addEventListener("input", () => {
-    // 只做提示，不自动解析：自动解析会重新渲染表单、把页面切回去
+    // 只做提示，不自动解析：自动解析会重新渲染表单、把页面切回去。
+    // 未点「保存」前这份文本不算生效：表单(deck)仍是最近一次成功解析的结果，
+    // 所以 TEXT_AHEAD 置 false，运行不会被一段还没通过解析的文本顶掉。
+    TEXT_AHEAD = false;
+    markDirty(true);
     setTextStatus("有未保存的修改（点「保存」生效）", "var(--warn)");
   });
   // Tab 键插入缩进而不是跳出编辑区
@@ -1479,8 +1840,31 @@ function fillBinaries(dims) {
   }
   const preferred = BINARIES.find(b => b.dims === dims && b.build === "fork");
   if (preferred) sel.value = preferred.path;
-  else if (sel.options.length) sel.selectedIndex = 0;
+  else if (sel.children.length) sel.selectedIndex = 0;
 }
+
+async function refreshBinaries() {
+  const sel = document.getElementById("binary");
+  const previous = sel.value;
+  const bins = await (await fetch("/api/binaries")).json();
+  BINARIES = bins.binaries;
+  fillBinaries(document.getElementById("dims").value);
+  // 重新枚举不等于把用户选的版本换掉：能用就保留。
+  if (previous && Array.from(sel.children).some(o => o.value === previous)) sel.value = previous;
+}
+
+["binary", "mpi", "omp"].forEach((id) => {
+  const el = document.getElementById(id);
+  // 换二进制/并行度只影响运行设置，不属于 inputs 原文：keepText 保住手写文本。
+  if (el) el.addEventListener("change", () => {
+    markDirty(true);
+    if (id === "binary") {
+      const chosen = el.children[el.selectedIndex];
+      setStatus("可执行文件已切换" + (chosen ? "：" + chosen.textContent : "") + "（点运行生效）",
+                "var(--acc)");
+    }
+  });
+});
 
 document.addEventListener("DOMContentLoaded", () => {});
 async function switchDims(dims) {
@@ -1488,6 +1872,9 @@ async function switchDims(dims) {
   const starter = await (await fetch("/api/starter?dims=" + dims)).json();
   DECK.params = starter.params;
   DECK.groups = starter.groups;
+  SAVED_TEXT = null; TEXT_AHEAD = false;
+  const ta = document.getElementById("inputs-text");
+  if (ta) ta.value = "";
   render();
   markDirty();
   setStatus(`已切到 ${dims.toUpperCase()}：模板与可用二进制已更新`, "var(--acc)");
@@ -1496,8 +1883,10 @@ async function switchDims(dims) {
 // 供自动化测试使用：暴露渲染入口与状态（浏览器里只是普通对象，不影响功能）
 window.__STUDIO_TEST__ = { render: () => render(), getDECK: () => DECK,
                            setDECK: (d) => { DECK = d; }, visible,
+                           buildHdf5Module: () => buildHdf5Module(),
                            ruleSatisfied, orderByDependency, CATALOG: () => CATALOG,
-                           setStep: (n) => { STEP = n; }, getStep: () => STEP };
+                           setStep: (n) => { STEP = n; }, getStep: () => STEP,
+                           poll: () => poll() };
 
 (async function init() {
   const data = await (await fetch("/api/catalog")).json();
@@ -1509,15 +1898,14 @@ window.__STUDIO_TEST__ = { render: () => render(), getDECK: () => DECK,
   HINTS = data.hints || {};
   PARAM_BY_NAME = Object.fromEntries(CATALOG.params.map(p => [p.name, p]));
   CONTROLS = await (await fetch("/api/controls")).json();
-  const bins = await (await fetch("/api/binaries")).json();
-  BINARIES = bins.binaries;
-  fillBinaries(document.getElementById("dims").value);
+  await refreshBinaries();
   const projects = await refreshProjects();
   document.getElementById("dims").onchange = (e) => switchDims(e.target.value);
-  if (projects.projects.length && projects.last) {
-    try { await loadProject(projects.last); }
-    catch (e) { await loadStarter(); render(); markDirty(); }
-  } else {
+  // loadProject 现在自己处理错误并返回 false；打不开上一个任务就退回起步模板，
+  // 不要停在"下拉框显示 A、内容其实是 B"的半状态。
+  const opened = (projects.projects.length && projects.last)
+    ? await loadProject(projects.last) : false;
+  if (!opened) {
     await loadStarter(); render(); markDirty();
   }
   refreshCheckpoints();
@@ -1529,6 +1917,9 @@ window.__STUDIO_TEST__ = { render: () => render(), getDECK: () => DECK,
   setInterval(refreshQuantities, 15000);
   setInterval(refreshReplay, 8000);
   refreshGallery();
+  // 页面刷新/服务重启后也要知道有没有算例在跑：否则界面显示空闲、点运行才收到
+  // 409 "a simulation is already running"，而且「运行」按钮一直可点。
+  poll();
 })();
 </script>
 </body>

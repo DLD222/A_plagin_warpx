@@ -5,19 +5,19 @@
   "source_scan": "param_sites.json"
  },
  "counts": {
-  "total": 560,
-  "documented": 331,
-  "source_only": 0,
+  "total": 636,
+  "documented": 514,
+  "source_only": 122,
   "with_runtime_gating": 194,
-  "with_gating_rules": 36,
+  "with_gating_rules": 369,
   "sites": 780,
   "sites_by_scanner": {
    "clang": 314,
    "regex": 466
   },
   "switch_gated": 4,
-  "required": 47,
-  "with_options": 27,
+  "required": 8,
+  "with_options": 135,
   "with_build_guard": 60,
   "templates": 3
  },
@@ -170,8 +170,10 @@
    "<collision_name>.Z",
    "<collision_name>.background_charge_state",
    "<collision_name>.background_density",
+   "<collision_name>.background_density(x,y,z,t)",
    "<collision_name>.background_mass",
    "<collision_name>.background_temperature",
+   "<collision_name>.background_temperature(x,y,z,t)",
    "<collision_name>.background_type",
    "<collision_name>.beta_weight_exponent",
    "<collision_name>.correct_energy_momentum",
@@ -206,6 +208,7 @@
    "<collision_name>.save_particle_production",
    "<collision_name>.scattering_angle_model",
    "<collision_name>.scattering_processes",
+   "<collision_name>.shuffling_method",
    "<collision_name>.species",
    "<collision_name>.start_step",
    "<collision_name>.type",
@@ -290,37 +293,68 @@
   "<laser_name>": [
    "<laser_name>.a0",
    "<laser_name>.beta",
+   "<laser_name>.binary_file_name",
+   "<laser_name>.delay",
    "<laser_name>.direction",
    "<laser_name>.do_continuous_injection",
    "<laser_name>.e_max",
+   "<laser_name>.field_function(X,Y,t)",
+   "<laser_name>.lasy_file_name",
    "<laser_name>.min_particles_per_mode",
    "<laser_name>.phi0",
    "<laser_name>.phi2",
    "<laser_name>.polarization",
    "<laser_name>.position",
+   "<laser_name>.prob_hi",
+   "<laser_name>.prob_lo",
    "<laser_name>.profile",
    "<laser_name>.profile_duration",
    "<laser_name>.profile_focal_distance",
    "<laser_name>.profile_t_peak",
    "<laser_name>.profile_waist",
    "<laser_name>.stc_direction",
+   "<laser_name>.time_chunk_size",
    "<laser_name>.wavelength",
    "<laser_name>.zeta"
   ],
   "<reduced_diags_name>": [
    "<reduced_diags_name>.bin_max",
+   "<reduced_diags_name>.bin_max_1",
+   "<reduced_diags_name>.bin_max_2",
+   "<reduced_diags_name>.bin_max_abs",
+   "<reduced_diags_name>.bin_max_ord",
    "<reduced_diags_name>.bin_min",
+   "<reduced_diags_name>.bin_min_1",
+   "<reduced_diags_name>.bin_min_2",
+   "<reduced_diags_name>.bin_min_abs",
+   "<reduced_diags_name>.bin_min_ord",
    "<reduced_diags_name>.bin_number",
+   "<reduced_diags_name>.bin_number_1",
+   "<reduced_diags_name>.bin_number_2",
+   "<reduced_diags_name>.bin_number_abs",
+   "<reduced_diags_name>.bin_number_ord",
    "<reduced_diags_name>.detector_radius",
    "<reduced_diags_name>.do_moving_window_FP",
+   "<reduced_diags_name>.extension",
    "<reduced_diags_name>.file_min_digits",
+   "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz)",
+   "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz,w)",
+   "<reduced_diags_name>.histogram_function(t,x,y,z,ux,uy,uz)",
+   "<reduced_diags_name>.histogram_function_abs(t,x,y,z,ux,uy,uz,w)",
+   "<reduced_diags_name>.histogram_function_ord(t,x,y,z,ux,uy,uz,w)",
    "<reduced_diags_name>.integrate",
    "<reduced_diags_name>.interp_order",
+   "<reduced_diags_name>.intervals",
    "<reduced_diags_name>.normalization",
    "<reduced_diags_name>.openpmd_backend",
+   "<reduced_diags_name>.path",
+   "<reduced_diags_name>.precision",
    "<reduced_diags_name>.probe_geometry",
    "<reduced_diags_name>.raw_fields",
+   "<reduced_diags_name>.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz)",
+   "<reduced_diags_name>.reduction_type",
    "<reduced_diags_name>.resolution",
+   "<reduced_diags_name>.separator",
    "<reduced_diags_name>.species",
    "<reduced_diags_name>.target_normal_x",
    "<reduced_diags_name>.target_normal_y",
@@ -329,6 +363,8 @@
    "<reduced_diags_name>.target_up_y",
    "<reduced_diags_name>.target_up_z",
    "<reduced_diags_name>.type",
+   "<reduced_diags_name>.value_function(t,x,y,z,ux,uy,uz,w)",
+   "<reduced_diags_name>.weighting_function(x,y,z)",
    "<reduced_diags_name>.x1_probe",
    "<reduced_diags_name>.x_probe",
    "<reduced_diags_name>.y1_probe",
@@ -976,6 +1012,18 @@
    "options": null
   },
   {
+   "name": "<collision_name>.background_density(x,y,z,t)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "背景密度表达式（未给常数 background_density 时使用）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<collision_name>.background_mass",
    "type": "float",
    "default": null,
@@ -994,6 +1042,18 @@
    "options": null
   },
   {
+   "name": "<collision_name>.background_temperature(x,y,z,t)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "背景温度表达式（未给常数 background_temperature 时使用）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<collision_name>.background_type",
    "type": "string",
    "default": null,
@@ -1004,6 +1064,30 @@
     "electrons",
     "ions"
    ]
+  },
+  {
+   "name": "<collision_name>.beta_weight_exponent",
+   "type": "float",
+   "default": "1.0",
+   "optional": true,
+   "doc": "成对库仑：权重 beta 指数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<collision_name>.correct_energy_momentum",
+   "type": "bool",
+   "default": "0",
+   "optional": true,
+   "doc": "成对库仑：能量/动量修正",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<collision_name>.create_photons",
@@ -1046,6 +1130,30 @@
    "doc": ":type: `string`  The parent species decay rate (only for ``pulsed_decay``).",
    "core": false,
    "options": null
+  },
+  {
+   "name": "<collision_name>.energy_correction_sort_by_weight",
+   "type": "bool",
+   "default": "0",
+   "optional": true,
+   "doc": "成对库仑：按权重排序做能量修正",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<collision_name>.energy_fraction",
+   "type": "float",
+   "default": "0.05",
+   "optional": true,
+   "doc": "成对库仑/逆轫致：能量修正比例",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<collision_name>.event_multiplier",
@@ -1102,6 +1210,30 @@
    "options": null
   },
   {
+   "name": "<collision_name>.max_background_density",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "background_mcc：背景密度上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<collision_name>.modulus_rounds",
+   "type": "int",
+   "default": "5",
+   "optional": true,
+   "doc": "shuffling_method=modulus 时的轮数；per-collision 覆盖 collisions.modulus_rounds",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<collision_name>.multiplier",
    "type": "float",
    "default": null,
@@ -1127,6 +1259,18 @@
    "doc": ":type: ``int`` :optional:  Execute collision once every ``ndt_supercycle`` PIC time steps. The effective collision time step is ``dt_collision = ndt_supercycle * dt_PIC``. Must be >= 1. Mutually exclusive with ``ndt_subc",
    "core": false,
    "options": null
+  },
+  {
+   "name": "<collision_name>.np_warning_threshold",
+   "type": "int",
+   "default": "20",
+   "optional": true,
+   "doc": "成对库仑：每格粒子数告警阈值",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<collision_name>.probability_target_value",
@@ -1204,6 +1348,24 @@
    "options": null
   },
   {
+   "name": "<collision_name>.shuffling_method",
+   "type": "string",
+   "default": "default",
+   "optional": true,
+   "doc": "洗牌方式 none/fisheryates/modulus/standard/default；per-collision 覆盖 collisions.shuffling_method",
+   "doc_section": null,
+   "core": false,
+   "options": [
+    "none",
+    "fisheryates",
+    "modulus",
+    "standard",
+    "default"
+   ],
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<collision_name>.species",
    "type": "string",
    "default": null,
@@ -1229,13 +1391,17 @@
    "doc": ":type: ``string`` :optional:  The type of collision. The types implemented are:  - ``pairwisecoulomb`` for pair-wise Coulomb collisions, the default if unspecified. This provides a pair-wise relativistic elastic Monte Ca",
    "core": false,
    "options": [
-    "bremsstrahlung",
+    "pairwisecoulomb",
     "dsmc",
-    "hybrid_resistive_drag",
+    "background_mcc",
+    "background_stopping",
+    "nuclearfusion",
+    "bremsstrahlung",
+    "inverse_bremsstrahlung",
     "linear_breit_wheeler",
     "linear_compton",
-    "nuclearfusion",
-    "pairwisecoulomb"
+    "pulsed_decay",
+    "hybrid_resistive_drag"
    ]
   },
   {
@@ -1600,7 +1766,8 @@
    "options": [
     "Full",
     "TimeAveraged",
-    "BackTransformed"
+    "BackTransformed",
+    "BoundaryScraping"
    ],
    "core": true
   },
@@ -1858,7 +2025,8 @@
     "openpmd",
     "checkpoint",
     "ascent",
-    "sensei"
+    "sensei",
+    "catalyst"
    ],
    "core": true
   },
@@ -1956,6 +2124,18 @@
     "v"
    ],
    "core": false
+  },
+  {
+   "name": "<diag_name>.openpmd_tspf",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "openPMD 每条记录一个文件（tspf）；未显式设置 openpmd_encoding 时读取",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<diag_name>.particle_fields.<field_name>(x,y,z,ux,uy,uz)",
@@ -2237,6 +2417,30 @@
    "options": null
   },
   {
+   "name": "<laser_name>.binary_file_name",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "from_file：二进制场文件",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<laser_name>.delay",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "from_file：时间延迟",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<laser_name>.direction",
    "type": "string",
    "default": null,
@@ -2265,6 +2469,30 @@
    "doc": ":type: ``float`` :unit: V/m  Peak amplitude of the laser field, in the focal plane.  For a laser with a wavelength :math:`\\lambda = 0.8\\,\\mu m`, the peak amplitude is related to :math:`a_0` by:  .. math::  E_{max} = a_0 ",
    "core": false,
    "options": null
+  },
+  {
+   "name": "<laser_name>.field_function(X,Y,t)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "parse_field_function 的场表达式，变量是 X,Y,t",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<laser_name>.lasy_file_name",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "from_file：LASY openPMD 文件",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<laser_name>.min_particles_per_mode",
@@ -2312,13 +2540,41 @@
    "options": null
   },
   {
+   "name": "<laser_name>.prob_hi",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "激光注入盒上界（AMREX_SPACEDIM 个值）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<laser_name>.prob_lo",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "激光注入盒下界（AMREX_SPACEDIM 个值）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<laser_name>.profile",
    "type": "string",
    "default": null,
    "optional": true,
    "doc": ":type: ``string``  The spatio-temporal shape of the laser. The options that are currently implemented are:  - ``\"Gaussian\"``: The transverse and longitudinal profiles are Gaussian. - ``\"parse_field_function\"``: the laser",
    "core": false,
-   "options": null
+   "options": [
+    "gaussian",
+    "parse_field_function",
+    "from_file"
+   ]
   },
   {
    "name": "<laser_name>.profile_duration",
@@ -2366,6 +2622,18 @@
    "options": null
   },
   {
+   "name": "<laser_name>.time_chunk_size",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "from_file：时间块大小（>=2）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "<laser_name>.wavelength",
    "type": "float",
    "default": null,
@@ -2382,6 +2650,542 @@
    "doc": ":type: ``float`` :unit: meters.seconds :default: ``0.`` :optional:  Spatial chirp at focus in direction :pp:param:`<laser_name>.stc_direction`. See definition in :cite:t:`param-AkturkOE2004`.",
    "core": false,
    "options": null
+  },
+  {
+   "name": "<reduced_diags_name>.bin_max",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "分箱上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_max_1",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第一维上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_max_2",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第二维上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_max_abs",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图纵轴上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_max_ord",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图横轴上限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "分箱下限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min_1",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第一维下限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min_2",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第二维下限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min_abs",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图纵轴下限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_min_ord",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图横轴下限",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "直方图/能谱分箱数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number_1",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第一维分箱数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number_2",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "二维能谱第二维分箱数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number_abs",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图纵轴分箱数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.bin_number_ord",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图横轴分箱数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.detector_radius",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针探测器半径",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.do_moving_window_FP",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "FieldProbe 跟随移动窗口",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.extension",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "文件扩展名；per-name 覆盖 reduced_diags.extension",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.file_min_digits",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "文件名最小位数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "直方图粒子筛选函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz,w)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图粒子筛选函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.histogram_function(t,x,y,z,ux,uy,uz)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "直方图横轴函数（必填）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.histogram_function_abs(t,x,y,z,ux,uy,uz,w)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图纵轴函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.histogram_function_ord(t,x,y,z,ux,uy,uz,w)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图横轴函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.integrate",
+   "type": "bool",
+   "default": null,
+   "optional": true,
+   "doc": "FieldProbe 输出积分量（影响单位）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.interp_order",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "FieldProbe 插值阶数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.intervals",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "输出间隔；per-name 覆盖 reduced_diags.intervals",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.normalization",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "直方图归一化方式",
+   "doc_section": null,
+   "core": false,
+   "options": [
+    "default",
+    "unity_particle_weight",
+    "max_to_unity",
+    "area_to_unity"
+   ],
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.openpmd_backend",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "openPMD 后端/文件后缀",
+   "doc_section": null,
+   "core": false,
+   "options": [
+    "default",
+    "bp5",
+    "bp4",
+    "h5",
+    "json"
+   ],
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "输出目录；per-name 覆盖 reduced_diags.path",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.precision",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "输出精度；per-name 覆盖 reduced_diags.precision",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.probe_geometry",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "FieldProbe 几何：Point/Line/Plane",
+   "doc_section": null,
+   "core": false,
+   "options": [
+    "Point",
+    "Line",
+    "Plane"
+   ],
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "FieldReduction 归约函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.reduction_type",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "FieldReduction 的归约方式",
+   "doc_section": null,
+   "core": false,
+   "options": [
+    "Maximum",
+    "Minimum",
+    "Sum",
+    "Integral"
+   ],
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.resolution",
+   "type": "int",
+   "default": null,
+   "optional": true,
+   "doc": "线/面探针分辨率",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.separator",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "列分隔符；per-name 覆盖 reduced_diags.separator",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.species",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "该降维诊断作用的物种",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_normal_x",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针法向 x",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_normal_y",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针法向 y",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_normal_z",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针法向 z",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_up_x",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针 up 向量 x",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_up_y",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针 up 向量 y",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.target_up_z",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "面探针 up 向量 z",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<reduced_diags_name>.type",
@@ -2413,6 +3217,102 @@
     "RhoMaximum",
     "Timestep"
    ]
+  },
+  {
+   "name": "<reduced_diags_name>.value_function(t,x,y,z,ux,uy,uz,w)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "二维直方图权重函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.weighting_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "ChargeOnEB 权重函数",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.x1_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "线探针终点 x",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.x_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "探针 x 坐标/线起点",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.y1_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "线探针终点 y（3D）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.y_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "探针 y 坐标（3D）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.z1_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "线探针终点 z",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "<reduced_diags_name>.z_probe",
+   "type": "float",
+   "default": null,
+   "optional": true,
+   "doc": "探针 z 坐标/线起点",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "<species>.do_qed_virtual_photons",
@@ -5868,8 +6768,11 @@
    "source_only": false,
    "required": false,
    "options": [
-    "0",
-    "1"
+    "none",
+    "fisheryates",
+    "modulus",
+    "standard",
+    "default"
    ],
    "core": false
   },
@@ -8511,10 +9414,12 @@
    "source_only": false,
    "required": false,
    "options": [
-    "none",
+    "default",
     "constant",
     "parse_b_ext_grid_function",
-    "read_from_file"
+    "read_from_file",
+    "load_from_python",
+    "none"
    ],
    "core": true
   },
@@ -8531,6 +9436,42 @@
    "core": true
   },
   {
+   "name": "warpx.Bx_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Bx 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "warpx.By_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "By 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "warpx.Bz_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Bz 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
    "name": "warpx.E_ext_grid_init_style",
    "type": "string",
    "default": null,
@@ -8541,10 +9482,11 @@
    "source_only": false,
    "required": false,
    "options": [
-    "none",
+    "default",
     "constant",
     "parse_e_ext_grid_function",
-    "read_from_file"
+    "read_from_file",
+    "load_from_python"
    ],
    "core": true
   },
@@ -8559,6 +9501,42 @@
    "source_only": false,
    "required": false,
    "core": true
+  },
+  {
+   "name": "warpx.Ex_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Ex 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "warpx.Ey_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Ey 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
+  },
+  {
+   "name": "warpx.Ez_external_grid_function(x,y,z)",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "Ez 解析式外场",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "warpx.abort_on_warning_threshold",
@@ -9902,6 +10880,18 @@
    "doc": "",
    "core": false,
    "options": null
+  },
+  {
+   "name": "warpx.read_fields_from_path",
+   "type": "string",
+   "default": null,
+   "optional": true,
+   "doc": "从 openPMD 文件读 E/B 外场（两者共用一个路径）",
+   "doc_section": null,
+   "core": false,
+   "options": null,
+   "sites": [],
+   "source_only": true
   },
   {
    "name": "warpx.reduced_diags_names",
@@ -11299,50 +12289,6 @@
   ]
  },
  "gating_rules": {
-  "<species_name>.gaussian_beam_rotation_angle": [
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "if (do_rotation)"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
-   }
-  ],
   "<species_name>.qed_breit_wheeler_ele_product_species": [
    {
     "param": "<species_name>.do_qed_breit_wheeler",
@@ -11391,26 +12337,6 @@
     "op": "truthy",
     "value": null,
     "raw": "if (m_do_qed_virtual_photons)"
-   }
-  ],
-  "<species_name>.surface_flux_pos": [
-   {
-    "param": "<species_name>.inject_from_embedded_boundary",
-    "op": "truthy",
-    "value": null,
-    "raw": "if (m_inject_from_eb)"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
    }
   ],
   "algo.load_balance_knapsack_factor": [
@@ -11873,146 +12799,6 @@
    {
     "param": "<species_name>.do_field_ionization",
     "op": "truthy",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "<species_name>.initialize_self_fields": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "<species_name>.self_fields_absolute_tolerance": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "<species_name>.self_fields_max_iters": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "<species_name>.self_fields_required_precision": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_lo_x": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_hi_x": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_lo_y": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_hi_y": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_lo_z": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
-    "value": null,
-    "raw": "feature gate"
-   }
-  ],
-  "boundary.potential_hi_z": [
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "equals",
-    "value": "none",
-    "raw": "feature gate"
-   },
-   {
-    "param": "warpx.do_electrostatic",
-    "op": "nonempty",
     "value": null,
     "raw": "feature gate"
    }
@@ -12777,22 +13563,6 @@
     "raw": "feature gate"
    }
   ],
-  "warpx.B_external_grid": [
-   {
-    "param": "warpx.B_ext_grid_init_style",
-    "op": "notequals",
-    "value": "none",
-    "raw": "feature gate"
-   }
-  ],
-  "warpx.E_external_grid": [
-   {
-    "param": "warpx.E_ext_grid_init_style",
-    "op": "notequals",
-    "value": "none",
-    "raw": "feature gate"
-   }
-  ],
   "<species_name>.resampling_algorithm": [
    {
     "param": "<species_name>.do_resampling",
@@ -12833,182 +13603,1808 @@
     "raw": "feature gate"
    }
   ],
-  "<species_name>.maxwellian_u_mean_distribution_type": [
+  "<species_name>.self_fields_required_precision": [
    {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
+    "param": "<species_name>.initialize_self_fields",
+    "op": "truthy",
+    "value": null,
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.read_u_std_from_path": [
+  "<species_name>.self_fields_absolute_tolerance": [
+   {
+    "param": "<species_name>.initialize_self_fields",
+    "op": "truthy",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.self_fields_max_iters": [
+   {
+    "param": "<species_name>.initialize_self_fields",
+    "op": "truthy",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "<collision_name>.CoulombLog": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.cumulative_scattering_angle_model": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.use_global_debye_length": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.correct_energy_momentum": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.energy_correction_sort_by_weight": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.np_warning_threshold": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.beta_weight_exponent": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.energy_fraction": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb inverse_bremsstrahlung",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.shuffling_method": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pairwisecoulomb dsmc nuclearfusion bremsstrahlung inverse_bremsstrahlung linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.modulus_rounds": [
    [
     {
-     "param": "<species_name>.momentum_distribution_type",
-     "op": "equals",
-     "value": "maxwellian",
-     "raw": "momentum"
+     "param": "<collision_name>.type",
+     "op": "in",
+     "value": "pairwisecoulomb dsmc nuclearfusion bremsstrahlung inverse_bremsstrahlung linear_breit_wheeler linear_compton",
+     "raw": "collision type gate"
     },
     {
-     "param": "<species_name>.maxwellian_u_std_distribution_type",
+     "param": "<collision_name>.shuffling_method",
      "op": "equals",
-     "value": "read_from_file",
-     "raw": "momentum"
+     "value": "modulus",
+     "raw": "collision type gate"
+    }
+   ]
+  ],
+  "<collision_name>.scattering_processes": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.<scattering_process>_cross_section": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.<scattering_process>_energy": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.<scattering_process>_scattering_angle_model": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.ionization_target_species": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.ionization_species": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_density": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_mcc background_stopping",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_temperature": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_mcc background_stopping",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_mass": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_mcc background_stopping",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_density(x,y,z,t)": [
+   [
+    {
+     "param": "<collision_name>.type",
+     "op": "in",
+     "value": "background_mcc background_stopping",
+     "raw": "collision type gate"
+    },
+    {
+     "param": "<collision_name>.background_density",
+     "op": "empty",
+     "value": null,
+     "raw": "collision type gate"
+    }
+   ]
+  ],
+  "<collision_name>.background_temperature(x,y,z,t)": [
+   [
+    {
+     "param": "<collision_name>.type",
+     "op": "in",
+     "value": "background_mcc background_stopping",
+     "raw": "collision type gate"
+    },
+    {
+     "param": "<collision_name>.background_temperature",
+     "op": "empty",
+     "value": null,
+     "raw": "collision type gate"
+    }
+   ]
+  ],
+  "<collision_name>.max_background_density": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_mcc",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_type": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "background_stopping",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.background_charge_state": [
+   [
+    {
+     "param": "<collision_name>.type",
+     "op": "in",
+     "value": "background_stopping",
+     "raw": "collision type gate"
+    },
+    {
+     "param": "<collision_name>.background_type",
+     "op": "equals",
+     "value": "ions",
+     "raw": "collision type gate"
+    }
+   ]
+  ],
+  "<collision_name>.product_species": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "dsmc nuclearfusion bremsstrahlung linear_breit_wheeler linear_compton pulsed_decay",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.event_multiplier": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.probability_threshold": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.probability_target_value": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.legendre_angular_distribution_coefficients": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.legendre_angular_distribution_coefficients_format": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion linear_breit_wheeler linear_compton",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.create_products": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.save_particle_production": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.scattering_angle_model": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "nuclearfusion",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.Z": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "bremsstrahlung",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.multiplier": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "bremsstrahlung",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.koT1_cut": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "bremsstrahlung",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.create_photons": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "bremsstrahlung",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.weight_ratio": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pulsed_decay",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.productA_temperature_eV": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pulsed_decay",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.productB_temperature_eV": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pulsed_decay",
+    "raw": "collision type gate"
+   }
+  ],
+  "<collision_name>.decay_rate(x,y,z,t)": [
+   {
+    "param": "<collision_name>.type",
+    "op": "in",
+    "value": "pulsed_decay",
+    "raw": "collision type gate"
+   }
+  ],
+  "<diag_name>.fields_to_plot": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
     }
    ],
    {
-    "param": "<species_name>.profile",
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.particle_fields_to_plot": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.particle_fields_species": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ],
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.diag_lo": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ],
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.diag_hi": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ],
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.coarsening_ratio": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ],
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.species": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ],
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed BoundaryScraping",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.time_average_mode": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "TimeAveraged",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.average_period_steps": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "TimeAveraged",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.average_period_time": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "TimeAveraged",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.average_start_step": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.time_average_mode",
+     "op": "equals",
+     "value": "fixed_start",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.do_back_transformed_fields": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.do_back_transformed_particles": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.num_snapshots_lab": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.dt_snapshots_lab": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.dz_snapshots_lab": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.buffer_size": [
+   {
+    "param": "<diag_name>.diag_type",
+    "op": "in",
+    "value": "BackTransformed",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.dump_rz_modes": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "equals",
+     "value": "RZ",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.openpmd_backend": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.openpmd_encoding": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.adios2_operator.type": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.adios2_operator.parameters.*": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.adios2_engine.type": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.adios2_engine.parameters.*": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "openpmd",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.openpmd_tspf": [
+   [
+    {
+     "param": "<diag_name>.format",
+     "op": "equals",
+     "value": "openpmd",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.openpmd_encoding",
+     "op": "empty",
+     "value": null,
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.buffer_flush_limit_btd": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "BackTransformed",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "equals",
+     "value": "openpmd",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.sensei_config": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "sensei",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.sensei_pin_mesh": [
+   {
+    "param": "<diag_name>.format",
+    "op": "equals",
+    "value": "sensei",
+    "raw": "diag type/format gate"
+   }
+  ],
+  "<diag_name>.plot_raw_fields": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<diag_name>.plot_raw_fields_guards": [
+   [
+    {
+     "param": "<diag_name>.diag_type",
+     "op": "in",
+     "value": "Full TimeAveraged",
+     "raw": "diag type/format gate"
+    },
+    {
+     "param": "<diag_name>.format",
+     "op": "in",
+     "value": "plotfile openpmd ascent sensei catalyst",
+     "raw": "diag type/format gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.species": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "BeamRelevant ColliderRelevant DifferentialLuminosity DifferentialLuminosity2D ParticleExtrema ParticleHistogram ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_number": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_max": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_min": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_number_1": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_max_1": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_min_1": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_number_2": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_max_2": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_min_2": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_number_abs": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_max_abs": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_min_abs": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_number_ord": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_max_ord": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.bin_min_ord": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.histogram_function(t,x,y,z,ux,uy,uz)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.histogram_function_abs(t,x,y,z,ux,uy,uz,w)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.histogram_function_ord(t,x,y,z,ux,uy,uz,w)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.filter_function(t,x,y,z,ux,uy,uz,w)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.value_function(t,x,y,z,ux,uy,uz,w)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.normalization": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ParticleHistogram",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.openpmd_backend": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.file_min_digits": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "DifferentialLuminosity2D ParticleHistogram2D",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.reduction_type": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "FieldReduction",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz,jx,jy,jz)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "FieldReduction",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.weighting_function(x,y,z)": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "ChargeOnEB",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.probe_geometry": [
+   {
+    "param": "<reduced_diags_name>.type",
+    "op": "in",
+    "value": "FieldProbe",
+    "raw": "reduced diag gate"
+   }
+  ],
+  "<reduced_diags_name>.x_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ RCYLINDER RSPHERE",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ RCYLINDER RSPHERE",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ RCYLINDER RSPHERE",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.y_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "3",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "3",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "3",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.z_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.x1_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ RCYLINDER RSPHERE",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.y1_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "3",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.z1_probe": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "geometry.dims",
+     "op": "in",
+     "value": "1 2 3 RZ",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.resolution": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_normal_x": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_normal_y": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_normal_z": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_up_x": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_up_y": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.target_up_z": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.detector_radius": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.integrate": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.interp_order": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<reduced_diags_name>.do_moving_window_FP": [
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Point",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Line",
+     "raw": "reduced diag gate"
+    }
+   ],
+   [
+    {
+     "param": "<reduced_diags_name>.type",
+     "op": "in",
+     "value": "FieldProbe",
+     "raw": "reduced diag gate"
+    },
+    {
+     "param": "<reduced_diags_name>.probe_geometry",
+     "op": "equals",
+     "value": "Plane",
+     "raw": "reduced diag gate"
+    }
+   ]
+  ],
+  "<laser_name>.profile_waist": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.profile_duration": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.profile_t_peak": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.profile_focal_distance": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.zeta": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.beta": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.phi2": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.phi0": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.stc_direction": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "gaussian",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.field_function(X,Y,t)": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "parse_field_function",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.binary_file_name": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "from_file",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.lasy_file_name": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "from_file",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.time_chunk_size": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "from_file",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<laser_name>.delay": [
+   {
+    "param": "<laser_name>.profile",
+    "op": "equals",
+    "value": "from_file",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.B_external_grid": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
+    "op": "equals",
+    "value": "constant",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.E_external_grid": [
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "equals",
+    "value": "constant",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.Bx_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_b_ext_grid_function",
+    "raw": "profile/style gate"
+   },
+   {
+    "param": "geometry.dims",
+    "op": "in",
+    "value": "1 2 3",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.By_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_b_ext_grid_function",
+    "raw": "profile/style gate"
+   },
+   {
+    "param": "geometry.dims",
+    "op": "in",
+    "value": "1 2 3",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.Bz_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_b_ext_grid_function",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.Ex_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_e_ext_grid_function",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.Ey_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_e_ext_grid_function",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.Ez_external_grid_function(x,y,z)": [
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "equals",
+    "value": "parse_e_ext_grid_function",
+    "raw": "profile/style gate"
+   }
+  ],
+  "warpx.read_fields_from_path": [
+   {
+    "param": "warpx.B_ext_grid_init_style",
     "op": "equals",
     "value": "read_from_file",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.maxwellian_u_std_distribution_type": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.maxwellian_temperature_in_eV_distribution_type": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.maxwell_juttner_u_mean_distribution_type": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwell_juttner",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwell_juttner",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.flux_normal_axis": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
+    "raw": "profile/style gate"
    },
+   {
+    "param": "warpx.E_ext_grid_init_style",
+    "op": "equals",
+    "value": "read_from_file",
+    "raw": "profile/style gate"
+   }
+  ],
+  "<species_name>.profile": [
    {
     "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.flux_direction": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
+  "<species_name>.momentum_distribution_type": [
    {
     "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.symmetrization_order": [
-   {
-    "param": "<species_name>.do_symmetrize",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_symmetrize",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_symmetrize",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
+  "<species_name>.xmin": [
    {
     "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_symmetrize",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.gaussian_beam_rotation_axis": [
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
+  "<species_name>.xmax": [
    {
     "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.do_gaussian_beam_rotation",
-    "op": "truthy",
-    "value": null,
-    "raw": "injection"
-   },
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.ymin": [
    {
     "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.ymax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.zmin": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.zmax": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.density_min": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.density_max": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "in",
+    "value": "NUniformPerCell NRandomPerCell",
+    "raw": "selector gate"
    }
   ],
   "<species_name>.num_particles_per_cell_each_dim": [
@@ -13016,169 +15412,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.xmin": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.xmax": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.zmin": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.zmax": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.ymin": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.ymax": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NUniformPerCell",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.num_particles_per_cell": [
@@ -13186,47 +15420,13 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NRandomPerCell",
-    "raw": "injection"
+    "raw": "selector gate"
    },
    {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NRandomPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.flux_profile": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.flux": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.flux_tmin": [
@@ -13234,13 +15434,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.flux_tmax": [
@@ -13248,13 +15442,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.inject_from_embedded_boundary": [
@@ -13262,55 +15450,103 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
-    "raw": "injection"
-   },
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.flux_profile": [
    {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "NFluxPerCell",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
+  ],
+  "<species_name>.surface_flux_pos": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.inject_from_embedded_boundary",
+     "op": "falsy",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.flux_normal_axis": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.inject_from_embedded_boundary",
+     "op": "falsy",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.flux_direction": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.inject_from_embedded_boundary",
+     "op": "falsy",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.flux": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.flux_profile",
+     "op": "equals",
+     "value": "constant",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.flux_function(x,y,z,t)": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.zinject_plane": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.flux_profile",
+     "op": "equals",
+     "value": "parse_flux_function",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.single_particle_pos": [
    {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "SingleParticle",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "singleparticle",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.single_particle_u": [
@@ -13318,13 +15554,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "SingleParticle",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "singleparticle",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.single_particle_weight": [
@@ -13332,13 +15562,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "SingleParticle",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "singleparticle",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_pos_x": [
@@ -13346,13 +15570,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_pos_y": [
@@ -13360,13 +15578,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_pos_z": [
@@ -13374,13 +15586,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_ux": [
@@ -13388,13 +15594,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_uy": [
@@ -13402,13 +15602,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_uz": [
@@ -13416,13 +15610,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.multiple_particles_weight": [
@@ -13430,55 +15618,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "MultipleParticles",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "multipleparticles",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.q_tot": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.npart_real": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.npart": [
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.x_m": [
@@ -13486,13 +15626,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.y_m": [
@@ -13500,13 +15634,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.z_m": [
@@ -13514,13 +15642,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.x_rms": [
@@ -13528,13 +15650,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.y_rms": [
@@ -13542,13 +15658,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.z_rms": [
@@ -13556,13 +15666,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.x_cut": [
@@ -13570,7 +15674,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.y_cut": [
@@ -13578,7 +15682,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.z_cut": [
@@ -13586,7 +15690,23 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.npart": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.npart_real": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "selector gate"
    }
   ],
   "<species_name>.do_symmetrize": [
@@ -13594,7 +15714,15 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.symmetrization_order": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "selector gate"
    }
   ],
   "<species_name>.focal_distance": [
@@ -13602,13 +15730,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.do_gaussian_beam_rotation": [
@@ -13616,13 +15738,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "gaussian_beam",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.do_gaussian_beam_rotation_momenta": [
@@ -13630,21 +15746,47 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "gaussian_beam",
-    "raw": "injection"
+    "raw": "selector gate"
    }
+  ],
+  "<species_name>.gaussian_beam_rotation_angle": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.do_gaussian_beam_rotation",
+     "op": "truthy",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.gaussian_beam_rotation_axis": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.do_gaussian_beam_rotation",
+     "op": "truthy",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.injection_file": [
    {
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "external_file",
-    "raw": "injection"
-   },
-   {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "external_file",
-    "raw": "value gate"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.z_shift": [
@@ -13652,7 +15794,7 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "external_file",
-    "raw": "injection"
+    "raw": "selector gate"
    }
   ],
   "<species_name>.impose_t_lab_from_file": [
@@ -13660,1237 +15802,1571 @@
     "param": "<species_name>.injection_style",
     "op": "equals",
     "value": "external_file",
-    "raw": "injection"
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.profile": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    }
-   ]
+  "<species_name>.q_tot": [
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "gaussian_beam",
+    "raw": "selector gate"
+   },
+   {
+    "param": "<species_name>.injection_style",
+    "op": "equals",
+    "value": "external_file",
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.zinject_plane": [
+   {
+    "param": "particles.rigid_injected_species",
+    "op": "member",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "<species_name>.rigid_advance": [
+   {
+    "param": "particles.rigid_injected_species",
+    "op": "member",
+    "value": null,
+    "raw": "selector gate"
+   }
   ],
   "<species_name>.density": [
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "equals",
      "value": "constant",
-     "raw": "density"
+     "raw": "selector gate"
     }
    ],
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "empty",
      "value": null,
-     "raw": "density"
+     "raw": "selector gate"
     }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.profile",
-    "op": "empty",
-    "value": null,
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.density_max": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.density_min": [
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "constant",
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "empty",
-     "value": null,
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.density_function(x,y,z)": [
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "equals",
      "value": "parse_density_function",
-     "raw": "density"
+     "raw": "selector gate"
     }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "parse_density_function",
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "parse_density_function",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.read_density_from_path": [
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "density"
+     "raw": "selector gate"
     }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.density_mesh_name": [
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "density"
+     "raw": "selector gate"
     }
-   ],
-   [
-    {
-     "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
-    },
-    {
-     "param": "<species_name>.profile",
-     "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
-    }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.read_density_distributed": [
    [
     {
      "param": "<species_name>.injection_style",
-     "op": "equals",
-     "value": "NUniformPerCell",
-     "raw": "density"
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell",
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.profile",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "density"
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.ux": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uy": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uz": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "constant",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.ux_m": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
     }
    ],
    [
     {
      "param": "<species_name>.injection_style",
      "op": "equals",
-     "value": "NRandomPerCell",
-     "raw": "density"
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
     },
     {
-     "param": "<species_name>.profile",
+     "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
-     "value": "read_from_file",
-     "raw": "density"
+     "value": "gaussianflux",
+     "raw": "selector gate"
     }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.ux": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uy": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.uz": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "constant",
-    "raw": "value gate"
-   }
-  ],
-  "<species_name>.ux_min": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.ux_max": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.uy_min": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.uy_max": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.uz_min": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.uz_max": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "uniform",
-    "raw": "momentum"
-   }
-  ],
-  "<species_name>.ux_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.uy_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussianflux",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.uz_m": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussianflux",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.ux_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussianflux",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.uy_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussianflux",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.uz_th": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussianflux",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "gaussian",
-    "raw": "value gate"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "maxwellian",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussian",
+     "raw": "selector gate"
+    }
+   ],
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "equals",
+     "value": "NFluxPerCell",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "gaussianflux",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.ux_min": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.ux_max": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uy_min": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uy_max": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uz_min": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.uz_max": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "uniform",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.momentum_function_ux(x,y,z)": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "parse_momentum_function",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.momentum_function_uy(x,y,z)": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "parse_momentum_function",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.momentum_function_uz(x,y,z)": [
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "momentum"
-   },
-   {
-    "param": "<species_name>.momentum_distribution_type",
-    "op": "equals",
-    "value": "parse_momentum_function",
-    "raw": "value gate"
-   }
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "parse_momentum_function",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.maxwellian_u_mean_distribution_type": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.maxwellian_u_std_distribution_type": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.maxwellian_temperature_in_eV_distribution_type": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.maxwell_juttner_u_mean_distribution_type": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwell_juttner",
+     "raw": "selector gate"
+    }
+   ]
   ],
   "<species_name>.ux_mean": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uy_mean": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uz_mean": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.ux_mean_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uy_mean_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uz_mean_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.read_u_mean_from_path": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_mean_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_u_mean_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.ux_std": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uy_std": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uz_std": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.ux_std_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uy_std_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.uz_std_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_u_std_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
+    }
+   ]
+  ],
+  "<species_name>.read_u_std_from_path": [
+   [
+    {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.momentum_distribution_type",
+     "op": "equals",
+     "value": "maxwellian",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_u_std_distribution_type",
+     "op": "equals",
+     "value": "read_from_file",
+     "raw": "selector gate"
+    },
+    {
+     "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
+     "op": "empty",
+     "value": null,
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.temperature_in_eV": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "constant",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "empty",
      "value": null,
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.temperature_in_eV_function(x,y,z)": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "parser",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ]
   ],
   "<species_name>.read_temperature_in_eV_from_path": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
-   ],
-   {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
-   }
+   ]
   ],
   "<species_name>.temperature_in_eV_mesh_name": [
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwellian",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwellian_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
    ],
    [
     {
+     "param": "<species_name>.injection_style",
+     "op": "in",
+     "value": "NUniformPerCell NRandomPerCell NFluxPerCell gaussian_beam",
+     "raw": "selector gate"
+    },
+    {
      "param": "<species_name>.momentum_distribution_type",
      "op": "equals",
      "value": "maxwell_juttner",
-     "raw": "momentum"
+     "raw": "selector gate"
     },
     {
      "param": "<species_name>.maxwell_juttner_temperature_in_eV_distribution_type",
      "op": "equals",
      "value": "read_from_file",
-     "raw": "momentum"
+     "raw": "selector gate"
     }
-   ],
+   ]
+  ],
+  "boundary.potential_lo_x": [
    {
-    "param": "<species_name>.profile",
-    "op": "equals",
-    "value": "read_from_file",
-    "raw": "value gate"
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.injection_sources": [
+  "boundary.potential_hi_x": [
    {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
    }
   ],
-  "<species_name>.do_continuous_injection": [
+  "boundary.potential_lo_y": [
    {
-    "param": "<species_name>.injection_style",
-    "op": "equals",
-    "value": "NFluxPerCell",
-    "raw": "value gate"
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "boundary.potential_hi_y": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "boundary.potential_lo_z": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "boundary.potential_hi_z": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.self_fields_required_precision": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.self_fields_absolute_tolerance": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.self_fields_max_iters": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.self_fields_verbosity": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.magnetostatic_solver_required_precision": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.magnetostatic_solver_absolute_tolerance": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.magnetostatic_solver_max_iters": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
+   }
+  ],
+  "warpx.magnetostatic_solver_verbosity": [
+   {
+    "param": "warpx.do_electrostatic",
+    "op": "nonempty",
+    "value": null,
+    "raw": "selector gate"
    }
   ]
  },

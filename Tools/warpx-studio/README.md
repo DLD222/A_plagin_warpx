@@ -23,14 +23,18 @@ if (collision_type == CollisionType::PairwiseCoulomb) {
 | `param_sites.json` | 扫 `Source/**`（839 个文件、687 个读取点）得到的：完整键名、读入变量、外层 `if`/`#if` 条件 |
 | `catalog.json` | 合并结果：732 条参数、分区、可重复组、`gating`（运行期条件）、`build_guards`（`#if` 特性） |
 
-统计（2026-11-15）：
+统计（2026-11-19）：
 
 ```
-732 条参数 = 386 文档 + 346 仅源码（fork 自有：hybrid_pic_model.*、psatd.*、<solver_name>.* …）
-136 条带运行期 gating      70 条带 #if 特性守卫
-可重复组：<species_name> 99、<collision_name> 48、<diag_name> 47、
-          <reduced_diags_name> 21、<solver_name> 20、<laser_name> 18
+636 条参数 = 514 文档 + 122 仅源码（碰撞/降维诊断/激光补进来的 source-only 项）
+194 条带运行期 gating（369 条 gating_rules，含"与/或"和 in/member）
+135 条有下拉选项      60 条带 #if 特性守卫
+可重复组：<species_name>、<collision_name>、<diag_name>、
+          <reduced_diags_name>、<solver_name>、<laser_name>
 ```
+
+选择器门控见下一节：每个取值只显示源码真正读取的参数集合，回归在
+`tests/ui_smoke.js`（每个选择器/取值都有"必须出现/必须不出现"断言）。
 
 `build_guards`（如 `#ifdef WARPX_QED`）只作为**提示**展示，不隐藏字段——按你的要求不区分构建特性。
 
@@ -48,8 +52,37 @@ if (collision_type == CollisionType::PairwiseCoulomb) {
 cd ~/WarpX_plugin
 ~/miniconda3/bin/python3 Tools/warpx-studio/warpx_studio/catalog/parse_docs.py      # 文档 → params_docs.json
 ~/miniconda3/bin/python3 Tools/warpx-studio/warpx_studio/catalog/scan_source.py     # 源码 → param_sites.json
-~/miniconda3/bin/python3 Tools/warpx-studio/warpx_studio/catalog/build_catalog.py   # 合并 → catalog.json
+~/miniconda3/bin/python3 Tools/warpx-studio/warpx_studio/catalog/build_catalog.py   # 合并 → catalog.json（会清掉手工规则）
 ```
+
+`build_catalog.py` 只做"文档 + 扫描器"的机械合并；**选择器门控和补进来的
+source-only 参数都在它之后重放**，顺序不能反（`tools_gate_selectors.py` 最后跑，
+它会删掉/覆盖前面脚本留下的同族规则）：
+
+```bash
+python3 Tools/warpx-studio/tools_add_collision_params.py   # 从文档补 <collision_name>.*
+python3 Tools/warpx-studio/tools_gate_values.py            # profile/injection/外场等旧值门控
+python3 Tools/warpx-studio/tools_gate_momentum.py          # momentum 两級联动（历史）
+python3 Tools/warpx-studio/tools_gate_features.py          # 功能开关
+python3 Tools/warpx-studio/tools_gate_collisions.py        # 碰撞 11 种 type + 缺失参数
+python3 Tools/warpx-studio/tools_gate_diags.py             # 诊断 diag_type/format
+python3 Tools/warpx-studio/tools_gate_reduced.py           # 降维诊断 21 种 type
+python3 Tools/warpx-studio/tools_gate_laser_fields.py      # 激光 profile / 外场初始化方式
+python3 Tools/warpx-studio/tools_gate_selectors.py         # species 选择器（最后，覆盖旧规则）
+```
+
+## 选择器门控（2026-11）
+
+`gating_rules` 的语义：一个 dict = 一个条件；**list[dict] = 这些条件"与"**；
+多个规则之间"或"。前端 `ruleSatisfied()` 与 Python `validate._rule_ok()` 都实现了
+`equals/empty/notequals/contains/truthy/falsy/nonempty`，以及新增的：
+
+- `in`：取值属于空格分隔的集合（如 `injection_style ∈ {NUniform, NRandom}`）；
+- `member`：顶层列表包含当前实例名（如 `particles.rigid_injected_species` 含该物种）。
+
+规则按源码写成"这个取值真正读取哪些参数"，而不是"曾经在哪些 if 里出现过"。
+回归测试在 `tests/ui_smoke.js`：每个选择器的每个取值都断言"该出现的出现、
+不该出现的不出现"（species/profile/momentum、碰撞、诊断、降维诊断、激光、外场）。
 
 ## 已知限制（不猜，标出来）
 

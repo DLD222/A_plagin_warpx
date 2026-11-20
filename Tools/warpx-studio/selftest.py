@@ -239,6 +239,10 @@ def run_checks(port: int) -> None:
     check("取值含义说明", len(glossary) >= 10 and
           "标准 FDTD" in glossary.get("algo.maxwell_solver", {}).get("yee", ""),
           f"{len(glossary)} 组取值带中文含义")
+    _coll_gloss = (catalog_payload.get("glossary") or {}).get("<collision_name>.type", {})
+    check("碰撞类型每项都有中文含义", len(_coll_gloss) == 11
+          and all(str(v).strip() for v in _coll_gloss.values()),
+          f"{len(_coll_gloss)} 项：" + "、".join(list(_coll_gloss)[:3]) + " …")
     derived = catalog_payload.get("derived") or {}
     # 只有真正的"别名/废弃项/扫描碎片"才折叠；species_names、lasers.names 这类
     # 用户必须能填的名字不再折叠（之前正是它们被藏起来导致激光/碰撞打不开）
@@ -265,6 +269,17 @@ def run_checks(port: int) -> None:
         n = len(deck.get("amr.n_cell").split())
         check(f"起步模板 {dims}", n == len(deck.get("boundary.field_lo").split()),
               f"n_cell={deck.get('amr.n_cell')!r} boundary 项数={n}")
+    _full = minimal_deck("2d").groups["<diag_name>"]["diag1"]
+    _ff = str(_full.get("fields_to_plot", ""))
+    check("新建项目默认全量 HDF5",
+          _full.get("format") == "openpmd"
+          and _full.get("openpmd_backend") == "h5"
+          and _full.get("intervals") == "1"
+          and _full.get("write_species") == "1"
+          and all(x in _ff for x in ("jx", "divE", "divB", "part_per_cell",
+                                     "rho_electrons", "T_electrons",
+                                     "part_per_cell_electrons")),
+          _ff)
     text = minimal_deck("2d").to_inputs()
     again = Deck.from_inputs(text).to_inputs()
     check("deck 往返", again == text, f"{len(text.splitlines())} 行输入文件可无损往返")
@@ -326,12 +341,69 @@ def run_checks(port: int) -> None:
     errs2 = [i for i in validate(fluxdeck, catalog) if i["severity"] == "error"
              and "profile" in i["param"]]
     check("校验：面注入不误报 profile", not errs2, f"{len(errs2)} 条误报")
+    # 降维诊断（FieldEnergy 等）误写进普通诊断列表：以前只在运行时
+    # "diag_type must be Full, ..." 才 abort，校验要提前拦下并给出正确写法。
+    _bad_diag = Deck.from_inputs(
+        "diagnostics.diags_names = field_energy\n"
+        "field_energy.diag_type = ReducedDiags\n"
+        "field_energy.format = openpmd\n"
+        "field_energy.intervals = 1\n")
+    _diag_errors = [i for i in validate(_bad_diag, catalog)
+                    if i["param"] == "field_energy.diag_type" and i["severity"] == "error"]
+    check("校验：降维诊断误写会被拦", bool(_diag_errors),
+          _diag_errors[0]["message"][:50] if _diag_errors else "未拦下")
     # 回归：amr.restart 填数字必须被拦（2026-11-18 报错 Couldn't open file: 1/WarpXHeader）
     restart_bad = minimal_deck("2d")
     restart_bad.params["amr.restart"] = "1"
     errs3 = [i for i in validate(restart_bad, catalog)
              if i["severity"] == "error" and i["param"] == "amr.restart"]
     check("校验：amr.restart 填数字被拦", bool(errs3), "未拦下")
+    # Maxwellian 的 u_std 与 temperature_in_eV 两支互斥；手写文本同时写两个时
+    # WarpX 在 TemperatureProperties.cpp 里 assert，校验要提前拦下。
+    _conflict = minimal_deck("2d")
+    _conflict.groups["<species_name>"]["electrons"].update({
+        "momentum_distribution_type": "maxwellian",
+        "maxwellian_u_std_distribution_type": "constant",
+        "maxwellian_temperature_in_eV_distribution_type": "constant"})
+    _conflict_errors = [i for i in validate(_conflict, catalog)
+                        if i["severity"] == "error" and "二选一" in i["message"]]
+    check("校验：maxwellian 两个子类型互斥", bool(_conflict_errors),
+          _conflict_errors[0]["message"][:60] if _conflict_errors else "未拦下")
+    # 经典辐射反作用：只有 species_type=electron/positron 且 Boris 才能开
+    _crr = minimal_deck("2d")
+    _crr.groups["<species_name>"]["electrons"]["do_classical_radiation_reaction"] = "1"
+    _crr_errs = [i for i in validate(_crr, catalog)
+                 if i["severity"] == "error" and "经典辐射反作用" in i["message"]]
+    check("校验：辐射反作用只允许轻子", bool(_crr_errs),
+          _crr_errs[0]["message"][:60] if _crr_errs else "未拦下")
+    _crr.groups["<species_name>"]["electrons"]["species_type"] = "electron"
+    _crr.params["algo.particle_pusher"] = "vay"
+    _crr_pusher = [i for i in validate(_crr, catalog)
+                   if i["severity"] == "error" and "Boris" in i["message"]]
+    check("校验：辐射反作用必须 Boris", bool(_crr_pusher),
+          _crr_pusher[0]["message"][:60] if _crr_pusher else "未拦下")
+
+    # 7 页 HDF5 元数据：算例结束后写到 openpmd_*.h5 根属性
+    try:
+        import tempfile as _tempfile
+        import h5py as _h5py
+        from warpx_studio.runner.job import apply_hdf5_metadata as _apply_h5
+        with _tempfile.TemporaryDirectory() as _td:
+            _run = Path(_td)
+            with _h5py.File(_run / "openpmd_000000.h5", "w") as _f:
+                _f.create_dataset("data/0/x", data=[1])
+            _n = _apply_h5(_run, {"author": "A", "nested": {"x": 1},
+                                  "openPMD": "must-not-overwrite"})
+            with _h5py.File(_run / "openpmd_000000.h5", "r") as _f:
+                _attrs = dict(_f.attrs)
+            check("HDF5 元数据写入 .h5 根属性",
+                  _n == 1 and _attrs.get("author") == "A"
+                  and "nested" in _attrs and _attrs.get("openPMD") != "must-not-overwrite",
+                  str(_attrs))
+            check("HDF5 元数据旁路 JSON",
+                  (_run / "hdf5_metadata.json").is_file(), "hdf5_metadata.json")
+    except ImportError as _exc:
+        check("HDF5 元数据写入 .h5 根属性", False, f"跳过：{_exc}")
 
     # 插件求解器与内建求解器平权：选择插件 -> 环境变量，且不写进 inputs
     top = Deck()
@@ -373,11 +445,36 @@ def run_checks(port: int) -> None:
          "<species_name>.profile"),
         ("### ERROR : Injection style string 'uniform_kg' not recognized.",
          "<species_name>.injection_style"),
+        ("### ERROR   : <diag>.diag_type must be Full, TimeAveraged, BackTransformed or",
+         "<diag_name>.diag_type"),
     ]
     for line, expected in cases:
         got = translate_error(line, catalog, sample)
         check(f"报错翻译 → {expected}", bool(got) and got["param"] == expected,
               (got or {}).get("param", "None") + " / " + (got or {}).get("hint", "")[:40])
+    _diag_hint = translate_error(
+        "### ERROR   : <diag>.diag_type must be Full, TimeAveraged, BackTransformed or",
+        catalog, sample)
+    check("报错翻译：降维诊断误写会指向 reduced_diags_names",
+          bool(_diag_hint) and "reduced_diags_names" in (_diag_hint.get("hint") or ""),
+          (_diag_hint or {}).get("hint", "")[:60])
+
+    # 实际运行日志（2026-11-19 用户报的 MPI_ABORT）是：
+    #   ParmParse::sgetarr ParmParse::sgetarr(): electrons..density_function(x,y,z) not found
+    # 报错行给的是 WarpX 期望的 (x,y,z)，用户写的 (x,y) 只在 deck 里。runner/job.py 必须
+    # 抓到这一行，translate_error 必须回查 deck 才能给出"少写坐标"的提示。
+    from warpx_studio.runner.job import Job as _Job
+    _job = _Job(Path("/tmp"), Path("/bin/true"), "")
+    _job._handle_line("ParmParse::sgetarr ParmParse::sgetarr(): "
+                      "electrons..density_function(x,y,z) not found in database")
+    _bad = minimal_deck("2d")
+    _bad.groups["<species_name>"]["electrons"]["profile"] = "parse_density_function"
+    _bad.groups["<species_name>"]["electrons"]["density_function(x,y)"] = "n0"
+    _diag = translate_error(_job.errors[0], catalog, _bad) if _job.errors else None
+    check("运行日志：sgetarr 缺键能捕获并定位到 (x,y)",
+          bool(_diag) and _diag.get("param") == "electrons.density_function(x,y)"
+          and "(x,y,z)" in (_diag.get("hint") or ""),
+          str(_diag))
 
     # ---- structured controls (v2) ---------------------------------------
     from warpx_studio.deck import controls as ctl
@@ -598,6 +695,21 @@ def run_checks(port: int) -> None:
           _slug("B∥轴") != _slug("B⊥轴") and _slug("B∥轴") == "Bpar轴",
           f"{_slug('B∥轴')} vs {_slug('B⊥轴')}")
 
+    # 项目名是自由文本，网页里大量项目叫 "核心28 · nuclear_fusion/inputs_..."
+    # （带 "/"）。Starlette 的 {name} 只匹配一个路径段，%2F 解码后会把 URL 拆成
+    # 多段 → 404；前端拿到 {detail} 后抛异常，于是"点项目完全没反应"。
+    slash_project = "自测/斜杠 " + time.strftime("%H%M%S")
+    status, _ = call(port, "/api/projects", method="POST", payload={
+        "name": slash_project,
+        "deck": {"params": {"max_step": "7", "geometry.dims": "2"}, "groups": {}},
+        "settings": {"mpi": 1}, "inputs": "# slash"})
+    status_get, loaded_slash = call(port, "/api/projects/" + quote(slash_project, safe=""))
+    check("项目名含 / 可打开",
+          status == 200 and status_get == 200 and loaded_slash.get("name") == slash_project,
+          f"GET {status_get}，name={loaded_slash.get('name') if isinstance(loaded_slash, dict) else loaded_slash}")
+    status_del, _ = call(port, "/api/projects/" + quote(slash_project, safe=""), method="DELETE")
+    check("项目名含 / 可删除", status_del == 200, f"DELETE {status_del}")
+
     # ---- checkpoints + restart -----------------------------------------
     _, chks = call(port, "/api/checkpoints")
     have = [c for c in chks["checkpoints"]]
@@ -697,10 +809,13 @@ def run_checks(port: int) -> None:
             v = raw.lower()
             op = r.get("op")
             if op == "truthy": return v in ("1", "true", "t", "yes")
+            if op == "falsy": return v not in ("1", "true", "t", "yes")
             if op == "nonempty": return raw != "" and v != "none"
             if op == "notequals": return v != str(r.get("value") or "").lower()
             if op == "contains": return str(r.get("value") or "").lower() in v
             if op == "empty": return raw == ""
+            if op == "in": return v in str(r.get("value") or "").lower().split()
+            if op == "member": return False   # 这里没有实例上下文；UI 测试覆盖
             return v == str(r.get("value") or "").lower()
 
         return any((all(sat(x) for x in r) if isinstance(r, list) else sat(r)) for r in rs)
@@ -719,10 +834,13 @@ def run_checks(port: int) -> None:
             raw = str(deck.get(r.get("param"), "") or "").replace('"', "").strip(); v = raw.lower()
             op = r.get("op")
             if op == "truthy": return v in ("1", "true", "t", "yes")
+            if op == "falsy": return v not in ("1", "true", "t", "yes")
             if op == "nonempty": return raw != "" and v != "none"
             if op == "notequals": return v != str(r.get("value") or "").lower()
             if op == "contains": return str(r.get("value") or "").lower() in v
             if op == "empty": return raw == ""
+            if op == "in": return v in str(r.get("value") or "").lower().split()
+            if op == "member": return False   # 这里没有实例上下文；UI 测试覆盖
             return v == str(r.get("value") or "").lower()
         return any((all(sat(x) for x in r) if isinstance(r, list) else sat(r)) for r in rs)
     S = "<species_name>."

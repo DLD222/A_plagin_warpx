@@ -21,22 +21,71 @@ STEP_START = re.compile(r"^STEP (\d+) starts")
 STEP_END = re.compile(r"^STEP (\d+) ends\.\s*TIME = (\S+)\s*DT = (\S+)")
 ERROR = re.compile(r"^### ERROR\s*:\s*(.+)$")
 # A required key that is missing is reported *before* the abort, without a "### ERROR"
-# line: `ParmParse::getval(): electrons..profile not found in database`.
-MISSING = re.compile(r"ParmParse::getval\(\):\s*(\S+)\s+not found")
+# line.  Three spellings are seen in practice:
+#   ParmParse::getval(): electrons..profile not found in database
+#   ParmParse::sgetarr ParmParse::sgetarr(): electrons..density_function(x,y,z) not found ...
+#   electrons.profile not found in database
+# The old regex only matched the first, so the UI showed the MPI abort tail instead of
+# the actionable "函数参数表少写坐标" hint for the density_function case.
+MISSING = re.compile(r"(\S+)\s+not found in database")
 ABORT = re.compile(r"amrex::Abort|MPI_ABORT")
+
+# 这些是 openPMD 自己的根属性，用户文本不能覆盖，否则文件不再是合法 openPMD。
+HDF5_RESERVED = {
+    "openPMD", "openPMDextension", "basePath", "meshesPath", "particlesPath",
+    "iterationEncoding", "iterationFormat", "software", "softwareVersion", "date",
+}
+
+
+def apply_hdf5_metadata(run_dir: Path, metadata: dict | None) -> int:
+    """把网页里填的自定义根属性写进本次运行的所有 openpmd_*.h5。
+
+    只写 HDF5 attributes；不创建/修改物理场。写失败只记录，不影响算例状态。
+    """
+    if not isinstance(metadata, dict) or not metadata:
+        return 0
+    attrs = metadata.get("attributes") if isinstance(metadata.get("attributes"), dict) else metadata
+    if not isinstance(attrs, dict) or not attrs:
+        return 0
+    try:
+        import h5py
+    except ImportError:
+        return 0
+    applied = {k: v for k, v in attrs.items()
+               if isinstance(k, str) and k and k not in HDF5_RESERVED}
+    written = 0
+    for path in run_dir.rglob("openpmd_*.h5"):
+        try:
+            with h5py.File(path, "a") as handle:
+                for key, value in applied.items():
+                    if isinstance(value, (str, int, float, bool)):
+                        handle.attrs[key] = value
+                    elif value is not None:
+                        handle.attrs[key] = json.dumps(value, ensure_ascii=False)
+                written += 1
+        except Exception:                              # noqa: BLE001
+            continue
+    try:
+        (run_dir / "hdf5_metadata.json").write_text(
+            json.dumps(applied, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    except OSError:
+        pass
+    return written
 
 
 class Job:
     """A running simulation plus its parsed progress."""
 
     def __init__(self, workdir: Path, binary: Path, inputs: str,
-                 mpi: int = 1, omp: int = 1, max_step: int | None = None) -> None:
+                 mpi: int = 1, omp: int = 1, max_step: int | None = None,
+                 hdf5_metadata: dict | None = None) -> None:
         self.workdir = workdir
         self.binary = binary
         self.inputs_text = inputs
         self.mpi = max(1, mpi)
         self.omp = max(1, omp)
         self.max_step = max_step
+        self.hdf5_metadata = hdf5_metadata
         self.process: subprocess.Popen | None = None
         self.pid: int | None = None
         self.pgid: int | None = None
@@ -139,6 +188,10 @@ class Job:
         except Exception:
             pass
         self.state = "finished" if self.exit_code in (0, None) else "failed"
+        try:
+            apply_hdf5_metadata(self.workdir, self.hdf5_metadata)
+        except Exception as exc:                       # noqa: BLE001
+            self.errors.append(f"HDF5 metadata: {exc}")
         try:
             self.state_path.unlink()
         except OSError:

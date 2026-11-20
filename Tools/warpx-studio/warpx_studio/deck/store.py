@@ -154,6 +154,10 @@ def delete(name: str) -> bool:
     for item in folder.iterdir():
         item.unlink(missing_ok=True)
     folder.rmdir()
+    # 删掉的正是"上次打开"的项目时，别让下次启动去打开一个不存在的名字
+    # （否则页面先弹一次"打开任务失败"再退回起步模板）。
+    if last_opened() == name:
+        LAST.unlink(missing_ok=True)
     return True
 
 

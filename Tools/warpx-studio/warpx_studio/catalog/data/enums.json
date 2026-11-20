@@ -167,14 +167,16 @@
   "<diag_name>.diag_type": [
    "Full",
    "TimeAveraged",
-   "BackTransformed"
+   "BackTransformed",
+   "BoundaryScraping"
   ],
   "<diag_name>.format": [
    "plotfile",
    "openpmd",
    "checkpoint",
    "ascent",
-   "sensei"
+   "sensei",
+   "catalyst"
   ],
   "<diag_name>.openpmd_backend": [
    "h5",
@@ -205,11 +207,6 @@
    "maxwellian",
    "maxwell_juttner",
    "parse_momentum_function"
-  ],
-  "<species_name>.position_initialization": [
-   "standard",
-   "random",
-   "parse_position_function"
   ],
   "boundary.field_lo": [
    "periodic",
@@ -292,13 +289,17 @@
    "1"
   ],
   "<collision_name>.type": [
-   "bremsstrahlung",
+   "pairwisecoulomb",
    "dsmc",
-   "hybrid_resistive_drag",
+   "background_mcc",
+   "background_stopping",
+   "nuclearfusion",
+   "bremsstrahlung",
+   "inverse_bremsstrahlung",
    "linear_breit_wheeler",
    "linear_compton",
-   "nuclearfusion",
-   "pairwisecoulomb"
+   "pulsed_decay",
+   "hybrid_resistive_drag"
   ],
   "<collision_name>.use_global_debye_length": [
    "0",
@@ -482,8 +483,11 @@
    "1"
   ],
   "collisions.shuffling_method": [
-   "0",
-   "1"
+   "none",
+   "fisheryates",
+   "modulus",
+   "standard",
+   "default"
   ],
   "collisions.split_momentum_push": [
    "0",
@@ -837,6 +841,11 @@
    "LoadBalanceEfficiency",
    "RhoMaximum",
    "Timestep"
+  ],
+  "<laser_name>.profile": [
+   "gaussian",
+   "parse_field_function",
+   "from_file"
   ]
  },
  "hints": {
@@ -885,7 +894,7 @@
   "<collision_name>.scattering_processes": "文本",
   "<collision_name>.species": "文本",
   "<collision_name>.start_step": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<collision_name>.type": "可选：bremsstrahlung / dsmc / hybrid_resistive_drag / linear_breit_wheeler / linear_compton / nuclearfusion …",
+  "<collision_name>.type": "11 种碰撞模型，含义：pairwisecoulomb=两体库仑碰撞（ee/ei/ii）；dsmc=直接模拟蒙特卡洛（DSMC）；background_mcc=背景气体蒙特卡洛（MCC）；background_stopping=背景阻止；nuclearfusion=核聚变反应；bremsstrahlung=电子-离子韧致辐射；inverse_bremsstrahlung=逆韧致辐射；linear_breit_wheeler=线性 Breit-Wheeler 对产生；linear_compton=线性 Compton 散射；pulsed_decay=脉冲衰变；hybrid_resistive_drag=混合 PIC 的电阻拖曳",
   "<collision_name>.use_global_debye_length": "可选：0 / 1",
   "<collision_name>.weight_ratio": "单个数值，可写科学计数法（如 1.0e-6）",
   "<diag_name>.<species_name>.additional_variables": "多个名称，用空格分隔（例如 ions electrons）",
@@ -906,7 +915,7 @@
   "<diag_name>.coarsening_ratio": "几个数用空格分隔，个数按维度（二维两个、三维三个）",
   "<diag_name>.diag_hi": "单个数值，可写科学计数法（如 1.0e-6）",
   "<diag_name>.diag_lo": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<diag_name>.diag_type": "含义：Full = 整场快照：每个输出时刻写全场；TimeAveraged = 时间平均场：按窗口平均后输出；BackTransformed = 运动窗口/实验室系变换（适合激光尾场）",
+  "<diag_name>.diag_type": "Full=全场快照；TimeAveraged=时间平均；BackTransformed=背变换/运动窗口；BoundaryScraping=边界刮削粒子统计",
   "<diag_name>.do_back_transformed_fields": "0 = 关闭，1 = 开启（下拉选择）",
   "<diag_name>.do_back_transformed_particles": "0 = 关闭，1 = 开启（下拉选择）",
   "<diag_name>.dt_snapshots_lab": "单个数值，可写科学计数法（如 1.0e-6）",
@@ -965,7 +974,7 @@
   "<laser_name>.phi2": "单个数值，可写科学计数法（如 1.0e-6）",
   "<laser_name>.polarization": "文本",
   "<laser_name>.position": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<laser_name>.profile": "文本",
+  "<laser_name>.profile": "gaussian=高斯包络；parse_field_function=解析场函数；from_file=从文件读场",
   "<laser_name>.profile_duration": "文本",
   "<laser_name>.profile_focal_distance": "文本",
   "<laser_name>.profile_t_peak": "文本",
@@ -1035,7 +1044,7 @@
   "<species_name>.density_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.do_adk_correction": "0 = 关闭，1 = 开启（下拉选择）",
   "<species_name>.do_backward_propagation": "0 = 关闭，1 = 开启（下拉选择）",
-  "<species_name>.do_classical_radiation_reaction": "单个整数",
+  "<species_name>.do_classical_radiation_reaction": "1 = 开启（仅 electron/positron 且 Boris 推进器；离子/中子会 abort）/ 0 = 关闭",
   "<species_name>.do_continuous_injection": "0 = 关闭，1 = 开启（下拉选择）",
   "<species_name>.do_field_ionization": "0 = 关闭，1 = 开启（下拉选择）",
   "<species_name>.do_gaussian_beam_rotation": "0 = 关闭，1 = 开启（下拉选择）",
@@ -1050,7 +1059,7 @@
   "<species_name>.do_splitting": "0 = 关闭，1 = 开启（下拉选择）",
   "<species_name>.do_symmetrize": "0 = 关闭，1 = 开启（下拉选择）",
   "<species_name>.do_temperature_deposition": "0 = 关闭，1 = 开启（下拉选择）",
-  "<species_name>.flux": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.flux": "物理粒子通量 Γ=n·v（m⁻²·s⁻¹）；num_particles_per_cell 只影响宏粒子权重/噪声，不改变物理通量",
   "<species_name>.flux_direction": "文本",
   "<species_name>.flux_normal_axis": "文本",
   "<species_name>.flux_profile": "可选：constant / parse_flux_function",
@@ -1070,7 +1079,7 @@
   "<species_name>.momentum_distribution_type": "含义：at_rest = 静止（动量为 0）；constant = 常数值（ux/uy/uz 给三个方向的分量）；uniform = 均匀分布（用 ux_min/ux_max 等给出每个方向的上下限）；gaussian = 高斯分布（ux_m/uy_m/uz_m 给中心，ux_th/uy_th/uz_th 给热展宽） …",
   "<species_name>.npart": "单个整数",
   "<species_name>.npart_real": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.num_particles_per_cell": "单个整数",
+  "<species_name>.num_particles_per_cell": "每格抽样宏粒子数；NFluxPerCell 时可为小数，只影响权重/噪声；NRandomPerCell 时是每格物理粒子数",
   "<species_name>.num_particles_per_cell_each_dim": "几个数用空格分隔，个数按维度（二维两个、三维三个）",
   "<species_name>.physical_element": "文本",
   "<species_name>.plot_species": "文本或数值，按参数说明填写",
@@ -1109,17 +1118,17 @@
   "<species_name>.surface_flux_pos": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.symmetrization_order": "单个整数",
   "<species_name>.ux": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.ux_m": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.ux_m": "gaussian 分布中心/平均归一化动量 ux_m，无量纲；0.1≈0.1c；与 maxwellian 的 ux_mean 不同",
   "<species_name>.ux_max": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.ux_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.ux_th": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.uy_m": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uy_m": "gaussian 分布中心/平均归一化动量 uy_m，无量纲；0.1≈0.1c；与 maxwellian 的 uy_mean 不同",
   "<species_name>.uy_max": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uy_th": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uz": "单个数值，可写科学计数法（如 1.0e-6）",
-  "<species_name>.uz_m": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uz_m": "gaussian 分布中心/平均归一化动量 uz_m，无量纲；0.1≈0.1c；与 maxwellian 的 uz_mean 不同",
   "<species_name>.uz_max": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uz_min": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uz_th": "单个数值，可写科学计数法（如 1.0e-6）",
@@ -1498,10 +1507,10 @@
   "warpx.break_signals": "文本",
   "warpx.buffer_size": "文本或数值，按参数说明填写",
   "warpx.build_eb_data_per_level": "文本或数值，按参数说明填写",
-  "warpx.cfl": "单个数值，可写科学计数法（如 1.0e-6）",
+  "warpx.cfl": "CFL 系数（无量纲）；电磁显式 dt=cfl·min(dx,dz)/c；示例 0.5；const_dt 优先",
   "warpx.checkpoint_signals": "文本",
   "warpx.compute_max_step_from_btd": "整数；默认 0",
-  "warpx.const_dt": "单个数值，可写科学计数法（如 1.0e-6）",
+  "warpx.const_dt": "固定时间步长 dt（秒）；总时长≈max_step×dt；覆盖 cfl；示例 1.0e-15",
   "warpx.current_centering_nox": "按左侧说明填写",
   "warpx.current_centering_nox/noy/noz": "见说明",
   "warpx.current_centering_noy": "按左侧说明填写",
@@ -1701,17 +1710,17 @@
   "<species_name>.u": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.u_th": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.uniform_stride": "单个整数",
-  "<species_name>.ux_mean": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.ux_mean": "归一化平均动量 ⟨u_x⟩=⟨γv_x/c⟩，无量纲；0.1≈0.1c；不是 kg·m/s/m/s；仅 maxwellian/MJ 的 constant 均值子类型",
   "<species_name>.ux_mean_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
-  "<species_name>.ux_std": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.ux_std": "归一化动量标准差 σ_ux（仅 maxwellian 热展宽），无量纲；0.01≈1%c；不是温度",
   "<species_name>.ux_std_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
-  "<species_name>.uy_mean": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uy_mean": "归一化平均动量 ⟨u_y⟩=⟨γv_y/c⟩，无量纲；0.1≈0.1c；不是 kg·m/s/m/s；仅 maxwellian/MJ 的 constant 均值子类型",
   "<species_name>.uy_mean_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
-  "<species_name>.uy_std": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uy_std": "归一化动量标准差 σ_uy（仅 maxwellian 热展宽），无量纲；0.01≈1%c；不是温度",
   "<species_name>.uy_std_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
-  "<species_name>.uz_mean": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uz_mean": "归一化平均动量 ⟨u_z⟩=⟨γv_z/c⟩，无量纲；0.1≈0.1c；不是 kg·m/s/m/s；仅 maxwellian/MJ 的 constant 均值子类型",
   "<species_name>.uz_mean_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
-  "<species_name>.uz_std": "单个数值，可写科学计数法（如 1.0e-6）",
+  "<species_name>.uz_std": "归一化动量标准差 σ_uz（仅 maxwellian 热展宽），无量纲；0.01≈1%c；不是温度",
   "<species_name>.uz_std_function(x,y,z)": "数学表达式：可用 x y z（及 t）与 sin/cos/exp/sqrt 等",
   "<species_name>.variables": "单个数值，可写科学计数法（如 1.0e-6）",
   "<species_name>.x": "单个数值，可写科学计数法（如 1.0e-6）",
@@ -1764,14 +1773,16 @@
   "<diag_name>.diag_type": {
    "Full": "整场快照：每个输出时刻写全场",
    "TimeAveraged": "时间平均场：按窗口平均后输出",
-   "BackTransformed": "运动窗口/实验室系变换（适合激光尾场）"
+   "BackTransformed": "运动窗口/实验室系变换（适合激光尾场）",
+   "BoundaryScraping": "边界刮削诊断：统计穿过/打在指定边界上的粒子（通常配 openPMD）"
   },
   "<diag_name>.format": {
    "plotfile": "AMReX 原生 plotfile（最快）",
    "checkpoint": "检查点，可用来续算",
    "openpmd": "openPMD（HDF5/BP），ParaView 可读，实时可视化用这个",
    "ascent": "Ascent 原位可视化",
-   "sensei": "Sensei 原位可视化"
+   "sensei": "Sensei 原位可视化",
+   "catalyst": "Catalyst 原位可视化（需要带 Catalyst 的 ParaView）"
   },
   "<diag_name>.openpmd_backend": {
    "h5": "HDF5（单文件，ParaView 直接读）",
@@ -1865,6 +1876,24 @@
    "LoadBalanceEfficiency": "负载均衡效率",
    "RhoMaximum": "电荷密度的最大值（诊断散度误差）",
    "Timestep": "时间步长随时间"
+  },
+  "<collision_name>.type": {
+   "pairwisecoulomb": "两体库仑碰撞（ee/ei/ii）：用 CoulombLog 和可选的能量/动量修正；最常用的库仑弛豫模型",
+   "dsmc": "直接模拟蒙特卡洛（DSMC）：按 scattering_processes 逐个过程抽样弹性/激发/电离/电荷交换，可产生新粒子",
+   "background_mcc": "背景气体蒙特卡洛（MCC）：电子/离子与中性背景碰撞，需要背景密度/温度，可含电离",
+   "background_stopping": "背景阻止：带电粒子在背景物质中的能量损失（stopping power），需 background_type 和背景密度/温度",
+   "nuclearfusion": "核聚变反应：D-T、D-D、D-He3、p-B 等两体聚变，用 product_species 指定产物；本算例的 DTF1/DTF2 就是它",
+   "bremsstrahlung": "电子-离子韧致辐射：碰撞产生光子，需要 Z（1/2/5/6）和光子产物物种",
+   "inverse_bremsstrahlung": "逆韧致辐射：光子被等离子体吸收/电子被加热，用 energy_fraction 控制能量分配",
+   "linear_breit_wheeler": "线性 Breit-Wheeler 对产生：γ+γ → e+ + e−，需要两个光子物种作为入射",
+   "linear_compton": "线性 Compton 散射：γ+e → γ+e，光子与电子/正电子交换能量",
+   "pulsed_decay": "脉冲衰变：不稳定粒子按 decay_rate(x,y,z,t) 衰变并生成产物，用 weight_ratio 控制权重",
+   "hybrid_resistive_drag": "混合 PIC 的电阻拖曳：背景电阻引起的动量/能量交换；没有专属输入参数，由 hybrid 求解器驱动"
+  },
+  "<laser_name>.profile": {
+   "gaussian": "高斯时空包络：需要 profile_waist/duration/t_peak/focal_distance",
+   "parse_field_function": "用表达式给激光场：需要 field_function(X,Y,t)",
+   "from_file": "从文件读激光场：binary_file_name 或 lasy_file_name"
   }
  },
  "derived": {

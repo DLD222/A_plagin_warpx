@@ -36,9 +36,11 @@ CURATED: dict[str, tuple[list[str], str]] = {
                              "docs: field gathering"),
     "algo.em_solver_medium": (["vacuum", "macroscopic"], "docs: EM solver medium"),
     "algo.particle_shape": (["1", "2", "3", "4"], "docs: 1 linear … 4 quartic"),
-    "<diag_name>.diag_type": (["Full", "TimeAveraged", "BackTransformed"],
+    "<diag_name>.diag_type": (["Full", "TimeAveraged", "BackTransformed",
+                               "BoundaryScraping"],
                               "Source: Diagnostics (string compare)"),
-    "<diag_name>.format": (["plotfile", "checkpoint", "openpmd", "ascent", "sensei"],
+    "<diag_name>.format": (["plotfile", "checkpoint", "openpmd", "ascent", "sensei",
+                            "catalyst"],
                            "Source: Diagnostics/FlushFormats"),
     "<diag_name>.openpmd_backend": (["h5", "bp", "json"], "docs: openPMD backend"),
     "<species_name>.injection_style": (
@@ -48,10 +50,15 @@ CURATED: dict[str, tuple[list[str], str]] = {
     "<species_name>.profile": (["constant", "parse_density_function", "read_from_file"],
                                "Source: SpeciesUtils.cpp parseDensity"),
     "<species_name>.momentum_distribution_type": (
-        ["constant", "maxwellian", "maxwell_juttner", "parse_momentum_function",
-         "read_from_file"], "Source: SpeciesUtils.cpp"),
-    "<species_name>.position_initialization": (["standard", "random", "parse_position_function"],
-                                                "docs: particle initialization"),
+        ["at_rest", "constant", "uniform", "gaussian", "gaussianflux", "maxwellian",
+         "maxwell_juttner", "parse_momentum_function"], "Source: SpeciesUtils.cpp"),
+    "<collision_name>.type": (
+        ["pairwisecoulomb", "dsmc", "background_mcc", "background_stopping",
+         "nuclearfusion", "bremsstrahlung", "inverse_bremsstrahlung",
+         "linear_breit_wheeler", "linear_compton", "pulsed_decay",
+         "hybrid_resistive_drag"], "Source: CollisionHandler.cpp dispatch"),
+    "<laser_name>.profile": (["gaussian", "parse_field_function", "from_file"],
+                             "Source: LaserParticleContainer.cpp"),
     "boundary.field_lo": (["periodic", "pml", "absorbing_silver_mueller", "damped", "pec",
                            "pmc", "pec_insulator", "neumann", "open", "none"],
                           "docs: boundary.field_lo/hi bullets"),
@@ -67,10 +74,12 @@ CURATED: dict[str, tuple[list[str], str]] = {
     "algo.macroscopic_sigma_method": (["backwardeuler", "laxwendroff"],
                                       "docs: algo.macroscopic_sigma_method"),
     "algo.em_solver_medium": (["vacuum", "macroscopic"], "docs: EM solver medium"),
-    "warpx.E_ext_grid_init_style": (["none", "constant", "parse_e_ext_grid_function",
-                                     "read_from_file"], "Source: Initialization"),
-    "warpx.B_ext_grid_init_style": (["none", "constant", "parse_b_ext_grid_function",
-                                     "read_from_file"], "Source: Initialization"),
+    "warpx.E_ext_grid_init_style": (["default", "constant", "parse_e_ext_grid_function",
+                                     "read_from_file", "load_from_python"],
+                                    "Source: Initialization/ExternalField.cpp"),
+    "warpx.B_ext_grid_init_style": (["default", "constant", "parse_b_ext_grid_function",
+                                     "read_from_file", "load_from_python", "none"],
+                                    "Source: Initialization/ExternalField.cpp"),
 }
 
 BOOL_LIKE = re.compile(r"\b(bool|boolean|0 or 1|1 or 0)\b", re.I)
@@ -122,7 +131,26 @@ GLOSSARY: dict[str, dict[str, str]] = {
     "<diag_name>.diag_type": {
         "Full": "整场快照：每个输出时刻写全场",
         "TimeAveraged": "时间平均场：按窗口平均后输出",
-        "BackTransformed": "运动窗口/实验室系变换（适合激光尾场）",
+        "BackTransformed": "背变换/运动窗口：适合激光尾场",
+        "BoundaryScraping": "边界刮削：统计穿过/打在指定边界的粒子（常配 openPMD）",
+    },
+    "<collision_name>.type": {
+        "pairwisecoulomb": "两体库仑（ee/ei/ii）；用 CoulombLog，可选能量/动量修正",
+        "dsmc": "DSMC：按 scattering_processes 抽样弹性/激发/电离/电荷交换",
+        "background_mcc": "背景气体 MCC：电子/离子与中性背景碰撞，可含电离",
+        "background_stopping": "背景阻止：带电粒子在背景中的能量损失",
+        "nuclearfusion": "核聚变：D-T / D-D / D-He3 / p-B，生成产物粒子",
+        "bremsstrahlung": "韧致辐射：电子-离子碰撞产生光子",
+        "inverse_bremsstrahlung": "逆韧致辐射：光子被吸收/电子被加热",
+        "linear_breit_wheeler": "线性 Breit-Wheeler：γ+γ → e+ + e−",
+        "linear_compton": "线性 Compton：γ+e → γ+e",
+        "pulsed_decay": "脉冲衰变：不稳定粒子按 decay_rate 衰变",
+        "hybrid_resistive_drag": "混合 PIC 电阻拖曳（无专属输入参数）",
+    },
+    "<laser_name>.profile": {
+        "gaussian": "高斯时空包络：profile_waist/duration/t_peak 等",
+        "parse_field_function": "用 field_function(X,Y,t) 给激光场",
+        "from_file": "从 binary/lasy 文件读激光场",
     },
     "<diag_name>.format": {
         "plotfile": "AMReX 原生 plotfile（最快）",
@@ -130,6 +158,7 @@ GLOSSARY: dict[str, dict[str, str]] = {
         "openpmd": "openPMD（HDF5/BP），ParaView 可读，实时可视化用这个",
         "ascent": "Ascent 原位可视化",
         "sensei": "Sensei 原位可视化",
+        "catalyst": "Catalyst 原位可视化（需带 Catalyst 的 ParaView）",
     },
     "<diag_name>.openpmd_backend": {
         "h5": "HDF5（单文件，ParaView 直接读）",
@@ -155,8 +184,11 @@ GLOSSARY: dict[str, dict[str, str]] = {
         "constant": "常数动量（冷等离子体，速度由 ux/uy/uz 给）",
         "maxwellian": "麦克斯韦分布（给温度）",
         "maxwell_juttner": "相对论麦克斯韦-于特纳分布（高温）",
+        "uniform": "均匀分布（ux_min/ux_max 等）",
+        "gaussian": "高斯分布（ux_m/ux_th 等）",
+        "gaussianflux": "高斯通量（仅 NFluxPerCell）",
+        "at_rest": "静止（动量为 0）",
         "parse_momentum_function": "用表达式给动量（momentum_function_ux…）",
-        "read_from_file": "从文件读动量分布",
     },
     "boundary.field_lo": {
         "periodic": "周期（对应的另一端也必须是周期）",
@@ -218,7 +250,9 @@ STRUCT_HINT = {
     "amr.max_level": "整数：0 = 不加密",
     "max_step": "整数：跑到第几步停",
     "stop_time": "实数（秒）：跑到这个物理时间停",
-    "warpx.cfl": "0–1 之间的实数；越小越稳越慢（常用 0.9–0.99）",
+    "warpx.cfl": "0–1 之间的实数；越小越稳越慢（常用 0.9–0.99）；"
+        "电磁显式 dt=cfl·min(dx,dz)/c；const_dt 优先",
+    "warpx.const_dt": "固定时间步长 dt（秒）；总时长≈max_step×dt；覆盖 cfl；示例 1.0e-15",
     "warpx.verbose": "整数：0 安静 / 1 每步一行 / 2 更详细",
     "boundary.field_lo/hi": "文档把 lo/hi 合成一行；实际要给 boundary.field_lo 和 "
                             "boundary.field_hi 各一行，每维一个：periodic / pml / pec / "
@@ -229,6 +263,24 @@ STRUCT_HINT = {
     "boundary.field_hi": "每维一个（与 field_lo 对应；pml 需两端都是 pml）",
     "boundary.particle_lo": "每维一个：periodic / absorbing / reflecting / thermal / none",
     "boundary.particle_hi": "每维一个：periodic / absorbing / reflecting / thermal / none",
+    "<species_name>.ux_mean": "归一化平均动量 ⟨u_x⟩=⟨γv_x/c⟩，无量纲；0.1≈0.1c；"
+        "不是 kg·m/s/m/s；仅 maxwellian/MJ 的 constant 均值子类型",
+    "<species_name>.uy_mean": "归一化平均动量 ⟨u_y⟩=⟨γv_y/c⟩，无量纲；0.1≈0.1c",
+    "<species_name>.uz_mean": "归一化平均动量 ⟨u_z⟩=⟨γv_z/c⟩，无量纲；0.1≈0.1c",
+    "<species_name>.ux_std": "归一化动量标准差 σ_ux（热展宽），无量纲；0.01≈1%c；"
+        "不是温度，温度分支用 temperature_in_eV",
+    "<species_name>.uy_std": "归一化动量标准差 σ_uy（热展宽），无量纲；0.01≈1%c",
+    "<species_name>.uz_std": "归一化动量标准差 σ_uz（热展宽），无量纲；0.01≈1%c",
+    "<species_name>.ux_m": "gaussian 分布中心/平均归一化动量 ux_m，无量纲；0.1≈0.1c；"
+        "与 maxwellian 的 ux_mean 不同",
+    "<species_name>.uy_m": "gaussian 分布中心/平均归一化动量 uy_m，无量纲；0.1≈0.1c",
+    "<species_name>.uz_m": "gaussian 分布中心/平均归一化动量 uz_m，无量纲；0.1≈0.1c",
+    "<species_name>.flux": "物理粒子通量 Γ=n·v（m^-2 s^-1）；num_particles_per_cell "
+        "只影响宏粒子权重/噪声，不改变物理通量",
+    "<species_name>.num_particles_per_cell": "每格抽样宏粒子数；NFluxPerCell 时可为小数，"
+        "只影响权重/噪声；NRandomPerCell 时是每格物理粒子数",
+    "<species_name>.do_classical_radiation_reaction": "1 = 开启（仅 species_type=electron/positron "
+        "且 Boris 推进器；离子/中子/未指定类型会 abort）/ 0 = 关闭",
 }
 
 # 模板类参数的取值含义（按子键名匹配，对所有实例生效）

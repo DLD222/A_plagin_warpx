@@ -129,15 +129,30 @@ def api_starter(dims: str = "2d"):
 
 @app.get("/api/projects")
 def api_projects():
-    return {"projects": store.list_projects(), "last": store.last_opened()}
+    projects = store.list_projects()
+    last = store.last_opened()
+    # 崩溃/手工删目录/旧版删除逻辑都可能留下过期的 ".last"：别让前端启动时
+    # 去打开一个已经不存在的项目（表现为先报一次"打开任务失败"）。
+    if last and not any(p["name"] == last for p in projects):
+        last = None
+    return {"projects": projects, "last": last}
 
 
-@app.get("/api/projects/{name}")
+# `{name:path}` (not `{name}`) on purpose: a project name is free text and
+# commonly contains "/" (e.g. "核心28 · nuclear_fusion/inputs_test_rz_..."),
+# and Starlette matches `{name}` against one path segment only.  Percent-encoded
+# "%2F" is decoded before routing, so the plain converter 404s on every such
+# project -- which the UI showed as "clicking the project does nothing".
+@app.get("/api/projects/{name:path}")
 def api_project_load(name: str):
     try:
-        return store.load(name)
+        data = store.load(name)
     except FileNotFoundError as exc:
         raise HTTPException(404, f"没有这个项目: {name}") from exc
+    # "上次打开"要跟着"打开"走，而不是只在保存时更新：否则刷新页面总是
+    # 回到最后一个保存过的项目，用户会以为刚才选的项目没生效。
+    store.set_last(name)
+    return data
 
 
 class ProjectPayload(BaseModel):
@@ -157,7 +172,7 @@ def api_project_save(payload: ProjectPayload):
     return {"saved": True, "name": data["name"], "updated": data["updated"]}
 
 
-@app.delete("/api/projects/{name}")
+@app.delete("/api/projects/{name:path}")
 def api_project_delete(name: str):
     return {"deleted": store.delete(name)}
 
@@ -232,8 +247,32 @@ def api_run(payload: RunPayload):
     inputs_text = (payload.inputs_text or "").strip() or deck.to_inputs()
     if payload.inputs_text:
         inputs_text += "\n"
+    # 旧标签页保护：项目文件已经清掉 amr.restart，但浏览器还发来旧文本时，
+    # 不要把算例重新打回一个不兼容的 checkpoint（会 InitFromCheckpoint 失败）。
+    warnings: list[str] = []
+    if payload.inputs_text and payload.project:
+        try:
+            saved = store.load(payload.project)
+            saved_params = (saved.get("deck") or {}).get("params") or {}
+            saved_text = str(saved.get("inputs") or "")
+            if ("amr.restart" in inputs_text
+                    and "amr.restart" not in saved_params
+                    and "amr.restart" not in saved_text):
+                inputs_text = "\n".join(
+                    ln for ln in inputs_text.splitlines()
+                    if not ln.strip().startswith("amr.restart")) + "\n"
+                warnings.append("已忽略页面旧文本中的 amr.restart（项目当前版本已清除）")
+        except Exception:
+            pass
+    hdf5_metadata = None
+    raw_meta = str(deck.get("studio.hdf5_metadata", "") or "").strip()
+    if raw_meta:
+        try:
+            hdf5_metadata = json.loads(raw_meta)
+        except (ValueError, TypeError):
+            hdf5_metadata = None
     job = Job(run_dir, binary, inputs_text, mpi=payload.mpi, omp=payload.omp,
-              max_step=max_step)
+              max_step=max_step, hdf5_metadata=hdf5_metadata)
     job.env_extra = deck.env() if hasattr(deck, "env") else {}
     job.start()
     live = LiveView(run_dir, run_dir / "live.png", payload.live_field,
@@ -242,7 +281,7 @@ def api_run(payload: RunPayload):
     STATE.update({"job": job, "live": live, "run_dir": run_dir, "deck": deck})
     if payload.project:
         store.record_run(payload.project, str(run_dir))
-    return {"run_dir": str(run_dir), "started": True}
+    return {"run_dir": str(run_dir), "started": True, "warnings": warnings}
 
 
 @app.get("/api/status")
